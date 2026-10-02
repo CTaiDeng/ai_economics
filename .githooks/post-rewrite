@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo ".")
+CLEANER="$REPO_ROOT/clean_out_and_pycache.ps1"
+
+clean_stray_pycache() {
+  local cleaner="$CLEANER"
+  if command -v powershell.exe >/dev/null 2>&1; then
+    if command -v cygpath >/dev/null 2>&1; then
+      cleaner=$(cygpath -w "$cleaner")
+    elif command -v wslpath >/dev/null 2>&1; then
+      cleaner=$(wslpath -w "$cleaner")
+    fi
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$cleaner" -SkipOut
+  elif command -v pwsh >/dev/null 2>&1; then
+    pwsh -NoProfile -File "$cleaner" -SkipOut
+  fi
+}
+clean_stray_pycache >/dev/null 2>&1 || true
+exit 0

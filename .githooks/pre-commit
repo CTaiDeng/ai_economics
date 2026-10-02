@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Normalize staged files through the repository pycache governance runner.
+REPO_ROOT=$(git rev-parse --show-toplevel)
+RUNNER="$REPO_ROOT/scripts/pycache_customize/run_python_with_config.ps1"
+NORMALIZER="$REPO_ROOT/scripts/normalize_eol_and_encoding.py"
+
+if command -v pwsh.exe >/dev/null 2>&1; then
+  POWERSHELL=(pwsh.exe -NoProfile -ExecutionPolicy Bypass -File)
+elif command -v pwsh >/dev/null 2>&1; then
+  POWERSHELL=(pwsh -NoProfile -File)
+elif command -v powershell.exe >/dev/null 2>&1; then
+  POWERSHELL=(powershell.exe -NoProfile -ExecutionPolicy Bypass -File)
+else
+  echo "[pre-commit] 未找到 PowerShell，无法执行 pycache 治理启动器。" >&2
+  exit 1
+fi
+
+# Windows PowerShell executables need Windows paths when called from Git Bash/WSL.
+if [[ "${POWERSHELL[0]}" == *.exe ]]; then
+  if command -v cygpath >/dev/null 2>&1; then
+    RUNNER=$(cygpath -w "$RUNNER")
+    NORMALIZER=$(cygpath -w "$NORMALIZER")
+  elif command -v wslpath >/dev/null 2>&1; then
+    RUNNER=$(wslpath -w "$RUNNER")
+    NORMALIZER=$(wslpath -w "$NORMALIZER")
+  fi
+fi
+
+"${POWERSHELL[@]}" "$RUNNER" "$NORMALIZER" --staged || {
+  echo "[pre-commit] 行尾/编码检查未通过。请修复后重试。" >&2
+  exit 1
+}
+
+exit 0

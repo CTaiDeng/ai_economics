@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Git hook: prepare-commit-msg
+# 当提交信息为空或为“update”时，自动调用脚本生成提交信息。
+# 需配合：git config core.hooksPath .githooks
+
+MSG_FILE="$1"
+COMMIT_SOURCE="${2:-}"
+SHA1="${3:-}"
+
+# 仅当存在 API Key 才启用 AI；否则由脚本自行回退
+export GEMINI_API_KEY="${GEMINI_API_KEY-}"
+export GOOGLE_API_KEY="${GOOGLE_API_KEY-}"
+
+# 统一 Python 与子进程编码为 UTF-8，避免中文乱码
+export PYTHONUTF8=1
+export PYTHONIOENCODING=UTF-8
+# 为类 Unix 环境设置 UTF-8 locale（若未显式设置）
+export LC_ALL="${LC_ALL:-C.UTF-8}"
+export LANG="${LANG:-C.UTF-8}"
+
+# 读取消息（去掉注释行与首尾空白）
+if [[ -f "$MSG_FILE" ]]; then
+  # 使用 POSIX 字符类 [[:space:]]，避免 \s 在部分 sed 实现中不可用
+  CONTENT=$(sed '/^#/d' "$MSG_FILE" | tr -d '\r' | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')
+else
+  CONTENT=""
+fi
+
+tolower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
+IS_EMPTY=0; [[ -z "$CONTENT" ]] && IS_EMPTY=1
+IS_UPDATE=0; [[ "$(tolower "$CONTENT")" == "update" ]] && IS_UPDATE=1
+
+# Prefill default placeholder when empty, so editor shows "update"
+if [[ $IS_EMPTY -eq 1 ]]; then
+  printf '%s\n' "update" > "$MSG_FILE"
+  IS_UPDATE=1
+fi
+
+# 仅在空或为“update”时生成
+if [[ $IS_EMPTY -eq 1 || $IS_UPDATE -eq 1 ]]; then
+  # 定位仓库根目录
+  REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo ".")
+  SCRIPT_PATH="$REPO_ROOT/scripts/gen_commit_msg_googleai.py"
+
+# 选择 python 解释器：优先项目本地 .venv（Windows/POSIX），否则回退系统
+if [ -x "$REPO_ROOT/.venv/Scripts/python.exe" ]; then
+  PY="$REPO_ROOT/.venv/Scripts/python.exe"
+elif [ -x "$REPO_ROOT/.venv/bin/python" ]; then
+  PY="$REPO_ROOT/.venv/bin/python"
+elif command -v python3 >/dev/null 2>&1; then
+  PY=python3
+else
+  PY=python
+fi
+
+  if [[ -f "$SCRIPT_PATH" ]]; then
+    # 生成提交信息（默认中文，可通过 COMMIT_MSG_LANG=en 切换英⽂）
+    if OUT=$("$PY" "$SCRIPT_PATH" 2>/dev/null); then
+      # 统一使用 POSIX 空白匹配，兼容各平台 sed
+      OUT_TRIM=$(printf '%s' "$OUT" | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')
+      if [[ -n "$OUT_TRIM" ]]; then
+        printf '%s\n' "$OUT_TRIM" > "$MSG_FILE"
+        exit 0
+      fi
+    fi
+  fi
+  # 回退：若脚本不可⽤或失败，则保持原⽂（若为空则写入占位）
+  # keep previously written placeholder if generator not available/failed
+fi
+
+exit 0

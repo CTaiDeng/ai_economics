@@ -1,0 +1,12 @@
+.venv
+vcpkg
+.pip-cache
+res
+out
+
+**/bin/
+**/obj/
+*.pyc
+__pycache__/
+*.egg-info/
+artifacts

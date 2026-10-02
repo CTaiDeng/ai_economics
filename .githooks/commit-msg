@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# commit-msg hook
+# - Cleans legacy AI suggestion blocks from older workflows
+# - Ensures default message 'update' when the final content is empty
+# - Respects env: GIT_AI_DISABLE=1 to disable
+
+MSG_FILE="$1"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo ".")"
+
+if [ "${GIT_AI_DISABLE:-0}" = "1" ]; then
+  exit 0
+fi
+
+# Resolve Python (prefer project venv)
+if [ -x "$REPO_ROOT/.venv/Scripts/python.exe" ]; then
+  PY="$REPO_ROOT/.venv/Scripts/python.exe"
+elif [ -x "$REPO_ROOT/.venv/bin/python" ]; then
+  PY="$REPO_ROOT/.venv/bin/python"
+elif command -v python3 >/dev/null 2>&1; then
+  PY=python3
+else
+  PY=python
+fi
+
+# Do NOT append AI suggestion here. We only clean up any legacy AI blocks and
+# ensure a default message when empty.
+
+"$PY" - "$MSG_FILE" << 'PY' || true
+import io, sys
+path = sys.argv[1]
+
+def read_lines(p):
+    try:
+        with io.open(p, 'r', encoding='utf-8') as f:
+            return f.readlines()
+    except Exception:
+        return []
+
+def write_lines(p, ls):
+    try:
+        with io.open(p, 'w', encoding='utf-8') as f:
+            f.writelines(ls)
+    except Exception:
+        pass
+
+lines = read_lines(path)
+if not lines:
+    write_lines(path, ["update\n"])  # default when completely empty
+    sys.exit(0)
+
+# Remove any trailing AI suggestion block (commented or plain).
+start = None
+for i, ln in enumerate(lines):
+    s = ln.lstrip()
+    if s.startswith('# AI-SUGGESTION') or s.startswith('AI-SUGGESTION'):
+        start = i
+        # continue to find the last occurrence
+if start is not None:
+    lines = lines[:start]
+
+# If message (without comment lines) is empty -> use 'update'
+content = ''.join([ln for ln in lines if not ln.lstrip().startswith('#')]).strip()
+if not content:
+    write_lines(path, ["update\n"])  # explicit default
+else:
+    # Keep original non-AI content
+    write_lines(path, lines if lines[-1].endswith('\n') else lines + ['\n'])
+PY
+exit 0
