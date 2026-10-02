@@ -43,6 +43,7 @@
 
 ## 3. 本地文献与来源管理
 
+- `README.md` 的“重点文献”中，完整文献标题须使用指向对应本地源文稿的 Markdown 链接并保留加粗，例如 `**[《市场参与的形式系统：参与式分配、能者多得与最小救济的演化机制》](docs/tex/tex1/market_participation_formal_system.tex)**`。保留条目下独立的源文稿、PDF 等入口；新增或调整条目时，核对标题链接目标存在，路径使用相对于仓库根目录的路径与 `/`。
 - 重点文稿中的本地配套文献引用统一收束到 `docs/project_docs/`。展示路径使用相对于仓库根目录的路径，文档链接使用 `/`，不写入个人机器绝对路径或其他仓库路径。
 - 四份专著源文件分别为 `Pub_GFramework_PureMath.tex`、`Pub_GFramework_AppMath_Vol1.tex`、`Pub_GFramework_AppMath_Vol2.tex`、`Pub_GFramework_AppMath_Vol3.tex`，均位于 `docs/project_docs/`；工作笔记位于其 `notebook_tex_v5.2/` 子目录。
 - `docs/project_docs/` 按来源资料维护。改动其正文应属于当前任务范围，并说明本地修订；避免为了修复主文稿而顺带改写来源资料。
