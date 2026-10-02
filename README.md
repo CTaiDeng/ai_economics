@@ -12,7 +12,7 @@
 
 ## 重点文献
 
-**[《市场参与的形式系统：参与式分配、能者多得与最小救济的演化机制》](src\markdown\1790969921625_《市场参与的形式系统》的问题发现与方案建构：认识论价值及其条件边界.md)**，Gao Zheng（高政）。
+**[《市场参与的形式系统：参与式分配、能者多得与最小救济的演化机制》](docs/tex/tex1/market_participation_formal_system.tex)**，Gao Zheng（高政）。
 
 - [TeX 源文稿：docs/tex/tex1/market_participation_formal_system.tex](docs/tex/tex1/market_participation_formal_system.tex)
 - [编译版 PDF](docs/tex/tex1/market_participation_formal_system.pdf)
