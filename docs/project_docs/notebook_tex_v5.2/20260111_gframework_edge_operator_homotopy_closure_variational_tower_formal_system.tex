@@ -1,0 +1,773 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 基本定理环境
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+% 记号（仅用于本笔记自洽引用，避免依赖主稿宏定义）
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\Layer}{\ensuremath{\ell}}
+\newcommand{\Jac}{\operatorname{Jac}}
+\newcommand{\Ob}{\ensuremath{\mathsf{Ob}}}
+\newcommand{\JacGap}{\ensuremath{\mathsf{JacGap}}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\code}[1]{\path{#1}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+\setlength{\emergencystretch}{6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{边缘算子封闭性、比安基基准与变分生成的同伦修复塔\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-01-11}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是单独说明边缘算子、比安基恒等式或变分生成塔，而是在 \GFramework{}
+的修复基础中，把低阶边缘算子、雅可比失配、上同调障碍、同伦塔、Bianchi/Jacobi
+同一性与变分生成组织成一个闭合判定系统。若这些对象分散出现，边缘算子容易只被
+理解为局部微分，变分塔容易只被理解为迭代技巧；本文将它们统一为“什么样的边缘
+结构足以支撑同伦闭合”的问题。
+
+本文的第一层立场是边缘算子的充分性判定。低阶边缘算子如果无法消除三元障碍类，
+就会表现为雅可比失配或上同调失败。引入新边缘算子并不只是增加工具，而是为了
+恢复闭合、吸收障碍，并使系统能够进入更高阶同伦塔。
+
+本文的第二层立场是 Bianchi 与 Jacobi 的统一。交换子恒等式与曲率恒等式在本文中
+被视为同一闭合需求的不同投影：前者偏代数一致性，后者偏几何曲率约束。通过这一
+统一，边缘算子的失败可以被同时理解为代数失配与几何失闭合。
+
+本文的第三层立场是变分塔的生成作用。修复后边缘算子的结构不是一次性指定，而是
+由高阶一致性逐层确定。变分塔给出生成这些高阶边缘修复项的机制，使修复不再只是
+补丁，而是有方向、有层级、有闭合证书的递归过程。
+
+本文的第四层立场是低阶失败的可上升化。低阶 Jacobi 失败并不意味着系统整体不可
+用，而意味着当前层级缺少足够的边缘算子或高阶同伦数据。本文将这种失败上升为
+可修复的障碍类，使其进入更高阶同伦塔，而不是直接判定结构崩溃。
+
+本文的第五层立场是 exactness 的修复语义。当 Jacobiator 可以成为某个边缘算子的
+边界时，它在上同调中被平凡化，低阶严格失败就被高阶同伦吸收。这个过程给出了
+“失败仍可修复”的精确条件，也为后续 JacGap 作为证书型残差提供基础语义。
+
+本文的第六层立场是变分生成的可计算性。高阶边缘算子若只能被抽象声明，就很难服务
+工程系统；本文强调它们可以通过变分泛函、生成规则或递归塔结构被构造。由此，修复
+塔不仅是存在性语言，也是可计算修复方向的来源。
+
+本文的第七层立场是为 \(L_\infty\) 修复塔提供前置骨架。后续更高阶 \(L_\infty\) 算子作为
+同伦修复塔时，需要知道低阶失败如何进入高阶、边缘算子如何被新增、Bianchi/Jacobi
+如何被统一解释。本文正提供这些基础接口。
+
+因此，本文在整体 \GFramework{} 中承担的是“边缘算子闭合与变分修复塔”的基础锚定。
+它向前连接同伦代数与 JacGap，向中间连接上同调障碍、Bianchi/Jacobi 与高阶一致性，
+向后为 \(L_\infty\) 修复塔、语义边缘算子和统计命中中的雅可比间隙提供闭合语义。概括地说，
+本文把“边缘算子是否够用”推进为“能否通过同伦闭合与变分生成塔吸收障碍”的形式系统。
+
+更具体地说，本文把“闭合失败”从错误消息转化为结构诊断。低阶边缘算子不够用时，
+系统不会直接停机，而是得到一个可上升的障碍类；这个障碍类可以请求新边缘算子、
+新变分项或新高阶同伦数据。这样，失败本身变成修复塔的输入。
+
+从方法论上看，本文是 G-Framework 的边界生成稿。边缘算子定义什么是边界，变分塔
+定义如何生成新的边界修复项，Bianchi/Jacobi 统一说明这些边界为何需要闭合。后续
+所有讨论 JacGap、上同调障碍和高阶修复的稿件，都在不同程度上调用了这个边界语义。
+
+从整体谱系看，本文把抽象代数闭合推向可计算修复方向。它既不只停留在“存在高阶
+结构”，也不直接跳到工程算法，而是说明高阶结构如何由变分生成、如何被边缘算子
+组织、如何在同伦塔中逐层消化障碍。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{概览：把“边缘算子是否够用”翻译为同伦代数命题链}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本章定位]
+本章把一条工程直觉命题链，翻译为同伦代数的标准语言，并写成可检验的证明结构：
+\begin{enumerate}
+  \item \textbf{低阶边缘算子不封闭}
+        $\Longleftrightarrow$
+        二元括号的 Jacobi 恒等式失效，出现 Jacobiator（雅可比缺陷）；
+  \item \textbf{引入新的边缘算子后恢复上同调封闭性}
+        $\Longleftrightarrow$
+        Jacobiator 成为 $l_1$-边界（exact），因此在上同调里 Jacobi 严格成立；
+  \item \textbf{“比安基恒等式 $\Rightarrow$ 雅可比恒等式”}
+        $\Longleftrightarrow$
+        在“联络—曲率”的改写下，交换子 Jacobi 与 Bianchi 是同一恒等式的两种表达；
+  \item \textbf{同伦塔揭示修复后的结构}
+        $\Longleftrightarrow$
+        更高阶算子 $(l_3,l_4,\dots)$ 逐层吸收阻碍，形成 $L_\infty$（强同伦李）结构塔；
+  \item \textbf{变分法构成边缘算子的形态}
+        $\Longleftrightarrow$
+        以作用量（尤其 BV/BRST 语境）为生成元，主方程给出 $Q^2=0$，从而“自动”产出满足同伦恒等式的 $(l_n)$。
+\end{enumerate}
+与本仓库中更系统的同伦修复塔论证可对照：
+\code{NoteBook/notebook1/tex12_pub/gframework_linfty_homotopy_repair_formal_system.tex}。\cite{HomotopyRepairTex12}
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{低阶边缘算子：雅可比失配与三元障碍类}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{设定：$(l_1,l_2)$、导子性与 Jacobiator}
+
+\begin{definition}[分级空间与低阶边缘算子]
+设 $V=\bigoplus_{n\in\mathbb{Z}}V^n$ 为 $\mathbb{Z}$-分级向量空间。
+对齐次元素 $x\in V$，记其次数为 $|x|$。
+
+给定两个边缘算子（低阶结构算子）：
+\begin{enumerate}
+  \item $l_1:V\to V$，次数为 $+1$；
+  \item $l_2:\wedge^2 V\to V$，次数为 $0$（分级反对称二元括号）。
+\end{enumerate}
+本章默认 $l_1^2=0$，从而上同调
+\[
+  H(V,l_1):=\ker(l_1)/\mathrm{im}(l_1)
+  \quad\text{可定义。}
+\]
+\end{definition}
+
+\begin{assumption}[$l_1$ 对 $l_2$ 的导子性（兼容性）]
+\label{ass:l1-derivation-l2}
+对任意齐次 $x,y\in V$，有分级导子公式
+\begin{equation}
+\label{eq:l1-derivation}
+  l_1\bigl(l_2(x,y)\bigr)
+  =
+  l_2(l_1x,y)+(-1)^{|x|}\,l_2(x,l_1y).
+\end{equation}
+\end{assumption}
+
+\begin{definition}[Jacobiator（雅可比缺陷）]
+给定 $l_2$，定义其 Jacobiator 为
+\begin{equation}
+\label{eq:jacobiator-def}
+\begin{aligned}
+  J(x,y,z)
+  &:=
+  l_2(l_2(x,y),z)
+  +(-1)^{|x|(|y|+|z|)}\,l_2(l_2(y,z),x)
+  \\
+  &\qquad
+  +(-1)^{|z|(|x|+|y|)}\,l_2(l_2(z,x),y),
+\end{aligned}
+\end{equation}
+其中 $x,y,z$ 均为齐次。
+若 $J\equiv 0$，则称 $l_2$ 严格满足 Jacobi 恒等式（链级严格封闭）；否则称其不封闭。
+\end{definition}
+
+\subsection{命题：Jacobiator 是 $l_1$-闭的（比安基基准）}
+
+\begin{proposition}[Bianchi-闭性：$l_1(J)=0$]
+\label{prop:bianchi-closed-jacobiator}
+在 $l_1^2=0$ 与 Assumption~\ref{ass:l1-derivation-l2} 成立时，对任意齐次 $x,y,z\in V$，有
+\[
+  l_1\bigl(J(x,y,z)\bigr)=0.
+\]
+\end{proposition}
+
+\begin{proof}
+将 $l_1$ 作用到 \eqref{eq:jacobiator-def} 的三项上，并对每一项反复使用导子公式 \eqref{eq:l1-derivation} 展开。
+展开后出现两类项：
+\begin{enumerate}
+  \item $l_2(\,\cdot\,,l_1(\cdot))$ 型项：它们在三项循环求和与分级符号约定下两两抵消；
+  \item $l_2(l_1l_2(\cdot,\cdot),\cdot)$ 型项：继续用 \eqref{eq:l1-derivation} 展开后，剩余项包含 $l_1^2$，由 $l_1^2=0$ 消去。
+\end{enumerate}
+因此 $l_1(J)=0$。
+\end{proof}
+
+\begin{definition}[三元障碍类（上同调中的 Jacobi 失配类）]
+\label{def:jacobiator-class}
+若 $x,y,z\in\ker(l_1)$，则由 Proposition~\ref{prop:bianchi-closed-jacobiator} 得 $J(x,y,z)\in\ker(l_1)$，
+因此可定义其上同调类
+\[
+  [J](x,y,z):=[J(x,y,z)]\in H(V,l_1).
+\]
+称 $[J]$ 为低阶边缘算子 $(l_1,l_2)$ 的\textbf{三元障碍类}：它刻画“Jacobi 失效是否能在上同调层面消去”。
+\end{definition}
+
+\begin{corollary}[拓扑连通口径：相关上同调为零 $\Rightarrow$ 障碍类平凡]
+\label{cor:connectedness-kills-obstruction}
+若在相关次数上 $H(V,l_1)=0$（例如可理解为“无三阶上同调障碍/拓扑连通的占位口径”），
+则对任意 $l_1$-闭的 $x,y,z$ 都有 $[J](x,y,z)=0$。
+\end{corollary}
+
+\begin{proof}
+由 Definition~\ref{def:jacobiator-class}，$[J](x,y,z)\in H(V,l_1)$。
+若该同调群为零，则任何同调类皆为零，结论成立。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{引入新边缘算子：上同调封闭性与障碍修复}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{三元修复算子 $l_3$：把 Jacobiator 变成边界}
+
+\begin{definition}[三元边缘算子（修复算子）]
+给定一个三元边缘算子
+\[
+  l_3:\wedge^3V\to V,
+  \qquad
+  \deg(l_3)=-1.
+\]
+称 $l_3$ 为 $l_2$ 的\textbf{雅可比修复算子}，若对任意 $l_1$-闭的齐次 $x,y,z\in\ker(l_1)$，有
+\begin{equation}
+\label{eq:arity3-repair}
+  J(x,y,z)=l_1\bigl(l_3(x,y,z)\bigr).
+\end{equation}
+\end{definition}
+
+\begin{theorem}[障碍可消 $\Longleftrightarrow$ 存在 $l_3$ 完成修复（上同调封闭性）]
+\label{thm:obstruction-vanish-iff-l3}
+在 Proposition~\ref{prop:bianchi-closed-jacobiator} 的前提下，下列两者等价：
+\begin{enumerate}
+  \item 对任意 $l_1$-闭三元组 $(x,y,z)$，有 $[J](x,y,z)=0$；
+  \item 存在三元边缘算子 $l_3$ 使得修复方程 \eqref{eq:arity3-repair} 对任意 $l_1$-闭 $x,y,z$ 成立。
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+$(2)\Rightarrow(1)$：若 \eqref{eq:arity3-repair} 成立，则 $J(x,y,z)$ 为 $l_1$-边界，故其同调类为零。
+
+$(1)\Rightarrow(2)$：固定任意 $l_1$-闭的齐次 $x,y,z$。
+由 $[J](x,y,z)=0$，存在某个元素 $h(x,y,z)\in V$ 使得 $J(x,y,z)=l_1(h(x,y,z))$。
+令 $l_3(x,y,z):=h(x,y,z)$（对齐次数约定），则 \eqref{eq:arity3-repair} 成立。
+对所有 $l_1$-闭三元组重复该构造即可得到所需 $l_3$。
+\end{proof}
+
+\subsection{推论：修复后上同调中的 Jacobi 恒等式严格成立}
+
+\begin{corollary}[上同调封闭：$H(V,l_1)$ 上诱导出严格李括号]
+\label{cor:cohomology-lie-bracket}
+在 Assumption~\ref{ass:l1-derivation-l2} 与 Theorem~\ref{thm:obstruction-vanish-iff-l3} 的条件下，
+二元括号 $l_2$ 在上同调上诱导出良定义括号
+\[
+  [\![x]\!]\,,[\![y]\!]\ \longmapsto\ [\![l_2(x,y)]\!],
+\]
+并且该诱导括号满足严格 Jacobi 恒等式。
+\end{corollary}
+
+\begin{proof}
+良定义性来自导子性 \eqref{eq:l1-derivation}：改变代表元只会改变一个 $l_1$-边界。
+Jacobi 恒等式在上同调上的成立来自 Theorem~\ref{thm:obstruction-vanish-iff-l3}：
+对 $l_1$-闭输入，Jacobiator $J$ 为 $l_1$-边界，故其同调类为零。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{同伦塔：修复后边缘算子的结构由高阶一致性逐层确定}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{从 $(l_1,l_2,l_3)$ 到 $(l_4,l_5,\dots)$：逐层吸收更高阶阻碍}
+
+\begin{remark}[从“一个 $l_3$”到“一个塔”]
+Theorem~\ref{thm:obstruction-vanish-iff-l3} 只处理了最低阶（$3$ 元）Jacobi 缺陷。
+若要求全体系在同伦意义下完全封闭，则需要更高阶算子 $(l_4,l_5,\dots)$ 逐层吸收更高阶阻碍。
+这正是 $L_\infty$ 结构的“同伦塔”语义：每一层 $l_{n+1}$ 都对应于“上一层连贯性方程的剩余缺陷”。
+\end{remark}
+
+\begin{definition}[$L_\infty$ 的塔式读法（接口化）]
+称一族多线性映射 $\{l_n\}_{n\ge 1}$（其中 $l_1$ 次数 $+1$，$l_n$ 次数 $2-n$）
+构成一个 $L_\infty$ 结构，若其满足全部高阶连贯性方程（可写成余导子 $Q$ 的条件 $Q^2=0$）。
+在该读法下：
+\begin{itemize}
+  \item $l_1$ 给出边界算子；
+  \item $l_2$ 给出二元边缘算子（括号）；
+  \item $l_3$ 吸收 $l_2$ 的 Jacobi 缺陷；
+  \item 更高 $l_n$ 吸收更高阶阻碍项 $\Ob_n$。
+\end{itemize}
+\end{definition}
+
+\begin{proposition}[逐层延拓判据：下一层阻碍为边界当且仅当可引入 $l_{N+1}$]
+\label{prop:extension-obstruction-edge}
+固定一个截断的同伦代数数据 $(V,l_1,\{l_k\}_{2\le k\le N})$，并假设其满足到阶 $N$ 的一致性方程。
+记 $N{+}1$ 阶一致性方程中\emph{不含} $l_{N+1}$ 的剩余项为 $\Ob_{N+1}$。
+则在 $l_1$-闭输入上，存在 $l_{N+1}$ 使得 $N{+}1$ 阶一致性成立的充要条件是
+\[
+  \Ob_{N+1}=-\,l_1(l_{N+1})\qquad(\text{在 }l_1\text{-闭输入上}).
+\]
+因此，“同伦塔揭示结构”可被理解为：$l_{N+1}$ 的形态由 $\Ob_{N+1}$ 的边界原像决定。
+\end{proposition}
+
+\begin{proof}
+这是 $L_\infty$ 连贯性方程的标准“阻碍 = 边界”读法：
+将 $N{+}1$ 阶恒等式整理为“含 $l_{N+1}$ 的项 + 不含 $l_{N+1}$ 的项 = 0”，
+并在 $l_1$-闭输入上消去“某个输入先被 $l_1$ 作用再进入 $l_{N+1}$”的项，即得该判据。
+更系统的推导可对照 \code{NoteBook/notebook1/tex12_pub/gframework_linfty_homotopy_repair_formal_system.tex}
+中的同名延拓命题。\cite{HomotopyRepairTex12}
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Bianchi 与 Jacobi：交换子恒等式与曲率恒等式的同一性}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{lemma}[交换子 Jacobi $\Rightarrow$ Bianchi（经典几何型表述）]
+\label{lem:jacobi-implies-bianchi}
+设 $\{D_i\}$ 为一组算子（可理解为协变导数/联络算子），并定义曲率
+\[
+  F_{ij}:=[D_i,D_j].
+\]
+则交换子的 Jacobi 恒等式
+\[
+  [D_i,[D_j,D_k]]+\text{cyc}=0
+\]
+等价地推出 Bianchi 形式
+\[
+  [D_i,F_{jk}]+[D_j,F_{ki}]+[D_k,F_{ij}]=0.
+\]
+\end{lemma}
+
+\begin{proof}
+将 $F_{jk}=[D_j,D_k]$ 代回 Jacobi 恒等式即可得到。
+\end{proof}
+
+\begin{remark}[“基于 Bianchi 的 Jacobi”在本章的含义]
+Lemma~\ref{lem:jacobi-implies-bianchi} 说明：当边缘算子被解释为“联络/协变导数”时，
+“代数闭合性（Jacobi）”与“曲率一致性（Bianchi）”是同一结构的两种投影。
+在同伦语境中，该对应被推广为“广义 Bianchi”（见下一节）：其内容等价于整套同伦恒等式 $Q^2=0$。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{广义 Bianchi：Maurer--Cartan 曲率与同伦闭合}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[Maurer--Cartan 曲率（$L_\infty$ 口径）]
+给定 $L_\infty$ 数据 $(V,\{l_n\})$。
+对一个元素 $A\in V$（可视为“联络/场”），定义其曲率（或缺陷）为
+\[
+  \mathcal{F}(A):=\sum_{n\ge 1}\frac{1}{n!}\,l_n(A,\dots,A),
+\]
+其零点方程 $\mathcal{F}(A)=0$ 即 Maurer--Cartan 方程。
+\end{definition}
+
+\begin{proposition}[广义 Bianchi 恒等式（接口式）]
+\label{prop:generalized-bianchi}
+若 $\{l_n\}$ 满足 $L_\infty$ 一致性方程（等价于 $Q^2=0$），则对任意 $A$ 有
+\[
+  \sum_{n\ge 0}\frac{1}{n!}\,l_{n+1}(A,\dots,A,\mathcal{F}(A))=0.
+\]
+\end{proposition}
+
+\begin{proof}
+该恒等式是 $Q^2=0$ 在“把 $A$ 视为同一输入反复插入”时的分量展开形式，
+可视为同伦结构中的 Bianchi-闭性陈述：曲率/缺陷在同伦导数下满足循环为零的约束。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{变分法生成边缘算子：BV/BRST 作为形态来源（接口化）}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{主方程 $\Rightarrow Q^2=0$：从作用量到同伦微分}
+
+\begin{definition}[BV 括号与 BV 微分（接口化）]
+设存在一个带奇 Poisson 括号（BV 括号）的分级代数 $(\mathcal{A},\{\cdot,\cdot\}_{BV})$。
+给定作用量（泛函）$S\in\mathcal{A}$，定义算子
+\[
+  Q:=\{S,\cdot\}_{BV}.
+\]
+\end{definition}
+
+\begin{definition}[BV 主方程（Classical master equation）]
+称 $S$ 满足 BV 主方程，若
+\[
+  \{S,S\}_{BV}=0.
+\]
+\end{definition}
+
+\begin{proposition}[主方程 $\Rightarrow Q^2=0$]
+若 $S$ 满足 BV 主方程，则 $Q$ 满足 $Q^2=0$。
+\end{proposition}
+
+\begin{proof}
+由 BV 括号的 Jacobi 恒等式，
+\[
+  Q^2(\cdot)=\{S,\{S,\cdot\}\}
+  =\tfrac12\{\{S,S\},\cdot\},
+\]
+因此当 $\{S,S\}=0$ 时有 $Q^2=0$。
+\end{proof}
+
+\subsection{从 $Q$ 的展开到 $(l_n)$：边缘算子形态的“自动产出”}
+
+\begin{theorem}[变分生成的同伦塔（形式结论）]
+\label{thm:variational-generates-linfty}
+在上述接口下，若 $Q=\{S,\cdot\}_{BV}$ 满足 $Q^2=0$，并且 $Q$ 在某个背景点的泰勒展开存在，
+则其多线性展开系数可以被组织为一族运算 $\{l_n\}_{n\ge 1}$，
+使其满足 $L_\infty$ 的全部一致性方程。
+因此，“变分法构成边缘算子的形态”可被严格读作：
+\[
+  \{S,S\}_{BV}=0 \Longrightarrow Q^2=0 \Longrightarrow (l_1,l_2,l_3,\dots)\ \text{满足同伦 Jacobi/Bianchi。}
+\]
+\end{theorem}
+
+\begin{proof}
+将 $Q$ 作为一个次数 $+1$ 的生成算子，$Q^2=0$ 即给出一组二次关系。
+把这些关系按输入的多重次数分解，得到逐阶一致性方程；
+将每一阶的多线性分量记为 $l_n$，即可得到同伦塔。
+该论证属于 BV/BRST 语境中的标准“主方程 $\Rightarrow$ 代数结构”读法；本章将其作为接口化定理使用。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{结语：障碍修复、拓扑连通与边缘算子结构}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[一句话封口]
+在本章的形式系统中：
+\begin{itemize}
+  \item “不封闭”被编码为三元障碍类 $[J]\neq 0$；
+  \item “引入新边缘算子后封闭”被编码为存在 $l_3$ 使 $J=l_1(l_3)$，从而上同调括号严格满足 Jacobi；
+  \item “比安基基准”对应于 $l_1(J)=0$（缺陷必须是可追踪的闭缺陷）以及其在几何/曲率口径下的等价表达；
+  \item “同伦塔揭示结构”对应于每阶阻碍 $\Ob_{n+1}$ 的边界原像确定了 $l_{n+1}$ 的形态；
+  \item “变分法给出形态”对应于主方程 $\{S,S\}=0$ 强制 $Q^2=0$，从而把 $(l_n)$ 作为展开系数自动产出。
+\end{itemize}
+\end{remark}
+
+\clearpage
+
+\appendix
+
+% ============================================================
+% 附录A：全文标准化形式表达（Jacobi--Bianchi--同伦塔--变分生成）
+% ============================================================
+\section{边缘算子不封闭与上同调障碍修复：Jacobi--Bianchi--同伦塔与变分生成}
+\label{sec:edge-op-cohomology-repair}
+
+\subsection{符号约定（Shuffles 与 Koszul 符号）}
+\label{subsec:edge-op-conventions}
+
+设 $V=\bigoplus_{k\in\mathbb{Z}}V^k$ 为分次向量空间；齐次元 $x\in V$ 的次数记为 $|x|$（上同调次数约定）。
+
+\paragraph{定义 D0（$(i,n-i)$-shuffle 集合）.}
+对 $n\ge 1$ 与 $0\le i\le n$，记
+\[
+\mathrm{Sh}(i,n-i)
+=\bigl\{\sigma\in S_n:\ \sigma(1)<\cdots<\sigma(i),\ \sigma(i+1)<\cdots<\sigma(n)\bigr\}.
+\]
+
+\paragraph{定义 D1（Koszul 符号）.}
+给定齐次元 $(x_1,\dots,x_n)$ 与 $\sigma\in S_n$，定义
+\[
+\chi(\sigma;x_1,\dots,x_n)
+\;:=\;\mathrm{sgn}(\sigma)\cdot (-1)^{\sum_{p<q,\ \sigma(p)>\sigma(q)}|x_p||x_q|}.
+\]
+下文简写为 $\chi(\sigma)$（默认依赖 $(x_1,\dots,x_n)$）。
+
+\subsection{边缘算子不封闭 $\Rightarrow$ 雅可比障碍类}
+\label{subsec:edge-op-jacobi-obstruction}
+
+\paragraph{定义 D2（低阶边缘算子）.}
+称一对多线性算子 $(l_1,l_2)$ 为\emph{低阶边缘算子}，若
+\[
+l_1:V\to V,\quad \deg(l_1)=+1;\qquad
+l_2:\wedge^2 V\to V,\quad \deg(l_2)=0.
+\]
+并假设
+\[
+l_1^2=0.
+\tag{E1}
+\label{eq:E1-diff}
+\]
+于是可定义上同调 $H(V,l_1)$。
+
+\paragraph{定义 D3（导子兼容/Leibniz）.}
+称 $l_1$ 与 $l_2$ \emph{兼容}，若对任意齐次元 $x,y\in V$，
+\[
+l_1\,l_2(x,y)=l_2(l_1x,y)+(-1)^{|x|}l_2(x,l_1y).
+\tag{E2}
+\label{eq:E2-derivation}
+\]
+（旁注：这是 $L_\infty$ 的 $n=2$ 一致性条件。）
+
+\paragraph{定义 D4（Jacobiator/三元障碍）.}
+定义 $l_2$ 的三元缺陷（Jacobiator）为
+\[
+\Ob_3^{(2)}(x_1,x_2,x_3)
+:=\sum_{\sigma\in \mathrm{Sh}(2,1)}\chi(\sigma)\,
+l_2\!\bigl(l_2(x_{\sigma(1)},x_{\sigma(2)}),\,x_{\sigma(3)}\bigr).
+\tag{E3}
+\label{eq:E3-ob3}
+\]
+当 $\Ob_3^{(2)}\equiv 0$ 时，$l_2$ 在链层面满足严格雅可比；一般情形下 $\Ob_3^{(2)}$ 即“边缘算子不封闭”的精确刻画。
+
+\paragraph{命题 P1（障碍是 $l_1$-闭的）.}
+在 \eqref{eq:E1-diff} 与 \eqref{eq:E2-derivation} 前提下，对任意齐次元 $x_1,x_2,x_3$，
+\[
+l_1\Ob_3^{(2)}(x_1,x_2,x_3)
+\;=\;
+\sum_{r=1}^3 (-1)^{|x_1|+\cdots+|x_{r-1}|}\,
+\Ob_3^{(2)}(x_1,\dots,l_1x_r,\dots,x_3).
+\tag{E4}
+\label{eq:E4-ob3-closed}
+\]
+特别地，若 $l_1x_1=l_1x_2=l_1x_3=0$，则 $l_1\Ob_3^{(2)}(x_1,x_2,x_3)=0$。
+
+\paragraph{证明.}
+对 \eqref{eq:E3-ob3} 逐项作用 $l_1$，并对每一项用 \eqref{eq:E2-derivation} 把 $l_1$ 下推到最内层输入；
+再对 $\mathrm{Sh}(2,1)$ 的三项按 Koszul 符号配对整理，可得所有“$l_1$ 作用在内层括号”的项完全改写为“对输入逐个插入 $l_1$”的和，
+得到 \eqref{eq:E4-ob3-closed}。证毕。
+
+\begin{Certificate}[三元障碍类可消（$l_1$-exact）的可检验证书]
+\label{cert:edge-ob3-exact}
+对 $l_1$-闭的齐次元 $x_1,x_2,x_3$，$\Ob_3^{(2)}(x_1,x_2,x_3)$ 定义了上同调类
+\[
+\bigl[\Ob_3^{(2)}(x_1,x_2,x_3)\bigr]\in H(V,l_1).
+\]
+若存在次数 $-1$ 的三线性映射 $B_3:\wedge^3V\to V$ 使得对所有 $l_1$-闭输入
+\[
+l_1 B_3(x_1,x_2,x_3)=-\Ob_3^{(2)}(x_1,x_2,x_3),
+\tag{C1}
+\label{eq:C1-ob3-exact}
+\]
+则该障碍类为零，即 $\bigl[\Ob_3^{(2)}\bigr]=0$（在闭输入上）。
+\end{Certificate}
+
+\begin{Certificate}[收缩同伦给出障碍可消的充分条件（连通/可缩情形）]
+\label{cert:edge-contraction-suffices}
+若存在次数 $-1$ 的线性算子 $h:V\to V$（收缩同伦）与投影 $\pi:V\to H(V,l_1)$ 使得
+\[
+l_1h+hl_1=\mathrm{Id}_V-\iota\pi,
+\tag{C2}
+\label{eq:C2-contraction}
+\]
+其中 $\iota:H(V,l_1)\to V$ 为某个同调代表的嵌入，则对任意 $l_1$-闭输入
+\[
+\Ob_3^{(2)}(x_1,x_2,x_3)=l_1\bigl(-h\,\Ob_3^{(2)}(x_1,x_2,x_3)\bigr),
+\]
+从而 \eqref{eq:C1-ob3-exact} 成立（取 $B_3=-h\circ \Ob_3^{(2)}$ 的“按输入三线性化”的版本）。
+\end{Certificate}
+
+\subsection{引入新边缘算子 $l_3$：上同调障碍修复与 $L_\infty$ 的 $n=3$ 恒等式}
+\label{subsec:edge-op-add-l3}
+
+\paragraph{定义 D5（新边缘算子 $l_3$）.}
+引入三元边缘算子
+\[
+l_3:\wedge^3V\to V,\qquad \deg(l_3)=-1.
+\]
+
+\begin{Certificate}[$n=3$ 的同伦雅可比（亦可视为广义 Bianchi）]
+\label{cert:edge-linfty-n3}
+称 $(l_1,l_2,l_3)$ 满足 $L_\infty$ 的 $n=3$ 一致性条件，若对任意齐次元 $x_1,x_2,x_3$，
+\[
+l_1l_3(x_1,x_2,x_3)
+\;+\;
+\sum_{\sigma\in\mathrm{Sh}(1,2)}\chi(\sigma)\,
+l_3\!\bigl(l_1x_{\sigma(1)},x_{\sigma(2)},x_{\sigma(3)}\bigr)
+\;+\;
+\Ob_3^{(2)}(x_1,x_2,x_3)
+\;=\;0.
+\tag{E5}
+\label{eq:E5-linfty-3}
+\]
+（旁注：这条式子等价于“Jacobiator 在链层面是 $l_1$-边界（并包含输入插入 $l_1$ 的修正项）”。）
+\end{Certificate}
+
+\paragraph{定理 T1（障碍为零 $\Rightarrow$ 存在 $l_3$ 完成修复）.}
+在 \eqref{eq:E1-diff} 与 \eqref{eq:E2-derivation} 前提下，若 Certificate~\ref{cert:edge-ob3-exact} 成立（即闭输入上的障碍类为零），
+则存在 $l_3$ 使得 Certificate~\ref{cert:edge-linfty-n3} 的恒等式 \eqref{eq:E5-linfty-3} 成立。
+并且由 $l_2$ 在 $H(V,l_1)$ 上诱导的括号
+\[
+[a,b]_{H}:=[\,l_2(\tilde a,\tilde b)\,]\quad (\tilde a,\tilde b\ \text{为 }l_1\text{-闭代表})
+\]
+满足严格的分次雅可比恒等式，因此 $H(V,l_1)$ 上得到一个分次李代数结构。
+
+\paragraph{证明.}
+由 Certificate~\ref{cert:edge-ob3-exact} 取 $B_3$，令 $l_3:=B_3$（并按 \eqref{eq:E5-linfty-3} 作一致性延拓），
+则 \eqref{eq:E5-linfty-3} 成立，即 Certificate~\ref{cert:edge-linfty-n3} 成立。
+对 $l_1$-闭代表取上同调类，$\Ob_3^{(2)}$ 为 $l_1$-边界，从而诱导括号满足严格雅可比。证毕。
+
+\subsection{同伦塔（Homotopy Tower）：逐层障碍与逐层修复}
+\label{subsec:edge-op-homotopy-tower}
+
+\paragraph{定义 D6（对 $n$ 线性算子的 $\delta$-边界算子）.}
+对次数为 $2-n$ 的 $n$ 线性映射 $f:\wedge^nV\to V$，定义
+\[
+(\delta f)(x_1,\dots,x_n)
+:=
+l_1 f(x_1,\dots,x_n)
+\;+\;
+\sum_{r=1}^n (-1)^{|x_1|+\cdots+|x_{r-1}|}\,
+f(x_1,\dots,l_1x_r,\dots,x_n).
+\tag{E6}
+\label{eq:E6-delta}
+\]
+（旁注：这就是“只看 $l_1$ 时”的链复形边界算子在多线性层面的提升。）
+
+\paragraph{定义 D7（第 $n$ 阶障碍 $\Ob_n$ 的递推定义）.}
+假设已构造 $l_1,\dots,l_{n-1}$，且每个 $l_k:\wedge^kV\to V$ 满足 $\deg(l_k)=2-k$。
+定义第 $n$ 阶障碍（仅由低于 $n$ 阶算子拼出）为
+\[
+\Ob_n(x_1,\dots,x_n)
+:=
+\sum_{\substack{i+j=n+1\\ 2\le i,j\le n-1}}
+\ \sum_{\sigma\in\mathrm{Sh}(i,n-i)}
+\chi(\sigma)\,(-1)^{i(j-1)}\,
+l_j\!\bigl(l_i(x_{\sigma(1)},\dots,x_{\sigma(i)}),x_{\sigma(i+1)},\dots,x_{\sigma(n)}\bigr).
+\tag{E7}
+\label{eq:E7-obn-rec}
+\]
+于是第 $n$ 阶一致性可被写成一条“线性层级方程”
+\[
+\delta l_n \;+\;\Ob_n \;=\;0.
+\tag{E8}
+\label{eq:E8-level-n}
+\]
+
+\begin{Certificate}[归纳假设：到 $n-1$ 阶的一致性]
+\label{cert:edge-tower-ih}
+假设对所有 $m\le n-1$，下式成立：
+\[
+\sum_{i+j=m+1}\ \sum_{\sigma\in\mathrm{Sh}(i,m-i)}
+\chi(\sigma)\,(-1)^{i(j-1)}\,
+l_j\!\bigl(l_i(x_{\sigma(1)},\dots,x_{\sigma(i)}),x_{\sigma(i+1)},\dots,x_{\sigma(m)}\bigr)=0.
+\tag{IH$_{m}$}
+\label{eq:IH-m}
+\]
+（旁注：这就是“同伦塔已封闭到 $n-1$ 层”。）
+\end{Certificate}
+
+\begin{Certificate}[第 $n$ 阶障碍是 $\delta$-闭的（从而给出障碍上同调类）]
+\label{cert:edge-obn-closed}
+在 Certificate~\ref{cert:edge-tower-ih} 前提下，有
+\[
+\delta \Ob_n = 0.
+\tag{C4a}
+\label{eq:C4a-obn-closed}
+\]
+特别地，对 $l_1$-闭输入，$\Ob_n(x_1,\dots,x_n)$ 是 $l_1$-闭元，从而定义障碍类 $[\Ob_n]\in H(V,l_1)$。
+\end{Certificate}
+
+\begin{Certificate}[第 $n$ 阶可修复条件（障碍可消：$\delta$-exact）]
+\label{cert:edge-obn-exact}
+若存在次数 $2-n$ 的 $n$ 线性映射 $B_n:\wedge^nV\to V$ 使得
+\[
+\delta B_n = -\Ob_n,
+\tag{C4b}
+\label{eq:C4b-obn-exact}
+\]
+则可取 $l_n:=B_n$ 使得层级方程 \eqref{eq:E8-level-n} 成立，从而第 $n$ 阶一致性被修复。
+\end{Certificate}
+
+\paragraph{定理 T2（逐层修复：从 $n-1$ 到 $n$ 的纯调用证书）.}
+在 Certificate~\ref{cert:edge-tower-ih} 前提下，若 Certificate~\ref{cert:edge-obn-exact} 成立，
+则存在 $l_n$ 使得第 $n$ 阶一致性 \eqref{eq:E8-level-n} 成立；从而同伦塔从 $(l_1,\dots,l_{n-1})$ 延拓到 $(l_1,\dots,l_n)$。
+
+\paragraph{证明.}
+由 Certificate~\ref{cert:edge-obn-exact} 取 $l_n:=B_n$，立即得到 \eqref{eq:E8-level-n}。证毕。
+
+\paragraph{归纳模板（把“修复”写成两条可复用规则）.}
+对每个 $n\ge 3$，重复使用如下两条规则即可：
+\[
+\textbf{(R1)}\ \ \text{由 Certificate~\ref{cert:edge-tower-ih} 得 }\delta\Ob_n=0\ \ (\text{Certificate~\ref{cert:edge-obn-closed}}),
+\]
+\[
+\textbf{(R2)}\ \ \text{若能给出 }\delta B_n=-\Ob_n\ \ (\text{Certificate~\ref{cert:edge-obn-exact}})\ \text{，则取 }l_n:=B_n\
+  \text{完成修复（Theorem T2）}.
+\]
+
+\subsection{Jacobi 与 Bianchi：同一一致性的两种表述}
+\label{subsec:edge-op-jacobi-bianchi}
+
+\paragraph{定义 D8（算子视角：联络与曲率）.}
+设 $\{D_i\}$ 为一族算子，定义曲率
+\[
+F_{ij}:=[D_i,D_j].
+\]
+
+\paragraph{引理 L1（Jacobi $\Rightarrow$ Bianchi）.}
+交换子满足雅可比恒等式
+\[
+[D_i,[D_j,D_k]]+\text{cyc}(i,j,k)=0
+\]
+当且仅当曲率满足 Bianchi 形式
+\[
+[D_i,F_{jk}] + [D_j,F_{ki}] + [D_k,F_{ij}] = 0.
+\tag{E9}
+\label{eq:E9-bianchi}
+\]
+
+\paragraph{证明.}
+将 $F_{jk}=[D_j,D_k]$ 代入雅可比恒等式即可得到 \eqref{eq:E9-bianchi}；反向同理。证毕。
+
+\paragraph{说明（$L_\infty$ 语境下的“广义 Bianchi”）.}
+式 \eqref{eq:E5-linfty-3} 可视为 \eqref{eq:E9-bianchi} 的同伦推广：
+当 $l_2$ 的严格雅可比不成立时，$l_3$ 给出“以边界方式成立”的广义 Bianchi/广义雅可比，
+从而保证上同调层面严格封闭。
+
+\subsection{变分法生成边缘算子：主方程 $\Rightarrow$ $Q^2=0$ $\Rightarrow$ 同伦塔}
+\label{subsec:edge-op-variational}
+
+\begin{Certificate}[BV 主方程作为可检验封闭证书]
+\label{cert:edge-bv-master}
+在 BV 形式中，若存在作用量/泛函 $S$ 与 BV 括号 $\{\cdot,\cdot\}$ 使得
+\[
+\{S,S\}=0,
+\tag{C5}
+\label{eq:C5-master}
+\]
+则定义次数 $+1$ 的导子
+\[
+Q:=\{S,\cdot\}
+\]
+满足 $Q^2=0$。
+\end{Certificate}
+
+\paragraph{定理 T3（“变分法构成边缘算子的形态”）.}
+在 Certificate~\ref{cert:edge-bv-master} 前提下，将 $Q$ 在某个背景点做多阶展开，其 Taylor 系数给出一族多线性算子 $\{l_n\}_{n\ge 1}$
+（次数满足 $\deg(l_n)=2-n$），并自动满足全部 $L_\infty$ 一致性条件（可用 Theorem T2 的归纳模板逐层读出）。
+因此边缘算子族的具体形态可由变分主方程统一生成，而同伦塔的封闭性由 $Q^2=0$ 直接保证。
+
+\paragraph{证明.}
+由 \eqref{eq:C5-master} 得 $Q^2=\{S,\{S,\cdot\}\}=\tfrac12\{\{S,S\},\cdot\}=0$。
+将 $Q$ 视为余导子/高阶导出括号的生成元，其展开系数满足的全部二次约束等价于 $Q^2=0$ 的分量方程，
+从而得到 $L_\infty$ 的一切恒等式（亦可按 Theorem T2 的归纳模板逐层读出）。证毕。
+
+\clearpage
+
+\renewcommand{\refname}{\texorpdfstring{参考文献}{References}}
+\begin{thebibliography}{99}
+
+\bibitem{HomotopyRepairTex12}
+\GFramework 工作笔记：
+\emph{在 G-Framework 中：更高阶 $L_\infty$ 算子作为同伦修复塔}
+（\code{NoteBook/notebook1/tex12_pub/gframework_linfty_homotopy_repair_formal_system.tex}；比安基基准、JacGap 证书封闭与同伦塔等）。
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

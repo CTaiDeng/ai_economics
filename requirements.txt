@@ -1,0 +1,6 @@
+# Workspace Python dependencies
+# Keep the environment lean and intentionally versioned.
+# Add project runtime packages here as they are introduced.
+
+# Required by scripts/setup_python_env.ps1 for requirements validation.
+packaging==25.0

@@ -1,0 +1,17 @@
+{
+  "runtime_paths": {
+    "workspace_root": "../..",
+    "pycache_prefix": "out/pycache"
+  },
+  "python": {
+    "executable": ".venv/Scripts/python.exe",
+    "required_version": "3.13.7"
+  },
+  "requirements": {
+    "path": "requirements.txt"
+  },
+  "policy": {
+    "allow_external_prefix": false,
+    "create_prefix": true
+  }
+}

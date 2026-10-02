@@ -1,0 +1,7415 @@
+% !TEX program = pdflatex
+% 约定：本工作笔记主稿统一使用 pdflatex 编译。
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\Path}{\operatorname{Path}}
+\newcommand{\Supp}{\operatorname{Supp}}
+\newcommand{\NF}{\operatorname{NF}}
+\newcommand{\Tw}{\operatorname{Tw}}
+\newcommand{\PT}{\operatorname{PT}}
+\newcommand{\Bia}{\operatorname{Bia}}
+\newcommand{\Jac}{\operatorname{Jac}}
+\newcommand{\Obs}{\operatorname{Obs}}
+\newcommand{\Lift}{\operatorname{Lift}}
+\newcommand{\Act}{\mathcal{S}}
+\newcommand{\id}{\mathrm{id}}
+
+\setlength{\emergencystretch}{6em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{离散拓扑基底上的 Jacobi--Bianchi 障碍修复、\\可行路径空间、离散路径积分与终点正规形\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-03-15}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是孤立地给出一组 Jacobi--Bianchi 障碍、修复塔、路径积分或终点正规形
+术语，而是在 \GFramework{} 的整体脉络中，把三阶障碍、语义约束、有限修复、
+可行路径空间、离散路径积分支撑类、同伦扭曲正规形、超限原型投影与工程截断规范
+组织成一条可追踪的形式链条。若这些对象分散出现，它们容易只表现为若干互相呼应的
+同调、几何与算法比喻；本文将其压合为一个可以定义、可以递归修复、可以路径编码、
+可以选出正规代表、可以投影到有限算力实现的离散障碍修复形式系统。
+
+本文的第一层立场是障碍对象的三阶化。Jacobi 失配与 Bianchi 缺陷都不是任意坏点，
+而是三元相容性或曲率上边缘失败在三阶上同调中的表现。本文因此把障碍写成
+\[
+  \Jac_n(A_n)=[\Bia_n(A_n)]\in H^3(X_n;V_n),
+\]
+并把“是否可修复”转化为该障碍类是否可由同伦扭曲数据边界化的问题。这一写法承接
+\cite{RepoTex6JacobiGap,GaoZheng2025GFramework} 的 Jacobi 障碍接口，也使后文的
+修复塔、路径支撑类与终端正规形拥有共同的三阶判定锚点。
+
+本文的第二层立场是修复塔的有限化与证书化。修复不被视为一次性局部补丁，而被写成
+一列带严格下降量的递归层
+\[
+  (X_n,A_n)\xrightarrow{R_n}(X_{n+1},A_{n+1}).
+\]
+只要活跃缺陷计数 \(\mu_n\) 在每个非终端层严格下降，修复塔便在有限步后到达零障碍
+终端层。由此，本文把“障碍可修复”从直觉性判断改写为“缺陷计数严格下降 + 数学归纳
+法有限终止”的证书结构，这与仓内修复塔模板 \cite{RepoTex31RepairTower} 的口径一致。
+
+本文的第三层立场是路径空间的合法化。离散基底上的所有路径并不都具有同等求解意义；
+只有满足语义约束、端点条件、障碍修复要求与终端正规化条件的路径，才进入本文的
+可行路径空间。于是，路径不再只是从源点到目标点的 combinatorial walk，而是携带
+修复证书、同伦扭曲数据与终端缺陷状态的对象。这个层级区分避免把“存在路径”误写为
+“存在可证明的修复路径”，也为后续统计力学命中与有限工程规范型提供可审计输入。
+
+本文的第四层立场是离散路径积分的支撑类化。本文不把路径积分理解为连续物理积分的
+直接移植，而是把它降级为有限路径族上的权重聚合与支撑类选择。路径权重可以表达
+修复代价、语义合法性、障碍下降与终点缺陷状态；路径积分的核心作用不是神秘地生成
+解，而是在可行路径空间中识别唯一最优支撑类。由此，离散路径积分成为修复塔到终点
+正规形之间的选类机制。
+
+本文的第五层立场是终点正规形的代表化。Bianchi 恒等式在本文中不是无条件回推到
+原始未修复表示上的逐点恒真，而是在修复塔终端零障碍层、经过同伦扭曲正规化之后，
+对终端代表成立。换言之，本文证明的是
+\[
+  \text{修复塔终止}
+  \Longrightarrow
+  \text{终端零障碍代表}
+  \Longrightarrow
+  \Bia_{\mathrm{term}}=0,
+\]
+而不是声称原始离散连接样数据已经天然满足所有 Jacobi--Bianchi 相容性。这个区分
+使“正规形”承担精确角色：它是修复后的证书代表，不是对原始缺陷的遮蔽。
+
+本文的第六层立场是超限原型与有限工程规范型的分层。超限修复语言用于表达理论上可
+持续展开的障碍吸收与极限层拼接；有限工程规范型则用于在有限算力、有限层数与有限
+审计预算下给出可执行投影。二者不是互相否定的关系，而是原型层与实现层的关系：
+超限结构提供完整修复空间的语义背景，有限截断提供当前可验证的证书路径。本文因此
+把“无限修复想象”压缩为“有限层投影/截断法则 + 启用前检查链”。
+
+本文的第七层立场是局部最优、全局最优与高阶提升障碍的分离。局部停滞不自动等于
+真正陷阱，有限预算下的全局最优也不自动等于完整理论全局最优。本文把这些层级分别
+写成局部路径、终端支撑类、提升障碍与高阶修复条件，避免把“当前最优代表”误写成
+“无条件全局终局”。这一路径承接
+\cite{RepoTex29TransfiniteRepair,RepoTex32ConditionalConvergence,RepoTex36HomotopyTwistBijection}
+的可提升性、超限修复与终端编码口径。
+
+本文的第八层立场是为后续 \GFramework{} 主链提供障碍修复接口。后续关于开放异构
+系统、统计晶格同伦隧穿、高阶正交确定性收敛与 PDE 求解范式替代的稿件，都需要
+一个更早的结构事实：障碍必须先能被写成可定位的同调缺陷，并能通过修复塔、路径
+支撑类与正规形代表给出闭合证书。本文提供的 Jacobi--Bianchi 障碍类、有限修复塔、
+可行路径空间与终点正规形，正是这条主链的离散同调修复底座。
+
+因此，本文在整体 \GFramework{} 中承担的是“离散障碍修复与终端正规形锚定”作用。
+它向前连接语义规范化、Jacobi 间隙、纤维丛路径语言与修复塔模板，向中间连接
+三阶障碍、严格下降、路径支撑类与终端零缺陷代表，向后连接微观隧穿命中、有限工程
+规范型、统计修复与 PDE 残差求解范式。本文所说的修复不是静态补丁，而是一条从
+障碍定位、递归下降、路径合法化、支撑类选择到正规形闭合的证书链。
+
+概括地说，本文把 \GFramework{} 中“障碍如何从离散失闭合走向可审计正规形”这一
+问题，从叙事性直觉推进为 Jacobi--Bianchi 三阶障碍、有限修复塔、离散路径积分、
+终点正规形与有限工程投影共同构成的形式系统。它提供的不是单一技巧，而是一条由
+障碍类、修复步、路径类、权重选类、终端代表与证书闭合组成的方法论主干。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：离散拓扑基底上的 Jacobi--Bianchi 障碍修复，从修复塔到终点正规形}
+\label{sec:tex38-ch1}
+\label{chap:tex38-main}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑写作约定与本节主张}
+\label{sec:tex38-convention}
+
+\begin{remark}[写作约定]
+本节统一采用“形式逻辑 + 证书”体例，并执行如下约定：
+\begin{enumerate}
+  \item \textbf{公理降级：}凡需要固定为基础递推接口的强陈述，统一写成“公理（降级为定理）”，并附数学归纳法证书；
+  \item \textbf{定理/引理/命题/推论：}每条编号断言都配套“证书 + 证明（基于数学符号推演逻辑的谓词因果链）”；
+  \item \textbf{备注：}仅承担语义澄清、边界说明与引文对齐，不承担证明义务；
+  \item \textbf{节编号：}全部依赖 \LaTeX{} 自动生成，不手工输入“第几节/第几个小节”。
+\end{enumerate}
+\end{remark}
+
+\begin{remark}[严格主张]
+本节可严格证明的结论是：
+对一个带有 Jacobi--Bianchi 障碍的离散拓扑基底，若沿语义约束执行有限步修复塔并在终端零障碍层选取同伦扭曲正规形代表，
+则存在一条闭合的形式链条
+\[
+  \text{修复塔}
+  \Longrightarrow
+  \text{可行路径空间}
+  \Longrightarrow
+  \text{离散路径积分的唯一最优支撑类}
+  \Longrightarrow
+  \text{终点正规形}.
+\]
+在该终点正规形所对应的\textbf{终端零障碍代表}上，离散 Bianchi 缺陷精确为零；因此 Bianchi 恒等式是在\textbf{修复后的正规形代表}上成立，而不是无条件回推为原始未修复表示的逐点恒真。
+\end{remark}
+
+\begin{remark}[仓内文稿与外部参照]
+本节的写法风格参考仓内的接口化工作笔记与证书稿：
+\cite{RepoTex20SemanticGaugeNormalization,RepoTex31RepairTower,RepoTex32ConditionalConvergence,
+  RepoTex36HomotopyTwistBijection,RepoTex6JacobiGap,GaoZheng2025GFramework,GaoZhengAppVol3}。
+其中：
+\begin{enumerate}
+  \item \cite{RepoTex20SemanticGaugeNormalization} 提供“语义约束/判定+规范化”的最小接口；
+  \item \cite{RepoTex31RepairTower} 给出“修复塔 + 严格单调量 + 有限终止”的证书模板；
+  \item \cite{RepoTex32ConditionalConvergence} 给出“障碍量、同伦扭曲、势函数与收敛”的证书模板；
+  \item \cite{RepoTex36HomotopyTwistBijection} 给出“纤维终点空间、路径积分支撑类与同伦扭曲正规形”的显式双射模板；
+  \item \cite{RepoTex6JacobiGap,GaoZheng2025GFramework} 给出“Jacobi 障碍类落在 $H^3$ 并可由同伦数据边界化”的最小接口。
+\end{enumerate}
+外部标准背景可参照 \cite{Hatcher2002AT,KobayashiNomizu1963Foundations,Husemoller1994FibreBundles}。
+\end{remark}
+
+\subsection{对象域：离散基底、语义约束与 Jacobi--Bianchi 障碍}
+\label{sec:tex38-objects}
+
+\begin{definition}[离散拓扑基底与端点]
+设
+\[
+  X_0
+\]
+为一个有限、连通的单纯复形，固定两个顶点
+\[
+  s,t\in X_0^{(0)}.
+\]
+称 $X_0$ 为本节的\emph{离散拓扑基底}，称 $s$、$t$ 分别为源端点与目标端点。
+\end{definition}
+
+\begin{definition}[语义约束族]
+设
+\[
+  \Sigma=\{F_i\}_{i\in I}
+  \qquad
+  \bigl(F_i:\mathcal{D}_{\mathrm{loc}}\to\{0,1\}\bigr)
+\]
+为一族局部判定算子，其中 $\mathcal{D}_{\mathrm{loc}}$ 表示局部离散连接数据、局部重写数据与局部证书字段的总空间。
+若对某组局部数据 $d\in\mathcal{D}_{\mathrm{loc}}$ 与任意 $i\in I$ 都有 $F_i(d)=1$，则称 $d$ 满足\emph{语义约束} $\Sigma$。
+\end{definition}
+
+\begin{definition}[离散连接样数据、曲率与 Bianchi 缺陷]
+对每个层级 $n\in\NN$，设 $X_n$ 为有限连通单纯复形，$A_n$ 为 $X_n$ 上的一组离散连接样数据。
+记其离散曲率 $2$-余链为
+\[
+  \Omega_n=\Omega(A_n)\in C^2(X_n;V_n),
+\]
+记其离散协变上边缘算子为
+\[
+  D_{A_n}:C^2(X_n;V_n)\to C^3(X_n;V_n).
+\]
+定义\emph{离散 Bianchi 缺陷}为
+\[
+  \Bia_n(A_n):=D_{A_n}\Omega_n\in C^3(X_n;V_n).
+\]
+当 $\Bia_n(A_n)=0$ 时，称 $A_n$ 满足该层级上的离散 Bianchi 恒等式。
+\end{definition}
+
+\begin{definition}[Jacobi--Bianchi 障碍类]
+把 $\Bia_n(A_n)$ 的上同调类定义为
+\[
+  \Jac_n(A_n):=[\Bia_n(A_n)]\in H^3(X_n;V_n),
+\]
+并称之为第 $n$ 层的\emph{Jacobi--Bianchi 障碍类}。
+它记录“离散 Jacobi 失配/离散 Bianchi 失配”在三阶上同调中的不可约部分。
+\end{definition}
+
+\begin{remark}[为何障碍类落在三阶]
+Jacobi 失配是三元相容性失败；离散 Bianchi 缺陷是曲率 $2$-余链经协变上边缘后得到的 $3$-余链。
+因此其第一自然落点都是三阶上同调，正与仓内关于 Jacobiator-gap 的最小接口 \cite{RepoTex6JacobiGap,GaoZheng2025GFramework} 一致。
+\end{remark}
+
+\begin{definition}[同伦扭曲与零缺陷正规化]
+给定 $H_n\in C^2(X_n;V_n)$，定义与 $H_n$ 关联的同伦扭曲算子
+\[
+  \Tw_{H_n}(A_n),
+\]
+其满足
+\[
+  \Bia_n\bigl(\Tw_{H_n}(A_n)\bigr)
+  =
+  \Bia_n(A_n)-D_{A_n}H_n.
+\]
+若 $\Jac_n(A_n)=0$，则存在 $H_n$ 使
+\[
+  D_{A_n}H_n=\Bia_n(A_n),
+\]
+于是
+\[
+  \Bia_n\bigl(\Tw_{H_n}(A_n)\bigr)=0.
+\]
+此时称 $\NF_n(A_n):=\Tw_{H_n}(A_n)$ 为该层级的\emph{零缺陷正规形代表}。
+\end{definition}
+
+\noindent\textbf{定义（活跃障碍生成元与缺陷计数）}。
+对每个层级 $n$，取一个有限集合
+\[
+\mathcal{G}_n=\{g_{n,1},\dots,g_{n,m_n}\}\subseteq H^3(X_n;V_n),
+\]
+其元素生成全部活跃局部 Jacobi--Bianchi 障碍所张成的子空间。
+定义 $\mu_n:=m_n\in\NN$。
+称 $\mu_n$ 为第 $n$ 层的缺陷计数。
+当 $\mu_n=0$ 时，表示该层级不存在活跃三阶障碍生成元。
+
+\subsection{公理（降级为定理）：修复塔的可构造性、严格下降与有限终止}
+\label{sec:tex38-tower}
+
+\begin{theorem}[公理（降级为定理）：有限步修复塔存在且缺陷计数严格下降]
+\label{thm:tex38-axiom-downgrade}
+设初始层为 $(X_0,A_0)$，并假定以下\textbf{局部修复证书接口}成立：
+
+对任意 $n\in\NN$，若 $\mu_n>0$，则存在一个修复步
+\[
+  (X_n,A_n)\xrightarrow{\,R_n\,}(X_{n+1},A_{n+1}),
+\]
+满足：
+\begin{enumerate}
+  \item $X_{n+1}$ 仍为有限连通单纯复形，且源端点与目标端点仍位于同一连通分支；
+  \item 沿修复步传播后的局部数据继续满足语义约束 $\Sigma$；
+  \item 缺陷计数严格下降：
+  \[
+    \mu_{n+1}\le \mu_n-1.
+  \]
+\end{enumerate}
+则对任意整数 $N$ 满足 $0\le N\le \mu_0$，存在一个 $N$ 层修复塔
+\[
+  (X_0,A_0)\xrightarrow{R_0}(X_1,A_1)\xrightarrow{R_1}\cdots\xrightarrow{R_{N-1}}(X_N,A_N),
+\]
+并且
+\[
+  \mu_N\le \mu_0-N.
+\]
+特别地，存在某个终端层级 $N_\ast\le \mu_0$ 使
+\[
+  \mu_{N_\ast}=0.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按层数 $N$ 的修复塔谓词]
+\label{cert:tex38-axiom-downgrade}
+定义谓词
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \text{存在长度为 $N$ 的修复塔，且其末层满足 }\mu_N\le \mu_0-N.
+\]
+证书分两部分：
+\begin{enumerate}
+  \item \textbf{基础步 $P(0)$：}零层塔只包含初始层 $(X_0,A_0)$，结论退化为 $\mu_0\le\mu_0$；
+  \item \textbf{归纳步 $P(N)\Rightarrow P(N+1)$：}若 $\mu_N>0$，调用局部修复证书接口得到一步修复并使缺陷计数至少下降 $1$；若 $\mu_N=0$，则塔已经终止，无需继续下降。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+对 $N$ 做数学归纳。
+
+\textbf{基础步：}当 $N=0$ 时，只取零层塔
+\[
+  (X_0,A_0).
+\]
+于是
+\[
+  \mu_0\le \mu_0-0,
+\]
+故 $P(0)$ 成立。
+
+\textbf{归纳步：}设 $P(N)$ 成立。即存在长度为 $N$ 的修复塔，且末层满足
+\[
+  \mu_N\le \mu_0-N.
+\]
+若 $\mu_N=0$，则已经得到终端零障碍层，此时自然有
+\[
+  \mu_N=0\le \mu_0-(N+1)+1,
+\]
+塔在 $N$ 层处停止即可；特别地，终止性已得到。
+
+若 $\mu_N>0$，则由局部修复证书接口，存在一步修复
+\[
+  (X_N,A_N)\xrightarrow{R_N}(X_{N+1},A_{N+1})
+\]
+满足
+\[
+  \mu_{N+1}\le \mu_N-1.
+\]
+与归纳假设联立，得到
+\[
+  \mu_{N+1}
+  \le
+  (\mu_0-N)-1
+  =
+  \mu_0-(N+1).
+\]
+故 $P(N+1)$ 成立。
+
+由数学归纳法，$P(N)$ 对全部 $0\le N\le \mu_0$ 成立。代入 $N=\mu_0$，得
+\[
+  \mu_{\mu_0}\le \mu_0-\mu_0=0.
+\]
+而 $\mu_{\mu_0}\in\NN$，故
+\[
+  \mu_{\mu_0}=0.
+\]
+因此存在某个终端层级 $N_\ast\le \mu_0$ 使 $\mu_{N_\ast}=0$。定理成立。
+\end{proof}
+
+\begin{remark}[与仓内既有证书的对齐]
+定理~\ref{thm:tex38-axiom-downgrade} 的形式骨架与 \cite{RepoTex31RepairTower} 中“严格单调修复必有限终止”的证书口径一致；
+其差别仅在于：本节把单调量具体改写为三阶 Jacobi--Bianchi 障碍生成元的个数。
+\end{remark}
+
+\subsection{引理：终端零障碍层给出可行路径空间}
+\label{sec:tex38-path}
+
+\begin{lemma}[终端零障碍层存在零缺陷正规形，并导出非空可行路径空间]
+\label{lem:tex38-admissible-path}
+设 $N_\ast$ 为定理~\ref{thm:tex38-axiom-downgrade} 给出的一个终端层级，满足 $\mu_{N_\ast}=0$。
+则存在终端层的零缺陷正规形代表
+\[
+  A_{N_\ast}^{\mathrm{nf}}:=\NF_{N_\ast}(A_{N_\ast})
+\]
+使
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+\]
+进一步，可行简单路径集合
+\[
+  \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)
+\]
+非空。
+\end{lemma}
+
+\begin{Certificate}[证书：零障碍类 $\Rightarrow$ 零缺陷代表 + 连通性 $\Rightarrow$ 路径存在]
+\label{cert:tex38-admissible-path}
+证书包含两步：
+\begin{enumerate}
+  \item 由 $\mu_{N_\ast}=0$，全部活跃障碍生成元消失，故
+  \[
+    \Jac_{N_\ast}(A_{N_\ast})=[\Bia_{N_\ast}(A_{N_\ast})]=0.
+  \]
+  于是存在 $H_{N_\ast}\in C^2(X_{N_\ast};V_{N_\ast})$ 使
+  \[
+    D_{A_{N_\ast}}H_{N_\ast}=\Bia_{N_\ast}(A_{N_\ast}),
+  \]
+  从而经同伦扭曲得到零缺陷代表；
+  \item 由修复塔保持连通性，$s$ 与 $t$ 在 $X_{N_\ast}$ 中仍连通；又由于零缺陷正规形在每个局部星邻域上满足语义约束 $\Sigma$，故至少存在一条可行简单路径。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex38-admissible-path} 的第一步，
+\[
+  \Jac_{N_\ast}(A_{N_\ast})=0
+  \Longrightarrow
+  [\Bia_{N_\ast}(A_{N_\ast})]=0.
+\]
+按上同调零类的定义，存在 $H_{N_\ast}\in C^2(X_{N_\ast};V_{N_\ast})$ 使
+\[
+  D_{A_{N_\ast}}H_{N_\ast}=\Bia_{N_\ast}(A_{N_\ast}).
+\]
+于是同伦扭曲公式给出
+\[
+  \Bia_{N_\ast}\bigl(\Tw_{H_{N_\ast}}(A_{N_\ast})\bigr)
+  =
+  \Bia_{N_\ast}(A_{N_\ast})-D_{A_{N_\ast}}H_{N_\ast}
+  =
+  0.
+\]
+令
+\[
+  A_{N_\ast}^{\mathrm{nf}}:=\Tw_{H_{N_\ast}}(A_{N_\ast}),
+\]
+便得到零缺陷正规形代表。
+
+再由证书~\ref{cert:tex38-admissible-path} 的第二步，$X_{N_\ast}$ 连通，故存在至少一条从 $s$ 到 $t$ 的简单边路径。
+又因为修复塔逐层保持语义约束 $\Sigma$，而零缺陷正规形 $A_{N_\ast}^{\mathrm{nf}}$ 在终端层消除了活跃三阶缺陷，
+所以这条简单路径经过的局部星邻域都满足可行性条件，从而属于
+\[
+  \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t).
+\]
+因此
+\[
+  \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing.
+\]
+引理成立。
+\end{proof}
+
+\begin{remark}[本引理的作用]
+引理~\ref{lem:tex38-admissible-path} 把“修复塔终止”从障碍消失的静态叙述，推进到了“可行路径空间非空”的动态叙述。
+这是后文定义离散路径积分与最优路径选择的真正入口。
+\end{remark}
+
+\subsection{命题：纤维终点、路径积分支撑类与同伦扭曲正规形的显式双射}
+\label{sec:tex38-bijection}
+
+\begin{definition}[终端层的离散纤维传输系统]
+在终端零缺陷层 $(X_{N_\ast},A_{N_\ast}^{\mathrm{nf}})$ 上，固定一族非空纤维
+\[
+  \{P_v\}_{v\in X_{N_\ast}^{(0)}},
+\]
+并对每条可行有向边 $e:u\to v$ 指定一个双射
+\[
+  T_e:P_u\to P_v.
+\]
+对任意可行简单路径
+\[
+  \gamma=e_m*\cdots*e_1\in \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t),
+\]
+定义其传输终点映射
+\[
+  \PT(\gamma):=T_{e_m}\circ\cdots\circ T_{e_1}(p_s)\in P_t,
+\]
+其中 $p_s\in P_s$ 为固定起始纤维点。
+定义终端纤维终点空间
+\[
+  \mathcal{F}_{N_\ast}(s,t):=\operatorname{Im}(\PT)\subseteq P_t.
+\]
+\end{definition}
+
+\begin{definition}[路径积分支撑类与正规化截面]
+在 $\mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)$ 上定义等价关系
+\[
+  \gamma_1\sim \gamma_2
+  \quad:\Longleftrightarrow\quad
+  \PT(\gamma_1)=\PT(\gamma_2).
+\]
+其商集记为
+\[
+  \Pi_{N_\ast}(s,t):=
+  \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)\big/\sim,
+\]
+称为\emph{终端路径积分支撑类集合}。
+
+再在全部可行简单路径上固定一个全序，并令
+\[
+  q:\mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)\to \Pi_{N_\ast}(s,t)
+\]
+为自然商映射。定义\emph{同伦扭曲正规化截面}
+\[
+  \NF_{N_\ast}:\Pi_{N_\ast}(s,t)\to \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)
+\]
+为每个支撑类中按该全序选出的最小代表。其像集记为
+\[
+  \mathcal{T}_{N_\ast}(s,t):=\operatorname{Im}(\NF_{N_\ast}),
+\]
+称为\emph{终端同伦扭曲正规形集合}。
+\end{definition}
+
+\begin{proposition}[终端层三重编码双射]
+\label{prop:tex38-bijection}
+在上述设定下，存在显式双射链
+\[
+  \mathcal{F}_{N_\ast}(s,t)
+  \cong_{\mathrm{set}}
+  \Pi_{N_\ast}(s,t)
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{N_\ast}(s,t).
+\]
+因此，终端纤维终点、终端路径积分支撑类与终端同伦扭曲正规形只是同一可行解数据的三种编码。
+\end{proposition}
+
+\begin{Certificate}[证书：因子化双射 + 规范化截面双射]
+\label{cert:tex38-bijection}
+证书包含两段：
+\begin{enumerate}
+  \item 传输终点映射 $\PT$ 对等价关系 $\sim$ 常值，因此唯一因子化为
+  \[
+    \overline{\PT}:\Pi_{N_\ast}(s,t)\to \mathcal{F}_{N_\ast}(s,t),
+    \qquad
+    [\gamma]\mapsto \PT(\gamma);
+  \]
+  并且按定义它是双射；
+  \item 由 $q\circ \NF_{N_\ast}=\id_{\Pi_{N_\ast}(s,t)}$，截面 $\NF_{N_\ast}$ 在其像集
+  $\mathcal{T}_{N_\ast}(s,t)$ 上是双射。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+先证第一条双射。
+若 $[\gamma_1]=[\gamma_2]$，则按等价关系定义有
+\[
+  \PT(\gamma_1)=\PT(\gamma_2),
+\]
+故映射
+\[
+  \overline{\PT}([\gamma]):=\PT(\gamma)
+\]
+良定义。
+
+\textbf{满射性：}
+由 $\mathcal{F}_{N_\ast}(s,t)=\operatorname{Im}(\PT)$ 的定义，任意
+\[
+  y\in \mathcal{F}_{N_\ast}(s,t)
+\]
+都可写为 $y=\PT(\gamma)$，于是
+\[
+  \overline{\PT}([\gamma])=y.
+\]
+
+\textbf{单射性：}
+若
+\[
+  \overline{\PT}([\gamma_1])=\overline{\PT}([\gamma_2]),
+\]
+则
+\[
+  \PT(\gamma_1)=\PT(\gamma_2).
+\]
+按 $\sim$ 的定义得
+\[
+  \gamma_1\sim\gamma_2,
+\]
+故
+\[
+  [\gamma_1]=[\gamma_2].
+\]
+于是 $\overline{\PT}$ 为双射。
+
+再证第二条双射。
+由正规化截面的定义，
+\[
+  q\circ \NF_{N_\ast}
+  =
+  \id_{\Pi_{N_\ast}(s,t)}.
+\]
+因此对任意 $[\gamma]\in \Pi_{N_\ast}(s,t)$，
+\[
+  q\bigl(\NF_{N_\ast}([\gamma])\bigr)=[\gamma].
+\]
+这表明 $\NF_{N_\ast}$ 把每个支撑类送到其唯一选定的正规形代表。
+若
+\[
+  \NF_{N_\ast}([\gamma_1])=\NF_{N_\ast}([\gamma_2]),
+\]
+两边同时作用 $q$，得到
+\[
+  [\gamma_1]=[\gamma_2],
+\]
+故 $\NF_{N_\ast}$ 在其像集上单射；而其像集正是 $\mathcal{T}_{N_\ast}(s,t)$，故又显然满射。
+于是
+\[
+  \NF_{N_\ast}:\Pi_{N_\ast}(s,t)\to \mathcal{T}_{N_\ast}(s,t)
+\]
+为双射。
+
+两条双射复合即得
+\[
+  \mathcal{F}_{N_\ast}(s,t)
+  \cong_{\mathrm{set}}
+  \Pi_{N_\ast}(s,t)
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{N_\ast}(s,t).
+\]
+命题成立。
+\end{proof}
+
+\begin{remark}[与仓内既有整理稿的对齐]
+命题~\ref{prop:tex38-bijection} 在离散设置下重写了 \cite{RepoTex36HomotopyTwistBijection} 的核心三重双射：
+区别只在于本节把主丛联络的连续路径，换成了终端零障碍层上的可行简单边路径；
+逻辑骨架仍是“终点编码 = 支撑类编码 = 正规形编码”。
+\end{remark}
+
+\subsection{定理：离散路径积分在低温极限集中到唯一最优路径类}
+\label{sec:tex38-optimal}
+
+\begin{definition}[主作用量、严格化作用量与离散路径积分]
+由于 $\mathcal{T}_{N_\ast}(s,t)$ 是有限集，先给定一个主作用量
+\[
+  E:\mathcal{T}_{N_\ast}(s,t)\to\RR.
+\]
+再令
+\[
+  \Lambda:\mathcal{T}_{N_\ast}(s,t)\to\{1,2,\dots,M\}
+\]
+为与正规化全序兼容的秩函数，其中 $M:=|\mathcal{T}_{N_\ast}(s,t)|$。
+
+若 $E$ 非常值，定义最小正间距
+\[
+  \Delta_{\min}:=
+  \min\bigl\{|E(\tau)-E(\tau')|:E(\tau)\neq E(\tau')\bigr\}>0.
+\]
+选取
+\[
+  0<\varepsilon<\frac{\Delta_{\min}}{M+1},
+\]
+并定义严格化作用量
+\[
+  \Phi(\tau):=E(\tau)+\varepsilon\,\Lambda(\tau).
+\]
+若 $E$ 为常值，则直接定义
+\[
+  \Phi(\tau):=\Lambda(\tau).
+\]
+
+对每个逆温参数 $\beta>0$，定义离散路径积分分配函数
+\[
+  Z_\beta:=
+  \sum_{\tau\in \mathcal{T}_{N_\ast}(s,t)}
+  e^{-\beta\Phi(\tau)},
+\]
+以及对应的 Gibbs 权重
+\[
+  P_\beta(\tau):=
+  \frac{e^{-\beta\Phi(\tau)}}{Z_\beta}.
+\]
+\end{definition}
+
+\begin{theorem}[低温极限下的唯一最优路径类集中]
+\label{thm:tex38-optimal}
+在定义如上之下，严格化作用量 $\Phi$ 存在唯一极小元
+\[
+  \tau^\ast\in \mathcal{T}_{N_\ast}(s,t).
+\]
+并且当 $\beta\to+\infty$ 时，
+\[
+  P_\beta(\tau^\ast)\to 1,
+  \qquad
+  P_\beta(\tau)\to 0\quad(\tau\neq\tau^\ast).
+\]
+等价地，若把
+\[
+  [\gamma^\ast]:=\NF_{N_\ast}^{-1}(\tau^\ast)\in \Pi_{N_\ast}(s,t)
+\]
+记为对应的终端最优支撑类，则离散路径积分在低温极限集中到唯一最优路径类 $[\gamma^\ast]$。
+\end{theorem}
+
+\begin{Certificate}[证书：有限集上唯一极小元 + 指数比值塌缩]
+\label{cert:tex38-optimal}
+证书分两段：
+\begin{enumerate}
+  \item 由于 $\mathcal{T}_{N_\ast}(s,t)$ 有限，严格化作用量 $\Phi$ 必存在极小元；
+  由 $\varepsilon\,\Lambda$ 的严格打破并列作用，可保证极小元唯一；
+  \item 对任意 $\tau\neq\tau^\ast$，记
+  \[
+    \Delta_\tau:=\Phi(\tau)-\Phi(\tau^\ast)>0,
+  \]
+  则有
+  \[
+    \frac{P_\beta(\tau)}{P_\beta(\tau^\ast)}=e^{-\beta\Delta_\tau}\to 0
+    \qquad(\beta\to+\infty).
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+先证极小元唯一。
+由于 $\mathcal{T}_{N_\ast}(s,t)$ 有限，函数 $\Phi$ 在其上必取到最小值。
+
+若 $E$ 非常值，则对任意满足 $E(\tau)\neq E(\tau')$ 的两点，按 $\varepsilon$ 的选取有
+\[
+  \varepsilon |\Lambda(\tau)-\Lambda(\tau')|
+  \le
+  \varepsilon M
+  <
+  \Delta_{\min}.
+\]
+因此 $\varepsilon \Lambda$ 不会改变主作用量 $E$ 的先后次序，只会在 $E$ 相等时按秩函数 $\Lambda$ 打破平局。
+于是 $\Phi$ 的极小元唯一。
+
+若 $E$ 为常值，则 $\Phi=\Lambda$，而 $\Lambda$ 本身严格递增，故其极小元也唯一。
+统一记该唯一极小元为 $\tau^\ast$。
+
+接着证低温极限集中。
+对任意 $\tau\neq\tau^\ast$，定义
+\[
+  \Delta_\tau:=\Phi(\tau)-\Phi(\tau^\ast)>0.
+\]
+则
+\[
+  e^{-\beta\Phi(\tau)}
+  =
+  e^{-\beta\Phi(\tau^\ast)}e^{-\beta\Delta_\tau}.
+\]
+把它代入分配函数，得到
+\[
+  Z_\beta
+  =
+  e^{-\beta\Phi(\tau^\ast)}
+  \left(
+    1+\sum_{\tau\neq\tau^\ast}e^{-\beta\Delta_\tau}
+  \right).
+\]
+于是
+\[
+  P_\beta(\tau^\ast)
+  =
+  \frac{1}
+       {1+\sum_{\tau\neq\tau^\ast}e^{-\beta\Delta_\tau}}.
+\]
+因为每个 $\Delta_\tau>0$，故当 $\beta\to+\infty$ 时，
+\[
+  e^{-\beta\Delta_\tau}\to 0.
+\]
+因此
+\[
+  P_\beta(\tau^\ast)\to 1.
+\]
+对任意 $\tau\neq\tau^\ast$，
+\[
+  \frac{P_\beta(\tau)}{P_\beta(\tau^\ast)}
+  =
+  e^{-\beta\Delta_\tau}\to 0,
+\]
+再结合 $P_\beta(\tau^\ast)\to1$，得到
+\[
+  P_\beta(\tau)\to 0.
+\]
+
+最后，由命题~\ref{prop:tex38-bijection}，$\NF_{N_\ast}$ 是
+\[
+  \Pi_{N_\ast}(s,t)\xrightarrow{\cong}\mathcal{T}_{N_\ast}(s,t)
+\]
+的双射，故唯一极小正规形 $\tau^\ast$ 对应唯一支撑类
+\[
+  [\gamma^\ast]=\NF_{N_\ast}^{-1}(\tau^\ast).
+\]
+于是离散路径积分在低温极限集中到唯一最优路径类 $[\gamma^\ast]$。定理成立。
+\end{proof}
+
+\begin{remark}[本定理与“最优调整序列”的关系]
+若把每个逆温参数 $\beta_k\to+\infty$ 下的最大后验正规形记为
+\[
+  \tau_k:=\arg\max_{\tau\in\mathcal{T}_{N_\ast}(s,t)}P_{\beta_k}(\tau),
+\]
+则由定理~\ref{thm:tex38-optimal} 的唯一性可知
+\[
+  \tau_k=\tau^\ast\qquad(\forall k),
+\]
+故“最优调整序列”在形式上可取为常值序列，并极限收敛到终点正规形 $\tau^\ast$。
+\end{remark}
+
+\subsection{推论：终点正规形上的 Bianchi 恒等式严格成立}
+\label{sec:tex38-terminal}
+
+\begin{corollary}[修复塔 $\Rightarrow$ 可行路径空间 $\Rightarrow$ 唯一最优路径类 $\Rightarrow$ 终点零缺陷正规形]
+\label{cor:tex38-terminal}
+在本节的全部设定下，存在：
+\begin{enumerate}
+  \item 一个终端层级 $N_\ast\le\mu_0$；
+  \item 一个终端零缺陷正规形代表
+  \[
+    A_{N_\ast}^{\mathrm{nf}}=\NF_{N_\ast}(A_{N_\ast});
+  \]
+  \item 一个非空有限的终端正规形集合 $\mathcal{T}_{N_\ast}(s,t)$；
+  \item 一个唯一最优正规形
+  \[
+    \tau^\ast\in\mathcal{T}_{N_\ast}(s,t)
+  \]
+  及其对应的唯一最优路径支撑类
+  \[
+    [\gamma^\ast]\in\Pi_{N_\ast}(s,t).
+  \]
+\end{enumerate}
+并且在终端零缺陷正规形代表上有
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+\]
+因此，终点正规形所对应的终端代表满足严格的离散 Bianchi 恒等式。
+\end{corollary}
+
+\begin{Certificate}[证书：四段闭合链]
+\label{cert:tex38-terminal}
+证书只需按顺序拼接四条已证结果：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-axiom-downgrade}：修复塔有限终止于某个 $N_\ast$，且 $\mu_{N_\ast}=0$；
+  \item 引理~\ref{lem:tex38-admissible-path}：终端零障碍层存在零缺陷正规形，并导出非空可行路径空间；
+  \item 命题~\ref{prop:tex38-bijection}：可行解数据可等价编码为纤维终点、路径支撑类与正规形；
+  \item 定理~\ref{thm:tex38-optimal}：离散路径积分在低温极限集中到唯一最优正规形与唯一最优支撑类。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex38-terminal} 的第一步，存在终端层级 $N_\ast\le\mu_0$ 使
+\[
+  \mu_{N_\ast}=0.
+\]
+再由第二步，引理~\ref{lem:tex38-admissible-path} 给出一个终端零缺陷正规形代表
+\[
+  A_{N_\ast}^{\mathrm{nf}}
+\]
+并满足
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0,
+\]
+同时
+\[
+  \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing.
+\]
+
+由第三步，命题~\ref{prop:tex38-bijection} 给出双射链
+\[
+  \mathcal{F}_{N_\ast}(s,t)
+  \cong_{\mathrm{set}}
+  \Pi_{N_\ast}(s,t)
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{N_\ast}(s,t),
+\]
+因此终端正规形集合 $\mathcal{T}_{N_\ast}(s,t)$ 非空且有限。
+
+最后由第四步，定理~\ref{thm:tex38-optimal} 保证存在唯一最优正规形
+\[
+  \tau^\ast\in\mathcal{T}_{N_\ast}(s,t),
+\]
+并由双射唯一对应到唯一最优支撑类
+\[
+  [\gamma^\ast]\in\Pi_{N_\ast}(s,t).
+\]
+综上，形式链条
+\[
+  \text{修复塔}
+  \Longrightarrow
+  \text{可行路径空间}
+  \Longrightarrow
+  \text{唯一最优路径类}
+  \Longrightarrow
+  \text{终点正规形}
+\]
+完全闭合。
+
+又由于零缺陷正规形代表 $A_{N_\ast}^{\mathrm{nf}}$ 已满足
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0,
+\]
+故终点正规形所对应的终端代表满足严格的离散 Bianchi 恒等式。推论成立。
+\end{proof}
+
+\begin{remark}[本节链条的最终语义]
+推论~\ref{cor:tex38-terminal} 可以压缩为一句话：
+\[
+  (X_0,A_0)
+  \xRightarrow{\ \text{修复塔}\ }
+  (X_{N_\ast},A_{N_\ast}^{\mathrm{nf}})
+  \xRightarrow{\ \text{三重编码双射}\ }
+  \tau^\ast,
+  \qquad
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+\]
+因此“修复塔 $\to$ 可行路径空间 $\to$ 最优调整序列 $\to$ 终点正规形”在本节中不再是口头叙事，
+而是一个已闭合的符号链。
+\end{remark}
+
+\begin{remark}[严格边界]
+本节没有声称“原始基底 $X_0$ 的全部离散表示在未经正规化时就满足 Bianchi 恒等式”；
+本节实际证明的是：一旦三阶 Jacobi--Bianchi 障碍被有限步修复塔消除，并在终端层选取零缺陷正规形代表，
+则 Bianchi 恒等式在该终端正规形代表上严格成立。
+这也是“同伦扭曲负责选择零代表，而不是凭空制造恒等式”的精确含义。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：第一章对工程实现的理论支点增益}
+\label{sec:tex38-ch2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[定位与压缩表述]
+第~\ref{sec:tex38-ch1} 节的作用不是“把工程从无到有地创造出来”，而是把工程实践中已经被识别出来的承重点，
+重新写成一条连续的、可核验的形式链。
+更精确地说，它完成的是
+\[
+  \begin{aligned}
+    &\text{工程直觉/工程实践}
+    \Longrightarrow
+    \text{抽出关键承重点}
+    \Longrightarrow\\
+    &\text{把承重点串成可证明闭链}
+    \Longrightarrow
+    \text{把“能做”提升为“可证地能做”}.
+  \end{aligned}
+\]
+因此，本节讨论的不是“工程发明论”，而是“后实践的理论回钉”。
+\end{remark}
+
+\begin{remark}[仓内外参照与评价口径]
+本节把第~\ref{sec:tex38-ch1} 节已经建立的修复塔闭链，重新投影到工程实现语境之下。
+写法上延续仓内关于“增益评价/阶段性增益/闭链定位”的工作笔记
+\cite{RepoTex37GainEvaluation,RepoTex28StageGains,RepoTex22DiscussionGains}，
+并继续调用第~\ref{sec:tex38-ch1} 节实际依赖的接口稿
+\cite{RepoTex20SemanticGaugeNormalization,RepoTex31RepairTower,RepoTex32ConditionalConvergence,
+  RepoTex36HomotopyTwistBijection,RepoTex6JacobiGap,GaoZheng2025GFramework,GaoZhengAppVol3}。
+外部标准背景仍以障碍理论、联络/纤维丛与离散化上同调语言为准，可参照
+\cite{Hatcher2002AT,KobayashiNomizu1963Foundations,Husemoller1994FibreBundles}。
+\end{remark}
+
+\subsection{定义：工程关键支点与条件性理论支撑}
+\label{subsec:tex38-engineering-pillars}
+
+\begin{definition}[工程关键支点]
+\label{def:tex38-engineering-pillars}
+把工程实现所需的关键支点记为
+\[
+  \mathcal{B}
+  :=
+  \{B_{\mathrm{term}},B_{\mathrm{feas}},B_{\mathrm{opt}},B_{\mathrm{corr}}\},
+\]
+其中：
+\begin{align*}
+  B_{\mathrm{term}}&:\ \text{修复过程在有限步内终止},\\
+  B_{\mathrm{feas}}&:\ \text{终止后确实存在可行路径/可行解},\\
+  B_{\mathrm{opt}}&:\ \text{在可行解中可选出唯一最优代表},\\
+  B_{\mathrm{corr}}&:\ \text{最终代表在正确性约束上严格成立}.
+\end{align*}
+\end{definition}
+
+\begin{definition}[条件性理论支撑]
+\label{def:tex38-conditional-support}
+称工程实现获得了\emph{条件性的理论支撑}，若存在一组显式接口前提
+\[
+  \mathfrak{I}
+  :=
+  \{\text{局部修复证书接口},\ \text{语义约束传播},\ \text{边传输双射接口},\ \text{正规形选取规则}\},
+\]
+使得在前提 $\mathfrak{I}$ 成立时，四个关键支点
+\[
+  B_{\mathrm{term}},\quad
+  B_{\mathrm{feas}},\quad
+  B_{\mathrm{opt}},\quad
+  B_{\mathrm{corr}}
+\]
+能够被串成一条可审计的符号闭链。
+\end{definition}
+
+\begin{remark}[后实践的理论回钉]
+定义~\ref{def:tex38-conditional-support} 的重点是：这里的理论支撑不是脱离接口前提后的绝对保证，
+而是在工程上已经知道“哪些环节必须成立”的前提下，
+把这些环节重新写成可回溯、可逐项审计的证明链。
+这正与第~\ref{sec:tex38-ch1} 节对修复塔、可行路径、最优选择与终点正规形的组织方式一致。
+\end{remark}
+
+\subsection{公理（降级为定理）：工程关键支点可按闭链递归累积}
+\label{subsec:tex38-engineering-induction}
+
+\begin{theorem}[公理（降级为定理）：工程关键支点的条件性支撑可递归累积]
+\label{thm:tex38-engineering-induction}
+对 $k\in\{1,2,3,4\}$，定义谓词
+\[
+  P(k)
+  :
+  \Longleftrightarrow
+  \text{前 $k$ 个工程关键支点已经由第~\ref{sec:tex38-ch1} 节结果与显式接口获得条件性证书}.
+\]
+若
+\begin{enumerate}
+  \item $P(1)$ 成立；
+  \item 对每个 $k\in\{1,2,3\}$，一旦 $P(k)$ 成立，就能调用第~\ref{sec:tex38-ch1} 节的后续证书推出 $P(k+1)$，
+\end{enumerate}
+则
+\[
+  P(k)\qquad (k=1,2,3,4)
+\]
+全部成立，特别地
+\[
+  P(4)
+  \Longleftrightarrow
+  B_{\mathrm{term}}\wedge B_{\mathrm{feas}}\wedge B_{\mathrm{opt}}\wedge B_{\mathrm{corr}}
+\]
+成立。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按关键支点序数 $k$ 的闭链递推]
+\label{cert:tex38-engineering-induction}
+归纳证书按 $k$ 组织：
+\begin{enumerate}
+  \item \textbf{基础步 $k=1$：}调用定理~\ref{thm:tex38-axiom-downgrade}，以
+  \[
+    \mu_{n+1}\le\mu_n-1,\qquad \exists N_\ast\le\mu_0,\ \mu_{N_\ast}=0
+  \]
+  见证 $B_{\mathrm{term}}$，即 $P(1)$；
+  \item \textbf{归纳步 $1\to2$：}由引理~\ref{lem:tex38-admissible-path} 把
+  \[
+    \mu_{N_\ast}=0
+    \Longrightarrow
+    \mathcal{P}_{N_\ast}^{\mathrm{adm}}(s,t)\neq\varnothing
+  \]
+  见证为 $B_{\mathrm{feas}}$；
+  \item \textbf{归纳步 $2\to3$：}由命题~\ref{prop:tex38-bijection} 与定理~\ref{thm:tex38-optimal}，
+  把三重双射与唯一极小正规形
+  \[
+    \mathcal{F}_{N_\ast}(s,t)\cong \Pi_{N_\ast}(s,t)\cong \mathcal{T}_{N_\ast}(s,t),
+    \qquad
+    \exists!\tau^\ast\in\mathcal{T}_{N_\ast}(s,t)
+  \]
+  见证为 $B_{\mathrm{opt}}$；
+  \item \textbf{归纳步 $3\to4$：}由推论~\ref{cor:tex38-terminal}，
+  \[
+    \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0
+  \]
+  见证 $B_{\mathrm{corr}}$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+先证基础步。由定理~\ref{thm:tex38-axiom-downgrade}，
+\[
+  \mu_{n+1}\le\mu_n-1
+\]
+对每个有效修复步成立，
+从而
+\[
+  \exists N_\ast\le\mu_0,\qquad \mu_{N_\ast}=0.
+\]
+这正给出“修复过程有限步终止”的证书，因此 $B_{\mathrm{term}}$ 成立，故 $P(1)$ 成立。
+
+再做递推。若已知 $P(1)$，则终端零障碍层存在。
+由引理~\ref{lem:tex38-admissible-path}，
+\[
+  \mu_{N_\ast}=0
+  \Longrightarrow
+  \mathcal{P}_{N_\ast}^{\mathrm{adm}}(s,t)\neq\varnothing,
+\]
+于是可行路径空间非空，故 $B_{\mathrm{feas}}$ 成立，进而 $P(2)$ 成立。
+
+若已知 $P(2)$，则已有终端层与可行对象。
+由命题~\ref{prop:tex38-bijection}，
+\[
+  \mathcal{F}_{N_\ast}(s,t)
+  \cong
+  \Pi_{N_\ast}(s,t)
+  \cong
+  \mathcal{T}_{N_\ast}(s,t),
+\]
+再由定理~\ref{thm:tex38-optimal}，
+\[
+  \exists!\tau^\ast\in\mathcal{T}_{N_\ast}(s,t).
+\]
+故工程对象不只“存在”，而且“可比较且可唯一选优”，所以 $B_{\mathrm{opt}}$ 成立，进而 $P(3)$ 成立。
+
+若已知 $P(3)$，则唯一最优终点正规形已经被选出。
+由推论~\ref{cor:tex38-terminal}，
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0,
+\]
+故最终代表满足严格正确性约束，即 $B_{\mathrm{corr}}$ 成立，进而 $P(4)$ 成立。
+
+综上，$P(k)$ 对 $k=1,2,3,4$ 全部成立，亦即四个工程关键支点可按闭链递归累积。定理成立。
+\end{proof}
+
+\begin{remark}[接口性而非无条件性]
+定理~\ref{thm:tex38-engineering-induction} 的结论并不脱离接口前提 $\mathfrak{I}$ 独立成立。
+其中最关键的接口仍包括：局部修复证书接口、语义约束传播、边传输双射与正规形选取规则；
+这与仓内接口稿
+\cite{RepoTex20SemanticGaugeNormalization,RepoTex31RepairTower,RepoTex32ConditionalConvergence,
+  RepoTex36HomotopyTwistBijection}
+的角色完全一致。
+\end{remark}
+
+\subsection{定理：第一章为工程实现提供条件性的、可审计的理论把握}
+\label{subsec:tex38-engineering-theorem}
+
+\begin{theorem}[第一章为工程实现提供条件性的、可审计的理论把握]
+\label{thm:tex38-engineering-role}
+在第~\ref{sec:tex38-ch1} 节的全部设定下，第一章的真实作用是：
+在工程实践或应用直觉已经出现之后，把工程所需的关键支点
+\[
+  \mathcal{B}
+  =
+  \{B_{\mathrm{term}},B_{\mathrm{feas}},B_{\mathrm{opt}},B_{\mathrm{corr}}\}
+\]
+重新串联为可审计的证明闭链，
+从而把“经验上觉得能做”提升为“在给定接口前提下可证地能做”。
+该结论必须附带如下限定：
+\[
+  \text{这种理论把握是条件性的，而不是无条件的。}
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：第一章已经写出的五段闭链]
+\label{cert:tex38-engineering-role}
+证书由五段组成：
+\begin{enumerate}
+  \item 第~\ref{sec:tex38-ch1} 节开头已明确写出主链
+  \[
+    \text{修复塔}
+    \Longrightarrow
+    \text{可行路径空间}
+    \Longrightarrow
+    \text{离散路径积分的唯一最优支撑类}
+    \Longrightarrow
+    \text{终点正规形};
+  \]
+  \item 定理~\ref{thm:tex38-axiom-downgrade} 给出严格下降与有限终止：
+  \[
+    \mu_{n+1}\le\mu_n-1,\qquad N_\ast\le\mu_0;
+  \]
+  \item 引理~\ref{lem:tex38-admissible-path} 给出终端零障碍层导出的非空可行路径空间；
+  \item 命题~\ref{prop:tex38-bijection} 与定理~\ref{thm:tex38-optimal} 给出三重双射与唯一最优代表；
+  \item 推论~\ref{cor:tex38-terminal} 给出终点正规形上的严格正确性：
+  \[
+    \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+  \]
+\end{enumerate}
+以上五段都依赖显式接口前提，因而整体结论具有可审计性，但不具无条件性。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+第一步，工程实现首先面对的不是“优不优”，而是“会不会一直修不完”。
+由定理~\ref{thm:tex38-axiom-downgrade}，
+\[
+  \mu_{n+1}\le\mu_n-1
+\]
+对每个有效修复步成立，因此
+\[
+  \exists N_\ast\le\mu_0,\qquad \mu_{N_\ast}=0.
+\]
+这一步把工程上“不断修补也许会收敛”的经验判断，
+改写成“在局部修复接口成立时，修复塔有限步终止”的可证结论，
+故第一个工程支点 $B_{\mathrm{term}}$ 被钉住。
+
+第二步，仅有终止并不自动推出可执行对象的存在。
+由引理~\ref{lem:tex38-admissible-path}，
+\[
+  \mu_{N_\ast}=0
+  \Longrightarrow
+  \mathcal{P}_{N_\ast}^{\mathrm{adm}}(s,t)\neq\varnothing.
+\]
+这说明“修复完成”被推进为“存在可行路径/可行解”。
+于是第二个工程支点 $B_{\mathrm{feas}}$ 被钉住。
+
+第三步，工程落地时还必须回答“如果有许多可行解，应当选哪一个”。
+由命题~\ref{prop:tex38-bijection}，
+\[
+  \mathcal{F}_{N_\ast}(s,t)
+  \cong
+  \Pi_{N_\ast}(s,t)
+  \cong
+  \mathcal{T}_{N_\ast}(s,t).
+\]
+这表明终端纤维终点、路径积分支撑类与正规形并非三个彼此脱节的系统，
+而是同一解对象的三种编码。
+因此，工程实现中的几何接口、路径接口与正规化接口能够彼此对接，问题被压到统一的有限对象域上。
+
+第四步，在统一对象域上，定理~\ref{thm:tex38-optimal} 进一步给出
+\[
+  \exists!\tau^\ast\in\mathcal{T}_{N_\ast}(s,t),
+\]
+并且低温极限下路径积分集中到该唯一最优支撑类。
+于是形成
+\[
+  \text{可行}
+  \Longrightarrow
+  \text{可比较}
+  \Longrightarrow
+  \text{可唯一选优},
+\]
+故第三个工程支点 $B_{\mathrm{opt}}$ 被钉住。
+
+第五步，最终还必须保证输出对象不是“看起来合理”，而是“形式上正确”。
+由推论~\ref{cor:tex38-terminal}，
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+\]
+这把“工程跑出了一个结果”提升成“终端正规形代表满足严格正确性约束”，
+故第四个工程支点 $B_{\mathrm{corr}}$ 被钉住。
+
+把上述五步串联，可得
+\[
+  \text{终止}
+  \Longrightarrow
+  \text{可行}
+  \Longrightarrow
+  \text{可选优}
+  \Longrightarrow
+  \text{终点正确}.
+\]
+因此，第~\ref{sec:tex38-ch1} 节确实把工程上真正需要的承重点重新串成了可证明闭链。
+
+另一方面，这一闭链并非脱离接口前提自足成立。
+定理~\ref{thm:tex38-axiom-downgrade} 依赖局部修复证书接口，
+命题~\ref{prop:tex38-bijection} 依赖边传输双射与正规化选取，
+定理~\ref{thm:tex38-optimal} 依赖有限可比较的作用量选择。
+这些接口均与仓内接口稿
+\cite{RepoTex20SemanticGaugeNormalization,RepoTex31RepairTower,RepoTex32ConditionalConvergence,
+  RepoTex36HomotopyTwistBijection}
+相一致。
+故这里得到的是条件性的、可审计的理论把握，而不是脱离接口假设后的绝对保证。定理成立。
+\end{proof}
+
+\subsection{引理：四个工程关键支点与第一章证书的逐项对应}
+\label{subsec:tex38-engineering-lemma}
+
+\begin{lemma}[四个工程关键支点与第一章证书的逐项对应]
+\label{lem:tex38-engineering-bridge}
+在第~\ref{sec:tex38-ch1} 节的全部设定下，有如下逐项对应：
+\begin{align*}
+  &\mu_{n+1}\le\mu_n-1
+  \Longrightarrow
+  \exists N_\ast\le\mu_0,\ \mu_{N_\ast}=0
+  \Longrightarrow
+  B_{\mathrm{term}},\\
+  &\mu_{N_\ast}=0
+  \Longrightarrow
+  \mathcal{P}_{N_\ast}^{\mathrm{adm}}(s,t)\neq\varnothing
+  \Longrightarrow
+  B_{\mathrm{feas}},\\
+  &\mathcal{F}_{N_\ast}(s,t)\cong \Pi_{N_\ast}(s,t)\cong \mathcal{T}_{N_\ast}(s,t),
+  \quad
+  \exists!\tau^\ast\in\mathcal{T}_{N_\ast}(s,t)
+  \Longrightarrow
+  B_{\mathrm{opt}},\\
+  &\Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0
+  \Longrightarrow
+  B_{\mathrm{corr}}.
+\end{align*}
+特别地，四个工程关键支点不是四条彼此孤立的断言，而是第~\ref{sec:tex38-ch1} 节主链的四个投影面。
+\end{lemma}
+
+\begin{Certificate}[证书：逐项回挂到第1章的四类结果]
+\label{cert:tex38-engineering-bridge}
+对应关系逐项如下：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-axiom-downgrade} 提供 $B_{\mathrm{term}}$ 的下降量与终止界；
+  \item 引理~\ref{lem:tex38-admissible-path} 提供 $B_{\mathrm{feas}}$ 的非空可行路径空间；
+  \item 命题~\ref{prop:tex38-bijection} 与定理~\ref{thm:tex38-optimal} 联合提供 $B_{\mathrm{opt}}$ 的同一对象三重编码与唯一选优；
+  \item 推论~\ref{cor:tex38-terminal} 提供 $B_{\mathrm{corr}}$ 的终点正确性。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+第一项由定理~\ref{thm:tex38-axiom-downgrade} 直接给出。
+既然
+\[
+  \mu_{n+1}\le\mu_n-1,
+\]
+则
+\[
+  \exists N_\ast\le\mu_0,\qquad \mu_{N_\ast}=0,
+\]
+从而有限终止被严格见证，故 $B_{\mathrm{term}}$ 成立。
+
+第二项由引理~\ref{lem:tex38-admissible-path} 直接给出。
+终端零障碍层满足
+\[
+  \mathcal{P}_{N_\ast}^{\mathrm{adm}}(s,t)\neq\varnothing,
+\]
+因此工程对象不只是“终止”，而且“终止后有路可走”，故 $B_{\mathrm{feas}}$ 成立。
+
+第三项由命题~\ref{prop:tex38-bijection} 与定理~\ref{thm:tex38-optimal} 联合给出。
+三重双射说明工程实现可以在纤维终点、路径支撑类与正规形表示之间稳定切换；
+唯一最优正规形
+\[
+  \tau^\ast
+\]
+说明这种切换最终不会留下“多解难选”的歧义，故 $B_{\mathrm{opt}}$ 成立。
+
+第四项由推论~\ref{cor:tex38-terminal} 直接给出。
+终端零缺陷正规形代表满足
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0,
+\]
+因此最终代表在形式上满足正确性约束，故 $B_{\mathrm{corr}}$ 成立。
+
+综上，四个工程关键支点均可逐项回挂到第~\ref{sec:tex38-ch1} 节已经完成的证书链上，且它们共同构成同一主链的四个投影面。引理成立。
+\end{proof}
+
+\begin{remark}[三种表示之间的工程意义]
+引理~\ref{lem:tex38-engineering-bridge} 中
+\[
+  \mathcal{F}_{N_\ast}(s,t)\cong \Pi_{N_\ast}(s,t)\cong \mathcal{T}_{N_\ast}(s,t)
+\]
+的意义在于：工程实现不是在三个系统里分别维护三套解，而是在同一个解对象的三种编码之间转换。
+这会直接降低接口错位、调试歧义与审计重复成本。
+\end{remark}
+
+\subsection{命题：第一章的主要工程增益是降低不确定性而非扩充对象域}
+\label{subsec:tex38-engineering-proposition}
+
+\begin{proposition}[第一章的主要工程增益是降低不确定性而非扩充对象域]
+\label{prop:tex38-engineering-uncertainty}
+第~\ref{sec:tex38-ch1} 节对工程实现最重的贡献，
+不是再发明一个更高层对象，而是把工程中最关键的不确定性依次压低为可证明对象：
+\[
+  \text{会不会修不完}
+  \to
+  \text{会不会无路可走}
+  \to
+  \text{会不会多解难选}
+  \to
+  \text{会不会结果不正确}.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：四类工程不确定性的逐项消解]
+\label{cert:tex38-engineering-uncertainty}
+四类不确定性分别由下列结果消解：
+\begin{enumerate}
+  \item 有限终止回答“会不会修不完”；
+  \item 可行路径空间非空回答“会不会无路可走”；
+  \item 唯一最优路径类回答“会不会多解难选”；
+  \item 终点正规形上的 Bianchi 恒等式严格成立回答“会不会结果不正确”。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex38-axiom-downgrade}，
+\[
+  \exists N_\ast\le\mu_0,\qquad \mu_{N_\ast}=0,
+\]
+故“修不完”的不确定性被终止界消解。
+
+由引理~\ref{lem:tex38-admissible-path}，
+\[
+  \mathcal{P}_{N_\ast}^{\mathrm{adm}}(s,t)\neq\varnothing,
+\]
+故“无路可走”的不确定性被非空可行路径空间消解。
+
+由命题~\ref{prop:tex38-bijection} 与定理~\ref{thm:tex38-optimal}，
+\[
+  \mathcal{F}_{N_\ast}(s,t)\cong \Pi_{N_\ast}(s,t)\cong \mathcal{T}_{N_\ast}(s,t),
+  \qquad
+  \exists!\tau^\ast\in\mathcal{T}_{N_\ast}(s,t),
+\]
+故“多解难选”的不确定性被唯一选优机制消解。
+
+最后，由推论~\ref{cor:tex38-terminal}，
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0,
+\]
+故“结果不正确”的不确定性被终点正规形上的严格正确性消解。
+
+因此，第~\ref{sec:tex38-ch1} 节最大的工程价值是：
+把工程过程中的四类核心不确定性转写为可追踪的证明对象，而不是再向对象域额外堆叠一个新名词。命题成立。
+\end{proof}
+
+\subsection{推论：第一章可定位为工程方法论的理论总装层}
+\label{subsec:tex38-engineering-corollary}
+
+\begin{corollary}[第一章可定位为工程方法论的理论总装层]
+\label{cor:tex38-engineering-assembly}
+若把局部修复算子、边传输双射与正规化选取的具体构造理解为“零件制造层”，
+把不经对象级闭链的总述性话语理解为“哲学宣言层”，
+则第~\ref{sec:tex38-ch1} 节更准确地位于二者之间的
+\[
+  \text{工程方法论的理论总装层}.
+\]
+它的功能是把若干已有理论接口装配成工程可依赖的闭链，而不是替代零件制造层或跳到宣言层。
+\end{corollary}
+
+\begin{Certificate}[证书：支点闭链 + 不确定性压降 + 条件性边界]
+\label{cert:tex38-engineering-assembly}
+证书由三部分组成：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-engineering-role} 给出“关键支点被串成条件性、可审计闭链”的总判断；
+  \item 引理~\ref{lem:tex38-engineering-bridge} 给出四个工程支点与第1章证书的逐项对应；
+  \item 命题~\ref{prop:tex38-engineering-uncertainty} 给出其主要工程价值是压降不确定性，而不是替换上游接口。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex38-engineering-role}，
+第~\ref{sec:tex38-ch1} 节已经把
+\[
+  B_{\mathrm{term}},\quad
+  B_{\mathrm{feas}},\quad
+  B_{\mathrm{opt}},\quad
+  B_{\mathrm{corr}}
+\]
+串成了一条条件性的、可审计的闭链。
+这意味着它承担的是“装配整条承重链”的职责，而不是仅给出局部零件。
+
+由引理~\ref{lem:tex38-engineering-bridge}，
+上述闭链的每一环都可回挂到具体证书：
+终止界、可行路径空间、三重双射、唯一最优元与终点正确性。
+故它不是口头层面的“方法论宣言”，而是确实承重的理论装配层。
+
+再由命题~\ref{prop:tex38-engineering-uncertainty}，
+第~\ref{sec:tex38-ch1} 节的核心价值是依次压低四类工程不确定性，
+而不是从零制造全部局部修复机制。
+因此，它既不同于零件制造层，也不同于脱离对象级闭链的哲学宣言层，
+而应被定位为工程方法论的理论总装层。推论成立。
+\end{proof}
+
+\begin{remark}[术语替换建议]
+若要把本节结论写入正文，口语化的“理论信心”更适合替换为
+\[
+  \text{理论可实施性把握}
+  \qquad\text{或}\qquad
+  \text{可审计的实现依据}.
+\]
+原因在于“信心”偏心理学语汇，而上面两个表达更接近形式系统语言。
+\end{remark}
+
+\begin{remark}[必须守住的边界]
+本节给出的不是“工程一定成功”的绝对保证，而是：
+\[
+  \begin{aligned}
+    &\text{在局部修复接口、语义约束传播、正规形选取等前提成立时，}\\
+    &\text{工程实现具有明确的理论闭链支撑。}
+  \end{aligned}
+\]
+一旦离开这些接口前提，本文并未声称相同强度的结论仍自动成立。
+\end{remark}
+
+\begin{remark}[一句压缩结论]
+若只用一句话概括本节，可写成：
+\[
+  \begin{aligned}
+    &\text{第一章把工程上真正需要的四个承重点}\\
+    &\text{——终止、可行、选优、正确——重新串成了可证明闭链。}
+  \end{aligned}
+\]
+\end{remark}
+
+\begin{remark}[再压缩一层]
+若进一步压缩，可写成：
+\[
+  \text{它把“工程上觉得能做”，提升成了“理论上知道为何能做、做到哪里、边界在哪里”。}
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：从超限修复原型到有限算力工程规范型的桥接解释}
+\label{sec:tex38-ch3}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[最严格的压缩表述]
+若把第~\ref{sec:tex38-ch1} 节的结果压到最严格口径，则其真实结论不是
+\[
+  \text{已经得到原始无限问题上的绝对全局最优工程解},
+\]
+而是
+\[
+  \begin{aligned}
+    &\text{超限递归所提供的纯数学原型}
+    \rightsquigarrow
+    \text{有限 $N$ 层、可终止、可审计的修复塔}\\
+    \rightsquigarrow\ &
+    \text{有限候选正规形集}
+    \rightsquigarrow
+    \text{在既定作用量与约束下的唯一最优工程代表}.
+  \end{aligned}
+\]
+换言之，本章处理的是“原型层的无限丰富性如何被压到当前硬件可承载的有限截断，并在该截断内形成严格选优与可验证启用”。
+\end{remark}
+
+\begin{remark}[仓内外参照与边界]
+本章把第~\ref{sec:tex38-ch1} 节已经完成的离散修复塔、三重双射与唯一最优链条，
+重新解释为“从纯数学原型到工程规范型对象”的桥接。
+写法上继续调用仓内接口稿与卷册主稿
+\cite{RepoTex31RepairTower,RepoTex32ConditionalConvergence,RepoTex36HomotopyTwistBijection,RepoTex6JacobiGap,
+  GaoZheng2025GFramework,GaoZhengAppVol3}；
+其中 \cite{GaoZheng2025GFramework,GaoZhengAppVol3} 负责提供纯数学障碍/修复原型的背景，
+\cite{RepoTex31RepairTower,RepoTex36HomotopyTwistBijection} 负责提供有限修复塔与终端三重编码的直接接口。
+
+本章同时守住一个边界：第~\ref{sec:tex38-ch1} 节严格证明的是有限层工程投影，
+而不是把“超限原型 $\to$ 有限截断”的投影法则本身，作为一个完全独立的函子定理在文内自底重建。
+\end{remark}
+
+\subsection{定义：工程桥接的四层结构}
+\label{subsec:tex38-bridge-layers}
+
+\begin{definition}[工程桥接的四层结构]
+\label{def:tex38-bridge-layers}
+定义四层对象：
+\begin{align*}
+  L_0&:=\text{纯粹数学层的超限递归/同伦修复原型},\\
+  L_1&:=\text{有限 $N$ 层离散修复塔 }(X_0,A_0)\to\cdots\to(X_N,A_N),\\
+  L_2&:=\text{终端层上的有限正规形集合 }\mathcal{T}_{N_\ast}(s,t),\\
+  L_3&:=\text{唯一最优工程代表 }\tau^\ast\in \mathcal{T}_{N_\ast}(s,t).
+\end{align*}
+称映射链
+\[
+  L_0\rightsquigarrow L_1\rightsquigarrow L_2\rightsquigarrow L_3
+\]
+为\emph{从纯粹数学原型到工程启用对象的桥接链}。
+\end{definition}
+
+\begin{definition}[有限截断族与工程代表族]
+\label{def:tex38-bridge-family}
+对每个可实现深度参数 $N\in\NN$，记
+\[
+  L_1(N):=\text{深度不超过 $N$ 的离散修复塔对象},
+  \qquad
+  L_2(N):=\mathcal{T}_{N}(s,t),
+\]
+并把其唯一最优工程代表记为
+\[
+  L_3(N):=\tau_N^\ast
+  \quad\text{（若存在）}.
+\]
+若 $N=N_\ast$ 为达到零障碍的终端层级，则 $L_2(N_\ast)$ 与 $L_3(N_\ast)$ 退化为本文第~\ref{sec:tex38-ch1} 节的终端有限正规形集合与唯一最优工程代表。
+\end{definition}
+
+\begin{remark}[本章中的 $L_0$ 是原型背景而非本文内部全展开对象]
+定义~\ref{def:tex38-bridge-layers} 中的 $L_0$ 用来标记纯数学层的原型背景。
+在本文内部，真正被形式证明并可直接调用的是它的有限层工程投影 $L_1,L_2,L_3$；
+因此本章的重点不是扩写超限递归本身，而是澄清当前稿件到底把原型压到了哪一层、压到了什么强度。
+\end{remark}
+
+\subsection{公理（降级为定理）：有限截断可终止}
+\label{subsec:tex38-bridge-truncation}
+
+\begin{theorem}[公理（降级为定理）：有限截断可终止]
+\label{thm:tex38-bridge-truncation}
+在第~\ref{sec:tex38-ch1} 节的设定下，若局部修复证书接口成立，
+则桥接链中的有限截断层 $L_1$ 满足如下终止性质：
+\[
+  \mu_{n+1}\le \mu_n-1,
+  \qquad
+  \exists N_\ast\le \mu_0,\ \mu_{N_\ast}=0.
+\]
+特别地，当前稿件严格写出的并不是“超限递归本身”，而是其有限层截断版：
+无限丰富的修复直觉被压成了可执行的有限深度修复程序。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：有限截断层数上的严格下降]
+\label{cert:tex38-bridge-truncation}
+定义谓词
+\[
+  P(m)
+  :
+  \Longleftrightarrow
+  \text{存在长度为 $m$ 的有限截断修复塔，且 }\mu_m\le \mu_0-m.
+\]
+归纳证书由两部分组成：
+\begin{enumerate}
+  \item \textbf{基础步 $P(0)$：}零层塔仅含初始层 $(X_0,A_0)$，故 $\mu_0\le\mu_0$；
+  \item \textbf{归纳步 $P(m)\Rightarrow P(m+1)$：}若 $\mu_m>0$，则调用局部修复证书接口，得到一步修复并使缺陷计数至少下降 $1$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+对 $m$ 做数学归纳。
+
+\textbf{基础步：}当 $m=0$ 时，只取零层塔 $(X_0,A_0)$，
+于是
+\[
+  \mu_0\le\mu_0,
+\]
+故 $P(0)$ 成立。
+
+\textbf{归纳步：}设 $P(m)$ 成立，即存在长度为 $m$ 的有限截断修复塔，
+且其末层满足
+\[
+  \mu_m\le\mu_0-m.
+\]
+若 $\mu_m=0$，则该塔已经在第 $m$ 层终止，后续无需再延展；
+若 $\mu_m>0$，则由局部修复证书接口可得
+\[
+  (X_m,A_m)\xrightarrow{\,R_m\,}(X_{m+1},A_{m+1}),
+  \qquad
+  \mu_{m+1}\le\mu_m-1.
+\]
+故
+\[
+  \mu_{m+1}\le(\mu_0-m)-1=\mu_0-(m+1),
+\]
+于是 $P(m+1)$ 成立。
+
+因此，
+\[
+  \mu_m\le\mu_0-m
+\]
+对所有可实现层数都成立。特别地，当 $m=\mu_0$ 时，
+\[
+  \mu_{\mu_0}\le 0.
+\]
+由于每个 $\mu_m\in\NN$，故必有某个 $N_\ast\le\mu_0$ 满足
+\[
+  \mu_{N_\ast}=0.
+\]
+这说明桥接链中的第一刀，就是把超限原型截断为有限层工程对象。定理成立。
+\end{proof}
+
+\subsection{定理：与有限算力相容的唯一最优工程代表选择机制}
+\label{subsec:tex38-bridge-hardware}
+
+\begin{theorem}[“适配当下硬件”在严格口径下的真实含义]
+\label{thm:tex38-bridge-hardware}
+您的判断“建立了一套适配当下硬件（包括软件基础设施）算力的工程近似解”基本成立；
+但若按最严格口径，应改写为：
+\[
+  \begin{aligned}
+    &\text{该文建立了与有限算力相容的、局部可核验的、}\\
+    &\text{有限候选集上的唯一最优工程代表选择机制。}
+  \end{aligned}
+\]
+它并不无条件声称：
+\[
+  \text{已经对原始无限问题求得绝对全局最优解。}
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：四个与有限算力相容的硬约束对象]
+\label{cert:tex38-bridge-hardware}
+第~\ref{sec:tex38-ch1} 节已经给出如下四个硬约束对象：
+\begin{enumerate}
+  \item 有限终止界
+  \[
+    N_\ast\le \mu_0;
+  \]
+  \item 非空可行路径空间
+  \[
+    \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing;
+  \]
+  \item 非空且有限的正规形集合
+  \[
+    \mathcal{T}_{N_\ast}(s,t)\ \text{非空且有限};
+  \]
+  \item 有限集上的唯一极小元
+  \[
+    \exists!\,\tau^\ast\in\mathcal{T}_{N_\ast}(s,t).
+  \]
+\end{enumerate}
+它们分别由定理~\ref{thm:tex38-axiom-downgrade}、
+引理~\ref{lem:tex38-admissible-path}、
+命题~\ref{prop:tex38-bijection} 与定理~\ref{thm:tex38-optimal} 见证。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+“适配当下硬件”若翻成形式语言，其核心不是“复杂度已最优”，而是
+\[
+  \text{问题被压到有限步、有限对象、有限比较、有限验证。}
+\]
+
+第一，由定理~\ref{thm:tex38-axiom-downgrade}，
+\[
+  N_\ast\le\mu_0
+\]
+给出有限修复深度，因此流程不会在理论上无限拖延。
+
+第二，由引理~\ref{lem:tex38-admissible-path}，
+\[
+  \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing
+\]
+说明系统不会停在“修完了但无路可走”的死状态。
+
+第三，由命题~\ref{prop:tex38-bijection}，
+\[
+  \mathcal{F}_{N_\ast}(s,t)
+  \cong
+  \Pi_{N_\ast}(s,t)
+  \cong
+  \mathcal{T}_{N_\ast}(s,t),
+\]
+于是选优不再面对无限未约束空间，而是在有限候选集
+\[
+  \mathcal{T}_{N_\ast}(s,t)
+\]
+上进行。
+
+第四，由定理~\ref{thm:tex38-optimal} 中的严格化作用量
+\[
+  \Phi(\tau)=E(\tau)+\varepsilon\,\Lambda(\tau),
+\]
+候选解被压成可排序、可比较、可唯一选取的对象，故得到唯一最优工程代表
+\[
+  \tau^\ast.
+\]
+
+综上，第~\ref{sec:tex38-ch1} 节确实给出了与有限算力相容的近似求解框架；
+但这一“全局最优”只在有限截断模型内成立，而不是对原始无限问题的无条件绝对最优。定理成立。
+\end{proof}
+
+\subsection{引理：这里的“全局最优”应理解为截断模型内的全局最优}
+\label{subsec:tex38-bridge-lemma}
+
+\begin{lemma}[“全局最优”的逻辑量词范围]
+\label{lem:tex38-bridge-global}
+若只依据第~\ref{sec:tex38-ch1} 节内部已证明内容，则“全局最优”应严格理解为
+\[
+  \tau^\ast
+  =
+  \operatorname*{arg\,min}_{\tau\in\mathcal{T}_{N_\ast}(s,t)}\Phi(\tau),
+\]
+即相对于\textbf{终端有限正规形集合} $\mathcal{T}_{N_\ast}(s,t)$ 的全局最优，
+而不是相对于原始超限递归原型空间 $L_0$ 的绝对全局最优。
+\end{lemma}
+
+\begin{Certificate}[证书：唯一极小元定理的定义域]
+\label{cert:tex38-bridge-global}
+证书只有一条核心记录：
+定理~\ref{thm:tex38-optimal} 明确把唯一极小元的定义域固定在
+\[
+  \mathcal{T}_{N_\ast}(s,t),
+\]
+而没有把量词范围扩张到某个无限总体空间。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex38-optimal}，
+唯一极小元被定义并证明在有限集合
+\[
+  \mathcal{T}_{N_\ast}(s,t)
+\]
+之上。
+因此“全局”一词的逻辑量词范围是
+\[
+  \forall \tau\in\mathcal{T}_{N_\ast}(s,t),
+  \qquad
+  \Phi(\tau^\ast)\le \Phi(\tau),
+\]
+而不是
+\[
+  \forall x\in L_0.
+\]
+所以最严格的说法只能是：
+\[
+  \text{截断模型中的全局最优工程近似解。}
+\]
+引理成立。
+\end{proof}
+
+\subsection{命题：该框架为算力提升逼近留下形式通道}
+\label{subsec:tex38-bridge-prop-approx}
+
+\begin{proposition}[“为算力提升逼近留下空间”这一判断成立]
+\label{prop:tex38-bridge-approx}
+您的判断“为算力提升逼近留下空间”是成立的。
+当前稿件的工程对象具有如下统一的有限截断结构：
+\[
+  L_0
+  \rightsquigarrow
+  L_1(N)
+  \rightsquigarrow
+  L_2(N)
+  \rightsquigarrow
+  L_3(N).
+\]
+因此，一旦计算资源提升，就存在至少四类自然细化方向：
+\[
+  N\uparrow,\qquad
+  \Sigma\uparrow,\qquad
+  E\uparrow,\qquad
+  R_n\uparrow.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：四类自然细化方向]
+\label{cert:tex38-bridge-approx}
+四类细化方向分别表示：
+\begin{enumerate}
+  \item 修复塔层数更深；
+  \item 语义约束更细；
+  \item 主作用量更精细；
+  \item 局部修复算子更丰富。
+\end{enumerate}
+这些细化都不要求推翻第~\ref{sec:tex38-ch1} 节的对象级闭链，而只要求在同一闭链内提升离散精度与接口丰富度。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+当前稿件把工程问题稳定写成“有限层、有限候选、有限选优”。
+这意味着它不是把原型层完全压扁，而是做了一个一致的有限截断。
+
+一旦算力上升，首先可以提高截断深度，
+\[
+  N_\ast\mapsto N_\ast',
+  \qquad
+  N_\ast'\ge N_\ast.
+\]
+其次可以把更细的局部语义约束 $\Sigma$、
+更精细的主作用量 $E$、
+更丰富的局部修复算子 $R_n$，
+灌入同一修复塔到正规形的闭链。
+
+因此当前框架并未封死未来，而是自然保留了一个逼近序列的位置，例如
+\[
+  (\tau_N^\ast)_{N\in\NN}
+\]
+或更一般地
+\[
+  (\tau_\alpha^\ast)_{\alpha\in I},
+\]
+其中每一层都代表在更高算力下得到的更细工程代表。
+所以该框架天然为未来硬件升级留下了逼近通道。命题成立。
+\end{proof}
+
+\subsection{命题：该框架为当下启用留下验证指南}
+\label{subsec:tex38-bridge-prop-audit}
+
+\begin{proposition}[“为当下启用留下验证指南”这一判断成立]
+\label{prop:tex38-bridge-audit}
+第~\ref{sec:tex38-ch1} 节不仅给出了工程代表，还给出了启用前的审计顺序。
+严格地说，可以从文内直接抽出如下验证链：
+\[
+  \begin{aligned}
+    &\mu_n\downarrow
+    \Rightarrow
+    \mu_{N_\ast}=0
+    \Rightarrow
+    \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing\\
+    \Rightarrow\ &
+    \mathcal{F}_{N_\ast}(s,t)\cong\Pi_{N_\ast}(s,t)\cong\mathcal{T}_{N_\ast}(s,t)\\
+    \Rightarrow\ &
+    \tau^\ast=\operatorname*{arg\,min}_{\tau\in\mathcal{T}_{N_\ast}(s,t)}\Phi(\tau)
+    \Rightarrow
+    \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+  \end{aligned}
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：启用前的六步审计链]
+\label{cert:tex38-bridge-audit}
+启用前的审计顺序可分解为六步：
+\begin{enumerate}
+  \item 检查修复塔是否使 $\mu_n$ 严格下降；
+  \item 检查是否达到某个终端层 $\mu_{N_\ast}=0$；
+  \item 检查终端层是否存在可行路径；
+  \item 检查纤维终点、路径支撑类与正规形三种编码是否一致；
+  \item 在有限集合上计算 $\Phi$ 并选出唯一最优代表；
+  \item 核验终端正规形上 $\Bia=0$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+对于工程启用而言，最重要的不是抽象大词，而是检查顺序。
+由定理~\ref{thm:tex38-axiom-downgrade}，首先必须核验
+\[
+  \mu_{n+1}\le\mu_n-1,
+\]
+并据此达到某个终端层
+\[
+  \mu_{N_\ast}=0.
+\]
+
+接着由引理~\ref{lem:tex38-admissible-path}，必须确认
+\[
+  \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing,
+\]
+以防系统落入“形式终止但对象不可行”的状态。
+
+再由命题~\ref{prop:tex38-bijection}，必须确认
+\[
+  \mathcal{F}_{N_\ast}(s,t)\cong\Pi_{N_\ast}(s,t)\cong\mathcal{T}_{N_\ast}(s,t),
+\]
+从而保证三类编码一致地描述同一终端解对象。
+
+在此基础上，由定理~\ref{thm:tex38-optimal}，
+在有限集合 $\mathcal{T}_{N_\ast}(s,t)$ 上计算严格化作用量 $\Phi$，
+得到唯一最优代表
+\[
+  \tau^\ast.
+\]
+
+最后由推论~\ref{cor:tex38-terminal}，
+核验终端正规形代表满足
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+\]
+这恰好形成一条可执行的启用前验证指南。命题成立。
+\end{proof}
+
+\subsection{定理：从纯粹数学到应用数学的规范型桥接方向正确，但需附带边界}
+\label{subsec:tex38-bridge-theorem}
+
+\begin{theorem}[从纯粹数学原型到应用数学工程规范型的桥接，方向正确但需附带边界]
+\label{thm:tex38-bridge-direction}
+若按第~\ref{sec:tex38-ch1} 节内部已证内容，最稳妥的表述不是
+\[
+  \text{超限递归已经在本文内部被完整函子化地投影为有限 $N$ 层修复塔},
+\]
+而是：
+\[
+  \begin{aligned}
+    &\text{本文已经把纯数学中的障碍--修复原型，桥接为应用数学中的}\\
+    &\text{有限层离散修复塔、终端纤维终点编码、路径支撑类编码与正规形编码。}
+  \end{aligned}
+\]
+因此，您的方向判断是正确的，但必须附带如下边界：
+\[
+  L_0\rightsquigarrow L_1
+\]
+这一步在体系解释上已经清晰成立，在第~\ref{sec:tex38-ch1} 节中也已被实际使用和体现；
+但若要求把“超限层到有限层的投影/截断法则本身”作为独立定理完整证明，则仍可另立一节继续补强。
+\end{theorem}
+
+\begin{Certificate}[证书：文内已经严格写出的桥接对象]
+\label{cert:tex38-bridge-direction}
+第~\ref{sec:tex38-ch1} 节内部已经严格写出的桥接对象是：
+\begin{enumerate}
+  \item 主链
+  \[
+    \text{修复塔}
+    \Longrightarrow
+    \text{可行路径空间}
+    \Longrightarrow
+    \text{唯一最优路径类}
+    \Longrightarrow
+    \text{终点正规形};
+  \]
+  \item 三重双射
+  \[
+    \mathcal{F}_{N_\ast}(s,t)
+    \cong
+    \Pi_{N_\ast}(s,t)
+    \cong
+    \mathcal{T}_{N_\ast}(s,t).
+  \]
+\end{enumerate}
+这两组对象足以见证“桥接方向已被建立”，但不足以单独见证“超限投影法则已在本文内被完全公理化”。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由证书第一项，第~\ref{sec:tex38-ch1} 节已经完成了
+\[
+  \text{离散拓扑基底}
+  \to
+  \text{修复塔}
+  \to
+  \text{可行路径空间}
+  \to
+  \text{唯一最优路径类}
+  \to
+  \text{终点正规形}
+\]
+这一条连续链。
+这说明从障碍--修复原型到终端工程对象的方向已经被显式建立。
+
+由证书第二项，
+\[
+  \mathcal{F}_{N_\ast}(s,t)
+  \cong
+  \Pi_{N_\ast}(s,t)
+  \cong
+  \mathcal{T}_{N_\ast}(s,t)
+\]
+又把终端层压成纤维终点编码、路径支撑类编码与正规形编码之间的稳定桥接。
+这说明工程规范型对象并非附会性解释，而是第~\ref{sec:tex38-ch1} 节内部的严格结果。
+
+但是，上述结论的落点仍是“有限层工程投影已经形成并可审计”，
+而不是“超限原型到有限截断的投影法则已在本文内部作为独立函子定理被完全重建”。
+因此方向判断成立，但必须附带这条边界说明。定理成立。
+\end{proof}
+
+\subsection{推论：最准确的一句话}
+\label{subsec:tex38-bridge-corollary}
+
+\begin{corollary}[最准确的一句话]
+\label{cor:tex38-bridge-sentence}
+把您的原话压到最严格口径，可写成：
+\[
+  \begin{aligned}
+    &\text{第一章建立了一个与有限算力相容的工程截断框架：}\\
+    &\text{它把纯数学中的障碍修复原型，桥接为有限 $N$ 层修复塔、}\\
+    &\text{有限正规形候选集与唯一最优工程代表；}\\
+    &\text{因此既允许当下硬件直接启用并审计，也允许随着算力提升做更深层逼近。}
+  \end{aligned}
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：有限截断 + 截断内选优 + 可扩展逼近]
+\label{cert:tex38-bridge-sentence}
+证书由三部分组成：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-bridge-truncation} 见证有限截断可终止；
+  \item 定理~\ref{thm:tex38-bridge-hardware} 与引理~\ref{lem:tex38-bridge-global} 见证唯一最优只在截断模型内严格成立；
+  \item 命题~\ref{prop:tex38-bridge-approx} 与命题~\ref{prop:tex38-bridge-audit} 见证该框架同时保留未来逼近通道与当下启用审计链。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex38-bridge-truncation}，
+原型层的工程投影首先被压成有限层、可终止、可审计的修复塔。
+
+再由定理~\ref{thm:tex38-bridge-hardware} 与引理~\ref{lem:tex38-bridge-global}，
+该有限截断进一步被压成有限正规形候选集与其上的唯一最优工程代表，
+而该“全局最优”的量词范围被严格限定在截断模型内部。
+
+最后，由命题~\ref{prop:tex38-bridge-approx}，
+该框架保留了随着算力提升而继续细化的逼近通道；
+由命题~\ref{prop:tex38-bridge-audit}，
+它又给出了当下即可执行的启用前验证顺序。
+故推论中的压缩表述完全成立。推论成立。
+\end{proof}
+
+\begin{remark}[术语收紧建议]
+“全局最优工程近似解”这一说法可以保留，但若写入正文，建议优先改成
+\[
+  \text{当前截断模型内的唯一最优工程代表}
+  \qquad\text{或}\qquad
+  \text{有限候选正规形集上的全局最优近似解}.
+\]
+这样更严格地反映了引理~\ref{lem:tex38-bridge-global} 的量词范围。
+\end{remark}
+
+\begin{remark}[复杂度边界]
+“适配当下硬件（包括软件基础设施）”从工程解释上是成立的；
+但就第~\ref{sec:tex38-ch1} 节内部而言，它严格证明的是“有限、局部、可审计、可排序”，
+并未直接给出
+\[
+  O(\mu_0),\qquad O(|\mathcal{T}_{N_\ast}|),\qquad O(\text{memory})
+\]
+这类显式复杂度上界。
+若需要更硬的部署性陈述，仍可继续补一节“复杂度与可部署性证书”。
+\end{remark}
+
+\begin{remark}[超限原型与有限工程投影的最稳妥关系]
+在这份稿件里，“超限递归”更适合被理解为纯数学原型背景；
+第~\ref{sec:tex38-ch1} 节真正落地证明到的是它的有限层工程投影。
+因此最稳妥的叙述是：
+\[
+  \text{超限原型提供方向，有限修复塔提供当前硬件可执行版本。}
+\]
+\end{remark}
+
+\begin{remark}[在整个体系中的位置]
+若把这份稿件放回整个体系中考察，则更准确的定位是：
+\[
+  \text{它不是终极原型本身，而是原型向工程规范型投影时的第一份可审计桥接证书。}
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：全局最优截断、局部最优陷阱与高阶提升障碍}
+\label{sec:tex38-ch3a}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[量词纠偏与本章定位]
+把第~\ref{sec:tex38-ch1} 节与第~\ref{sec:tex38-ch3} 节的“有限截断内唯一最优”链条继续向前推进时，
+最容易说过头的句子是：
+\[
+  \text{“全局最优的截断与所有局部最优都有上同调障碍分隔。”}
+\]
+这里的量词“所有”过强。
+本章要把它纠偏为：
+\[
+  \text{“全局最优的截断与所有不可提升的局部最优之间，由非零提升障碍类分隔。”}
+\]
+原因在于：某些浅层局部最优并不是陷阱，而只是更深预算下全局最优代表在浅层截断上的投影；
+这类局部最优仍可继续提升，因此不应被记作“被障碍隔开”。
+\end{remark}
+
+\begin{remark}[仓内外参照]
+本章直接复用并对齐以下链条：
+\begin{enumerate}
+  \item 第~\ref{sec:tex38-ch1} 节中的定理~\ref{thm:tex38-axiom-downgrade}、命题~\ref{prop:tex38-bijection}、
+  定理~\ref{thm:tex38-optimal} 与推论~\ref{cor:tex38-terminal}，
+  它们分别提供有限终止、三重编码、截断内唯一选优与终端零缺陷落点；
+  \item 第~\ref{sec:tex38-ch3} 节中的定义~\ref{def:tex38-bridge-family} 与引理~\ref{lem:tex38-bridge-global}，
+  它们把“全局最优”的量词范围明确限制在有限截断模型内部；
+  \item 仓内接口稿 \cite{RepoTex22DiscussionGains,RepoTex29TransfiniteRepair,RepoTex31RepairTower,
+    RepoTex32ConditionalConvergence,RepoTex36HomotopyTwistBijection,RepoTex6JacobiGap,GaoZheng2025GFramework}，
+  其中 \cite{RepoTex22DiscussionGains,RepoTex32ConditionalConvergence} 提供“可提升性/障碍塔/近似提升”的接口语义，
+  \cite{RepoTex29TransfiniteRepair} 提供“局部停滞并不自动等于真正陷阱”的规避口径，
+  \cite{RepoTex31RepairTower,RepoTex36HomotopyTwistBijection} 提供预算扩展时的修复塔与终端编码模板；
+  \item 外部标准背景可参考 \cite{Hatcher2002AT,Whitehead1978Elements,Weibel1994HomologicalAlgebra,
+    LodayVallette2012AlgebraicOperads}。
+\end{enumerate}
+\end{remark}
+
+\subsection{对象域：预算、截断层级、局部最优与提升障碍}
+\label{subsec:tex38-budget-objects}
+
+\begin{definition}[算力预算、截断层级与预算投影]
+\label{def:tex38-budget-truncation}
+设 $\mathcal B$ 为可比较的算力预算集合。
+对每个 $B\in\mathcal B$，设
+\[
+  N(B)\in\NN
+\]
+为预算 $B$ 允许的最大修复深度，并满足预算单调性
+\[
+  B_1\le B_2
+  \Longrightarrow
+  N(B_1)\le N(B_2).
+\]
+沿用定义~\ref{def:tex38-bridge-family} 的记号，记预算 $B$ 下的截断正规形候选集为
+\[
+  \mathcal T_B:=\mathcal T_{N(B)}(s,t).
+\]
+若 $B\le B'$ 且存在语义保持的浅层化映射
+\[
+  p_{B\leftarrow B'}:\mathcal T_{B'}\to \mathcal T_B,
+\]
+则称其为从预算 $B'$ 到预算 $B$ 的\emph{预算投影}。
+\end{definition}
+
+\begin{definition}[预算内的全局最优截断代表]
+\label{def:tex38-budget-global-opt}
+设 $\Phi_B:\mathcal T_B\to\RR$ 为预算 $B$ 下的严格化作用量。
+若存在唯一极小元，则定义预算 $B$ 下的\emph{全局最优截断代表}为
+\[
+  \tau_B^\ast
+  :=
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_B}\Phi_B(\tau).
+\]
+按照引理~\ref{lem:tex38-bridge-global}，这里“全局”始终只对 $\mathcal T_B$ 这一个截断候选集量化。
+\end{definition}
+
+\begin{definition}[受限局部最优]
+\label{def:tex38-budget-local-opt}
+设
+\[
+  \mathcal U_B\subsetneq \mathcal T_B
+\]
+是某个受限搜索分支、受限纤维分支或未完成修复分支所对应的真子集。
+若
+\[
+  \tau_{B,\mathrm{loc}}\in\mathcal U_B
+\]
+满足
+\[
+  \Phi_B(\tau_{B,\mathrm{loc}})
+  \le
+  \Phi_B(\tau)
+  \qquad
+  (\forall \tau\in\mathcal U_B),
+\]
+则称 $\tau_{B,\mathrm{loc}}$ 为预算 $B$ 下该受限分支上的\emph{局部最优}。
+
+这里的“局部”不是欧氏微分意义上的梯度驻点，
+而是“在受限可达子空间 $\mathcal U_B$ 上的极小元”。
+\end{definition}
+
+\begin{definition}[可提升性与不可提升局部最优]
+\label{def:tex38-liftability}
+设 $\tau_B\in\mathcal T_B$ 且 $B<B'$。
+若存在预算投影
+\[
+  p_{B\leftarrow B'}:\mathcal T_{B'}\to\mathcal T_B
+\]
+以及某个更深预算候选
+\[
+  \widetilde\tau_{B'}\in\mathcal T_{B'},
+\]
+使得
+\[
+  p_{B\leftarrow B'}(\widetilde\tau_{B'})=\tau_B,
+\]
+并且该提升链在各层都保持既定语义约束与修复塔兼容性，
+则称 $\tau_B$ 是\emph{可提升}的。
+若 $\tau_B=\tau_{B,\mathrm{loc}}$ 还是定义~\ref{def:tex38-budget-local-opt} 意义下的局部最优，
+且不存在这样的语义保持提升，则称其为\emph{不可提升局部最优}。
+\end{definition}
+
+\begin{definition}[一级提升障碍：当前稿件已严格给出的三阶障碍]
+\label{def:tex38-first-obstruction}
+对任意预算 $B$、任意层级 $n\le N(B)$ 与候选代表 $\tau\in\mathcal T_B$，
+定义一级提升障碍类为
+\[
+  \Obs^{(3)}_n(\tau)
+  :=
+  \Jac_n(\tau)
+  =
+  [\Bia_n(\tau)]
+  \in H^3(X_n;V_n).
+\]
+这正是第~\ref{sec:tex38-ch1} 节已经严格写出的 Jacobi--Bianchi 三阶障碍类，
+其最小来源接口与背景说明见 \cite{RepoTex6JacobiGap,GaoZheng2025GFramework}。
+\end{definition}
+
+\begin{definition}[高阶提升障碍塔；新增接口]
+\label{def:tex38-higher-obstruction}
+为表达“更深预算下是否仍可继续提升”，引入一族高阶提升障碍接口
+\[
+  \Obs^{(r)}_n(\tau)\in H^r(X_n;W_n^{(r)}),
+  \qquad
+  r\ge 3.
+\]
+并要求它满足如下提升判别接口：
+\[
+  \tau\ \text{可沿语义保持的修复塔继续提升}
+  \iff
+  \Obs^{(r)}_n(\tau)=0\ \text{对全部相关阶 }r\text{ 成立}.
+\]
+按仓内 \cite{RepoTex22DiscussionGains,RepoTex29TransfiniteRepair,RepoTex32ConditionalConvergence} 的口径，
+这是一条\emph{新增接口假设}：
+其中 $r=3$ 的部分已由定义~\ref{def:tex38-first-obstruction} 与第~\ref{sec:tex38-ch1} 节给出，
+而 $r>3$ 的完整构造并非当前稿件已独立证明的内容。
+\end{definition}
+
+\begin{definition}[粗收敛观测量]
+\label{def:tex38-coarse-observable}
+设
+\[
+  Q_m:\bigcup_{B\in\mathcal B}\mathcal T_B\to\RR
+\]
+是一个只依赖低阶信息、低层投影或有限观测窗口的观测量。
+若存在低阶投影
+\[
+  \pi_{\le m}
+\]
+与某个映射 $\widehat Q_m$ 使
+\[
+  Q_m=\widehat Q_m\circ\pi_{\le m},
+\]
+则称 $Q_m$ 为\emph{粗收敛观测量}。
+它把“收敛外观近似”严格化为“在低阶投影上不可区分”。
+\end{definition}
+
+\begin{definition}[近最优可达覆盖率]
+\label{def:tex38-reachable-coverage}
+固定一个参考预算 $B^\dagger$，并假定对每个 $B\le B^\dagger$ 都存在语义保持嵌入
+\[
+  i_{B,B^\dagger}:\mathcal T_B\hookrightarrow\mathcal T_{B^\dagger}.
+\]
+定义预算 $B$ 在参考深度中的\emph{可达像}为
+\[
+  \mathcal R_B:=i_{B,B^\dagger}(\mathcal T_B)\subseteq\mathcal T_{B^\dagger}.
+\]
+再令
+\[
+  V(B^\dagger):=
+  \min_{\tau\in\mathcal T_{B^\dagger}}\Phi_{B^\dagger}(\tau),
+\]
+\[
+  \mathcal C_\varepsilon
+  :=
+  \{\tau\in\mathcal T_{B^\dagger}:\Phi_{B^\dagger}(\tau)\le V(B^\dagger)+\varepsilon\}
+\]
+为参考预算下的 $\varepsilon$-近最优目标集。
+给定参考测度 $\nu$，定义
+\[
+  h_\varepsilon(B)
+  :=
+  \nu(\mathcal R_B\cap\mathcal C_\varepsilon),
+\]
+并称其为预算 $B$ 下的\emph{近最优可达覆盖率}。
+\end{definition}
+
+\begin{remark}[本章对象与既有主链的关系]
+定义~\ref{def:tex38-budget-truncation}--\ref{def:tex38-reachable-coverage} 不是另起炉灶；
+它们只是把第~\ref{sec:tex38-ch1} 节中的“修复塔 $\to$ 三重编码 $\to$ 截断内唯一选优”主链，
+改写成一个可比较不同预算、不同截断深度与不同提升障碍的统一对象域。
+\end{remark}
+
+\subsection{公理（降级为定理）：预算梯上的截断候选集可递归嵌入}
+\label{subsec:tex38-budget-embedding}
+
+\begin{theorem}[公理（降级为定理）：预算梯上的截断候选集可递归嵌入]
+\label{thm:tex38-budget-embedding}
+设
+\[
+  B^{(0)}\le B^{(1)}\le\cdots\le B^{(m)}
+\]
+为一个有限预算梯。
+若对每个 $0\le j<m$ 都存在语义保持嵌入
+\[
+  i_{j,j+1}:\mathcal T_{B^{(j)}}\hookrightarrow\mathcal T_{B^{(j+1)}}
+\]
+并满足作用量相容性
+\[
+  \Phi_{B^{(j+1)}}\bigl(i_{j,j+1}(\tau)\bigr)=\Phi_{B^{(j)}}(\tau)
+  \qquad
+  (\forall \tau\in\mathcal T_{B^{(j)}}),
+\]
+则对任意 $0\le a\le b\le m$，存在复合嵌入
+\[
+  i_{a,b}:\mathcal T_{B^{(a)}}\hookrightarrow\mathcal T_{B^{(b)}}.
+\]
+特别地，在最深预算 $B^{(m)}$ 中可把这些候选空间识别为一条递增链
+\[
+  i_{0,m}(\mathcal T_{B^{(0)}})
+  \subseteq
+  i_{1,m}(\mathcal T_{B^{(1)}})
+  \subseteq
+  \cdots
+  \subseteq
+  i_{m-1,m}(\mathcal T_{B^{(m-1)}})
+  \subseteq
+  \mathcal T_{B^{(m)}}.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按预算梯层数递归构造复合嵌入]
+\label{cert:tex38-budget-embedding}
+定义谓词
+\[
+  P(k)
+  :
+  \Longleftrightarrow
+  \text{对每个 }0\le a\le k,\ \text{都已构造出 }i_{a,k}:\mathcal T_{B^{(a)}}\hookrightarrow\mathcal T_{B^{(k)}},
+\]
+并且这些嵌入与相邻层嵌入满足复合兼容
+\[
+  i_{a,k+1}=i_{k,k+1}\circ i_{a,k}.
+\]
+证书分两部分：
+\begin{enumerate}
+  \item \textbf{基础步 $P(0)$：}取 $i_{0,0}:=\id_{\mathcal T_{B^{(0)}}}$；
+  \item \textbf{归纳步 $P(k)\Rightarrow P(k+1)$：}若已构造出所有 $i_{a,k}$，则与相邻嵌入 $i_{k,k+1}$ 复合即可得到全部 $i_{a,k+1}$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+对预算梯的层数 $k$ 做数学归纳。
+
+\textbf{基础步：}当 $k=0$ 时，只存在一个候选空间 $\mathcal T_{B^{(0)}}$。
+取
+\[
+  i_{0,0}:=\id_{\mathcal T_{B^{(0)}}},
+\]
+则 $P(0)$ 成立。
+
+\textbf{归纳步：}设 $P(k)$ 成立。
+即对每个 $0\le a\le k$，都已构造出嵌入
+\[
+  i_{a,k}:\mathcal T_{B^{(a)}}\hookrightarrow\mathcal T_{B^{(k)}}.
+\]
+由题设，相邻预算层之间存在语义保持嵌入
+\[
+  i_{k,k+1}:\mathcal T_{B^{(k)}}\hookrightarrow\mathcal T_{B^{(k+1)}}.
+\]
+于是对任意 $0\le a\le k$，定义
+\[
+  i_{a,k+1}:=i_{k,k+1}\circ i_{a,k}.
+\]
+复合映射仍为单射，故
+\[
+  i_{a,k+1}:\mathcal T_{B^{(a)}}\hookrightarrow\mathcal T_{B^{(k+1)}}.
+\]
+这就把所有较浅预算的候选空间一并嵌入到了第 $k+1$ 层预算的候选空间中，故 $P(k+1)$ 成立。
+
+由数学归纳法，$P(k)$ 对全部 $0\le k\le m$ 成立。
+特别地，取最深预算 $B^{(m)}$，就得到
+\[
+  i_{0,m}(\mathcal T_{B^{(0)}})
+  \subseteq
+  i_{1,m}(\mathcal T_{B^{(1)}})
+  \subseteq
+  \cdots
+  \subseteq
+  \mathcal T_{B^{(m)}}.
+\]
+定理成立。
+\end{proof}
+
+\begin{remark}[该定理的角色]
+定理~\ref{thm:tex38-budget-embedding} 的作用不是引入新的深理论，
+而是把“预算升高会保留旧候选、并额外解锁新候选”这一直觉压成可递归调用的正式接口。
+后文关于最优值单调不增与覆盖率单调不减的结论，都以它为基本桥梁。
+\end{remark}
+
+\subsection{定理：量词纠偏}
+\label{subsec:tex38-quantifier-correction}
+
+\begin{theorem}[量词纠偏定理]
+\label{thm:tex38-quantifier-correction}
+命题
+\[
+  \text{“全局最优截断与所有局部最优之间都由上同调障碍分隔”}
+\]
+在一般情形下不成立。
+正确命题应改写为：
+\[
+  \text{“全局最优截断与所有不可提升的局部最优之间，由非零提升障碍类分隔。”}
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：可提升的局部最优不应被记作陷阱]
+\label{cert:tex38-quantifier-correction}
+若存在更高预算 $B'>B$ 与预算投影
+\[
+  p_{B\leftarrow B'}:\mathcal T_{B'}\to\mathcal T_B
+\]
+使得
+\[
+  p_{B\leftarrow B'}(\tau_{B'}^\ast)=\tau_{B,\mathrm{loc}},
+\]
+则 $\tau_{B,\mathrm{loc}}$ 只是更深预算全局最优在浅层的投影像。
+它是可提升的，因此不应被视作“被障碍永久隔开的局部最优陷阱”。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+设存在 $B'>B$ 与预算投影
+\[
+  p_{B\leftarrow B'}:\mathcal T_{B'}\to\mathcal T_B
+\]
+满足
+\[
+  p_{B\leftarrow B'}(\tau_{B'}^\ast)=\tau_{B,\mathrm{loc}}.
+\]
+则按定义~\ref{def:tex38-liftability}，
+\[
+  \tau_{B,\mathrm{loc}}
+  \leadsto
+  \tau_{B'}^\ast
+\]
+是一条合法的语义保持提升链。
+因此 $\tau_{B,\mathrm{loc}}$ 虽然只是在受限子集 $\mathcal U_B$ 上取极小，
+却并不是“到此为止的死陷阱”，而是更深预算最优支路在浅层截断上的影子。
+
+于是，把所有局部最优一概说成“都被障碍与全局最优分隔”，
+就错误地把这类可提升影子也算进去了。
+故原命题中的量词“所有局部最优”过强；
+只有对\emph{不可提升}的局部最优，这一分隔说法才是正确口径。
+定理成立。
+\end{proof}
+
+\begin{remark}[与第~\ref{sec:tex38-ch3} 节的衔接]
+定理~\ref{thm:tex38-quantifier-correction} 实质上把引理~\ref{lem:tex38-bridge-global} 的量词边界继续向前推进了一步：
+“截断内全局最优”不等于“对所有浅层局部极小一概形成障碍分割”。
+真正需要区分的，是局部极小究竟还能不能继续提升。
+\end{remark}
+
+\subsection{引理：一级三阶障碍已经足以分隔一部分局部最优}
+\label{subsec:tex38-first-obstruction}
+
+\begin{lemma}[一级 $H^3$ 障碍的已证分隔]
+\label{lem:tex38-first-obstruction}
+设 $\tau$ 是某个预算层上的候选代表。
+若
+\[
+  \Obs^{(3)}_n(\tau)=\Jac_n(\tau)\neq 0,
+\]
+则 $\tau$ 不能在该层直接成为零缺陷正规形代表；
+因此它不可能属于推论~\ref{cor:tex38-terminal} 所刻画的终端零障碍分支。
+\end{lemma}
+
+\begin{Certificate}[证书：三阶障碍非零与零缺陷正规形互斥]
+\label{cert:tex38-first-obstruction}
+证书由两条已证事实组成：
+\begin{enumerate}
+  \item 按定义~\ref{def:tex38-first-obstruction}，
+  \[
+    \Obs^{(3)}_n(\tau)=\Jac_n(\tau)=[\Bia_n(\tau)];
+  \]
+  \item 按第~\ref{sec:tex38-ch1} 节与推论~\ref{cor:tex38-terminal}，
+  若某代表已经是终端零缺陷正规形，则必须满足
+  \[
+    \Bia_n(\tau)=0.
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+若
+\[
+  \Obs^{(3)}_n(\tau)=\Jac_n(\tau)\neq 0,
+\]
+则由定义~\ref{def:tex38-first-obstruction}，
+\[
+  [\Bia_n(\tau)]\neq 0.
+\]
+反设 $\tau$ 在该层已经是零缺陷正规形代表，
+则应有
+\[
+  \Bia_n(\tau)=0,
+\]
+从而
+\[
+  [\Bia_n(\tau)]=0,
+\]
+与上式矛盾。
+
+故带有非零一级三阶障碍的候选，不可能直接落入零缺陷正规形分支。
+因此它与推论~\ref{cor:tex38-terminal} 所表征的终端零障碍代表之间，
+已经存在一级 $H^3$ 障碍分隔。引理成立。
+\end{proof}
+
+\begin{remark}[这一步是当前稿件真正已经严格证明的部分]
+引理~\ref{lem:tex38-first-obstruction} 只调用了当前稿件已经立住的三件事：
+\[
+  \Jac_n=[\Bia_n]\in H^3(X_n;V_n),
+  \qquad
+  \exists N_\ast\le\mu_0,\ \mu_{N_\ast}=0,
+  \qquad
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+\]
+因此，“一级 $H^3$ 障碍已经能分隔一部分局部最优与终端最优”是已证命题；
+但“全部高阶提升障碍的完整塔式分类”仍需下一小节的新增接口。
+\end{remark}
+
+\subsection{定理：高阶提升障碍导致真正的局部最优陷阱}
+\label{subsec:tex38-higher-obstruction}
+
+\begin{theorem}[高阶提升障碍分隔不可提升局部最优；条件性定理]
+\label{thm:tex38-higher-obstruction}
+在定义~\ref{def:tex38-higher-obstruction} 的高阶提升障碍接口成立的前提下，
+设
+\[
+  \tau_{B,\mathrm{loc}}\in\mathcal U_B
+\]
+是预算 $B$ 下某受限分支上的局部最优。
+若存在某个相关阶 $r\ge 3$ 使
+\[
+  \Obs^{(r)}_{N(B)}(\tau_{B,\mathrm{loc}})\neq 0,
+\]
+则对任意更高预算 $B'>B$，都不存在终端最优代表
+\[
+  \tau_{B'}^\ast\in\mathcal T_{B'}
+\]
+满足
+\[
+  p_{B\leftarrow B'}(\tau_{B'}^\ast)=\tau_{B,\mathrm{loc}}.
+\]
+因此 $\tau_{B,\mathrm{loc}}$ 是一个真正的\emph{局部最优陷阱}。
+\end{theorem}
+
+\begin{Certificate}[证书：非零高阶障碍阻断可提升链]
+\label{cert:tex38-higher-obstruction}
+证书只调用定义~\ref{def:tex38-higher-obstruction} 中的提升判别接口：
+\[
+  \tau\ \text{可提升}
+  \iff
+  \Obs^{(r)}_n(\tau)=0\ \text{对全部相关阶 }r\text{ 成立}.
+\]
+因此，一旦某个相关阶出现非零障碍类，就不能存在保持语义约束的提升链。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+设存在某个相关阶 $r\ge 3$ 满足
+\[
+  \Obs^{(r)}_{N(B)}(\tau_{B,\mathrm{loc}})\neq 0.
+\]
+由证书~\ref{cert:tex38-higher-obstruction}，
+\[
+  \tau_{B,\mathrm{loc}}
+\]
+不能沿语义保持的修复塔继续提升。
+
+反设存在更高预算 $B'>B$ 的终端最优代表
+\[
+  \tau_{B'}^\ast\in\mathcal T_{B'}
+\]
+使得
+\[
+  p_{B\leftarrow B'}(\tau_{B'}^\ast)=\tau_{B,\mathrm{loc}}.
+\]
+则按定义~\ref{def:tex38-liftability}，
+$\tau_{B,\mathrm{loc}}$ 就应当是可提升的。
+这与“某个相关阶障碍非零 $\Rightarrow$ 不可提升”矛盾。
+
+因此，$\tau_{B,\mathrm{loc}}$ 不可能落在任何更深预算的终端最优支路上。
+它只是受限分支内部的极小元，而不是更深预算终端候选集中的可持续极小元；
+换言之，它是一个真正的局部最优陷阱。定理成立。
+\end{proof}
+
+\begin{remark}[条件性边界]
+定理~\ref{thm:tex38-higher-obstruction} 的强度，完全依赖定义~\ref{def:tex38-higher-obstruction} 所引入的高阶障碍接口。
+如果不额外给出 $r>3$ 的障碍类构造与“障碍全零 $\Leftrightarrow$ 可提升”判别，
+那么当前稿件最多只能无条件地停留在引理~\ref{lem:tex38-first-obstruction} 的一级 $H^3$ 结论上。
+\end{remark}
+
+\subsection{命题：粗收敛近似不推出可提升性等价}
+\label{subsec:tex38-coarse-observable}
+
+\begin{proposition}[“收敛外观近似”不推出“对更深全局最优的近似等价”]
+\label{prop:tex38-coarse-observable}
+可能存在两个候选
+\[
+  \tau_1,\tau_2
+\]
+满足它们在某个粗收敛观测量 $Q_m$ 下完全不可区分：
+\[
+  Q_m(\tau_1)=Q_m(\tau_2),
+\]
+但它们在高阶提升障碍上不同：
+\[
+  \Obs^{(r)}(\tau_1)=0,
+  \qquad
+  \Obs^{(r)}(\tau_2)\neq 0
+\]
+对某个 $r>m$ 成立。
+因此
+\[
+  \text{“收敛表现近似”}
+  \not\Longrightarrow
+  \text{“可提升性等价”}
+\]
+也就不推出
+\[
+  \text{“对更深层全局最优的逼近能力等价”}.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：低阶投影相同不意味着高阶障碍相同]
+\label{cert:tex38-coarse-observable}
+证书包含两条记录：
+\begin{enumerate}
+  \item 按定义~\ref{def:tex38-coarse-observable}，若
+  \[
+    \pi_{\le m}(\tau_1)=\pi_{\le m}(\tau_2),
+  \]
+  则
+  \[
+    Q_m(\tau_1)=Q_m(\tau_2);
+  \]
+  \item 高阶提升障碍可以落在 $r>m$ 的层级上，因此不必被 $\pi_{\le m}$ 看见。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+若
+\[
+  \pi_{\le m}(\tau_1)=\pi_{\le m}(\tau_2),
+\]
+则由定义~\ref{def:tex38-coarse-observable}，
+\[
+  Q_m(\tau_1)
+  =
+  \widehat Q_m(\pi_{\le m}(\tau_1))
+  =
+  \widehat Q_m(\pi_{\le m}(\tau_2))
+  =
+  Q_m(\tau_2).
+\]
+故二者在粗观测下可能完全一致。
+
+但若存在某个 $r>m$ 使
+\[
+  \Obs^{(r)}(\tau_1)=0,
+  \qquad
+  \Obs^{(r)}(\tau_2)\neq 0,
+\]
+则按定义~\ref{def:tex38-higher-obstruction} 的接口语义，
+$\tau_1$ 仍可继续提升，而 $\tau_2$ 会在该高阶障碍处被卡住。
+
+因此，它们虽然“看起来都在收敛”，
+却并不具备同样的深层提升能力，也不具备对更深预算全局最优的同等逼近能力。
+命题成立。
+\end{proof}
+
+\begin{remark}[这一步对应的直观句子]
+命题~\ref{prop:tex38-coarse-observable} 把一句常见直觉严格化为：
+\[
+  \text{“浅层收敛外观相似”}
+  \neq
+  \text{“对更深层全局最优的近似效果相同”}.
+\]
+真正区分两者的，不一定是浅层可见的数值外观，而可能是高阶上同调障碍是否已经清零。
+\end{remark}
+
+\subsection{定理：预算提升下的最优值与可达覆盖率单调性}
+\label{subsec:tex38-budget-monotonicity}
+
+\begin{theorem}[预算提升下，全局最优截断值单调不增]
+\label{thm:tex38-budget-value}
+设 $B_1\le B_2$，并假定存在语义保持嵌入
+\[
+  i_{B_1,B_2}:\mathcal T_{B_1}\hookrightarrow \mathcal T_{B_2}
+\]
+使作用量相容：
+\[
+  \Phi_{B_2}\bigl(i_{B_1,B_2}(\tau)\bigr)=\Phi_{B_1}(\tau)
+  \qquad
+  (\forall \tau\in\mathcal T_{B_1}).
+\]
+记最优值函数为
+\[
+  V(B):=
+  \min_{\tau\in\mathcal T_B}\Phi_B(\tau).
+\]
+则有
+\[
+  V(B_2)\le V(B_1).
+\]
+若更高预算新解锁了某个候选
+\[
+  \tau_{\mathrm{new}}\in\mathcal T_{B_2}\setminus i_{B_1,B_2}(\mathcal T_{B_1})
+\]
+并满足
+\[
+  \Phi_{B_2}(\tau_{\mathrm{new}})<V(B_1),
+\]
+则严格有
+\[
+  V(B_2)<V(B_1).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：嵌入像包含于更大候选空间]
+\label{cert:tex38-budget-value}
+证书包含两条：
+\begin{enumerate}
+  \item 由嵌入
+  \[
+    i_{B_1,B_2}(\mathcal T_{B_1})\subseteq\mathcal T_{B_2};
+  \]
+  \item 由作用量相容性，
+  \[
+    \Phi_{B_2}\bigl(i_{B_1,B_2}(\tau)\bigr)=\Phi_{B_1}(\tau).
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex38-budget-value} 的第一条，
+\[
+  i_{B_1,B_2}(\mathcal T_{B_1})\subseteq\mathcal T_{B_2}.
+\]
+因此
+\[
+  V(B_2)
+  =
+  \min_{\tau\in\mathcal T_{B_2}}\Phi_{B_2}(\tau)
+  \le
+  \min_{\tau\in i_{B_1,B_2}(\mathcal T_{B_1})}\Phi_{B_2}(\tau).
+\]
+再由作用量相容性，
+\[
+  \min_{\tau\in i_{B_1,B_2}(\mathcal T_{B_1})}\Phi_{B_2}(\tau)
+  =
+  \min_{\tau\in\mathcal T_{B_1}}\Phi_{B_1}(\tau)
+  =
+  V(B_1).
+\]
+故
+\[
+  V(B_2)\le V(B_1).
+\]
+
+若更高预算新解锁的候选 $\tau_{\mathrm{new}}$ 满足
+\[
+  \Phi_{B_2}(\tau_{\mathrm{new}})<V(B_1),
+\]
+则
+\[
+  V(B_2)\le\Phi_{B_2}(\tau_{\mathrm{new}})<V(B_1),
+\]
+于是严格下降成立。定理成立。
+\end{proof}
+
+\begin{theorem}[预算提升下，近最优可达覆盖率单调不减]
+\label{thm:tex38-budget-coverage}
+在定义~\ref{def:tex38-reachable-coverage} 的设定下，
+若
+\[
+  B_1\le B_2
+  \Longrightarrow
+  \mathcal R_{B_1}\subseteq \mathcal R_{B_2},
+\]
+则
+\[
+  h_\varepsilon(B_1)\le h_\varepsilon(B_2).
+\]
+若新增可达部分满足
+\[
+  (\mathcal R_{B_2}\setminus\mathcal R_{B_1})\cap\mathcal C_\varepsilon\neq\varnothing
+\]
+且该部分具有正 $\nu$-测度，
+则严格有
+\[
+  h_\varepsilon(B_1)<h_\varepsilon(B_2).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：集合包含关系推出测度单调性]
+\label{cert:tex38-budget-coverage}
+证书只有一条核心事实：
+若
+\[
+  A\subseteq B,
+\]
+则对任意单调测度 $\nu$ 都有
+\[
+  \nu(A)\le \nu(B).
+\]
+把它应用到
+\[
+  A=\mathcal R_{B_1}\cap\mathcal C_\varepsilon,
+  \qquad
+  B=\mathcal R_{B_2}\cap\mathcal C_\varepsilon
+\]
+即可。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由题设
+\[
+  \mathcal R_{B_1}\subseteq \mathcal R_{B_2},
+\]
+得
+\[
+  \mathcal R_{B_1}\cap\mathcal C_\varepsilon
+  \subseteq
+  \mathcal R_{B_2}\cap\mathcal C_\varepsilon.
+\]
+于是由测度单调性，
+\[
+  h_\varepsilon(B_1)
+  =
+  \nu(\mathcal R_{B_1}\cap\mathcal C_\varepsilon)
+  \le
+  \nu(\mathcal R_{B_2}\cap\mathcal C_\varepsilon)
+  =
+  h_\varepsilon(B_2).
+\]
+
+若
+\[
+  (\mathcal R_{B_2}\setminus\mathcal R_{B_1})\cap\mathcal C_\varepsilon
+\]
+具有正 $\nu$-测度，则上述包含关系为真包含，故严格不等式成立。
+定理成立。
+\end{proof}
+
+\begin{remark}[关于“命中率必然严格上升”的边界]
+若不额外加入搜索策略分配假设，
+则当前最稳的写法只能是“近最优可达覆盖率单调不减；若确实新解锁了正测度的近最优区域，则严格上升”。
+直接说“概率意义下的精确命中率必然严格上升”仍然过强。
+\end{remark}
+
+\subsection{推论与备注：原句的严格版本}
+\label{subsec:tex38-budget-corollary}
+
+\begin{corollary}[原句的严格版本]
+\label{cor:tex38-budget-strict}
+在高阶提升障碍接口与预算单调嵌入接口成立时，可以把相关结论严格写成：
+\[
+  \begin{aligned}
+    &\text{给定预算 }B\text{ 时，}\tau_B^\ast\text{ 是该预算可达截断候选集 }\mathcal T_B\text{ 上的全局最优截断代表；}\\
+    &\text{任何不可提升的局部最优，都会被某个非零提升障碍类与更深预算下的全局最优支路分隔；}\\
+    &\text{因此，浅层局部最优即使在粗收敛观测下与全局截断近似，}\\
+    &\text{也仍可能因为高阶上同调障碍而无法逼近更深层全局最优；}\\
+    &\text{而随着算力提升，截断候选空间的可达像扩张会使全局最优截断值单调不增，}\\
+    &\text{并使近最优可达覆盖率单调不减。}
+  \end{aligned}
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：量词纠偏 + 障碍分隔 + 单调扩张]
+\label{cert:tex38-budget-strict}
+证书由四段组成：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-quantifier-correction} 给出正确的量词口径；
+  \item 引理~\ref{lem:tex38-first-obstruction} 与定理~\ref{thm:tex38-higher-obstruction} 给出一级已证分隔与高阶条件性分隔；
+  \item 命题~\ref{prop:tex38-coarse-observable} 说明粗收敛近似不足以保证深层可提升性等价；
+  \item 定理~\ref{thm:tex38-budget-value} 与定理~\ref{thm:tex38-budget-coverage} 给出预算提升时的单调性。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex38-quantifier-correction}，
+浅层局部极小并不自动等于真正陷阱；
+只有不可提升者，才应被归入“由障碍与更深预算全局最优分隔”的类别。
+
+再由引理~\ref{lem:tex38-first-obstruction}，
+当前稿件已经无条件证明：非零一级 $H^3$ 障碍足以把一部分局部候选挡在零缺陷终端分支之外。
+进一步在高阶接口成立时，由定理~\ref{thm:tex38-higher-obstruction}，
+任一带非零高阶提升障碍的不可提升局部最优，都会与更深预算全局最优支路分离。
+
+由命题~\ref{prop:tex38-coarse-observable}，
+浅层粗观测下的近似收敛外观，并不足以推出深层可提升性等价。
+因此“看起来差不多”与“对更深层全局最优真的等价接近”是两回事。
+
+最后，由定理~\ref{thm:tex38-budget-value} 与定理~\ref{thm:tex38-budget-coverage}，
+预算提升会扩张可比较候选与可达像，
+从而使最优值单调不增、近最优可达覆盖率单调不减。
+于是推论中的压缩表述完全成立。推论成立。
+\end{proof}
+
+\begin{remark}[当前稿件已经严格有的部分]
+当前稿件无条件已经立住的，是以下三层：
+\begin{enumerate}
+  \item 一级三阶障碍
+  \[
+    \Jac_n=[\Bia_n]\in H^3(X_n;V_n);
+  \]
+  \item 有限终止
+  \[
+    \mu_{n+1}\le\mu_n-1,
+    \qquad
+    \exists N_\ast\le\mu_0,\ \mu_{N_\ast}=0;
+  \]
+  \item 终端零缺陷分支上的唯一选优
+  \[
+    \tau^\ast
+    =
+    \operatorname*{arg\,min}_{\tau\in\mathcal T_{N_\ast}(s,t)}\Phi(\tau),
+    \qquad
+    \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+  \]
+\end{enumerate}
+这三件事已经足够支持“截断内全局最优 + 一级障碍分隔 + 终端零缺陷落点”的严格表述。
+\end{remark}
+
+\begin{remark}[仍待补强的接口]
+若要把“高阶上同调障碍”写成完全无条件的主定理，还需要补齐
+\[
+  \Obs^{(r)}_n(\tau)\in H^r(X_n;W_n^{(r)}),
+  \qquad
+  r>3,
+\]
+及其“全零当且仅当可提升”的判别证明。
+在这套接口尚未独立构造完成之前，本章关于高阶障碍的强结论都应读作\textbf{条件性定理}。
+\end{remark}
+
+\begin{remark}[一句最稳的压缩表达]
+若把本章压成一句最稳妥的话，可写成：
+\[
+  \begin{aligned}
+    &\text{当前预算下的全局最优截断代表，只严格优于受限分支上的不可提升局部最优；}\\
+    &\text{二者的真正差异不一定体现在浅层收敛外观上，而体现在是否存在非零提升障碍类；}\\
+    &\text{算力提升的本质，是通过更深截断持续解除这些障碍，从而扩张可达候选空间并改善逼近。}
+  \end{aligned}
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：局部最优到终端全局最优的提升路径最优性}
+\label{sec:tex38-ch3b}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[类型纠偏]
+原句
+\[
+  \text{“全局最优 = 一条最优变分路径”}
+\]
+把两种不同类型的对象混写在一起：左端 $\tau^\ast$ 是终端正规形/支撑类编码中的极小元，右端 $\ell$ 是跨层提升路径。
+因此，可严格成立且最贴近原意的表达应改写为：
+\[
+  \operatorname{end}(\ell^\ast)=\tau^\ast,
+  \qquad
+  \ell^\ast
+  =
+  \operatorname*{arg\,min}_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}
+  \Psi(\ell).
+\]
+也就是说，终端唯一全局最优正规形 $\tau^\ast$ 的\textbf{实现证书}，不是把对象与路径强行等同，而是把 $\tau^\ast$ 识别为某条唯一最优提升路径 $\ell^\ast$ 的终点。
+\end{remark}
+
+\begin{remark}[仓内外承接]
+本节承接第~\ref{sec:tex38-ch1} 节的终端唯一最优链
+\[
+  \text{修复塔}
+  \Longrightarrow
+  \text{可行路径空间}
+  \Longrightarrow
+  \text{唯一最优路径类}
+  \Longrightarrow
+  \text{终点正规形},
+\]
+并把第~\ref{sec:tex38-ch3a} 节的“局部最优/可提升性/高阶障碍”对象域，进一步收束为“固定终端点 $\tau^\ast$ 的最优提升路径”问题。
+接口口径优先对齐仓内关于修复塔、条件性收敛、三重编码与微观隧穿命中的文稿
+\cite{RepoTex29TransfiniteRepair,RepoTex31RepairTower,RepoTex32ConditionalConvergence,RepoTex36HomotopyTwistBijection}；
+高阶障碍、提升判别与同伦对象的外部背景，可参照
+\cite{Whitehead1978Elements,Weibel1994HomologicalAlgebra}。
+\end{remark}
+
+\subsection{对象域：层级候选集、局部盆、提升关系与路径作用量}
+\label{subsec:tex38-liftpath-objects}
+
+\begin{definition}[层级候选集、局部盆与局部最优]
+\label{def:tex38-lift-basin}
+固定由定理~\ref{thm:tex38-axiom-downgrade} 给出的终端层级 $N_\ast$。
+对每个
+\[
+  0\le n\le N_\ast,
+\]
+设存在有限候选集
+\[
+  \mathcal T_n,
+\]
+并要求终端层满足
+\[
+  \mathcal T_{N_\ast}=\mathcal T_{N_\ast}(s,t).
+\]
+再设存在有限指标集 $I_n$，使
+\[
+  \mathcal T_n=\bigsqcup_{\alpha\in I_n}\mathfrak B_{n,\alpha},
+\]
+其中 $\mathfrak B_{n,\alpha}$ 称为第 $n$ 层的\emph{局部盆}。
+
+给定阶段作用量
+\[
+  \Phi_n:\mathcal T_n\to\RR,
+\]
+定义第 $n$ 层的局部最优集合为
+\[
+  \operatorname{Loc}_n
+  :=
+  \left\{
+    \tau\in\mathcal T_n:
+    \exists \alpha\in I_n,\
+    \tau\in\mathfrak B_{n,\alpha},\
+    \Phi_n(\tau)=\min_{\eta\in\mathfrak B_{n,\alpha}}\Phi_n(\eta)
+  \right\}.
+\]
+\end{definition}
+
+\begin{definition}[层级扩展与三重编码空间的同步扩展]
+\label{def:tex38-lift-expansion}
+对每个 $0\le n<N_\ast$，设存在单射
+\[
+  \iota_n^{\mathcal F}:\mathcal F_n(s,t)\hookrightarrow \mathcal F_{n+1}(s,t),
+  \qquad
+  \iota_n^\Pi:\Pi_n(s,t)\hookrightarrow \Pi_{n+1}(s,t),
+  \qquad
+  \iota_n^{\mathcal T}:\mathcal T_n\hookrightarrow \mathcal T_{n+1},
+\]
+并且这些嵌入与命题~\ref{prop:tex38-bijection} 在终端层给出的
+\[
+  \mathcal F_{N_\ast}(s,t)
+  \cong_{\mathrm{set}}
+  \Pi_{N_\ast}(s,t)
+  \cong_{\mathrm{set}}
+  \mathcal T_{N_\ast}(s,t)
+\]
+三重编码相容。
+于是
+\[
+  \text{提升修复塔层级}
+  \Longrightarrow
+  \text{纤维终点空间扩展}
+  \Longrightarrow
+  \text{路径支撑类空间扩展}
+  \Longrightarrow
+  \text{正规形候选空间扩展}
+\]
+被视为同一层级扩展的三种编码面向。
+\end{definition}
+
+\begin{definition}[提升关系]
+\label{def:tex38-lift-relation}
+对每个 $0\le n<N_\ast$ 与每个 $\tau\in\mathcal T_n$，定义提升关系
+\[
+  \Lift_n(\tau)\subseteq \mathcal T_{n+1}.
+\]
+若
+\[
+  \eta\in\Lift_n(\tau),
+\]
+则记
+\[
+  \tau\rightsquigarrow \eta
+\]
+为一条\emph{合法提升步}。
+这里的 $\Lift_n(\tau)$ 由第 $n$ 层修复步 $R_n$ 与同伦扭曲/正规化兼容性共同决定。
+\end{definition}
+
+\begin{definition}[高阶提升障碍与活跃障碍计数]
+\label{def:tex38-lift-obstruction}
+在定义~\ref{def:tex38-higher-obstruction} 的高阶障碍接口基础上，
+对每个 $\tau\in\mathcal T_n$ 定义提升障碍族
+\[
+  \Obs_n^\uparrow(\tau)
+  :=
+  \bigl(\Obs_n^{(r)}(\tau)\bigr)_{r=3}^{R_n},
+  \qquad
+  \Obs_n^{(r)}(\tau)\in H^r(X_n;W_n^{(r)}).
+\]
+其中
+\[
+  \Obs_n^{(3)}(\tau)=\Jac_n(\tau)
+\]
+与定义~\ref{def:tex38-first-obstruction} 一致。
+
+定义活跃障碍计数
+\[
+  \nu_n(\tau)
+  :=
+  \#\bigl\{
+    r\in\{3,\dots,R_n\}:\Obs_n^{(r)}(\tau)\neq 0
+  \bigr\}.
+\]
+\end{definition}
+
+\begin{definition}[微观隧穿命中]
+\label{def:tex38-micro-hit}
+设 $\eta\in\Lift_n(\tau)$，并记 $\mathfrak B_n(\tau)$ 为定义~\ref{def:tex38-lift-basin} 中包含 $\tau$ 的唯一局部盆。
+若同时满足：
+\begin{enumerate}
+  \item
+  \[
+    \eta\notin \iota_n^{\mathcal T}\bigl(\mathfrak B_n(\tau)\bigr);
+  \]
+  \item
+  \[
+    \nu_{n+1}(\eta)\le \nu_n(\tau)-1;
+  \]
+\end{enumerate}
+则称合法提升步
+\[
+  \tau\rightsquigarrow \eta
+\]
+为一次\emph{微观隧穿命中}。
+\end{definition}
+
+\begin{definition}[局部最优到终端全局最优的提升路径集合]
+\label{def:tex38-liftpath-family}
+设
+\[
+  \tau^\ast\in\mathcal T_{N_\ast}(s,t)
+\]
+是定理~\ref{thm:tex38-optimal} 给出的唯一终端全局最优正规形。
+定义从局部最优到 $\tau^\ast$ 的提升路径集合为
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+  :=
+  \bigcup_{0\le n_0<N_\ast}
+  \left\{
+    (\tau_{n_0},\tau_{n_0+1},\dots,\tau_{N_\ast}) :
+    \begin{array}{l}
+      \tau_{n_0}\in\operatorname{Loc}_{n_0},\\
+      \tau_{k+1}\in\Lift_k(\tau_k)\ \ (n_0\le k<N_\ast),\\
+      \tau_{N_\ast}=\tau^\ast
+    \end{array}
+  \right\}.
+\]
+并对每个 $0\le n\le N_\ast$ 与 $\tau\in\mathcal T_n$，定义从中间状态 $\tau$ 出发到 $\tau^\ast$ 的路径族
+\[
+  \mathfrak L_n(\tau,\tau^\ast)
+  :=
+  \left\{
+    (\tau_n,\tau_{n+1},\dots,\tau_{N_\ast}) :
+    \begin{array}{l}
+      \tau_n=\tau,\\
+      \tau_{k+1}\in\Lift_k(\tau_k)\ \ (n\le k<N_\ast),\\
+      \tau_{N_\ast}=\tau^\ast
+    \end{array}
+  \right\}.
+\]
+\end{definition}
+
+\begin{definition}[路径作用量与严格化路径作用量]
+\label{def:tex38-liftpath-action}
+给定每一步的转移代价
+\[
+  c_k:\operatorname{Graph}(\Lift_k)\to\RR_{\ge 0}.
+\]
+对任一路径
+\[
+  \ell=(\tau_{n_0},\tau_{n_0+1},\dots,\tau_{N_\ast})
+  \in
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast},
+\]
+定义总路径作用量
+\[
+  \mathbb A(\ell)
+  :=
+  \Phi_{n_0}(\tau_{n_0})
+  +
+  \sum_{k=n_0}^{N_\ast-1}c_k(\tau_k,\tau_{k+1}).
+\]
+
+一旦定义~\ref{def:tex38-liftpath-family} 中的路径集非空且有限，
+取一个与某全序兼容的秩函数
+\[
+  \Lambda_{\mathrm{path}}:
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+  \to
+  \{1,\dots,M_{\mathrm{path}}\},
+  \qquad
+  M_{\mathrm{path}}
+  :=
+  \bigl|\mathfrak L^{\mathrm{loc}\to\tau^\ast}\bigr|.
+\]
+若 $\mathbb A$ 非常值，定义最小正间距
+\[
+  \Delta_{\mathrm{path}}
+  :=
+  \min\bigl\{
+    |\mathbb A(\ell)-\mathbb A(\ell')|:
+    \mathbb A(\ell)\neq \mathbb A(\ell')
+  \bigr\}>0,
+\]
+再取
+\[
+  0<\delta<\frac{\Delta_{\mathrm{path}}}{M_{\mathrm{path}}+1},
+\]
+并定义严格化路径作用量
+\[
+  \Psi(\ell)
+  :=
+  \mathbb A(\ell)+\delta\,\Lambda_{\mathrm{path}}(\ell).
+\]
+若 $\mathbb A$ 为常值，则直接定义
+\[
+  \Psi(\ell):=\Lambda_{\mathrm{path}}(\ell).
+\]
+\end{definition}
+
+\begin{remark}[这一对象域与第~\ref{sec:tex38-ch3a} 节的关系]
+第~\ref{sec:tex38-ch3a} 节已经固定了预算、可提升性与高阶障碍的基本接口；
+本节只是进一步固定终端点 $\tau^\ast$，并把“预算提升链”改写成“跨层合法提升步 + 路径作用量 + 微观隧穿命中”的路径选择问题。
+因此，本节新增的是\textbf{实现证书的路径语言}，而不是替换已有的终端唯一最优结论。
+\end{remark}
+
+\subsection{公理（降级为定理）：终端导向的合法提升路径族可按剩余层数递归构造}
+\label{subsec:tex38-liftpath-finite}
+
+\begin{theorem}[公理（降级为定理）：终端导向的合法提升路径族有限且可递归构造]
+\label{thm:tex38-liftpath-finite}
+设
+\[
+  N_\ast<\infty,
+  \qquad
+  |\mathcal T_n|<\infty
+  \quad
+  (0\le n\le N_\ast),
+\]
+并且对任意 $0\le n<N_\ast$ 与任意 $\tau\in\mathcal T_n$ 都有
+\[
+  |\Lift_n(\tau)|<\infty.
+\]
+则对每个 $0\le n\le N_\ast$ 与每个 $\tau\in\mathcal T_n$，路径族
+\[
+  \mathfrak L_n(\tau,\tau^\ast)
+\]
+都可按剩余层数 $N_\ast-n$ 递归构造，且为有限集。
+特别地，若
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}\neq\varnothing,
+\]
+则
+\[
+  \bigl|\mathfrak L^{\mathrm{loc}\to\tau^\ast}\bigr|<\infty.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按剩余层数 $m=N_\ast-n$ 的合法提升路径谓词]
+\label{cert:tex38-liftpath-finite}
+定义谓词
+\[
+  P(m)
+  :
+  \Longleftrightarrow
+  \text{对任意满足 }N_\ast-n=m\text{ 的层级 }n\text{ 与任意 }\tau\in\mathcal T_n,\
+  \mathfrak L_n(\tau,\tau^\ast)\text{ 可递归构造且有限}.
+\]
+证书分两步：
+\begin{enumerate}
+  \item \textbf{基础步 $P(0)$：}此时 $n=N_\ast$，路径长度为零，只有“$\tau=\tau^\ast$ 时为单点路径、否则为空”的两种情形；
+  \item \textbf{归纳步 $P(m)\Rightarrow P(m+1)$：}若对所有剩余层数为 $m$ 的状态都已能递归列出有限路径族，则对剩余层数为 $m+1$ 的任意 $\tau$，
+  只需枚举有限个后继 $\eta\in\Lift_n(\tau)$，并把 $\tau$ 接到每个子路径族 $\mathfrak L_{n+1}(\eta,\tau^\ast)$ 的前端即可。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+对剩余层数
+\[
+  m=N_\ast-n
+\]
+做数学归纳。
+
+\textbf{基础步：}当 $m=0$ 时，$n=N_\ast$。
+若 $\tau=\tau^\ast$，则
+\[
+  \mathfrak L_{N_\ast}(\tau^\ast,\tau^\ast)=\{(\tau^\ast)\};
+\]
+若 $\tau\neq\tau^\ast$，则
+\[
+  \mathfrak L_{N_\ast}(\tau,\tau^\ast)=\varnothing.
+\]
+两种情形都显然可构造且有限，故 $P(0)$ 成立。
+
+\textbf{归纳步：}设 $P(m)$ 成立，取满足 $N_\ast-n=m+1$ 的任意层级 $n$ 与任意 $\tau\in\mathcal T_n$。
+由定义~\ref{def:tex38-lift-relation}，
+\[
+  \Lift_n(\tau)
+\]
+是有限集。
+而任意从 $\tau$ 到 $\tau^\ast$ 的合法提升路径，其第一步必先达到某个
+\[
+  \eta\in\Lift_n(\tau),
+\]
+故有分解
+\[
+  \mathfrak L_n(\tau,\tau^\ast)
+  =
+  \bigcup_{\eta\in\Lift_n(\tau)}
+  \left\{
+    (\tau,\tau_{n+1},\dots,\tau_{N_\ast}):
+    (\tau_{n+1},\dots,\tau_{N_\ast})\in\mathfrak L_{n+1}(\eta,\tau^\ast)
+  \right\}.
+\]
+对每个后继 $\eta$，其剩余层数为
+\[
+  N_\ast-(n+1)=m,
+\]
+故由归纳假设，
+\[
+  \mathfrak L_{n+1}(\eta,\tau^\ast)
+\]
+可递归构造且有限。
+有限个有限集并起来仍有限，因此
+\[
+  \mathfrak L_n(\tau,\tau^\ast)
+\]
+也可递归构造且有限。
+于是 $P(m+1)$ 成立。
+
+由数学归纳法，$P(m)$ 对全部 $m$ 成立。
+再由定义~\ref{def:tex38-liftpath-family}，
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+只是有限多个局部最优起点上路径族的并，因此在非空时亦为有限集。定理成立。
+\end{proof}
+
+\subsection{引理：Bellman 型余下代价递推给出最优子结构}
+\label{subsec:tex38-bellman}
+
+\begin{lemma}[Bellman 型余下代价递推正确]
+\label{lem:tex38-bellman}
+对每个 $0\le n\le N_\ast$ 与每个 $\tau\in\mathcal T_n$，定义余下代价函数
+\[
+  V_{N_\ast}(\tau)
+  :=
+  \begin{cases}
+    0,&\tau=\tau^\ast,\\
+    +\infty,&\tau\neq\tau^\ast,
+  \end{cases}
+\]
+并对 $0\le n<N_\ast$ 递推定义
+\[
+  V_n(\tau)
+  :=
+  \min_{\eta\in\Lift_n(\tau)}
+  \bigl(
+    c_n(\tau,\eta)+V_{n+1}(\eta)
+  \bigr).
+\]
+若
+\[
+  \mathfrak L_n(\tau,\tau^\ast)\neq\varnothing,
+\]
+则有
+\[
+  V_n(\tau)
+  =
+  \min_{\ell=(\tau_n,\dots,\tau_{N_\ast})\in\mathfrak L_n(\tau,\tau^\ast)}
+  \sum_{k=n}^{N_\ast-1}c_k(\tau_k,\tau_{k+1}).
+\]
+特别地，任一达到上述最小值的路径，其每个后缀子路径仍然是对应起点到 $\tau^\ast$ 的最优子路径。
+\end{lemma}
+
+\begin{Certificate}[证书：首步分解 + 反向归纳 + 后缀替换反证]
+\label{cert:tex38-bellman}
+证书分三段：
+\begin{enumerate}
+  \item \textbf{首步分解：}任一从 $\tau$ 到 $\tau^\ast$ 的合法路径，第一步都必须先走到某个 $\eta\in\Lift_n(\tau)$；
+  \item \textbf{反向归纳：}对剩余层数 $N_\ast-n$ 做反向归纳，可把“第一步代价 + 子问题最优值”递推为整个余下代价的最小值；
+  \item \textbf{后缀替换反证：}若某条最优路径的某个后缀不是其起点到 $\tau^\ast$ 的最优子路径，则可用更优后缀替换，从而得到更低总代价，矛盾。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+先证余下代价递推的正确性。
+对剩余层数
+\[
+  N_\ast-n
+\]
+做反向归纳。
+
+\textbf{基础步：}当 $n=N_\ast$ 时，定义直接给出
+\[
+  V_{N_\ast}(\tau^\ast)=0,
+  \qquad
+  V_{N_\ast}(\tau)=+\infty\quad(\tau\neq\tau^\ast),
+\]
+与长度为零的终端路径完全一致。
+
+\textbf{归纳步：}设结论对 $n+1$ 成立。
+取任意满足
+\[
+  \mathfrak L_n(\tau,\tau^\ast)\neq\varnothing
+\]
+的状态 $\tau\in\mathcal T_n$。
+任一路径
+\[
+  \ell=(\tau_n,\tau_{n+1},\dots,\tau_{N_\ast})\in\mathfrak L_n(\tau,\tau^\ast)
+\]
+的第一步都必须满足
+\[
+  \tau_{n+1}\in\Lift_n(\tau),
+\]
+且其总代价可分解为
+\[
+  c_n(\tau,\tau_{n+1})
+  +
+  \sum_{k=n+1}^{N_\ast-1}c_k(\tau_k,\tau_{k+1}).
+\]
+由归纳假设，后一段和式的最小值恰为
+\[
+  V_{n+1}(\tau_{n+1}).
+\]
+因此，从 $\tau$ 到 $\tau^\ast$ 的全部合法路径的最小余下代价即为
+\[
+  \min_{\eta\in\Lift_n(\tau)}
+  \bigl(
+    c_n(\tau,\eta)+V_{n+1}(\eta)
+  \bigr)
+  =
+  V_n(\tau).
+\]
+归纳完成。
+
+再证后缀最优性。
+设
+\[
+  \ell^\sharp=(\tau_n^\sharp,\tau_{n+1}^\sharp,\dots,\tau_{N_\ast}^\sharp)
+\]
+达到上述最小值。
+固定任意
+\[
+  m\in\{n,\dots,N_\ast-1\},
+\]
+考虑其后缀
+\[
+  \ell^\sharp_{\ge m}
+  :=
+  (\tau_m^\sharp,\tau_{m+1}^\sharp,\dots,\tau_{N_\ast}^\sharp).
+\]
+若该后缀不是从 $\tau_m^\sharp$ 到 $\tau^\ast$ 的最优子路径，则存在另一条后缀
+\[
+  \widetilde\ell_{\ge m}
+\]
+使其余下代价严格更小。
+把 $\ell^\sharp$ 在第 $m$ 层之后替换为 $\widetilde\ell_{\ge m}$，就得到一条新的合法路径，其总代价严格小于 $\ell^\sharp$ 的总代价，
+这与 $\ell^\sharp$ 的最优性矛盾。
+故每个后缀子路径都必须最优。引理成立。
+\end{proof}
+
+\subsection{定理：终端全局最优的实现证书等于唯一最优提升路径}
+\label{subsec:tex38-liftpath-optimal}
+
+\begin{theorem}[终端全局最优的实现证书等于唯一最优提升路径；条件性定理]
+\label{thm:tex38-liftpath-optimal}
+在定义~\ref{def:tex38-lift-basin}--\ref{def:tex38-liftpath-action} 的对象域中，进一步假定：
+\begin{enumerate}
+  \item[\textbf{A.}] \textbf{有限性与可达性：}
+  \[
+    N_\ast<\infty,
+    \qquad
+    |\mathcal T_n|<\infty
+    \quad
+    (0\le n\le N_\ast),
+    \qquad
+    \mathfrak L^{\mathrm{loc}\to\tau^\ast}\neq\varnothing;
+  \]
+  \item[\textbf{B.}] \textbf{终端唯一全局最优：}
+  在终端层，$\Phi_{N_\ast}$ 与定理~\ref{thm:tex38-optimal} 中的严格化作用量 $\Phi$ 一致，且
+  \[
+    \tau^\ast
+    =
+    \operatorname*{arg\,min}_{\tau\in\mathcal T_{N_\ast}(s,t)}
+    \Phi_{N_\ast}(\tau)
+  \]
+  唯一成立；
+  \item[\textbf{C.}] \textbf{盆内刚性：}若
+  \[
+    \eta\in\Lift_n(\tau)\cap \iota_n^{\mathcal T}\bigl(\mathfrak B_n(\tau)\bigr),
+  \]
+  则有
+  \[
+    \nu_{n+1}(\eta)\ge \nu_n(\tau);
+  \]
+  \item[\textbf{D.}] \textbf{命中步存在性：}若
+  \[
+    \mathfrak L_n(\tau,\tau^\ast)\neq\varnothing
+    \qquad\text{且}\qquad
+    \nu_n(\tau)>0,
+  \]
+  则存在某个
+  \[
+    \eta\in\Lift_n(\tau)
+  \]
+  使
+  \[
+    \tau\rightsquigarrow\eta
+  \]
+  是一次微观隧穿命中；
+  \item[\textbf{E.}] \textbf{严格隧穿优势：}对每个满足 $\nu_n(\tau)>0$ 的状态，定义
+  \[
+    \Lift_n^{\mathrm{hit}}(\tau)
+    :=
+    \bigl\{
+      \eta\in\Lift_n(\tau):
+      \tau\rightsquigarrow\eta\text{ 是微观隧穿命中}
+    \bigr\},
+  \]
+  \[
+    \Lift_n^{\mathrm{stay}}(\tau)
+    :=
+    \Lift_n(\tau)\setminus\Lift_n^{\mathrm{hit}}(\tau),
+  \]
+  并约定对空集合取最小值时结果为 $+\infty$。
+  则有严格不等式
+  \[
+    \min_{\eta\in\Lift_n^{\mathrm{hit}}(\tau)}
+    \bigl(
+      c_n(\tau,\eta)+V_{n+1}(\eta)
+    \bigr)
+    <
+    \min_{\eta\in\Lift_n^{\mathrm{stay}}(\tau)}
+    \bigl(
+      c_n(\tau,\eta)+V_{n+1}(\eta)
+    \bigr).
+  \]
+\end{enumerate}
+则存在唯一一条路径
+\[
+  \ell^\ast\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+使
+\[
+  \Psi(\ell^\ast)
+  =
+  \min_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}
+  \Psi(\ell).
+\]
+并且：
+\begin{enumerate}
+  \item
+  \[
+    \operatorname{end}(\ell^\ast)=\tau^\ast,
+  \]
+  且 $\ell^\ast$ 始于某个局部最优
+  \[
+    \tau_{n_0}^\ast\in\operatorname{Loc}_{n_0};
+  \]
+  \item $\ell^\ast$ 的每个后缀子路径，都是对应起点到 $\tau^\ast$ 的最优子路径；
+  \item 若记
+  \[
+    \ell^\ast=(\tau_{n_0}^\ast,\tau_{n_0+1}^\ast,\dots,\tau_{N_\ast}^\ast),
+  \]
+  则其起点满足
+  \[
+    \Phi_{n_0}(\tau_{n_0}^\ast)+V_{n_0}(\tau_{n_0}^\ast)
+    =
+    \min_{0\le n<N_\ast}\ \min_{\tau\in\operatorname{Loc}_n}
+    \bigl(\Phi_n(\tau)+V_n(\tau)\bigr).
+  \]
+\end{enumerate}
+因此，$\tau^\ast$ 的实现证书，恰是全部局部最优到 $\tau^\ast$ 的提升路径中的唯一最优变分路径。
+\end{theorem}
+
+\begin{Certificate}[证书：有限路径族 + 终端唯一选优 + Bellman 最优子结构 + 路径作用量严格化]
+\label{cert:tex38-liftpath-optimal}
+证书由四段组成：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-liftpath-finite} 保证
+  \[
+    \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+  \]
+  在非空时是有限集；
+  \item 定理~\ref{thm:tex38-optimal} 给出终端唯一全局最优正规形 $\tau^\ast$；
+  \item 引理~\ref{lem:tex38-bellman} 给出余下代价递推与最优子结构；
+  \item 定义~\ref{def:tex38-liftpath-action} 中的严格化路径作用量 $\Psi$，在有限路径集上打破并列并产生唯一极小元。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由条件 A 与定理~\ref{thm:tex38-liftpath-finite}，
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+是一个非空有限集。
+因此，路径作用量
+\[
+  \mathbb A
+\]
+在其上必取极小值。
+再由定义~\ref{def:tex38-liftpath-action} 中的严格化规则，
+\[
+  \Psi
+\]
+在该有限路径集上存在唯一极小元。
+记该唯一极小路径为
+\[
+  \ell^\ast.
+\]
+于是
+\[
+  \Psi(\ell^\ast)
+  =
+  \min_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}
+  \Psi(\ell).
+\]
+
+由定义~\ref{def:tex38-liftpath-family}，
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+中的每条路径都以某个局部最优为起点，并以 $\tau^\ast$ 为终点。
+因此
+\[
+  \operatorname{end}(\ell^\ast)=\tau^\ast,
+\]
+且 $\ell^\ast$ 的起点必属于某个
+\[
+  \operatorname{Loc}_{n_0}.
+\]
+这证明了结论 (1)。
+
+再看结论 (2)。
+由引理~\ref{lem:tex38-bellman}，任一达到最小余下代价的路径都具有最优子结构；
+而 $\ell^\ast$ 在严格化前已使总作用量 $\mathbb A$ 达到最小，因此它的每个后缀子路径都仍是对应起点到 $\tau^\ast$ 的最优子路径。
+
+最后证明结论 (3)。
+取任意路径
+\[
+  \ell=(\tau_{n_0},\tau_{n_0+1},\dots,\tau_{N_\ast})
+  \in
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}.
+\]
+由引理~\ref{lem:tex38-bellman}，
+\[
+  \sum_{k=n_0}^{N_\ast-1}c_k(\tau_k,\tau_{k+1})
+  \ge
+  V_{n_0}(\tau_{n_0}),
+\]
+故
+\[
+  \mathbb A(\ell)
+  =
+  \Phi_{n_0}(\tau_{n_0})
+  +
+  \sum_{k=n_0}^{N_\ast-1}c_k(\tau_k,\tau_{k+1})
+  \ge
+  \Phi_{n_0}(\tau_{n_0})+V_{n_0}(\tau_{n_0}).
+\]
+当且仅当路径尾段在每一步都按 Bellman 递推取到最优时，上式取等号。
+于是
+\[
+  \min_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}\mathbb A(\ell)
+  =
+  \min_{0\le n<N_\ast}\ \min_{\tau\in\operatorname{Loc}_n}
+  \bigl(\Phi_n(\tau)+V_n(\tau)\bigr).
+\]
+由于 $\ell^\ast$ 是严格化后唯一的极小路径，其起点必须实现上述最小值，从而结论 (3) 成立。
+
+综上，$\tau^\ast$ 的实现证书确实不是“对象 = 路径”，而是“对象由唯一最优提升路径实现”。定理成立。
+\end{proof}
+
+\subsection{命题：非零高阶提升障碍迫使最优路径的下一步成为微观隧穿命中}
+\label{subsec:tex38-microhit-necessary}
+
+\begin{proposition}[非零高阶提升障碍迫使最优路径的下一步成为微观隧穿命中]
+\label{prop:tex38-microhit-necessary}
+在定理~\ref{thm:tex38-liftpath-optimal} 的全部假设下，设
+\[
+  \ell^\ast=(\tau_{n_0}^\ast,\tau_{n_0+1}^\ast,\dots,\tau_{N_\ast}^\ast)
+\]
+是唯一最优提升路径。
+若存在
+\[
+  n\in\{n_0,\dots,N_\ast-1\}
+\]
+满足
+\[
+  \nu_n(\tau_n^\ast)>0,
+\]
+则其下一步
+\[
+  \tau_n^\ast\rightsquigarrow\tau_{n+1}^\ast
+\]
+必为一次微观隧穿命中。
+\end{proposition}
+
+\begin{Certificate}[证书：盆内刚性 + 命中步存在性 + 严格隧穿优势 + 后缀最优性]
+\label{cert:tex38-microhit-necessary}
+证书由四段组成：
+\begin{enumerate}
+  \item 条件 C 保证留在旧盆像内部不会降低活跃障碍计数；
+  \item 条件 D 保证只要当前状态仍能提升到 $\tau^\ast$ 且障碍未清零，就存在至少一个命中步；
+  \item 条件 E 保证命中步在“当前一步代价 + 余下最优代价”意义下，严格优于所有非命中步；
+  \item 定理~\ref{thm:tex38-liftpath-optimal} 的结论 (2) 保证唯一最优路径的每个后缀都满足最优子结构。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+固定某个满足
+\[
+  \nu_n(\tau_n^\ast)>0
+\]
+的层级 $n$。
+由于
+\[
+  (\tau_n^\ast,\tau_{n+1}^\ast,\dots,\tau_{N_\ast}^\ast)
+\]
+是从 $\tau_n^\ast$ 到 $\tau^\ast$ 的最优后缀路径，
+故其第一步应当实现
+\[
+  \min_{\eta\in\Lift_n(\tau_n^\ast)}
+  \bigl(
+    c_n(\tau_n^\ast,\eta)+V_{n+1}(\eta)
+  \bigr).
+\]
+
+反设
+\[
+  \tau_n^\ast\rightsquigarrow\tau_{n+1}^\ast
+\]
+不是微观隧穿命中。
+则有两种可能。
+
+\textbf{情形 1：}下一步仍落在旧盆像内部，即
+\[
+  \tau_{n+1}^\ast\in \iota_n^{\mathcal T}\bigl(\mathfrak B_n(\tau_n^\ast)\bigr).
+\]
+由条件 C，
+\[
+  \nu_{n+1}(\tau_{n+1}^\ast)\ge \nu_n(\tau_n^\ast)>0.
+\]
+另一方面，由条件 D，存在某个命中步
+\[
+  \widetilde\tau_{n+1}\in\Lift_n^{\mathrm{hit}}(\tau_n^\ast).
+\]
+再由条件 E，
+\[
+  c_n(\tau_n^\ast,\widetilde\tau_{n+1})+V_{n+1}(\widetilde\tau_{n+1})
+  <
+  c_n(\tau_n^\ast,\tau_{n+1}^\ast)+V_{n+1}(\tau_{n+1}^\ast).
+\]
+这与当前后缀已经最优矛盾。
+
+\textbf{情形 2：}下一步虽然不在旧盆像内部，但并未使障碍严格下降。
+这意味着
+\[
+  \tau_{n+1}^\ast\in\Lift_n^{\mathrm{stay}}(\tau_n^\ast).
+\]
+同样由条件 D，存在命中步
+\[
+  \widetilde\tau_{n+1}\in\Lift_n^{\mathrm{hit}}(\tau_n^\ast),
+\]
+并由条件 E 得到严格更优的不等式
+\[
+  c_n(\tau_n^\ast,\widetilde\tau_{n+1})+V_{n+1}(\widetilde\tau_{n+1})
+  <
+  c_n(\tau_n^\ast,\tau_{n+1}^\ast)+V_{n+1}(\tau_{n+1}^\ast),
+\]
+仍与后缀最优性矛盾。
+
+两种情形都不成立，故
+\[
+  \tau_n^\ast\rightsquigarrow\tau_{n+1}^\ast
+\]
+必为一次微观隧穿命中。命题成立。
+\end{proof}
+
+\subsection{推论：原命题的严格改写}
+\label{subsec:tex38-liftpath-corollary}
+
+\begin{corollary}[“全局最优 = 一条最优变分路径”的严格改写]
+\label{cor:tex38-liftpath-strict}
+在定理~\ref{thm:tex38-liftpath-optimal} 与命题~\ref{prop:tex38-microhit-necessary} 的条件下，
+原句应被严格改写为：
+\[
+  \begin{aligned}
+    &\text{终端唯一全局最优正规形 }\tau^\ast\text{ 的实现证书，}\\
+    &\text{是全部可把某个局部最优提升到 }\tau^\ast\text{ 的合法提升路径中的唯一最优变分路径 }\ell^\ast;\\
+    &\text{并且只要沿途仍存在非零高阶提升障碍，}\ell^\ast\text{ 的下一步就必须是一次微观隧穿命中。}
+  \end{aligned}
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：类型纠偏 + 终端唯一选优 + 路径唯一最优 + 微观隧穿必要性]
+\label{cert:tex38-liftpath-strict}
+证书由四段组成：
+\begin{enumerate}
+  \item 本节开头的类型纠偏说明了“对象”与“路径”不能直接相等；
+  \item 推论~\ref{cor:tex38-terminal} 与定理~\ref{thm:tex38-optimal} 保证 $\tau^\ast$ 是终端零缺陷分支上的唯一全局最优正规形；
+  \item 定理~\ref{thm:tex38-liftpath-optimal} 给出实现 $\tau^\ast$ 的唯一最优提升路径 $\ell^\ast$；
+  \item 命题~\ref{prop:tex38-microhit-necessary} 给出沿途非零障碍处的命中步必要性。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由推论~\ref{cor:tex38-terminal}，
+\[
+  \tau^\ast
+\]
+不是抽象符号，而是终端零缺陷正规形分支上的真实落点。
+由定理~\ref{thm:tex38-optimal}，
+\[
+  \tau^\ast
+  =
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_{N_\ast}(s,t)}\Phi(\tau)
+\]
+唯一成立。
+
+再由定理~\ref{thm:tex38-liftpath-optimal}，存在唯一一条路径
+\[
+  \ell^\ast\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+使
+\[
+  \Psi(\ell^\ast)
+  =
+  \min_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}
+  \Psi(\ell),
+\]
+并满足
+\[
+  \operatorname{end}(\ell^\ast)=\tau^\ast.
+\]
+因此，真正成立的是“$\tau^\ast$ 由唯一最优提升路径实现”，而不是“$\tau^\ast$ 与路径本身同型”。
+
+最后，由命题~\ref{prop:tex38-microhit-necessary}，
+只要沿途仍存在非零高阶提升障碍，
+\[
+  \ell^\ast
+\]
+的下一步就必须是微观隧穿命中。
+这就完成了对原句的严格改写。推论成立。
+\end{proof}
+
+\begin{remark}[当前稿件中的无条件部分与本节新增接口]
+当前稿件无条件已经给出的，是以下三件事：
+\[
+  \mu_{n+1}\le\mu_n-1,
+  \qquad
+  \exists N_\ast\le\mu_0,\ \mu_{N_\ast}=0,
+  \qquad
+  \tau^\ast
+  =
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_{N_\ast}(s,t)}
+  \Phi(\tau).
+\]
+其中最后一项来自定理~\ref{thm:tex38-optimal}。
+本节新增并显式化的是
+\[
+  \operatorname{Loc}_n,\qquad
+  \Lift_n,\qquad
+  \Obs_n^\uparrow,\qquad
+  \mathbb A,\qquad
+  \Psi
+\]
+等接口。
+因此，本节的强结论应读作：一旦这些接口被补齐，相关命题即可作为\textbf{条件性定理}成立。
+\end{remark}
+
+\begin{remark}[“微观隧穿命中”在本节不是物理隐喻]
+本节中的“微观隧穿命中”被严格固定为
+\[
+  \eta\notin \iota_n^{\mathcal T}\bigl(\mathfrak B_n(\tau)\bigr)
+  \qquad\text{且}\qquad
+  \nu_{n+1}(\eta)\le \nu_n(\tau)-1.
+\]
+前一项表示跨出旧盆在新层中的像，后一项表示高阶提升障碍严格下降。
+这与 \cite{RepoTex36HomotopyTwistBijection} 中“微观隧穿命中修复”的口径一致，
+但本节采用的是\textbf{确定性的路径最优选择版本}，而不是概率抽样版本。
+\end{remark}
+
+\begin{remark}[为什么塔升层在这里是必要的]
+若没有定义~\ref{def:tex38-lift-expansion} 的层级扩展，只在固定层 $\mathcal T_n$ 内搜索，
+则候选空间中根本没有
+\[
+  \mathcal T_{n+1}\setminus \iota_n^{\mathcal T}(\mathcal T_n)
+\]
+这一类新增点，微观隧穿命中也就无从定义。
+正因为塔升层把旧层像嵌入到更大候选空间中，才允许“跨出旧盆像并削减障碍”的命中步出现。
+这正是“算力提升 $\Rightarrow$ 更深塔层 $\Rightarrow$ 更大候选空间 $\Rightarrow$ 更多命中步”的形式含义。
+\end{remark}
+
+\begin{remark}[若不固定终端点，还需附加终端主导条件]
+本节始终在
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+这一类\emph{终点已固定为 $\tau^\ast$} 的路径集合上做极小化。
+若把路径集合扩大为“从局部最优到任意终端正规形”的全部合法提升路径，
+则还需附加终端主导条件
+\[
+  \min_{\ell:\operatorname{end}(\ell)=\tau^\ast}\Psi(\ell)
+  <
+  \min_{\ell:\operatorname{end}(\ell)=\tau}\Psi(\ell)
+  \qquad
+  (\forall \tau\neq\tau^\ast),
+\]
+才能进一步推出
+\[
+  \ell^\ast
+  =
+  \operatorname*{arg\,min}_{\ell\in\mathfrak L^{\mathrm{loc}\to\mathrm{all}}}
+  \Psi(\ell),
+  \qquad
+  \operatorname{end}(\ell^\ast)=\tau^\ast.
+\]
+因此，“固定终端点的最优实现证书”与“对所有终端同时最优”的量词范围不能混写。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：完备最优路径证书与巧妙求解机制的相容性}
+\label{sec:tex38-ch3c}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本节的纠偏主旨]
+当我们说“暴力路径成立”时，真正严格的对象不是“路径本身变成了终端全局最优对象”，
+而是：
+\[
+  \text{完备展开}
+  \Longrightarrow
+  \text{枚举出全部合法对象层路径}
+  \Longrightarrow
+  \text{选出唯一最优实现证书 }\ell^\ast
+  \Longrightarrow
+  \operatorname{end}(\ell^\ast)=\tau^\ast.
+\]
+因此，本节的任务不是重复证明第~\ref{sec:tex38-ch3b} 节的路径最优性，
+而是把“暴力”“巧妙”“更大模型”这三句话中隐藏的量词范围彻底拆开。
+\end{remark}
+
+\begin{remark}[仓内外承接]
+本节直接承接第~\ref{sec:tex38-ch1} 节的终端唯一最优链与第~\ref{sec:tex38-ch3b} 节的“实现证书 = 唯一最优提升路径”链，
+并延续仓内关于修复塔、条件性收敛、三重编码与接口化严格化写法
+\cite{RepoTex29TransfiniteRepair,RepoTex31RepairTower,RepoTex32ConditionalConvergence,RepoTex36HomotopyTwistBijection,
+  RepoTex37GainEvaluation}。
+关于障碍上升、量词范围与同调边界的外部背景，可参照
+\cite{Whitehead1978Elements,Weibel1994HomologicalAlgebra}。
+\end{remark}
+
+\subsection{对象域：对象层路径、算法层过程与模型升级}
+\label{subsec:tex38-smart-objects}
+
+\begin{definition}[对象层路径与算法层求解过程]
+\label{def:tex38-smart-objects}
+沿用定义~\ref{def:tex38-liftpath-family} 与定义~\ref{def:tex38-liftpath-action} 的记号，
+固定定理~\ref{thm:tex38-optimal} 给出的终端唯一全局最优正规形
+\[
+  \tau^\ast\in\mathcal T_{N_\ast}(s,t).
+\]
+称任意
+\[
+  \ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+为一个\emph{对象层路径}，即从某个局部最优出发、以 $\tau^\ast$ 为终点的合法提升链。
+
+再定义
+\[
+  \mathfrak A^{\mathrm{solve}}(\tau^\ast)
+\]
+为一切以
+\[
+  \bigl(\mathcal T_n,\Lift_n,\Phi_n,c_n,\Psi,\tau^\ast\bigr)
+\]
+为输入、试图返回一条实现 $\tau^\ast$ 的提升路径的有限算法层过程之集合。
+对任意
+\[
+  \mathcal A\in\mathfrak A^{\mathrm{solve}}(\tau^\ast),
+\]
+定义其输出为
+\[
+  \operatorname{Out}(\mathcal A)\in
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}\cup\{\bot\},
+\]
+其中 $\bot$ 表示该过程未返回有效实现路径。
+\end{definition}
+
+\begin{definition}[完备展开算法、巧妙算法与模型升级]
+\label{def:tex38-smart-algorithm}
+称
+\[
+  \mathcal A_{\mathrm{bf}}\in\mathfrak A^{\mathrm{solve}}(\tau^\ast)
+\]
+为\emph{完备展开算法}，若它枚举并比较全部
+\[
+  \ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast},
+\]
+并在该集合非空时返回严格化路径作用量 $\Psi$ 的唯一极小元。
+
+称
+\[
+  \mathcal A_{\mathrm{smart}}\in\mathfrak A^{\mathrm{solve}}(\tau^\ast)
+\]
+为一个\emph{巧妙算法}，若它可以借助剪枝、启发式、证书传播、同调筛选或其他结构，
+在不显式完整枚举全部
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+的前提下，仍返回一个正确输出
+\[
+  \operatorname{Out}(\mathcal A_{\mathrm{smart}})\in
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}.
+\]
+
+若把对象层数据从旧模型
+\[
+  \bigl(\mathfrak L^{\mathrm{loc}\to\tau^\ast},\Psi\bigr)
+\]
+替换为新模型
+\[
+  \bigl(\mathfrak L_{\mathrm{new}}^{\mathrm{loc}\to\mathrm{all}},\Psi_{\mathrm{new}}\bigr),
+\]
+其中允许的提升步、纤维终点空间、正规形空间或作用量规则至少有一项被扩大或重写，
+则称这一替换为\emph{模型升级}。
+\end{definition}
+
+\begin{remark}[两层问题的严格分工]
+对象层问题回答：
+\[
+  \text{“哪一条合法提升链在当前模型内最优？”}
+\]
+算法层问题回答：
+\[
+  \text{“怎样用更少算力找到那条已被对象层定义好的最优链？”}
+\]
+这两个问题的量词域不同：
+\[
+  \ell\ \text{在路径集合上取值},
+  \qquad
+  \mathcal A\ \text{在过程集合上取值}.
+\]
+因此，若不先做这一步类型拆分，就会把“最优对象”和“寻找对象的方法”混写成同一个命题。
+\end{remark}
+
+\subsection{公理（降级为定理）：完备展开算法可按剩余层数递归构造并有限终止}
+\label{subsec:tex38-smart-enumeration}
+
+\begin{theorem}[公理（降级为定理）：完备展开算法可递归列举全部终端导向路径]
+\label{thm:tex38-smart-enumeration}
+在定理~\ref{thm:tex38-liftpath-finite} 的有限性假设下，
+对每个
+\[
+  0\le n\le N_\ast
+  \qquad\text{与}\qquad
+  \tau\in\mathcal T_n,
+\]
+都存在一个有限终止的递归枚举过程
+\[
+  \mathcal E_n(\tau,\tau^\ast),
+\]
+使得
+\[
+  \operatorname{Enum}\bigl(\mathcal E_n(\tau,\tau^\ast)\bigr)
+  =
+  \mathfrak L_n(\tau,\tau^\ast).
+\]
+特别地，存在一个有限终止的完备展开算法
+\[
+  \mathcal A_{\mathrm{bf}},
+\]
+满足
+\[
+  \operatorname{Enum}(\mathcal A_{\mathrm{bf}})
+  =
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按剩余层数构造完备展开枚举器]
+\label{cert:tex38-smart-enumeration}
+定义谓词
+\[
+  \begin{aligned}
+    Q(m)
+    :
+    \Longleftrightarrow\
+    &\text{对任意满足 }N_\ast-n=m\text{ 的层级 }n\text{ 与任意 }\tau\in\mathcal T_n,\\
+    &\text{存在递归枚举器 }\mathcal E_n(\tau,\tau^\ast)\text{，且}\\
+    &\operatorname{Enum}\bigl(\mathcal E_n(\tau,\tau^\ast)\bigr)
+    =
+    \mathfrak L_n(\tau,\tau^\ast).
+  \end{aligned}
+\]
+证书分两步：
+\begin{enumerate}
+  \item \textbf{基础步 $Q(0)$：}当 $n=N_\ast$ 时，合法路径只可能是单点路径 $(\tau^\ast)$ 或空集；
+  \item \textbf{归纳步 $Q(m)\Rightarrow Q(m+1)$：}对任意剩余层数为 $m+1$ 的状态 $\tau$，
+  只需枚举有限个后继
+  \[
+    \eta\in\Lift_n(\tau),
+  \]
+  并把前缀 $\tau$ 接到每个子枚举器
+  \[
+    \mathcal E_{n+1}(\eta,\tau^\ast)
+  \]
+  产生的路径之前端。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+对剩余层数
+\[
+  m=N_\ast-n
+\]
+做数学归纳。
+
+\textbf{基础步：}当 $m=0$ 时，$n=N_\ast$。
+若
+\[
+  \tau=\tau^\ast,
+\]
+则
+\[
+  \mathfrak L_{N_\ast}(\tau^\ast,\tau^\ast)=\{(\tau^\ast)\};
+\]
+若
+\[
+  \tau\neq\tau^\ast,
+\]
+则
+\[
+  \mathfrak L_{N_\ast}(\tau,\tau^\ast)=\varnothing.
+\]
+因此，只要定义一个终端枚举器：在 $\tau=\tau^\ast$ 时返回单点路径列表，在 $\tau\neq\tau^\ast$ 时返回空列表，
+便得到
+\[
+  \operatorname{Enum}\bigl(\mathcal E_{N_\ast}(\tau,\tau^\ast)\bigr)
+  =
+  \mathfrak L_{N_\ast}(\tau,\tau^\ast).
+\]
+故 $Q(0)$ 成立。
+
+\textbf{归纳步：}设 $Q(m)$ 成立，取任意满足
+\[
+  N_\ast-n=m+1
+\]
+的层级 $n$ 与任意 $\tau\in\mathcal T_n$。
+由定义~\ref{def:tex38-lift-relation}，
+\[
+  \Lift_n(\tau)
+\]
+是有限集。
+又由路径族的首步分解，
+\[
+  \mathfrak L_n(\tau,\tau^\ast)
+  =
+  \bigcup_{\eta\in\Lift_n(\tau)}
+  \left\{
+    (\tau,\tau_{n+1},\dots,\tau_{N_\ast}):
+    (\tau_{n+1},\dots,\tau_{N_\ast})\in
+    \mathfrak L_{n+1}(\eta,\tau^\ast)
+  \right\}.
+\]
+对每个后继
+\[
+  \eta\in\Lift_n(\tau),
+\]
+其剩余层数为
+\[
+  N_\ast-(n+1)=m,
+\]
+故由归纳假设，存在枚举器
+\[
+  \mathcal E_{n+1}(\eta,\tau^\ast)
+\]
+并满足
+\[
+  \operatorname{Enum}\bigl(\mathcal E_{n+1}(\eta,\tau^\ast)\bigr)
+  =
+  \mathfrak L_{n+1}(\eta,\tau^\ast).
+\]
+于是把前缀节点 $\tau$ 依次接到所有子枚举结果的前端，再对有限个后继求并，
+即可构成枚举器
+\[
+  \mathcal E_n(\tau,\tau^\ast)
+\]
+并满足
+\[
+  \operatorname{Enum}\bigl(\mathcal E_n(\tau,\tau^\ast)\bigr)
+  =
+  \mathfrak L_n(\tau,\tau^\ast).
+\]
+因此 $Q(m+1)$ 成立。
+
+由数学归纳法，$Q(m)$ 对全部 $0\le m\le N_\ast$ 成立。
+最后，对所有局部最优起点求并：
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+  =
+  \bigcup_{0\le n_0<N_\ast}
+  \bigcup_{\tau\in\operatorname{Loc}_{n_0}}
+  \mathfrak L_{n_0}(\tau,\tau^\ast).
+\]
+由于层级数有限、每层局部最优集有限、每个子枚举器有限终止，
+故存在有限终止的完备展开算法
+\[
+  \mathcal A_{\mathrm{bf}}
+\]
+使
+\[
+  \operatorname{Enum}(\mathcal A_{\mathrm{bf}})
+  =
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}.
+\]
+定理成立。
+\end{proof}
+
+\subsection{定理：完备展开意义下的“暴力路径”构成当前模型内的全局最优证书}
+\label{subsec:tex38-smart-bruteforce}
+
+\begin{theorem}[“暴力路径成立”的严格含义]
+\label{thm:tex38-smart-bruteforce}
+若定理~\ref{thm:tex38-liftpath-optimal} 的条件 A--E 成立，
+则存在唯一对象层最优路径
+\[
+  \ell^\ast
+  =
+  \operatorname*{arg\,min}_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}
+  \Psi(\ell),
+  \qquad
+  \operatorname{end}(\ell^\ast)=\tau^\ast.
+\]
+若把“暴力路径”严格解释为：
+\[
+  \text{对全部 }\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}\text{ 做完备展开，再返回 }\Psi\text{ 的唯一极小元},
+\]
+则完备展开算法 $\mathcal A_{\mathrm{bf}}$ 满足
+\[
+  \operatorname{Out}(\mathcal A_{\mathrm{bf}})=\ell^\ast.
+\]
+因此，“暴力路径”在当前模型内确实构成终端全局最优对象的一个全局最优实现证书。
+\end{theorem}
+
+\begin{Certificate}[证书：完备枚举 + 唯一极小元 + 输出一致性]
+\label{cert:tex38-smart-bruteforce}
+证书分三段：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-smart-enumeration} 保证
+  \[
+    \operatorname{Enum}(\mathcal A_{\mathrm{bf}})
+    =
+    \mathfrak L^{\mathrm{loc}\to\tau^\ast};
+  \]
+  \item 定理~\ref{thm:tex38-liftpath-optimal} 保证在该对象层路径集上存在唯一极小元 $\ell^\ast$；
+  \item 完备展开算法按定义正是“枚举全体路径并返回唯一极小元”的过程，因此其输出必与 $\ell^\ast$ 一致。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex38-smart-enumeration}，
+\[
+  \operatorname{Enum}(\mathcal A_{\mathrm{bf}})
+  =
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}.
+\]
+因此，$\mathcal A_{\mathrm{bf}}$ 所比较的对象，恰好就是全部候选对象层路径，而非某个真子集。
+
+再由定理~\ref{thm:tex38-liftpath-optimal}，
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}\neq\varnothing
+\]
+且严格化路径作用量 $\Psi$ 在该有限集上存在唯一极小元
+\[
+  \ell^\ast.
+\]
+于是
+\[
+  \ell^\ast
+  =
+  \operatorname*{arg\,min}_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}
+  \Psi(\ell),
+\]
+并满足
+\[
+  \operatorname{end}(\ell^\ast)=\tau^\ast.
+\]
+
+最后，由完备展开算法的定义，
+\[
+  \mathcal A_{\mathrm{bf}}
+\]
+在枚举出全部对象层路径后，返回 $\Psi$ 的唯一极小元。
+因此
+\[
+  \operatorname{Out}(\mathcal A_{\mathrm{bf}})
+  =
+  \ell^\ast.
+\]
+这说明“完备展开 -- 全局比较 -- 取极小元”确实给出了当前模型内的全局最优实现证书。定理成立。
+\end{proof}
+
+\subsection{引理：同一对象层定义域内不存在第二条并列最优路径}
+\label{subsec:tex38-smart-lemma}
+
+\begin{lemma}[同一 admissible 路径空间与同一严格化作用量下，并列最优被排除]
+\label{lem:tex38-smart-unique-object}
+在定理~\ref{thm:tex38-smart-bruteforce} 的条件下，
+若
+\[
+  \widetilde\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}
+  \qquad\text{且}\qquad
+  \widetilde\ell\neq\ell^\ast,
+\]
+则必有
+\[
+  \Psi(\widetilde\ell)>\Psi(\ell^\ast).
+\]
+因此，在同一 admissible 路径空间
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+与同一严格化作用量 $\Psi$ 下，不存在第二条不同而同样最优的对象层路径。
+\end{lemma}
+
+\begin{Certificate}[证书：唯一极小元的直接排他性]
+\label{cert:tex38-smart-unique-object}
+证书只有一段：
+定理~\ref{thm:tex38-smart-bruteforce} 已经给出
+\[
+  \ell^\ast
+  =
+  \operatorname*{arg\,min}_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}
+  \Psi(\ell)
+\]
+唯一成立。
+因此，任何不同于 $\ell^\ast$ 的路径都不可能达到同样的极小值。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+反设存在
+\[
+  \widetilde\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast},
+  \qquad
+  \widetilde\ell\neq\ell^\ast,
+\]
+且满足
+\[
+  \Psi(\widetilde\ell)\le\Psi(\ell^\ast).
+\]
+由于 $\ell^\ast$ 已是全局极小元，不可能有
+\[
+  \Psi(\widetilde\ell)<\Psi(\ell^\ast),
+\]
+故只剩
+\[
+  \Psi(\widetilde\ell)=\Psi(\ell^\ast).
+\]
+但这意味着 $\widetilde\ell$ 与 $\ell^\ast$ 都是 $\Psi$ 的极小元，
+与定理~\ref{thm:tex38-smart-bruteforce} 给出的唯一性矛盾。
+故必有
+\[
+  \Psi(\widetilde\ell)>\Psi(\ell^\ast).
+\]
+引理成立。
+\end{proof}
+
+\subsection{命题：所谓“巧妙路径”必须区分算法层巧妙与对象层巧妙}
+\label{subsec:tex38-smart-proposition}
+
+\begin{proposition}[“巧妙路径”的两层含义]
+\label{prop:tex38-smart-two-senses}
+在定理~\ref{thm:tex38-smart-bruteforce} 的条件下，所谓“巧妙路径”必须拆成两种完全不同的命题：
+\begin{enumerate}
+  \item \textbf{算法层巧妙：}存在
+  \[
+    \mathcal A_{\mathrm{smart}}\in\mathfrak A^{\mathrm{solve}}(\tau^\ast)
+  \]
+  使
+  \[
+    \operatorname{Out}(\mathcal A_{\mathrm{smart}})=\ell^\ast,
+  \]
+  但该过程不需要把
+  \[
+    \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+  \]
+  显式完整枚举为中间结果；
+  \item \textbf{对象层巧妙：}存在另一条不同的合法提升路径
+  \[
+    \widetilde\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast},
+    \qquad
+    \widetilde\ell\neq\ell^\ast,
+  \]
+  且满足
+  \[
+    \Psi(\widetilde\ell)\le\Psi(\ell^\ast).
+  \]
+\end{enumerate}
+其中，第一种命题与“暴力路径成立”完全相容；第二种命题在同一模型内被引理~\ref{lem:tex38-smart-unique-object} 排除。
+\end{proposition}
+
+\begin{Certificate}[证书：量词域分离 + 对象层唯一性]
+\label{cert:tex38-smart-two-senses}
+证书分两段：
+\begin{enumerate}
+  \item 算法层量词
+  \[
+    \exists \mathcal A\in\mathfrak A^{\mathrm{solve}}(\tau^\ast)
+  \]
+  作用在\emph{过程集合}上；对象层量词
+  \[
+    \exists \ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}
+  \]
+  作用在\emph{路径集合}上，二者不是同一量词域；
+  \item 引理~\ref{lem:tex38-smart-unique-object} 已排除了同一对象层定义域内的第二条并列最优路径。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+先看第一种含义。
+命题
+\[
+  \exists \mathcal A_{\mathrm{smart}}\in\mathfrak A^{\mathrm{solve}}(\tau^\ast)
+  \qquad\text{使得}\qquad
+  \operatorname{Out}(\mathcal A_{\mathrm{smart}})=\ell^\ast
+\]
+只是断言在算法层存在一种更高效的发现机制；
+它并没有断言对象层出现了新的路径元，也没有断言 $\ell^\ast$ 的唯一性失效。
+因此它与
+\[
+  \operatorname{Out}(\mathcal A_{\mathrm{bf}})=\ell^\ast
+\]
+可以同时为真，二者完全相容。
+
+再看第二种含义。
+若存在
+\[
+  \widetilde\ell\neq\ell^\ast
+  \qquad\text{且}\qquad
+  \Psi(\widetilde\ell)\le\Psi(\ell^\ast),
+\]
+则这正是引理~\ref{lem:tex38-smart-unique-object} 所排除的情形。
+故在同一 admissible 路径空间与同一严格化作用量下，
+第二种“巧妙路径”命题为假。
+命题成立。
+\end{proof}
+
+\subsection{定理：当前模型内，已证的“巧妙”自由度只位于算法层}
+\label{subsec:tex38-smart-theorem}
+
+\begin{theorem}[当前模型内，任何正确的巧妙机制都只能更快找到同一最优路径]
+\label{thm:tex38-smart-algorithmic}
+在定理~\ref{thm:tex38-smart-bruteforce} 的条件下，
+若某个算法层过程
+\[
+  \mathcal A\in\mathfrak A^{\mathrm{solve}}(\tau^\ast)
+\]
+满足
+\[
+  \operatorname{Out}(\mathcal A)\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}
+  \qquad\text{且}\qquad
+  \Psi\bigl(\operatorname{Out}(\mathcal A)\bigr)
+  =
+  \min_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}\Psi(\ell),
+\]
+则必有
+\[
+  \operatorname{Out}(\mathcal A)=\ell^\ast.
+\]
+因此，在不改变
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast},
+  \qquad
+  \Lift_n,
+  \qquad
+  \tau^\ast,
+  \qquad
+  \Psi
+\]
+的前提下，所有已被严格证明的“巧妙性”都只能体现为
+\[
+  \text{更省算力地发现同一 }\ell^\ast,
+\]
+而不能体现为“发现另一条同模型内并列最优的对象层路径”。
+\end{theorem}
+
+\begin{Certificate}[证书：正确输出是极小元 + 极小元唯一]
+\label{cert:tex38-smart-algorithmic}
+证书分两段：
+\begin{enumerate}
+  \item 假设中已经给出
+  \[
+    \Psi\bigl(\operatorname{Out}(\mathcal A)\bigr)
+    =
+    \min_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}
+    \Psi(\ell),
+  \]
+  即 $\operatorname{Out}(\mathcal A)$ 是对象层极小元；
+  \item 引理~\ref{lem:tex38-smart-unique-object} 给出对象层极小元唯一。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由假设，
+\[
+  \operatorname{Out}(\mathcal A)\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+且它实现了
+\[
+  \Psi
+\]
+在该对象层路径集上的最小值。
+也就是说，
+\[
+  \operatorname{Out}(\mathcal A)
+\]
+是一个对象层极小元。
+
+另一方面，由引理~\ref{lem:tex38-smart-unique-object}，
+同一 admissible 路径空间与同一严格化作用量下的极小元只有一个，
+即
+\[
+  \ell^\ast.
+\]
+因此只能有
+\[
+  \operatorname{Out}(\mathcal A)=\ell^\ast.
+\]
+故任何正确的巧妙机制，至多改变找到 $\ell^\ast$ 的计算方式，而不会改变被找到的对象本身。定理成立。
+\end{proof}
+
+\subsection{命题：模型升级可能产生新的更优对象层路径}
+\label{subsec:tex38-smart-upgrade}
+
+\begin{proposition}[更大模型中的更优对象层路径并未被旧定理排除]
+\label{prop:tex38-smart-upgrade}
+若发生模型升级
+\[
+  \bigl(\mathfrak L^{\mathrm{loc}\to\tau^\ast},\Psi\bigr)
+  \rightsquigarrow
+  \bigl(\mathfrak L_{\mathrm{new}}^{\mathrm{loc}\to\mathrm{all}},\Psi_{\mathrm{new}}\bigr),
+\]
+则旧定理中的唯一性量词
+\[
+  \forall \ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}
+\]
+并不自动推出新模型中的量词
+\[
+  \forall \ell\in\mathfrak L_{\mathrm{new}}^{\mathrm{loc}\to\mathrm{all}}.
+\]
+因此，在逻辑上完全可能存在新模型中的路径
+\[
+  \ell_{\mathrm{new}}^\ast\in
+  \mathfrak L_{\mathrm{new}}^{\mathrm{loc}\to\mathrm{all}}
+\]
+满足
+\[
+  \Psi_{\mathrm{new}}(\ell_{\mathrm{new}}^\ast)
+  <
+  \Psi(\ell^\ast).
+\]
+这不是在旧模型内部推翻 $\ell^\ast$，而是把量词范围换到了更大的定义域上。
+\end{proposition}
+
+\begin{Certificate}[证书：量词范围扩张不受旧唯一性自动覆盖]
+\label{cert:tex38-smart-upgrade}
+证书分三段：
+\begin{enumerate}
+  \item 旧定理只对旧定义域
+  \[
+    \mathfrak L^{\mathrm{loc}\to\tau^\ast}
+  \]
+  给出唯一极小元；
+  \item 模型升级后，新的候选路径集合、允许的提升步或新的作用量规则可能改变可比较对象；
+  \item 因此旧唯一性命题不能直接越域推广到新模型。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex38-smart-bruteforce}，
+当前已证明的是
+\[
+  \ell^\ast
+  =
+  \operatorname*{arg\,min}_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}
+  \Psi(\ell).
+\]
+这里的量词范围被严格固定在旧模型的对象层路径空间之内。
+
+若现在把路径空间、提升关系或作用量规则替换为
+\[
+  \bigl(\mathfrak L_{\mathrm{new}}^{\mathrm{loc}\to\mathrm{all}},\Psi_{\mathrm{new}}\bigr),
+\]
+则新出现的路径元素未必属于旧集合
+\[
+  \mathfrak L^{\mathrm{loc}\to\tau^\ast}.
+\]
+因此，旧定理并没有对这些新增路径给出任何比较结论。
+
+故在逻辑上，完全允许存在一个新增路径
+\[
+  \ell_{\mathrm{new}}^\ast
+\]
+使
+\[
+  \Psi_{\mathrm{new}}(\ell_{\mathrm{new}}^\ast)
+  <
+  \Psi(\ell^\ast).
+\]
+此时发生的是\textbf{模型升级后的重新比较}，而不是\textbf{旧模型内部唯一性被推翻}。命题成立。
+\end{proof}
+
+\subsection{推论：原句的最严格改写}
+\label{subsec:tex38-smart-corollary}
+
+\begin{corollary}[“暴力路径成立，但不排斥巧妙机制”的最严格版本]
+\label{cor:tex38-smart-compatibility}
+在定理~\ref{thm:tex38-smart-bruteforce}、定理~\ref{thm:tex38-smart-algorithmic} 与命题~\ref{prop:tex38-smart-upgrade} 的条件下，
+原句应被严格改写为：
+\[
+  \begin{aligned}
+    &\text{完备展开所得到的唯一最优提升路径 }\ell^\ast\text{，}\\
+    &\text{构成当前模型内的全局最优对象层证书；}\\
+    &\text{这并不排斥存在更高效的算法层过程，更快返回同一条 }\ell^\ast;\\
+    &\text{但在同一 admissible 路径空间与同一严格化作用量下，}\\
+    &\text{不存在另一条不同而同样最优的对象层路径；}\\
+    &\text{若后续升级模型，则可能在更大的定义域中出现新的更优对象层路径。}
+  \end{aligned}
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：暴力证书 + 算法层自由度 + 同模型排他性 + 模型升级可能性]
+\label{cert:tex38-smart-compatibility}
+证书分四段：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-smart-bruteforce} 给出当前模型内的完备最优路径证书；
+  \item 定理~\ref{thm:tex38-smart-algorithmic} 给出“巧妙性”在同模型内只能表现为更快找到同一 $\ell^\ast$；
+  \item 引理~\ref{lem:tex38-smart-unique-object} 排除同模型内第二条并列最优对象路径；
+  \item 命题~\ref{prop:tex38-smart-upgrade} 说明更大模型中的新最优路径仍然逻辑可能。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+第一句来自定理~\ref{thm:tex38-smart-bruteforce}：
+\[
+  \operatorname{Out}(\mathcal A_{\mathrm{bf}})=\ell^\ast,
+  \qquad
+  \operatorname{end}(\ell^\ast)=\tau^\ast.
+\]
+这说明完备展开确实给出了当前模型内的全局最优实现证书。
+
+第二句来自定理~\ref{thm:tex38-smart-algorithmic}：
+任何正确的巧妙算法，只要仍在同一模型内求解同一对象层问题，
+其输出就只能是同一条
+\[
+  \ell^\ast.
+\]
+
+第三句来自引理~\ref{lem:tex38-smart-unique-object}：
+若
+\[
+  \widetilde\ell\neq\ell^\ast,
+\]
+则
+\[
+  \Psi(\widetilde\ell)>\Psi(\ell^\ast),
+\]
+故不存在第二条不同而同样最优的对象层路径。
+
+第四句来自命题~\ref{prop:tex38-smart-upgrade}：
+一旦把量词范围扩张到更大的模型，
+旧定理的唯一性便不再自动覆盖新增路径，
+于是更优新路径的出现并不与旧结论冲突。
+推论成立。
+\end{proof}
+
+\begin{remark}[两句话的精确拆分]
+因此，最稳妥的表述不应写成一句含混的话，而应拆成两句：
+\[
+  \text{当前模型内，完备展开得到的全局最优路径证书成立；}
+\]
+\[
+  \text{但这不排除存在更巧妙的算法更快找到它，也不排除更大模型中出现更优路径。}
+\]
+\end{remark}
+
+\begin{remark}[“暴力”回答完备性，“巧妙”回答效率]
+若这里的“暴力”指的是
+\[
+  \text{塔升层 + 空间扩展 + 完备比较}
+\]
+所给出的命中保证，
+那么它在当前稿件中承担的是\textbf{完备性证书}角色。
+若这里的“巧妙”指的是
+\[
+  \text{不做完整枚举，也能直接命中同一 }\ell^\ast,
+\]
+那么它承担的是\textbf{效率改进候选}角色。
+前者回答“能否保证到达”，后者回答“能否更省地到达”，两者不是同一个问题。
+\end{remark}
+
+\begin{remark}[当前稿件已经证明了什么、尚未证明什么]
+当前稿件已经严格证明的是：
+\[
+  \operatorname{Out}(\mathcal A_{\mathrm{bf}})=\ell^\ast,
+  \qquad
+  \operatorname{end}(\ell^\ast)=\tau^\ast.
+\]
+当前稿件尚未单独构造并证明的是：
+\[
+  \exists \mathcal A_{\mathrm{smart}}
+  \in
+  \mathfrak A^{\mathrm{solve}}(\tau^\ast)
+  \text{，使其在不完整枚举的前提下仍保证输出 }\ell^\ast.
+\]
+因此，“巧妙算法可能存在”在本文中属于逻辑相容命题，而不是已经完成构造的对象。
+\end{remark}
+
+\begin{remark}[一句压缩结论]
+若把本节压成一句最稳的结论，可写为：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{是的，当前可证明的是：完备展开给出全局最优实现证书；}\\
+      &\text{但这并不排除更高效的发现机制，也不排除更大模型中的新最优对象路径。}
+    \end{aligned}
+  }.
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：超限层到有限层的投影/截断法则}
+\label{sec:tex38-ch4}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本章要补齐的缺口]
+第~\ref{sec:tex38-ch3} 节已经把“超限原型如何被工程上理解”为桥接解释说清楚；
+本章进一步把其中尚未独立定理化的
+\[
+  \text{超限层}
+  \Longrightarrow
+  \text{有限层}
+\]
+投影/截断法则补齐为一条完整的
+“定义 + 公理（降级为定理）+ 定理 + 引理 + 命题 + 推论 + 备注”链。
+\end{remark}
+
+\begin{remark}[最严格的压缩表述]
+本章真正证明的不是
+\[
+  \text{把超限对象粗暴删成有限对象},
+\]
+而是
+\[
+  \text{超限修复原型}
+  \Longrightarrow
+  \text{规范的有限有效骨架}
+  \Longrightarrow
+  \text{第~\ref{sec:tex38-ch1} 节中的有限 $N$ 层修复塔}.
+\]
+也就是说，第~\ref{sec:tex38-ch1} 节里的有限层修复塔不是随手取的工程近似，
+而是在给定条件下由超限原型经规范投影/截断得到的有限有效像。
+\end{remark}
+
+\begin{remark}[仓内外参照]
+本章继续调用仓内关于修复塔、同伦扭曲、Jacobi--Bianchi 障碍与超限递归的接口稿
+\cite{RepoTex29TransfiniteRepair,RepoTex31RepairTower,RepoTex32ConditionalConvergence,RepoTex36HomotopyTwistBijection,
+  RepoTex6JacobiGap,GaoZheng2025GFramework,GaoZhengAppVol3}，
+并以序数良序、最小元存在性与超限递归的标准背景作为元理论参照
+\cite{Jech2003SetTheory,Kunen2011SetTheory}。
+其中：
+\begin{enumerate}
+  \item \cite{RepoTex29TransfiniteRepair,GaoZheng2025GFramework} 提供“序数索引、超限递归、极限层拼接”的背景接口；
+  \item \cite{RepoTex31RepairTower} 提供“严格下降量 + 有限终止”的证书模板；
+  \item \cite{RepoTex36HomotopyTwistBijection} 提供终端纤维终点编码、路径支撑类编码与正规形编码之间的桥接模板；
+  \item \cite{RepoTex6JacobiGap,GaoZhengAppVol3} 提供 Jacobi/Jacobi--Bianchi 障碍落在三阶并可由修复数据边界化的背景。
+\end{enumerate}
+\end{remark}
+
+\subsection{对象域：超限修复原型、有效下降层与工程观测量}
+\label{subsec:tex38-ch4-objects}
+
+\begin{definition}[超限修复原型]
+\label{def:tex38-ch4-transfinite-prototype}
+设 $\Lambda$ 为一个序数。称一族数据
+\[
+  \mathfrak T
+  :=
+  \bigl\{
+    (\widehat X_\alpha,\widehat A_\alpha,\widehat\mu_\alpha)
+  \bigr\}_{\alpha<\Lambda}
+\]
+为一个 \emph{Jacobi--Bianchi 超限修复原型}，若满足：
+\begin{enumerate}
+  \item 对每个 $\alpha<\Lambda$，$\widehat X_\alpha$ 是有限连通单纯复形，且固定端点
+  \[
+    s,t\in \widehat X_\alpha^{(0)}
+  \]
+  始终位于同一连通分支；
+  \item $\widehat A_\alpha$ 是 $\widehat X_\alpha$ 上的离散连接样数据；
+  \item $\widehat\mu_\alpha\in\NN$ 表示第 $\alpha$ 层的活跃 Jacobi--Bianchi 障碍生成元个数。
+\end{enumerate}
+称 $\widehat\mu_\alpha$ 为第 $\alpha$ 层的\emph{活跃缺陷计数}。
+\end{definition}
+
+\begin{definition}[有效下降层与静默区间]
+\label{def:tex38-ch4-effective-descent}
+对任意 $\alpha<\Lambda$，定义
+\[
+  S_\alpha
+  :=
+  \bigl\{
+    \beta<\Lambda:\beta>\alpha,\ \widehat\mu_\beta<\widehat\mu_\alpha
+  \bigr\}.
+\]
+若 $S_\alpha\neq\varnothing$，则定义
+\[
+  \sigma(\alpha):=\min S_\alpha,
+\]
+并称其为从 $\alpha$ 出发的\emph{下一有效下降层}。
+
+若某个区间 $[\alpha,\beta)$ 满足
+\[
+  \widehat\mu_\gamma=\widehat\mu_\alpha
+  \qquad
+  (\forall \gamma\in[\alpha,\beta)),
+\]
+则称 $[\alpha,\beta)$ 为一个\emph{静默区间}。
+\end{definition}
+
+\begin{definition}[工程观测量]
+\label{def:tex38-ch4-observables}
+记工程上真正关心、并在第~\ref{sec:tex38-ch1} 节持续使用的观测量族为
+\[
+  \mathcal O
+  :=
+  \Bigl\{
+    \Bia,\,
+    \mathcal P^{\mathrm{adm}}(s,t),\,
+    \mathcal F(s,t),\,
+    \Pi(s,t),\,
+    \mathcal T(s,t),\,
+    \Phi
+  \Bigr\}.
+\]
+其中分别表示离散 Bianchi 缺陷、可行路径空间、终端纤维终点编码、路径支撑类编码、正规形编码与严格化作用量。
+\end{definition}
+
+\begin{remark}[桥接四层的记号约定]
+若后文定理~\ref{thm:tex38-ch4-projection} 构造出有限骨架
+\[
+  \mathsf{Tr}_\Lambda(\mathfrak T)
+  :=
+  \bigl\{
+    (X_n,A_n,\mu_n)
+  \bigr\}_{0\le n\le N_\ast},
+\]
+则记
+\[
+  L_0:=\mathfrak T,
+  \qquad
+  L_1:=\mathsf{Tr}_\Lambda(\mathfrak T),
+  \qquad
+  L_2:=\mathcal T_{N_\ast}(s,t),
+  \qquad
+  L_3:=\tau^\ast,
+\]
+以压缩书写
+\[
+  L_0\rightsquigarrow L_1\rightsquigarrow L_2\rightsquigarrow L_3.
+\]
+\end{remark}
+
+\subsection{公理（降级为定理）：关键有效下降层列可递推构造且有限终止}
+\label{subsec:tex38-ch4-axiom}
+
+\begin{theorem}[公理（降级为定理）：关键有效下降层列可递推构造且有限终止]
+\label{thm:tex38-ch4-effective-skeleton}
+在定义~\ref{def:tex38-ch4-transfinite-prototype}--\ref{def:tex38-ch4-observables} 的设定下，
+若超限修复原型 $\mathfrak T$ 满足：
+\begin{enumerate}
+  \item \textbf{入口有限性：}
+  \[
+    \widehat\mu_0<\infty;
+  \]
+  \item \textbf{单调不增：}对任意 $\alpha<\beta<\Lambda$，
+  \[
+    \widehat\mu_\beta\le \widehat\mu_\alpha;
+  \]
+  \item \textbf{正缺陷必有下一有效下降层：}若 $\widehat\mu_\alpha>0$，则 $S_\alpha\neq\varnothing$，且
+  \[
+    \widehat\mu_{\sigma(\alpha)}
+    \le
+    \widehat\mu_\alpha-1.
+  \]
+\end{enumerate}
+则可以按自然数递推定义严格递增的序数列
+\[
+  0=\alpha_0<\alpha_1<\cdots<\alpha_n<\Lambda,
+\]
+并令
+\[
+  \mu_n:=\widehat\mu_{\alpha_n},
+\]
+使得只要 $\mu_n>0$ 就有
+\[
+  \alpha_{n+1}:=\sigma(\alpha_n),
+  \qquad
+  \mu_{n+1}\le \mu_n-1.
+\]
+进一步，对所有已定义的 $n$ 都成立
+\[
+  \mu_n\le \widehat\mu_0-n.
+\]
+特别地，存在某个 $N_\ast\le \widehat\mu_0$ 使
+\[
+  \mu_{N_\ast}=0.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按关键下降层数 $n$ 的递推谓词]
+\label{cert:tex38-ch4-effective-skeleton}
+定义谓词
+\[
+  \begin{aligned}
+    P(n)
+    :
+    \Longleftrightarrow\ &
+    \text{存在严格递增序数列 }0=\alpha_0<\cdots<\alpha_n<\Lambda,\\
+    &\text{且 }\mu_k=\widehat\mu_{\alpha_k}\le \widehat\mu_0-k
+    \text{ 对所有 }0\le k\le n\text{ 成立}.
+  \end{aligned}
+\]
+证书包含两部分：
+\begin{enumerate}
+  \item \textbf{基础步 $P(0)$：}取 $\alpha_0:=0$，则
+  \[
+    \mu_0=\widehat\mu_{\alpha_0}=\widehat\mu_0\le \widehat\mu_0;
+  \]
+  \item \textbf{归纳步 $P(n)\Rightarrow P(n+1)$：}若 $\mu_n>0$，则由定义~\ref{def:tex38-ch4-effective-descent} 中的 $S_{\alpha_n}
+    \neq\varnothing$ 与序数良序性，
+  $\sigma(\alpha_n)$ 存在且唯一；令
+  \[
+    \alpha_{n+1}:=\sigma(\alpha_n),
+  \]
+  即得
+  \[
+    \mu_{n+1}
+    =
+    \widehat\mu_{\alpha_{n+1}}
+    \le
+    \widehat\mu_{\alpha_n}-1
+    =
+    \mu_n-1.
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+对 $n$ 做数学归纳。
+
+\textbf{基础步：}当 $n=0$ 时，取
+\[
+  \alpha_0:=0.
+\]
+于是
+\[
+  \mu_0
+  =
+  \widehat\mu_{\alpha_0}
+  =
+  \widehat\mu_0
+  \le
+  \widehat\mu_0,
+\]
+故 $P(0)$ 成立。
+
+\textbf{归纳步：}设 $P(n)$ 成立。
+若 $\mu_n=0$，则关键下降层列已在第 $n$ 层终止，无需再构造后继层。
+
+若 $\mu_n>0$，则由假设 (3) 知
+\[
+  S_{\alpha_n}\neq\varnothing.
+\]
+由序数良序性，每个非空序数子集都有最小元
+\cite{RepoTex29TransfiniteRepair,Jech2003SetTheory,Kunen2011SetTheory}，
+故
+\[
+  \alpha_{n+1}:=\sigma(\alpha_n)
+\]
+存在且唯一。又由 $\sigma(\alpha_n)$ 的定义与假设 (3)，
+\[
+  \mu_{n+1}
+  =
+  \widehat\mu_{\alpha_{n+1}}
+  \le
+  \widehat\mu_{\alpha_n}-1
+  =
+  \mu_n-1.
+\]
+再与归纳假设
+\[
+  \mu_n\le \widehat\mu_0-n
+\]
+联立，得到
+\[
+  \mu_{n+1}
+  \le
+  \widehat\mu_0-(n+1).
+\]
+于是 $P(n+1)$ 成立。
+
+因此，
+\[
+  \mu_n\le \widehat\mu_0-n
+\]
+对所有已定义的 $n$ 都成立。特别地，当 $n=\widehat\mu_0$ 时，
+\[
+  \mu_{\widehat\mu_0}\le 0.
+\]
+由于每个 $\mu_n\in\NN$，故存在某个 $N_\ast\le \widehat\mu_0$ 满足
+\[
+  \mu_{N_\ast}=0.
+\]
+这说明：只要入口活跃缺陷有限，且每个正缺陷状态都能触发一次有效下降，
+那么超限原型中真正发生“有效修复”的层数必然有限。定理成立。
+\end{proof}
+
+\subsection{定理：超限层到有限层的投影/截断法则}
+\label{subsec:tex38-ch4-theorem}
+
+\begin{theorem}[超限层到有限层的投影/截断定理]
+\label{thm:tex38-ch4-projection}
+设
+\[
+  \mathfrak T
+  =
+  \bigl\{
+    (\widehat X_\alpha,\widehat A_\alpha,\widehat\mu_\alpha)
+  \bigr\}_{\alpha<\Lambda}
+\]
+是定义~\ref{def:tex38-ch4-transfinite-prototype} 中的超限修复原型，并满足：
+\begin{enumerate}
+  \item \textbf{条件 A（入口有限性）：}
+  \[
+    \widehat\mu_0<\infty;
+  \]
+  \item \textbf{条件 B（单调不增）：}对任意 $\alpha<\beta<\Lambda$，
+  \[
+    \widehat\mu_\beta\le \widehat\mu_\alpha;
+  \]
+  \item \textbf{条件 C（正缺陷必可有效下降）：}若 $\widehat\mu_\alpha>0$，则 $S_\alpha\neq\varnothing$，且其最小元 $\sigma(\alpha)$ 满足
+  \[
+    \widehat\mu_{\sigma(\alpha)}
+    \le
+    \widehat\mu_\alpha-1;
+  \]
+  \item \textbf{条件 D（静默区间与极限层的语义不变性）：}若 $[\alpha,\beta)$ 是静默区间，即
+  \[
+    \widehat\mu_\gamma=\widehat\mu_\alpha
+    \qquad
+    (\forall \gamma\in[\alpha,\beta)),
+  \]
+  则对任意 $\gamma\in[\alpha,\beta)$，存在规范同构
+  \[
+    \mathcal O(\widehat X_\gamma,\widehat A_\gamma)
+    \cong
+    \mathcal O(\widehat X_\alpha,\widehat A_\alpha).
+  \]
+\end{enumerate}
+则存在一个有限整数
+\[
+  N_\ast\le \widehat\mu_0,
+\]
+以及严格递增的序数列
+\[
+  0=\alpha_0<\alpha_1<\cdots<\alpha_{N_\ast}<\Lambda,
+\]
+使得：
+\begin{enumerate}
+  \item 对每个 $0\le n\le N_\ast$，若定义
+  \[
+    X_n:=\widehat X_{\alpha_n},
+    \qquad
+    A_n:=\widehat A_{\alpha_n},
+    \qquad
+    \mu_n:=\widehat\mu_{\alpha_n},
+  \]
+  则
+  \[
+    \mu_n\le \widehat\mu_0-n;
+  \]
+  \item 有
+  \[
+    \mu_{N_\ast}=0;
+  \]
+  \item 由
+  \[
+    \mathsf{Tr}_\Lambda(\mathfrak T)
+    :=
+    \bigl\{
+      (X_n,A_n,\mu_n)
+    \bigr\}_{0\le n\le N_\ast}
+  \]
+  定义的有限层系统是 $\mathfrak T$ 的一个\emph{规范有限有效骨架}；
+  \item 对任意 $\beta<\Lambda$，
+  若 $\alpha_n\le \beta<\alpha_{n+1}$（其中 $n<N_\ast$），则
+  \[
+    \mathcal O(\widehat X_\beta,\widehat A_\beta)
+    \cong
+    \mathcal O(X_n,A_n);
+  \]
+  若 $\beta\ge \alpha_{N_\ast}$，则
+  \[
+    \mathcal O(\widehat X_\beta,\widehat A_\beta)
+    \cong
+    \mathcal O(X_{N_\ast},A_{N_\ast});
+  \]
+  \item 因而，超限原型的终端可行路径空间、纤维终点编码、路径支撑类编码、正规形编码与唯一最优正规形，
+  全部已经由这个有限骨架完全决定。
+\end{enumerate}
+\end{theorem}
+
+\begin{Certificate}[证书：良序、有限下降、静默折叠与观测量保真]
+\label{cert:tex38-ch4-projection}
+证书由四条可调用记录组成：
+\begin{enumerate}
+  \item \textbf{良序证书：}每个非空序数子集都有最小元，因此当 $S_\alpha\neq\varnothing$ 时，$\sigma(\alpha)$ 存在且唯一；
+  \item \textbf{有限下降证书：}若每次有效下降都满足
+  \[
+    \widehat\mu_{\sigma(\alpha)}\le \widehat\mu_\alpha-1,
+  \]
+  且 $\widehat\mu_\alpha\in\NN$，则有效下降次数至多为 $\widehat\mu_0$ 次；
+  \item \textbf{静默折叠证书：}若某区间上缺陷计数不变，并且条件 D 成立，则该区间中任一层都可与区间起点层在观测量族 $\mathcal O$ 上规范识别；
+  \item \textbf{观测量保真证书：}若某一对象链上的所有静默区间都可折叠，则由这些静默区间拼成的投影/截断映射在 $\mathcal O$ 上保真。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+\textbf{第一步：构造关键有效下降层列。}
+由定理~\ref{thm:tex38-ch4-effective-skeleton}，
+存在严格递增的序数列
+\[
+  0=\alpha_0<\alpha_1<\cdots<\alpha_{N_\ast}<\Lambda,
+\]
+以及自然数列
+\[
+  \mu_n:=\widehat\mu_{\alpha_n}
+\]
+满足
+\[
+  \mu_n\le \widehat\mu_0-n,
+  \qquad
+  \mu_{N_\ast}=0.
+\]
+令
+\[
+  X_n:=\widehat X_{\alpha_n},
+  \qquad
+  A_n:=\widehat A_{\alpha_n},
+  \qquad
+  \mu_n:=\widehat\mu_{\alpha_n},
+\]
+则结论 (1) 与结论 (2) 已得。
+
+\textbf{第二步：证明相邻关键层之间全是静默区间。}
+固定 $n<N_\ast$，任取
+\[
+  \beta\in[\alpha_n,\alpha_{n+1}).
+\]
+若存在某个 $\gamma\in[\alpha_n,\alpha_{n+1})$ 使
+\[
+  \widehat\mu_\gamma<\widehat\mu_{\alpha_n},
+\]
+则 $\gamma\in S_{\alpha_n}$，这与
+\[
+  \alpha_{n+1}=\min S_{\alpha_n}
+\]
+矛盾。故对所有 $\gamma\in[\alpha_n,\alpha_{n+1})$，
+\[
+  \widehat\mu_\gamma=\widehat\mu_{\alpha_n}=\mu_n.
+\]
+于是区间 $[\alpha_n,\alpha_{n+1})$ 为静默区间。
+
+\textbf{第三步：证明终端之后也是同一个零障碍静默区间。}
+任取 $\beta\ge \alpha_{N_\ast}$。由条件 B 与 $\mu_{N_\ast}=0$，
+\[
+  0\le \widehat\mu_\beta\le \widehat\mu_{\alpha_{N_\ast}}=\mu_{N_\ast}=0,
+\]
+故
+\[
+  \widehat\mu_\beta=0.
+\]
+因此所有 $\beta\ge\alpha_{N_\ast}$ 的层都落在同一个零障碍静默区间上。
+
+\textbf{第四步：折叠静默区间并定义投影/截断映射。}
+由条件 D 与证书中的静默折叠记录，
+对任意 $\beta<\Lambda$，若 $\alpha_n\le\beta<\alpha_{n+1}$，则
+\[
+  \mathcal O(\widehat X_\beta,\widehat A_\beta)
+  \cong
+  \mathcal O(\widehat X_{\alpha_n},\widehat A_{\alpha_n})
+  =
+  \mathcal O(X_n,A_n).
+\]
+若 $\beta\ge\alpha_{N_\ast}$，则同理有
+\[
+  \mathcal O(\widehat X_\beta,\widehat A_\beta)
+  \cong
+  \mathcal O(X_{N_\ast},A_{N_\ast}).
+\]
+定义
+\[
+  \pi:\Lambda\to\{0,1,\dots,N_\ast\}
+\]
+为
+\[
+  \pi(\beta)
+  :=
+  \begin{cases}
+    n, & \alpha_n\le\beta<\alpha_{n+1}\ \ (n<N_\ast),\\
+    N_\ast, & \beta\ge\alpha_{N_\ast},
+  \end{cases}
+\]
+并令
+\[
+  \mathsf{Tr}_\Lambda(\widehat X_\beta,\widehat A_\beta)
+  :=
+  (X_{\pi(\beta)},A_{\pi(\beta)}).
+\]
+则 $\mathsf{Tr}_\Lambda$ 在整个观测量族 $\mathcal O$ 上保真。
+
+\textbf{第五步：证明终端工程对象完全由有限骨架决定。}
+由结论 (4)，超限原型在终端零障碍区间上的
+\[
+  \mathcal P^{\mathrm{adm}}(s,t),
+  \qquad
+  \mathcal F(s,t),
+  \qquad
+  \Pi(s,t),
+  \qquad
+  \mathcal T(s,t),
+  \qquad
+  \Phi
+\]
+都与有限骨架终端层上的对应对象规范同构。
+于是：
+\begin{enumerate}
+  \item 超限原型的终端零缺陷条件与有限骨架终端层的零缺陷条件等价；
+  \item 可行路径空间由 $(X_{N_\ast},A_{N_\ast})$ 完全决定；
+  \item 纤维终点编码、路径支撑类编码与正规形编码由 $(X_{N_\ast},A_{N_\ast})$ 完全决定；
+  \item 若第~\ref{sec:tex38-ch1} 节的严格化作用量 $\Phi$ 对规范同构不变，则唯一最优正规形也由有限骨架完全决定。
+\end{enumerate}
+故
+\[
+  \mathsf{Tr}_\Lambda(\mathfrak T)
+  =
+  \bigl\{
+    (X_n,A_n,\mu_n)
+  \bigr\}_{0\le n\le N_\ast}
+\]
+就是 $\mathfrak T$ 的规范有限有效骨架。定理成立。
+\end{proof}
+
+\subsection{引理：唯一最优的量词范围可收缩到有限有效骨架}
+\label{subsec:tex38-ch4-lemma}
+
+\begin{lemma}[“全局最优”的量词范围可收缩到有限有效骨架]
+\label{lem:tex38-ch4-global}
+在定理~\ref{thm:tex38-ch4-projection} 的条件下，
+记 $\mathcal T_{\Lambda}(s,t)$ 为超限原型在任意 $\beta\ge\alpha_{N_\ast}$ 的终端零障碍区间上诱导的正规形编码集合；
+由定理~\ref{thm:tex38-ch4-projection} 的结论 (4)，该定义与 $\beta$ 的选择无关。
+若严格化作用量 $\Phi$ 只依赖于观测量族 $\mathcal O$ 中的终端编码，并对上述规范同构不变，
+则
+\[
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_{\Lambda}(s,t)}\Phi(\tau)
+  \cong
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_{N_\ast}(s,t)}\Phi(\tau).
+\]
+特别地，正文里的“全局最优”可以严格解释为：
+相对于投影保真的有限有效骨架 $L_1=\mathsf{Tr}_\Lambda(\mathfrak T)$ 的全局最优。
+\end{lemma}
+
+\begin{Certificate}[证书：终端编码保真 + 作用量同构不变]
+\label{cert:tex38-ch4-global}
+证书包含两条记录：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-ch4-projection} 的结论 (4)--(5) 保证超限原型终端零障碍区间上的正规形编码与有限骨架终端层上的正规形编码规范同构；
+  \item 若 $\Phi$ 对这些规范同构不变，则比较大小与求极小元的量词范围可以从 $\mathcal T_{\Lambda}(s,t)$ 收缩到 $\mathcal T_{N_\ast}(s,t)$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex38-ch4-projection} 的结论 (4)，
+对任意 $\beta\ge\alpha_{N_\ast}$ 都有
+\[
+  \mathcal O(\widehat X_\beta,\widehat A_\beta)
+  \cong
+  \mathcal O(X_{N_\ast},A_{N_\ast}).
+\]
+因此，超限原型在终端零障碍区间上产生的正规形编码集合
+\[
+  \mathcal T_{\Lambda}(s,t)
+\]
+与有限骨架终端层上的正规形编码集合
+\[
+  \mathcal T_{N_\ast}(s,t)
+\]
+规范同构。
+
+再由证书第二条，若 $\Phi$ 对上述规范同构不变，
+则对任意 $\tau,\tau'$，比较
+\[
+  \Phi(\tau)\le \Phi(\tau')
+\]
+的真假与把 $\tau,\tau'$ 投影到 $\mathcal T_{N_\ast}(s,t)$ 后再比较的真假一致。
+故求极小元的量词范围可以从 $\mathcal T_{\Lambda}(s,t)$ 无损收缩到 $\mathcal T_{N_\ast}(s,t)$，
+即
+\[
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_{\Lambda}(s,t)}\Phi(\tau)
+  \cong
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_{N_\ast}(s,t)}\Phi(\tau).
+\]
+引理成立。
+\end{proof}
+
+\subsection{命题：第一章有限 \texorpdfstring{$N$}{N} 层修复塔的严格来源}
+\label{subsec:tex38-ch4-proposition}
+
+\begin{proposition}[第一章有限 \texorpdfstring{$N$}{N} 层修复塔的严格来源]
+\label{prop:tex38-ch4-source}
+在定理~\ref{thm:tex38-ch4-projection} 的条件下，
+第~\ref{sec:tex38-ch1} 节中的有限 $N$ 层修复塔不是任意截断，
+而是超限修复原型 $\mathfrak T$ 的规范有限有效骨架
+\[
+  \mathsf{Tr}_\Lambda(\mathfrak T).
+\]
+换言之，第~\ref{sec:tex38-ch1} 节真正需要的层，正是那些发生有效下降的关键层；
+静默区间与极限拼接在工程观测量 $\mathcal O$ 上都可被折叠。
+\end{proposition}
+
+\begin{Certificate}[证书：关键下降层列 + 观测量保真]
+\label{cert:tex38-ch4-source}
+证书包含两段：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-ch4-projection} 给出严格递增序数列
+  \[
+    0=\alpha_0<\alpha_1<\cdots<\alpha_{N_\ast}
+  \]
+  及其对应的关键层
+  \[
+    (X_n,A_n):=(\widehat X_{\alpha_n},\widehat A_{\alpha_n});
+  \]
+  \item 同一定理的结论 (4) 说明，除关键层之外的其余层都可在观测量族 $\mathcal O$ 上被规范识别到某个关键层。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由证书第一段，有限层修复塔的层级并非任意选取，
+而是由超限原型中那些真正触发
+\[
+  \widehat\mu_{\alpha_{n+1}}<\widehat\mu_{\alpha_n}
+\]
+的关键层组成。
+
+由证书第二段，若某层并未发生有效下降，
+则它所在的静默区间在工程观测量 $\mathcal O$ 上与某个关键层规范同构，
+因此不会给第~\ref{sec:tex38-ch1} 节后续所关心的可行路径空间、三重编码或唯一最优正规形带来新的工程信息。
+
+故第~\ref{sec:tex38-ch1} 节的有限 $N$ 层修复塔不是任意截断，
+而是超限修复原型在工程可执行意义下的最小充分像。命题成立。
+\end{proof}
+
+\subsection{推论：从纯粹数学到应用数学的桥接被提升为定理}
+\label{subsec:tex38-ch4-corollary}
+
+\begin{corollary}[从纯粹数学的超限修复原型到应用数学的有限层规范骨架]
+\label{cor:tex38-ch4-bridge}
+在定理~\ref{thm:tex38-ch4-projection} 与引理~\ref{lem:tex38-ch4-global} 的条件下，
+\[
+  \text{纯粹数学的超限修复原型}
+  \Longrightarrow
+  \text{应用数学的有限层规范骨架}
+\]
+不再只是口头解释，而是由
+\[
+  L_0:=\mathfrak T,
+  \qquad
+  L_1:=\mathsf{Tr}_\Lambda(\mathfrak T),
+  \qquad
+  L_2:=\mathcal T_{N_\ast}(s,t),
+  \qquad
+  L_3:=\tau^\ast
+\]
+所给出的定理级桥接。
+\end{corollary}
+
+\begin{Certificate}[证书：投影/截断 + 三重编码 + 唯一选优]
+\label{cert:tex38-ch4-bridge}
+证书包含三段：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-ch4-projection} 给出
+  \[
+    L_0=\mathfrak T
+    \Longrightarrow
+    L_1=\mathsf{Tr}_\Lambda(\mathfrak T);
+  \]
+  \item 命题~\ref{prop:tex38-bijection} 与定理~\ref{thm:tex38-ch4-projection} 的结论 (5) 给出
+  \[
+    L_1
+    \Longrightarrow
+    L_2=\mathcal T_{N_\ast}(s,t);
+  \]
+  \item 引理~\ref{lem:tex38-ch4-global} 与定理~\ref{thm:tex38-optimal} 给出
+  \[
+    L_2
+    \Longrightarrow
+    L_3=\tau^\ast.
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由证书第一段，超限修复原型经投影/截断被压为规范有限有效骨架，
+即
+\[
+  L_0\rightsquigarrow L_1.
+\]
+由证书第二段，第~\ref{sec:tex38-ch1} 节关于三重编码的一致性结果与主定理的终端决定性合并，得到
+\[
+  L_1\rightsquigarrow L_2.
+\]
+由证书第三段，有限正规形候选集上的唯一极小元与超限原型终端编码上的唯一极小元规范一致，
+故
+\[
+  L_2\rightsquigarrow L_3.
+\]
+三段箭头首尾相接，得到
+\[
+  L_0\rightsquigarrow L_1\rightsquigarrow L_2\rightsquigarrow L_3.
+\]
+故推论成立。
+\end{proof}
+
+\begin{remark}[有限抽取的是有效修复信息，不是逐点复制无限细节]
+本章真正证明的是：
+\[
+  \text{超限层中的有效修复信息必可被有限抽取。}
+\]
+它并没有证明“超限层全部细节都能被有限对象逐点同一化”。
+被保留下来的是工程观测量族 $\mathcal O$，
+而不是无限细节的逐点复制。
+\end{remark}
+
+\begin{remark}[条件 D 是语义保真投影的关键]
+若没有条件 D，则由定理~\ref{thm:tex38-ch4-effective-skeleton} 最多只能推出
+\[
+  \text{有效下降次数有限},
+\]
+却不能推出
+\[
+  \text{静默层与极限层可被无损折叠}.
+\]
+因此
+\[
+  \text{有限终止}
+  \neq
+  \text{语义保真投影}.
+\]
+本章同时证明的是这两件事，而不只是第一件事。
+\end{remark}
+
+\begin{remark}[与第~\ref{sec:tex38-ch1} 节的逻辑位置关系]
+就论证依赖而言，本章解释了为什么正文可以直接从有限层 $N$ 出发，
+而不必先把整套超限递归在第~\ref{sec:tex38-ch1} 节中逐层铺开。
+如果未来需要重排全文结构，
+那么本章最自然的插入位置正是：
+\[
+  \text{“对象域：离散基底、语义约束与 Jacobi--Bianchi 障碍”之后，}
+\]
+以及
+\[
+  \text{“有限步修复塔存在且缺陷计数严格下降”之前。}
+\]
+\end{remark}
+
+\begin{remark}[一句压缩结论]
+若把本章压成一句话，则可写成：
+\[
+  \text{第~\ref{sec:tex38-ch1} 节的有限 }N\text{ 层修复塔 = 超限修复原型的规范有限有效骨架。}
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：该稿之增益评价}
+\label{sec:tex38-ch5}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[编号约定]
+本稿沿用与 \code{tex37} 一致的 \texttt{section/subsection} 结构，并把顶层 \texttt{section}
+作为章级单元理解。因此第~\ref{sec:tex38-ch1} 节即本稿第1章，
+第~\ref{sec:tex38-ch2} 节即本稿第2章，
+第~\ref{sec:tex38-ch3} 节即本稿第3章，
+第~\ref{sec:tex38-ch4} 节即本稿第4章，本节则是对前四章结果的独立增益评价章。
+\end{remark}
+
+\begin{remark}[引文与评价口径]
+本节不再新增修复机制，而是对第~\ref{sec:tex38-ch1}--第~\ref{sec:tex38-ch4} 节已经明确的闭链、
+工程支点与桥接解释作增益评价的定理化整理。
+写法上对齐仓内关于“增益评价/阶段性增益/结构闭链评价”的工作笔记
+\cite{RepoTex37GainEvaluation,RepoTex28StageGains,RepoTex22DiscussionGains}；
+具体证书则继续调用第1章已经建立的修复塔、条件收敛、三重双射与终点正规形接口
+\cite{RepoTex31RepairTower,RepoTex32ConditionalConvergence,RepoTex36HomotopyTwistBijection,RepoTex6JacobiGap,
+  GaoZheng2025GFramework,GaoZhengAppVol3}。
+\end{remark}
+
+\begin{remark}[核心边界]
+本节评价的严格落点仍是：推论~\ref{cor:tex38-terminal} 保证
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0
+\]
+成立于\textbf{终端零缺陷正规形代表}，而不是把“任意原始离散表示未经正规化即自动满足 Bianchi 恒等式”当作已证事实。
+因此，任何增益判断都必须把这种边界澄清记入纠偏增益 $G_{\mathrm{corr}}$，并把仍依赖外部接口的部分记入折减因子 $G_{\mathrm{dep}}$。
+\end{remark}
+
+\subsection{定义：评价口径、总增益分解与评价基准}
+\label{subsec:tex38-gain-definition}
+
+\begin{definition}[评价口径与总增益分解]
+\label{def:tex38-gain-decomposition}
+定义第~\ref{sec:tex38-ch1} 节相对于两类基准
+\[
+  \mathcal{B}_{\mathrm{nl}}:=\text{上一轮自然语言主张},
+  \qquad
+  \mathcal{B}_{\mathrm{repo}}:=\text{仓内既有接口模板族}
+\]
+的总增益为
+\[
+  G_{\mathrm{total}}
+  :=
+  \frac{
+    G_{\mathrm{corr}}
+    +
+    G_{\mathrm{closure}}
+    +
+    G_{\mathrm{disc}}
+    +
+    G_{\mathrm{eng}}
+  }{
+    G_{\mathrm{dep}}
+  },
+  \qquad
+  G_{\mathrm{dep}}>0.
+\]
+其中：
+\begin{enumerate}
+  \item $G_{\mathrm{corr}}$ 表示\emph{纠偏增益}，即把“原始表示上自动恒真”的过强说法，收缩为“终端零缺陷正规形代表上严格成立”的正确表述；
+  \item $G_{\mathrm{closure}}$ 表示\emph{闭链增益}，即把
+  \[
+    \text{障碍}
+    \to
+    \text{修复塔}
+    \to
+    \text{可行路径}
+    \to
+    \text{支撑类}
+    \to
+    \text{最优类}
+    \to
+    \text{终点正规形}
+  \]
+  压成一条单文稿内部可顺次核验的闭合形式链；
+  \item $G_{\mathrm{disc}}$ 表示\emph{离散化增益}，即把讨论稳定地落在有限单纯复形、有限路径集合与有限正规形集合上；
+  \item $G_{\mathrm{eng}}$ 表示\emph{工程化增益}，即把论证压缩为整数计数、有限终止、可枚举代表与可比较作用量等可审计对象；
+  \item $G_{\mathrm{dep}}$ 表示\emph{外部接口依赖折减因子}，即本稿仍需调用但未在本文内部自底完全重建的接口前提；其值越大，表示外部依赖越重，对总增益的折减越强。
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[评价基准的区分]
+当基准取为 $\mathcal{B}_{\mathrm{nl}}$ 时，评价重点是“自然语言主张被纠偏并严格化到了什么程度”；
+当基准取为 $\mathcal{B}_{\mathrm{repo}}$ 时，评价重点是“仓内既有接口被重新离散化、串联化、终点正规形化到了什么程度”。
+故同一总增益在两种基准下可以呈现不同的主导项，但不会改变其正负方向。
+\end{remark}
+
+\subsection{公理（降级为定理）：总增益分子可按四类主增益递归累加}
+\label{subsec:tex38-gain-axiom}
+
+\begin{theorem}[公理（降级为定理）：总增益分子可按四类主增益递归累加]
+\label{thm:tex38-gain-recursion}
+定义四个增益增量
+\[
+  \Delta_1:=G_{\mathrm{corr}},\qquad
+  \Delta_2:=G_{\mathrm{closure}},\qquad
+  \Delta_3:=G_{\mathrm{disc}},\qquad
+  \Delta_4:=G_{\mathrm{eng}}.
+\]
+再定义部分和
+\[
+  N(1):=\Delta_1,
+  \qquad
+  N(m+1):=N(m)+\Delta_{m+1}
+  \quad(1\le m\le 3).
+\]
+则对所有 $m\in\{1,2,3,4\}$，有
+\[
+  N(m)=\sum_{k=1}^{m}\Delta_k.
+\]
+特别地，
+\[
+  N(4)
+  =
+  G_{\mathrm{corr}}
+  +
+  G_{\mathrm{closure}}
+  +
+  G_{\mathrm{disc}}
+  +
+  G_{\mathrm{eng}},
+\]
+故定义~\ref{def:tex38-gain-decomposition} 中的总增益可写为
+\[
+  G_{\mathrm{total}}=\frac{N(4)}{G_{\mathrm{dep}}}.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按主增益条目数 $m$ 递归]
+\label{cert:tex38-gain-recursion}
+定义谓词
+\[
+  P(m):\ N(m)=\sum_{k=1}^{m}\Delta_k.
+\]
+归纳证书登记为
+\[
+  \pi_{\mathrm{ind}}
+  =
+  \bigl(
+    P(1),\
+    \forall m\in\{1,2,3\},\ P(m)\Rightarrow P(m+1)
+  \bigr).
+\]
+其中递推只使用
+\[
+  N(m+1)=N(m)+\Delta_{m+1}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+\textbf{基础步：}
+由定义，
+\[
+  N(1)=\Delta_1=\sum_{k=1}^{1}\Delta_k,
+\]
+故 $P(1)$ 成立。
+
+\textbf{归纳步：}
+设 $P(m)$ 成立，即
+\[
+  N(m)=\sum_{k=1}^{m}\Delta_k.
+\]
+由递推定义，
+\[
+  N(m+1)=N(m)+\Delta_{m+1}.
+\]
+将归纳假设代入，得到
+\[
+  N(m+1)
+  =
+  \sum_{k=1}^{m}\Delta_k+\Delta_{m+1}
+  =
+  \sum_{k=1}^{m+1}\Delta_k.
+\]
+故 $P(m)\Rightarrow P(m+1)$。
+
+由数学归纳法，$P(m)$ 对 $m=1,2,3,4$ 全部成立。
+因此
+\[
+  N(4)
+  =
+  \sum_{k=1}^{4}\Delta_k
+  =
+  G_{\mathrm{corr}}
+  +
+  G_{\mathrm{closure}}
+  +
+  G_{\mathrm{disc}}
+  +
+  G_{\mathrm{eng}}.
+\]
+再代回定义~\ref{def:tex38-gain-decomposition}，即得
+\[
+  G_{\mathrm{total}}=\frac{N(4)}{G_{\mathrm{dep}}}.
+\]
+定理成立。
+\end{proof}
+
+\begin{remark}[与仓内增益证书模板的对齐]
+定理~\ref{thm:tex38-gain-recursion} 延续了 \cite{RepoTex37GainEvaluation,RepoTex28StageGains}
+中“把综合评价先分解为若干可索引增益项，再用数学归纳法证书汇总”的写法；
+差别只在于，本节的四类主增益全部直接回挂到第~\ref{sec:tex38-ch1} 节已经证明的离散对象与终点结论上。
+\end{remark}
+
+\subsection{定理：该稿的总评价}
+\label{subsec:tex38-gain-total}
+
+\begin{theorem}[整体增益评价]
+\label{thm:tex38-gain-total}
+在定义~\ref{def:tex38-gain-decomposition} 的评价口径下，
+\[
+  G_{\mathrm{total}}>0,
+\]
+并且它不是小幅正增益，而应判为\textbf{显著正增益}。
+更精确地说，
+\[
+  \begin{aligned}
+    &\text{相对 } \mathcal{B}_{\mathrm{nl}} \text{，这是大幅严格化增益；}\\
+    &\text{相对 } \mathcal{B}_{\mathrm{repo}} \text{，这是中到大的组装闭链增益；}\\
+    &\text{相对整个体系的位置，它是中层关键铰链，亦即工程方法论的理论总装层。}
+  \end{aligned}
+\]
+同时，本稿的重量类型是\textbf{承重级桥接闭链}，而不是新的最高层本原之本体改写。
+\end{theorem}
+
+\begin{Certificate}[证书：六段主链 + 后半推进链]
+\label{cert:tex38-gain-total}
+证书由两组主链组成：
+\begin{enumerate}
+  \item \textbf{前半六段主链：}纠偏后的严格主张把结论落点从“原始未修复表示”收缩到“修复后的终端零缺陷正规形代表”；
+  \item 定理~\ref{thm:tex38-axiom-downgrade} 给出
+  \[
+    \mu_{n+1}\le \mu_n-1,
+    \qquad
+    N_\ast\le \mu_0;
+  \]
+  \item 引理~\ref{lem:tex38-admissible-path} 把
+  \[
+    \mu_{N_\ast}=0
+  \]
+  推到
+  \[
+    \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing;
+  \]
+  \item 命题~\ref{prop:tex38-bijection} 给出三重编码双射
+  \[
+    \mathcal{F}_{N_\ast}(s,t)
+    \cong
+    \Pi_{N_\ast}(s,t)
+    \cong
+    \mathcal{T}_{N_\ast}(s,t);
+  \]
+  \item 定理~\ref{thm:tex38-optimal} 给出有限集上严格化作用量的唯一极小元
+  \[
+    \tau^\ast;
+  \]
+  \item 推论~\ref{cor:tex38-terminal} 最终落到
+  \[
+    \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+  \]
+  \item \textbf{后半推进链起点：}定理~\ref{thm:tex38-bridge-hardware} 把“适配当下硬件”收紧为\textbf{有限算力相容的唯一最优工程代表选择机制}；
+  \item 定理~\ref{thm:tex38-budget-value} 与定理~\ref{thm:tex38-budget-coverage} 给出
+  \[
+    V(B_2)\le V(B_1),
+    \qquad
+    h_\varepsilon(B_1)\le h_\varepsilon(B_2),
+  \]
+  即预算提升下的值函数/覆盖率单调推进；
+  \item 定理~\ref{thm:tex38-quantifier-correction} 与定理~\ref{thm:tex38-higher-obstruction}
+    把“局部最优陷阱”收紧为“不可提升的局部最优才由非零提升障碍类分隔”；
+  \item 定理~\ref{thm:tex38-liftpath-optimal} 与推论~\ref{cor:tex38-smart-compatibility} 把对象层唯一最优路径与算法层巧妙求解严格分开；
+  \item 定理~\ref{thm:tex38-ch4-projection} 把超限层对象压回有限有效骨架，从而把整条链重新落回工程可处理域。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+第一步，最大增益首先不是“说得更强”，而是“说得更准”。
+本文最关键的纠偏，是把容易滑向的强断言
+\[
+  \text{修复后}
+  \Longrightarrow
+  \text{原始表示处处满足 Bianchi 恒等式}
+\]
+收紧为
+\[
+  \text{终端零缺陷正规形代表上 }
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+\]
+这一步把“未证明”从结论中剥离出去，只留下真正可守住的落点。
+因此，相对于 $\mathcal{B}_{\mathrm{nl}}$，$G_{\mathrm{corr}}$ 极大，
+而且它正是本稿最硬的一项增益来源。
+
+第二步，第~\ref{sec:tex38-ch1} 节真正完成了单稿闭链。
+定理~\ref{thm:tex38-axiom-downgrade} 给出
+\[
+  \mu_n\downarrow,
+  \qquad
+  N_\ast\le\mu_0,
+\]
+引理~\ref{lem:tex38-admissible-path} 给出
+\[
+  \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing,
+\]
+命题~\ref{prop:tex38-bijection} 给出
+\[
+  \mathcal{F}_{N_\ast}(s,t)
+  \cong
+  \Pi_{N_\ast}(s,t)
+  \cong
+  \mathcal{T}_{N_\ast}(s,t),
+\]
+定理~\ref{thm:tex38-optimal} 给出
+\[
+  \tau^\ast
+  =
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_{N_\ast}(s,t)}
+  \Phi(\tau),
+\]
+推论~\ref{cor:tex38-terminal} 最终落到
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0.
+\]
+于是
+\[
+  \begin{aligned}
+    &\text{Jacobi--Bianchi 障碍}
+    \to
+    \text{修复塔}
+    \to
+    \text{可行路径空间}\\
+    \to\ &
+    \text{三重编码双射}
+    \to
+    \text{唯一最优路径类}
+    \to
+    \text{终点零缺陷正规形}
+  \end{aligned}
+\]
+被压成了一条可顺次核验的单文稿闭链。
+因此 $G_{\mathrm{closure}}$ 极大。
+
+第三步，本文把对象压到了有限、离散、可枚举的骨架上。
+有限单纯复形、有限路径集、有限正规形集与唯一极小元的同时出现，
+把问题从叙事性表述推进为可程序核验表述。
+因此
+\[
+  G_{\mathrm{disc}}+G_{\mathrm{eng}}
+\]
+显著上升；
+尤其
+\[
+  \mu_n,
+  \qquad
+  N_\ast,
+  \qquad
+  \mathcal T_{N_\ast}(s,t),
+  \qquad
+  \tau^\ast
+\]
+这四类对象，已经可以直接挂接到实现与审计接口上。
+
+第四步，第~\ref{sec:tex38-ch2}--\ref{sec:tex38-ch4} 节把“局部成立”继续推进成“工程上可用”。
+其中有四个关键推进。
+
+其一，定理~\ref{thm:tex38-bridge-hardware} 把“适配当下硬件”纠偏为
+\[
+  \text{有限算力相容的唯一最优工程代表选择机制},
+\]
+而不是把它夸大成对原始无限问题的绝对全局解。
+
+其二，定理~\ref{thm:tex38-budget-value} 与定理~\ref{thm:tex38-budget-coverage} 给出
+\[
+  V(B_2)\le V(B_1),
+  \qquad
+  h_\varepsilon(B_1)\le h_\varepsilon(B_2),
+\]
+从而把“更大算力逼近更深全局最优”从直觉升级为定理级口径。
+
+其三，定理~\ref{thm:tex38-quantifier-correction} 与定理~\ref{thm:tex38-higher-obstruction} 把“局部最优陷阱”做了量词纠偏：
+不是所有局部最优都被高阶障碍隔开，
+而是所有\textbf{不可提升的局部最优}才由非零提升障碍类分隔。
+这一点非常关键，因为它防止命题被说得过满。
+
+其四，定理~\ref{thm:tex38-liftpath-optimal} 与推论~\ref{cor:tex38-smart-compatibility} 把
+\[
+  \text{对象层最优性}
+  \qquad\text{与}\qquad
+  \text{算法层效率}
+\]
+彻底分开：
+同一模型内，对象层唯一最优路径只有一条；
+巧妙性只可能体现在算法层更快找到同一条路径；
+若扩大定义域，则可以出现新的更优对象层路径。
+
+再进一步，定理~\ref{thm:tex38-ch4-projection} 又把这条后半推进链压回
+\[
+  \text{超限层到有限层投影}
+\]
+的工程有效骨架之上。
+因此，
+\[
+  \begin{aligned}
+    &\text{有限算力截断}
+    \to
+    \text{预算提升}
+    \to
+    \text{局部最优/全局最优分离}\\
+    \to\ &
+    \text{唯一最优提升路径}
+    \to
+    \text{“暴力证书”与“巧妙算法”相容}
+    \to
+    \text{超限层到有限层投影}
+  \end{aligned}
+\]
+也被写成了可审计的后半推进链。
+
+综上，本文不是局部补丁，而是把若干上游接口接成了承重梁。
+故相对于 $\mathcal{B}_{\mathrm{nl}}$，它是大幅严格化增益；
+相对于 $\mathcal{B}_{\mathrm{repo}}$，它是中到大的组装闭链增益；
+相对于整个体系，它是中层关键铰链，也即工程方法论的理论总装层。
+因此
+\[
+  G_{\mathrm{total}}>0
+\]
+且应判为显著正增益。定理成立。
+\end{proof}
+
+\subsection{引理：最大增益所在}
+\label{subsec:tex38-gain-largest}
+
+\begin{lemma}[最大增益所在]
+\label{lem:tex38-gain-largest}
+这份稿件的最大增益是
+\[
+  \boxed{
+    \text{把“修复}\to\text{可行}\to\text{选优}\to\text{正规形”压成可审计闭链}
+  },
+\]
+而不是新增一个更高层的本体对象。
+\end{lemma}
+
+\begin{Certificate}[证书：新增名词只给局部增益，闭合承重链才给结构增益]
+\label{cert:tex38-gain-largest}
+证书分两段：
+\begin{enumerate}
+  \item 若只新增一个名词，但该名词未被嵌入
+  \[
+    \text{障碍}
+    \to
+    \text{修复}
+    \to
+    \text{可行}
+    \to
+    \text{最优}
+    \to
+    \text{终点}
+  \]
+  这条链，则新增量只会停留在局部对象扩张；
+  \item 本稿真正完成的是把
+  \[
+    \text{修复}
+    \to
+    \text{可行}
+    \to
+    \text{选优}
+    \to
+    \text{正规形}
+  \]
+  压成单文稿内部可顺次审计的承重闭链。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+若一篇文稿只额外声明某个新对象，却没有把它接入
+\[
+  \text{障碍}
+  \to
+  \text{修复}
+  \to
+  \text{可行}
+  \to
+  \text{最优}
+  \to
+  \text{终点}
+\]
+这一条因果链，则它最多给出一个局部名词增量，而不能把体系整体的可验证性向前推进。
+
+而本稿的主工作恰好不在于堆叠新名词，
+而在于把前文分散的接口压成
+\[
+  \text{修复}
+  \to
+  \text{可行}
+  \to
+  \text{选优}
+  \to
+  \text{正规形}
+\]
+这一条可以逐段核验的闭链。
+因此，本稿最大的增益不是增加更高层本体，而是闭合了承重链。
+引理成立。
+\end{proof}
+
+\subsection{引理：四类主增益的独立见证}
+\label{subsec:tex38-gain-lemma}
+
+\begin{lemma}[四类主增益均有独立见证]
+\label{lem:tex38-gain-witness}
+在第~\ref{sec:tex38-ch1} 节的设定下，四个正向增益分量都具有可追踪的内部见证：
+\[
+\begin{aligned}
+  W_{\mathrm{corr}} &: \text{推论~\ref{cor:tex38-terminal} 与本节的边界澄清共同见证 } G_{\mathrm{corr}},\\
+  W_{\mathrm{closure}} &: \text{定理~\ref{thm:tex38-axiom-downgrade}}
+  \to
+  \text{引理~\ref{lem:tex38-admissible-path}}
+  \to
+  \text{命题~\ref{prop:tex38-bijection}}
+  \to
+  \text{定理~\ref{thm:tex38-optimal}}
+  \to
+  \text{推论~\ref{cor:tex38-terminal}}
+  \text{ 共同见证 } G_{\mathrm{closure}},\\
+  W_{\mathrm{disc}} &: X_n,\ \mathcal{P}^{\mathrm{adm}}_{N_\ast}(s,t),\ \mathcal{T}_{N_\ast}(s,t)\ \text{的有限性见证 }
+    G_{\mathrm{disc}},\\
+  W_{\mathrm{eng}} &: \mu_n\in\NN,\ N_\ast\le\mu_0,\ \Phi(\tau)=E(\tau)+\varepsilon\Lambda(\tau),\ \exists!\,\tau^\ast
+    \text{ 见证 } G_{\mathrm{eng}}.
+\end{aligned}
+\]
+同时，接口依赖折减因子 $G_{\mathrm{dep}}$ 的主要来源正是局部修复算子 $R_n$ 与边传输双射 $T_e$ 的外部接口性。
+\end{lemma}
+
+\begin{Certificate}[证书：四个正见证 + 一个折减来源]
+\label{cert:tex38-gain-witness}
+证书分五段：
+\begin{enumerate}
+  \item 推论~\ref{cor:tex38-terminal} 给出终端真命题落点，从而见证纠偏增益；
+  \item 定理~\ref{thm:tex38-axiom-downgrade}、引理~\ref{lem:tex38-admissible-path}、命题~\ref{prop:tex38-bijection}、
+  定理~\ref{thm:tex38-optimal} 与推论~\ref{cor:tex38-terminal} 组成闭链见证；
+  \item 第~\ref{sec:tex38-ch1} 节的全部对象域都被定义在有限单纯复形、有限路径与有限正规形集合上，从而见证离散化增益；
+  \item 整数计数 $\mu_n$、终止界 $N_\ast\le\mu_0$、严格化作用量 $\Phi$ 与唯一最优元 $\tau^\ast$ 共同见证工程化增益；
+  \item 仓内引用 \cite{RepoTex31RepairTower,RepoTex36HomotopyTwistBijection} 所对应的局部修复接口与边传输接口，正构成折减因子 $G_{\mathrm{dep}}$
+    的主要来源。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由推论~\ref{cor:tex38-terminal}，本文最终证明的是
+\[
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0,
+\]
+而非“所有原始表示自动恒真”。
+于是结论落点被严格收缩到终端零缺陷正规形代表，这恰好给出 $W_{\mathrm{corr}}$，故 $G_{\mathrm{corr}}$ 有独立见证。
+
+再由
+\[
+  \text{定理~\ref{thm:tex38-axiom-downgrade}}
+  \to
+  \text{引理~\ref{lem:tex38-admissible-path}}
+  \to
+  \text{命题~\ref{prop:tex38-bijection}}
+  \to
+  \text{定理~\ref{thm:tex38-optimal}}
+  \to
+  \text{推论~\ref{cor:tex38-terminal}},
+\]
+得到一条从障碍修复到终点真命题的连续链，因此 $W_{\mathrm{closure}}$ 成立，$G_{\mathrm{closure}}$ 有独立见证。
+
+第~\ref{sec:tex38-ch1} 节一开始就把对象域固定在有限单纯复形 $X_n$ 上；
+引理~\ref{lem:tex38-admissible-path} 给出有限可行路径集合中的非空部分，
+命题~\ref{prop:tex38-bijection} 与定理~\ref{thm:tex38-optimal} 又把问题压到有限正规形集合 $\mathcal{T}_{N_\ast}(s,t)$ 上。
+故 $W_{\mathrm{disc}}$ 成立，$G_{\mathrm{disc}}$ 有独立见证。
+
+另一方面，整数计数 $\mu_n$、有限终止界 $N_\ast\le\mu_0$、严格化作用量 $\Phi$ 与唯一最优元 $\tau^\ast$
+都属于可审计、可枚举、可比较的工程对象。
+因此 $W_{\mathrm{eng}}$ 成立，$G_{\mathrm{eng}}$ 有独立见证。
+
+最后，本稿并未在本文内部从零构造所有局部修复算子 $R_n$ 与所有边传输双射 $T_e$；
+这些仍通过仓内接口稿 \cite{RepoTex31RepairTower,RepoTex36HomotopyTwistBijection} 被调用。
+故它们正是 $G_{\mathrm{dep}}$ 的主要来源。引理成立。
+\end{proof}
+
+\subsection{命题：这份稿件的真实新增量}
+\label{subsec:tex38-gain-proposition}
+
+\begin{proposition}[这份稿件的真实新增量]
+\label{prop:tex38-real-increment}
+若按本文自述所引用的既有文稿模板
+\cite{RepoTex20SemanticGaugeNormalization,RepoTex31RepairTower,RepoTex32ConditionalConvergence,
+  RepoTex36HomotopyTwistBijection,RepoTex6JacobiGap}
+来衡量，则本文的真实新增量主要是
+\[
+  \text{离散化重写}
+  +
+  \text{单文件串链}
+  +
+  \text{终点正规形落点}
+  +
+  \text{严格边界声明},
+\]
+而不是“从零独立发明全部局部修复机制”。
+\end{proposition}
+
+\begin{Certificate}[证书：模板来源 + 离散重写 + 边界声明]
+\label{cert:tex38-real-increment}
+证书由三段组成：
+\begin{enumerate}
+  \item 文中已明确说明 \code{tex20}、\code{tex31}、\code{tex32}、\code{tex36}、\code{tex6}
+  分别提供语义约束、修复塔、收敛模板、三重双射与 Jacobi-gap 落在 $H^3$ 的最小接口；
+  \item 本文把这些分散接口压到同一离散基底 $\{X_n\}$ 与同一终点正规形落点上；
+  \item 本文新增了“严格边界”说明，主动排除了过强结论。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由证书的第一段，可知本文并未声称“所有局部修复算子 $R_n$ 的存在性已经在本文从第一原理全部推出”。
+换言之，本文承认自身仍调用了若干上游接口模板。
+
+由证书的第二段，可知本文的主要工作是把这些分散接口组合成
+\[
+  H^3\text{ 障碍}
+  \to
+  \mu_n\downarrow
+  \to
+  N_\ast
+  \to
+  \mathcal{P}^{\mathrm{adm}}\neq\varnothing
+  \to
+  \mathcal{F}\cong\Pi\cong\mathcal{T}
+  \to
+  \tau^\ast
+  \to
+  \Bia=0
+\]
+这一条连续链。
+因此，本文的主要新增不是某个局部算子的“从零发明”，而是把已有接口离散化、单文件串链化，并最终落到终点正规形代表上。
+
+由证书的第三段，可知本文没有把强结论模糊化，恰恰相反，它主动声明了“本文真正证明的是什么、没有证明的又是什么”。
+这正是严格边界声明与纠偏增益的来源。
+故本文的真实新增量应定性为“组装闭链型增益”，并且这种新增量是真实且重要的。命题成立。
+\end{proof}
+
+\subsection{推论：对整个体系的位置判断}
+\label{subsec:tex38-gain-corollary}
+
+\begin{corollary}[体系位置判断]
+\label{cor:tex38-position}
+结合定理~\ref{thm:tex38-gain-total}、引理~\ref{lem:tex38-gain-largest} 与命题~\ref{prop:tex38-real-increment}，
+这份文稿在整个体系中的准确位置应写为
+\[
+  \boxed{
+    \text{中层关键铰链}
+    \;\cong\;
+    \text{工程方法论的理论总装层}
+  }.
+\]
+它的重量很大，但重量的类型不是“换天级本体重写”，而是“承重级桥接闭链”。
+\end{corollary}
+
+\begin{Certificate}[证书：对象未换天 + 链条已承重 + 总装定位]
+\label{cert:tex38-position}
+证书由三段组成：
+\begin{enumerate}
+  \item Jacobi 障碍、Bianchi 缺陷、同伦扭曲、修复塔、路径积分与正规形这些顶层对象在仓内体系中早已存在；
+  \item 定理~\ref{thm:tex38-gain-total} 与引理~\ref{lem:tex38-gain-largest} 表明，本文把这些对象压进了同一离散、有限、可终止的承重闭链框架；
+  \item 命题~\ref{prop:tex38-real-increment} 表明，本文的新增量主要是桥接、离散化、终点落点与严格边界声明，而不是重写顶层本体。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由证书第一段可知，本文并没有改变体系的顶层世界观对象。
+Jacobi 障碍、Bianchi 缺陷、同伦扭曲、修复塔、路径积分与正规形这些核心词在本文之前就已存在于仓内链条中。
+
+由证书第二段，本文真正新建立的是
+\[
+  \text{障碍修复}
+  \to
+  \text{可行性}
+  \to
+  \text{最优性}
+  \to
+  \text{终点代表}
+\]
+这一条统一的离散闭链。
+这说明本文的重量体现在“把原本分散的梁柱接成了承重结构”，而不是“重造一个新的天花板”。
+这正是“中层关键铰链”与“工程方法论的理论总装层”这两个表述在本节中的同义根据。
+
+再由证书第三段，本文的主要新增量是桥接、离散化、终点正规形落点与边界声明，
+而非本体级的重新发明。
+因此，本文在整个体系中的准确位置应写为
+\[
+  \text{中层关键铰链}
+  \;\cong\;
+  \text{工程方法论的理论总装层},
+\]
+而不是新的最高层本原。推论成立。
+\end{proof}
+
+\begin{remark}[最终结论]
+我对这份稿件的最终判断是：
+\[
+  \boxed{
+    \text{整体增益：显著正增益，偏大。}
+  }
+\]
+但这个“偏大”主要体现在\textbf{严格化、闭链化、工程化、可审计化}，
+并不主要体现在新增顶层本原。
+\end{remark}
+
+\begin{remark}[战略价值的类型]
+若按“对整个体系的战略价值”来排，这份稿件显然比普通局部补丁重得多，
+因为它把前面分散的接口接成了承重结构；
+但若按“是否重写最高层公理世界观”来排，它还不是那一类文稿。
+\end{remark}
+
+\begin{remark}[最需要继续补强的地方]
+当前最需要继续补强的地方仍然是两块：
+\[
+  R_n\ \text{的来源、构造与可计算性},
+  \qquad
+  T_e\ \text{的自然来源}.
+\]
+再往后，还有一类条件性部分也需要继续内部化，例如高阶提升障碍接口、命中步存在性、严格隧穿优势等。
+这些部分一旦进一步做成文内自足接口，
+这份稿件的地位就会从“中层关键铰链”继续上升，接近“核心引擎层”。
+\end{remark}
+
+\begin{remark}[一句最压缩的评价]
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{这份稿件最重的增益，不是把话说得更强，}\\
+      &\text{而是在剥离未证明部分后，把可守住的链条说准、说闭、说到可审计。}
+    \end{aligned}
+  }.
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：四分量评价函数、等级判定与战略意义}
+\label{sec:tex38-ch6}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[与上一评价章的关系]
+第~\ref{sec:tex38-ch5} 节已经给出该稿的总增益评价；
+本节则把该总评价进一步细化为
+\[
+  \text{纯数学增益},
+  \qquad
+  \text{工程增益},
+  \qquad
+  \text{体系结构增益},
+  \qquad
+  \text{自动化科研增益}
+\]
+四个彼此可区分的分量，并继续沿用“定义/公理（降级为定理）/定理/引理/命题/推论/备注”的证书化写法。
+\end{remark}
+
+\begin{remark}[引文与证书来源]
+本节的评价口径继续对齐仓内关于“增益评价/阶段性增益/结构闭链评价”的工作笔记
+\cite{RepoTex37GainEvaluation,RepoTex28StageGains,RepoTex22DiscussionGains}，
+而具体证书则直接回挂到本文前文已经建立的几条主链：
+\[
+  \text{Jacobi--Bianchi 障碍}
+  \to
+  \text{修复塔}
+  \to
+  \text{可行路径}
+  \to
+  \text{三重编码}
+  \to
+  \text{唯一最优}
+  \to
+  \text{终点正规形},
+\]
+以及后文关于量词纠偏、提升障碍、对象层/算法层分离与超限到有限投影的定理链
+\cite{RepoTex31RepairTower,RepoTex32ConditionalConvergence,RepoTex36HomotopyTwistBijection,RepoTex29TransfiniteRepair,
+  RepoTex6JacobiGap,GaoZheng2025GFramework,GaoZhengAppVol3}。
+\end{remark}
+
+\subsection{定义：四分量评价函数、等级序与条件性标记}
+\label{subsec:tex38-fourcomp-definition}
+
+\begin{definition}[四分量评价函数]
+\label{def:tex38-fourcomp}
+把本稿的四个主评价分量记为
+\[
+  G_{\mathrm{pure}},\quad
+  G_{\mathrm{eng}},\quad
+  G_{\mathrm{arch}},\quad
+  G_{\mathrm{auto}},
+\]
+分别对应：
+\[
+  \text{纯数学增益},\quad
+  \text{工程增益},\quad
+  \text{体系结构增益},\quad
+  \text{自动化科研增益}.
+\]
+
+取评价等级的全序集
+\[
+  \mathfrak G
+  :=
+  \{
+    \text{小},
+    \text{中},
+    \text{中大},
+    \text{显著},
+    \text{承重级}
+  \},
+  \qquad
+  \text{小}
+  <
+  \text{中}
+  <
+  \text{中大}
+  <
+  \text{显著}
+  <
+  \text{承重级}.
+\]
+
+为把“条件性显著/条件性成立”并入统一记号，再定义带条件标记的评价集
+\[
+  \widehat{\mathfrak G}:=\mathfrak G\times\{0,1\}.
+\]
+其中
+\[
+  (g,0)\equiv g,
+  \qquad
+  (g,1)\equiv g\text{（条件性）},
+\]
+并约定：$\chi=1$ 表示该分量的结论仍依赖若干尚未在本文内部完全内生化的接口。
+在 $\widehat{\mathfrak G}$ 上定义比较关系
+\[
+  (g,\chi)\le (g',\chi')
+  \Longleftrightarrow
+  \bigl(g<g'\bigr)
+  \ \text{或}\
+  \bigl(g=g'\ \text{且}\ \chi\ge\chi'\bigr).
+\]
+故在同一基等级下，
+\[
+  g\text{（条件性）}\le g.
+\]
+\end{definition}
+
+\begin{remark}[与第~\ref{sec:tex38-ch5} 节总增益分解的关系]
+定义~\ref{def:tex38-fourcomp} 不是替换定义~\ref{def:tex38-gain-decomposition} 的
+\[
+  G_{\mathrm{corr}},\
+  G_{\mathrm{closure}},\
+  G_{\mathrm{disc}},\
+  G_{\mathrm{eng}},
+\]
+而是把上一章的总增益评价进一步细化到四种“增益类型”。
+其中新的 $G_{\mathrm{eng}}$ 与上一章的工程化增益方向一致；
+而 $G_{\mathrm{pure}}$、$G_{\mathrm{arch}}$ 与 $G_{\mathrm{auto}}$，
+则分别把“对象本身的数学整理/纠偏”、“多层链条的承重装配”和“路径证书化搜索动力学”单独记账。
+\end{remark}
+
+\subsection{公理（降级为定理）：七段分项证书链可按前缀递归闭合}
+\label{subsec:tex38-fourcomp-axiom}
+
+\begin{theorem}[公理（降级为定理）：七段分项证书链可按前缀递归闭合]
+\label{thm:tex38-fourcomp-induction}
+定义七段分项证书命题：
+\[
+\begin{aligned}
+  C_1 &:\
+  \Jac_n(A_n)=[\Bia_n(A_n)]\in H^3(X_n;V_n),\\
+  C_2 &:\
+  \mu_{n+1}\le \mu_n-1
+  \Rightarrow
+  \exists N_\ast\le \mu_0,\ \mu_{N_\ast}=0,\\
+  C_3 &:\
+  \mu_{N_\ast}=0
+  \Rightarrow
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0
+  \Rightarrow
+  \mathcal P^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing,\\
+  C_4 &:\
+  \mathcal F_{N_\ast}(s,t)
+  \cong
+  \Pi_{N_\ast}(s,t)
+  \cong
+  \mathcal T_{N_\ast}(s,t),\\
+  C_5 &:\
+  \tau^\ast
+  =
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_{N_\ast}(s,t)}
+  \Phi(\tau),\\
+  C_6 &:\ \text{“所有局部最优”被纠偏为“所有不可提升的局部最优”}\\
+  &\qquad \wedge\ \Bigl(
+    Q_m(\tau_1)=Q_m(\tau_2)
+    \not\Rightarrow\\
+  &\qquad\qquad \Obs^{(r)}(\tau_1)=\Obs^{(r)}(\tau_2)
+  \Bigr),\\
+  C_7 &:\ \text{对象层唯一最优路径 }\ell^\ast\\
+  &\qquad \text{ 与算法层巧妙机制被严格分离}.
+\end{aligned}
+\]
+对每个 $k\in\{1,\dots,7\}$，定义谓词
+\[
+  \begin{aligned}
+    P(k)
+    :\Longleftrightarrow\ &
+    \text{证书段 }C_1,\dots,C_k\\
+    &\text{ 已被本文前文结论闭合为可审计前缀}.
+  \end{aligned}
+\]
+则对全部 $k\in\{1,\dots,7\}$，命题 $P(k)$ 成立。
+特别地，七段分项证书链
+\[
+  C_1\Rightarrow C_2\Rightarrow C_3\Rightarrow C_4\Rightarrow C_5\Rightarrow C_6\Rightarrow C_7
+\]
+在本文内部可以以有限步方式递归闭合，
+故四分量判断所依赖的是一条文内可追踪的有限证书链，而不是印象式评分。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按证书段序数 $k$ 的前缀闭合]
+\label{cert:tex38-fourcomp-induction}
+归纳谓词就是
+\[
+  P(k):
+  \text{前 $k$ 段分项证书已闭合。}
+\]
+归纳证书由两部分组成：
+\begin{enumerate}
+  \item \textbf{基础步 $P(1)$：}定义~\ref{def:tex38-fourcomp} 与第~\ref{sec:tex38-ch1} 节关于 $\Jac_n=[\Bia_n]\in H^3(X_n;V_n)$
+    的对象定义，
+  已给出第一段证书 $C_1$；
+  \item \textbf{归纳步 $P(k)\Rightarrow P(k+1)$：}对每个 $k<7$，
+  第 $k+1$ 段证书都由前文已编号结论提供：
+  \[
+  \begin{aligned}
+    C_2 &\text{ 由定理~\ref{thm:tex38-axiom-downgrade} 提供},\\
+    C_3 &\text{ 由引理~\ref{lem:tex38-admissible-path} 与推论~\ref{cor:tex38-terminal} 提供},\\
+    C_4 &\text{ 由命题~\ref{prop:tex38-bijection} 提供},\\
+    C_5 &\text{ 由定理~\ref{thm:tex38-optimal} 提供},\\
+    C_6 &\text{ 由定理~\ref{thm:tex38-quantifier-correction}、定理~\ref{thm:tex38-higher-obstruction} 与命题~\ref{prop:tex38-coarse-observable} 提供},\\
+    C_7 &\text{ 由定理~\ref{thm:tex38-liftpath-optimal}、定理~\ref{thm:tex38-smart-algorithmic} 与推论~\ref{cor:tex38-smart-compatibility} 提供}.
+  \end{aligned}
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+对证书段序数 $k$ 做数学归纳。
+
+\textbf{基础步：}当 $k=1$ 时，
+\[
+  C_1:\ \Jac_n(A_n)=[\Bia_n(A_n)]\in H^3(X_n;V_n)
+\]
+正是第~\ref{sec:tex38-ch1} 节对象域定义的直接内容，
+并与仓内关于 Jacobi-gap 落在三阶上同调的接口口径
+\cite{RepoTex6JacobiGap,GaoZheng2025GFramework}
+一致。
+故 $P(1)$ 成立。
+
+\textbf{归纳步：}设 $P(k)$ 成立。
+这意味着前 $k$ 段证书已经被本文前文结论闭合为一个可审计前缀。
+若 $k=1$，则由定理~\ref{thm:tex38-axiom-downgrade} 立刻得到
+\[
+  C_2:
+  \mu_{n+1}\le \mu_n-1
+  \Rightarrow
+  \exists N_\ast\le \mu_0,\ \mu_{N_\ast}=0.
+\]
+若 $k=2$，则由引理~\ref{lem:tex38-admissible-path} 与推论~\ref{cor:tex38-terminal}，
+把终端零障碍层继续推进到
+\[
+  C_3:
+  \mu_{N_\ast}=0
+  \Rightarrow
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0
+  \Rightarrow
+  \mathcal P^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing.
+\]
+若 $k=3$，则命题~\ref{prop:tex38-bijection} 给出
+\[
+  C_4:
+  \mathcal F_{N_\ast}(s,t)
+  \cong
+  \Pi_{N_\ast}(s,t)
+  \cong
+  \mathcal T_{N_\ast}(s,t).
+\]
+若 $k=4$，则定理~\ref{thm:tex38-optimal} 给出
+\[
+  C_5:
+  \tau^\ast
+  =
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_{N_\ast}(s,t)}
+  \Phi(\tau).
+\]
+若 $k=5$，则由定理~\ref{thm:tex38-quantifier-correction}、
+定理~\ref{thm:tex38-higher-obstruction} 与命题~\ref{prop:tex38-coarse-observable}，
+得到
+\[
+  C_6:
+  \text{量词纠偏成立，且粗观测一致性不推出深层可提升性等价。}
+\]
+若 $k=6$，则由定理~\ref{thm:tex38-liftpath-optimal}、
+定理~\ref{thm:tex38-smart-algorithmic} 与推论~\ref{cor:tex38-smart-compatibility}，
+得到
+\[
+  C_7:
+  \text{对象层唯一最优路径 }\ell^\ast\text{ 与算法层巧妙机制被分离。}
+\]
+于是对一切 $k<7$，都有 $P(k)\Rightarrow P(k+1)$。
+
+由数学归纳法，$P(k)$ 对全部 $k\in\{1,\dots,7\}$ 成立。
+特别地，$P(7)$ 成立，
+说明七段分项证书链已在本文内部闭合为一条有限、可追踪、可审计的前缀链。
+故本节的四分量评价建立在有限证书链之上，而非建立在印象式跳跃判断之上。定理成立。
+\end{proof}
+
+\begin{remark}[本节分项证书链的作用]
+定理~\ref{thm:tex38-fourcomp-induction} 的意义不在于重新证明前文主结果，
+而在于钉死本节评价的\textbf{证据结构}：
+每一个分量等级都必须能回挂到某个可定位的文内结论，
+并沿
+\[
+  C_1\to C_2\to\cdots\to C_7
+\]
+的顺序被顺次检查。
+\end{remark}
+
+\subsection{定理：四个分量的更细等级判断}
+\label{subsec:tex38-fourcomp-theorem}
+
+\begin{theorem}[四个分量的更细等级判断]
+\label{thm:tex38-fourcomp-judgement}
+在定义~\ref{def:tex38-fourcomp} 的四分量评价口径下，
+本稿的更细等级判断是：
+\[
+  G_{\mathrm{pure}}=\text{中大},
+  \qquad
+  G_{\mathrm{eng}}=\text{显著},
+  \qquad
+  G_{\mathrm{arch}}=\text{承重级},
+  \qquad
+  G_{\mathrm{auto}}=\text{显著（条件性）}.
+\]
+并且在 $\widehat{\mathfrak G}$ 的比较关系下，其排序可写成
+\[
+  G_{\mathrm{arch}}
+  >
+  G_{\mathrm{eng}}
+  \ge
+  G_{\mathrm{auto}}
+  >
+  G_{\mathrm{pure}}.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：四分量判断的七段主链]
+\label{cert:tex38-fourcomp-judgement}
+本节判断的主证书可压缩为七段：
+\[
+\begin{aligned}
+  &(1)\ \Jac_n(A_n)=[\Bia_n(A_n)]\in H^3(X_n;V_n),\\
+  &(2)\ \mu_{n+1}\le \mu_n-1
+  \Rightarrow
+  \exists N_\ast\le \mu_0,\ \mu_{N_\ast}=0,\\
+  &(3)\ \mu_{N_\ast}=0
+  \Rightarrow
+  \Bia_{N_\ast}\bigl(A_{N_\ast}^{\mathrm{nf}}\bigr)=0
+  \Rightarrow
+  \mathcal P^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing,\\
+  &(4)\ \mathcal F_{N_\ast}(s,t)
+  \cong
+  \Pi_{N_\ast}(s,t)
+  \cong
+  \mathcal T_{N_\ast}(s,t),\\
+  &(5)\ \tau^\ast
+  =
+  \operatorname*{arg\,min}_{\tau\in\mathcal T_{N_\ast}(s,t)}
+  \Phi(\tau),\\
+  &(6)\ \text{“所有局部最优”被纠偏为“所有不可提升的局部最优”，且 }\\
+  &\qquad
+  Q_m(\tau_1)=Q_m(\tau_2)
+  \not\Rightarrow
+  \Obs^{(r)}(\tau_1)=\Obs^{(r)}(\tau_2),\\
+  &(7)\ \text{对象层唯一最优路径 }\ell^\ast
+  \text{ 与算法层巧妙机制被严格分离。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+先证
+\[
+  G_{\mathrm{pure}}=\text{中大}.
+\]
+本稿并非没有纯数学新增，而是其新增主要表现为
+\[
+  \text{整理}
+  +
+  \text{闭链}
+  +
+  \text{纠偏}
+  +
+  \text{离散化},
+\]
+而不是从零在本文内部独立造完全部上游构件。
+
+第一，由第~\ref{sec:tex38-ch1} 节对象域可知，
+\[
+  X_0,\ \Sigma,\ A_n,\ \Omega_n,\ \Bia_n,\ \Jac_n
+\]
+被压入同一形式链上，并把障碍落点固定在
+\[
+  H^3(X_n;V_n),
+\]
+这给出实打实的纯数学整形增益。
+第二，由定理~\ref{thm:tex38-axiom-downgrade}，
+\[
+  \mu_{n+1}\le \mu_n-1
+  \Rightarrow
+  \exists N_\ast\le \mu_0,\ \mu_{N_\ast}=0,
+\]
+于是“有限终止”从叙述性判断升级为定理级对象。
+第三，由引理~\ref{lem:tex38-admissible-path}、
+命题~\ref{prop:tex38-bijection}、
+定理~\ref{thm:tex38-optimal} 与推论~\ref{cor:tex38-terminal}，
+本稿把
+\[
+  \text{终端层}
+  \to
+  \text{可行路径}
+  \to
+  \text{三重编码双射}
+  \to
+  \text{唯一极小元}
+\]
+闭成单稿链条，这同样是纯数学增益。
+
+更关键的是，本稿在后半部分做了两次纯数学纠偏。
+其一，由定理~\ref{thm:tex38-quantifier-correction} 与定理~\ref{thm:tex38-higher-obstruction}，
+原先过强的说法
+\[
+  \text{所有局部最优}
+  \Rightarrow
+  \text{都被障碍与全局最优分隔}
+\]
+被收紧为
+\[
+  \text{所有不可提升的局部最优}
+  \Rightarrow
+  \text{由非零提升障碍类分隔}.
+\]
+其二，由命题~\ref{prop:tex38-coarse-observable}，
+\[
+  Q_m(\tau_1)=Q_m(\tau_2)
+  \not\Rightarrow
+  \Obs^{(r)}(\tau_1)=\Obs^{(r)}(\tau_2).
+\]
+这两步都不是“把话说强”，而是“把话说准”。
+
+但纯数学分量之所以不升到“显著”甚至“承重级”，
+就在于几个关键构件仍主要以接口形式出现：
+\[
+  R_n,\qquad
+  T_e,\qquad
+  \Obs^{(r)}\ (r>3),\qquad
+  \text{命中步存在性},\qquad
+  \text{严格隧穿优势}.
+\]
+也就是说，
+\[
+  \text{主链已立住，但上游零件尚未全部文内内生化。}
+\]
+故纯数学分量应定为“中大”。
+
+再证
+\[
+  G_{\mathrm{eng}}=\text{显著}.
+\]
+工程增益的关键不在于“发明了工程”，
+而在于把工程所需的四个承重点显式抽出来：
+\[
+  B_{\mathrm{term}}
+  :=[\exists N_\ast\le \mu_0,\ \mu_{N_\ast}=0],
+\]
+\[
+  B_{\mathrm{feas}}
+  :=[\mathcal P^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing],
+\]
+\[
+  B_{\mathrm{opt}}
+  :=[\exists!\,\tau^\ast\in\mathcal T_{N_\ast}(s,t)],
+\]
+\[
+  B_{\mathrm{corr}}
+  :=[\Bia_{N_\ast}(A_{N_\ast}^{\mathrm{nf}})=0].
+\]
+由定理~\ref{thm:tex38-axiom-downgrade}、
+引理~\ref{lem:tex38-admissible-path}、
+定理~\ref{thm:tex38-optimal} 与推论~\ref{cor:tex38-terminal}，
+它们被连成闭链
+\[
+  B_{\mathrm{term}}
+  \Rightarrow
+  B_{\mathrm{feas}}
+  \Rightarrow
+  B_{\mathrm{opt}}
+  \Rightarrow
+  B_{\mathrm{corr}}.
+\]
+这一步的工程价值极大，
+因为它把“工程上觉得可做”改写成了
+\[
+  \text{有限步}
+  +
+  \text{有限候选}
+  +
+  \text{有限比较}
+  +
+  \text{有限核验}.
+\]
+
+尤其由定理~\ref{thm:tex38-bridge-hardware}、
+命题~\ref{prop:tex38-bridge-audit} 与推论~\ref{cor:tex38-bridge-sentence}，
+本稿把“适配当下硬件”严格改写成
+\[
+  \text{与有限算力相容的、局部可核验的、有限候选集上的唯一最优工程代表选择机制},
+\]
+并明确拒绝夸大为
+\[
+  \text{对原始无限问题的绝对全局最优}.
+\]
+同时，启用前审计链被直接写成
+\[
+  \begin{aligned}
+    &\mu_n\downarrow
+    \Rightarrow
+    \mu_{N_\ast}=0
+    \Rightarrow
+    \mathcal P^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing\\
+    \Rightarrow\ &
+    \mathcal F_{N_\ast}(s,t)\cong\Pi_{N_\ast}(s,t)\cong\mathcal T_{N_\ast}(s,t)\\
+    \Rightarrow\ &
+    \tau^\ast
+    \Rightarrow
+    \Bia_{N_\ast}(A_{N_\ast}^{\mathrm{nf}})=0.
+  \end{aligned}
+\]
+这意味着工程上得到的不只是“一个结果”，
+而是一条可执行的“检查顺序”。
+故工程分量应判为“显著”。
+
+但我不把它抬到“承重级”，
+是因为工程实现仍带有接口条件性。
+若记
+\[
+  \mathfrak I
+  :=
+  \{
+    \text{局部修复证书接口},
+    \text{语义约束传播},
+    \text{边传输双射接口},
+    \text{正规形选取规则}
+  \},
+\]
+则当前稿件已经给出了工程总装线，
+却尚未在本文内部把这些底层零件逐个完全自造完。
+
+再证
+\[
+  G_{\mathrm{arch}}=\text{承重级}.
+\]
+这是全稿最重的分量，
+因为它完成的不是一条局部命题，而是多层结构的重新装配。
+其核心装配链可写为
+\[
+  \begin{aligned}
+    L_0
+    &\rightsquigarrow
+    L_1\\
+    &\rightsquigarrow
+    L_2
+    \rightsquigarrow
+    L_3,
+  \end{aligned}
+\]
+其中
+\[
+  \begin{aligned}
+    L_0&=\text{超限修复原型},\quad
+    L_1=\text{有限有效骨架},\\
+    L_2&=\text{终端正规形候选集},\quad
+    L_3=\text{唯一最优工程代表}.
+  \end{aligned}
+\]
+这里
+\[
+  L_0\rightsquigarrow L_1
+\]
+由定理~\ref{thm:tex38-ch4-effective-skeleton} 与定理~\ref{thm:tex38-ch4-projection} 支撑，
+\[
+  L_1\rightsquigarrow L_2
+\]
+由引理~\ref{lem:tex38-admissible-path} 与命题~\ref{prop:tex38-bijection} 支撑，
+而
+\[
+  L_2\rightsquigarrow L_3
+\]
+则由定理~\ref{thm:tex38-optimal} 与定理~\ref{thm:tex38-bridge-hardware} 支撑。
+
+更重要的是，本稿做了三组结构分离。
+第一组，
+\[
+  \text{对象层}\neq\text{算法层},
+\]
+由定理~\ref{thm:tex38-smart-algorithmic} 与推论~\ref{cor:tex38-smart-compatibility} 钉死。
+第二组，
+\[
+  \text{截断模型内全局最优}
+  \neq
+  \text{原始无限问题绝对全局最优},
+\]
+由引理~\ref{lem:tex38-bridge-global} 与命题~\ref{prop:tex38-smart-upgrade} 钉死。
+第三组，
+\[
+  \text{可提升的浅层局部极小}
+  \neq
+  \text{真正陷阱},
+\]
+由定理~\ref{thm:tex38-quantifier-correction}、
+定理~\ref{thm:tex38-higher-obstruction} 与命题~\ref{prop:tex38-coarse-observable} 钉死。
+
+尤其由定理~\ref{thm:tex38-smart-bruteforce}、
+引理~\ref{lem:tex38-smart-unique-object}、
+命题~\ref{prop:tex38-smart-two-senses}、
+定理~\ref{thm:tex38-smart-algorithmic} 与推论~\ref{cor:tex38-smart-compatibility}，
+本稿把“暴力路径成立，但不排斥巧妙机制”严格切成
+\[
+  \text{算法层巧妙}
+  \qquad\text{与}\qquad
+  \text{对象层巧妙}
+\]
+两件不同的事，
+并证明在同一对象层定义域内
+\[
+  \text{不存在第二条并列最优路径}.
+\]
+于是“巧妙”若成立，
+只能是
+\[
+  \text{更快找到同一条 }\ell^\ast,
+\]
+而不是“在同一模型内又冒出一条更优对象路径”。
+这种层级净化正是承重级的体系结构增益。
+
+最后证
+\[
+  G_{\mathrm{auto}}=\text{显著（条件性）}.
+\]
+自动化科研分量的关键新增，
+不是“已经做成自动化科研终局”，
+而是把自动化科研问题形式化为三层对象：
+\[
+  \text{终端对象证书}
+  +
+  \text{提升路径证书}
+  +
+  \text{算法发现机制}.
+\]
+具体地，由定理~\ref{thm:tex38-liftpath-optimal}，
+\[
+  \tau^\ast
+  \Longleftrightarrow
+  \ell^\ast\text{ 的终点},
+\]
+其中
+\[
+  \ell^\ast
+  =
+  \operatorname*{arg\,min}_{\ell\in\mathfrak L^{\mathrm{loc}\to\tau^\ast}}
+  \Psi(\ell).
+\]
+于是“从局部最优到终端全局最优”的提升问题，
+被改写成了一个可审计的路径最优性问题。
+再由定理~\ref{thm:tex38-smart-enumeration}、
+定理~\ref{thm:tex38-smart-bruteforce} 与定理~\ref{thm:tex38-smart-algorithmic}，
+我们得到
+\[
+  \text{完备展开}
+  \Rightarrow
+  \text{全局比较}
+  \Rightarrow
+  \text{唯一最优实现证书}.
+\]
+这对自动化科研非常重要，
+因为它把“搜索”从黑箱行为改写成
+\[
+  \text{候选对象域}
+  +
+  \text{合法提升族}
+  +
+  \text{作用量}
+  +
+  \text{证书输出}.
+\]
+
+同时，由定理~\ref{thm:tex38-higher-obstruction}、
+命题~\ref{prop:tex38-microhit-necessary} 与推论~\ref{cor:tex38-liftpath-strict}，
+文中又给出
+\[
+  \text{非零高阶提升障碍}
+  \Rightarrow
+  \text{真正局部最优陷阱},
+\]
+以及
+\[
+  \text{最优路径的下一步必须是微观隧穿命中}
+\]
+这样的路径约束语句。
+这已经非常接近自动化科研的“可审计搜索动力学”。
+
+但之所以仍只给“显著（条件性）”，
+就在于这一部分高度依赖条件接口。
+其中最关键的仍是
+\[
+  \text{命中步存在性},\qquad
+  \text{严格隧穿优势},\qquad
+  \text{高阶障碍判别的充分必要接口}.
+\]
+因此，自动化科研框架已经被架起来，
+但距离“闭合自动化科研引擎”还差几块关键接口的内生化。
+故其等级应记为“显著（条件性）”。
+
+综上，
+\[
+  G_{\mathrm{pure}}=\text{中大},
+  \qquad
+  G_{\mathrm{eng}}=\text{显著},
+  \qquad
+  G_{\mathrm{arch}}=\text{承重级},
+  \qquad
+  G_{\mathrm{auto}}=\text{显著（条件性）}.
+\]
+按定义~\ref{def:tex38-fourcomp} 中的比较规则，
+“承重级”高于“显著”，
+同等级下“无条件”高于“条件性”，
+且“显著”高于“中大”。
+故
+\[
+  G_{\mathrm{arch}}
+  >
+  G_{\mathrm{eng}}
+  \ge
+  G_{\mathrm{auto}}
+  >
+  G_{\mathrm{pure}}.
+\]
+定理成立。
+\end{proof}
+
+\subsection{引理：为何纯数学分量反而不是最高}
+\label{subsec:tex38-fourcomp-lemma}
+
+\begin{lemma}[为何纯数学分量反而不是最高]
+\label{lem:tex38-fourcomp-pure}
+本稿看上去数学符号很多，
+但其最大价值并不在“纯数学对象新发明数目”，
+而在“结构装配质量”。
+因此，四分量中的最高项不应落在 $G_{\mathrm{pure}}$，
+而应落在 $G_{\mathrm{arch}}$。
+\end{lemma}
+
+\begin{Certificate}[证书：新增本体对象数不主导本稿的最大增益]
+\label{cert:tex38-fourcomp-pure}
+证书分两段：
+\begin{enumerate}
+  \item 若一篇稿子的最大贡献是新增顶层数学对象，
+  则其最大分量理应落在
+  \[
+    G_{\mathrm{pure}};
+  \]
+  \item 但本稿最强处由定理~\ref{thm:tex38-fourcomp-judgement} 已显示为
+  \[
+    \text{纠偏}
+    +
+    \text{闭链}
+    +
+    \text{桥接}
+    +
+    \text{层级分离},
+  \]
+  其主要落点是体系结构与工程可审计性，而不是新增本体对象数。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+若一篇稿子的主要贡献是“从第一原理新增若干顶层对象并把它们全部文内自足化”，
+则其最重分量自然应落在
+\[
+  G_{\mathrm{pure}}.
+\]
+但定理~\ref{thm:tex38-fourcomp-judgement} 已经表明，
+本稿最强的部分并不是顶层对象再造，
+而是
+\[
+  \text{纠偏}
+  +
+  \text{闭链}
+  +
+  \text{桥接}
+  +
+  \text{层级分离}.
+\]
+其中“纠偏”主要表现为量词与边界口径被说准，
+“闭链”主要表现为修复塔到终点正规形被单稿闭合，
+“桥接”主要表现为超限原型到有限骨架、候选集与唯一代表的压缩，
+“层级分离”主要表现为对象层/算法层、截断全局/绝对全局、可提升/不可提升等边界被切开。
+
+这些贡献的主要承载面是体系结构与工程可审计性，
+而不是单纯的本体对象扩容。
+因此，本稿的最高项不应落在 $G_{\mathrm{pure}}$，
+而应落在 $G_{\mathrm{arch}}$。
+引理成立。
+\end{proof}
+
+\subsection{命题：四分量对整个体系的战略意义}
+\label{subsec:tex38-fourcomp-proposition}
+
+\begin{proposition}[四分量对整个体系的战略意义]
+\label{prop:tex38-fourcomp-strategy}
+若把长期目标写成
+\[
+  \GFramework
+  \to
+  \text{白盒可审计系统}
+  \to
+  \text{自动化科研/自动化设计},
+\]
+则本稿的战略贡献主要体现在：
+\[
+  G_{\mathrm{arch}}+G_{\mathrm{eng}}
+\]
+先把“承重骨架”搭起来，
+再由
+\[
+  G_{\mathrm{auto}}
+\]
+把“路径证书化”接上去，
+最后由未来对
+\[
+  R_n,\ T_e,\ \Obs^{(r)},\ \text{命中步},\ \text{严格隧穿优势}
+\]
+等接口的内生化，
+继续把
+\[
+  G_{\mathrm{pure}},\ G_{\mathrm{auto}}
+\]
+向上抬升。
+\end{proposition}
+
+\begin{Certificate}[证书：承重骨架 + 路径证书化 + 接口内生化方向]
+\label{cert:tex38-fourcomp-strategy}
+证书由三段组成：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-fourcomp-judgement} 表明，
+  \[
+    G_{\mathrm{arch}}=\text{承重级},
+    \qquad
+    G_{\mathrm{eng}}=\text{显著},
+  \]
+  因而当前最重的完成物是结构骨架与工程审计链；
+  \item 同一定理又表明
+  \[
+    G_{\mathrm{auto}}=\text{显著（条件性）},
+  \]
+  即路径证书化已经接近核心，但尚未完全闭合为无条件自动化科研引擎；
+  \item 尚待内生化的接口
+  \[
+    R_n,\ T_e,\ \Obs^{(r)},\ \text{命中步},\ \text{严格隧穿优势}
+  \]
+  同时约束着纯数学自足度与自动化科研闭合度的继续抬升。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由证书第一段，当前稿件已经完成的最重部分，
+是把
+\[
+  \text{超限修复原型}
+  \to
+  \text{有限有效骨架}
+  \to
+  \text{终端候选集}
+  \to
+  \text{唯一工程代表}
+\]
+这一条承重链写成可审计闭链；
+并把
+\[
+  \mu_n\downarrow
+  \Rightarrow
+  \mu_{N_\ast}=0
+  \Rightarrow
+  \mathcal P^{\mathrm{adm}}_{N_\ast}(s,t)\neq\varnothing
+  \Rightarrow
+  \tau^\ast
+  \Rightarrow
+  \Bia=0
+\]
+压成工程启用前的审计顺序。
+因此，
+\[
+  G_{\mathrm{arch}}+G_{\mathrm{eng}}
+\]
+确实先把白盒可审计系统所需的承重骨架搭了起来。
+
+再由证书第二段，
+本稿已经把自动化科研最关键的一步写成
+\[
+  \text{终端对象证书}
+  +
+  \text{提升路径证书}
+  +
+  \text{算法发现机制},
+\]
+并把“搜索”翻译成
+\[
+  \text{候选对象域}
+  +
+  \text{合法提升族}
+  +
+  \text{作用量}
+  +
+  \text{证书输出}.
+\]
+这说明
+\[
+  G_{\mathrm{auto}}
+\]
+已经把路径证书化接到骨架之上，
+只是目前仍停留在条件性接口闭合阶段。
+
+最后，由证书第三段，
+凡是尚未在本文内部完全内生化的接口，
+一方面限制了纯数学分量从“中大”继续跃升，
+另一方面也限制了自动化科研分量从“显著（条件性）”继续跃升为“承重级”。
+故本稿的战略位置不是“终局已成”，
+而是
+\[
+  \text{承重框架已成，发动机仍需继续封装。}
+\]
+命题成立。
+\end{proof}
+
+\subsection{推论：最压缩的四分量结论}
+\label{subsec:tex38-fourcomp-corollary}
+
+\begin{corollary}[最压缩的四分量结论]
+\label{cor:tex38-fourcomp-compressed}
+关于本稿四分量评价，最准确的压缩表述是：
+\[
+  \boxed{
+    \text{这篇稿子的最大增益是体系结构增益，其次是工程增益。}
+  }
+\]
+\[
+  \boxed{
+    \text{纯数学增益真实且不小，但主要表现为闭链化与纠偏化，而不是顶层本体再造。}
+  }
+\]
+\[
+  \boxed{
+    \text{自动化科研增益已经非常接近核心，但目前仍以条件性接口为边界。}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：主排序 + 纯数学边界 + 自动化科研边界]
+\label{cert:tex38-fourcomp-compressed}
+证书分三段：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex38-fourcomp-judgement} 给出主排序
+  \[
+    G_{\mathrm{arch}}
+    >
+    G_{\mathrm{eng}}
+    \ge
+    G_{\mathrm{auto}}
+    >
+    G_{\mathrm{pure}};
+  \]
+  \item 引理~\ref{lem:tex38-fourcomp-pure} 给出“纯数学不居首位”的原因；
+  \item 命题~\ref{prop:tex38-fourcomp-strategy} 给出自动化科研分量仍受条件接口边界约束的战略解释。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+第一句直接来自定理~\ref{thm:tex38-fourcomp-judgement} 的等级排序，
+故“体系结构增益最重，其次是工程增益”成立。
+
+第二句来自引理~\ref{lem:tex38-fourcomp-pure}：
+纯数学分量不是没有，而是其主要表现方式是
+\[
+  \text{闭链化}
+  +
+  \text{纠偏化}
+  +
+  \text{离散化}
+  +
+  \text{整理化},
+\]
+而不是顶层本体对象的重新发明。
+
+第三句来自命题~\ref{prop:tex38-fourcomp-strategy}：
+自动化科研分量已经把路径证书化接到骨架上，
+但尚未完全跨过接口内生化这道边界。
+因此上述三句恰是本稿四分量评价的最压缩版本。推论成立。
+\end{proof}
+
+\begin{remark}[哪一块最重]
+若只问“哪一块最重”，
+答案仍然是
+\[
+  \boxed{\text{体系结构增益最重。}}
+\]
+因为本稿把
+\[
+  \text{超限/有限},\quad
+  \text{对象/算法},\quad
+  \text{局部/全局},\quad
+  \text{可提升/不可提升},\quad
+  \text{暴力/巧妙}
+\]
+这些容易缠在一起的层面全部切开并重新装配了。
+\end{remark}
+
+\begin{remark}[哪一块最能立刻服务当下实现]
+若只问“哪一块最能立刻服务当下实现”，
+答案是
+\[
+  \boxed{\text{工程增益最直接。}}
+\]
+因为当前稿件已经把审计顺序、有限算力口径与启用前检查链写成了文内可执行的验证次序。
+\end{remark}
+
+\begin{remark}[哪一块最值得下一步继续补]
+若只问“哪一块最值得下一步继续补”，
+我会优先选择
+\[
+  \boxed{\text{自动化科研增益对应的条件接口补全。}}
+\]
+一旦把命中步存在性、严格隧穿优势、高阶障碍判别等接口继续内生化，
+本稿的地位会显著再上一个台阶。
+\end{remark}
+
+\begin{remark}[为何四分量拆分是必要的]
+这四分量拆分之所以切得准，
+就在于本稿并不是单纯“数学更强”或“工程更能用”，
+而是四个维度上的增益类型本就不同。
+若把它们粗暴压成一个总分，
+反而会遮蔽掉真正最重的部分：
+\[
+  \text{承重级的体系结构装配}
+  \qquad\text{与}\qquad
+  \text{显著的工程可审计化}.
+\]
+\end{remark}
+
+\clearpage
+\begin{thebibliography}{99}
+
+\bibitem{RepoTex37GainEvaluation}
+仓内文稿：
+\code{NoteBook/notebook2/tex37_pub/gframework_semantic_gauge_field_natural_language_logic_placeholder_runtime_formal_sys
+  tem.tex}.
+
+\bibitem{RepoTex28StageGains}
+仓内文稿：
+\code{NoteBook/notebook1/tex28_pub/gframework_jacgap_homotopy_distortion_statmech_min_potential_path_convergence.tex}.
+
+\bibitem{RepoTex22DiscussionGains}
+仓内文稿：
+\code{NoteBook/notebook1/tex22_pub/gframework_appmath_vol2_ptopb_inverse_design_formal_system.tex}.
+
+\bibitem{RepoTex20SemanticGaugeNormalization}
+仓内文稿：
+\code{NoteBook/notebook1/tex20_pub/gframework_semantic_functor_field_gauge_field_normalization_interface_formal_system.t
+  ex}.
+
+\bibitem{RepoTex31RepairTower}
+仓内文稿：
+\code{NoteBook/notebook2/tex31_pub/gframework_discrete_repair_tower_quantum_geometry_interface_formal_system.tex}.
+
+\bibitem{RepoTex32ConditionalConvergence}
+仓内文稿：
+\code{NoteBook/notebook2/tex32_pub/gframework_fiber_section_hole_obstruction_potential_conditional_convergence_formal_sy
+  stem.tex}.
+
+\bibitem{RepoTex36HomotopyTwistBijection}
+仓内文稿：
+\code{NoteBook/notebook2/tex36_pub/gframework_principal_connection_fiber_space_path_integral_homotopy_twist_equivalence_
+  formal_system.tex}.
+
+\bibitem{RepoTex6JacobiGap}
+仓内文稿：
+\code{NoteBook/notebook1/tex6_pub/homotopy_minimality_dialogue.tex}.
+
+\bibitem{RepoTex29TransfiniteRepair}
+仓内文稿：
+\code{NoteBook/notebook2/tex29_pub/gframework_repairable_obstruction_homotopy_class_vs_generalized_fractal_formal_system
+  .tex}.
+
+\bibitem{GaoZheng2025GFramework}
+Gao, Z. (2025).
+\newblock Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra).
+\newblock In \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra): An Integrated Construction (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17651584}.
+
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+
+\bibitem{Hatcher2002AT}
+Allen Hatcher.
+\newblock \emph{Algebraic Topology}.
+\newblock Cambridge University Press, 2002.
+
+\bibitem{Whitehead1978Elements}
+George W. Whitehead.
+\newblock \emph{Elements of Homotopy Theory}.
+\newblock Springer, 1978.
+
+\bibitem{Weibel1994HomologicalAlgebra}
+Charles A. Weibel.
+\newblock \emph{An Introduction to Homological Algebra}.
+\newblock Cambridge University Press, 1994.
+
+\bibitem{LodayVallette2012AlgebraicOperads}
+Jean-Louis Loday and Bruno Vallette.
+\newblock \emph{Algebraic Operads}.
+\newblock Springer, 2012.
+
+\bibitem{KobayashiNomizu1963Foundations}
+Shoshichi Kobayashi and Katsumi Nomizu.
+\newblock \emph{Foundations of Differential Geometry, Vol.~I}.
+\newblock Interscience Publishers, 1963.
+
+\bibitem{Husemoller1994FibreBundles}
+Dale Husemoller.
+\newblock \emph{Fibre Bundles}.
+\newblock Third edition, Springer, 1994.
+
+\bibitem{Jech2003SetTheory}
+Thomas Jech.
+\newblock \emph{Set Theory: The Third Millennium Edition, Revised and Expanded}.
+\newblock Springer, 2003.
+
+\bibitem{Kunen2011SetTheory}
+Kenneth Kunen.
+\newblock \emph{Set Theory}.
+\newblock College Publications, 2011.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

@@ -1,0 +1,6173 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 基本定理环境（工作笔记：形式系统风格；参考 NoteBook/notebook1/tex20_pub）
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+% 记号（仅用于本笔记自洽引用，避免依赖主稿宏定义）
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\JacGap}{\operatorname{JacGap}}
+\newcommand{\indicator}[1]{\mathbf{1}_{#1}}
+\newcommand{\clip}{\operatorname{clip}}
+\newcommand{\clamp}{\operatorname{clamp}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+\setlength{\emergencystretch}{6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{基于雅可比间隙动力驱动的同伦扭曲与统计力学最小势能路径收敛}
+\author{Gao Zheng（高政）}
+\date{2026-02-17}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是单独讨论雅可比间隙、同伦扭曲、统计力学冷却或最小势能路径，而是
+在 \GFramework{} 的动力修复链条中，把它们组织成一个可审计的收敛控制系统。
+若这些概念分散出现，JacGap 容易只被看成诊断量，同伦扭曲容易只被看成形变手段，
+统计力学冷却也容易只被看成经验调参；本文将它们压合为从门控、调速、积分触发、
+冷却到路径收敛的统一动力接口。
+
+本文的第一层立场是 JacGap 的动力化。雅可比间隙不只是描述一致性失败的静态残差，
+而是驱动同伦扭曲和路径选择的可计算信号。门控、阻尼、调速、调强与预算分配共同
+决定 JacGap 是否被允许进入更新流，是否触发积分，是否需要冷却，是否必须安全退化。
+由此，修复过程获得了可审计的动力边界。
+
+本文的第二层立场是统计力学势能路径的收敛化。最小势能路径不是凭直觉寻找的
+“低谷路线”，而是由势能、冷却、耗散、算力上限与抗饱和机制共同约束的轨迹对象。
+统计力学语言在本文中承担的是分布集中与路径筛选的作用；它把局部扭曲过程连接到
+全局势能下降，并为后续同伦命中低残差集合提供前置动力模板。
+
+本文的第三层立场是门控与积分触发的证书化。连续速率、离散 tick、积分触发和预算
+分配共同决定一次更新是否应当发生，以及发生后是否仍留在安全区域内。本文由此把
+“调参”写成可重放的控制链：每次扭曲都必须通过门控条件，每次积分都必须有触发
+证书，每次冷却都必须服务于势能下降或抗饱和。
+
+本文的第四层立场是目标层与机制层的分离。本文可以证明门控、阻尼、算力耦合与
+冷却机制在给定条件下带来可审计的收敛增益，但并不把具体应用目标的全局正确性
+无条件并入机制定理。目标层需要额外语义、残差或保真性证书；机制层则提供如何
+让同伦扭曲更稳定、更可控、更不易饱和的动力系统。
+
+本文的第五层立场是算力约束的内生化。算力不是外部备注，而是进入同伦扭曲系统的
+硬约束。频率、强度与算力耦合决定系统能否持续更新、能否避免过热或饱和、能否在
+预算内完成路径收敛。由此，本文把“理论可行”与“工程可执行”之间的间隙显式写入
+递推系统。
+
+本文的第六层立场是最小势能路径与后续命中范式的衔接。本文讨论的是路径如何在
+统计力学耗散和势能驱动下收敛；后续稿件会把目标集合写成低残差命中集合。二者的
+关系是：本文提供连续/离散动力学控制模板，后续命中范式在此基础上定义“命中何处”
+以及“如何以确定性极限解释命中过程”。
+
+本文的第七层立场是安全退化。一个同伦扭曲系统若只追求快速下降，可能在预算、
+饱和、数值稳定或目标层不确定时越界。本文引入安全退化，是为了让系统在证书不足、
+JacGap 异常、算力不足或冷却失败时回到可审计状态。由此，收敛控制不仅包括前进，
+也包括何时停止、降级或保留边界。
+
+因此，本文在整体 \GFramework{} 中承担的是“JacGap 动力控制与统计力学路径收敛”
+的接口作用。它向前连接边缘算子与同伦修复塔，向中间连接门控递推、积分触发与
+冷却耗散，向后连接高阶正交命中和 PDE 残差求解中的确定性轨迹控制。概括地说，
+本文把“如何扭曲才能收敛”推进为“由 JacGap 驱动、由统计力学势能约束、由预算与
+安全门控审计”的形式系统。
+
+更具体地说，本文将同伦扭曲从“形变”推进为“受控动力过程”。JacGap 给出是否需要
+扭曲以及扭曲强度的信号，统计力学势能给出路径选择和冷却方向，预算与安全门控
+给出工程可执行边界。三者合在一起，使系统既不会盲目扰动，也不会在检测到障碍后
+停留在诊断层。
+
+从方法论上看，本文是后续高阶正交命中的动力前史。高阶正交命中需要一个可更新的
+轨迹函数，需要能够读取剩余缺口的梯度或残差信号，也需要在工程预算内逐步压低
+未命中或高势能状态。本文提供的门控/阻尼/冷却/积分触发框架，正是这一过程的
+底层动力模板。
+
+从整体谱系看，本文把修复塔中的“障碍吸收”转化为路径层面的“势能下降”。它既承接
+边缘算子和 JacGap 的闭合语义，又为统计力学分布、低残差命中和确定性收敛准备
+控制语言。因此，它是 \GFramework{} 从代数修复转向统计动力修复的重要转折稿。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑接口：对象、门控、连续速率、积分触发与预算分配}
+\label{sec:tex28-ch1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式系统写作约定（公理降级、证书与谓词因果链）}
+\label{subsec:tex28-writing-convention}
+本章将实现口径压缩为\textbf{可证书化}条目，并统一使用\textbf{基于数学符号推演逻辑的谓词因果链}组织证明要点：
+\begin{itemize}
+  \item \textbf{离散时钟}：采用离散 tick（$t_n=n\Delta t$），以递推给出可重放的确定性更新链。
+  \item \textbf{公理降级}：正文默认不单列“公理”环境；凡需固定为基础条件者，写成“公理（降级为定理）”，并配套\textbf{证书}与\textbf{证明}。
+  若断言包含全称迭代结构，默认给出\textbf{数学归纳法证书}。
+  \item \textbf{定理/引理/命题/推论}：每条编号断言尽量同时给出（i）证书（可审计见证/构造/不变量/基步-归纳步等），
+  （ii）证明（用谓词链闭合方式把推理写成可复核的符号推演步骤）。
+  \item \textbf{备注}：仅用于动机、解释、实现要点与验收口径，不承担证明义务。
+\end{itemize}
+
+\subsection{外部文档溯源（必要引用）}
+\label{subsec:tex28-external-provenance}
+本稿仅对\textbf{直接参与本稿概念骨架}的外部文档添加引用，避免无边界扩展到全部历史草稿：
+\begin{itemize}
+  \item JacGap 证书与层化一致性主线：\cite{GaoZhengAppVol1,GaoZhengAppVol3}；
+  \item Jacobian-gap 完备性与边界口径：\cite{GaoZhengAppVol2}；
+  \item 风险--Gap--同伦束簇与约束系统口径：\cite{appmath-vol4-pub}；
+  \item 参数同伦/组织同伦的可操作分层与候选重排语义：\cite{notebook-tex23}；
+  \item 统计力学同伦类下的回放收敛与有效性证书接口：\cite{notebook-tex27}。
+\end{itemize}
+上述引用用于\textbf{术语与证书语义溯源}，不改变本稿自包含的形式证明链。
+
+\subsection{定义：对象、门控、连续速率、积分触发、预算分配}
+\label{subsec:tex28-defs}
+为便于“可审计实现”，本章采用离散时钟
+\[
+  t_n := n\Delta t,\qquad n\in\NN,\ \Delta t>0.
+\]
+并以递推形式给出从观测到触发与预算的完整闭环接口。
+
+\begin{definition}[D0（证书信号：原始 gap 与平滑 gap）]
+\label{def:tex28-d0}
+原始观测（用于追溯与噪声诊断）定义为
+\[
+  J^{\mathrm{raw}}_n := \JacGap_{\mathrm{raw}}(t_n)\in\RR_{\ge 0}.
+\]
+平滑 gap（用于驱动控制）采用 EMA（指数滑动平均）：
+\[
+  J_{n+1} = (1-\lambda)J_n + \lambda J^{\mathrm{raw}}_{n+1},
+  \qquad
+  \lambda := \frac{\Delta t}{T_{\mathrm{ema}}}\in(0,1),
+\]
+其中 $T_{\mathrm{ema}}$ 为平滑时间尺度。
+\end{definition}
+
+\begin{definition}[D1（滞回门控：开关阈值）]
+\label{def:tex28-d1}
+给定阈值
+\[
+  G_{\mathrm{on}} > G_{\mathrm{off}} \ge 0,
+\]
+定义门控状态 $q_n\in\{0,1\}$ 的更新律：
+\[
+  q_{n+1}=
+  \begin{cases}
+    1, & (q_n=0)\ \wedge\ (J_{n+1}\ge G_{\mathrm{on}}),\\
+    0, & (q_n=1)\ \wedge\ (J_{n+1}\le G_{\mathrm{off}}),\\
+    q_n, & \text{其他情形}.
+  \end{cases}
+\]
+语义：$J\le G_{\mathrm{off}}$ 强制退出扭曲态；$J\ge G_{\mathrm{on}}$ 允许进入扭曲态；
+中间区间维持状态，形成滞回以抑制阈值附近抖动。
+\end{definition}
+
+\begin{definition}[D2（阻尼门：二值门控到连续启用因子）]
+\label{def:tex28-d2}
+定义连续启用因子 $u_n\in[0,1]$（一阶阻尼）：
+\[
+  u_{n+1}=\clip\bigl(u_n+\eta(q_{n+1}-u_n),\,0,\,1\bigr),
+  \qquad
+  \eta:=\frac{\Delta t}{T_{\mathrm{gate}}}\in(0,1].
+\]
+其中 $T_{\mathrm{gate}}$ 为门控阻尼时间尺度。语义：$q$ 决定“允许/不允许”，$u$ 决定“允许后以多快速度爬升/回落”，
+用于消除门控边界的阶跃抖动。
+\end{definition}
+
+\begin{definition}[D3（连续速率映射：单调、连续、有上限）]
+\label{def:tex28-d3}
+归一化超阈值幅度定义为
+\[
+  x_{n+1}:=\Bigl(\frac{(J_{n+1}-G_{\mathrm{on}})_{+}}{G_{\mathrm{scale}}}\Bigr)^{\alpha},
+  \qquad
+  (a)_{+}:=\max(a,0),
+  \qquad
+  \alpha>0,\ G_{\mathrm{scale}}>0.
+\]
+基础速率函数（典型形式）定义为
+\[
+  \rho(J_{n+1}):=\clamp\bigl(r_{\min}+k\,x_{n+1},\ r_{\min},\ r_{\max}\bigr),
+  \qquad
+  k>0,\ 0\le r_{\min}\le r_{\max}.
+\]
+最终有效速率（保留“关断阈值以下零触发”）定义为
+\[
+  r_{n+1}:=\indicator{J_{n+1}>G_{\mathrm{off}}}\cdot u_{n+1}\cdot \rho(J_{n+1}).
+\]
+语义：$J\le G_{\mathrm{off}}\Rightarrow r=0$（硬关断）；在扭曲态内 $r$ 随 $J$ 连续单调上升；并且 $r\le r_{\max}$（强上限）。
+\end{definition}
+
+\begin{definition}[D4（积分器触发：连续速率到离散触发次数）]
+\label{def:tex28-d4}
+定义积分器 $s_n\in[0,s_{\max}]$ 的预更新为
+\[
+  s_{n+1}^{\mathrm{pre}}=\clip\bigl(s_n+r_{n+1}\Delta t,\ 0,\ s_{\max}\bigr).
+\]
+设上次触发时刻为 $t_{\mathrm{last}}$，最小触发间隔（冷却）为 $\Delta_{\min}>0$。
+定义触发谓词（每个 tick 最多触发一次）：
+\[
+  \mathrm{fire}(n):=\indicator{J_{n+1}>G_{\mathrm{off}}}\cdot
+  \indicator{s_{n+1}^{\mathrm{pre}}\ge 1}\cdot
+  \indicator{t_{n+1}-t_{\mathrm{last}}\ge\Delta_{\min}}.
+\]
+触发更新规则为
+\[
+  \text{若 }\mathrm{fire}(n)=1:\
+  \begin{cases}
+    s_{n+1}=s_{n+1}^{\mathrm{pre}}-1,\\
+    t_{\mathrm{last}}\leftarrow t_{n+1},\\
+    \mathrm{trigger\_count} \leftarrow \mathrm{trigger\_count}+1;
+  \end{cases}
+  \qquad
+  \text{否则 } s_{n+1}=s_{n+1}^{\mathrm{pre}}.
+\]
+抗积分饱和（anti-windup）建议：取 $s_{\max}\in[1,2]$（最多“积压”一次触发），从结构上抑制无限膨胀。
+\end{definition}
+
+\begin{definition}[D5（触发强度/预算：同一套 gap 同时驱动“频率 + 强度”）]
+\label{def:tex28-d5}
+预算（标量版本）定义为
+\[
+  b_{n+1}:=\clamp\Bigl(b_{\min}+\kappa\Bigl(\frac{(J_{n+1}-G_{\mathrm{on}})_{+}}{G_{\mathrm{scale}}}\Bigr)^{\beta},\
+    b_{\min},\ b_{\max}\Bigr),
+  \qquad
+  \kappa>0,\ \beta>0.
+\]
+动作层分配（“轻量 $\to$ 中量 $\to$ 重量”）：
+\begin{itemize}
+  \item 设三层算子族（仅记抽象，不绑定实现细节）：
+  \[
+    \mathcal{O}_{\mathrm{pred/param}},\quad
+    \mathcal{O}_{\mathrm{algo/org}},\quad
+    \mathcal{O}_{\mathrm{strong\_repair}}.
+  \]
+  \item 定义连续权重 $\pi_\ell(J)\in[0,1]$（$\ell=1,2,3$）满足
+  \[
+    \pi_1(J)+\pi_2(J)+\pi_3(J)=1,\quad
+    \pi_1 \text{随 }J\text{非增},\quad
+    \pi_2,\pi_3 \text{随 }J\text{非减},
+  \]
+  并令每层预算为 $b^{(\ell)}_{n+1}:=\pi_\ell(J_{n+1})\,b_{n+1}$。
+\end{itemize}
+语义：小幅超阈值主要给 $\mathcal{O}_{\mathrm{pred/param}}$；中高区间逐步加大 $\mathcal{O}_{\mathrm{algo/org}}$；
+极高区间才允许更强修复，但始终受 $b_{\max}$ 约束。
+\end{definition}
+
+\begin{definition}[D6（可观测性：落盘字段）]
+\label{def:tex28-d6}
+至少持久化以下字段，以支持复盘与审计（建议同时落盘参数集与初值）：
+\begin{itemize}
+  \item \texttt{gap\_raw}$=J^{\mathrm{raw}}_n$，\texttt{gap\_ema}$=J_n$；
+  \item \texttt{gate\_state}$=q_n$，\texttt{gate\_damp}$=u_n$；
+  \item \texttt{twist\_rate}$=r_n$，\texttt{twist\_budget}$=b_n$；
+  \item \texttt{integrator}$=s_n$，\texttt{t\_last}$=t_{\mathrm{last}}$，\texttt{trigger\_count}。
+\end{itemize}
+\end{definition}
+
+\subsection{公理（降级为定理）}
+\label{subsec:tex28-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（证书信号的可审计性：gap 驱动律可被“落盘重放”验证）]
+\label{thm:tex28-a1}
+若落盘字段包含
+\[
+  \bigl(J^{\mathrm{raw}}_n,J_n,q_n,u_n,r_n,b_n,s_n,t_{\mathrm{last}},\mathrm{trigger\_count}\bigr)_{n\ge 0},
+\]
+且 $\Delta t$ 与参数集（$T_{\mathrm{ema}},T_{\mathrm{gate}},G_{\mathrm{on}},G_{\mathrm{off}},G_{\mathrm{scale}},\alpha,k,
+  r_{\min},r_{\max},s_{\max},\Delta_{\min},b_{\min},b_{\max},\kappa,\beta$ 及 $\pi_\ell$）固定，
+则由定义~\ref{def:tex28-d0}--\ref{def:tex28-d5} 给出的闭环更新链可被逐步重放并得到同一序列，因此可审计。
+\end{theorem}
+
+\begin{Certificate}[证书 A1（确定性递推见证）]
+\label{cert:tex28-a1}
+证书由两部分构成：
+\begin{enumerate}
+  \item 完整状态见证：落盘字段给出每个 tick 的观测（$J^{\mathrm{raw}}$）与状态（$J,q,u,r,b,s,t_{\mathrm{last}}$）；
+  \item 递推规则见证：定义~\ref{def:tex28-d0}--\ref{def:tex28-d5} 给出从 $n$ 到 $n+1$ 的确定性更新律。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+固定参数集与 $\Delta t$，给定初值 $(J_0,q_0,u_0,s_0,t_{\mathrm{last}},\mathrm{trigger\_count})$。
+对任意 $n\ge 0$，由观测 $J^{\mathrm{raw}}_{n+1}$ 与定义~\ref{def:tex28-d0} 得到 $J_{n+1}$；
+由定义~\ref{def:tex28-d1} 得到 $q_{n+1}$；
+由定义~\ref{def:tex28-d2} 得到 $u_{n+1}$；
+由定义~\ref{def:tex28-d3} 得到 $r_{n+1}$；
+由定义~\ref{def:tex28-d4} 得到 $s_{n+1}$、$\mathrm{fire}(n)$、并更新 $t_{\mathrm{last}}$ 与 $\mathrm{trigger\_count}$；
+由定义~\ref{def:tex28-d5} 得到 $b_{n+1}$。
+上述链条每一步均为确定性函数合成，故可逐步重放得到同一序列，因此可审计。证毕。
+\end{proof}
+
+\subsection{引理（单调性、无抖动、上界、零触发）}
+\label{subsec:tex28-lemmas}
+
+\begin{lemma}[L1（零触发保证：低于关断阈值强制不触发）]
+\label{lem:tex28-l1}
+对任意 $n\ge 0$，若 $J_{n+1}\le G_{\mathrm{off}}$，则
+\[
+  r_{n+1}=0
+  \qquad\text{且}\qquad
+  \mathrm{fire}(n)=0.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L1（硬关断指示因子见证）]
+\label{cert:tex28-l1}
+证书为定义~\ref{def:tex28-d3} 与定义~\ref{def:tex28-d4} 中共同出现的指示因子 $\indicator{J_{n+1}>G_{\mathrm{off}}}$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+若 $J_{n+1}\le G_{\mathrm{off}}$，则 $\indicator{J_{n+1}>G_{\mathrm{off}}}=0$。
+由定义~\ref{def:tex28-d3} 立得 $r_{n+1}=0$；
+并由定义~\ref{def:tex28-d4} 的触发谓词立得 $\mathrm{fire}(n)=0$。证毕。
+\end{proof}
+
+\begin{lemma}[L2（速率单调性：$J_2\ge J_1\Rightarrow \rho(J_2)\ge \rho(J_1)$）]
+\label{lem:tex28-l2}
+对任意 $J_1,J_2\in\RR_{\ge 0}$，若 $J_2\ge J_1$，则
+\[
+  \rho(J_2)\ge \rho(J_1),
+\]
+其中 $\rho$ 由定义~\ref{def:tex28-d3} 给出，并满足 $k>0$、$\alpha>0$。
+\end{lemma}
+
+\begin{Certificate}[证书 L2（单调算子复合见证）]
+\label{cert:tex28-l2}
+证书为如下单调性事实的复合：
+\[
+  \begin{aligned}
+    J&\mapsto (J-G_{\mathrm{on}})_{+}\ \text{非减},\\
+    z&\mapsto z^{\alpha}\ \text{在 }z\ge 0\text{ 上非减},\\
+    y&\mapsto r_{\min}+k y\ \text{非减},\\
+    &\clamp(\cdot,r_{\min},r_{\max})\ \text{非减}.
+  \end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 $J_2\ge J_1$ 得 $(J_2-G_{\mathrm{on}})_{+}\ge (J_1-G_{\mathrm{on}})_{+}$。
+由于 $\alpha>0$，函数 $z\mapsto z^\alpha$ 在 $z\ge 0$ 上非减，故 $x(J_2)\ge x(J_1)$。
+又因 $k>0$，故 $r_{\min}+k x(J_2)\ge r_{\min}+k x(J_1)$。
+最后 $\clamp(\cdot,r_{\min},r_{\max})$ 为逐点截断且不引入下降，故 $\rho(J_2)\ge \rho(J_1)$。证毕。
+\end{proof}
+
+\begin{lemma}[L3（触发频率上界：同时受速率上限与冷却约束）]
+\label{lem:tex28-l3}
+设时间窗长度为 $T>0$，其内触发次数记为 $N(T)$。
+则在定义~\ref{def:tex28-d4} 的冷却约束下有
+\[
+  N(T)\le \Bigl\lfloor \frac{T}{\Delta_{\min}}\Bigr\rfloor + 1.
+\]
+并且由 $r_{n}\le r_{\max}$ 可得（粗上界）
+\[
+  N(T)\ \le\ r_{\max}T+s_{\max}.
+\]
+因此
+\[
+  N(T)\ \le\ \min\Bigl(\Bigl\lfloor \frac{T}{\Delta_{\min}}\Bigr\rfloor + 1,\ r_{\max}T+s_{\max}\Bigr).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L3（两类上界见证）]
+\label{cert:tex28-l3}
+证书由两部分组成：
+\begin{enumerate}
+  \item 冷却见证：每次触发后 $t_{\mathrm{last}}$ 更新为当前时刻 $t_{n+1}$，下次触发必须满足 $t_{m+1}-t_{\mathrm{last}}\ge\Delta_{\min}$；
+  \item 速率上界见证：由定义~\ref{def:tex28-d3} 的 $\clamp(\cdot,r_{\min},r_{\max})$ 得 $0\le r_{n}\le r_{\max}$，且积分器满足 $0\le s_n\le
+    s_{\max}$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+\begin{itemize}
+  \item（冷却上界）由定义~\ref{def:tex28-d4}，任意两次相邻触发时刻至少相隔 $\Delta_{\min}$，
+  因而长度为 $T$ 的时间窗内触发次数至多为 $\lfloor T/\Delta_{\min}\rfloor+1$。
+  \item（速率上界）由 $0\le r_{n+1}\le r_{\max}$，
+  以及预更新 $s_{n+1}^{\mathrm{pre}}=\clip(s_n+r_{n+1}\Delta t,0,s_{\max})$，
+  可知在任意长度为 $T$ 的时间窗内，积分器被注入的总量不超过 $r_{\max}T$；
+  又每次触发消耗 1 单位积累，并且 $s_n\le s_{\max}$，故触发次数不超过 $r_{\max}T+s_{\max}$。
+\end{itemize}
+合并两类上界即得结论。证毕。
+\end{proof}
+
+\begin{lemma}[L4（滞回抑制门控抖动：切换至少跨越 $G_{\mathrm{on}}-G_{\mathrm{off}}$）]
+\label{lem:tex28-l4}
+在定义~\ref{def:tex28-d1} 下，从 $q=0\to 1$ 的切换必须满足 $J\ge G_{\mathrm{on}}$；
+从 $q=1\to 0$ 的切换必须满足 $J\le G_{\mathrm{off}}$。
+因此任意一次完整往返切换要求 $J$ 至少跨越区间长度 $G_{\mathrm{on}}-G_{\mathrm{off}}>0$。
+\end{lemma}
+
+\begin{Certificate}[证书 L4（切换谓词见证）]
+\label{cert:tex28-l4}
+证书为定义~\ref{def:tex28-d1} 中两条切换分支的阈值谓词（$J\ge G_{\mathrm{on}}$ 与 $J\le G_{\mathrm{off}}$）。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由定义~\ref{def:tex28-d1}，若发生 $q_n=0\to q_{n+1}=1$，则必有 $J_{n+1}\ge G_{\mathrm{on}}$；
+若发生 $q_n=1\to q_{n+1}=0$，则必有 $J_{n+1}\le G_{\mathrm{off}}$。
+因此一轮 $0\to 1\to 0$（或 $1\to 0\to 1$）要求 $J$ 从 $\ge G_{\mathrm{on}}$ 到 $\le G_{\mathrm{off}}$（或反向）至少跨越 $G_{\mathrm{on}}
+  -G_{\mathrm{off}}$。
+在噪声幅度小于该间隔时，门控不会因阈值附近抖动而频繁翻转。证毕。
+\end{proof}
+
+\subsection{命题（积分器等价、强度随 gap 单调、平滑降速、失败退化）}
+\label{subsec:tex28-props}
+
+\begin{proposition}[P1（积分器触发的计数等价：触发数近似离散积分 $\sum r\Delta t$）]
+\label{prop:tex28-p1}
+令 $C_n$ 表示截至 $t_n$ 的触发次数（$C_0=0$）。
+在不触发饱和分支（即对所讨论窗口内所有 $n$，有 $s_{n+1}^{\mathrm{pre}}=s_n+r_{n+1}\Delta t$）的条件下，
+递推满足不变量
+\[
+  s_{n+1}+C_{n+1}=s_n+C_n+r_{n+1}\Delta t.
+\]
+从而对任意 $N\ge 1$ 有
+\[
+  C_N = s_0 - s_N + \sum_{n=0}^{N-1} r_{n+1}\Delta t,
+\]
+并给出有界误差估计
+\[
+  \sum_{n=0}^{N-1} r_{n+1}\Delta t - s_{\max}
+  \ \le\
+  C_N
+  \ \le\
+  \sum_{n=0}^{N-1} r_{n+1}\Delta t + s_0.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书 P1（基步--归纳步的不变量见证）]
+\label{cert:tex28-p1}
+证书为两条递推式及其相加得到的不变量：
+\[
+  s_{n+1}=s_n+r_{n+1}\Delta t-\mathrm{fire}(n),\qquad
+  C_{n+1}=C_n+\mathrm{fire}(n).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法 + 谓词因果链）]
+由定义~\ref{def:tex28-d4} 且在无饱和条件下，预更新为 $s_{n+1}^{\mathrm{pre}}=s_n+r_{n+1}\Delta t$，并且触发更新可统一写作
+$s_{n+1}=s_{n+1}^{\mathrm{pre}}-\mathrm{fire}(n)$，
+故
+\[
+  s_{n+1}=s_n+r_{n+1}\Delta t-\mathrm{fire}(n).
+\]
+触发计数满足 $C_{n+1}=C_n+\mathrm{fire}(n)$。两式相加得
+\[
+  s_{n+1}+C_{n+1}=s_n+C_n+r_{n+1}\Delta t.
+\]
+对 $n=0,\dots,N-1$ 逐步展开并求和可得
+\[
+  s_N+C_N = s_0+C_0+\sum_{n=0}^{N-1}r_{n+1}\Delta t,
+\]
+其中 $C_0=0$，移项得 $C_N=s_0-s_N+\sum_{n=0}^{N-1}r_{n+1}\Delta t$。
+又因 $s_N\in[0,s_{\max}]$，立得两侧有界误差估计。证毕。
+\end{proof}
+
+\begin{proposition}[P2（频率与强度的静态双单调：$J$ 越大 $\Rightarrow$ $r$ 与 $b$ 不减）]
+\label{prop:tex28-p2}
+对任意固定 $u\in[0,1]$，定义静态映射
+\[
+  r^\star(J;u):=\indicator{J>G_{\mathrm{off}}}\cdot u\cdot \rho(J),
+  \qquad
+  b^\star(J):=\clamp\Bigl(b_{\min}+\kappa\Bigl(\frac{(J-G_{\mathrm{on}})_{+}}{G_{\mathrm{scale}}}\Bigr)^{\beta},\
+    b_{\min},\ b_{\max}\Bigr).
+\]
+则对任意 $J_2\ge J_1$ 有
+\[
+  r^\star(J_2;u)\ge r^\star(J_1;u),
+  \qquad
+  b^\star(J_2)\ge b^\star(J_1).
+\]
+\end{proposition}
+
+\begin{Certificate}[证书 P2（由 L2 与截断上界得到）]
+\label{cert:tex28-p2}
+证书为：$\rho$ 的单调性来自引理~\ref{lem:tex28-l2}；$u\ge 0$ 且指示因子非负；$b^\star$ 与 $\rho$ 具有同构的“正部 + 幂 + 截断”结构。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由引理~\ref{lem:tex28-l2} 得 $\rho(J_2)\ge \rho(J_1)$。
+若 $J_1\le G_{\mathrm{off}}$，则 $r^\star(J_1;u)=0$，而 $r^\star(J_2;u)\ge 0$；
+若 $J_1>G_{\mathrm{off}}$，则亦有 $J_2>G_{\mathrm{off}}$，从而
+\[
+  r^\star(J_2;u)=u\rho(J_2)\ge u\rho(J_1)=r^\star(J_1;u).
+\]
+对 $b^\star$，其由 $J\mapsto (J-G_{\mathrm{on}})_{+}$、幂函数 $z\mapsto z^\beta$（$\beta>0$）、正比例变换与 $\clamp$ 的复合构成，
+与证书~\ref{cert:tex28-l2} 同理可得单调性。证毕。
+\end{proof}
+
+\begin{proposition}[P3（平滑降速：EMA + 阻尼门抑制速率阶跃抖动）]
+\label{prop:tex28-p3}
+由定义~\ref{def:tex28-d0} 与定义~\ref{def:tex28-d2}，$J_{n+1}$ 与 $u_{n+1}$ 均为对上一时刻状态的凸组合（再经区间截断），
+因此在 $J_{n+1}>G_{\mathrm{off}}$ 区间内，$r_{n+1}=u_{n+1}\rho(J_{n+1})$ 的变化由两条低通链条共同平滑；
+跨越 $G_{\mathrm{off}}$ 时按定义~\ref{def:tex28-d3} 硬关断为 $0$，从而在低风险区消除残余触发驱动。
+\end{proposition}
+
+\begin{Certificate}[证书 P3（凸组合与截断见证）]
+\label{cert:tex28-p3}
+证书为两条“离散低通”递推：
+\[
+  J_{n+1}=(1-\lambda)J_n+\lambda J^{\mathrm{raw}}_{n+1},\qquad
+  u_{n+1}=\clip\bigl((1-\eta)u_n+\eta q_{n+1},0,1\bigr),
+\]
+以及 $r_{n+1}$ 的硬关断因子 $\indicator{J_{n+1}>G_{\mathrm{off}}}$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:tex28-p3}，$J_{n+1}$ 是 $J_n$ 与 $J^{\mathrm{raw}}_{n+1}$ 的凸组合，因此抑制原始观测的高频波动；
+$u_{n+1}$ 是 $u_n$ 与 $q_{n+1}$ 的凸组合后再截断到 $[0,1]$，因此抑制 $q$ 的阶跃变化。
+又因 $\rho(\cdot)$ 仅由“正部 + 幂 + 截断”构造，且 $r_{n+1}=u_{n+1}\rho(J_{n+1})$ 在 $J_{n+1}>G_{\mathrm{off}}$ 区间内不含硬开关因子，
+故速率变化由 $J$ 与 $u$ 的平滑递推主导；当 $J_{n+1}\le G_{\mathrm{off}}$ 时，$\indicator{J_{n+1}>G_{\mathrm{off}}}=0$，
+由定义~\ref{def:tex28-d3} 得 $r_{n+1}=0$。证毕。
+\end{proof}
+
+\begin{proposition}[P4（失败退化：异常时降级到低频安全模式且不破坏零触发约束）]
+\label{prop:tex28-p4}
+定义模式 $m_n\in\{\mathrm{normal},\mathrm{safe}\}$。若执行异常计数超阈值则进入 $\mathrm{safe}$，并令
+\[
+  r_{n+1} := \indicator{J_{n+1}>G_{\mathrm{off}}}\cdot \min(r_{\mathrm{safe}},r_{\max}),
+  \qquad
+  b_{n+1} := b_{\mathrm{safe}}\le b_{\max}.
+\]
+则无论处于 $\mathrm{normal}$ 或 $\mathrm{safe}$，只要 $J_{n+1}\le G_{\mathrm{off}}$，均有 $r_{n+1}=0$ 且 $\mathrm{fire}(n)=0$。
+\end{proposition}
+
+\begin{Certificate}[证书 P4（保留硬关断因子见证）]
+\label{cert:tex28-p4}
+证书为：$\mathrm{safe}$ 模式下 $r_{n+1}$ 仍含 $\indicator{J_{n+1}>G_{\mathrm{off}}}$，从而可直接调用引理~\ref{lem:tex28-l1} 的结论。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+若 $J_{n+1}\le G_{\mathrm{off}}$，则 $\indicator{J_{n+1}>G_{\mathrm{off}}}=0$，
+因此在 $\mathrm{safe}$ 模式下亦有 $r_{n+1}=0$；并由定义~\ref{def:tex28-d4} 得 $\mathrm{fire}(n)=0$。
+$\mathrm{normal}$ 模式同理（见引理~\ref{lem:tex28-l1}）。证毕。
+\end{proof}
+
+\subsection{推论（验收标准可形式化为可检验谓词）}
+\label{subsec:tex28-corollaries}
+
+\begin{corollary}[C1（验收 1：低于关断阈值时强制 0 触发）]
+\label{cor:tex28-c1}
+可检验谓词：
+\[
+  \forall n,\ (J_{n+1}\le G_{\mathrm{off}})\Rightarrow r_{n+1}=0\Rightarrow \mathrm{fire}(n)=0.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C1（直接调用 L1）]
+\label{cert:tex28-c1}
+证书为引理~\ref{lem:tex28-l1}。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由引理~\ref{lem:tex28-l1} 直接得到。证毕。
+\end{proof}
+
+\begin{corollary}[C2（验收 2：超阈值区间内的单调性——在 $u$ 不减条件下）]
+\label{cor:tex28-c2}
+对任意两个时刻指标 $n_1,n_2$，若满足
+\[
+  J_{n_2}\ge J_{n_1}>G_{\mathrm{off}}
+  \quad\wedge\quad
+  u_{n_2}\ge u_{n_1},
+\]
+则
+\[
+  r_{n_2}\ge r_{n_1}
+  \quad(\text{允许饱和相等}).
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C2（$r=u\rho(J)$ 的乘积单调见证）]
+\label{cert:tex28-c2}
+证书为：在 $J>G_{\mathrm{off}}$ 区间内 $\indicator{J>G_{\mathrm{off}}}=1$，
+且 $\rho$ 的单调性来自引理~\ref{lem:tex28-l2}，从而 $u$ 与 $\rho$ 同时不减则乘积不减。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 $J_{n_1},J_{n_2}>G_{\mathrm{off}}$ 得指示因子均为 $1$。
+由引理~\ref{lem:tex28-l2} 得 $\rho(J_{n_2})\ge \rho(J_{n_1})$。
+结合 $u_{n_2}\ge u_{n_1}\ge 0$，得
+\[
+  r_{n_2}=u_{n_2}\rho(J_{n_2})
+  \ge u_{n_1}\rho(J_{n_1})=r_{n_1}.
+\]
+证毕。
+\end{proof}
+
+\begin{corollary}[C3（验收 3：频率与强度随 gap 增大而不减——分桶可检验版本）]
+\label{cor:tex28-c3}
+取两个按 $J$ 分桶的区间 $\mathcal{B}_1,\mathcal{B}_2\subseteq\RR$，满足
+\[
+  \sup\mathcal{B}_1 \le \inf\mathcal{B}_2
+  \quad\text{且}\quad
+  \inf\mathcal{B}_1>G_{\mathrm{off}}.
+\]
+若在两桶内均筛选出满足 $u_n=1$ 的样本点集合，则对任意
+$n_1$（$J_{n_1}\in\mathcal{B}_1$）与 $n_2$（$J_{n_2}\in\mathcal{B}_2$）有
+\[
+  r_{n_2}\ge r_{n_1},\qquad b_{n_2}\ge b_{n_1}.
+\]
+从而经验均值满足
+\[
+  \overline{r}\,(\mathcal{B}_2)\ge \overline{r}\,(\mathcal{B}_1),
+  \qquad
+  \overline{b}\,(\mathcal{B}_2)\ge \overline{b}\,(\mathcal{B}_1),
+\]
+其中 $\overline{r}(\mathcal{B})$ 与 $\overline{b}(\mathcal{B})$ 表示对桶 $\mathcal{B}$ 内样本的算术平均。
+\end{corollary}
+
+\begin{Certificate}[证书 C3（桶序与静态单调见证）]
+\label{cert:tex28-c3}
+证书为：在 $u_n=1$ 的筛选下，$r_n=\rho(J_n)$；并且 $\rho$ 与 $b$ 均为关于 $J$ 的非减函数（见引理~\ref{lem:tex28-l2} 与命题~\ref{prop:tex28-p2}）。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由桶的有序性与 $J_{n_1}\in\mathcal{B}_1,J_{n_2}\in\mathcal{B}_2$ 得 $J_{n_2}\ge J_{n_1}>G_{\mathrm{off}}$。
+在筛选 $u_{n_1}=u_{n_2}=1$ 下，有 $r_{n_i}=\rho(J_{n_i})$。
+由引理~\ref{lem:tex28-l2} 与命题~\ref{prop:tex28-p2} 得 $\rho(J_{n_2})\ge \rho(J_{n_1})$ 且 $b_{n_2}\ge b_{n_1}$，于是 $r_{n_2}\ge
+  r_{n_1}$。
+对样本集合逐点不等式取平均即得经验均值不等式。证毕。
+\end{proof}
+
+\begin{assumption}[H1（单步下降假设：一次触发带来的证书势能期望下降）]
+\label{assu:tex28-h1}
+存在函数 $\delta(b,J)\ge 0$ 表示“在预算 $b$ 与证书信号 $J$ 下，一次触发对缺陷势能/证书残差的期望下降量”，并满足：
+\[
+  \delta \text{ 随 } b \text{非减},\qquad
+  \text{且在高 }J\text{ 区间不退化（不趋于 }0\text{）}.
+\]
+\end{assumption}
+
+\begin{corollary}[C4（验收 4：相对固定阈值触发，更快回落且无明显过冲——在 H1 下）]
+\label{cor:tex28-c4}
+在假设~\ref{assu:tex28-h1} 下，连续调速/调预算（$r(J)$ 与 $b(J)$ 随 $J$ 非减且有上界）
+使高 $J$ 区间的单位时间期望下降漂移更大、低 $J$ 区间自动降速，
+并由滞回+冷却避免阈值附近反复触发，从而倾向于“更快回落且不易过度扭曲”。
+\end{corollary}
+
+\begin{Certificate}[证书 C4（漂移分解见证）]
+\label{cert:tex28-c4}
+证书为如下单位时间漂移分解：单位时间触发次数 $\approx r(J)$（命题~\ref{prop:tex28-p1}），
+单位时间期望下降 $\approx r(J)\cdot \delta(b(J),J)$（假设~\ref{assu:tex28-h1}）。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由命题~\ref{prop:tex28-p2}，$r(J)$ 与 $b(J)$ 随 $J$ 非减且有上界。
+由命题~\ref{prop:tex28-p1}，在冷却/上限未饱和的时间窗内，触发计数与 $\sum r\Delta t$ 只差一个有界常数，
+可将单位时间触发次数视为 $r(J)$ 的近似表征。
+由假设~\ref{assu:tex28-h1}，单次触发的期望下降量 $\delta(b(J),J)$ 随 $b(J)$ 非减且在高 $J$ 区间不退化，
+故单位时间期望下降漂移可近似写作 $r(J)\cdot \delta(b(J),J)$，其在高 $J$ 区间更大、低 $J$ 区间更小。
+再结合引理~\ref{lem:tex28-l4}（滞回）与定义~\ref{def:tex28-d4}（冷却），可抑制阈值附近的频繁触发，
+因此在该假设前提下，“快收敛 + 少过冲”的方向成立。证毕。
+\end{proof}
+
+\subsection{备注（参数与实现侧要点：稳定性=上限+阻尼+回退）}
+\label{subsec:tex28-remarks}
+
+\begin{remark}[阈值与滞回]
+$G_{\mathrm{on}}-G_{\mathrm{off}}$ 是抗抖动裕量；噪声越大，裕量应越大（引理~\ref{lem:tex28-l4}）。
+\end{remark}
+
+\begin{remark}[阻尼门与 EMA 的角色分工]
+EMA（定义~\ref{def:tex28-d0}）削弱 $J^{\mathrm{raw}}$ 高频噪声；
+阻尼门（定义~\ref{def:tex28-d2}）削弱 $q$ 的阶跃；二者叠加抑制“速率阶跃抖动”（命题~\ref{prop:tex28-p3}）。
+\end{remark}
+
+\begin{remark}[反积分饱和建议]
+$s_{\max}\in[1,2]$ 的含义是“最多积压一次触发”；配合冷却 $\Delta_{\min}$ 可避免长期高 $J$ 下触发堆积导致的突发连发。
+\end{remark}
+
+\begin{remark}[预算分层的审计接口]
+若记录每次触发时刻的
+$(J^{\mathrm{raw}},J,u,r,b,\pi_1,\pi_2,\pi_3)$ 与实际执行的算子标签（属于哪一层），
+即可审计“低 gap 轻量、高 gap 加深搜索”的策略是否真实发生。
+\end{remark}
+
+\begin{remark}[单调性自动验收]
+可对日志样本对 $(J_n,r_n)$ 检查是否存在违反（在筛选 $u_n=1$ 与 $J_n>G_{\mathrm{off}}$ 后）：
+\[
+  J_i<J_j\ \wedge\ r_i>r_j.
+\]
+若存在，则要么 $\rho$ 实现有误，要么 $u$/冷却逻辑引入了未记账的隐式截断（需补充日志字段，例如 ``\texttt{cooldown\_blocked}''）。
+\end{remark}
+
+\begin{remark}[向量预算与事件口径的直接扩展]
+若希望把上述标量预算直接“编译”为事件口径（按事件类型 $k$ 的计数 $N_k$）与多预算向量版本，
+可将定义~\ref{def:tex28-d5} 的标量 $b_{n}$ 替换为向量预算 $\mathbf{b}_n\in\RR_{\ge 0}^{K}$，
+并令每次触发对某个 $k$ 执行 $N_k\leftarrow N_k+1$，
+即可在不改变证明骨架的前提下得到“频率 + 类型分配 + 强度”三位一体的可审计闭环接口。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{频率--强度--算力耦合：单参数缩放的可审计硬约束}
+\label{sec:tex28-ch2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本章与第~\ref{sec:tex28-ch1}~章的关系]
+第~\ref{sec:tex28-ch1}~章给出离散 tick 口径下的 gap 门控、阻尼、速率、积分触发与预算映射；
+本章在同一离散时钟口径下，把“触发频率 $r$、触发强度/预算 $b$ 与可用算力 $C^{\mathrm{avail}}$”
+写成同一条\textbf{硬约束}，并给出一个\textbf{确定性、可审计、稳定}的构造，
+保证对给定的 $C^{\mathrm{avail}}_n$ 总能得到满足约束的执行对 $(r^{\mathrm{exec}}_n,b^{\mathrm{exec}}_n)$。
+\end{remark}
+
+\subsection{定义（把“频率--强度--算力”三者写成同一个可审计约束）}
+\label{subsec:tex28-ch2-defs}
+为便于严格化，本章采用离散时钟
+\[
+  t_n=n\Delta t,\qquad n\in\NN,\ \Delta t>0.
+\]
+
+\begin{definition}[D1（Gap 与势能）]
+\label{def:tex28-ch2-d1}
+定义 gap 与势能为
+\[
+  J_n:=\JacGap(X(t_n))\in\RR_{\ge 0},
+  \qquad
+  \Phi_n:=\Phi(J_n)
+  \quad(\text{例如 }\Phi(J)=\tfrac12 J^2).
+\]
+\end{definition}
+
+\begin{definition}[D2（门控与阻尼：Gap 归零则扭曲速率阻尼到 0/最小态）]
+\label{def:tex28-ch2-d2}
+给定滞回阈值 $G_{\mathrm{on}}>G_{\mathrm{off}}\ge 0$。定义门控 $q_n\in\{0,1\}$ 与阻尼门 $u_n\in[0,1]$：
+\[
+  q_{n+1}=
+  \begin{cases}
+    1, & q_n=0\ \wedge\ J_{n+1}\ge G_{\mathrm{on}},\\
+    0, & q_n=1\ \wedge\ J_{n+1}\le G_{\mathrm{off}},\\
+    q_n, & \text{其他情形},
+  \end{cases}
+\]
+\[
+  u_{n+1}=\clip\bigl(u_n+\eta(q_{n+1}-u_n),0,1\bigr),
+  \qquad
+  \eta:=\frac{\Delta t}{T_{\mathrm{gate}}}\in(0,1].
+\]
+语义：当 $J\downarrow 0$ 并进入 $J\le G_{\mathrm{off}}$ 区间时，门控退回（$q\to 0$），阻尼门回落（$u\to 0$），
+从而触发频率与触发强度趋于 $0$/最小态（见定义~\ref{def:tex28-ch2-d3}）。
+\end{definition}
+
+\begin{definition}[D3（Gap 生成“期望频率/强度”：连续单调）]
+\label{def:tex28-ch2-d3}
+设基础速率与基础强度（预算）映射为
+\[
+  \rho(J):=\clamp\!\left(
+  r_{\min}+k\Bigl(\frac{(J-G_{\mathrm{on}})_{+}}{G_{\mathrm{scale}}}\Bigr)^{\alpha},\ r_{\min},r_{\max}\right),
+  \qquad
+  k>0,\ \alpha>0,
+\]
+\[
+  \beta(J):=\clamp\!\left(
+  b_{\min}+\kappa\Bigl(\frac{(J-G_{\mathrm{on}})_{+}}{G_{\mathrm{scale}}}\Bigr)^{\gamma},\ b_{\min},b_{\max}\right),
+  \qquad
+  \kappa>0,\ \gamma>0.
+\]
+定义命令对（含关断硬门控）为
+\[
+  r^{\mathrm{cmd}}_n := \indicator{J_n>G_{\mathrm{off}}}\cdot u_n\cdot \rho(J_n),
+  \qquad
+  b^{\mathrm{cmd}}_n := \indicator{J_n>G_{\mathrm{off}}}\cdot\bigl(b_{\min}+u_n(\beta(J_n)-b_{\min})\bigr).
+\]
+语义：$J$ 越大，$\rho(J),\beta(J)$ 连续单调不减，从而在门控开启区间内
+$r^{\mathrm{cmd}}$ 与 $b^{\mathrm{cmd}}$ 随 $J$ 非减；当 $J\le G_{\mathrm{off}}$ 时二者为 $0$，从而触发频率与触发强度归零。
+\end{definition}
+
+\begin{definition}[D4（强度越大，单次扭曲越耗算力：成本函数）]
+\label{def:tex28-ch2-d4}
+令每一次扭曲事件的算力成本为
+\[
+  c_{\mathrm{tw}}(b):[0,b_{\max}]\to\RR_{>0},
+\]
+并要求其满足工程上合理且便于审计的条件：
+\[
+  (\forall b_2\ge b_1)\ c_{\mathrm{tw}}(b_2)\ge c_{\mathrm{tw}}(b_1)\quad(\text{非减}),
+  \qquad
+  c_{\mathrm{tw}}\ \text{连续}.
+\]
+其中 $b$ 为该次事件的强度/预算（向量预算扩展见备注）。
+\end{definition}
+
+\begin{definition}[D5（可用算力：每单位时间上限）]
+\label{def:tex28-ch2-d5}
+令在时刻 $t_n$ 系统可分配给“扭曲子系统”的算力上限为
+\[
+  C^{\mathrm{avail}}_n\ge 0
+  \qquad(\text{单位：算力/秒，或 CPU 时间/秒等}).
+\]
+\end{definition}
+
+\begin{definition}[D6（核心耦合约束：频率--强度--算力）]
+\label{def:tex28-ch2-d6}
+把单位时间消耗的算力记为
+\[
+  \mathcal{C}_n := r^{\mathrm{exec}}_n\cdot c_{\mathrm{tw}}\bigl(b^{\mathrm{exec}}_n\bigr),
+\]
+并要求硬约束
+\[
+  \boxed{\ \mathcal{C}_n \le C^{\mathrm{avail}}_n\ }
+  \quad\Longleftrightarrow\quad
+  \boxed{\ r^{\mathrm{exec}}_n\cdot c_{\mathrm{tw}}\bigl(b^{\mathrm{exec}}_n\bigr)\le C^{\mathrm{avail}}_n\ }.
+\]
+这给出“把频率--强度--算力三者严格耦合为一个可审计约束系统”的最小形式接口。
+\end{definition}
+
+\subsection{引理（该约束的可解性/唯一性与可审计构造）}
+\label{subsec:tex28-ch2-lemmas}
+
+\begin{lemma}[L1（单参数缩放构造：存在唯一缩放因子）]
+\label{lem:tex28-ch2-l1}
+对每个 $n$，在 $r^{\mathrm{cmd}}_n>0$ 且 $b^{\mathrm{cmd}}_n\ge b_{\min}$ 的情形下，
+定义缩放因子 $m_n\in[0,1]$ 并令执行对为
+\[
+  r^{\mathrm{exec}}_n := m_n\,r^{\mathrm{cmd}}_n,
+  \qquad
+  b^{\mathrm{exec}}_n := b_{\min} + m_n\bigl(b^{\mathrm{cmd}}_n-b_{\min}\bigr).
+\]
+再定义函数
+\[
+  f_n(m):=\bigl(m\,r^{\mathrm{cmd}}_n\bigr)\cdot
+  c_{\mathrm{tw}}\!\bigl(b_{\min}+m(b^{\mathrm{cmd}}_n-b_{\min})\bigr),
+  \qquad m\in[0,1].
+\]
+则 $f_n(m)$ 关于 $m$ \textbf{严格单调递增}且连续，从而：
+\begin{itemize}
+  \item 若 $f_n(1)\le C^{\mathrm{avail}}_n$，取 $m_n=1$（不降级）；
+  \item 若 $f_n(1)> C^{\mathrm{avail}}_n$，则存在唯一 $m_n\in(0,1)$ 使 $f_n(m_n)=C^{\mathrm{avail}}_n$，
+  且可用二分法在区间 $[0,1]$ 上求得。
+\end{itemize}
+\end{lemma}
+
+\begin{Certificate}[证书 L1（连续非减成本 + 正系数乘积给出严格单调）]
+\label{cert:tex28-ch2-l1}
+证书由三部分组成：
+\begin{enumerate}
+  \item $c_{\mathrm{tw}}$ 连续且非减，且 $c_{\mathrm{tw}}(b)>0$（定义~\ref{def:tex28-ch2-d4}）；
+  \item $r^{\mathrm{cmd}}_n>0$ 为正系数；
+  \item $m\mapsto b_{\min}+m(b^{\mathrm{cmd}}_n-b_{\min})$ 为非减映射（因为 $b^{\mathrm{cmd}}_n\ge b_{\min}$）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+固定 $n$ 并记 $\Delta b_n:=b^{\mathrm{cmd}}_n-b_{\min}\ge 0$。
+取任意 $m_2>m_1$，则
+\[
+  m_2 r^{\mathrm{cmd}}_n > m_1 r^{\mathrm{cmd}}_n,
+  \qquad
+  b_{\min}+m_2\Delta b_n \ge b_{\min}+m_1\Delta b_n.
+\]
+由定义~\ref{def:tex28-ch2-d4} 的非减性，
+\[
+  c_{\mathrm{tw}}\!\bigl(b_{\min}+m_2\Delta b_n\bigr)\ \ge\ c_{\mathrm{tw}}\!\bigl(b_{\min}+m_1\Delta b_n\bigr)\ >\ 0.
+\]
+记
+\[
+  c_2:=c_{\mathrm{tw}}(b_{\min}+m_2\Delta b_n),
+  \qquad
+  c_1:=c_{\mathrm{tw}}(b_{\min}+m_1\Delta b_n).
+\]
+于是
+\[
+  \begin{aligned}
+    f_n(m_2)
+    &= (m_2 r^{\mathrm{cmd}}_n)\,c_2 \\
+    &\ge (m_2 r^{\mathrm{cmd}}_n)\,c_1 \\
+    &> (m_1 r^{\mathrm{cmd}}_n)\,c_1 \\
+    &= f_n(m_1),
+  \end{aligned}
+\]
+故 $f_n$ 严格单调递增。又由定义~\ref{def:tex28-ch2-d4} 的连续性，$f_n$ 连续，
+且 $f_n(0)=0$。当 $f_n(1)>C^{\mathrm{avail}}_n$ 时，介值定理保证存在 $m_n\in(0,1)$ 满足 $f_n(m_n)=C^{\mathrm{avail}}_n$；
+严格单调递增保证解唯一。证毕。
+\end{proof}
+
+\subsection{命题（性质：硬约束满足、稳定、以及 Gap 归零阻尼）}
+\label{subsec:tex28-ch2-props}
+
+\begin{proposition}[P1（硬算力约束必满足）]
+\label{prop:tex28-ch2-p1}
+对任意 $n$，按引理~\ref{lem:tex28-ch2-l1} 构造得到的 $(r^{\mathrm{exec}}_n,b^{\mathrm{exec}}_n)$ 满足硬约束
+\[
+  r^{\mathrm{exec}}_n\cdot c_{\mathrm{tw}}\bigl(b^{\mathrm{exec}}_n\bigr)\le C^{\mathrm{avail}}_n.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书 P1（根选择证书：取 $m_n=1$ 或取唯一根）]
+\label{cert:tex28-ch2-p1}
+证书为引理~\ref{lem:tex28-ch2-l1} 中对 $m_n$ 的分支选择：
+若 $f_n(1)\le C^{\mathrm{avail}}_n$ 取 $m_n=1$；
+否则取唯一 $m_n\in(0,1)$ 使 $f_n(m_n)=C^{\mathrm{avail}}_n$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由定义 $r^{\mathrm{exec}}_n,b^{\mathrm{exec}}_n$ 可知
+$r^{\mathrm{exec}}_n\cdot c_{\mathrm{tw}}(b^{\mathrm{exec}}_n)=f_n(m_n)$。
+若 $m_n=1$，则由分支条件 $f_n(1)\le C^{\mathrm{avail}}_n$ 直接得到不等式；
+若 $m_n$ 为唯一根，则 $f_n(m_n)=C^{\mathrm{avail}}_n$ 等号成立。
+故硬约束必满足。证毕。
+\end{proof}
+
+\begin{proposition}[P2（稳定性：强度越大自动压制频率，避免“高强度+高频率”同时失控）]
+\label{prop:tex28-ch2-p2}
+在 $c_{\mathrm{tw}}$ 非减的条件下（定义~\ref{def:tex28-ch2-d4}），硬约束
+\[
+  r^{\mathrm{exec}}_n\cdot c_{\mathrm{tw}}(b^{\mathrm{exec}}_n)\le C^{\mathrm{avail}}_n
+\]
+蕴含：对固定的 $C^{\mathrm{avail}}_n$，当 $b^{\mathrm{exec}}_n$ 增大时，$r^{\mathrm{exec}}_n$ 的可行上界不增。
+因此系统不会出现“Gap 大导致强度上升，同时又维持超高频率”而超算力的失稳路径。
+\end{proposition}
+
+\begin{Certificate}[证书 P2（乘积上界 + 成本非减）]
+\label{cert:tex28-ch2-p2}
+证书为：$c_{\mathrm{tw}}$ 非减且 $c_{\mathrm{tw}}(b)>0$，故对固定 $C^{\mathrm{avail}}$ 有
+\[
+  r^{\mathrm{exec}}\ \le\ \frac{C^{\mathrm{avail}}}{c_{\mathrm{tw}}(b^{\mathrm{exec}})},
+\]
+右侧随 $b^{\mathrm{exec}}$ 增大而不增。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由硬约束与 $c_{\mathrm{tw}}(b^{\mathrm{exec}}_n)>0$ 得
+\[
+  r^{\mathrm{exec}}_n \le \frac{C^{\mathrm{avail}}_n}{c_{\mathrm{tw}}(b^{\mathrm{exec}}_n)}.
+\]
+又由 $c_{\mathrm{tw}}$ 非减，$b^{\mathrm{exec}}_n$ 增大 $\Rightarrow c_{\mathrm{tw}}(b^{\mathrm{exec}}_n)$ 不减，
+从而右侧不增，故 $r^{\mathrm{exec}}_n$ 的可行上界不增。证毕。
+\end{proof}
+
+\begin{proposition}[P3（Gap 归零后的阻尼：执行频率与执行强度收敛到 0/最小态）]
+\label{prop:tex28-ch2-p3}
+当 $J_n\le G_{\mathrm{off}}$（特别地 $J_n\to 0$）时，
+\[
+  r^{\mathrm{cmd}}_n=b^{\mathrm{cmd}}_n=0
+  \quad\Longrightarrow\quad
+  r^{\mathrm{exec}}_n=0,
+  \qquad
+  b^{\mathrm{exec}}_n\in\{0,b_{\min}\}\ (\text{按实现口径约定}).
+\]
+\end{proposition}
+
+\begin{Certificate}[证书 P3（硬关断 + 阻尼门回落）]
+\label{cert:tex28-ch2-p3}
+证书为定义~\ref{def:tex28-ch2-d2} 的门控/阻尼与定义~\ref{def:tex28-ch2-d3} 的硬关断因子 $\indicator{J_n>G_{\mathrm{off}}}$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+若 $J_n\le G_{\mathrm{off}}$，则 $\indicator{J_n>G_{\mathrm{off}}}=0$，
+由定义~\ref{def:tex28-ch2-d3} 得 $r^{\mathrm{cmd}}_n=b^{\mathrm{cmd}}_n=0$。
+此时取 $r^{\mathrm{exec}}_n=0$ 可满足硬约束（左侧为 $0$），
+而 $b^{\mathrm{exec}}_n$ 仅作为“最小态/占位”字段按实现口径取 $0$ 或 $b_{\min}$。
+同时由定义~\ref{def:tex28-ch2-d2}，在跨阈值过程中 $q\to 0\Rightarrow u\to 0$，实现平滑衰减。证毕。
+\end{proof}
+
+\subsection{推论（统计力学“更快收敛”的可证书版本：在下降假设下）}
+\label{subsec:tex28-ch2-corollaries}
+
+\begin{assumption}[H2（单次扭曲的期望下降证书：$\delta(J,b)$ 单调）]
+\label{assu:tex28-ch2-h2}
+存在函数 $\delta(J,b)\ge 0$ 使得“每次扭曲事件”在条件 $(J,b)$ 下对势能的期望下降满足
+\[
+  \mathbb{E}[\Delta\Phi\mid J,b]\ \ge\ \delta(J,b),
+  \qquad
+  \delta\ \text{对 }J,b\text{分别非减}.
+\]
+\end{assumption}
+
+\begin{corollary}[C1（在 H2 下，Gap 驱动调速在算力边界内最大化下降漂移）]
+\label{cor:tex28-ch2-c1}
+在假设~\ref{assu:tex28-ch2-h2} 下，单位时间期望下降率可粗略下界为
+\[
+  \frac{d}{dt}\mathbb{E}[\Phi]\ \lesssim\ -\,\mathbb{E}\Bigl[r^{\mathrm{exec}}(t)\cdot \delta\bigl(J(t),b^{\mathrm{exec}}
+    (t)\bigr)\Bigr].
+\]
+而由定义~\ref{def:tex28-ch2-d3}，当 $J$ 大时命令对 $(r^{\mathrm{cmd}},b^{\mathrm{cmd}})$ 增大；
+即便触及算力上限，引理~\ref{lem:tex28-ch2-l1} 与命题~\ref{prop:tex28-ch2-p1} 仍把系统推到可用算力边界（等号或不超过），
+从而在允许范围内提升耗散强度，典型表现为：更快把 $J$ 拉回阈值以下，再由门控/阻尼降速避免零附近抖动。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（事件强度 × 单步下降证书 + 约束饱和构造）]
+\label{cert:tex28-ch2-c1}
+证书由两部分构成：
+\begin{enumerate}
+  \item 单步下降证书：假设~\ref{assu:tex28-ch2-h2}；
+  \item 约束饱和证书：引理~\ref{lem:tex28-ch2-l1} 的根选择使 $f_n(m_n)$ 取到 $C^{\mathrm{avail}}_n$（当资源不足时）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由假设~\ref{assu:tex28-ch2-h2}，单次事件的期望势能下降量不小于 $\delta(J,b)$；
+将单位时间事件强度视为 $r^{\mathrm{exec}}$，则单位时间期望下降漂移量级 $\approx r^{\mathrm{exec}}\delta(J,b^{\mathrm{exec}})$。
+另一方面，若 $f_n(1)>C^{\mathrm{avail}}_n$，引理~\ref{lem:tex28-ch2-l1} 取唯一根使 $f_n(m_n)=C^{\mathrm{avail}}_n$，
+即在约束允许范围内“用满”可用算力；若 $f_n(1)\le C^{\mathrm{avail}}_n$，则不降级直接执行命令对。
+因此在该证书前提下，gap 驱动调速在算力边界内提升下降漂移，并在 $J$ 回落后由门控/阻尼自动降速。证毕。
+\end{proof}
+
+\subsection{备注（实现与审计字段：把“耦合约束”变成可验证事实）}
+\label{subsec:tex28-ch2-remarks}
+
+\begin{remark}[最小落盘字段（建议新增三项）]
+除第~\ref{sec:tex28-ch1}~章已给出的日志字段外，建议至少新增三项以直接审计算力耦合：
+\[
+  c_{\mathrm{tw}}\bigl(b^{\mathrm{exec}}_n\bigr),
+  \qquad
+  \mathcal{C}_n=r^{\mathrm{exec}}_n\,c_{\mathrm{tw}}\bigl(b^{\mathrm{exec}}_n\bigr),
+  \qquad
+  C^{\mathrm{avail}}_n.
+\]
+这样可逐点验证 $\mathcal{C}_n\le C^{\mathrm{avail}}_n$，并可回溯“为何无法更快/更强”（是命令不足还是资源不足）。
+\end{remark}
+
+\begin{remark}[为何选择 L1 的“单参数缩放”]
+该构造给出：
+\begin{itemize}
+  \item 明确的存在唯一性（引理~\ref{lem:tex28-ch2-l1}），可形成可审计的根证书（区间收缩/二分迭代记录）；
+  \item 不需要求解非凸优化；
+  \item 退化时同时降低频率与强度（$m$ 同时作用于 $r$ 与 $b$），属于平滑降级，通常比只砍频率或只砍强度更稳定。
+\end{itemize}
+\end{remark}
+
+\begin{remark}[向量预算扩展]
+若预算为向量 $\mathbf{b}\in\RR_{\ge 0}^{K}$，
+令成本函数为 $c_{\mathrm{tw}}(\mathbf{b})$（对每一分量非减且连续），并把
+$b_{\min}+m(b^{\mathrm{cmd}}-b_{\min})$ 替换为
+$\mathbf{b}_{\min}+m(\mathbf{b}^{\mathrm{cmd}}-\mathbf{b}_{\min})$，
+则由“分量非减 $\Rightarrow$ 复合非减”同样得到 $f_n(m)$ 的严格单调递增与唯一根结论，证明骨架不变。
+\end{remark}
+
+\begin{remark}[工程口径上的“最大门控限制”]
+本质约束为
+\[
+  r^{\mathrm{exec}}_n\,c_{\mathrm{tw}}(b^{\mathrm{exec}}_n)\le C^{\mathrm{avail}}_n.
+\]
+并且当 $J\to 0$ 时由门控/阻尼使 $r^{\mathrm{exec}}\to 0$，从而避免零附近的过度扭曲与抖动（命题~\ref{prop:tex28-ch2-p3}）。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{单一可审计递推系统：门控/阻尼 + 调速/调强 + 算力耦合 + 积分触发 + 冷却 + 抗饱和 + 安全退化}
+\label{sec:tex28-ch3}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心目标（单一递推状态机）]
+把第~\ref{sec:tex28-ch1}--\ref{sec:tex28-ch2}~章的要点合并为一个\textbf{单一可审计递推系统}：
+同一套 gap 同时驱动（i）连续调速/调强的命令值，（ii）算力耦合的硬约束缩放，（iii）积分触发与冷却，
+并在异常时进入安全模式（safe）退化。该章给出可直接落盘重放的最小状态机接口与逐条验收谓词。
+\end{remark}
+
+\subsection{定义（单一可审计递推系统：输入/状态/输出 + 全部递推规则）}
+\label{subsec:tex28-ch3-defs}
+采用离散时钟
+\[
+  t_n=n\Delta t,\qquad n\in\NN,\ \Delta t>0.
+\]
+
+\begin{definition}[D0（输入、状态、输出）]
+\label{def:tex28-ch3-d0}
+每个 tick 的\textbf{输入/可观测量}为
+\[
+  J^{\mathrm{raw}}_{n}\in\RR_{\ge 0},
+  \qquad
+  C^{\mathrm{avail}}_{n}\in\RR_{\ge 0},
+  \qquad
+  \mathrm{err}_{n}\in\{0,1\},
+  \qquad
+  \Delta t.
+\]
+其中 $J^{\mathrm{raw}}_n$ 为原始 Jacobi Gap，$C^{\mathrm{avail}}_n$ 为单位时间可用于“扭曲子系统”的算力预算，
+$\mathrm{err}_n$ 为执行回执中的异常指示（由运行时/执行器给出；无触发时可约定为 $0$）。
+
+系统内部\textbf{状态}（递推变量）记为
+\[
+  \mathcal{S}_n := \bigl(J_n,\ q_n,\ u_n,\ s_n,\ t^{\mathrm{last}}_n,\ \sigma_n,\ \mathrm{count}_n\bigr),
+\]
+其中：$J_n$ 为平滑 gap；$q_n\in\{0,1\}$ 为二值门控；$u_n\in[0,1]$ 为阻尼门（连续启用因子）；
+$s_n\in[0,s_{\max}]$ 为积分器；$t^{\mathrm{last}}_n$ 为上次触发时间；
+$\sigma_n\in\{\mathrm{normal},\mathrm{safe}\}$ 为模式；$\mathrm{count}_n$ 为触发计数。
+
+每个 tick 的\textbf{输出/决策量}为
+\[
+  \mathrm{fire}_n\in\{0,1\},
+  \qquad
+  r^{\mathrm{exec}}_n\in\RR_{\ge 0},
+  \qquad
+  b^{\mathrm{exec}}_n\in[0,b_{\max}],
+\]
+其中 $\mathrm{fire}_n=1$ 表示本 tick 执行一次同伦扭曲；$r^{\mathrm{exec}}_n$ 为用于积分器累加的执行速率；
+$b^{\mathrm{exec}}_n$ 为（若触发）本次扭曲强度/预算。
+\end{definition}
+
+\begin{definition}[D1（平滑 Gap：EMA）]
+\label{def:tex28-ch3-d1}
+定义平滑 gap 为
+\[
+  J_{n+1}=(1-\lambda)J_n+\lambda J^{\mathrm{raw}}_{n+1},
+  \qquad
+  \lambda=\frac{\Delta t}{T_{\mathrm{ema}}}\in(0,1).
+\]
+\end{definition}
+
+\begin{definition}[D2（滞回门控 + 阻尼门）]
+\label{def:tex28-ch3-d2}
+给定阈值 $G_{\mathrm{on}}>G_{\mathrm{off}}\ge 0$。
+
+\textbf{门控} $q_n\in\{0,1\}$：
+\[
+  q_{n+1}=
+  \begin{cases}
+    1,& q_n=0\ \wedge\ J_{n+1}\ge G_{\mathrm{on}},\\
+    0,& q_n=1\ \wedge\ J_{n+1}\le G_{\mathrm{off}},\\
+    q_n,& \text{其他情形}.
+  \end{cases}
+\]
+
+\textbf{阻尼门} $u_n\in[0,1]$：
+\[
+  u_{n+1}=\clip\bigl(u_n+\eta(q_{n+1}-u_n),0,1\bigr),
+  \qquad
+  \eta=\frac{\Delta t}{T_{\mathrm{gate}}}\in(0,1].
+\]
+\end{definition}
+
+\begin{definition}[D3（连续调速/调强：Gap $\mapsto$ 速率与预算命令值）]
+\label{def:tex28-ch3-d3}
+设归一化超阈值幅度为
+\[
+  x_{n+1}:=\Bigl(\frac{(J_{n+1}-G_{\mathrm{on}})_{+}}{G_{\mathrm{scale}}}\Bigr)^{\alpha},
+  \qquad
+  \alpha>0,\ G_{\mathrm{scale}}>0.
+\]
+
+\textbf{命令速率}（连续单调、带上下限）定义为
+\[
+  \rho(J_{n+1}):=\clamp(r_{\min}+k\,x_{n+1},\ r_{\min},r_{\max}),
+  \qquad
+  k>0,\ 0\le r_{\min}\le r_{\max}.
+\]
+
+\textbf{命令预算}（同理）定义为
+\[
+  \beta(J_{n+1}):=\clamp(b_{\min}+\kappa\,x_{n+1}^{\gamma/\alpha},\ b_{\min},b_{\max}),
+  \qquad
+  \kappa>0,\ \gamma>0,\ 0\le b_{\min}\le b_{\max}.
+\]
+
+合成门控（保留“低于关断阈值强制 0”）：
+\[
+  r^{\mathrm{cmd}}_{n+1}:=\indicator{J_{n+1}>G_{\mathrm{off}}}\cdot u_{n+1}\cdot \rho(J_{n+1}),
+  \qquad
+  b^{\mathrm{cmd}}_{n+1}:=\indicator{J_{n+1}>G_{\mathrm{off}}}\cdot\bigl(b_{\min}+u_{n+1}(\beta(J_{n+1})-b_{\min})\bigr)
+    .
+\]
+该写法保证当 $r^{\mathrm{cmd}}_{n+1}>0$ 时有 $b^{\mathrm{cmd}}_{n+1}\ge b_{\min}$，以便与下面的单参数缩放构造兼容。
+\end{definition}
+
+\begin{definition}[D4（算力耦合：频率--强度--算力同一硬约束 + 单参数缩放构造）]
+\label{def:tex28-ch3-d4}
+令单次扭曲的算力成本为
+\[
+  c_{\mathrm{tw}}(b):[0,b_{\max}]\to\RR_{>0},
+  \qquad
+  b_2\ge b_1\Rightarrow c_{\mathrm{tw}}(b_2)\ge c_{\mathrm{tw}}(b_1),
+  \qquad
+  c_{\mathrm{tw}}\ \text{连续}.
+\]
+单位时间可用算力预算为 $C^{\mathrm{avail}}_{n+1}\ge 0$。执行对要求满足硬约束
+\[
+  \boxed{\ r^{\mathrm{exec}}_{n+1}\cdot c_{\mathrm{tw}}\!\bigl(b^{\mathrm{exec}}_{n+1}\bigr)\le C^{\mathrm{avail}}_{n+1}
+    \ }.
+\]
+
+给出确定性构造（单参数缩放）：取缩放因子 $m_{n+1}\in[0,1]$，令
+\[
+  r^{\mathrm{exec}}_{n+1}:=m_{n+1}\,r^{\mathrm{cmd}}_{n+1},
+  \qquad
+  b^{\mathrm{exec}}_{n+1}:=
+  \begin{cases}
+    0,& r^{\mathrm{cmd}}_{n+1}=0,\\
+    b_{\min}+m_{n+1}\bigl(b^{\mathrm{cmd}}_{n+1}-b_{\min}\bigr),& r^{\mathrm{cmd}}_{n+1}>0.
+  \end{cases}
+\]
+并定义
+\[
+  f_{n+1}(m):=\bigl(m\,r^{\mathrm{cmd}}_{n+1}\bigr)\cdot
+  c_{\mathrm{tw}}\!\bigl(b_{\min}+m(b^{\mathrm{cmd}}_{n+1}-b_{\min})\bigr).
+\]
+取
+\[
+  m_{n+1}:=
+  \begin{cases}
+    0,& r^{\mathrm{cmd}}_{n+1}=0,\\
+    1,& f_{n+1}(1)\le C^{\mathrm{avail}}_{n+1},\\
+    \text{唯一根 }m\in(0,1)\text{ 使 }f_{n+1}(m)=C^{\mathrm{avail}}_{n+1},& f_{n+1}(1)>C^{\mathrm{avail}}_{n+1}.
+  \end{cases}
+\]
+其中“唯一根”可用二分法在区间 $[0,1]$ 上求得（单调性见引理~\ref{lem:tex28-ch3-l2}）。
+\end{definition}
+
+\begin{definition}[D5（积分触发 + 抗饱和 + 冷却最小间隔）]
+\label{def:tex28-ch3-d5}
+积分器 $s_n\in[0,s_{\max}]$（建议 $s_{\max}\in[1,2]$）。
+
+若 $q_{n+1}=0$（退出扭曲态），则\textbf{强制清零}：
+\[
+  s_{n+1}=0,
+  \qquad
+  \mathrm{fire}_{n+1}=0,
+  \qquad
+  t^{\mathrm{last}}_{n+1}=t^{\mathrm{last}}_{n},
+  \qquad
+  \mathrm{count}_{n+1}=\mathrm{count}_n.
+\]
+
+若 $q_{n+1}=1$，则预更新为
+\[
+  s^{\mathrm{pre}}_{n+1}=\clip\bigl(s_n+r^{\mathrm{exec}}_{n+1}\Delta t,\ 0,\ s_{\max}\bigr).
+\]
+给定冷却最小间隔 $\Delta_{\min}>0$，触发谓词定义为
+\[
+  \mathrm{fire}_{n+1}:=
+  \indicator{s^{\mathrm{pre}}_{n+1}\ge 1}\cdot
+  \indicator{t_{n+1}-t^{\mathrm{last}}_{n}\ge \Delta_{\min}}\cdot
+  \indicator{\sigma_n=\mathrm{normal}}.
+\]
+触发更新为
+\[
+  \text{若 }\mathrm{fire}_{n+1}=1:\quad
+  s_{n+1}=s^{\mathrm{pre}}_{n+1}-1,\
+  t^{\mathrm{last}}_{n+1}=t_{n+1},\
+  \mathrm{count}_{n+1}=\mathrm{count}_n+1;
+\]
+\[
+  \text{若 }\mathrm{fire}_{n+1}=0:\quad
+  s_{n+1}=s^{\mathrm{pre}}_{n+1},\
+  t^{\mathrm{last}}_{n+1}=t^{\mathrm{last}}_{n},\
+  \mathrm{count}_{n+1}=\mathrm{count}_n.
+\]
+\end{definition}
+
+\begin{definition}[D6（失败退化：异常则进入安全模式）]
+\label{def:tex28-ch3-d6}
+令异常指示 $\mathrm{err}_{n+1}\in\{0,1\}$（由执行回执给出）。定义模式更新：
+\[
+  \sigma_{n+1}=
+  \begin{cases}
+    \mathrm{safe},& \sigma_n=\mathrm{normal}\ \wedge\ \mathrm{err}_{n+1}=1,\\
+    \mathrm{normal},& \sigma_n=\mathrm{safe}\ \wedge\ J_{n+1}\le G_{\mathrm{off}},\\
+    \sigma_n,& \text{其他情形}.
+  \end{cases}
+\]
+在 $\sigma_n=\mathrm{safe}$ 时，可覆盖命令值为固定低频低强度（仍保留关断）：
+\[
+  r^{\mathrm{cmd}}_{n+1}:=\indicator{J_{n+1}>G_{\mathrm{off}}}\cdot r_{\mathrm{safe}},
+  \qquad
+  b^{\mathrm{cmd}}_{n+1}:=\indicator{J_{n+1}>G_{\mathrm{off}}}\cdot b_{\mathrm{safe}},
+\]
+其中 $0\le r_{\mathrm{safe}}\le r_{\max}$ 且 $0\le b_{\mathrm{safe}}\le b_{\max}$，
+并继续经过定义~\ref{def:tex28-ch3-d4} 的算力缩放得到 $(r^{\mathrm{exec}}_{n+1},b^{\mathrm{exec}}_{n+1})$。
+\end{definition}
+
+\begin{definition}[D7（落盘字段：可审计性最小集合）]
+\label{def:tex28-ch3-d7}
+至少记录如下字段以支持逐 tick 重放与验收谓词检查：
+\[
+  \bigl(J^{\mathrm{raw}},J,\ q,\ u,\ r^{\mathrm{cmd}},b^{\mathrm{cmd}},\ m,\ r^{\mathrm{exec}},b^{\mathrm{exec}},\
+  c_{\mathrm{tw}}(b^{\mathrm{exec}}),\ C^{\mathrm{avail}},\ s,\ \mathrm{fire},\ t^{\mathrm{last}},\ \sigma,\
+    \mathrm{count}\bigr).
+\]
+\end{definition}
+
+\subsection{公理（降级为定理）}
+\label{subsec:tex28-ch3-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（确定性：同一输入序列 $\Rightarrow$ 同一输出与日志序列）]
+\label{thm:tex28-ch3-a1}
+固定参数集与初值 $\mathcal{S}_0$。
+对任意给定的输入序列 $\bigl(J^{\mathrm{raw}}_n,C^{\mathrm{avail}}_n,\mathrm{err}_n\bigr)_{n\ge 0}$，
+由定义~\ref{def:tex28-ch3-d1}--\ref{def:tex28-ch3-d7} 生成的状态序列 $(\mathcal{S}_n)_{n\ge 0}$
+以及输出序列 $\bigl(\mathrm{fire}_n,r^{\mathrm{exec}}_n,b^{\mathrm{exec}}_n\bigr)_{n\ge 0}$ 唯一确定。
+\end{theorem}
+
+\begin{Certificate}[证书 A1（数学归纳法证书：基步 + 归纳步的确定性递推）]
+\label{cert:tex28-ch3-a1}
+证书由两部分组成：
+\begin{enumerate}
+  \item 基步：给定初值 $\mathcal{S}_0$ 与输入 $(J^{\mathrm{raw}}_1,C^{\mathrm{avail}}_1,\mathrm{err}_1)$；
+  \item 归纳步：若 $\mathcal{S}_n$ 已确定，则按 D1--D7 依次计算 $J_{n+1}\Rightarrow(q_{n+1},u_{n+1})\Rightarrow(r^{\mathrm{cmd}}_{n+1},
+    b^{\mathrm{cmd}}_{n+1})\Rightarrow m_{n+1}\Rightarrow(r^{\mathrm{exec}}_{n+1},b^{\mathrm{exec}}_{n+1})
+    \Rightarrow(s_{n+1},\mathrm{fire}_{n+1},t^{\mathrm{last}}_{n+1},\mathrm{count}_{n+1})\Rightarrow\sigma_{n+1}$。
+  其中 $m_{n+1}$ 由单调函数的唯一根确定（引理~\ref{lem:tex28-ch3-l2}），二分法在固定精度下给出确定实现。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+对 $n$ 作数学归纳。
+\begin{itemize}
+  \item（基步）$n=0$ 时，$\mathcal{S}_0$ 与输入 $(J^{\mathrm{raw}}_1,C^{\mathrm{avail}}_1,\mathrm{err}_1)$ 给定。
+  由 D1 得 $J_1$；由 D2 得 $(q_1,u_1)$；由 D3 得 $(r^{\mathrm{cmd}}_1,b^{\mathrm{cmd}}_1)$；由 D4 得 $m_1$ 与 $(r^{\mathrm{exec}}_1,
+    b^{\mathrm{exec}}_1)$；
+  由 D5 得 $(s_1,\mathrm{fire}_1,t^{\mathrm{last}}_1,\mathrm{count}_1)$；由 D6 得 $\sigma_1$。因此一步输出与下一状态确定。
+  \item（归纳步）假设 $\mathcal{S}_n$ 已唯一确定。对输入 $(J^{\mathrm{raw}}_{n+1},C^{\mathrm{avail}}_{n+1},\mathrm{err}_{n+1})$，
+  由 D1--D3 给出确定的中间量 $J_{n+1},q_{n+1},u_{n+1},r^{\mathrm{cmd}}_{n+1},b^{\mathrm{cmd}}_{n+1}$；
+  由引理~\ref{lem:tex28-ch3-l2}，D4 中根 $m_{n+1}$（若需）存在且唯一，因此 $(r^{\mathrm{exec}}_{n+1},b^{\mathrm{exec}}_{n+1})$ 唯一确定；
+  再由 D5、D6 得到 $\mathcal{S}_{n+1}$ 与输出量唯一确定。
+\end{itemize}
+归纳完成。证毕。
+\end{proof}
+
+\subsection{引理（单调、唯一根、硬约束、零触发、冷却、抗饱和）}
+\label{subsec:tex28-ch3-lemmas}
+
+\begin{lemma}[L1（命令单调性：$J_2\ge J_1\Rightarrow \rho(J_2)\ge\rho(J_1)$，$\beta$ 同理）]
+\label{lem:tex28-ch3-l1}
+对任意 $J_2\ge J_1$，有
+\[
+  \rho(J_2)\ge \rho(J_1),
+  \qquad
+  \beta(J_2)\ge \beta(J_1),
+\]
+其中 $\rho,\beta$ 由定义~\ref{def:tex28-ch3-d3} 给出。
+\end{lemma}
+
+\begin{Certificate}[证书 L1（正部、幂函数与截断的单调复合）]
+\label{cert:tex28-ch3-l1}
+证书为：$J\mapsto(J-G_{\mathrm{on}})_{+}$ 非减；$z\mapsto z^{\alpha}$ 在 $z\ge 0$ 上非减；线性变换保持非减；
+$\clamp(\cdot,\cdot,\cdot)$ 保持非减。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:tex28-ch3-l1} 的单调复合性质，$J_2\ge J_1$ 逐步推出 $x(J_2)\ge x(J_1)$，再推出 $\rho(J_2)\ge\rho(J_1)$ 与 $\beta(J_2)
+  \ge\beta(J_1)$。证毕。
+\end{proof}
+
+\begin{lemma}[L2（算力缩放根的存在唯一性）]
+\label{lem:tex28-ch3-l2}
+在 $r^{\mathrm{cmd}}_{n+1}>0$ 且 $b^{\mathrm{cmd}}_{n+1}\ge b_{\min}$ 时，
+定义~\ref{def:tex28-ch3-d4} 中的函数 $f_{n+1}(m)$ 在 $m\in[0,1]$ 上连续且严格单调递增。
+因此当 $f_{n+1}(1)>C^{\mathrm{avail}}_{n+1}$ 时，存在唯一根 $m\in(0,1)$ 满足 $f_{n+1}(m)=C^{\mathrm{avail}}_{n+1}$。
+\end{lemma}
+
+\begin{Certificate}[证书 L2（连续非减成本 + 正系数乘积给出严格单调）]
+\label{cert:tex28-ch3-l2}
+证书由两部分组成：
+\begin{enumerate}
+  \item $c_{\mathrm{tw}}$ 连续、非减且严格正（定义~\ref{def:tex28-ch3-d4}）；
+  \item $m$ 增大同时使 $m r^{\mathrm{cmd}}$ 严格增大，并使插值点 $b_{\min}+m(b^{\mathrm{cmd}}-b_{\min})$ 不减（因 $b^{\mathrm{cmd}}\ge
+    b_{\min}$）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+固定 $n$ 并记 $\Delta b:=b^{\mathrm{cmd}}_{n+1}-b_{\min}\ge 0$。
+取任意 $m_2>m_1$，则 $m_2 r^{\mathrm{cmd}}_{n+1}>m_1 r^{\mathrm{cmd}}_{n+1}$，且
+$b_{\min}+m_2\Delta b\ge b_{\min}+m_1\Delta b$。
+由 $c_{\mathrm{tw}}$ 非减且正，得
+\[
+  c_{\mathrm{tw}}(b_{\min}+m_2\Delta b)\ge c_{\mathrm{tw}}(b_{\min}+m_1\Delta b)>0.
+\]
+记
+\[
+  c_2:=c_{\mathrm{tw}}(b_{\min}+m_2\Delta b),
+  \qquad
+  c_1:=c_{\mathrm{tw}}(b_{\min}+m_1\Delta b).
+\]
+于是
+\[
+  \begin{aligned}
+    f_{n+1}(m_2)
+    &= (m_2 r^{\mathrm{cmd}}_{n+1})\,c_2 \\
+    &\ge (m_2 r^{\mathrm{cmd}}_{n+1})\,c_1 \\
+    &> (m_1 r^{\mathrm{cmd}}_{n+1})\,c_1 \\
+    &= f_{n+1}(m_1),
+  \end{aligned}
+\]
+故严格递增。连续性由 $c_{\mathrm{tw}}$ 连续与代数运算封闭得到。再由 $f_{n+1}(0)=0$ 与介值定理得根存在，严格单调得根唯一。证毕。
+\end{proof}
+
+\begin{lemma}[L3（硬算力约束必满足）]
+\label{lem:tex28-ch3-l3}
+按定义~\ref{def:tex28-ch3-d4} 构造得到的执行对满足
+\[
+  r^{\mathrm{exec}}_{n+1}\cdot c_{\mathrm{tw}}\!\bigl(b^{\mathrm{exec}}_{n+1}\bigr)\le C^{\mathrm{avail}}_{n+1}.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L3（根选择证书：取 $m=1$ 或取唯一根）]
+\label{cert:tex28-ch3-l3}
+证书为 D4 中对 $m_{n+1}$ 的分支选择：若 $f_{n+1}(1)\le C^{\mathrm{avail}}_{n+1}$ 则取 $m_{n+1}=1$；
+否则取唯一根使 $f_{n+1}(m_{n+1})=C^{\mathrm{avail}}_{n+1}$；若 $r^{\mathrm{cmd}}_{n+1}=0$ 则取 $m_{n+1}=0$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 D4 的定义，有
+\[
+  r^{\mathrm{exec}}_{n+1}\cdot c_{\mathrm{tw}}(b^{\mathrm{exec}}_{n+1})=f_{n+1}(m_{n+1}).
+\]
+若 $m_{n+1}=0$，左侧为 $0$；
+若 $m_{n+1}=1$，则由分支条件得 $f_{n+1}(1)\le C^{\mathrm{avail}}_{n+1}$；
+若 $m_{n+1}$ 为根，则等号成立。故结论成立。证毕。
+\end{proof}
+
+\begin{lemma}[L4（低于关断阈值强制零触发）]
+\label{lem:tex28-ch3-l4}
+若 $J_{n+1}\le G_{\mathrm{off}}$，则
+\[
+  \mathrm{fire}_{n+1}=0,
+  \qquad
+  r^{\mathrm{exec}}_{n+1}=0,
+  \qquad
+  s_{n+1}=0.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L4（硬关断 + 关断清零）]
+\label{cert:tex28-ch3-l4}
+证书为：D3 中的硬关断因子 $\indicator{J_{n+1}>G_{\mathrm{off}}}$ 使 $r^{\mathrm{cmd}}_{n+1}=0$；
+D5 中 $q_{n+1}=0\Rightarrow s_{n+1}=0$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+若 $J_{n+1}\le G_{\mathrm{off}}$，则 $\indicator{J_{n+1}>G_{\mathrm{off}}}=0$。
+由 D3 得 $r^{\mathrm{cmd}}_{n+1}=0$，由 D4 得 $r^{\mathrm{exec}}_{n+1}=0$。
+同时由 D2 的门控规则得 $q_{n+1}=0$，再由 D5 的关断清零分支得 $s_{n+1}=0$ 且 $\mathrm{fire}_{n+1}=0$。证毕。
+\end{proof}
+
+\begin{lemma}[L5（冷却：两次触发间隔 $\ge\Delta_{\min}$）]
+\label{lem:tex28-ch3-l5}
+若 $\mathrm{fire}_{n_1}=1$ 与 $\mathrm{fire}_{n_2}=1$ 且 $n_2>n_1$，则
+\[
+  t_{n_2}-t_{n_1}\ge \Delta_{\min}.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L5（冷却谓词 + 触发时更新时间戳）]
+\label{cert:tex28-ch3-l5}
+证书为：D5 中触发谓词含 $\indicator{t_{n+1}-t^{\mathrm{last}}_{n}\ge\Delta_{\min}}$，且触发时更新 $t^{\mathrm{last}}_{n+1}=t_{n+1}$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 D5，若 $\mathrm{fire}_{n_1}=1$，则 $t^{\mathrm{last}}_{n_1}=t_{n_1}$（或在相邻索引下更新为当前触发时刻）。
+对任意后续触发 $\mathrm{fire}_{n_2}=1$，其谓词要求 $t_{n_2}-t^{\mathrm{last}}_{n_2-1}\ge\Delta_{\min}$。
+由于 $t^{\mathrm{last}}$ 在两次触发之间保持为上次触发时刻，得到 $t_{n_2}-t_{n_1}\ge\Delta_{\min}$。证毕。
+\end{proof}
+
+\begin{lemma}[L6（抗积分饱和：$0\le s_n\le s_{\max}$ 恒成立）]
+\label{lem:tex28-ch3-l6}
+对任意 $n\ge 0$，均有 $0\le s_n\le s_{\max}$。
+\end{lemma}
+
+\begin{Certificate}[证书 L6（$\clip(\cdot,0,s_{\max})$ 与关断清零）]
+\label{cert:tex28-ch3-l6}
+证书为：D5 中 $s^{\mathrm{pre}}_{n+1}=\clip(s_n+r^{\mathrm{exec}}_{n+1}\Delta t,0,s_{\max})$，
+且在关断时直接令 $s_{n+1}=0$。
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法 + 谓词因果链）]
+基步：由初值假设 $s_0\in[0,s_{\max}]$。
+归纳步：若 $q_{n+1}=0$，则 $s_{n+1}=0\in[0,s_{\max}]$；
+若 $q_{n+1}=1$，则由 $\clip(\cdot,0,s_{\max})$ 得 $s^{\mathrm{pre}}_{n+1}\in[0,s_{\max}]$。
+触发更新至多减去 $1$，且触发仅在 $s^{\mathrm{pre}}_{n+1}\ge 1$ 时发生，故 $s_{n+1}=s^{\mathrm{pre}}_{n+1}-1\ge 0$；
+不触发时 $s_{n+1}=s^{\mathrm{pre}}_{n+1}$。故 $s_{n+1}\in[0,s_{\max}]$。证毕。
+\end{proof}
+
+\subsection{命题（Gap 驱动加速/减速、归零阻尼与阈值抖动抑制）}
+\label{subsec:tex28-ch3-props}
+
+\begin{proposition}[P1（Gap 增大 $\Rightarrow$ 命令速率/预算非减；Gap 归零 $\Rightarrow$ 执行量阻尼到 0）]
+\label{prop:tex28-ch3-p1}
+在固定参数集下：
+\begin{enumerate}
+  \item 若 $J$ 增大，则 $\rho(J)$ 与 $\beta(J)$ 非减（引理~\ref{lem:tex28-ch3-l1}），从而在门控开启区间内
+  $r^{\mathrm{cmd}}$ 与 $b^{\mathrm{cmd}}$ 随 $J$ 非减（见 D2--D3）；
+  \item 当 $J_{n+1}\le G_{\mathrm{off}}$（特别地 $J\to 0$）时，
+  $r^{\mathrm{cmd}}_{n+1}=b^{\mathrm{cmd}}_{n+1}=0$，且 $r^{\mathrm{exec}}_{n+1}=0$、$s_{n+1}=0$、$\mathrm{fire}_{n+1}
+    =0$（引理~\ref{lem:tex28-ch3-l4}）。
+\end{enumerate}
+\end{proposition}
+
+\begin{Certificate}[证书 P1（单调命令映射 + 硬关断 + 阻尼门 + 关断清零）]
+\label{cert:tex28-ch3-p1}
+证书为：引理~\ref{lem:tex28-ch3-l1}、D2--D3 的门控/阻尼结构、以及引理~\ref{lem:tex28-ch3-l4} 的零触发结论。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+\begin{itemize}
+  \item（单调命令）由引理~\ref{lem:tex28-ch3-l1} 得 $\rho,\beta$ 关于 $J$ 非减；
+  在 $J>G_{\mathrm{off}}$ 且同一门控态内，D3 给出 $r^{\mathrm{cmd}}=u\rho(J)$、$b^{\mathrm{cmd}}=b_{\min}+u(\beta(J)-b_{\min})$，
+  由 $u\ge 0$ 与单调性得到命令量随 $J$ 非减。
+  \item（归零阻尼）当 $J_{n+1}\le G_{\mathrm{off}}$ 时由引理~\ref{lem:tex28-ch3-l4} 得
+  $r^{\mathrm{exec}}_{n+1}=0,s_{n+1}=0,\mathrm{fire}_{n+1}=0$。证毕。
+\end{itemize}
+\end{proof}
+
+\begin{proposition}[P2（避免阈值附近抖动：滞回 + 阻尼门 + 积分触发 + 冷却）]
+\label{prop:tex28-ch3-p2}
+阈值附近的主要风险来自噪声使 $J$ 在阈值附近来回波动而导致频繁触发。
+在 D2 与 D5 下：
+滞回要求跨越 $G_{\mathrm{on}}-G_{\mathrm{off}}>0$ 才发生门控往返切换；
+阻尼门把门控阶跃变为缓变；
+积分触发把连续速率变为“累计到 1 才触发”，并叠加冷却约束 $\Delta_{\min}$。
+因此阈值附近小幅噪声不会诱发高频重复触发。
+\end{proposition}
+
+\begin{Certificate}[证书 P2（滞回间隔 + 一阶阻尼 + 积分阈值 + 冷却谓词）]
+\label{cert:tex28-ch3-p2}
+证书为：D2 的 $G_{\mathrm{on}}-G_{\mathrm{off}}$ 滞回间隔与 $u$ 的一阶阻尼；D5 的积分阈值 $s^{\mathrm{pre}}\ge 1$ 与冷却谓词。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:tex28-ch3-p2}：
+若噪声不足以跨越 $G_{\mathrm{on}}-G_{\mathrm{off}}$，则 $q$ 不会频繁翻转；
+即便 $q$ 翻转，$u$ 仍按阻尼递推缓变；
+触发必须同时满足积分阈值与冷却谓词，故短时抖动难以产生密集触发。证毕。
+\end{proof}
+
+\subsection{推论（逐条验收谓词：可直接对日志验证）}
+\label{subsec:tex28-ch3-corollaries}
+
+\begin{corollary}[C1（验收：关断区 0 触发）]
+\label{cor:tex28-ch3-c1}
+\[
+  \forall n,\ J_n\le G_{\mathrm{off}}\ \Rightarrow\ (\mathrm{fire}_n=0\ \wedge\ r^{\mathrm{exec}}_n=0\ \wedge\ s_n=0).
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C1（直接调用 L4）]
+\label{cert:tex28-ch3-c1}
+证书为引理~\ref{lem:tex28-ch3-l4}。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由引理~\ref{lem:tex28-ch3-l4} 直接得到。证毕。
+\end{proof}
+
+\begin{corollary}[C2（验收：单调性——检查命令映射而非受算力扰动的执行量）]
+\label{cor:tex28-ch3-c2}
+\[
+  J_i<J_j\ \Rightarrow\ \rho(J_i)\le\rho(J_j),\ \beta(J_i)\le\beta(J_j).
+\]
+工程上等价于：对相同参数集，检查日志中 $(J,\rho(J))$ 与 $(J,\beta(J))$ 的反例不存在。
+\end{corollary}
+
+\begin{Certificate}[证书 C2（由 L1 直接得到）]
+\label{cert:tex28-ch3-c2}
+证书为引理~\ref{lem:tex28-ch3-l1}。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由引理~\ref{lem:tex28-ch3-l1} 得 $\rho,\beta$ 关于 $J$ 非减，故结论成立。证毕。
+\end{proof}
+
+\begin{corollary}[C3（验收：算力硬约束）]
+\label{cor:tex28-ch3-c3}
+\[
+  \forall n,\ r^{\mathrm{exec}}_n\cdot c_{\mathrm{tw}}\!\bigl(b^{\mathrm{exec}}_n\bigr)\le C^{\mathrm{avail}}_n.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C3（直接调用 L3）]
+\label{cert:tex28-ch3-c3}
+证书为引理~\ref{lem:tex28-ch3-l3}。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由引理~\ref{lem:tex28-ch3-l3} 直接得到。证毕。
+\end{proof}
+
+\begin{corollary}[C4（验收：冷却最小间隔）]
+\label{cor:tex28-ch3-c4}
+若 $\mathrm{fire}_{n_1}=\mathrm{fire}_{n_2}=1$ 且 $n_2>n_1$，则
+\[
+  t_{n_2}-t_{n_1}\ge \Delta_{\min}.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C4（直接调用 L5）]
+\label{cert:tex28-ch3-c4}
+证书为引理~\ref{lem:tex28-ch3-l5}。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由引理~\ref{lem:tex28-ch3-l5} 直接得到。证毕。
+\end{proof}
+
+\begin{corollary}[C5（验收：抗积分饱和）]
+\label{cor:tex28-ch3-c5}
+\[
+  \forall n,\ 0\le s_n\le s_{\max}.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C5（直接调用 L6）]
+\label{cert:tex28-ch3-c5}
+证书为引理~\ref{lem:tex28-ch3-l6}。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由引理~\ref{lem:tex28-ch3-l6} 直接得到。证毕。
+\end{proof}
+
+\begin{corollary}[C6（验收：高 gap 区间触发更密集、回落同步降速——分桶统计口径）]
+\label{cor:tex28-ch3-c6}
+取两个按 $J$ 分桶的区间 $\mathcal{B}_1<\mathcal{B}_2$（即 $\sup\mathcal{B}_1\le\inf\mathcal{B}_2$）。
+在\textbf{未被冷却/算力饱和截断}的样本子集上（例如筛选 $\sigma=\mathrm{normal}$ 且不处于冷却阻塞与算力饱和），经验上应满足：
+\[
+  \mathbb{E}[\mathrm{fire}\mid J\in\mathcal{B}_2]\ge \mathbb{E}[\mathrm{fire}\mid J\in\mathcal{B}_1],
+\]
+并且当 $J$ 回落时 $r^{\mathrm{cmd}}$ 与 $r^{\mathrm{exec}}$ 同步回落直至关断为 $0$。
+\end{corollary}
+
+\begin{Certificate}[证书 C6（由 P1 的驱动律与 D5 的触发结构给出经验口径）]
+\label{cert:tex28-ch3-c6}
+证书为：命题~\ref{prop:tex28-ch3-p1} 给出 $J$ 增大时命令速率/预算不减；D5 把 $r^{\mathrm{exec}}$ 通过积分阈值转为触发事件；
+在不被冷却与算力饱和截断时，较大 $r^{\mathrm{exec}}$ 倾向于更快累积跨越阈值，从而触发更密集。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由命题~\ref{prop:tex28-ch3-p1}，在门控开启区间内 $J$ 越大，命令量 $r^{\mathrm{cmd}}$ 与 $b^{\mathrm{cmd}}$ 不减；
+由 D4 与算力约束，执行量 $r^{\mathrm{exec}}$ 为对命令量的缩放（或等于命令量），因此随 $J$ 增大而不趋于更小的趋势成立。
+由 D5，积分器以速率 $r^{\mathrm{exec}}$ 注入并在达到阈值后触发一次并扣减 $1$；
+在不被冷却与算力饱和截断时，较大的 $r^{\mathrm{exec}}$ 导致更快跨越阈值，从而触发更密集的经验现象成立。
+当 $J$ 回落并进入关断区间时，由引理~\ref{lem:tex28-ch3-l4} 得 $r^{\mathrm{exec}}=0$ 并停止触发。证毕。
+\end{proof}
+
+\subsection{备注（实现侧最小注意点）}
+\label{subsec:tex28-ch3-remarks}
+
+\begin{remark}[为何在 $q=0$ 时把 $s$ 强制清零]
+这是把“关断区 0 触发”变成结构性不变量：即便历史上 $s_n$ 有残留，退出扭曲态后也不会在低风险区被意外触发。
+\end{remark}
+
+\begin{remark}[命令量与执行量分离]
+单调性验收优先针对 $(J,\rho)$、$(J,\beta)$ 或 $(J,r^{\mathrm{cmd}})$，因为 $r^{\mathrm{exec}}$ 会被算力约束与冷却截断，可能不再严格单调。
+\end{remark}
+
+\begin{remark}[算力成本函数 $c_{\mathrm{tw}}(b)$ 的最小要求]
+只要满足“连续 + 非减 + 严格正”，引理~\ref{lem:tex28-ch3-l2}--\ref{lem:tex28-ch3-l3} 的存在唯一性与硬约束结论成立；
+工程上可取线性或分段线性以便审计。
+\end{remark}
+
+\begin{remark}[建议参数（工程建议，不影响形式证明）]
+建议取 $s_{\max}\in[1,2]$、$\Delta_{\min}\ge\Delta t$，
+并令滞回裕量 $G_{\mathrm{on}}-G_{\mathrm{off}}$ 大于噪声尺度，以进一步抑制阈值附近震荡。
+\end{remark}
+
+\begin{remark}[向量预算与动作分配扩展]
+若预算为向量 $\mathbf{b}\in\RR_{\ge 0}^{K}$，可把 $b^{\mathrm{cmd}}_n,b^{\mathrm{exec}}_n$ 替换为
+$\mathbf{b}^{\mathrm{cmd}}_n,\mathbf{b}^{\mathrm{exec}}_n$，
+并把成本函数改为 $c_{\mathrm{tw}}(\mathbf{b})$（对每一分量非减且连续）。
+将 D4 的线性插值替换为
+\[
+  \mathbf{b}^{\mathrm{exec}}_{n+1}=\mathbf{b}_{\min}+m_{n+1}\bigl(\mathbf{b}^{\mathrm{cmd}}_{n+1}-\mathbf{b}_{\min}\bigr)
+    ,
+\]
+则 $m\mapsto f_{n+1}(m)$ 的严格单调性证明骨架不变，从而存在唯一根与硬约束结论保持成立。
+进一步地，可把 $\mathbf{b}$ 的各分量对应到不同算子族/动作层（例如 pred/param、algo/org、strong repair），即可把“动作分配”并入同一可审计状态机。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{连续时间口径：势能驱动、统计力学耗散解释与算力上限门控}
+\label{sec:tex28-ch4}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本章与前三章的关系]
+第~\ref{sec:tex28-ch1}~章给出离散 tick 口径的可审计闭环接口（便于落盘重放与验收谓词化）；
+第~\ref{sec:tex28-ch2}~章把频率--强度--算力写成同一条硬约束并给出单参数缩放的可解构造；
+第~\ref{sec:tex28-ch3}~章把门控/阻尼、算力耦合、积分触发、冷却与安全退化合并为单一递推状态机；
+本章给出连续时间口径的\textbf{势能解释}与\textbf{算力上限门控}，并提供一个统计力学式的耗散直观来解释
+“大 gap 加速修复、gap 归零阻尼回落”的机理。
+\end{remark}
+
+\subsection{定义（势能、门控阻尼、连续速率与算力门控）}
+\label{subsec:tex28-ch4-defs}
+
+\begin{definition}[D1（Jacobi Gap 作为“驱动势能”的代表量）]
+\label{def:tex28-ch4-d1}
+令系统状态为 $X(t)$。定义 Jacobi Gap 为
+\[
+  J(t):=\JacGap(X(t))\in\RR_{\ge 0}.
+\]
+把 $J(t)$ 视作缺陷势能的代表量（允许任取严格单调的势能映射），例如取
+\[
+  \Phi(t):=\Phi(J(t))=\frac12 J(t)^2.
+\]
+语义：$J$ 越大，结构不一致越强；$\Phi$ 越大，越需要“同伦扭曲修复”。
+\end{definition}
+
+\begin{definition}[D2（门控 + 阻尼：Gap 归零后“阻尼扭曲速率”）]
+\label{def:tex28-ch4-d2}
+给定滞回阈值 $G_{\mathrm{on}}>G_{\mathrm{off}}\ge 0$。
+定义门控状态 $q(t)\in\{0,1\}$（右连续、分段常数）满足：
+\[
+  q:0\to 1\ \text{当}\ J(t)\ge G_{\mathrm{on}},
+  \qquad
+  q:1\to 0\ \text{当}\ J(t)\le G_{\mathrm{off}},
+\]
+并在 $G_{\mathrm{off}}<J(t)<G_{\mathrm{on}}$ 区间保持前值（滞回）。
+
+为避免阶跃抖动，引入连续阻尼门 $u(t)\in[0,1]$，由一阶阻尼方程定义：
+\[
+  \dot u(t)=\frac{1}{T_{\mathrm{gate}}}\bigl(q(t)-u(t)\bigr),
+  \qquad
+  T_{\mathrm{gate}}>0.
+\]
+于是当 $J(t)\downarrow 0$（或进入 $J(t)\le G_{\mathrm{off}}$ 区间）时，有 $q(t)\to 0$ 且 $u(t)$ 平滑衰减，形成“扭曲速率阻尼”。
+\end{definition}
+
+\begin{definition}[D3（连续驱动速率：Gap 越大，扭曲触发越快）]
+\label{def:tex28-ch4-d3}
+设连续单调映射（典型形式）
+\[
+  \rho(J):=\clamp\!\left(
+  r_{\min}+k\Bigl(\frac{(J-G_{\mathrm{on}})_{+}}{G_{\mathrm{scale}}}\Bigr)^{\alpha},
+  \ r_{\min},\ r_{\max}\right),
+  \qquad
+  k>0,\ \alpha>0.
+\]
+最终有效扭曲触发速率（将“允许触发”与“触发强度”分离）定义为
+\[
+  r(t):=\indicator{J(t)>G_{\mathrm{off}}}\cdot u(t)\cdot \rho(J(t)).
+\]
+关键性质：
+\begin{itemize}
+  \item 当 $J(t)\le G_{\mathrm{off}}$ 时，$r(t)=0$（硬关断）；
+  \item 当 $J(t)$ 增大时，$\rho(J)$ 连续单调不减，因此在同一门控态内 $r(t)$ 随 $J(t)$ 连续增大；
+  \item 当 $J(t)\to 0$ 时，$q(t)\to 0,u(t)\to 0$ 且指示因子变为 $0$，从而 $r(t)$ 被阻尼到 $0$。
+\end{itemize}
+\end{definition}
+
+\begin{definition}[D4（算力最大门控：工程上受预算约束的上限）]
+\label{def:tex28-ch4-d4}
+令单位“同伦扭曲事件”（一次触发）所需算力成本为 $c_{\mathrm{tw}}>0$（可用 CPU 时间、毫秒或指令计数等表示）。
+设系统在单位物理时间可分配的算力预算为 $C_{\mathrm{avail}}(t)\ge 0$。
+定义可实现的最大事件速率上界为
+\[
+  r_{\mathrm{cap}}(t):=\frac{C_{\mathrm{avail}}(t)}{c_{\mathrm{tw}}}.
+\]
+实际执行速率取
+\[
+  r_{\mathrm{exec}}(t):=\min\bigl(r(t),\,r_{\mathrm{cap}}(t)\bigr).
+\]
+语义：gap 给出“需要多快修复”，算力上限给出“最多能多快修复”。
+\end{definition}
+
+\subsection{公理（降级为定理）}
+\label{subsec:tex28-ch4-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（驱动一致性：Gap 单调驱动速率且可阻尼归零，并受算力上限门控）]
+\label{thm:tex28-ch4-a1}
+在定义~\ref{def:tex28-ch4-d2}--\ref{def:tex28-ch4-d4} 下：
+\begin{enumerate}
+  \item 在门控开启区间（$J(t)>G_{\mathrm{off}}$ 且 $u(t)$ 固定或缓变）内，$J(t)$ 增大 $\Rightarrow$ $\rho(J(t))$ 不减 $\Rightarrow$ $r(t)$ 不减；
+
+  \item 若 $J(t)\downarrow 0$ 并进入 $J(t)\le G_{\mathrm{off}}$ 区间，则 $r(t)=0$（硬关断）且 $q(t)\to 0\Rightarrow u(t)\to 0$（阻尼回落）；
+  \item 工程上最大门控限制由 $r_{\mathrm{exec}}(t)=\min(r(t),r_{\mathrm{cap}}(t))$ 给出。
+\end{enumerate}
+\end{theorem}
+
+\begin{Certificate}[证书 A1（结构分解见证：单调映射 + 硬关断 + 阻尼回落 + 最小上界）]
+\label{cert:tex28-ch4-a1}
+证书由四个可审计构件组成：
+\begin{enumerate}
+  \item 单调映射：定义~\ref{def:tex28-ch4-d3} 中 $\rho(J)$ 由 $(\cdot)_{+}$、幂函数与 $\clamp$ 复合构成，且 $k,\alpha>0$；
+  \item 硬关断：$r(t)$ 含指示因子 $\indicator{J(t)>G_{\mathrm{off}}}$；
+  \item 阻尼回落：$u$ 满足 $\dot u=(q-u)/T_{\mathrm{gate}}$，当 $q\equiv 0$ 时指数衰减；
+  \item 算力上限：$r_{\mathrm{exec}}=\min(r,r_{\mathrm{cap}})$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+\begin{itemize}
+  \item（单调驱动）$J\uparrow \Rightarrow (J-G_{\mathrm{on}})_{+}\uparrow \Rightarrow \rho(J)\uparrow$（连续单调不减）；
+  在 $J>G_{\mathrm{off}}$ 区间，$\indicator{J>G_{\mathrm{off}}}=1$，且 $u(t)\ge 0$，故 $r(t)=u(t)\rho(J(t))$ 随 $J(t)$ 不减。
+  \item（阻尼归零）若 $J(t)\le G_{\mathrm{off}}$，则 $\indicator{J(t)>G_{\mathrm{off}}}=0\Rightarrow r(t)=0$（硬关断）。
+  同时门控切换使 $q(t)=0$，从而 $\dot u=-(1/T_{\mathrm{gate}})u$，故 $u(t)$ 指数回落至 $0$。
+  \item（算力门控）由定义~\ref{def:tex28-ch4-d4}，$r_{\mathrm{exec}}=\min(r,r_{\mathrm{cap}})$，给出工程可执行的最大门控约束。
+\end{itemize}
+证毕。
+\end{proof}
+
+\subsection{引理（统计力学视角下的收敛机理）}
+\label{subsec:tex28-ch4-lemmas}
+
+\begin{lemma}[L1（把“扭曲事件”视为受控的耗散强度：能量漂移项与 $r_{\mathrm{exec}}$ 成正比）]
+\label{lem:tex28-ch4-l1}
+以统计力学常见的耗散--噪声模型作抽象表述：设系统的变分自由度为 $\theta(t)$，势能为 $\Phi(\theta)$。
+把“同伦扭曲”抽象为提高耗散/控制增益 $a(t)$，令
+\[
+  d\theta = -a(t)\nabla \Phi(\theta)\,dt + \sqrt{2T}\,dW_t,
+  \qquad
+  a(t):=a_0+\gamma\, r_{\mathrm{exec}}(t),\ \gamma>0,
+\]
+其中 $W_t$ 为标准布朗运动，$T\ge 0$ 为噪声强度参数。
+则由伊藤公式，期望势能满足漂移结构
+\[
+  \frac{d}{dt}\mathbb{E}[\Phi(\theta(t))]
+  = -\mathbb{E}\bigl[a(t)\|\nabla\Phi(\theta(t))\|^2\bigr] + T\,\mathbb{E}[\Delta\Phi(\theta(t))].
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L1（伊藤公式与增益映射见证）]
+\label{cert:tex28-ch4-l1}
+证书由两部分构成：
+\begin{enumerate}
+  \item 伊藤公式：对扩散过程 $d\theta=b\,dt+\sigma\,dW_t$，有 $d\Phi=\nabla\Phi\cdot b\,dt + \frac12\mathrm{tr}
+    (\sigma\sigma^\top\nabla^2\Phi)\,dt + (\text{鞅项})$；
+  \item 增益映射：$a(t)=a_0+\gamma r_{\mathrm{exec}}(t)$ 使负漂移项幅度随 $r_{\mathrm{exec}}$ 增大而增大。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:tex28-ch4-l1} 的伊藤公式，对 $b=-a(t)\nabla\Phi$ 与 $\sigma=\sqrt{2T}I$ 得
+\[
+  \frac{d}{dt}\mathbb{E}[\Phi]
+  = \mathbb{E}[\nabla\Phi\cdot (-a\nabla\Phi)] + T\,\mathbb{E}[\Delta\Phi]
+  = -\mathbb{E}[a\|\nabla\Phi\|^2] + T\,\mathbb{E}[\Delta\Phi].
+\]
+又由 $r_{\mathrm{exec}}\uparrow \Rightarrow a\uparrow$，负漂移项 $-\mathbb{E}[a\|\nabla\Phi\|^2]$ 的幅度增大，
+从而在远离平衡（通常对应 $J$ 大、$\|\nabla\Phi\|$ 大）时能更快下降；
+而当 $J\to 0\Rightarrow r_{\mathrm{exec}}\to 0\Rightarrow a\downarrow$，
+可抑制噪声主导下的“随机游走抖动”。证毕。
+\end{proof}
+
+\subsection{命题（更快收敛 + 避免抖动：在可证书假设下）}
+\label{subsec:tex28-ch4-props}
+
+\begin{proposition}[P1（加速下降漂移：Gap 单调调速优于固定频率）]
+\label{prop:tex28-ch4-p1}
+设 $r_{\mathrm{exec}}(t)$ 为事件强度（单位时间触发次数的强度），并设预算 $b(t)=b(J(t))$ 随 $J$ 非减且有上界。
+假设存在 $\mu>0$ 使得每次扭曲事件在预算 $b$ 下对势能的\emph{条件期望下降量}满足
+\[
+  \mathbb{E}\bigl[\Phi(t^-)-\Phi(t^+)\mid J(t^-),b(t^-)\bigr]\ \ge\ \mu\, b(t^-)\,J(t^-).
+\]
+则在未触及算力饱和（$r_{\mathrm{exec}}(t)=r(t)$）的区间内，单位时间期望下降漂移满足
+\[
+  \frac{d}{dt}\mathbb{E}[\Phi(t)]\ \lesssim\ -\,\mu\,\mathbb{E}\bigl[r(J(t))\,b(J(t))\,J(t)\bigr].
+\]
+因此当 $r(J)$ 与 $b(J)$ 随 $J$ 非减时，大 $J$ 区间的下降漂移更强；相对固定频率 $r\equiv r_0$，可把“高 gap 阶段”的下降效率提高到同阶更大。
+\end{proposition}
+
+\begin{Certificate}[证书 P1（事件强度 × 单步下降证书的乘积下界）]
+\label{cert:tex28-ch4-p1}
+证书由三部分组成：
+\begin{enumerate}
+  \item 强度证书：$r_{\mathrm{exec}}(t)$ 表示单位时间的事件强度；
+  \item 单步下降证书：每事件的条件期望下降量 $\ge \mu bJ$；
+  \item 单调证书：$r(J)$、$b(J)$ 随 $J$ 非减且有上界（可审计）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:tex28-ch4-p1}：
+单位时间期望事件次数 $\approx r_{\mathrm{exec}}(t)$；
+每事件期望下降量 $\ge \mu b(t)J(t)$；
+二者相乘得到单位时间期望下降漂移的下界量级
+\[
+  \text{下降漂移}\ \gtrsim\ \mu\,\mathbb{E}[r_{\mathrm{exec}}(t)b(t)J(t)].
+\]
+在无饱和区间 $r_{\mathrm{exec}}(t)=r(t)=r(J(t))$，即可写成命题中的形式。
+当 $r(J)$ 与 $b(J)$ 随 $J$ 非减时，大 $J$ 取值带来更大的 $r(J)b(J)J$，从而下降漂移更强；
+固定频率 $r\equiv r_0$ 相当于把 $r(J)$ 替换为常数，在大 $J$ 区间显然更弱。证毕。
+\end{proof}
+
+\begin{proposition}[P2（避免抖动/过度扭曲：gap 归零阻尼 + 滞回门控抑制阈值附近震荡）]
+\label{prop:tex28-ch4-p2}
+在定义~\ref{def:tex28-ch4-d2}--\ref{def:tex28-ch4-d3} 下：
+阈值附近的主要风险来自噪声使 $J(t)$ 在阈值附近来回；滞回要求跨越 $G_{\mathrm{on}}-G_{\mathrm{off}}>0$ 才会翻转门控，
+阻尼门使速率不会随 $q$ 阶跃变化，且硬关断确保 $J(t)\le G_{\mathrm{off}}$ 时完全不再触发。
+因此从结构上消除“零附近过度扭曲”，并显著降低阈值附近的速率抖动。
+\end{proposition}
+
+\begin{Certificate}[证书 P2（滞回间隔 + 一阶阻尼 + 硬关断）]
+\label{cert:tex28-ch4-p2}
+证书为：
+\begin{itemize}
+  \item 滞回：定义~\ref{def:tex28-ch4-d2} 中 $G_{\mathrm{on}}-G_{\mathrm{off}}>0$；
+  \item 阻尼：$u$ 由 $\dot u=(q-u)/T_{\mathrm{gate}}$ 给出；
+  \item 硬关断：$r(t)$ 含指示因子 $\indicator{J(t)>G_{\mathrm{off}}}$。
+\end{itemize}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:tex28-ch4-p2}：
+噪声若不足以跨越 $G_{\mathrm{on}}-G_{\mathrm{off}}$，则门控状态 $q$ 不会频繁翻转；
+即便 $q$ 翻转，$u$ 也按一阶阻尼方程平滑变化，不产生阶跃；
+而当 $J(t)\le G_{\mathrm{off}}$ 时，硬关断使 $r(t)=0$，从结构上禁止零附近的重复触发。
+因此阈值附近抖动被滞回+阻尼+硬关断三重机制抑制。证毕。
+\end{proof}
+
+\subsection{推论（工程可落地的控制律：Gap 驱动 + 算力上限）}
+\label{subsec:tex28-ch4-corollaries}
+
+\begin{corollary}[C1（最终控制律一行式）]
+\label{cor:tex28-ch4-c1}
+连续时间口径下的最终控制律可写为
+\[
+  r_{\mathrm{exec}}(t)=\min\!\Bigl(
+  \indicator{J(t)>G_{\mathrm{off}}}\cdot u(t)\cdot
+  \clamp\!\bigl(r_{\min}+k((J(t)-G_{\mathrm{on}})_{+}/G_{\mathrm{scale}})^{\alpha},\ r_{\min},r_{\max}\bigr),
+  \ \frac{C_{\mathrm{avail}}(t)}{c_{\mathrm{tw}}}
+  \Bigr).
+\]
+并建议至少落盘：
+\[
+  (J^{\mathrm{raw}},J,u,q,r_{\mathrm{exec}},r_{\mathrm{cap}},b,\mathrm{trigger\_count}).
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C1（直接代入 D3--D4）]
+\label{cert:tex28-ch4-c1}
+证书为：由定义~\ref{def:tex28-ch4-d3} 给出 $r(t)$，由定义~\ref{def:tex28-ch4-d4} 给出 $r_{\mathrm{exec}}=\min(r,r_{\mathrm{cap}})$，
+  代入即得一行式。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由定义~\ref{def:tex28-ch4-d3} 与定义~\ref{def:tex28-ch4-d4} 逐项代入并合并得到。证毕。
+\end{proof}
+
+\subsection{备注（“也即 …”对应的最小必要条件与可审计扩展）}
+\label{subsec:tex28-ch4-remarks}
+
+\begin{remark}[“Gap 增大 $\Rightarrow$ 加大扭曲速率”的最小条件]
+要求 $\rho(J)$ 连续单调不减（定义~\ref{def:tex28-ch4-d3}，且 $k,\alpha>0$）。
+\end{remark}
+
+\begin{remark}[“Gap 归零 $\Rightarrow$ 阻尼扭曲速率”的最小条件]
+要求同时具备硬关断与平滑阻尼：
+\[
+  J\le G_{\mathrm{off}}\Rightarrow r=0,
+  \qquad
+  \dot u=(q-u)/T_{\mathrm{gate}}.
+\]
+\end{remark}
+
+\begin{remark}[“统计力学上更快收敛且避免抖动”的解释接口]
+在引理~\ref{lem:tex28-ch4-l1} 的能量漂移结构下，$a(t)$ 随 $r_{\mathrm{exec}}$ 增大可提升远离平衡时的耗散效率；
+而 $r_{\mathrm{exec}}\to 0$ 则抑制零附近噪声驱动的反复触发。
+\end{remark}
+
+\begin{remark}[“工程上基于算力的最大门控限制”的审计接口]
+用 $r_{\mathrm{cap}}(t)=C_{\mathrm{avail}}(t)/c_{\mathrm{tw}}$ 做硬上限（定义~\ref{def:tex28-ch4-d4}），并落盘 $r_{\mathrm{cap}}$，
+以便审计“为什么没能更快”（是 gap 不够大，还是算力不足）。
+\end{remark}
+
+\begin{remark}[把预算 $b(J)$ 纳入算力约束：频率--强度--算力三者耦合]
+若希望强度越大、单位事件算力越大，可把 $c_{\mathrm{tw}}$ 扩展为 $c_{\mathrm{tw}}(b)$，并改为满足约束
+\[
+  r_{\mathrm{exec}}(t)\cdot c_{\mathrm{tw}}(b(t))\ \le\ C_{\mathrm{avail}}(t).
+\]
+该约束把“频率--强度--算力”三者严格耦合为同一个可审计系统接口。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{抽象化形式逻辑口径：机制层增益与目标层未证（不依赖具体场景）}
+\label{sec:tex28-ch5}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[写作口径（抽象化）]
+本章仅讨论\textbf{机制层}：给定缺陷信号 $J$，如何生成可审计的触发过程与修复动作调用；
+不依赖任何具体交易/价格/品种场景，也不将“最终收益/效用”作为先验必然结论。
+结论分为两类：（i）机制层可证断言；（ii）目标层（效用函数 $\Pi$）无法仅由触发律推出的断言。
+\end{remark}
+
+\subsection{形式逻辑编排（定义 + 公理降级定理 + 引理 + 命题 + 推论 + 备注）}
+\label{subsec:tex28-ch5-logic-structure}
+
+为保证条目可审计、可复核，本章按如下形式逻辑顺序组织：
+\begin{enumerate}
+  \item 定义：给出对象、状态与约束；
+  \item 公理（降级为定理）：每条均附证书与证明；
+  \item 引理：给出机制层局部性质，并附证书与证明；
+  \item 命题：给出机制层/目标层结论边界，并附证书与证明；
+  \item 推论：给出量级直观结论，并附证书与证明；
+  \item 备注：用于解释、量化方案与验收口径，不替代证明。
+\end{enumerate}
+
+\subsection{定义（抽象化：不依赖任何具体交易/价格/品种场景）}
+\label{subsec:tex28-ch5-defs}
+
+\begin{definition}[D1（缺陷信号与修复动力）]
+\label{def:tex28-ch5-d1}
+令系统状态为 $x(t)\in\mathcal{X}$。定义非负缺陷信号
+\[
+  J(t):=\JacGap(x(t))\in\RR_{\ge 0},
+\]
+并将其视作“修复驱动力”的可观测代表量。允许把 $J$ 单调映射到势能
+\[
+  \Phi(t):=\Phi(J(t)),
+  \qquad
+  \Phi'(J)\ge 0,
+\]
+用于表述“缺陷越大 $\Rightarrow$ 需要更强/更密修复”的动力学直观。
+\end{definition}
+
+\begin{definition}[D2（触发计数过程与“修复动作”）]
+\label{def:tex28-ch5-d2}
+令 $N(t)\in\NN$ 为触发计数过程（累计触发次数，右连续、阶梯函数）。
+每次触发对应一次“同伦扭曲/修复动作” $\mathcal{T}$（实现不限定），其作用抽象为
+\[
+  x\ \mapsto\ \mathcal{T}(x; b),
+\]
+其中 $b\in[0,b_{\max}]$ 为该次动作的强度/预算。
+\end{definition}
+
+\begin{definition}[D3（门控与滞回）]
+\label{def:tex28-ch5-d3}
+取阈值 $G_{\mathrm{on}}>G_{\mathrm{off}}\ge 0$。
+定义门控状态 $q(t)\in\{0,1\}$（右连续、分段常数）：
+\begin{itemize}
+  \item 若 $q=0$ 且 $J\ge G_{\mathrm{on}}$，则允许进入扭曲态（$q\leftarrow 1$）；
+  \item 若 $q=1$ 且 $J\le G_{\mathrm{off}}$，则退出扭曲态（$q\leftarrow 0$）；
+  \item 若 $G_{\mathrm{off}}<J<G_{\mathrm{on}}$，则保持原状态（滞回）。
+\end{itemize}
+并引入阻尼启用因子 $u(t)\in[0,1]$：
+\[
+  \dot u(t)=\frac{1}{T_{\mathrm{gate}}}\bigl(q(t)-u(t)\bigr),
+  \qquad
+  T_{\mathrm{gate}}>0,
+\]
+用以消除门控阶跃引起的“速率突变”。
+\end{definition}
+
+\begin{definition}[D4（连续速率与积分触发）]
+\label{def:tex28-ch5-d4}
+在门控允许后，定义连续触发速率（命令值）
+\[
+  r^{\mathrm{cmd}}(t):=\indicator{J(t)>G_{\mathrm{off}}}\cdot u(t)\cdot \rho(J(t)),
+\]
+其中 $\rho$ 为连续、单调不减、限幅函数，例如
+\[
+  \rho(J)=\clamp\!\Bigl(
+  r_{\min}+k\Bigl(\frac{(J-G_{\mathrm{on}})_{+}}{G_{\mathrm{scale}}}\Bigr)^{\alpha},
+  \ r_{\min},\ r_{\max}\Bigr),
+  \qquad
+  k>0,\ \alpha>0.
+\]
+并令强度/预算命令值为某个关于 $J$ 的连续、单调不减、限幅映射 $b^{\mathrm{cmd}}(t)\in[0,b_{\max}]$
+（可取与 $\rho$ 同构的“正部+幂+截断”结构）。
+
+用确定性积分器实现触发：
+取 $s(t)\in[0,s_{\max}]$，令
+\[
+  \dot s(t)=r^{\mathrm{exec}}(t),
+\]
+当 $s(t)\ge 1$ 且满足冷却约束时触发一次并执行
+\[
+  N(t)\leftarrow N(t)+1,\qquad s(t)\leftarrow s(t)-1,
+\]
+同时调用修复动作 $x\mapsto \mathcal{T}(x;b^{\mathrm{exec}}(t))$。
+该结构把“连续速率”转换为“离散触发次数”，并抑制由高频噪声导致的随机抖动。
+\end{definition}
+
+\begin{definition}[D5（算力上限：最大门控限制）]
+\label{def:tex28-ch5-d5}
+令每次触发的算力成本为 $c_{\mathrm{tw}}(b)$，满足
+\[
+  c_{\mathrm{tw}}:[0,b_{\max}]\to\RR_{>0},
+  \qquad
+  b_2\ge b_1\Rightarrow c_{\mathrm{tw}}(b_2)\ge c_{\mathrm{tw}}(b_1),
+  \qquad
+  c_{\mathrm{tw}}\ \text{连续}.
+\]
+令单位时间可用算力预算为 $C^{\mathrm{avail}}(t)\ge 0$。约束执行量满足硬约束
+\[
+  r^{\mathrm{exec}}(t)\cdot c_{\mathrm{tw}}\bigl(b^{\mathrm{exec}}(t)\bigr)\ \le\ C^{\mathrm{avail}}(t).
+\]
+语义：gap 给出需求速率/强度（$r^{\mathrm{cmd}},b^{\mathrm{cmd}}$），算力给出可执行上限（$r^{\mathrm{exec}},b^{\mathrm{exec}}$）。
+\end{definition}
+
+\subsection{公理（降级为定理）}
+\label{subsec:tex28-ch5-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（可审计性：给定输入与参数，触发序列确定）]
+\label{thm:tex28-ch5-a1}
+固定参数与初值（$q(0),u(0),s(0),N(0)$ 以及冷却参数等）。
+若缺陷信号 $J(t)$ 与算力预算 $C^{\mathrm{avail}}(t)$ 可观测且其取值轨迹（或其离散采样）可落盘，
+并且 $r^{\mathrm{exec}}(t),b^{\mathrm{exec}}(t)$ 由 $(J(t),C^{\mathrm{avail}}(t))$ 按确定性规则生成（例如使用单调函数的唯一根缩放），
+则触发序列 $N(t)$ 与调用序列 $\{\mathcal{T}(\cdot;b^{\mathrm{exec}})\}$ 可回放、可审计。
+\end{theorem}
+
+\begin{Certificate}[证书 A1（数学归纳法证书：按触发序号递推触发时刻）]
+\label{cert:tex28-ch5-a1}
+证书由两部分组成：
+\begin{enumerate}
+  \item 确定性演化见证：由定义~\ref{def:tex28-ch5-d3}--\ref{def:tex28-ch5-d5}，
+  $(J,C^{\mathrm{avail}})\Rightarrow(q,u)\Rightarrow(r^{\mathrm{cmd}},b^{\mathrm{cmd}})\Rightarrow(r^{\mathrm{exec}},
+    b^{\mathrm{exec}})$ 为确定性映射；
+  \item 触发时刻递推见证：记第 $k$ 次触发时刻为 $\tau_k$（$\tau_0$ 为初始时刻或首次触发时刻），
+  则下一次触发由“冷却满足 + 积分器跨越阈值”确定为
+  \[
+    \tau_{k+1}:=\inf\Bigl\{t\ge \tau_k+\Delta_{\min}:\ s(\tau_k)+\int_{\tau_k}^{t} r^{\mathrm{exec}}(\xi)\,d\xi\ \ge\
+      1\Bigr\},
+  \]
+  该定义在给定 $r^{\mathrm{exec}}$ 时为确定性对象；对 $k$ 归纳即可得到整条触发序列。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch5-a1}：
+给定 $(J(t),C^{\mathrm{avail}}(t))$ 与参数，门控与阻尼 $(q,u)$ 由滞回规则与线性 ODE 唯一确定；
+进而命令值 $(r^{\mathrm{cmd}},b^{\mathrm{cmd}})$ 由单调限幅映射唯一确定；
+再由算力硬约束与确定性缩放规则得到执行值 $(r^{\mathrm{exec}},b^{\mathrm{exec}})$；
+积分器 $s$ 由 $\dot s=r^{\mathrm{exec}}$（加上“触发时减 1”的确定性更新）确定。
+最后，触发时刻由集合的下确界定义给出，按触发序号递推得到 $\{\tau_k\}$，从而得到计数过程 $N(t)$。
+整条链路无随机分支（或随机源显式落盘），故可回放、可审计。证毕。
+\end{proof}
+
+\subsection{引理（四项“确定性增益”的抽象化对应）}
+\label{subsec:tex28-ch5-lemmas}
+
+\begin{lemma}[L1（覆盖率增益：去除对外部事件条件的依赖）]
+\label{lem:tex28-ch5-l1}
+引入抽象外部事件条件 $E(t)\in\{0,1\}$（代表旧机制依赖的额外触发门槛；含义不限定）。
+设旧机制满足：门打开后仍需 $E(t)=1$ 才允许追加触发。
+新机制采用积分器（定义~\ref{def:tex28-ch5-d4}）：只要 $r^{\mathrm{exec}}(t)>0$，即使 $E(t)\equiv 0$ 仍会持续累积并触发。
+
+在区间 $[t_0,t_0+T]$ 内，若门持续开启且 $r^{\mathrm{exec}}(t)\ge \underline r>0$，
+则新机制触发次数满足量级下界
+\[
+  N_{\mathrm{new}}(t_0+T)-N_{\mathrm{new}}(t_0)\ \ge\ \bigl\lfloor \underline r\,T \bigr\rfloor
+  \quad(\text{再受冷却与 }s_{\max}\text{ 等上界截断}).
+\]
+而旧机制在 $E(t)\equiv 0$ 时可出现
+$
+N_{\mathrm{old}}(t_0+T)-N_{\mathrm{old}}(t_0)=O(1)
+$
+（典型为“首次触发后长期不再触发”）。
+\end{lemma}
+
+\begin{Certificate}[证书 L1（积分线性增长见证 + 外部事件阻断见证）]
+\label{cert:tex28-ch5-l1}
+证书为两条结构事实：
+\begin{enumerate}
+  \item 新机制：在冷却不绑定时，$r^{\mathrm{exec}}\ge\underline r$ 蕴含 $s(t)$ 至少以速率 $\underline r$ 线性增长并跨越整数阈值触发；
+  \item 旧机制：追加触发被 $E(t)$ 阻断，若 $E\equiv 0$ 则只能发生 $O(1)$ 次触发（甚至 0 次）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+在门持续开启且冷却不绑定时，由 $r^{\mathrm{exec}}(t)\ge\underline r$ 得
+\[
+  s(t_0+T)-s(t_0)=\int_{t_0}^{t_0+T} r^{\mathrm{exec}}(t)\,dt\ \ge\ \underline r\,T.
+\]
+积分器每跨越 1 触发一次并减 1，因此在该区间内触发次数至少为 $\lfloor \underline r\,T\rfloor$。
+旧机制若要求 $E(t)=1$ 才能追加触发，则在 $E\equiv 0$ 时追加触发被阻断，因此触发次数至多为常数量级。证毕。
+\end{proof}
+
+\begin{lemma}[L2（单调动力学：缺陷越大，修复越密）]
+\label{lem:tex28-ch5-l2}
+对任意 $J_2\ge J_1$，有
+\[
+  \rho(J_2)\ge\rho(J_1)
+  \quad\Rightarrow\quad
+  r^{\mathrm{cmd}}(J_2)\ge r^{\mathrm{cmd}}(J_1)
+  \quad(\text{在同一门控态/相同 }u\text{ 下}).
+\]
+即“gap 增大 $\Rightarrow$ 扭曲触发速率不减”，符合“gap 驱动扭曲动力”的单调口径。
+\end{lemma}
+
+\begin{Certificate}[证书 L2（正部、幂函数与截断的单调复合）]
+\label{cert:tex28-ch5-l2}
+证书为：$(\cdot)_{+}$ 非减，$z\mapsto z^{\alpha}$ 在 $z\ge 0$ 上非减，$\clamp$ 保持非减，故复合后仍非减。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch5-l2} 得 $\rho$ 单调不减。固定同一门控态与同一 $u$，有 $r^{\mathrm{cmd}}=u\rho(J)$，
+因此 $\rho(J_2)\ge\rho(J_1)\Rightarrow r^{\mathrm{cmd}}(J_2)\ge r^{\mathrm{cmd}}(J_1)$。证毕。
+\end{proof}
+
+\begin{lemma}[L3（阈值附近抖动降低：滞回 + 平滑）]
+\label{lem:tex28-ch5-l3}
+设观测噪声导致 $J(t)=\overline{J}(t)+\varepsilon(t)$。
+若噪声幅度满足
+\[
+  \|\varepsilon\|_{\infty}<\frac{G_{\mathrm{on}}-G_{\mathrm{off}}}{2},
+\]
+且 $\overline{J}(t)$ 不跨越滞回带，则门控 $q(t)$ 不会反复翻转。
+进一步地，阻尼门 $u$ 为一阶低通滤波器；若 $J$ 亦经平滑（例如 EMA 或其他低通），则 $r(t)$ 的变化将呈缓变而非频繁阶跃。
+\end{lemma}
+
+\begin{Certificate}[证书 L3（阈值分离带 + 一阶低通见证）]
+\label{cert:tex28-ch5-l3}
+证书为：
+门控翻转必须跨越分离阈值 $G_{\mathrm{on}}$ 与 $G_{\mathrm{off}}$；
+而 $u$ 满足 $\dot u=(q-u)/T_{\mathrm{gate}}$，故对阶跃输入表现为指数响应（低通）。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若 $q$ 发生 $0\to 1$，则必须有 $J\ge G_{\mathrm{on}}$；若发生 $1\to 0$，则必须有 $J\le G_{\mathrm{off}}$。
+当 $\|\varepsilon\|_{\infty}<(G_{\mathrm{on}}-G_{\mathrm{off}})/2$ 且 $\overline{J}$ 不跨越滞回带时，噪声不足以制造跨越，
+因此门控不会因阈值附近抖动而频繁翻转。
+又因 $u$ 为一阶阻尼响应，$q$ 的阶跃不再直接传递为 $r$ 的阶跃；若 $J$ 亦被平滑，则 $r$ 的高频波动进一步被抑制。证毕。
+\end{proof}
+
+\begin{lemma}[L4（可调性与可审计性增益：参数化驱动律 + 元信息固化）]
+\label{lem:tex28-ch5-l4}
+设参数向量
+\[
+  \theta :=(G_{\mathrm{on}},G_{\mathrm{off}},T_{\mathrm{gate}},r_{\min},r_{\max},k,\alpha,G_{\mathrm{scale}},b_{\max},
+    \Delta_{\min},\dots),
+\]
+并定义参数元信息 $\mathrm{meta}(\theta)$（版本号、默认值、变更记录等）。
+若每次运行都落盘 $\mathrm{meta}(\theta)$ 与关键中间量（例如 $J,q,u,r^{\mathrm{cmd}},r^{\mathrm{exec}},b^{\mathrm{exec}},C^{\mathrm{avail}}
+  ,N$），
+则同数据回放时可精确复现触发过程；参数搜索时可对比不同 $\theta$ 的差异并归因。
+\end{lemma}
+
+\begin{Certificate}[证书 L4（确定性 + 元信息固化）]
+\label{cert:tex28-ch5-l4}
+证书为：定理~\ref{thm:tex28-ch5-a1} 的确定性 + 参数元信息 $\mathrm{meta}(\theta)$ 的落盘固化。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex28-ch5-a1}，在固定参数与输入轨迹下，触发序列确定。
+落盘 $\mathrm{meta}(\theta)$ 与关键中间量后，同数据回放可复现同一触发序列；
+比较不同 $\theta$ 的运行记录即可将差异归因到参数变化。证毕。
+\end{proof}
+
+\subsection{命题（客观结论：机制层中高增益；目标层百分比不可直接推出）}
+\label{subsec:tex28-ch5-props}
+
+\begin{assumption}[H1（单次修复具有期望下降的证书假设）]
+\label{assu:tex28-ch5-h1}
+存在 $\delta(J,b)\ge 0$，使得一次触发在条件 $(J,b)$ 下对势能的期望变化满足
+\[
+  \mathbb{E}[\Phi_{\mathrm{after}}-\Phi_{\mathrm{before}}\mid J,b]\ \le\ -\delta(J,b),
+  \qquad
+  \delta \text{ 对 }J,b\text{分别非减}.
+\]
+\end{assumption}
+
+\begin{proposition}[P1（修复能力与稳定性的中高增益：在 H1 前提下）]
+\label{prop:tex28-ch5-p1}
+在假设~\ref{assu:tex28-ch5-h1} 下，若算力上限未长期饱和、且冷却不成为主要瓶颈，则新机制因：
+（i）覆盖率提升（引理~\ref{lem:tex28-ch5-l1}），（ii）高缺陷更密触发（引理~\ref{lem:tex28-ch5-l2}），
+（iii）阈值抖动降低（引理~\ref{lem:tex28-ch5-l3}），
+使单位时间可获得更大的期望下降累积，从而缩短“回到 $J\le G_{\mathrm{off}}$”的期望时间，并提升稳定性。
+因此对“修复能力与稳定性”可客观表述为中高增益（在 H1 前提下）。
+\end{proposition}
+
+\begin{Certificate}[证书 P1（触发覆盖率 × 单步下降证书 × 抖动抑制）]
+\label{cert:tex28-ch5-p1}
+证书由三部分组成：引理~\ref{lem:tex28-ch5-l1} 的触发覆盖率增益，引理~\ref{lem:tex28-ch5-l2} 的单调驱动，
+引理~\ref{lem:tex28-ch5-l3} 的阈值抖动抑制；以及假设~\ref{assu:tex28-ch5-h1} 的单次下降证书。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+触发次数在高缺陷区间更密（见引理~\ref{lem:tex28-ch5-l1} 与引理~\ref{lem:tex28-ch5-l2}）。
+每次触发带来非负且随 $(J,b)$ 不减的期望下降（H1），因此单位时间期望下降累积更大，
+从而期望回落时间缩短。
+滞回+平滑使阈值附近无效触发减少（引理~\ref{lem:tex28-ch5-l3}），稳定性提升。
+上述结论在“算力/冷却不长期饱和”条件下可作为机制层客观结论。证毕（在 H1 前提下）。
+\end{proof}
+
+\begin{proposition}[P2（最终收益/效用的确定百分比：未证明；只能回放量化）]
+\label{prop:tex28-ch5-p2}
+令系统级最终效用为某个多因子函数
+\[
+  \Pi := \mathcal{F}\!\left(
+  \begin{array}{l}
+    \text{触发策略},\ \mathcal{T}\text{算子族},\ \text{算子空间维度/自由度},\\
+    \text{正交约束下可行域},\ \text{耦合项},\ \text{成本项},\ \text{外部序列},\dots
+  \end{array}
+  \right).
+\]
+即便触发机制改进使 $J$ 更快回落（命题~\ref{prop:tex28-ch5-p1}），也无法仅由触发律推出
+\[
+  \Delta \Pi := \Pi_{\mathrm{new}}-\Pi_{\mathrm{old}}
+  \quad\text{必为正，或等于某个固定百分比}.
+\]
+关于“收益提升 $X\%$”的断言属于未证明命题；客观表述只能是“潜在增益明显，需同数据 A/B 回放量化”。
+\end{proposition}
+
+\begin{Certificate}[证书 P2（多因子依赖证书 + 成本主导反例证书）]
+\label{cert:tex28-ch5-p2}
+证书为：
+\begin{enumerate}
+  \item 多因子依赖见证：$\Pi$ 同时依赖算子空间维度/自由度、约束可行域、耦合项与成本项；
+  \item 成本主导反例见证：当成本项对触发次数/强度更敏感时，可能出现 $\Delta\Pi<0$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由于 $\Pi$ 依赖多因子，触发律改进仅改变其中一部分输入，且可能同时推高成本项。
+取一个反例：令 $\Pi:=-\mathrm{Cost}$，且 $\mathrm{Cost}$ 随触发次数或预算单调增加，则触发更密会导致 $\Delta\Pi<0$，
+即便同时使 $J$ 更快回落。故在未固定数据、参数、成本模型并完成统计检验前，
+无法从触发律推出固定百分比结论。证毕。
+\end{proof}
+
+\subsection{推论（机制层“量级直观”的抽象化表述：不是收益承诺）}
+\label{subsec:tex28-ch5-corollaries}
+
+\begin{corollary}[C1（高缺陷区间触发次数的量级：从 $O(1)$ 到 $O(T)$）]
+\label{cor:tex28-ch5-c1}
+在门持续开启、且执行速率近似常数 $r^{\mathrm{exec}}$ 的时间窗长度 $T$ 内，
+新机制触发次数满足量级关系
+\[
+  N_{\mathrm{new}}(t_0+T)-N_{\mathrm{new}}(t_0)\ \approx\ r^{\mathrm{exec}}\,T,
+\]
+并被如下因素截断：
+\begin{itemize}
+  \item 冷却上界：$N\le \lfloor T/\Delta_{\min}\rfloor+1$；
+  \item 积分器饱和：$s_{\max}$ 抑制“冷却解除后的突发连发”；
+  \item 算力上限：$r^{\mathrm{exec}}c_{\mathrm{tw}}(b^{\mathrm{exec}})\le C^{\mathrm{avail}}$。
+\end{itemize}
+而旧机制在缺少外部事件条件 $E$ 时可能长期停滞在 $O(1)$ 次触发。
+因此“高缺陷持续时，新机制触发次数从 $O(1)$ 提升到 $O(T)$ 的量级”是机制层可证结论（不涉及收益承诺）。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（积分器计数近似 + 冷却/算力上界）]
+\label{cert:tex28-ch5-c1}
+证书为：在 $r^{\mathrm{exec}}$ 近似常数时，积分器累积给出 $N\approx r^{\mathrm{exec}}T$ 的量级；
+冷却与算力约束给出上界截断；旧机制可被 $E$ 阻断从而仅为 $O(1)$。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定义~\ref{def:tex28-ch5-d4} 的积分触发结构，
+当 $r^{\mathrm{exec}}$ 近似常数且冷却不成为主瓶颈时，单位时间累积速率为 $r^{\mathrm{exec}}$，
+触发次数与积分量同阶，故 $N_{\mathrm{new}}(t_0+T)-N_{\mathrm{new}}(t_0)\approx r^{\mathrm{exec}}T$。
+冷却约束与算力约束给出可执行的上界截断。
+旧机制若要求外部事件 $E$，在 $E\equiv 0$ 时追加触发被阻断，因此可停滞在 $O(1)$。证毕。
+\end{proof}
+
+\subsection{备注（把“未证明”变为“可证书结论”的最小回放量化方案）}
+\label{subsec:tex28-ch5-remarks}
+
+\begin{remark}[最小 A/B 回放方案]
+要把“目标层收益提升百分比”从未证明变为可证书结论，最小流程为：
+\begin{enumerate}
+  \item 固定输入与参数：同一外部序列、同一成本模型、同一算子族与约束，分别运行 old/new；
+  \item 记录两类指标：
+  \begin{itemize}
+    \item 修复/稳定类：$\mathbb{E}[T_{\mathrm{off}}]$（回到 $J\le G_{\mathrm{off}}$ 的时间）、门控翻转次数、无效触发率、尾部长短等；
+    \item 目标效用类：$\Pi$ 及其分解项（成本、频率、扰动强度等）。
+  \end{itemize}
+  \item 统计检验：对差值 $\Delta\Pi$ 给出置信区间或显著性检验（如配对差分/自助法）；
+  \item 结论口径：只有当 $\Delta\Pi$ 的统计证据成立时，才签发“收益提升百分比”的证书；否则保持“未证明”，但机制层结论（L1--L4、P1）仍客观成立。
+\end{enumerate}
+\end{remark}
+
+\begin{remark}[最终抽象化客观结论]
+\begin{itemize}
+  \item 已证（机制层）：本机制对“修复能力与稳定性”为中高增益（覆盖率提升、单调驱动、抖动降低、可调与可审计增强）。
+  \item 未证（目标层）：对系统级最终效用 $\Pi$ 不能给出确定百分比增益；仅可陈述“潜在增益明显、需同数据 A/B 回放量化”，且结果受算子空间维度/自由度、正交约束可行域、耦合项与成本项共同限制。
+\end{itemize}
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{PnL/回撤归因分解：触发机制之外决定因子的形式逻辑章}
+\label{sec:tex28-ch6}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（定义 + 公理（降级为定理） + 引理 + 命题 + 推论）+ 备注}
+\label{subsec:tex28-ch6-logic-structure}
+
+本章把“PnL/回撤”从“触发机制”中抽离，显式暴露其余决定因子。
+组织顺序为：定义 $\rightarrow$ 公理（降级为定理，附数学归纳法证书与证明）
+$\rightarrow$ 引理（证书+证明）$\rightarrow$ 命题（证书+证明）$\rightarrow$ 推论（证书+证明）$\rightarrow$ 备注。
+
+\subsection{定义（把 PnL/回撤从触发机制中抽离，显式暴露其余决定因子）}
+\label{subsec:tex28-ch6-defs}
+
+\begin{definition}[D1（目标函数与风险函数：不绑定具体场景）]
+\label{def:tex28-ch6-d1}
+令系统在时间区间 $[0,T]$ 上的目标效用为
+\[
+  \Pi := \mathcal{U}\!\bigl(\{x(t)\}_{t\in[0,T]},\{a(t)\}_{t\in[0,T]}\bigr),
+\]
+其中 $x(t)$ 是系统状态轨迹，$a(t)$ 是控制/动作轨迹。
+令回撤型风险指标为
+\[
+  \mathcal{R}:=\mathcal{V}\!\bigl(\{x(t)\}_{t\in[0,T]},\{a(t)\}_{t\in[0,T]}\bigr).
+\]
+其中 $(\Pi,\mathcal{R})$ 为抽象函数，不预设任何金融语义；
+“PnL/回撤”仅对应某一类具体的 $(\mathcal{U},\mathcal{V})$。
+\end{definition}
+
+\begin{definition}[D2（触发机制仅决定“何时调用修复动作”）]
+\label{def:tex28-ch6-d2}
+令触发机制为 $\mathsf{Trig}_{\theta}$，由参数 $\theta$ 给定，输出触发计数过程 $N(t)$ 与每次触发预算 $b(t)$。
+它决定事件时刻集与预算序列
+\[
+  \{t_k\}_{k=1}^{N(T)}
+  \quad\text{与}\quad
+  \{b_k\}_{k=1}^{N(T)},
+\]
+但不直接决定动作在状态空间中的几何方向与可行域结构。
+\end{definition}
+
+\begin{definition}[D3（规范场维度/自由度与正交约束：可行域与耦合项）]
+\label{def:tex28-ch6-d3}
+令可选控制自由度构成规范场/算子空间
+\[
+  \mathcal{A}\subseteq \RR^{d},
+\]
+其中 $d$ 是规范场维度/自由度（可抽象理解为可调参数维数、可用算子族规模、修复塔层数等）。
+
+令正交约束（或一般约束）集合为
+\[
+  \mathcal{C}:=\{g_i(a,x)=0,\ h_j(a,x)\le 0\},
+\]
+并定义在每个状态 $x$ 下的可行动作集合（可行域）
+\[
+  \mathcal{F}(x):=\{a\in\mathcal{A}\mid (a,x)\ \text{满足}\ \mathcal{C}\}.
+\]
+令系统动力学含耦合项
+\[
+  \dot x = F(x,a) = F_0(x)
+  + \sum_{\ell=1}^{d} a_\ell F_\ell(x)
+  + \sum_{\ell=1}^{d}\sum_{m=1}^{d}\Gamma_{\ell m}(x)a_\ell a_m
+  + \cdots,
+\]
+其中 $\Gamma$ 刻画了自由度之间/与状态之间的耦合结构（可为非对角、非线性、非交换）。
+\end{definition}
+
+\subsection{公理（降级为定理）}
+\label{subsec:tex28-ch6-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（分解定理：$(\Pi,\mathcal{R})$ 是共同函数）]
+\label{thm:tex28-ch6-a1}
+由定义~\ref{def:tex28-ch6-d1}--\ref{def:tex28-ch6-d3}，存在一般为非线性的合成函数 $\Psi$，使
+\[
+  (\Pi,\mathcal{R})
+  =\Psi\Bigl(
+  \underbrace{\mathsf{Trig}_{\theta}}_{\text{仅决定何时触发}},
+  \underbrace{d,\mathcal{C}}_{\text{决定可行域}},
+  \underbrace{F,\Gamma}_{\text{决定耦合响应}},
+  \underbrace{\mathrm{Cost}}_{\text{决定净效用}},
+  \underbrace{\text{外部序列}}_{\text{驱动输入}}
+  \Bigr).
+\]
+故 $(\Pi,\mathcal{R})$ 不可能仅由 $\mathsf{Trig}_{\theta}$ 单独决定。
+\end{theorem}
+
+\begin{Certificate}[证书 A1（数学归纳法证书 + 结构分解见证）]
+\label{cert:tex28-ch6-a1}
+证书由两部分构成：
+\begin{enumerate}
+  \item 结构分解见证：D1 给出目标/风险定义，D2 给出触发机制作用域，D3 给出可行域与耦合结构；
+  \item 数学归纳法见证（按触发序号 $k$）：基步 $k=1$ 时动作必须满足 $a_1\in\mathcal{F}(x(t_1))$；
+  若前 $k$ 次触发均受 $\mathcal{F}$ 与 $F,\Gamma$ 约束，则第 $k+1$ 次触发同样必须满足
+  $a_{k+1}\in\mathcal{F}(x(t_{k+1}))$，并经耦合动力学传递到轨迹与成本项。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 D2，$\mathsf{Trig}_{\theta}$ 只输出 $\{t_k,b_k\}$；它不直接提供任意状态下的动作几何自由。
+由 D3，真实可施加动作必须满足 $a_k\in\mathcal{F}(x(t_k))$，而 $\mathcal{F}$ 由 $(d,\mathcal{C})$ 决定；
+动作对轨迹的影响由 $F$ 与耦合项 $\Gamma$ 决定。
+由 D1，$(\Pi,\mathcal{R})$ 是对整段轨迹与动作序列的函数，且净效用还受成本/摩擦模型影响。
+因此存在合成映射 $\Psi$ 将以上要素共同映射到 $(\Pi,\mathcal{R})$，并且该映射不退化为仅依赖 $\mathsf{Trig}_{\theta}$ 的单变量函数。证毕。
+\end{proof}
+
+\subsection{引理（为何改进触发机制不足以推出 PnL/回撤固定改善幅度）}
+\label{subsec:tex28-ch6-lemmas}
+
+\begin{lemma}[L1（可行域瓶颈：当 $\mathcal{F}(x)$ 退化时，触发再密也可能无效）]
+\label{lem:tex28-ch6-l1}
+若对某些状态 $x$ 有
+\[
+  \mathcal{F}(x)=\{a^{\star}(x)\}
+  \quad\text{或}\quad
+  \mathcal{F}(x)\ \text{近似低维流形},
+\]
+则触发机制最多改变动作应用时刻，不能提供新的修复方向；
+若该区间内 $a^{\star}(x)$ 对缺陷势能下降作用有限，则密集触发不产生比例收益。
+\end{lemma}
+
+\begin{Certificate}[证书 L1（可行域几何不变见证）]
+\label{cert:tex28-ch6-l1}
+证书为：在固定 $(d,\mathcal{C})$ 下，$\mathcal{F}(x)$ 的几何由约束决定而非由触发频率决定。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+触发机制改变的是 $\{t_k,b_k\}$，而动作可选集合始终是 $\mathcal{F}(x(t_k))$。
+当 $\mathcal{F}(x)$ 退化为单点或近低维流形时，可选方向不足，故即使触发更密，也无法引入新的有效下降方向。证毕。
+\end{proof}
+
+\begin{lemma}[L2（耦合项瓶颈：强耦合可引入额外振荡与成本）]
+\label{lem:tex28-ch6-l2}
+若耦合项 $\Gamma(x)$ 非对角且幅度较大，则频繁施加动作会引发交叉项
+\[
+  \sum_{\ell=1}^{d}\sum_{m=1}^{d}\Gamma_{\ell m}(x)a_\ell a_m,
+\]
+可能导致非线性增强、过度矫正或附加振荡；因此触发更密不必然改善 $\Pi$ 或降低 $\mathcal{R}$。
+\end{lemma}
+
+\begin{Certificate}[证书 L2（交叉耦合边际效应见证）]
+\label{cert:tex28-ch6-l2}
+证书为：边际响应由 $\partial F/\partial a$ 与二次耦合项共同决定，其符号与强度不由触发机制单独决定。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 D3，系统响应含 $\Gamma_{\ell m}(x)a_\ell a_m$ 的交叉项。
+当耦合显著时，动作增量产生的边际效果可因交叉项而放大或反转，导致振荡或过矫正。
+故“触发更密 $\Rightarrow$ 目标必改善”在一般情形不成立。证毕。
+\end{proof}
+
+\begin{lemma}[L3（成本项瓶颈：触发更密通常提高成本，净效用需权衡）]
+\label{lem:tex28-ch6-l3}
+设成本项包含频率与强度代价
+\[
+  \mathrm{Cost}
+  = \int_{0}^{T}\!\bigl(\lambda_r r^{\mathrm{exec}}(t)+\lambda_b b^{\mathrm{exec}}(t)\bigr)\,dt+\cdots,
+  \qquad
+  \lambda_r,\lambda_b>0.
+\]
+则即便缺陷势能回落更快，净效用 $\Pi$ 仍可能因成本上升而不增或下降。
+\end{lemma}
+
+\begin{Certificate}[证书 L3（收益--成本合成见证）]
+\label{cert:tex28-ch6-l3}
+证书为：$\Pi$ 是收益项与成本项的合成量，触发频率/强度可直接推高成本项。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由成本定义，$r^{\mathrm{exec}}$ 与 $b^{\mathrm{exec}}$ 增大会推高 $\mathrm{Cost}$。
+当成本增量超过收益增量时，净效用 $\Pi$ 不增反降，故触发更密不蕴含净效用必升。证毕。
+\end{proof}
+
+\subsection{命题（客观强调：PnL/回撤改善幅度不由触发机制单独决定）}
+\label{subsec:tex28-ch6-props}
+
+\begin{proposition}[P1（PnL/回撤改善幅度不由触发机制单独决定）]
+\label{prop:tex28-ch6-p1}
+一般情形下，
+\[
+  \Delta \Pi,\ \Delta \mathcal{R}\ \not\equiv\ f(\mathsf{Trig}_{\theta}),
+\]
+而应写为
+\[
+  (\Delta\Pi,\Delta\mathcal{R})
+  =\Delta\Psi\bigl(
+  \mathsf{Trig}_{\theta},\ d,\mathcal{C},\Gamma,\mathrm{Cost},\text{外部序列}
+  \bigr).
+\]
+其中 $d$（规范场维度/自由度）、$\mathcal{C}$（约束诱导的可行域）、$\Gamma$（耦合项）与成本项共同限制最终净改善幅度。
+因此在未固定并量化这些结构要素前，不能把“PnL/回撤提升百分比”归因到触发机制本身，更不能给确定数值承诺。
+\end{proposition}
+
+\begin{Certificate}[证书 P1（A1 + L1--L3 联合证书）]
+\label{cert:tex28-ch6-p1}
+证书为：定理~\ref{thm:tex28-ch6-a1} 的分解结论，叠加引理~\ref{lem:tex28-ch6-l1}--\ref{lem:tex28-ch6-l3} 的三类瓶颈约束。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 A1，$(\Pi,\mathcal{R})$ 是多因子共同函数，不是触发机制单因子函数。
+由 L1，触发不改变可行域几何；由 L2，耦合项可改变边际效应；由 L3，成本项与频率/强度正相关。
+故触发机制只改变 $\{t_k,b_k\}$，不足以单独决定 $(\Delta\Pi,\Delta\mathcal{R})$ 的符号与幅度。证毕。
+\end{proof}
+
+\subsection{推论（可直接落地到报告/注释的客观措辞）}
+\label{subsec:tex28-ch6-corollaries}
+
+\begin{corollary}[C1（客观强调句模板）]
+\label{cor:tex28-ch6-c1}
+本次改进显著增强了“修复触发的覆盖率、单调驱动性与阈值稳定性”，因此对修复能力与稳定性属于中高增益。
+但 PnL/回撤的净改善幅度并不由 Jacobi 触发机制单独决定；它还同时受规范场维度与自由度、
+正交约束所诱导的可行域形状、自由度之间与状态之间的耦合项以及成本项共同限制。
+因此当前只能陈述潜在增益明显，最终净改善需要在固定上述结构要素后做 A/B 回放统计量化。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（由 P1 到表述模板的语义保持证书）]
+\label{cert:tex28-ch6-c1}
+证书为：命题~\ref{prop:tex28-ch6-p1} 的数学结论可等价转写为工程报告中的客观强调句，不改变真值条件。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+推论文本的前半句对应机制层增益（触发覆盖率/单调驱动/稳定性），后半句对应 P1 的多因子约束结论。
+两部分合并后仍保持“机制层可证、目标层需量化”的逻辑边界，故该模板可直接用于报告与注释。证毕。
+\end{proof}
+
+\subsection{备注（把强调句转化为可签发证书的量化结论）}
+\label{subsec:tex28-ch6-remarks}
+
+\begin{remark}[最小量化固化方案]
+要把“共同限制”落到可签发证书的量化结论，至少需要三类固化：
+\begin{enumerate}
+  \item 固化 $(d,\mathcal{C})$，即固化可行域 $\mathcal{F}(x)$ 的定义口径；
+  \item 固化耦合项口径（例如 $\Gamma$ 的估计/近似阶次与范数界）；
+  \item 固化成本项（频率/强度/资源消耗）模型。
+\end{enumerate}
+在此基础上，对同一外部序列做 old/new 回放，给出 $(\Delta\Pi,\Delta\mathcal{R})$ 的统计证书（置信区间/显著性）。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{参数同伦与组织同伦分层：值函数、下界与有效自由度}
+\label{sec:tex28-ch7}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（定义 + 公理（降级为定理） + 定理 + 引理 + 命题 + 推论）+ 备注}
+\label{subsec:tex28-ch7-logic-structure}
+
+本章把“参数同伦”与“组织同伦”严格分层，并把“最小势能”写成值函数。
+结构顺序为：定义 $\rightarrow$ 公理（降级为定理，附数学归纳法证书+证明）
+$\rightarrow$ 定理（证书+证明）$\rightarrow$ 引理（证书+证明）
+$\rightarrow$ 命题（证书+证明）$\rightarrow$ 推论（证书+证明）$\rightarrow$ 备注。
+
+\subsection{定义（把参数同伦与组织同伦严格分层，并把最小势能写成值函数）}
+\label{subsec:tex28-ch7-defs}
+
+\begin{definition}[D1（系统、缺陷势能与评价泛函）]
+\label{def:tex28-ch7-d1}
+令系统状态轨迹 $x(\cdot)$ 由控制策略决定。令缺陷势能（或风险势能）
+\[
+  \Phi(x)\ge 0
+\]
+为可观测/可计算的需修复程度度量（可由 $J=\JacGap$ 诱导，细节不绑定）。
+
+令总体评价泛函（越小越好）为
+\[
+  \mathcal{E}(\Sigma,\theta)
+  :=\mathbb{E}\!\Big[\int_0^T \Phi\bigl(x(t)\bigr)\,dt
+  +\mathrm{Cost}\bigl(\text{触发频率/强度/资源}\bigr)\Big],
+\]
+其中：$\theta\in\Theta$ 为参数（阈值、速率映射、滤波、冷却、限幅、算力门控等）；
+$\Sigma\in\Omega$ 为组织结构（定义对象如何被组织、聚合、再组织的结构）。
+这一步把“PnL/回撤”等具体目标抽象为 $\mathcal{E}$ 的某种取法；证明仅依赖“存在一个要最小化的泛函”。
+\end{definition}
+
+\begin{definition}[D2（参数同伦）]
+\label{def:tex28-ch7-d2}
+固定组织结构 $\Sigma$ 不变，参数同伦指 $\theta(\tau)$ 在参数空间内的连续变形：
+\[
+  \theta:[0,1]\to\Theta,\qquad \tau\mapsto\theta(\tau).
+\]
+其本质：不改变对象组织方式，只在既定机制上调参。
+\end{definition}
+
+\begin{definition}[D3（组织同伦：双层组织同伦）]
+\label{def:tex28-ch7-d3}
+令三类对象集合：
+\[
+  \mathcal{O}_R\ (\text{实对象/原子对象}),\quad
+  \mathcal{O}_V\ (\text{虚对象/中间组织层}),\quad
+  \mathcal{P}_V\ (\text{虚仓/顶层组织对象}).
+\]
+双层组织同伦由两层组织映射决定：
+\[
+  \pi_1:\mathcal{O}_R\to\mathcal{O}_V,\qquad
+  \pi_2:\mathcal{O}_V\to\mathcal{P}_V,
+\]
+并连同容量、方向锚定、可合并/可拆分规则、结算规则等约束共同构成
+\[
+  \Sigma := (\pi_1,\pi_2,\text{约束}).
+\]
+组织同伦指 $\Sigma$ 在组织空间 $\Omega$ 中的变形（一般为离散/组合式变形，可视作在 $\Omega$ 上做路径重连）：
+\[
+  \Sigma:[0,1]\to\Omega.
+\]
+其本质：改变“实对象--虚对象--虚仓”的组织方式，从而改变可行动作语义与可行域结构。
+\end{definition}
+
+\begin{definition}[D4（参数同伦的最小势能作为值函数）]
+\label{def:tex28-ch7-d4}
+对任意固定组织结构 $\Sigma$，定义其参数最优值（最小势能）
+\[
+  V(\Sigma):=\inf_{\theta\in\Theta}\mathcal{E}(\Sigma,\theta).
+\]
+这就是“参数同伦在给定 $\Sigma$ 下可达到的最低势能”的严格定义。
+\end{definition}
+
+\subsection{公理（降级为定理）}
+\label{subsec:tex28-ch7-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（分层不变性：参数同伦不改变组织结构）]
+\label{thm:tex28-ch7-a1}
+在固定组织结构 $\Sigma$ 下，任意参数同伦 $\theta(\tau)$ 仅改变参数，不改变组织映射 $(\pi_1,\pi_2)$ 与组织约束，
+因此不改变由 $\Sigma$ 诱导的组织语义与可行域生成机制。
+\end{theorem}
+
+\begin{Certificate}[证书 A1（数学归纳法证书：同伦离散采样点上的组织不变）]
+\label{cert:tex28-ch7-a1}
+取任意离散采样 $\tau_n=n/N$（$n=0,\dots,N$）。
+证书为以下归纳结构：
+\begin{enumerate}
+  \item 基步：$n=0$ 时组织为给定的 $\Sigma$；
+  \item 归纳步：若在 $n$ 时组织仍为同一 $\Sigma$，则到 $n+1$ 的变更仅发生在 $\theta(\tau)$，
+  不包含对 $(\pi_1,\pi_2,\text{约束})$ 的操作，因此组织仍为同一 $\Sigma$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 D2，参数同伦定义域是 $\Theta$，其像为参数轨迹 $\theta(\tau)$；
+由 D3，组织结构是独立对象 $\Sigma=(\pi_1,\pi_2,\text{约束})$，属于组织空间 $\Omega$。
+参数空间路径不含组织映射更新算子，因此
+\[
+  \theta(\tau)\ \Rightarrow\ \Sigma\ \text{不变}\ \Rightarrow\ \mathcal{F}_{\Sigma}\ \text{生成机制不变}.
+\]
+结合证书~\ref{cert:tex28-ch7-a1} 的归纳见证，结论对所有离散采样点成立，进而对整条参数同伦路径成立。证毕。
+\end{proof}
+
+\subsection{定理（参数同伦最小势能的确定性）}
+\label{subsec:tex28-ch7-theorems}
+
+\begin{theorem}[T1（确定性：固定 $\Sigma$ 时 $V(\Sigma)$ 由代码结构与输入分布决定）]
+\label{thm:tex28-ch7-t1}
+给定组织结构 $\Sigma$、代码实现与外部输入分布，则 $\mathcal{E}(\Sigma,\theta)$ 对每个 $\theta$ 都是确定的实数（或 $+\infty$）；
+因此
+\[
+  V(\Sigma)=\inf_{\theta\in\Theta}\mathcal{E}(\Sigma,\theta)
+\]
+是定义良好的确定值。
+\end{theorem}
+
+\begin{Certificate}[证书 T1（代码语义闭包见证）]
+\label{cert:tex28-ch7-t1}
+证书为：固定 $(\Sigma,\theta)$ 后，触发与动作规则确定，状态轨迹 $x(\cdot)$ 确定，进而
+$\Phi(x(\cdot))$ 与成本项确定，因此 $\mathcal{E}(\Sigma,\theta)$ 确定。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+\[
+  (\Sigma,\theta,\text{代码},\text{输入分布})
+  \Rightarrow \text{触发与动作规则}
+  \Rightarrow x(\cdot)
+  \Rightarrow \Phi(x(\cdot)),\mathrm{Cost}
+  \Rightarrow \mathcal{E}(\Sigma,\theta).
+\]
+因此 $\inf_{\theta\in\Theta}\mathcal{E}(\Sigma,\theta)$ 是定义良好的数 $V(\Sigma)$。
+该“确定”是数学意义上的值函数已被代码与分布固定，不等价于“数值已被显式计算出来”。证毕。
+\end{proof}
+
+\subsection{引理（组织空间高度不确定的来源）}
+\label{subsec:tex28-ch7-lemmas}
+
+\begin{lemma}[L1（组织空间 $\Omega$ 的不确定性：组合爆炸与非光滑性）]
+\label{lem:tex28-ch7-l1}
+由于 $\Sigma=(\pi_1,\pi_2,\text{约束})$ 属于映射/分区/合并规则的组合结构，组织空间搜索呈组合爆炸；
+且 $\mathcal{E}(\Sigma,\theta)$ 对 $\Sigma$ 的依赖一般不连续，故不存在类似低维连续调参的确定收敛路径。
+\end{lemma}
+
+\begin{Certificate}[证书 L1（组合规模与离散跳变见证）]
+\label{cert:tex28-ch7-l1}
+证书为：
+\begin{enumerate}
+  \item $(\pi_1,\pi_2)$ 的可选映射数量随对象数超线性增长；
+  \item 组织规则发生离散变更时，轨迹与成本结构可突变，导致目标函数非光滑。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+改变 $\pi_1,\pi_2$ 会触发对象归属离散跳变，映射与分区数量快速增长，导致搜索空间巨大；
+同时组织改变可重写可行域与结算/成本路径，使 $\mathcal{E}$ 发生分段跳变。
+因此在 $\Omega$ 上一般难以得到类似参数空间的平滑收敛路径，表现为高度不确定。证毕。
+\end{proof}
+
+\subsection{命题（强命题：显著下降来自组织同伦）}
+\label{subsec:tex28-ch7-props}
+
+\begin{proposition}[P1（当参数近最优时，显著下降只能来自组织同伦）]
+\label{prop:tex28-ch7-p1}
+设当前组织为 $\Sigma_0$，已找到参数 $\hat\theta$ 满足
+\[
+  \mathcal{E}(\Sigma_0,\hat\theta)\le V(\Sigma_0)+\varepsilon,
+  \qquad \varepsilon\ge 0.
+\]
+则在固定 $\Sigma_0$ 下，任意参数同伦仅能带来不超过 $\varepsilon$ 的进一步下降。
+若存在 $\Sigma_1\in\Omega$ 使
+\[
+  V(\Sigma_1)<V(\Sigma_0)-\varepsilon,
+\]
+则任何超过 $\varepsilon$ 的实质性改进都不可能由参数同伦产生，必须经由组织同伦（改变 $\Sigma$）。
+\end{proposition}
+
+\begin{Certificate}[证书 P1（值函数下界证书 + 差值界证书）]
+\label{cert:tex28-ch7-p1}
+证书为：D4 给出下界 $V(\Sigma_0)=\inf_{\theta}\mathcal{E}(\Sigma_0,\theta)$；
+且已知点 $\hat\theta$ 距该下界不超过 $\varepsilon$。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 D4，
+\[
+  \forall\theta\in\Theta:\ \mathcal{E}(\Sigma_0,\theta)\ge V(\Sigma_0).
+\]
+又有
+\[
+  \mathcal{E}(\Sigma_0,\hat\theta)\le V(\Sigma_0)+\varepsilon,
+\]
+故固定 $\Sigma_0$ 的任何继续调参，最多改进 $\varepsilon$。
+若存在 $\Sigma_1$ 使 $V(\Sigma_1)<V(\Sigma_0)-\varepsilon$，则该幅度改进超出固定 $\Sigma_0$ 的可达下界，
+只能通过改变组织结构 $\Sigma$ 才可实现。证毕。
+\end{proof}
+
+\subsection{推论（双层组织同伦与有效性）}
+\label{subsec:tex28-ch7-corollaries}
+
+\begin{corollary}[C1（双层组织同伦通过改变可行域与耦合结构来改变 $V(\Sigma)$）]
+\label{cor:tex28-ch7-c1}
+对每个组织 $\Sigma$，可行动作集合写为
+\[
+  \mathcal{F}_{\Sigma}(x):=\{a\in\mathcal{A}_{\Sigma}\mid (a,x)\ \text{满足约束}\}.
+\]
+其中 $\mathcal{A}_{\Sigma}$ 与约束形式由 $(\pi_1,\pi_2)$ 诱导。
+组织改变 $\Sigma\mapsto\Sigma'$ 会改变 $\mathcal{F}_{\Sigma}$ 的几何与耦合项结构，从而改变
+\[
+  V(\Sigma)=\inf_{\theta\in\Theta}\mathcal{E}(\Sigma,\theta).
+\]
+参数同伦仅在固定 $\mathcal{F}_{\Sigma}$ 上调节触发与强度；组织同伦可能改变 $\mathcal{F}$ 本身，因此更可能带来下界变化的量级改进。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（可行域诱导证书）]
+\label{cert:tex28-ch7-c1}
+证书为：由 D3 的组织映射诱导 $\mathcal{A}_{\Sigma}$ 与约束结构，由 D4 的值函数定义把该诱导关系传递到 $V(\Sigma)$。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 D3，$(\pi_1,\pi_2)$ 改变会改写对象组织、可行动作语义及约束；
+故 $\mathcal{F}_{\Sigma}$ 与耦合结构随 $\Sigma$ 变化。
+由 D4，$V(\Sigma)$ 是在该组织诱导机制下的全局参数下界。
+因此改变 $\Sigma$ 可改变 $V(\Sigma)$ 本身，而固定 $\Sigma$ 的参数同伦仅能逼近既有下界。证毕。
+\end{proof}
+
+\subsection{备注（客观边界：已证与未证）}
+\label{subsec:tex28-ch7-remarks}
+
+\begin{remark}[已证的强结论（与具体场景无关）]
+\begin{enumerate}
+  \item $V(\Sigma)$ 对固定 $\Sigma$ 是确定值（定理~\ref{thm:tex28-ch7-t1}）；
+  \item 若已达到 $\Sigma_0$ 下的近最优，则再调参改进上限受 $\varepsilon$ 约束；
+  要获得更大改进，必须改变组织结构（命题~\ref{prop:tex28-ch7-p1}）。
+\end{enumerate}
+\end{remark}
+
+\begin{remark}[未证明但可检验的关键点]
+关键存在性命题是：是否存在 $\Sigma_1$ 使
+\[
+  V(\Sigma_1)<V(\Sigma_0)-\varepsilon.
+\]
+该命题不是口头断言，而是可通过回放/搜索在组织空间 $\Omega$ 中验证的可计算问题；
+但由于 $\Omega$ 组合巨大，搜索过程呈高度不确定性（见引理~\ref{lem:tex28-ch7-l1}）。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{双层组织同伦下的参数同伦不确定性：最优参数集跃迁的形式逻辑}
+\label{sec:tex28-ch8}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（定义 + 公理（降级为定理） + 引理 + 命题 + 推论）+ 备注}
+\label{subsec:tex28-ch8-logic-structure}
+
+本章采用抽象化口径，不绑定任何具体交易/行情/价格语义。
+结构顺序为：定义 $\rightarrow$ 公理（降级为定理，附证书+证明）
+$\rightarrow$ 引理（证书+证明）$\rightarrow$ 命题（证书+证明）
+$\rightarrow$ 推论（证书+证明）$\rightarrow$ 备注。
+
+\subsection{定义（抽象化：不绑定任何具体交易/行情/价格语义）}
+\label{subsec:tex28-ch8-defs}
+
+\begin{definition}[D1（双层组织结构 $\Sigma$：实对象--虚对象--虚仓）]
+\label{def:tex28-ch8-d1}
+设三类对象集合：
+\[
+  \mathcal{O}_R\ (\text{实对象/原子对象}),\quad
+  \mathcal{O}_V\ (\text{虚对象/中间层}),\quad
+  \mathcal{P}_V\ (\text{虚仓/顶层组织对象}).
+\]
+双层组织结构定义为
+\[
+  \Sigma := (\pi_1,\pi_2,\mathcal{C}),
+  \qquad
+  \pi_1:\mathcal{O}_R\to\mathcal{O}_V,\quad
+  \pi_2:\mathcal{O}_V\to\mathcal{P}_V,
+\]
+其中 $\mathcal{C}$ 为组织约束（容量、可合并/可拆分、锚定规则、结算规则、互斥/正交规则等）。
+\end{definition}
+
+\begin{definition}[D2（参数 $\theta$ 与参数同伦）]
+\label{def:tex28-ch8-d2}
+设参数空间 $\Theta\subseteq\RR^d$，参数同伦是一条连续路径
+\[
+  \theta:[0,1]\to\Theta,\qquad \tau\mapsto\theta(\tau).
+\]
+语义：固定组织 $\Sigma$ 时，通过连续调参改变触发/强度/门控等机制细节。
+\end{definition}
+
+\begin{definition}[D3（由组织诱导的聚合特征与决策算子）]
+\label{def:tex28-ch8-d3}
+设系统内部用于决策的聚合特征为
+\[
+  z_{\Sigma}(x)\in\RR^m,
+\]
+其由组织映射 $(\pi_1,\pi_2)$ 对实对象先分组再分组得到（聚合算子可为求和/最大/计数/范数/差分等，不限定具体形式）。
+令决策更新（含触发逻辑）写成抽象算子
+\[
+  x_{n+1}=\mathcal{U}\bigl(x_n,y_{n+1};z_{\Sigma}(x_n),\theta\bigr),
+\]
+其中 $y_{n+1}$ 为外部输入（不限定来源）。
+要点：$\theta$ 仅通过 $\mathcal{U}$ 起作用；但 $\mathcal{U}$ 的输入之一 $z_{\Sigma}(x)$ 由 $\Sigma$ 决定。
+\end{definition}
+
+\begin{definition}[D4（目标泛函与最优参数集）]
+\label{def:tex28-ch8-d4}
+定义待最小化评价泛函（抽象目标）
+\[
+  \mathcal{E}(\Sigma,\theta):=\mathbb{E}\!\Big[\int_0^T L\bigl(x(t),a(t)\bigr)\,dt\Big],
+\]
+其中 $a(t)$ 为由 $\mathcal{U}$ 诱导的策略/动作轨迹，$L$ 含性能项与成本项（不限定具体形式）。
+对固定组织 $\Sigma$，定义最优参数集（可非唯一）
+\[
+  \mathcal{A}(\Sigma):=\arg\min_{\theta\in\Theta}\mathcal{E}(\Sigma,\theta).
+\]
+\end{definition}
+
+\begin{definition}[D5（参数同伦高度不确定的形式化口径）]
+\label{def:tex28-ch8-d5}
+在 $\Theta$ 上取范数距离 $\|\cdot\|$，在组织空间 $\Omega$ 上定义最小编辑距离
+\[
+  d_{\Omega}(\Sigma_1,\Sigma_2):=
+  \text{把 }\Sigma_1\text{ 变成 }\Sigma_2\text{ 所需的最少组织原子操作数}.
+\]
+原子操作可取：把某个 $o\in\mathcal{O}_R$ 从一虚对象挪到另一虚对象；或把某个 $v\in\mathcal{O}_V$ 从一虚仓挪到另一虚仓；或一次合并/拆分。
+
+定义最优集之间 Hausdorff 距离
+\[
+  d_H(\mathcal{A}_1,\mathcal{A}_2):=
+  \max\!\left\{
+  \sup_{\theta\in\mathcal{A}_1}\inf_{\vartheta\in\mathcal{A}_2}\|\theta-\vartheta\|,
+  \sup_{\vartheta\in\mathcal{A}_2}\inf_{\theta\in\mathcal{A}_1}\|\theta-\vartheta\|
+  \right\}.
+\]
+称参数同伦高度不确定，若存在常数 $c>0$，使得在某基准组织附近，任意小组织改动都可能造成最优参数集合大幅漂移，即存在
+$\Sigma_1,\Sigma_2$ 满足
+\[
+  d_{\Omega}(\Sigma_1,\Sigma_2)=1
+  \quad\text{且}\quad
+  d_H\bigl(\mathcal{A}(\Sigma_1),\mathcal{A}(\Sigma_2)\bigr)\ge c.
+\]
+\end{definition}
+
+\subsection{公理（降级为定理）}
+\label{subsec:tex28-ch8-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（双层组织映射可致聚合特征跳变）]
+\label{thm:tex28-ch8-a1}
+设 $z_{\Sigma}(x)$ 由“先按 $\pi_1$ 分组、再按 $\pi_2$ 分组”的两层聚合生成，且聚合链包含至少一种非线性或阈值敏感运算
+（如 $\max$、阈值计数、截断、符号判定或分段函数）。
+则存在组织原子改动使 $d_{\Omega}=1$ 且 $z_{\Sigma}(x)$ 在给定状态下发生有限幅度跳变。
+\end{theorem}
+
+\begin{Certificate}[证书 A1（双层归属传导见证）]
+\label{cert:tex28-ch8-a1}
+证书为：任一原子对象 $o\in\mathcal{O}_R$ 的归属变化将先影响其中间簇 $\pi_1(o)$，再影响顶层簇 $\pi_2(\pi_1(o))$；
+若聚合链含阈值敏感环节，顶层输入集合单步变化即可触发输出分段切换。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+单次原子改动满足 $d_{\Omega}=1$，会改变至少一个对象在两层映射中的归属路径。
+于是顶层聚合输入集合发生替换；在存在阈值敏感或分段非线性聚合时，输入集合的此类变化会触发输出分支切换，
+因此 $z_{\Sigma}(x)$ 可发生有限幅度跳变。证毕。
+\end{proof}
+
+\subsection{引理（组织跳变向参数最优解跳变的传导）}
+\label{subsec:tex28-ch8-lemmas}
+
+\begin{lemma}[L1（组织改变会重写参数语义作用点，进而改变 $\mathcal{E}$ 分段结构）]
+\label{lem:tex28-ch8-l1}
+更新算子 $\mathcal{U}$ 依赖 $z_{\Sigma}(x)$，而 $z_{\Sigma}(x)$ 对 $\Sigma$ 可跳变（定理~\ref{thm:tex28-ch8-a1}）。
+因此同一参数 $\theta$ 在不同组织下可对应不同动作时序与成本结构，从而使 $\mathcal{E}(\Sigma,\theta)$ 的分段区域发生重构。
+\end{lemma}
+
+\begin{Certificate}[证书 L1（依赖链闭包见证）]
+\label{cert:tex28-ch8-l1}
+证书为依赖链：
+\[
+  \Sigma\Rightarrow z_{\Sigma}(x)\Rightarrow \mathcal{U}(\cdot;z_{\Sigma},\theta)
+  \Rightarrow x(\cdot),a(\cdot)\Rightarrow \mathcal{E}(\Sigma,\theta).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书链可知，组织变化先传导到聚合特征，再传导到决策分支，再传导到轨迹与成本。
+当聚合特征跨越分支阈值时，触发/分配/预算路径可整体切换，故 $\mathcal{E}$ 的分段结构改变。证毕。
+\end{proof}
+
+\begin{lemma}[L2（最优参数集映射 $\Sigma\mapsto\mathcal{A}(\Sigma)$ 一般不连续）]
+\label{lem:tex28-ch8-l2}
+若 $\mathcal{E}(\Sigma,\theta)$ 随组织发生分段结构切换（引理~\ref{lem:tex28-ch8-l1}），
+则原最优段可失效，新最优值可跃迁到参数空间远处区域，故最优参数集映射一般不连续。
+\end{lemma}
+
+\begin{Certificate}[证书 L2（分段最小点迁移见证）]
+\label{cert:tex28-ch8-l2}
+证书为：分段结构切换使“有效约束段 + 惩罚权重”重排，导致最小点从旧段迁移至新段。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+组织切换后，$\mathcal{E}$ 对同一 $\theta$ 的分段归属可能改变；
+原先实现最小值的参数不再位于新组织下的最优分段，新的最小值点可在远离旧点处出现，
+故 $\Sigma\mapsto\mathcal{A}(\Sigma)$ 一般不具连续性。证毕。
+\end{proof}
+
+\subsection{命题（强命题：双层组织同伦导致参数同伦高度不确定）}
+\label{subsec:tex28-ch8-props}
+
+\begin{proposition}[P1（一次组织原子改动可导致最优参数大幅跳变）]
+\label{prop:tex28-ch8-p1}
+存在组织结构 $\Sigma_1,\Sigma_2$ 满足
+\[
+  d_{\Omega}(\Sigma_1,\Sigma_2)=1,
+\]
+但对某个 $c>0$ 有
+\[
+  d_H\bigl(\mathcal{A}(\Sigma_1),\mathcal{A}(\Sigma_2)\bigr)\ge c.
+\]
+因此若系统允许双层组织同伦，则可推出 D5 所定义的参数同伦高度不确定。
+\end{proposition}
+
+\begin{Certificate}[证书 P1（阈值参数构造证书）]
+\label{cert:tex28-ch8-p1}
+构造设定如下：
+\begin{enumerate}
+  \item 参数向量含阈值参数 $\theta_T\in[\underline T,\overline T]$，分支条件为 $z_{\Sigma}(x)\ge \theta_T$；
+  \item 评价泛函含两类惩罚：漏触发惩罚 $P_{\mathrm{miss}}>0$ 与误触发惩罚 $P_{\mathrm{false}}>0$；
+  \item 单次组织原子改动后，在同一状态 $x$ 上有
+  $z_{\Sigma_1}(x)=a,\ z_{\Sigma_2}(x)=b$，且 $a>b$，并跨越关键阈值带。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 A1，$d_{\Omega}=1$ 的组织改动可使聚合特征发生跨阈值带变化，构造得 $a>b$。
+在惩罚主导下，为减小漏触发代价，$\Sigma_1$ 下最优阈值趋向满足 $\theta_T\lesssim a$；
+为减小误触发代价，$\Sigma_2$ 下最优阈值趋向满足 $\theta_T\gtrsim b$。
+于是可取
+\[
+  \theta_T^{(1)}\approx a,\qquad \theta_T^{(2)}\approx b,\qquad
+  |\theta_T^{(1)}-\theta_T^{(2)}|\approx a-b=:c>0.
+\]
+从而最优参数集合间存在正下界距离，即
+$d_H(\mathcal{A}(\Sigma_1),\mathcal{A}(\Sigma_2))\ge c$。证毕。
+\end{proof}
+
+\subsection{推论（语义结论的严格化）}
+\label{subsec:tex28-ch8-corollaries}
+
+\begin{corollary}[C1（组织同伦未定 $\Rightarrow$ 参数同伦不可稳定收敛）]
+\label{cor:tex28-ch8-c1}
+若运行中允许双层组织同伦，即存在时刻使
+\[
+  d_{\Omega}\bigl(\Sigma(t^-),\Sigma(t^+)\bigr)=1,
+\]
+则即便 $\theta(\tau)$ 连续变化，也无法保证沿同一固定目标面下降，
+因为目标面 $\mathcal{E}(\Sigma,\cdot)$ 会因 $\Sigma$ 跃迁而重构。
+因此参数同伦表现为高度不确定（目标漂移、最优点跳动、梯度方向失真）。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（目标面重构证书）]
+\label{cert:tex28-ch8-c1}
+证书为：命题~\ref{prop:tex28-ch8-p1} 给出最优集跃迁；引理~\ref{lem:tex28-ch8-l1} 给出目标分段结构重构。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+组织跃迁引起 $\mathcal{E}(\Sigma,\theta)$ 分段结构变化与最优集位置跃迁；
+故连续参数路径面对的是随时间变化的目标面，而非固定优化面。
+因此参数同伦缺乏稳定收敛保证，呈现高度不确定。证毕。
+\end{proof}
+
+\subsection{备注（直观解释与工程边界）}
+\label{subsec:tex28-ch8-remarks}
+
+\begin{remark}[组织同伦与参数同伦的本质差异]
+双层组织同伦是在对象归属/分组关系上做组合式重连，不是参数空间中的平滑微调；
+这类重连会改写聚合特征 $z_{\Sigma}$ 的定义域与统计结构。
+\end{remark}
+
+\begin{remark}[最优参数跳动的结构性来源]
+参数 $\theta$ 常用于对聚合量做阈值/速率/预算映射。
+当聚合量因组织重连而改变时，$\theta$ 的语义作用点随之漂移，最优参数跳动是结构性现象而非实现偶然。
+\end{remark}
+
+\begin{remark}[工程结论]
+组织同伦的不确定性会向下传导为参数同伦的不确定性。
+若希望参数同伦可稳定收敛，应先固化 $\Sigma$；或把 $\Sigma$ 与 $\theta$ 联合纳入优化（组织为主、参数为辅）。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{组织不确定性与算子充分性：JacGap 驱动扭曲的方向覆盖形式逻辑}
+\label{sec:tex28-ch9}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（定义 + 公理（降级为定理） + 引理 + 命题 + 推论）+ 备注}
+\label{subsec:tex28-ch9-logic-structure}
+
+本章采用抽象化口径，不绑定任何具体交易/行情/价格语义。
+核心目标是刻画：双层组织同伦的不确定性如何扩展可达方向集，
+并为 JacGap 驱动的频率--强度--算力扭曲提供障碍修复所需的充分算子空间。
+
+\subsection{定义（抽象化：障碍、算子空间、以及频率--强度--算力耦合）}
+\label{subsec:tex28-ch9-defs}
+
+\begin{definition}[D1（障碍空间与雅可比间隙）]
+\label{def:tex28-ch9-d1}
+令系统状态 $x\in\mathcal{X}$。定义障碍（缺陷）向量
+\[
+  e(x)\in\RR^n,
+\]
+并以其范数定义雅可比间隙（缺陷强度）
+\[
+  J(x):=\|e(x)\|\ge 0.
+\]
+定义缺陷势能（统计力学意义下的能量）
+\[
+  \Phi(x):=\Phi\bigl(J(x)\bigr),
+  \qquad
+  \Phi'(J)\ge 0.
+\]
+\end{definition}
+
+\begin{definition}[D2（参数同伦的局部修复算子族）]
+\label{def:tex28-ch9-d2}
+对每个固定组织结构 $\Sigma$，参数同伦允许使用一族局部修复算子
+\[
+  \mathcal{O}_{\Sigma}:=\{O_{\Sigma,\theta}\mid \theta\in\Theta\}.
+\]
+其作用在障碍向量上的一阶近似写作
+\[
+  e\ \mapsto\ e^{+}=e+b\,\Delta_{\Sigma,\theta}(e)+o(b),
+\]
+其中 $b\in[0,b_{\max}]$ 为强度/预算，$\Delta_{\Sigma,\theta}(e)$ 为算子诱导的一阶变化方向。
+本章不限定 $\Delta_{\Sigma,\theta}$ 的具体形式，仅要求一阶变化方向存在。
+\end{definition}
+
+\begin{definition}[D3（双层组织同伦及其诱导的重投影）]
+\label{def:tex28-ch9-d3}
+双层组织结构（实对象--虚对象--虚仓）记为
+\[
+  \Sigma=(\pi_1,\pi_2,\mathcal{C}),
+  \qquad
+  \pi_1:\mathcal{O}_R\to\mathcal{O}_V,\quad
+  \pi_2:\mathcal{O}_V\to\mathcal{P}_V,
+\]
+其中 $\mathcal{C}$ 为组织约束（容量/互斥/正交/合并拆分等）。
+
+组织同伦允许对 $\Sigma$ 执行离散重连/重分配。抽象地，记其在障碍空间上诱导可逆变换
+\[
+  T_{\Sigma}:\RR^n\to\RR^n,\qquad e\mapsto \tilde e=T_{\Sigma}e.
+\]
+语义：组织改变会改变误差聚合与约束正交关系，可等价理解为障碍空间中的坐标/投影结构改变。
+\end{definition}
+
+\begin{definition}[D4（充分的障碍修复算子空间）]
+\label{def:tex28-ch9-d4}
+称总算子空间 $\mathcal{O}_{\mathrm{tot}}$ 对势能 $\Phi$ 是充分（complete）的，
+若存在函数 $\delta(\cdot)>0$，使对任意满足 $J(x)>0$ 的状态，存在某算子 $O\in\mathcal{O}_{\mathrm{tot}}$
+与强度 $b\in(0,b_{\max}]$，满足
+\[
+  \Phi(x^{+})\le \Phi(x)-\delta(J(x))\cdot b.
+\]
+即对任意非零障碍，都能找到一个可执行修复动作使势能严格下降。
+\end{definition}
+
+\begin{definition}[D5（频率--强度--算力耦合：统计力学式驱动）]
+\label{def:tex28-ch9-d5}
+令在缺陷水平 $J$ 下的频率与强度命令为
+\[
+  r^{\mathrm{cmd}}=r(J),\qquad b^{\mathrm{cmd}}=b(J),
+\]
+并满足单调与限幅
+\[
+  J_2\ge J_1\Rightarrow r(J_2)\ge r(J_1),\ b(J_2)\ge b(J_1),\qquad
+  r\le r_{\max},\ b\le b_{\max}.
+\]
+令单次强度为 $b$ 的算力成本 $c_{\mathrm{tw}}(b)$ 连续且非减。给定单位时间可用算力 $C^{\mathrm{avail}}$，
+执行约束为
+\[
+  r^{\mathrm{exec}}\cdot c_{\mathrm{tw}}\!\bigl(b^{\mathrm{exec}}\bigr)\le C^{\mathrm{avail}}.
+\]
+该约束把 Gap 驱动（频率/强度）与工程稳定（算力上限）耦合为硬约束。
+\end{definition}
+
+\subsection{公理（降级为定理：证书 + 证明）}
+\label{subsec:tex28-ch9-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（固定组织下参数算子仅覆盖受限方向集）]
+\label{thm:tex28-ch9-a1}
+对固定 $\Sigma$，定义可达一阶变化方向集
+\[
+  U_{\Sigma}(e):=\{\Delta_{\Sigma,\theta}(e)\mid \theta\in\Theta\}\subseteq \RR^n.
+\]
+一般情形下 $U_{\Sigma}(e)\neq \RR^n$，即存在参数同伦不可直接修复的障碍分量。
+\end{theorem}
+
+\begin{Certificate}[证书 A1（数学归纳法证书：参数维受限下的方向闭包）]
+\label{cert:tex28-ch9-a1}
+证书条件：
+\begin{enumerate}
+  \item $\Theta$ 维数有限，且算子族结构固定；
+  \item 存在至少一个非平凡约束使某些误差分量对所有 $\theta$ 不可被改变。
+\end{enumerate}
+归纳结构：以“可生成方向的组合阶数 $k$”为指标，基步 $k=1$ 给出有限参数族的一阶方向集；
+归纳步说明在固定约束下，有限次闭包仍停留在受限子空间内，无法扩展到全空间。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+有限参数族诱导的可达方向通常落在低维流形/锥内；
+若某些分量受约束对所有 $\theta$ 恒不可达，则这些分量在任何有限阶组合下仍不可达。
+故 $U_{\Sigma}(e)$ 一般是 $\RR^n$ 的真子集，存在固定组织下不可直接修复的障碍方向。证毕。
+\end{proof}
+
+\begin{theorem}[公理（降级为定理）A2（双层组织同伦生成可变方向集族）]
+\label{thm:tex28-ch9-a2}
+组织变换 $T_{\Sigma}$ 作用于障碍空间，会改变可达方向集并形成方向集族
+\[
+  \mathfrak{U}:=\{U_{\Sigma}(\cdot)\mid \Sigma\in\Omega\}.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 A2（数学归纳法证书：组织原子操作步上的方向集演化）]
+\label{cert:tex28-ch9-a2}
+证书条件：双层组织允许对象归属重连/重分配，且会改变聚合与正交约束结构。
+归纳指标取组织原子操作步数 $k$：
+基步 $k=0$ 时方向集为 $U_{\Sigma_0}$；
+归纳步 $k\to k+1$ 时一次重连改变 $T_{\Sigma}$ 与约束结构，从而改变对应 $U_{\Sigma}$。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+组织改变 $\Sigma\Rightarrow$ 聚合关系与约束关系改变；
+由 D3 可表述为障碍空间坐标/投影结构改变，即 $T_{\Sigma}$ 改变；
+进而参数算子的一阶方向像改变，即 $U_{\Sigma}$ 改变。
+故随组织同伦可得到方向集族 $\mathfrak{U}$。证毕。
+\end{proof}
+
+\subsection{引理（组织不确定性导向方向覆盖）}
+\label{subsec:tex28-ch9-lemmas}
+
+\begin{lemma}[L1（轨道张成引理：可置换条件下并集方向张成全空间）]
+\label{lem:tex28-ch9-l1}
+设存在参考组织 $\Sigma_0$ 及其非零方向子集 $U_{\Sigma_0}$。
+若组织同伦诱导变换集合
+\[
+  \mathcal{T}:=\{T_{\Sigma}\mid \Sigma\in\Omega\}
+\]
+满足：对标准基 $\{e_i\}_{i=1}^{n}$，任意 $e_i$ 都存在 $T\in\mathcal{T}$ 与 $u\in U_{\Sigma_0}$ 使
+\[
+  Tu\parallel e_i,
+\]
+则有
+\[
+  \mathrm{span}\!\Big(\bigcup_{\Sigma\in\Omega}U_{\Sigma}\Big)=\RR^n.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L1（坐标可对齐证书）]
+\label{cert:tex28-ch9-l1}
+证书即“对每个坐标轴都可在某组织下获得同向可达方向”的可置换/可对齐条件。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若每个基向量 $e_i$ 都可由某组织下的可达方向对齐得到，
+则全部基向量均落入并集方向的张成空间。
+标准基张成 $\RR^n$，故并集方向张成全空间。证毕。
+\end{proof}
+
+\subsection{命题（强结论：组织不确定性给出障碍修复充分算子空间）}
+\label{subsec:tex28-ch9-props}
+
+\begin{proposition}[P1（充分性：双层组织不确定性 $\Rightarrow$ 总算子空间 complete）]
+\label{prop:tex28-ch9-p1}
+定义总算子空间
+\[
+  \mathcal{O}_{\mathrm{tot}}:=\bigcup_{\Sigma\in\Omega}\mathcal{O}_{\Sigma}.
+\]
+若引理~\ref{lem:tex28-ch9-l1} 的轨道张成条件成立，且满足局部下降证书 H：
+存在 $\kappa>0$，使对任意 $\Sigma$ 与 $e\neq 0$，只要 $U_{\Sigma}(e)$ 含有与 $-e$ 正相关的可达方向
+（即存在 $\Delta\in U_{\Sigma}(e)$ 使 $\langle e,\Delta\rangle<0$），就可选取某 $(\theta,b)$ 使
+\[
+  \|e^{+}\|^2
+  \le
+  \|e\|^2-\kappa\,b\,\|P_{U_{\Sigma}}e\|^2+o(b),
+\]
+从而 $\Phi$ 严格下降。
+则 $\mathcal{O}_{\mathrm{tot}}$ 按定义~\ref{def:tex28-ch9-d4} 对障碍修复充分。
+\end{proposition}
+
+\begin{Certificate}[证书 P1（方向全覆盖证书 + 局部下降证书 H）]
+\label{cert:tex28-ch9-p1}
+证书由两部分组成：
+\begin{enumerate}
+  \item 方向全覆盖：$\mathrm{span}(\bigcup_{\Sigma}U_{\Sigma})=\RR^n$（由 L1）；
+  \item 局部下降：证书 H 保证存在下降方向时可实现单步势能严格下降。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 L1，对任意非零 $e$，存在某组织 $\Sigma^{\star}$ 使 $P_{U_{\Sigma^{\star}}}e\neq 0$，
+即在该组织下存在非零可修复投影。
+因此可在 $U_{\Sigma^{\star}}(e)$ 中选取与 $-e$ 成下降内积的可达方向。
+由局部下降证书 H，存在对应 $(\theta,b)$ 使势能严格下降。
+因为 $e\neq 0$ 任意，故任意 $J>0$ 状态都存在可执行下降动作，满足 D4 的充分性定义。证毕。
+\end{proof}
+
+\subsection{推论（充分算子空间与频率--强度--算力驱动的耦合）}
+\label{subsec:tex28-ch9-corollaries}
+
+\begin{corollary}[C1（充分性 + Gap 驱动 + 算力约束 $\Rightarrow$ 可实现耗散修复动力学）]
+\label{cor:tex28-ch9-c1}
+在命题~\ref{prop:tex28-ch9-p1} 的充分性成立时，JacGap 驱动策略满足：
+\begin{itemize}
+  \item 当 $J$ 大，$r(J),b(J)$ 单调增大，单位时间修复尝试次数与力度增大（耗散增强）；
+  \item 当 $J\to 0$，门控/阻尼使 $r,b\to 0$，抑制零附近抖动；
+  \item 全程满足硬约束 $r^{\mathrm{exec}}c_{\mathrm{tw}}(b^{\mathrm{exec}})\le C^{\mathrm{avail}}$，保证工程稳定。
+\end{itemize}
+由充分算子空间可知任意 $J>0$ 至少存在一个可执行下降动作，
+因此该驱动不会陷入“无算子可用导致的停滞态”。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（结构可行性证书）]
+\label{cert:tex28-ch9-c1}
+证书为：命题~\ref{prop:tex28-ch9-p1} 给出的可修复方向存在性，叠加定义~\ref{def:tex28-ch9-d5} 的算力硬约束。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+充分性保证“存在下降动作”，频率/强度单调律保证“缺陷大时增强修复驱动”，
+算力约束保证“执行可实现且稳定”。
+三者合并得到可执行的耗散式修复动力学，并排除由方向不可达造成的结构性卡死。证毕。
+\end{proof}
+
+\subsection{备注（已证结论与待签发证书）}
+\label{subsec:tex28-ch9-remarks}
+
+\begin{remark}[已证（纯结构）]
+若双层组织同伦诱导的变换足够丰富，使并集方向张成障碍空间（引理~\ref{lem:tex28-ch9-l1}），
+则“组织不确定性 $\Rightarrow$ 算子空间充分”成立（命题~\ref{prop:tex28-ch9-p1} 主干）。
+\end{remark}
+
+\begin{remark}[未证明但可检验的关键证书]
+\begin{itemize}
+  \item 轨道张成条件是否在具体“实单--虚单--虚仓”组织操作集合下成立（可用可达性/置换生成性质验证）；
+  \item 局部下降证书 H 是否对具体扭曲算子成立（可用单步 $\Delta\Phi<0$ 审计与回放统计签发）。
+\end{itemize}
+\end{remark}
+
+\begin{remark}[最终结构性结论]
+一旦上述两类证书成立，即得到严格结论：
+组织层的不确定性为 JacGap 动力驱动的频率--强度--算力同伦扭曲提供障碍修复所需的充分算子空间，
+使统计力学式耗散收敛机制在结构上可行且不易卡死。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{微观遂穿与算子充分性等价：严格下降微步的形式逻辑}
+\label{sec:tex28-ch10}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（定义 + 公理（降级为定理） + 定理 + 引理 + 命题 + 推论）+ 备注}
+\label{subsec:tex28-ch10-logic-structure}
+
+本章把“微观遂穿”严格化为：在任意非零障碍下都存在可执行的严格下降微步。
+全章保持抽象化口径，不依赖任何外部场景语义。
+各条断言统一配套“证书 + 证明（基于数学符号推演逻辑的谓词因果链）”；
+公理降级条目额外给出数学归纳法证书。
+
+\subsection{定义（把微观遂穿严格化为严格下降微步）}
+\label{subsec:tex28-ch10-defs}
+
+\begin{definition}[D1（障碍向量、雅可比间隙与势能）]
+\label{def:tex28-ch10-d1}
+令系统状态 $x\in\mathcal{X}$。定义障碍（缺陷）向量
+\[
+  e(x)\in\RR^n,\qquad J(x):=\|e(x)\|\ge 0,
+\]
+并定义缺陷势能
+\[
+  \Phi(x):=\varphi\bigl(J(x)\bigr),
+  \qquad
+  \varphi'(J)\ge 0.
+\]
+\end{definition}
+
+\begin{definition}[D2（修复算子与微步强度）]
+\label{def:tex28-ch10-d2}
+修复算子由组织--参数共同索引：
+\[
+  O_{\Sigma,\theta}\in\mathcal{O}_{\Sigma},
+  \qquad
+  \Sigma\in\Omega,\ \theta\in\Theta.
+\]
+一次修复触发以强度/预算 $b\in(0,b_{\max}]$ 执行，障碍向量满足微步近似
+\[
+  e^{+}=e+b\,\Delta_{\Sigma,\theta}(e)+o(b),
+\]
+其中 $\Delta_{\Sigma,\theta}(e)\in\RR^n$ 为一阶变化方向。
+\end{definition}
+
+\begin{definition}[D3（充分的障碍修复算子空间）]
+\label{def:tex28-ch10-d3}
+定义总算子空间
+\[
+  \mathcal{O}_{\mathrm{tot}}:=\bigcup_{\Sigma\in\Omega}\mathcal{O}_{\Sigma}.
+\]
+称 $\mathcal{O}_{\mathrm{tot}}$ 对势能 $\Phi$ 充分，若
+\[
+  \forall x\in\mathcal{X},\ J(x)>0
+  \Rightarrow
+  \exists (\Sigma,\theta)\ \exists b\in(0,b_{\max}]
+  \ \text{s.t.}\ \Phi(x^{+})<\Phi(x).
+\]
+即任意非零障碍都存在可执行修复微步使势能严格下降。
+\end{definition}
+
+\begin{definition}[D4（修复算子的微观遂穿自由度充分）]
+\label{def:tex28-ch10-d4}
+称“微观遂穿自由度充分”，若对任意满足 $J(x)>0$ 的状态，存在某 $(\Sigma,\theta)$ 使
+\[
+  D_{\Sigma,\theta}\Phi(x)
+  :=\lim_{b\to0^+}\frac{\Phi(x^{+})-\Phi(x)}{b}<0.
+\]
+其含义是：在微观尺度上总能找到穿过障碍的严格下降方向。
+\end{definition}
+
+\subsection{公理（降级为定理：证书 + 证明）}
+\label{subsec:tex28-ch10-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（微步展开与方向导数判据）]
+\label{thm:tex28-ch10-a1}
+若微步近似
+\[
+  e^{+}=e+b\,\Delta_{\Sigma,\theta}(e)+o(b)
+\]
+成立，且 $\Phi$ 沿该微步可写为
+\[
+  \Phi(x^{+})=\Phi(x)+b\,D_{\Sigma,\theta}\Phi(x)+o(b),
+\]
+则“存在严格下降微步”与“存在负方向导数”在微观尺度上一致可判。
+\end{theorem}
+
+\begin{Certificate}[证书 A1（数学归纳法证书：离散微步序列展开）]
+\label{cert:tex28-ch10-a1}
+将连续微步离散化为序列 $k=0,1,2,\dots$。证书结构：
+\begin{enumerate}
+  \item 基步：$k=0\to1$ 时满足一阶展开定义；
+  \item 归纳步：若第 $k$ 步满足展开，则第 $k+1$ 步在同样正则条件下仍满足同型展开，
+  因而方向导数符号与微步增量符号保持一致判据。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由展开式可得
+\[
+  \Phi(x^{+})-\Phi(x)=b\,D_{\Sigma,\theta}\Phi(x)+o(b).
+\]
+当 $b\to0^+$ 时，$o(b)/b\to0$，故增量符号由 $D_{\Sigma,\theta}\Phi(x)$ 主导。
+因此“严格下降微步存在”与“负方向导数存在”在微观极限下一致。证毕。
+\end{proof}
+
+\subsection{定理（证书 + 证明）}
+\label{subsec:tex28-ch10-theorems}
+
+\begin{theorem}[T1（二次势能下的可执行严格下降判据）]
+\label{thm:tex28-ch10-t1}
+若取
+\[
+  \Phi(x)=\frac12\|e(x)\|^2,
+\]
+且存在某 $(\Sigma,\theta)$ 满足
+\[
+  \langle e,\Delta_{\Sigma,\theta}(e)\rangle<0,
+\]
+则存在 $b_0>0$，使任意 $b\in(0,b_0]$ 都有
+\[
+  \Phi(x^+)<\Phi(x).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 T1（二次型微步展开证书）]
+\label{cert:tex28-ch10-t1}
+证书为
+\[
+  \Phi(x^+)-\Phi(x)=b\langle e,\Delta_{\Sigma,\theta}(e)\rangle+o(b).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $\langle e,\Delta_{\Sigma,\theta}(e)\rangle<0$，取 $\epsilon>0$ 使
+$\langle e,\Delta_{\Sigma,\theta}(e)\rangle\le-\epsilon$。
+又因 $o(b)/b\to0$，存在 $b_0>0$ 使 $o(b)\le\frac{\epsilon}{2}b$（$0<b\le b_0$）。
+于是
+\[
+  \Phi(x^+)-\Phi(x)
+  \le -\epsilon b+\frac{\epsilon}{2}b
+  =-\frac{\epsilon}{2}b<0.
+\]
+故结论成立。证毕。
+\end{proof}
+
+\subsection{引理（方向条件与严格下降的连接）}
+\label{subsec:tex28-ch10-lemmas}
+
+\begin{lemma}[L1（负方向导数 $\Rightarrow$ 足够小 $b$ 下严格下降）]
+\label{lem:tex28-ch10-l1}
+若对某 $(\Sigma,\theta)$ 有 $D_{\Sigma,\theta}\Phi(x)<0$，则存在 $b_0>0$，使任意 $b\in(0,b_0]$ 都满足
+\[
+  \Phi(x^{+})<\Phi(x).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L1（小量主导证书）]
+\label{cert:tex28-ch10-l1}
+证书为展开式
+\[
+  \Phi(x^{+})=\Phi(x)+b\,D_{\Sigma,\theta}\Phi(x)+o(b).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $D_{\Sigma,\theta}\Phi(x)<0$，取 $\epsilon>0$ 使 $D_{\Sigma,\theta}\Phi(x)\le-\epsilon$。
+又因 $o(b)/b\to0$，存在 $b_0$ 使 $o(b)\le \frac{\epsilon}{2}b$。
+于是
+\[
+  \Phi(x^{+})-\Phi(x)\le -\epsilon b+\frac{\epsilon}{2}b=-\frac{\epsilon}{2}b<0.
+\]
+证毕。
+\end{proof}
+
+\begin{lemma}[L2（当 $\Phi=\frac12\|e\|^2$ 时的内积判据）]
+\label{lem:tex28-ch10-l2}
+若
+\[
+  \Phi(x)=\frac12\|e(x)\|^2,
+\]
+则
+\[
+  D_{\Sigma,\theta}\Phi(x)=\langle e,\Delta_{\Sigma,\theta}(e)\rangle.
+\]
+因此 $D_{\Sigma,\theta}\Phi(x)<0$ 等价于
+\[
+  \langle e,\Delta_{\Sigma,\theta}(e)\rangle<0.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L2（二次型展开证书）]
+\label{cert:tex28-ch10-l2}
+证书为平方范数展开
+\[
+  \|e+b\Delta+o(b)\|^2
+  =\|e\|^2+2b\langle e,\Delta\rangle+o(b).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书式乘以 $\frac12$ 后除以 $b$，再取 $b\to0^+$ 极限，得到
+$D_{\Sigma,\theta}\Phi(x)=\langle e,\Delta_{\Sigma,\theta}(e)\rangle$。证毕。
+\end{proof}
+
+\subsection{命题（核心等价性）}
+\label{subsec:tex28-ch10-props}
+
+\begin{proposition}[P1（总算子空间充分 $\Longleftrightarrow$ 微观遂穿自由度充分）]
+\label{prop:tex28-ch10-p1}
+\[
+  \boxed{\ \mathcal{O}_{\mathrm{tot}}\ \text{对障碍修复充分}\ }
+  \Longleftrightarrow
+  \boxed{\ \text{修复算子的微观遂穿自由度充分}\ }.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书 P1（双向蕴含证书）]
+\label{cert:tex28-ch10-p1}
+证书由两部分组成：
+\begin{enumerate}
+  \item 左向右：设 $g(b):=\Phi(x^+)-\Phi(x)$，结合 A1 与
+  $g(b)=bD_{\Sigma,\theta}\Phi(x)+o(b)$ 的微步展开，把“严格下降微步存在性”转写为“负方向导数判据”；
+  \item 右向左：由 L1，负方向导数可推出足够小微步下的严格下降。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+($\Rightarrow$) 设 $\mathcal{O}_{\mathrm{tot}}$ 充分。任取 $J(x)>0$，存在 $(\Sigma,\theta)$ 与可执行微步
+$b\in(0,b_{\max}]$ 使 $\Phi(x^+)<\Phi(x)$。记
+\[
+  g(b):=\Phi(x^+)-\Phi(x)=bD_{\Sigma,\theta}\Phi(x)+o(b).
+\]
+由公理（降级为定理）A1，微观尺度下“存在严格下降微步”与“存在负方向导数”一致可判。
+因此由 D3 给出的严格下降微步存在性可直接推出 $D_{\Sigma,\theta}\Phi(x)<0$。
+等价地，若反设 $D_{\Sigma,\theta}\Phi(x)\ge0$，则与 A1 判据冲突。故微观遂穿自由度充分。
+
+($\Leftarrow$) 设微观遂穿自由度充分。则任意 $J(x)>0$ 下存在 $(\Sigma,\theta)$ 使
+$D_{\Sigma,\theta}\Phi(x)<0$。由引理~\ref{lem:tex28-ch10-l1}，存在足够小的
+$b\in(0,b_{\max}]$ 使 $\Phi(x^+)<\Phi(x)$。于是满足定义~\ref{def:tex28-ch10-d3} 的充分性条件，
+故 $\mathcal{O}_{\mathrm{tot}}$ 充分。证毕。
+\end{proof}
+
+\subsection{推论（与频率--强度--算力机制的衔接）}
+\label{subsec:tex28-ch10-corollaries}
+
+\begin{corollary}[C1（等价性的操作含义：可重复调用的受控耗散修复）]
+\label{cor:tex28-ch10-c1}
+命题~\ref{prop:tex28-ch10-p1} 说明：
+\begin{itemize}
+  \item “组织不确定性扩展出的总算子空间充分”
+  \item 等价于“任意非零 JacGap（$J>0$）下都存在可执行的严格下降微步（微观遂穿方向）”。
+\end{itemize}
+若再叠加已建立执行约束
+\[
+  r^{\mathrm{exec}}\,c_{\mathrm{tw}}(b^{\mathrm{exec}})\le C^{\mathrm{avail}},
+  \qquad
+  J\uparrow\Rightarrow r,b\uparrow,\
+  J\downarrow\Rightarrow r,b\downarrow,
+\]
+则下降方向不仅形式存在，而且可被频率--强度--算力机制受控重复调用，
+从而形成可实现的耗散式修复动力学，避免“无下降方向”导致的结构性卡死。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（等价性到工程可执行性的传递证书）]
+\label{cert:tex28-ch10-c1}
+证书为：P1 的方向存在性 + 执行硬约束与单调调度律的可实现性。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 P1，任意 $J>0$ 有可执行严格下降微步；由执行约束，系统可在算力可承受范围内重复调用该类微步；
+由单调调度律，缺陷大时增强耗散，缺陷小时减弱驱动并抑制抖动。故形成受控耗散修复动力学。证毕。
+\end{proof}
+
+\subsection{备注（为何称为自由度充分而非随机碰运气）}
+\label{subsec:tex28-ch10-remarks}
+
+\begin{remark}[自由度不足时的结构性失败]
+若总算子空间不充分，则存在某些 $e\neq0$ 对所有可用微步都满足 $D\Phi\ge0$，
+即自由度不足导致障碍不可遂穿。
+\end{remark}
+
+\begin{remark}[自由度充分时的结构性保证]
+若总算子空间充分，则每个 $e\neq0$ 都存在 $D\Phi<0$ 的方向，
+即自由度足以在微观尺度上找到遂穿通道。
+\end{remark}
+
+\begin{remark}[可进一步量化的证书方向]
+可在 D4 基础上加入秩/覆盖率证书，例如
+\[
+  \mathrm{rank}\!\bigl(\mathrm{span}\{\Delta_{\Sigma,\theta}(e)\}\bigr)=n
+\]
+或给出投影下界；但命题~\ref{prop:tex28-ch10-p1} 的等价骨架保持不变。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{统计力学最小势能全局最优路径与收敛：证书化形式逻辑章}
+\label{sec:tex28-ch11}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（定义 + 公理（降级为定理：证书+证明） + 引理（证书+证明） + 命题（证书+证明） + 推论（证书+证明））+ 备注}
+\label{subsec:tex28-ch11-logic-structure}
+
+本章目标是把“统计力学最小势能全局最优路径”与“收敛”写成可审计断言。
+全章统一采用“证书 + 证明（基于数学符号推演逻辑的谓词因果链）”口径。
+
+\subsection{定义（最优路径与收敛的严格化）}
+\label{subsec:tex28-ch11-defs}
+
+\begin{definition}[D1（构型空间、势能与全局最小集）]
+\label{def:tex28-ch11-d1}
+令系统构型（状态）为 $x\in\mathcal{X}$。给定势能
+\[
+  \Phi:\mathcal{X}\to\RR_{\ge 0},
+  \qquad
+  \Phi_*:=\inf_{x\in\mathcal{X}}\Phi(x),
+  \qquad
+  \mathcal{M}:=\arg\min_{x\in\mathcal{X}}\Phi(x).
+\]
+\end{definition}
+
+\begin{definition}[D2（雅可比间隙与“零缺陷等价全局最小”证书）]
+\label{def:tex28-ch11-d2}
+定义可观测缺陷量
+\[
+  J(x):=\JacGap(x)\in\RR_{\ge 0}.
+\]
+要求其满足
+\[
+  J(x)=0\ \Longleftrightarrow\ x\in\mathcal{M},
+  \qquad
+  \exists\,\underline c,\overline c>0:\
+  \underline c\,J(x)^2\le \Phi(x)-\Phi_*\le \overline c\,J(x)^2.
+\]
+该条件把“最小势能”与“Gap 归零”进行严格绑定。
+\end{definition}
+
+\begin{definition}[D3（微观修复算子、等效速度与频率--强度--算力约束）]
+\label{def:tex28-ch11-d3}
+一次微观修复动作写为小步更新
+\[
+  x^+=x+b\,v+o(b),
+  \qquad
+  b\in(0,b_{\max}],\ v\in\RR^d.
+\]
+若触发频率为 $r(t)$（单位时间触发次数），则宏观等效速度写为
+\[
+  \dot x(t)\approx r(t)\,b(t)\,v(t).
+\]
+令强度成本 $c_{\mathrm{tw}}(b)$ 连续且关于 $b$ 非减，算力预算为 $C^{\mathrm{avail}}(t)\ge 0$，硬约束为
+\[
+  r(t)\,c_{\mathrm{tw}}(b(t))\le C^{\mathrm{avail}}(t).
+\]
+这就是“频率--强度--算力”的耦合约束。
+\end{definition}
+
+\begin{definition}[D4（统计力学最优路径的 Rayleigh 变分刻画）]
+\label{def:tex28-ch11-d4}
+令 $M\succ0$ 为阻力/度量矩阵，定义 Rayleigh 泛函\cite{onsager1931,ambrosio2008}
+\[
+  \mathcal{R}(x,\dot x):=\nabla\Phi(x)\cdot\dot x+\frac12\|\dot x\|_{M}^{2},
+  \qquad
+  \|\dot x\|_{M}^{2}:=\dot x^\top M\dot x.
+\]
+把“最优路径”定义为逐时刻最小化轨线
+\[
+  \dot x(t)\in\arg\min_{\dot x\in\mathcal{K}(x(t))}\mathcal{R}(x(t),\dot x),
+\]
+其中 $\mathcal{K}(x)$ 为总修复算子空间诱导的可行速度集合（含门控、算力上限等约束）。
+\end{definition}
+
+\subsection{公理（降级为定理：证书 + 证明）}
+\label{subsec:tex28-ch11-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（充分自由度/微观遂穿：任意非最小态存在严格下降方向）]
+\label{thm:tex28-ch11-a1}
+存在常数 $\kappa>0$，使得对任意 $x\notin\mathcal{M}$，存在可行速度 $\dot x\in\mathcal{K}(x)$ 满足
+\[
+  \nabla\Phi(x)\cdot\dot x
+  \le
+  -\kappa\|\nabla\Phi(x)\|_{M^{-1}}^{2},
+  \qquad
+  \|\nabla\Phi\|_{M^{-1}}^{2}:=\nabla\Phi^\top M^{-1}\nabla\Phi.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 A1（充分自由度证书 + 数学归纳法证书）]
+\label{cert:tex28-ch11-a1}
+证书分两层：
+\begin{enumerate}
+  \item 连续层：任意 $J(x)>0$ 存在可执行方向使势能方向导数为负，并可归一化为 $M^{-1}$ 度量下的下界；
+  \item 离散层：对离散轨线 $x_{n+1}=x_n+\Delta t\,\dot x_n$，基步 $n=0$ 与归纳步
+  “$x_n\notin\mathcal{M}\Rightarrow$ 可选 $\dot x_n$ 满足上式”成立，从而形成逐步可执行下降证书。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由“微观遂穿自由度充分”可得：任意 $J(x)>0$ 存在可执行微步使势能方向导数为负。
+将该微步取连续极限，得到某 $\dot x\in\mathcal{K}(x)$ 使 $\nabla\Phi(x)\cdot\dot x<0$。
+再以 $M$ 度量归一化并吸收常数，即可写成
+\[
+  \nabla\Phi(x)\cdot\dot x
+  \le
+  -\kappa\|\nabla\Phi(x)\|_{M^{-1}}^{2}.
+\]
+归纳层由证书~\ref{cert:tex28-ch11-a1} 给出：每一步在非最小态都可选择下降可行速度，故结论可沿离散执行链持续成立。证毕。
+\end{proof}
+
+\begin{theorem}[公理（降级为定理）A2（算力门控不致停滞：远离最小态保持非零可行动能）]
+\label{thm:tex28-ch11-a2}
+存在函数 $\underline r(J)>0,\underline b(J)>0$ 与常数 $J_0>0$，使当 $J(x)\ge J_0$ 时
+\[
+  r^{\mathrm{exec}}\ge \underline r(J),
+  \qquad
+  b^{\mathrm{exec}}\ge \underline b(J),
+  \qquad
+  r^{\mathrm{exec}}c_{\mathrm{tw}}(b^{\mathrm{exec}})\le C^{\mathrm{avail}}.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 A2（非停滞执行证书）]
+\label{cert:tex28-ch11-a2}
+证书为“门控开启区间 $J\ge J_0$ 内，执行速率与执行强度存在正下界且满足算力硬约束”。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+当缺陷进入门控开启区间时，频率--强度调度律给出正的执行下界，
+同时 $r^{\mathrm{exec}}c_{\mathrm{tw}}(b^{\mathrm{exec}})\le C^{\mathrm{avail}}$ 保证硬约束不破坏可执行性。
+因此不会出现“有下降方向但永远不执行”的停滞病态。证毕。
+\end{proof}
+
+\subsection{引理（最优速度显式形式与势能单调性）}
+\label{subsec:tex28-ch11-lemmas}
+
+\begin{lemma}[L1（Rayleigh 最小化给出最陡下降速度）]
+\label{lem:tex28-ch11-l1}
+若 $\mathcal{K}(x)$ 无额外几何约束（或仅含范数上限且不激活），则
+\[
+  \arg\min_{\dot x}\left(\nabla\Phi(x)\cdot\dot x+\frac12\|\dot x\|_M^2\right)
+  =
+  \left\{-M^{-1}\nabla\Phi(x)\right\}.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L1（一阶最优条件证书）]
+\label{cert:tex28-ch11-l1}
+证书为驻点方程
+\[
+  \nabla_{\dot x}\mathcal{R}(x,\dot x)=\nabla\Phi(x)+M\dot x=0.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch11-l1} 得 $M\dot x=-\nabla\Phi(x)$，因 $M\succ0$ 可逆，故
+\[
+  \dot x=-M^{-1}\nabla\Phi(x).
+\]
+该点是严格凸二次泛函的唯一极小点。证毕。
+\end{proof}
+
+\begin{lemma}[L2（沿最优速度势能单调下降）]
+\label{lem:tex28-ch11-l2}
+取 $\dot x=-M^{-1}\nabla\Phi(x)$，则
+\[
+  \frac{d}{dt}\Phi(x(t))
+  =\nabla\Phi(x(t))\cdot\dot x(t)
+  =-\|\nabla\Phi(x(t))\|_{M^{-1}}^2
+  \le 0.
+\]
+当 $x\notin\mathcal{M}$ 且 $\nabla\Phi(x)\neq 0$ 时，上式严格小于 $0$。
+\end{lemma}
+
+\begin{Certificate}[证书 L2（链式法则 + 度量负定证书）]
+\label{cert:tex28-ch11-l2}
+证书为
+\[
+  \frac{d}{dt}\Phi=\nabla\Phi\cdot\dot x,\qquad
+  \dot x=-M^{-1}\nabla\Phi,\qquad
+  M^{-1}\succ0.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由链式法则得 $\frac{d}{dt}\Phi=\nabla\Phi\cdot\dot x$。
+代入 $\dot x=-M^{-1}\nabla\Phi$，得到
+\[
+  \frac{d}{dt}\Phi=-\nabla\Phi^\top M^{-1}\nabla\Phi=-\|\nabla\Phi\|_{M^{-1}}^2\le0.
+\]
+当 $\nabla\Phi\neq0$ 时由正定性得严格负值。证毕。
+\end{proof}
+
+\subsection{命题（全局最优路径收敛的可证足够条件）}
+\label{subsec:tex28-ch11-props}
+
+\begin{proposition}[P1（收敛定理：$\Phi(t)\to\Phi_*$ 且 $J(t)\to0$）]
+\label{prop:tex28-ch11-p1}
+若以下条件同时成立：
+\begin{enumerate}
+  \item 势能良性：$\Phi\in C^1$，下界为 $\Phi_*$，且满足定义~\ref{def:tex28-ch11-d2} 的二次夹逼；
+  \item 充分自由度：定理~\ref{thm:tex28-ch11-a1} 成立；
+  \item 非停滞执行：定理~\ref{thm:tex28-ch11-a2} 成立；
+  \item 全局性证书：$\nabla\Phi(x)=0\Rightarrow x\in\mathcal{M}$（或更强地，$\Phi$ 为凸函数）。
+\end{enumerate}
+则对由定义~\ref{def:tex28-ch11-d4} 给出的路径 $x(t)$，有
+\[
+  \Phi(x(t))\downarrow\Phi_*,
+  \qquad
+  J(x(t))\to0,
+  \qquad
+  \operatorname{dist}(x(t),\mathcal{M})\to0.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书 P1（耗散积分 + 极限集证书）]
+\label{cert:tex28-ch11-p1}
+证书由三部分组成：
+\begin{enumerate}
+  \item 单调耗散：$\frac{d}{dt}\Phi\le -c\|\nabla\Phi\|_{M^{-1}}^2\le0$（$c>0$）；
+  \item 可积性：$\int_0^\infty \|\nabla\Phi(x(t))\|_{M^{-1}}^2dt<\infty$；
+  \item 极限点判别：结合非停滞执行与全局性证书，极限点只能落在 $\mathcal{M}$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由引理~\ref{lem:tex28-ch11-l2} 与定理~\ref{thm:tex28-ch11-a1} 的约束化版本，存在 $c>0$ 使
+\[
+  \frac{d}{dt}\Phi(x(t))\le -c\|\nabla\Phi(x(t))\|_{M^{-1}}^2\le 0.
+\]
+故 $\Phi(x(t))$ 单调不增且下界为 $\Phi_*$，于是极限 $\bar\Phi:=\lim_{t\to\infty}\Phi(x(t))$ 存在。
+对上式在 $[0,\infty)$ 积分得
+\[
+  \int_0^\infty \|\nabla\Phi(x(t))\|_{M^{-1}}^2dt
+  \le
+  \frac{1}{c}\bigl(\Phi(x(0))-\bar\Phi\bigr)
+  <\infty.
+\]
+由定理~\ref{thm:tex28-ch11-a2} 排除“长期停滞于高缺陷区而无有效执行”，结合标准不变集结论，可得极限点满足
+$\nabla\Phi=0$。再由条件 4 推出极限点属于 $\mathcal{M}$，从而 $\bar\Phi=\Phi_*$。
+最后利用定义~\ref{def:tex28-ch11-d2} 的二次夹逼
+\[
+  \underline c\,J(x(t))^2\le \Phi(x(t))-\Phi_*\le \overline c\,J(x(t))^2,
+\]
+可得 $\Phi(x(t))\to\Phi_*\Rightarrow J(x(t))\to0$。再由 $J=0\Leftrightarrow x\in\mathcal{M}$，得到
+$\operatorname{dist}(x(t),\mathcal{M})\to0$。证毕。
+\end{proof}
+
+\subsection{推论（最优路径与收敛的一句严格结论）}
+\label{subsec:tex28-ch11-corollaries}
+
+\begin{corollary}[C1（统计力学最小势能全局最优路径收敛可证）]
+\label{cor:tex28-ch11-c1}
+若
+\begin{enumerate}
+  \item 总修复算子空间对障碍修复充分（微观遂穿自由度充分）；
+  \item 频率--强度--算力门控保证非停滞且稳定；
+  \item 势能景观在该动力学下不存在非全局不可下降点；
+\end{enumerate}
+则有
+\[
+  \boxed{\ \text{基于统计力学（Rayleigh/最小耗散原理）的最小势能全局最优路径收敛可证}\ }.
+\]
+即：路径由变分原理定义，势能单调下降并收敛到全局最小值，Gap 归零。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（三证书合并）]
+\label{cert:tex28-ch11-c1}
+证书为：命题~\ref{prop:tex28-ch11-p1} 的四条前提中第 2--4 条与本推论三条条件一一对应。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由条件 1 给出下降方向充分性，由条件 2 给出执行链非停滞性，由条件 3 给出全局极限点判别。
+三者合并即满足命题~\ref{prop:tex28-ch11-p1} 的可证条件，故结论成立。证毕。
+\end{proof}
+
+\subsection{备注（需补签发的关键证书）}
+\label{subsec:tex28-ch11-remarks}
+
+\begin{remark}[全局性证书（最关键）]
+需签发 $\nabla\Phi(x)=0\Rightarrow x\in\mathcal{M}$，或给出凸性/Lojasiewicz 条件等可替代版本。
+该证书用于排除非全局临界点导致的伪收敛。
+\end{remark}
+
+\begin{remark}[充分自由度证书（来自组织同伦）]
+需签发“对每个 $J>0$ 状态都存在可行速度使 $\frac{d}{dt}\Phi<0$，且下降量与 $\|\nabla\Phi\|$ 同阶下界”的量化不等式，
+即定理~\ref{thm:tex28-ch11-a1} 的可审计版本。
+\end{remark}
+
+\begin{remark}[结论口径]
+当上述两类证书成立时，“统计力学最小势能全局最优路径收敛可证”是严格命题，而非经验性叙述。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{全局性证书与充分自由度证书签发：统计力学最小势能路径收敛的形式逻辑}
+\label{sec:tex28-ch12}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（证书签发：定义 + 定理/证书（证书+证明） + 推论（证书+证明））+ 备注}
+\label{subsec:tex28-ch12-logic-structure}
+
+本章聚焦“证书签发”口径：把“全局最小可达”与“微观遂穿可执行”分别写成可审计条款，
+并据此汇总为收敛签发定理。
+
+\subsection{定义（签发对象：两类证书）}
+\label{subsec:tex28-ch12-defs}
+
+\begin{definition}[D1（势能与全局最小集）]
+\label{def:tex28-ch12-d1}
+\[
+  \Phi:\mathcal{X}\to\RR_{\ge 0},
+  \qquad
+  \Phi_*:=\inf_{x\in\mathcal{X}}\Phi(x),
+  \qquad
+  \mathcal{M}:=\arg\min_{x\in\mathcal{X}}\Phi(x).
+\]
+\end{definition}
+
+\begin{definition}[D2（可行速度集合与 Rayleigh 最优速度）]
+\label{def:tex28-ch12-d2}
+令每个状态 $x$ 的可行速度集合为 $\mathcal{K}(x)\subseteq\RR^d$，其来源为：
+\begin{enumerate}
+  \item 总修复算子空间 $\mathcal{O}_{\mathrm{tot}}=\bigcup_{\Sigma\in\Omega}\mathcal{O}_{\Sigma}$；
+  \item 频率--强度--算力执行约束在连续极限下诱导的速度上界与方向可达性。
+\end{enumerate}
+令 $M\succ0$，并定义统计力学最优速度为
+\[
+  \dot x(t)\in
+  \arg\min_{\dot x\in\mathcal{K}(x(t))}
+  \left(
+    \nabla\Phi(x(t))\cdot \dot x + \frac12\|\dot x\|_M^2
+  \right),
+  \qquad
+  \|\dot x\|_M^2:=\dot x^\top M\dot x.
+\]
+\end{definition}
+
+\subsection{定理/证书（证书一：全局性证书）}
+\label{subsec:tex28-ch12-global-cert}
+
+\begin{Certificate}[证书 G-PL（PL 梯度支配证书）]
+\label{cert:tex28-ch12-gpl}
+存在常数 $\mu>0$，使对任意 $x\in\mathcal{X}$ 有
+\[
+  \boxed{
+    \frac12\|\nabla\Phi(x)\|_{M^{-1}}^2
+    \ge
+    \mu\bigl(\Phi(x)-\Phi_*\bigr)
+  },
+  \qquad
+  \|g\|_{M^{-1}}^2:=g^\top M^{-1}g.
+\]
+该证书对应 Polyak--Lojasiewicz 梯度支配条件\cite{polyak1963,karimi2016}。
+\end{Certificate}
+
+\begin{theorem}[G1（全局性：无伪临界点）]
+\label{thm:tex28-ch12-g1}
+在证书~\ref{cert:tex28-ch12-gpl} 下，
+\[
+  \nabla\Phi(x)=0\ \Longrightarrow\ x\in\mathcal{M}.
+\]
+\end{theorem}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若 $\nabla\Phi(x)=0$，则 $\|\nabla\Phi(x)\|_{M^{-1}}^2=0$。代入证书~\ref{cert:tex28-ch12-gpl} 得
+\[
+  0\ge \mu\bigl(\Phi(x)-\Phi_*\bigr).
+\]
+因 $\mu>0$ 且 $\Phi(x)\ge\Phi_*$，故 $\Phi(x)=\Phi_*$，即 $x\in\mathcal{M}$。证毕。
+\end{proof}
+
+\begin{theorem}[G2（能量全局指数收敛率证书）]
+\label{thm:tex28-ch12-g2}
+若最优速度满足
+\[
+  \dot x=-M^{-1}\nabla\Phi(x),
+\]
+且证书~\ref{cert:tex28-ch12-gpl} 成立，则
+\[
+  \Phi(x(t))-\Phi_*
+  \le
+  e^{-2\mu t}\bigl(\Phi(x(0))-\Phi_*\bigr).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 G2（微分不等式证书）]
+\label{cert:tex28-ch12-g2}
+证书为
+\[
+  \frac{d}{dt}\Phi(x(t))
+  =
+  \nabla\Phi(x(t))\cdot\dot x(t)
+  =
+  -\|\nabla\Phi(x(t))\|_{M^{-1}}^2
+  \le
+  -2\mu\bigl(\Phi(x(t))-\Phi_*\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch12-g2} 得到一阶线性微分不等式
+\[
+  \frac{d}{dt}\bigl(\Phi-\Phi_*\bigr)\le -2\mu(\Phi-\Phi_*).
+\]
+由比较引理（Gronwall）直接得到
+\[
+  \Phi(x(t))-\Phi_*
+  \le
+  e^{-2\mu t}\bigl(\Phi(x(0))-\Phi_*\bigr).
+\]
+证毕。
+\end{proof}
+
+\begin{Certificate}[证书 G-CVX（凸性替代证书）]
+\label{cert:tex28-ch12-gcvx}
+若 $\Phi$ 为凸且可微并在 $\mathcal{X}$ 上取到最小值\cite{rockafellar1970}，则同样有
+\[
+  \nabla\Phi(x)=0\ \Longrightarrow\ x\in\mathcal{M}.
+\]
+该证书可替代证书~\ref{cert:tex28-ch12-gpl} 的“全局性”作用。
+\end{Certificate}
+
+\subsection{定理/证书（证书二：充分自由度证书）}
+\label{subsec:tex28-ch12-freedom-cert}
+
+\begin{Certificate}[证书 F-ANGLE（方向锥覆盖证书）]
+\label{cert:tex28-ch12-f-angle}
+存在常数 $\eta\in(0,1]$，使对任意 $x\notin\mathcal{M}$，存在 $v\in\mathcal{K}(x)$ 满足
+\[
+  \|v\|_M=1,
+  \qquad
+  \boxed{
+    \nabla\Phi(x)\cdot v
+    \le
+    -\eta\,\|\nabla\Phi(x)\|_{M^{-1}}
+  }.
+\]
+\end{Certificate}
+
+\begin{Certificate}[证书 F-NOSTALL（非停滞执行证书）]
+\label{cert:tex28-ch12-f-nostall}
+存在函数 $\underline s(J)>0$ 与阈值 $J_0>0$，当 $J(x)\ge J_0$ 时，有
+\[
+  \exists \dot x\in\mathcal{K}(x)\ \text{s.t.}\ \|\dot x\|_M\ge \underline s(J(x))>0.
+\]
+语义：门控可以限幅，但不会把可行动能压到零。
+\end{Certificate}
+
+\begin{theorem}[F1（严格下降微步存在：微观遂穿的量化形式）]
+\label{thm:tex28-ch12-f1}
+在证书~\ref{cert:tex28-ch12-f-angle} 与证书~\ref{cert:tex28-ch12-f-nostall} 下，
+对任意 $x\notin\mathcal{M}$，存在可行速度 $\dot x$ 使
+\[
+  \nabla\Phi(x)\cdot\dot x
+  \le
+  -\eta\,\underline s(J(x))\,\|\nabla\Phi(x)\|_{M^{-1}}
+  <0.
+\]
+\end{theorem}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch12-f-angle} 取单位方向 $v$，并由证书~\ref{cert:tex28-ch12-f-nostall}
+取可行尺度 $s\ge \underline s(J(x))$，令 $\dot x=s\,v$。则
+\[
+  \nabla\Phi(x)\cdot\dot x
+  =
+  s\,\nabla\Phi(x)\cdot v
+  \le
+  -s\,\eta\,\|\nabla\Phi(x)\|_{M^{-1}}
+  \le
+  -\eta\,\underline s(J(x))\,\|\nabla\Phi(x)\|_{M^{-1}}<0.
+\]
+故严格下降可行速度存在。证毕。
+\end{proof}
+
+\subsection{定理/证书（汇总签发定理）}
+\label{subsec:tex28-ch12-summary-theorem}
+
+\begin{theorem}[S（全局收敛签发定理）]
+\label{thm:tex28-ch12-s}
+若同时满足：
+\begin{enumerate}
+  \item 全局性证书：证书~\ref{cert:tex28-ch12-gpl} 或证书~\ref{cert:tex28-ch12-gcvx} 任一成立；
+  \item 充分自由度证书：证书~\ref{cert:tex28-ch12-f-angle} 与证书~\ref{cert:tex28-ch12-f-nostall} 成立；
+  \item $\Phi\in C^1$ 且下界为 $\Phi_*$；
+\end{enumerate}
+则由定义~\ref{def:tex28-ch12-d2} 给出的 Rayleigh 最优路径 $x(t)$ 满足
+\[
+  \Phi(x(t))\ \text{单调不增且收敛到}\ \Phi_*,
+  \qquad
+  \operatorname{dist}(x(t),\mathcal{M})\to0.
+\]
+若取证书~\ref{cert:tex28-ch12-gpl} 且动力学满足 $\dot x=-M^{-1}\nabla\Phi$，则由定理~\ref{thm:tex28-ch12-g2}
+额外得到指数收敛率。
+\end{theorem}
+
+\begin{Certificate}[证书 S（耗散链 + 归纳法执行证书）]
+\label{cert:tex28-ch12-s}
+证书由两部分组成：
+\begin{enumerate}
+  \item 连续耗散链：Rayleigh 最小化给出 $\frac{d}{dt}\Phi=\nabla\Phi\cdot\dot x\le0$；
+  \item 离散执行归纳证书：在离散执行链 $x_{n+1}=x_n+\Delta t\,\dot x_n$ 上，
+  基步 $n=0$ 与归纳步“若 $x_n\notin\mathcal{M}$ 则由 F1 可选严格下降 $\dot x_n$”成立。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch12-s} 的连续部分，$\Phi(x(t))$ 单调不增且有下界 $\Phi_*$，故极限存在。
+由定理~\ref{thm:tex28-ch12-f1}，在 $x\notin\mathcal{M}$ 处存在严格下降可行速度，排除
+“长期停在 $\Phi>\Phi_*$ 且无下降”的轨线。
+由全局性证书（G-PL 或 G-CVX），停滞点只能位于 $\mathcal{M}$，故能量极限只能是 $\Phi_*$。
+因此 $\operatorname{dist}(x(t),\mathcal{M})\to0$。若附加 G-PL + 无约束激活动力学，则由定理~\ref{thm:tex28-ch12-g2}
+直接给出指数收敛率。证毕。
+\end{proof}
+
+\subsection{推论（证书签发到结论口径）}
+\label{subsec:tex28-ch12-corollaries}
+
+\begin{corollary}[C1（统计力学最小势能全局最优路径收敛可证）]
+\label{cor:tex28-ch12-c1}
+当 G 类与 F 类证书均签发后，可得严格结论
+\[
+  \boxed{
+    \text{基于 Rayleigh/最小耗散原理定义的统计力学最优路径，收敛到全局最小势能集}
+  }.
+\]
+若 G-PL 证书签发且最优动力学未受额外激活约束，可进一步签发指数收敛率。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（定理 S 直接推演证书）]
+\label{cert:tex28-ch12-c1}
+证书为：定理~\ref{thm:tex28-ch12-s} 的前提与结论已覆盖推论文本的全部逻辑条件。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch12-c1}，推论文本是定理~\ref{thm:tex28-ch12-s} 的等价口径转写，
+不新增也不削弱条件，故结论成立。证毕。
+\end{proof}
+
+\subsection{备注（证书签发与未证明边界）}
+\label{subsec:tex28-ch12-remarks}
+
+\begin{remark}[已签发模板的含义]
+G 类证书把“全局最小”转为可验证不等式/几何条件；F 类证书把“微观遂穿自由度充分”转为可验证的方向锥覆盖与非停滞执行条件。
+\end{remark}
+
+\begin{remark}[仍属未证明的部分]
+若 $\Phi$ 的具体结构与 $\mathcal{K}(x)$ 的具体生成机制尚未固定，则 G-PL/G-CVX 与 F-ANGLE/F-NOSTALL 的真值仍待签发；
+但其验收条款已形式化，一旦验证即可把“收敛可证”落为定理~\ref{thm:tex28-ch12-s} 的实例。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{阶段性增益的结论--证书--证明闭环：机制层、结构层与收敛层总结}
+\label{sec:tex28-ch13}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（结论 + 证书 + 证明（谓词因果链））+ 备注}
+\label{subsec:tex28-ch13-logic-structure}
+
+本章把阶段性成果压缩为“可核验条款”：先给结论，再给证书，最后给谓词因果链证明与备注。
+
+\subsection{结论}
+\label{subsec:tex28-ch13-conclusion}
+
+\begin{theorem}[T1（阶段性增益三层结论）]
+\label{thm:tex28-ch13-t1}
+阶段性增益可分为三层：
+\begin{enumerate}
+  \item \textbf{机制层（已证）}：把 $J=\JacGap$ 从二值触发升级为“连续驱动（频率+强度）+阻尼回落+算力硬约束+积分触发+滞回门控”的可执行、可审计闭环；其对修复覆盖率、单调动力学、阈值稳定性、
+    工程可控性构成中高确定性增益。
+  \item \textbf{结构层（已证）}：已证明“双层组织同伦（实对象--虚对象--虚仓）”会使参数最优点随组织微变发生跃迁，从而导致参数同伦高度不确定；并且该组织不确定性在统计力学动力框架下等价于扩展总修复算子空间，
+    提供微观遂穿所需的充分自由度。
+  \item \textbf{收敛层（已证为可签发条件模板）}：已给出“统计力学最小势能全局最优路径收敛可证”的两类可审计证书模板：
+  全局性证书（G-PL 或凸性）与遂穿自由度证书（F-ANGLE + F-NOSTALL）。
+  在证书成立时，可推出势能单调下降并收敛到全局最小，且在附加条件下可给指数收敛率。
+\end{enumerate}
+\end{theorem}
+
+\begin{Certificate}[证书 T1（三层结论挂钩证书）]
+\label{cert:tex28-ch13-t1}
+证书为：机制层对应证书 C1，结构层对应证书 C2--C3，收敛层对应证书 C4。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch13-c1} 可得机制层闭环可审计性；
+由证书~\ref{cert:tex28-ch13-c2}--\ref{cert:tex28-ch13-c3} 可得“组织优先于纯参数微调”的结构性归因；
+由证书~\ref{cert:tex28-ch13-c4} 可得收敛可证的签发条件模板。
+三者按层级拼接即得结论。证毕。
+\end{proof}
+
+\subsection{证书（增益证书：本次讨论提供的可核验条款）}
+\label{subsec:tex28-ch13-certificates}
+
+\begin{Certificate}[证书 C1（从经验触发到确定性驱动律）]
+\label{cert:tex28-ch13-c1}
+给出可审计递推链
+\[
+  (J^{\mathrm{raw}}\to J_{\mathrm{ema}})
+  \Rightarrow
+  (q,u)
+  \Rightarrow
+  (r^{\mathrm{cmd}},b^{\mathrm{cmd}})
+  \Rightarrow
+  (r^{\mathrm{exec}},b^{\mathrm{exec}})
+  \Rightarrow
+  s
+  \Rightarrow
+  \mathrm{fire},
+\]
+并明确落盘字段集合，使单调性、零触发、冷却、抗饱和、算力约束可由日志逐条验证。
+\end{Certificate}
+
+\begin{Certificate}[证书 C2（从参数调优到组织优先的理论依据）]
+\label{cert:tex28-ch13-c2}
+以值函数
+\[
+  V(\Sigma):=\inf_{\theta}\mathcal{E}(\Sigma,\theta)
+\]
+刻画参数同伦下界，并证明：当已接近 $V(\Sigma_0)$ 时，超过 $\varepsilon$ 的改进必须来自改变组织 $\Sigma$，即组织同伦改变的是下界本身而非仅局部参数。
+\end{Certificate}
+
+\begin{Certificate}[证书 C3（从不确定性到自由度充分/微观遂穿）]
+\label{cert:tex28-ch13-c3}
+证明链条为
+\[
+  \text{双层组织变形}
+  \Rightarrow
+  z_{\Sigma}\text{跳变}
+  \Rightarrow
+  \mathcal{E}(\Sigma,\theta)\text{分段切换}
+  \Rightarrow
+  \mathcal{A}(\Sigma)\text{跃迁}
+  \Rightarrow
+  \text{参数同伦高度不确定},
+\]
+并给出等价性
+\[
+  \text{总算子空间充分}
+  \Longleftrightarrow
+  \text{微观遂穿自由度充分}.
+\]
+\end{Certificate}
+
+\begin{Certificate}[证书 C4（全局最优路径收敛的签发条款）]
+\label{cert:tex28-ch13-c4}
+给出两张可签发模板：
+\begin{enumerate}
+  \item \textbf{G 证书}：G-PL（梯度支配）或凸性，推出无伪临界点并可给收敛率条件；
+  \item \textbf{F 证书}：方向锥覆盖 + 非停滞执行，推出处处存在严格下降微步/速度。
+\end{enumerate}
+\end{Certificate}
+
+\subsection{证明（谓词因果链：为何这些增益是实质增益而非修辞）}
+\label{subsec:tex28-ch13-proof}
+
+\begin{proposition}[P1（阶段性增益的实质性）]
+\label{prop:tex28-ch13-p1}
+证书 C1--C4 对应的增益属于可执行、可归因、可签发的实质增益，而非修辞描述。
+\end{proposition}
+
+\begin{Certificate}[证书 P1（四步因果闭环证书）]
+\label{cert:tex28-ch13-p1}
+证书为四个谓词链节点：
+\begin{enumerate}
+  \item 闭环可执行谓词：连续速率 + 积分触发 + 门控阻尼 + 算力硬约束；
+  \item 结构归因谓词：PnL/回撤受结构项 $(d,\mathcal{C},\Gamma,\mathrm{Cost})$ 共同约束；
+  \item 范式迁移谓词：先组织同伦（可行域/算子空间）后参数同伦；
+  \item 收敛门槛谓词：G/F 证书条款可逐条签发。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+\begin{enumerate}
+  \item \textbf{闭环可执行}：由 C1 的递推链，触发机制从“是否触发”升级为“触发密度可控”，并在滞回+EMA+阻尼下抑制阈值抖动，同时受算力上限硬约束，故是工程稳定的耗散驱动。
+  \item \textbf{结构性归因清晰}：由 C2/C3 的值函数与组织跃迁链，收益/回撤不再被误归因于单一触发律，而被放回结构项共因框架，结论可复核且可反证。
+  \item \textbf{范式迁移成立}：由 C2 可知在固定组织下参数改进存在下界天花板，故“先组织后参数”不是偏好而是由下界结构决定的必要迁移。
+  \item \textbf{可证收敛门槛明确}：由 C4，收敛可证被压缩为 G/F 两类可签发不等式与覆盖率指标，后续工作可直接转为条款验收。
+\end{enumerate}
+据此，增益具备可执行性、可归因性与可签发性，故为实质增益。证毕。
+\end{proof}
+
+\subsection{推论}
+\label{subsec:tex28-ch13-corollary}
+
+\begin{corollary}[C5（从讨论到验收的工程化闭环）]
+\label{cor:tex28-ch13-c5}
+若证书 C1--C4 在统一回放与日志口径下完成签发，则“机制改进--结构归因--收敛可证”三层链条可转化为持续验收流程，而非一次性论证文本。
+\end{corollary}
+
+\begin{Certificate}[证书 C5（签发到流程映射证书）]
+\label{cert:tex28-ch13-c5}
+证书为映射
+\[
+  \{C1,C2,C3,C4\}
+  \mapsto
+  \{\text{日志验收},\ \text{组织变分验收},\ \text{覆盖率验收},\ \text{收敛条款验收}\}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 C1 给日志层验收对象，由 C2/C3 给组织层与可达性验收对象，由 C4 给收敛条款验收对象；
+四者并联即可形成工程闭环流程。证毕。
+\end{proof}
+
+\subsection{备注}
+\label{subsec:tex28-ch13-remarks}
+
+\begin{remark}[落地建议 1：先接入同数据回放]
+先把 C1 的落盘字段接入同一批次回放，统一比较 old/new 机制的覆盖率、单调性、抖动幅度与算力封顶达成率。
+\end{remark}
+
+\begin{remark}[落地建议 2：组织同伦算子原子化]
+将组织同伦算子集枚举为最小编辑距离 $d_{\Omega}$ 下的原子操作，并记录其对 $z_{\Sigma}$ 与可行域的增量影响。
+\end{remark}
+
+\begin{remark}[落地建议 3：优先签发 G/F 证书]
+先估计/下界化 $\eta$（方向锥覆盖）与 $\underline s(J)$（非停滞执行），再评估 $\Phi$ 的 PL/凸性/Lojasiewicz 条件；
+证书条款签发后即可把“收敛可证”落为可审计实例。
+\end{remark}
+
+\begin{remark}[可继续编译的验收口径]
+若进一步固定势能 $\Phi$ 与障碍向量 $e(x)$ 的符号版本，可把 G/F 证书编译为可落盘指标，
+例如角覆盖下界、可行速度下界与梯度支配经验检验口径。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{一般开放系统下的可证收敛推广：记录--回放--签发的形式逻辑}
+\label{sec:tex28-ch14}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（一般情形推广：定义 + 公理（降级为定理：证书+证明（谓词因果链））+ 引理（证书+证明）+ 命题（证书+证明）+ 推论（证书+证明））+ 备注}
+\label{subsec:tex28-ch14-logic-structure}
+
+本章给出与场景语义解耦的一般化口径：只依赖状态、缺陷势能、修复算子空间与执行约束，
+即可复用“记录--回放--签发”的可证收敛流程。
+
+\subsection{定义（一般开放系统：缺陷势能、修复算子、组织同伦、频率--强度--算力）}
+\label{subsec:tex28-ch14-defs}
+
+\begin{definition}[D1（开放系统动力学）]
+\label{def:tex28-ch14-d1}
+令状态空间 $\mathcal X$、外部输入/扰动空间 $\Xi$、动作空间 $\mathcal A$。离散时钟下
+\[
+  x_{n+1}=F(x_n,\xi_{n+1},a_n),
+  \qquad
+  x_n\in\mathcal X,\ \xi_n\in\Xi,\ a_n\in\mathcal A.
+\]
+\end{definition}
+
+\begin{definition}[D2（障碍向量、Gap 与势能）]
+\label{def:tex28-ch14-d2}
+定义障碍向量
+\[
+  e:\mathcal X\to\RR^N,
+  \qquad
+  J(x):=\|e(x)\|\ge 0,
+\]
+并定义势能
+\[
+  \Phi(x):=\varphi(J(x)),
+  \qquad
+  \varphi'(J)\ge 0.
+\]
+可选强证书口径为存在常数 $\underline c,\overline c>0$ 使
+\[
+  \underline c\,J(x)^2
+  \le
+  \Phi(x)-\Phi_*
+  \le
+  \overline c\,J(x)^2,
+  \qquad
+  \Phi_*:=\inf_{x\in\mathcal X}\Phi(x).
+\]
+\end{definition}
+
+\begin{definition}[D3（修复算子与强度）]
+\label{def:tex28-ch14-d3}
+一次微观修复动作（同伦扭曲）写为
+\[
+  O\in\mathcal O_{\mathrm{tot}},
+  \qquad
+  x^+=O(x;b),\ b\in(0,b_{\max}],
+\]
+其对障碍向量的微步近似为
+\[
+  e^+=e+b\,\Delta_O(e)+o(b).
+\]
+\end{definition}
+
+\begin{definition}[D4（组织结构与组织同伦）]
+\label{def:tex28-ch14-d4}
+令原子对象集合为 $\mathcal O_0$，并定义两层组织映射
+\[
+  \pi_1:\mathcal O_0\to\mathcal O_1,
+  \qquad
+  \pi_2:\mathcal O_1\to\mathcal O_2,
+  \qquad
+  \Sigma:=(\pi_1,\pi_2,\mathcal C),
+\]
+其中 $\mathcal C$ 为组织约束（容量、互斥/正交、合并拆分、锚定等）。
+组织同伦指 $\Sigma$ 在组织空间 $\Omega$ 上由原子编辑算子生成的离散路径
+\[
+  \Sigma_0\to\Sigma_1\to\cdots.
+\]
+\end{definition}
+
+\begin{definition}[D5（Gap 驱动：频率--强度--算力耦合）]
+\label{def:tex28-ch14-d5}
+定义命令频率与命令强度
+\[
+  r^{\mathrm{cmd}}(J)=\indicator{J>G_{\mathrm{off}}}\,u\,\rho(J),
+  \qquad
+  b^{\mathrm{cmd}}(J)=\indicator{J>G_{\mathrm{off}}}\,u\,\beta(J),
+\]
+其中 $u\in[0,1]$ 为阻尼门，$\rho,\beta$ 连续、单调不减且限幅。
+令强度成本 $c_{\mathrm{tw}}(b)$ 连续非减且严格正，可用算力 $C^{\mathrm{avail}}\ge 0$，
+执行约束为
+\[
+  r^{\mathrm{exec}}\cdot c_{\mathrm{tw}}(b^{\mathrm{exec}})
+  \le
+  C^{\mathrm{avail}}.
+\]
+连续频率到确定性触发计数由积分器递推实现（与既有主链一致）。
+\end{definition}
+
+\subsection{公理（降级为定理：一般情形下可证收敛所需证书）}
+\label{subsec:tex28-ch14-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（遂穿自由度证书是处处可严格下降的骨架）]
+\label{thm:tex28-ch14-a1}
+设可行速度集合 $\mathcal K(x)$ 由 $\mathcal O_{\mathrm{tot}}$ 与执行约束在连续极限下诱导。
+若存在常数 $\eta\in(0,1]$ 与函数 $\underline s(J)>0$，使对任意 $x\notin\mathcal M$（$\mathcal M:=\arg\min\Phi$）有
+\[
+  \exists v\in\mathcal K(x),\ \|v\|_M=1:
+  \quad
+  \nabla\Phi(x)\cdot v
+  \le
+  -\eta\,\|\nabla\Phi(x)\|_{M^{-1}},
+\]
+且
+\[
+  \exists \dot x\in\mathcal K(x):
+  \quad
+  \|\dot x\|_M\ge \underline s(J(x)),
+\]
+则存在可执行速度使
+\[
+  \frac{d}{dt}\Phi(x(t))
+  =
+  \nabla\Phi(x)\cdot\dot x
+  <0
+  \qquad
+  (\forall x\notin\mathcal M).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 A1（角覆盖 + 非停滞 + 数学归纳法执行证书）]
+\label{cert:tex28-ch14-a1}
+证书由三部分组成：
+\begin{enumerate}
+  \item 角覆盖证书：可行方向与 $-M^{-1}\nabla\Phi$ 存在统一对齐下界 $\eta$；
+  \item 非停滞证书：可行速度幅度下界 $\underline s(J)>0$；
+  \item 归纳证书：在离散执行链 $x_{n+1}=x_n+\Delta t\,\dot x_n$ 上，基步 $n=0$ 与归纳步
+  “若 $x_n\notin\mathcal M$ 则可选严格下降 $\dot x_n$”成立。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由角覆盖条件，存在单位可行方向 $v$ 使
+\[
+  \nabla\Phi(x)\cdot v\le -\eta\|\nabla\Phi(x)\|_{M^{-1}}.
+\]
+由非停滞条件取可行幅度 $s\ge \underline s(J(x))$，令 $\dot x=s\,v$，则
+\[
+  \nabla\Phi(x)\cdot\dot x
+  =
+  s\,\nabla\Phi(x)\cdot v
+  \le
+  -\eta\,\underline s(J(x))\,\|\nabla\Phi(x)\|_{M^{-1}}<0.
+\]
+故在任意 $x\notin\mathcal M$ 处存在严格下降可执行速度。离散链上的基步与归纳步由证书~\ref{cert:tex28-ch14-a1} 直接给出。证毕。
+\end{proof}
+
+\begin{theorem}[公理（降级为定理）A2（全局性证书把下降升级为收敛到全局最小）]
+\label{thm:tex28-ch14-a2}
+若 $\Phi$ 满足任一全局性证书：
+\begin{enumerate}
+  \item PL（梯度支配）\cite{polyak1963,karimi2016}：存在 $\mu>0$ 使
+  \[
+    \frac12\|\nabla\Phi(x)\|_{M^{-1}}^2
+    \ge
+    \mu\bigl(\Phi(x)-\Phi_*\bigr),\ \forall x;
+  \]
+  \item 凸性\cite{rockafellar1970}：$\Phi$ 凸、可微并取到最小值；
+  \item KL\cite{kurdyka1998,bolte2007}：在极限点邻域满足 \L{}ojasiewicz--Kurdyka 不等式；
+\end{enumerate}
+则任何“势能单调下降且不陷入伪临界点”的轨线满足
+\[
+  \Phi(x(t))\to\Phi_*,
+  \qquad
+  \operatorname{dist}(x(t),\mathcal M)\to 0.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 A2（全局性三选一证书）]
+\label{cert:tex28-ch14-a2}
+证书为“PL/凸性/KL 三选一”，其共同作用是把极限点约束到 $\mathcal M$。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由单调下降可得 $\Phi(x(t))$ 下有界且极限存在。由证书~\ref{cert:tex28-ch14-a2} 的任一条件，
+伪临界点被排除或等价归并到 $\mathcal M$，故极限点只能落在 $\mathcal M$，
+从而 $\Phi(x(t))\to\Phi_*$ 且 $\operatorname{dist}(x(t),\mathcal M)\to 0$。证毕。
+\end{proof}
+
+\subsection{引理（组织同伦的一般价值）}
+\label{subsec:tex28-ch14-lemmas}
+
+\begin{lemma}[L1（组织不确定性使总可达方向并集扩大）]
+\label{lem:tex28-ch14-l1}
+令固定组织 $\Sigma$ 的可达微步方向集为 $U_{\Sigma}(e)\subseteq\RR^N$，
+总方向集为
+\[
+  U_{\mathrm{tot}}(e):=\bigcup_{\Sigma\in\Omega}U_{\Sigma}(e).
+\]
+若组织原子编辑算子足够丰富，使 $U_{\mathrm{tot}}(e)$ 对各向具有更强覆盖（如张成接近 $\RR^N$），
+则对任意 $e\neq 0$ 更易找到满足 $\langle e,\Delta\rangle<0$ 的下降方向，从而更易满足 A1 的角覆盖证书。
+\end{lemma}
+
+\begin{Certificate}[证书 L1（方向覆盖常数可下界化证书）]
+\label{cert:tex28-ch14-l1}
+证书为：组织可变时，角覆盖常数 $\eta$ 的可下界化空间增大，即
+$U_{\mathrm{tot}}(e)$ 相比单组织方向集有更高覆盖能力。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+方向集并集扩大意味着“与 $-e$ 对齐的可选方向”增加，故满足
+$\langle e,\Delta\rangle<0$ 的可行方向存在性与下界更易成立；
+等价地，A1 所需的角覆盖常数 $\eta$ 具备更强可签发性。证毕。
+\end{proof}
+
+\subsection{命题（一般化三步法：记录--回放--签发）}
+\label{subsec:tex28-ch14-props}
+
+\begin{proposition}[P1（场景无关的可复用收敛管线）]
+\label{prop:tex28-ch14-p1}
+对任意开放系统 $(\mathcal X,\Xi,\mathcal A,F)$，只要可定义 $(e,J,\Phi)$、$\mathcal O_{\mathrm{tot}}$ 与执行约束，
+即可复用三步法：
+\begin{enumerate}
+  \item \textbf{记录}（落盘接口）：落盘最小字段
+  \[
+    \left\{
+    \begin{aligned}
+      &J^{\mathrm{raw}},J,\Phi,q,u,r^{\mathrm{cmd}},b^{\mathrm{cmd}},r^{\mathrm{exec}},b^{\mathrm{exec}},\\
+      &C^{\mathrm{avail}},c_{\mathrm{tw}}(b^{\mathrm{exec}}),s,\mathrm{fire},\mathrm{cooldown\_flag},\\
+      &O_{\mathrm{id}},\Sigma_{\mathrm{id}},\theta_{\mathrm{meta}}
+    \end{aligned}
+    \right\};
+  \]
+  \item \textbf{回放}（A/B 量化）：验证覆盖率、单调性、抖动、算力封顶违例率（应为 0）与势能下降统计；
+  \item \textbf{签发}（G/F 两类证书）：回放估计或下界化
+  $\eta,\underline s(J)$ 与全局性条款（PL/KL/凸性或等价反例排除）。
+\end{enumerate}
+\end{proposition}
+
+\begin{Certificate}[证书 P1（可复现到可证收敛的传递证书）]
+\label{cert:tex28-ch14-p1}
+证书链为
+\[
+  \text{记录}
+  \Rightarrow
+  \text{回放可复现}
+  \Rightarrow
+  \text{条款可下界化}
+  \Rightarrow
+  (A1+A2)\ \text{可签发}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+记录提供可重放数据闭包；回放把机制性质转为可检验统计量；
+签发步骤把统计量转写为 A1/A2 所需不等式与覆盖率下界；
+当 A1 与 A2 成立时，得到“统计力学最小势能全局最优路径收敛可证”。证毕。
+\end{proof}
+
+\subsection{推论（最终目标效用口径的必要分离）}
+\label{subsec:tex28-ch14-corollaries}
+
+\begin{corollary}[C1（机制收敛证书与最终效用改进不可混同）]
+\label{cor:tex28-ch14-c1}
+令最终目标效用与风险为
+\[
+  \Pi=\mathcal U(\{x\},\{a\}),
+  \qquad
+  \mathcal R=\mathcal V(\{x\},\{a\}).
+\]
+则机制层/收敛层证书保证的是 $\Phi$ 耗散收敛、$J\to 0$ 与稳定约束满足；
+但 $\Delta\Pi,\Delta\mathcal R$ 仍依赖可行域几何、耦合项、成本项等结构要素，
+不能仅由触发机制推出固定百分比改进。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（同构归因证书）]
+\label{cert:tex28-ch14-c1}
+证书为“机制层结论”与“目标层结论”的逻辑分离：
+前者关于 $\Phi,J$ 与执行约束，后者关于 $\mathcal U,\mathcal V$ 的结构耦合。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 A1/A2 与 P1 仅能推出势能与缺陷变量的收敛性质；
+目标效用与风险还包含额外结构项，故不属于机制证书可单独决定的逻辑闭包。
+因此必须维持归因分离。证毕。
+\end{proof}
+
+\subsection{备注}
+\label{subsec:tex28-ch14-remarks}
+
+\begin{remark}[一般化落地所需三要素]
+要在任意系统复用该管线，只需补齐三项抽象对象：障碍向量 $e(x)$、势能 $\Phi(x)$、总算子空间 $\mathcal O_{\mathrm{tot}}$。
+\end{remark}
+
+\begin{remark}[优先签发路径]
+优先从 F 证书入手（$\eta,\underline s(J)$ 的下界估计），再签发 G 证书（PL/KL/凸性或等价反例排除）。
+\end{remark}
+
+\begin{remark}[日志可审计字段]
+需确保日志可标识 $O_{\mathrm{id}},\Sigma_{\mathrm{id}},\theta_{\mathrm{meta}}$，否则组织同伦与参数同伦的因果审计不可闭合。
+\end{remark}
+
+\begin{remark}[与既有结论的关系]
+本章是对前述“PnL/回撤不可单归因于触发机制”结论的一般化同构表述：机制可证收敛不等于目标效用可直接定量承诺。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑（一般补齐）：定义、公理（降级为定理）、引理、命题与备注}
+\label{sec:tex28-ch15}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{定义（补齐三件抽象对象：$e(x)$、$\Phi(x)$、$\mathcal O_{\mathrm{tot}}$）}
+\label{subsec:tex28-ch15-defs}
+
+\begin{definition}[D0（一般开放系统）]
+\label{def:tex28-ch15-d0}
+离散时钟 $t_n=n\Delta t$（$\Delta t>0$）下，状态、外部输入与动作满足
+\[
+  x_{n+1}=F(x_n,\xi_{n+1},a_n),
+  \qquad
+  x_n\in\mathcal X,\ \xi_{n+1}\in\Xi,\ a_n\in\mathcal A.
+\]
+修复系统以事件触发方式施加算子，可等价看作在部分 $n$ 上由修复算子生成 $a_n$。
+\end{definition}
+
+\begin{definition}[D1（障碍向量 $e(x)$）]
+\label{def:tex28-ch15-d1}
+给定三类最一般约束：
+\begin{enumerate}
+  \item 等式约束：$g_i(x)=0,\ i=1,\dots,m$；
+  \item 不等式约束：$h_j(x)\le 0,\ j=1,\dots,p$；
+  \item 结构一致性残差：$s_k(x)=0,\ k=1,\dots,q$。
+\end{enumerate}
+定义非负违约映射 $\psi:\RR\to\RR_{\ge 0}$，满足
+\[
+  \psi(u)=0\iff u\le 0,\qquad \psi\ \text{非减且连续},
+\]
+例如 $\psi(u)=[u]_+$ 或 $\psi(u)=\tau\log(1+e^{u/\tau})$（$\tau>0$）。
+令 $w_g\in\RR_{>0}^{m}$、$w_h\in\RR_{>0}^{p}$、$w_s\in\RR_{>0}^{q}$，定义
+\[
+  e(x):=
+  \begin{bmatrix}
+    w_g\odot g(x)\\
+    w_h\odot \psi(h(x))\\
+    w_s\odot s(x)
+  \end{bmatrix}
+  \in\RR^N,\qquad N:=m+p+q.
+\]
+并定义 Gap
+\[
+  J(x):=\|e(x)\|,
+\]
+范数默认取 $\ell_2$。
+\end{definition}
+
+\begin{definition}[D2（势能 $\Phi(x)$）]
+\label{def:tex28-ch15-d2}
+取 $\varphi:\RR_{\ge 0}\to\RR_{\ge 0}$ 满足
+\[
+  \varphi(0)=0,\qquad \varphi'(z)>0\ (z>0),\qquad \varphi\ \text{连续（可取 }C^1\text{）},
+\]
+定义势能
+\[
+  \Phi(x):=\varphi(J(x)).
+\]
+标准可签发型选择为
+\[
+  \Phi(x):=\frac12\|e(x)\|_2^2,
+\]
+此时 $\Phi(x)\ge 0$ 且 $\Phi(x)=0\iff e(x)=0$。
+\end{definition}
+
+\begin{definition}[D3（组织结构 $\Sigma$）]
+\label{def:tex28-ch15-d3}
+令原子对象集合为 $\mathcal O_0$，两层组织映射定义为
+\[
+  \pi_1:\mathcal O_0\to\mathcal O_1,\qquad
+  \pi_2:\mathcal O_1\to\mathcal O_2,\qquad
+  \Sigma:=(\pi_1,\pi_2,\mathcal C)\in\Omega,
+\]
+其中 $\mathcal C$ 表示容量、互斥、正交、合并/拆分、锚定等组织约束。
+组织诱导特征映射 $z_\Sigma:\mathcal X\to\RR^m$，并可诱导障碍表示变换
+\[
+  T_\Sigma:\RR^N\to\RR^N,\qquad \tilde e=T_\Sigma e.
+\]
+\end{definition}
+
+\begin{definition}[D4（固定组织下的参数算子族 $\mathcal O_\Sigma$）]
+\label{def:tex28-ch15-d4}
+参数空间 $\Theta\subseteq\RR^d$，算子类型集合 $\mathcal K_{\mathrm{type}}$。定义
+\[
+  O_{\Sigma,\theta,\kappa}\in\mathcal O_\Sigma,
+  \qquad
+  \theta\in\Theta,\ \kappa\in\mathcal K_{\mathrm{type}}.
+\]
+一次执行强度 $b\in(0,b_{\max}]$：
+\[
+  x^+=O_{\Sigma,\theta,\kappa}(x;b).
+\]
+其障碍向量微步近似为
+\[
+  e(x^+)=e(x)+b\,\Delta_{\Sigma,\theta,\kappa}(x)+o(b).
+\]
+\end{definition}
+
+\begin{definition}[D5（组织同伦原子编辑算子族 $\mathcal U$）]
+\label{def:tex28-ch15-d5}
+定义组织编辑算子
+\[
+  U_\omega:\Omega\to\Omega,\qquad \omega\in\mathcal W,\qquad \Sigma^+=U_\omega(\Sigma).
+\]
+$U_\omega$ 可表示原子重分配、簇迁移、合并/拆分等离散编辑，使
+$(z_\Sigma,T_\Sigma,\mathcal C)$ 发生跃迁。
+\end{definition}
+
+\begin{definition}[D6（总算子空间 $\mathcal O_{\mathrm{tot}}$）]
+\label{def:tex28-ch15-d6}
+定义“组织更新 + 参数修复”的闭包算子族
+\[
+  \mathcal O_{\mathrm{tot}}
+  :=
+  \left\{
+    O_{\Sigma',\theta,\kappa}\circ \mathsf{Lift}(U_\omega)
+    \ \middle|\
+    \Sigma'=U_\omega(\Sigma),\ \omega\in\mathcal W,\ \theta\in\Theta,\ \kappa\in\mathcal K_{\mathrm{type}}
+  \right\},
+\]
+其中 $\mathsf{Lift}(U_\omega)$ 表示组织更新在运行态 $(x,\Sigma)$ 上的提升算子。
+\end{definition}
+
+\subsection{公理（降级为定理：三件对象的可证书化条件）}
+\label{subsec:tex28-ch15-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（势能最小与 Gap 归零一致性证书）]
+\label{thm:tex28-ch15-a1}
+若 $\Phi(x)=\frac12\|e(x)\|_2^2$，则
+\[
+  \Phi(x)=0
+  \Longleftrightarrow
+  e(x)=0
+  \Longleftrightarrow
+  J(x)=0.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 A1（范数平方零化证书）]
+\label{cert:tex28-ch15-a1}
+证书条款：$\|v\|_2^2=0\iff v=0$，以及 $J(x)=\|e(x)\|_2$。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch15-a1}，$\Phi(x)=\tfrac12\|e(x)\|_2^2=0\iff e(x)=0$；
+又 $J(x)=\|e(x)\|_2$，故 $e(x)=0\iff J(x)=0$。两者合并即得结论。证毕。
+\end{proof}
+
+\begin{theorem}[公理（降级为定理）A2（微观下降判据的内积形式）]
+\label{thm:tex28-ch15-a2}
+在 $\Phi(x)=\frac12\|e(x)\|_2^2$ 下，任取微步
+\[
+  e^+=e+b\Delta+o(b),
+\]
+有
+\[
+  \lim_{b\to 0^+}\frac{\Phi(x^+)-\Phi(x)}{b}
+  =
+  \langle e,\Delta\rangle.
+\]
+因此存在严格下降微步当且仅当存在可执行算子使
+\[
+  \langle e(x),\Delta_{\Sigma,\theta,\kappa}(x)\rangle<0.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 A2（二次型一阶展开证书）]
+\label{cert:tex28-ch15-a2}
+证书条款：
+\[
+  \|e+b\Delta+o(b)\|_2^2
+  =
+  \|e\|_2^2+2b\langle e,\Delta\rangle+o(b).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch15-a2}，
+\[
+  \Phi(x^+)-\Phi(x)
+  =
+  b\langle e,\Delta\rangle+o(b).
+\]
+两侧除以 $b$ 并令 $b\to0^+$，得方向导数等于 $\langle e,\Delta\rangle$；
+其严格为负与“存在严格下降微步”按定义等价。证毕。
+\end{proof}
+
+\begin{theorem}[公理（降级为定理）A3（总算子空间充分是收敛管线的结构缺口）]
+\label{thm:tex28-ch15-a3}
+对任意满足 $J(x)>0$ 的状态，若存在 $O\in\mathcal O_{\mathrm{tot}}$ 使
+\[
+  \langle e(x),\Delta_O(x)\rangle<0,
+\]
+则称 $\mathcal O_{\mathrm{tot}}$ 对障碍修复充分。若该条件不成立，则存在不可遂穿障碍分量，使系统可能停滞于 $J>0$ 的集合。
+\end{theorem}
+
+\begin{Certificate}[证书 A3（充分性判据证书）]
+\label{cert:tex28-ch15-a3}
+证书条款：对每个 $J(x)>0$，可在 $\mathcal O_{\mathrm{tot}}$ 中找到一条满足内积负值的可执行微步方向。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex28-ch15-a2}，内积负值等价于方向导数严格为负；
+若对某个 $x$ 不存在这样的可执行方向，则 $\Phi$ 在该点不能被微步严格降低，
+形成 $J>0$ 停滞可能。故“是否充分”正是该管线的结构性缺口。证毕。
+\end{proof}
+
+\subsection{引理（方向判据到有限步严格下降）}
+\label{subsec:tex28-ch15-lemmas}
+
+\begin{lemma}[L1（负方向导数蕴含小步严格下降）]
+\label{lem:tex28-ch15-l1}
+若某个可执行微步满足 $\langle e,\Delta\rangle<0$，则存在 $b_0>0$，使得任意 $b\in(0,b_0]$ 均有
+\[
+  \Phi(x^+)<\Phi(x).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L1（小 $o(b)$ 控制证书）]
+\label{cert:tex28-ch15-l1}
+证书条款：
+\[
+  \Phi(x^+)-\Phi(x)=b\langle e,\Delta\rangle+o(b),\qquad \frac{o(b)}{b}\to 0.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+设 $\langle e,\Delta\rangle\le-\epsilon$（$\epsilon>0$）。由证书~\ref{cert:tex28-ch15-l1}，
+存在 $b_0>0$ 使 $0<b\le b_0$ 时满足 $o(b)\le \frac{\epsilon}{2}b$，于是
+\[
+  \Phi(x^+)-\Phi(x)
+  \le
+  -\epsilon b+\frac{\epsilon}{2}b
+  =
+  -\frac{\epsilon}{2}b
+  <0.
+\]
+结论成立。证毕。
+\end{proof}
+
+\subsection{命题（补齐后三步法的形式化可执行性）}
+\label{subsec:tex28-ch15-props}
+
+\begin{proposition}[P1（对象补齐后可执行“记录--回放--签发”）]
+\label{prop:tex28-ch15-p1}
+若已形式化给出以下对象：
+\[
+  e(x),\ \Phi(x),\ \mathcal O_{\mathrm{tot}},
+\]
+并满足：
+\begin{enumerate}
+  \item $e,\Phi$ 可计算且可落盘；
+  \item 每次执行可记录 $(O_{\mathrm{id}},\Sigma_{\mathrm{id}},\theta_{\mathrm{meta}},\kappa)$；
+  \item 频率--强度--算力约束作为硬可执行约束；
+\end{enumerate}
+则可对以下证书逐条验收：
+\begin{enumerate}
+  \item 机制证书：单调驱动、滞回抖动抑制、积分触发覆盖率、算力封顶；
+  \item 遂穿证书：样本覆盖下“存在 $O$ 使 $\Delta\Phi<0$”的比例下界；
+  \item 全局性证书（可选）：PL/凸性/KL 等，把“下降”升级为“收敛到全局最小”。
+\end{enumerate}
+\end{proposition}
+
+\begin{Certificate}[证书 P1（记录到签发的可审计传递证书）]
+\label{cert:tex28-ch15-p1}
+证书链：
+\[
+  \text{对象补齐}
+  \Rightarrow
+  \text{微步量可计算}
+  \Rightarrow
+  \text{条款可落盘验收}
+  \Rightarrow
+  \text{收敛主张可签发}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $e,\Phi$ 可计算，任一执行前后均可得 $\Delta\Phi,\Delta J$；由算子与组织标识可追溯
+$\Delta$ 的来源；由硬约束可判定“可执行集”边界。
+因此机制、遂穿、全局性条款均可转写为可统计验证的不等式或事件比例，
+从而实现“记录--回放--签发”的形式化执行。证毕。
+\end{proof}
+
+\subsection{备注}
+\label{subsec:tex28-ch15-remarks}
+
+\begin{remark}[三件对象到落盘字段的最小映射]
+为避免停留在符号层，建议至少落盘：
+\[
+  (J,\Phi,\Delta\Phi,\Delta J,\ O_{\mathrm{id}},\Sigma_{\mathrm{id}},\theta_{\mathrm{meta}},\kappa,\ b^{\mathrm{exec}},
+    r^{\mathrm{exec}}).
+\]
+如需细化归因，可增加 $(g,h,s)$ 三块残差的范数与分位统计。
+\end{remark}
+
+\begin{remark}[缺口定位优先级]
+若收敛未达预期，应先检验定理~\ref{thm:tex28-ch15-a3} 的“总算子空间充分性”；
+该项若不满足，单纯提高频率或预算通常无法消除 $J>0$ 停滞。
+\end{remark}
+
+\begin{remark}[工程语义]
+本章补齐把“$e(x)$、$\Phi(x)$、$\mathcal O_{\mathrm{tot}}$”从描述性概念升级为
+可计算、可审计、可签发证书的系统部件，为后续跨场景复用提供统一接口。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{OpenRA 运行期在线修复的组织--部署同伦等价：严格充要形式逻辑}
+\label{sec:tex28-ch16}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（定义 + 公理（降级为定理：数学归纳法证书+证明） + 引理（证书+证明） + 命题（证书+证明） + 推论（证书+证明））+ 备注}
+\label{subsec:tex28-ch16-logic}
+本章把 OpenRA 的运行期在线修复抽象为“移动单元组织--部署”控制系统，并在固定工作域内给出：
+\[
+  \text{严格充分且必要同伦等价}
+  \Longleftrightarrow
+  \text{移动单元重编队与重部署}.
+\]
+为保证结论可审计，公理条款统一降级为定理，并配套数学归纳法证书与谓词因果链证明。
+
+\subsection{定义（把 OpenRA 抽象为“移动单元组织--部署”控制系统）}
+\label{subsec:tex28-ch16-defs}
+
+\begin{definition}[D0（工作域约束：仅讨论运行期在线修复）]
+\label{def:tex28-ch16-d0}
+固定时间窗 $[0,T]$，并约束：
+\begin{enumerate}
+  \item 单位库存固定（不讨论造兵、造建筑、科技树跃迁等导致对象集合变化的动作）；
+  \item 仅允许对移动单元施加运行期在线控制。
+\end{enumerate}
+在该工作域内，修复算子的作用对象为移动单元的组织结构与运动/指令分配。
+\end{definition}
+
+\begin{definition}[D1（移动单元集合与部署态）]
+\label{def:tex28-ch16-d1}
+令玩家可控移动单元集合为
+\[
+  U=\{u_1,\dots,u_N\}.
+\]
+对任意 $u\in U$，定义部署变量
+\[
+  d(u):=(p(u),m(u))\in\mathcal P\times\mathcal M,
+\]
+其中 $\mathcal P$ 为位置空间，$\mathcal M$ 为行为模式空间。
+全体部署态定义为
+\[
+  D:=\{d(u)\}_{u\in U}\in(\mathcal P\times\mathcal M)^U.
+\]
+\end{definition}
+
+\begin{definition}[D2（重编队：组织态）]
+\label{def:tex28-ch16-d2}
+定义一层编组映射（满射）
+\[
+  \pi_1:U\to S,\qquad S=\{1,\dots,K\},
+\]
+其中 $\pi_1^{-1}(s)$ 表示第 $s$ 个编组。
+若采用双层组织，再定义
+\[
+  \pi_2:S\to G,\qquad G=\{1,\dots,L\}.
+\]
+组织态定义为
+\[
+  \Sigma:=(\pi_1,\pi_2,\mathcal C)\in\Omega,
+\]
+其中 $\mathcal C$ 为容量、互斥、锚定等结构约束集合。
+重编队定义为组织态变化 $\Sigma\mapsto\Sigma'$（满足 $\mathcal C$）。
+\end{definition}
+
+\begin{definition}[D3（重部署：部署态改变）]
+\label{def:tex28-ch16-d3}
+重部署定义为部署态变化 $D\mapsto D'$，即存在 $u\in U$ 使
+\[
+  d(u)=(p(u),m(u))\mapsto d'(u)=(p'(u),m'(u)).
+\]
+允许零位移重部署：$p'(u)=p(u)$ 但 $m'(u)\neq m(u)$（如改目标、改姿态、停止、警戒）。
+\end{definition}
+
+\begin{definition}[D4（运行期控制算子及其组织--部署投影）]
+\label{def:tex28-ch16-d4}
+在工作域 D0 中，令可执行控制算子集合为 $\mathcal O_{\mathrm{OpenRA}}$。
+对任意 $O\in\mathcal O_{\mathrm{OpenRA}}$，定义其投影作用
+\[
+  \Pi(O):(\Sigma,D)\mapsto(\Sigma',D').
+\]
+定义两类生成子：
+\[
+  \mathcal O_{\mathrm{form}}
+  :=\{O\mid \Sigma'\neq\Sigma,\ D'=D\},
+\]
+\[
+  \mathcal O_{\mathrm{deploy}}
+  :=\{O\mid \Sigma'=\Sigma,\ D'\neq D\}.
+\]
+定义闭包
+\[
+  \mathcal O_{RD}:=\langle \mathcal O_{\mathrm{form}}\cup\mathcal O_{\mathrm{deploy}}\rangle.
+\]
+\end{definition}
+
+\begin{definition}[D5（同伦等价口径：控制范畴与投影同值）]
+\label{def:tex28-ch16-d5}
+构造控制范畴 $\mathbf{Act}$：
+\begin{itemize}
+  \item 对象：所有可达组织--部署态 $(\Sigma,D)$；
+  \item 态射：由 $\mathcal O_{\mathrm{OpenRA}}$ 生成的动作序列。
+\end{itemize}
+对态射引入投影同值关系：若两条动作序列在端点一致且诱导相同投影映射，则视为同一态射类。
+用 $\mathcal O_{RD}$ 生成的子范畴记为 $\mathbf{RD}$。
+称“严格同伦等价”成立，当包含函子
+\[
+  i:\mathbf{RD}\hookrightarrow\mathbf{Act}
+\]
+是范畴等价；则其神经 $N(\mathbf{RD})$ 与 $N(\mathbf{Act})$ 同伦等价。
+\end{definition}
+
+\subsection{公理（降级为定理：数学归纳法证书 + 证明）}
+\label{subsec:tex28-ch16-axioms}
+
+\begin{theorem}[公理（降级为定理）A1（工作域内可观测充分性：$(\Sigma,D)$ 是移动单元在线控制的充分状态）]
+\label{thm:tex28-ch16-a1}
+在定义~\ref{def:tex28-ch16-d0} 的工作域内，若任一运行期控制算子的可执行性与作用结果仅依赖当前 $(\Sigma,D)$ 及算子参数，
+则 $(\Sigma,D)$ 对移动单元在线控制是充分状态。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书 A1（按动作序列长度的状态充分性见证）]
+\label{cert:tex28-ch16-a1}
+设两段运行满足相同初态 $(\Sigma_0,D_0)$ 与同一动作序列 $O_1,\dots,O_n$。
+定义谓词
+\[
+  \mathsf{Eq}(k):\ (\Sigma_k,D_k)=(\widetilde\Sigma_k,\widetilde D_k),\quad k\in\{0,\dots,n\}.
+\]
+证书内容为：
+\begin{enumerate}
+  \item 基步：$\mathsf{Eq}(0)$ 由同初态给出；
+  \item 归纳步：$\mathsf{Eq}(k)\Rightarrow \mathsf{Eq}(k+1)$，因为第 $k+1$ 步更新只依赖当前 $(\Sigma_k,D_k)$ 与同一算子参数。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法 + 基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch16-a1}，对任意动作长度 $n$ 做归纳。
+基步 $k=0$ 时两系统组织--部署态相同。
+设对某 $k<n$，有 $(\Sigma_k,D_k)=(\widetilde\Sigma_k,\widetilde D_k)$。
+由定理假设，下一步更新满足
+\[
+  (\Sigma_{k+1},D_{k+1})
+  =
+  F_{O_{k+1}}\!\bigl((\Sigma_k,D_k)\bigr),
+\]
+且
+\[
+  (\widetilde\Sigma_{k+1},\widetilde D_{k+1})
+  =
+  F_{O_{k+1}}\!\bigl((\widetilde\Sigma_k,\widetilde D_k)\bigr),
+\]
+故得 $(\Sigma_{k+1},D_{k+1})=(\widetilde\Sigma_{k+1},\widetilde D_{k+1})$。
+归纳完成，说明在线控制后果由 $(\Sigma,D)$ 充分刻画。证毕。
+\end{proof}
+
+\subsection{引理（关键结构事实：非平凡控制必在 $\Sigma$ 或 $D$ 上留痕）}
+\label{subsec:tex28-ch16-lemmas}
+
+\begin{lemma}[L1（非作用算子在组织--部署投影上恒等）]
+\label{lem:tex28-ch16-l1}
+若某控制算子 $O$ 不改变任何移动单元编组与部署，仅执行界面或观察类动作，
+则
+\[
+  \Pi(O)(\Sigma,D)=(\Sigma,D).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L1（投影恒等见证）]
+\label{cert:tex28-ch16-l1}
+见证谓词：
+\[
+  (\Sigma'=\Sigma)\wedge(D'=D).
+\]
+结合定义~\ref{def:tex28-ch16-d4} 的投影定义可直接推出恒等结论。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由前提可得该算子不改变组织分量与部署分量，即 $\Sigma'=\Sigma$ 且 $D'=D$。
+代入定义~\ref{def:tex28-ch16-d4} 的投影表达式，
+得 $\Pi(O)(\Sigma,D)=(\Sigma,D)$。证毕。
+\end{proof}
+
+\begin{lemma}[L2（投影非恒等的控制必落入“重编队或重部署”生成闭包）]
+\label{lem:tex28-ch16-l2}
+若 $\Pi(O)(\Sigma,D)\neq(\Sigma,D)$，则必有
+\[
+  \Sigma'\neq\Sigma \quad\text{或}\quad D'\neq D.
+\]
+因此 $O$ 在投影意义下属于由 $\mathcal O_{\mathrm{form}}$ 与 $\mathcal O_{\mathrm{deploy}}$ 生成的闭包 $\mathcal O_{RD}$。
+\end{lemma}
+
+\begin{Certificate}[证书 L2（排中分解见证）]
+\label{cert:tex28-ch16-l2}
+证书由两部分组成：
+\begin{enumerate}
+  \item 互补谓词：$\Pi(O)\neq\mathrm{id}\iff (\Sigma'\neq\Sigma)\vee(D'\neq D)$；
+  \item 生成见证：若仅 $\Sigma$ 变化，则归入 $\mathcal O_{\mathrm{form}}$；若仅 $D$ 变化，则归入 $\mathcal O_{\mathrm{deploy}}$；
+  同时变化可分解为两步合成（先编队后部署，或先部署后编队）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $\Pi(O)(\Sigma,D)\neq(\Sigma,D)$，按有序对不等判据可得
+\[
+  (\Sigma',D')\neq(\Sigma,D)
+  \Rightarrow
+  (\Sigma'\neq\Sigma)\vee(D'\neq D).
+\]
+若 $\Sigma'\neq\Sigma$ 且 $D'=D$，则 $O$ 属于 $\mathcal O_{\mathrm{form}}$；
+若 $\Sigma'=\Sigma$ 且 $D'\neq D$，则 $O$ 属于 $\mathcal O_{\mathrm{deploy}}$；
+若两者均变化，可在投影范畴中分解为“改变 $\Sigma$”与“改变 $D$”两步合成，
+故属于 $\langle\mathcal O_{\mathrm{form}}\cup\mathcal O_{\mathrm{deploy}}\rangle=\mathcal O_{RD}$。证毕。
+\end{proof}
+
+\subsection{命题（强命题：工作域 D0 下同伦等价严格充要地等价于重编队与重部署）}
+\label{subsec:tex28-ch16-props}
+
+\begin{proposition}[P1（严格充分且必要：$\mathbf{Act}\simeq\mathbf{RD}$）]
+\label{prop:tex28-ch16-p1}
+在工作域 D0 下，包含函子
+\[
+  i:\mathbf{RD}\hookrightarrow\mathbf{Act}
+\]
+为范畴等价；从而其神经同伦等价。
+语义上等价于
+\[
+  \boxed{
+    \text{OpenRA 运行期在线修复的严格充分且必要同伦等价}
+    \Longleftrightarrow
+    \text{移动单元重编队与重部署}
+  }.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书 P1（规范化准逆与三段式见证）]
+\label{cert:tex28-ch16-p1}
+构造规范化函子
+\[
+  p:\mathbf{Act}\to\mathbf{RD},
+\]
+其规则为：删除投影恒等动作（引理~\ref{lem:tex28-ch16-l1}），并把剩余步骤按引理~\ref{lem:tex28-ch16-l2} 投影到
+$\mathcal O_{RD}$ 生成序列。
+证书分三段：
+\begin{enumerate}
+  \item 充分性见证：任意有效态射都可化为 $\mathbf{RD}$ 态射；
+  \item 必要性见证：任意有效变化若不经 $\mathbf{RD}$ 将违背引理~\ref{lem:tex28-ch16-l2}；
+  \item 准逆见证：$p\circ i=\mathrm{id}_{\mathbf{RD}}$，且 $i\circ p$ 与 $\mathrm{id}_{\mathbf{Act}}$ 在投影同值意义下自然同构。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+\textbf{（充分性）}
+任取 $\mathbf{Act}$ 中态射 $\alpha:(\Sigma,D)\to(\Sigma',D')$。
+按证书~\ref{cert:tex28-ch16-p1} 规则删除所有投影恒等步骤，不改变态射类；
+剩余每一步由引理~\ref{lem:tex28-ch16-l2} 必属于 $\mathcal O_{RD}$ 生成闭包，
+故 $\alpha$ 与某个 $\alpha_{RD}\in\mathbf{RD}$ 同值。
+
+\textbf{（必要性）}
+反设存在有效变化态射 $\alpha$ 不可由 $\mathbf{RD}$ 生成。
+则其某一步在投影上非恒等且不属于 $\mathcal O_{RD}$，与引理~\ref{lem:tex28-ch16-l2} 矛盾。
+故任何有效变化都必须经由重编队与重部署的合成。
+
+\textbf{（范畴等价）}
+由上述两点，$p$ 在态射与对象上给出与 $i$ 的准逆关系：
+\[
+  p\circ i=\mathrm{id}_{\mathbf{RD}},
+  \qquad
+  i\circ p\cong \mathrm{id}_{\mathbf{Act}}
+  \ \ (\text{投影同值意义下}).
+\]
+因此 $i$ 为范畴等价，命题成立。证毕。
+\end{proof}
+
+\subsection{推论（最小生成子结论）}
+\label{subsec:tex28-ch16-cor}
+
+\begin{corollary}[C1（组织同伦算子空间的最小生成子）]
+\label{cor:tex28-ch16-c1}
+在工作域 D0 的 OpenRA 运行期在线修复问题中，
+移动单元控制的组织同伦算子空间可取最小生成子为
+\[
+  \boxed{
+    \text{重编队（改变 }\Sigma\text{）}
+    \ \cup\
+    \text{重部署（改变 }D\text{）}
+  }.
+\]
+任何其他动作要么可由该生成子合成得到，要么在 $(\Sigma,D)$ 投影上恒等。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（由命题 P1 的生成闭包直接推得）]
+\label{cert:tex28-ch16-c1}
+证书为命题~\ref{prop:tex28-ch16-p1} 与引理~\ref{lem:tex28-ch16-l1}--\ref{lem:tex28-ch16-l2} 的直接组合：
+\[
+  \mathbf{Act}\simeq\mathbf{RD},
+  \quad
+  \mathbf{RD}=\langle\mathcal O_{\mathrm{form}}\cup\mathcal O_{\mathrm{deploy}}\rangle.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由命题~\ref{prop:tex28-ch16-p1}，
+$\mathbf{Act}$ 的有效态射全部可在 $\mathbf{RD}$ 中表示；
+由定义~\ref{def:tex28-ch16-d4}，$\mathbf{RD}$ 恰由重编队与重部署生成。
+又由引理~\ref{lem:tex28-ch16-l1}，其余投影恒等动作对修复态射无贡献。
+故最小生成子结论成立。证毕。
+\end{proof}
+
+\subsection{备注（边界条件与扩展口径）}
+\label{subsec:tex28-ch16-remarks}
+
+\begin{remark}[库存变换扩展]
+本章严格充要结论依赖定义~\ref{def:tex28-ch16-d0}。
+若允许造兵/造建筑/科技跃迁，则对象集合 $U$ 与可行域会变化，
+需引入库存变换生成子 $\mathbf{Inv}$，结论应改写为
+\[
+  \mathbf{Act}\simeq\langle\mathbf{RD}\cup\mathbf{Inv}\rangle.
+\]
+\end{remark}
+
+\begin{remark}[零位移重部署的必要性]
+若把部署严格限定为“仅位置变化”，则换目标、换姿态、停止/警戒将无法归入部署算子，
+必须单列第三类生成子。定义~\ref{def:tex28-ch16-d3} 采用“零位移重部署”，
+正是为保持“二元生成子”的严格充要性。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{库存变换吸收为扩展重部署：槽位固定口径下的形式逻辑}
+\label{sec:tex28-ch17}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（定义 + 定理（证书+证明（谓词因果链）） + 推论（证书+证明））+ 备注}
+\label{subsec:tex28-ch17-logic}
+本章把库存变换算子 $\mathbf{Inv}$ 重写为“固定槽位上的类型/存在态变化”，
+并给出可证书化结论：在槽位固定论域内，$\mathbf{Inv}$ 不是独立生成子，而可吸收到扩展重部署 D3。
+
+\subsection{定义（把 $\mathbf{Inv}$ 重新解释为相对固定的非底层单位槽位状态置换）}
+\label{subsec:tex28-ch17-defs}
+
+\begin{definition}[D1（允许库存变化的扩展域）]
+\label{def:tex28-ch17-d1}
+在允许生产、建造、升级、卖出、损耗等操作时，移动单元实例集合随时间变化：
+\[
+  U(t)\ \text{可变},\qquad |U(t)|\ \text{可变}.
+\]
+传统口径下把改变 $U(t)$ 元素与类型的操作统称为库存变换算子 $\mathbf{Inv}$。
+\end{definition}
+
+\begin{definition}[D2（相对固定的非底层单位：槽位集合）]
+\label{def:tex28-ch17-d2}
+引入固定槽位集合
+\[
+  \bar U=\{\bar u_1,\dots,\bar u_M\},\qquad M\ \text{固定}.
+\]
+每个槽位带类型/存在态分量
+\[
+  \tau(\bar u)\in\mathcal T\cup\{\emptyset\},
+\]
+其中 $\mathcal T$ 为单位类型集合，$\emptyset$ 表示槽位当前为空。
+把部署变量扩展为
+\[
+  \bar d(\bar u):=\bigl(p(\bar u),m(\bar u),\tau(\bar u)\bigr)
+  \in\mathcal P\times\mathcal M\times(\mathcal T\cup\{\emptyset\}),
+\]
+并定义全体部署态
+\[
+  \bar D:=\{\bar d(\bar u)\}_{\bar u\in\bar U}.
+\]
+\end{definition}
+
+\begin{definition}[D3（重部署抽象口径）]
+\label{def:tex28-ch17-d3}
+把重部署一般化为“改变扩展部署态 $\bar D$”：
+存在槽位 $\bar u\in\bar U$ 使
+\[
+  \bar d(\bar u)\mapsto \bar d'(\bar u).
+\]
+允许改变任一分量 $p,m,\tau$，包括零位移改变模式或类型。
+\end{definition}
+
+\subsection{定理（强命题：在该抽象下 $\mathbf{Inv}$ 与 D3 等价）}
+\label{subsec:tex28-ch17-thm}
+
+\begin{theorem}[T1（$\mathbf{Inv}$ 等价于改变 $\tau$ 的重部署，因此 $\mathbf{Inv}\simeq$ D3）]
+\label{thm:tex28-ch17-t1}
+在如下假设下：
+\begin{enumerate}
+  \item 槽位集合 $\bar U$ 固定；
+  \item 库存变化仅解释为槽位的损耗、重建、买卖/升级置换（类型置换）。
+\end{enumerate}
+则有
+\[
+  \boxed{
+    \mathbf{Inv}\ \text{上的每个操作}
+    \Longleftrightarrow
+    \text{某槽位 }\bar u\text{ 的 }\tau(\bar u)\text{（并可伴随 }p,m\text{）变化}
+  }.
+\]
+因此
+\[
+  \boxed{
+    \mathbf{Inv}\ \text{不再是独立生成子，而是 D3（重部署）的子类/等价重述}
+  }.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 T1（库存生成操作覆盖证书）]
+\label{cert:tex28-ch17-t1}
+把 $\mathbf{Inv}$ 的典型生成操作抽象为三类：
+\begin{enumerate}
+  \item 损耗（消失）：$t\to\emptyset$；
+  \item 重建（出现）：$\emptyset\to t$；
+  \item 置换（换型）：$t_1\to t_2$。
+\end{enumerate}
+若能证明三类均落入 D3，且 D3 中任意 $\tau$-变化都可归入此三类，则得充要等价。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+\textbf{（1）损耗 $\Rightarrow$ D3）}
+损耗在槽位口径下表示为：对某 $\bar u$ 执行
+\[
+  \tau(\bar u):t\mapsto\emptyset.
+\]
+必要时可同步调整 $m(\bar u)$ 为不可用/空闲模式。该操作直接改变 $\bar d(\bar u)$，
+故属于定义~\ref{def:tex28-ch17-d3} 的重部署。
+
+\textbf{（2）重建 $\Rightarrow$ D3）}
+重建表示为：对某 $\bar u$ 执行
+\[
+  \tau(\bar u):\emptyset\mapsto t\in\mathcal T,
+\]
+并可同步设定出生位置 $p(\bar u)$ 与默认模式 $m(\bar u)$。
+同理，该操作改变 $\bar d(\bar u)$，故属于 D3。
+
+\textbf{（3）置换 $\Rightarrow$ D3）}
+置换表示为：对某 $\bar u$ 执行
+\[
+  \tau(\bar u):t_1\mapsto t_2,
+\]
+必要时伴随 $(p,m)$ 调整。仍是对 $\bar d(\bar u)$ 的改变，故属于 D3。
+
+\textbf{（4）反向：D3 中的 $\tau$-变化 $\Rightarrow$ $\mathbf{Inv}$）}
+若一次 D3 操作改变 $\tau$，则仅有三种互斥情形：
+\[
+  \emptyset\to t,\qquad t\to\emptyset,\qquad t_1\to t_2.
+\]
+按证书~\ref{cert:tex28-ch17-t1}，它们分别对应重建、损耗、置换，
+即恰为 $\mathbf{Inv}$ 的库存变换。
+
+由（1）--（4）得：在本章假设下，$\mathbf{Inv}$ 与“D3 中的 $\tau$-变化”互为充要，
+从而 $\mathbf{Inv}$ 可被吸收到扩展重部署 D3。证毕。
+\end{proof}
+
+\subsection{推论（$\langle\mathbf{RD}\cup\mathbf{Inv}\rangle$ 可化为纯 $\mathbf{RD}$，但重部署需扩展）}
+\label{subsec:tex28-ch17-cor}
+
+\begin{corollary}[C1（吸收结论）]
+\label{cor:tex28-ch17-c1}
+若把部署定义为
+\[
+  \bar d=(p,m,\tau),
+\]
+则
+\[
+  \boxed{
+    \langle\mathbf{RD}\cup\mathbf{Inv}\rangle
+    \simeq
+    \langle\mathbf{RD}'\rangle
+  }.
+\]
+其中 $\mathbf{RD}'$ 与原 $\mathbf{RD}$ 的差别仅在于：其 D3（重部署）允许改变 $\tau$，
+即把库存变化吸收到重部署分量。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（由 T1 的生成子替换证书）]
+\label{cert:tex28-ch17-c1}
+由定理~\ref{thm:tex28-ch17-t1}，$\mathbf{Inv}$ 生成子可逐一替换为 D3 中的 $\tau$-变化生成子，
+故联合生成闭包与扩展重部署生成闭包同值。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex28-ch17-c1}，在任意由 $\mathbf{RD}\cup\mathbf{Inv}$ 生成的动作序列中，
+可将每一步 $\mathbf{Inv}$ 动作替换为等价的 D3-$\tau$ 动作，保持端点态不变。
+替换后整条序列落入扩展后的 $\mathbf{RD}'$ 闭包；
+反向包含由 $\mathbf{RD}'$ 中 D3-$\tau$ 步骤可回译为 $\mathbf{Inv}$ 步骤得到。
+故两者生成闭包同值（在投影范畴意义下等价）。证毕。
+\end{proof}
+
+\subsection{备注（边界条件：等价成立与失效边界）}
+\label{subsec:tex28-ch17-remarks}
+
+\begin{remark}[生产进度/科技前置/资源约束作为独立过程时]
+若把生产时间、科技前置、资源约束显式建模为独立状态过程，
+等价仍可保持，只需把 $\tau$ 扩展为包含过程态的集合，例如
+\[
+  \tau\in\mathcal T\cup\{\emptyset,\mathrm{build}(t),\mathrm{upgrade}(t)\}.
+\]
+此时库存变化仍可解释为 D3（改变扩展部署态），但部署分量更丰富。
+\end{remark}
+
+\begin{remark}[槽位数可变时]
+若允许槽位数 $M$ 变化（如人口上限动态变化、永久扩容），
+则“槽位固定”假设被破坏，$\mathbf{Inv}$ 可能重新成为独立生成子，
+因为对象集合基数变化不再总能被 $\tau$ 的内部态吸收。
+\end{remark}
+
+\begin{remark}[若部署仅指位置时]
+若坚持“部署仅指位置 $p$”，则模式 $m$ 与类型/存在态 $\tau$ 不再属于部署分量，
+上述吸收等价将失效。本章结论依赖定义~\ref{def:tex28-ch17-d3} 的扩展部署口径。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{量化交易中实单--虚单--虚仓组织同伦的对位形式逻辑：固定槽位口径}
+\label{sec:tex28-ch18}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（定义 + 定理（证书+证明（基于数学符号推演逻辑的谓词因果链）） + 命题（证书+证明） + 推论（证书+证明））+ 备注}
+\label{subsec:tex28-ch18-logic}
+本章给出 OpenRA 组织--部署口径与量化交易“实单--虚单--虚仓”口径的严格对位。
+在固定槽位、运行期在线控制论域内，目标结论是：
+\[
+  \text{有效动作的最小生成子}
+  \Longleftrightarrow
+  \text{重编队（改 }\pi_1,\pi_2\text{）+重部署（改 }\tau,\chi\text{）}.
+\]
+
+\subsection{定义（量化交易视角：实单--虚单--虚仓的组织同伦）}
+\label{subsec:tex28-ch18-defs}
+
+\begin{definition}[D1（固定槽位化：把实例变化吸收到状态变化）]
+\label{def:tex28-ch18-d1}
+取三类相对固定的非底层槽位集合（容量上界固定）：
+\[
+  \bar O_R=\{\bar o_1,\dots,\bar o_{N_R}\},
+  \quad
+  \bar O_V=\{\bar v_1,\dots,\bar v_{N_V}\},
+  \quad
+  \bar P_V=\{\bar p_1,\dots,\bar p_{N_P}\},
+\]
+其中常见约束为 $N_P=2$（两虚仓位）。
+
+对每个实单槽位 $\bar o\in\bar O_R$，定义部署态
+\[
+  d(\bar o):=\bigl(\tau(\bar o),\chi(\bar o)\bigr),
+\]
+其中
+\[
+  \tau(\bar o)\in\mathcal T\cup\{\emptyset\},
+  \qquad
+  \chi(\bar o)\in\mathcal X_o.
+\]
+$\tau$ 表示类型/存在态，$\chi$ 表示其余部署参数（价格、数量、风控、有效期、执行模式等抽象参数集合）。
+全体部署态记为
+\[
+  D:=\{d(\bar o)\}_{\bar o\in\bar O_R}.
+\]
+\end{definition}
+
+\begin{definition}[D2（双层组织：实单 $\to$ 虚单 $\to$ 虚仓）]
+\label{def:tex28-ch18-d2}
+定义两层组织映射
+\[
+  \pi_1:\bar O_R\to\bar O_V,\qquad
+  \pi_2:\bar O_V\to\bar P_V,
+\]
+并附带组织约束集合 $\mathcal C$（容量、互斥/正交、方向锚定、可合并/可拆分等）。
+定义组织态
+\[
+  \Sigma:=(\pi_1,\pi_2,\mathcal C)\in\Omega.
+\]
+\end{definition}
+
+\begin{definition}[D3（两类生成子：重编队与重部署）]
+\label{def:tex28-ch18-d3}
+\textbf{重编队（组织同伦原子步）}：改变 $\Sigma$，即对 $(\pi_1,\pi_2)$ 做原子编辑并保持 $\mathcal C$ 成立：
+\[
+  \Sigma\mapsto\Sigma'.
+\]
+\textbf{重部署（部署同伦原子步）}：改变 $D$，即改变某些槽位的 $(\tau,\chi)$：
+\[
+  D\mapsto D'.
+\]
+特别允许 $\tau$ 变化
+\[
+  \emptyset\leftrightarrow t,\qquad t_1\leftrightarrow t_2,
+\]
+从而把开单、撤单、平仓、反手、换型吸收到部署态更新。
+\end{definition}
+
+\subsection{定理（对位映射与库存吸收）}
+\label{subsec:tex28-ch18-thms}
+
+\begin{theorem}[T1（OpenRA 的 $(\Sigma,D)$ 与量化交易的 $(\Sigma,D)$ 是同构对位结构）]
+\label{thm:tex28-ch18-t1}
+在固定槽位集合与运行期在线控制论域内，存在如下结构对位：
+\[
+  \text{OpenRA: 移动单元实例 }u
+  \leftrightarrow
+  \text{量化: 实单槽位 }\bar o,
+\]
+\[
+  \text{OpenRA: 编组映射 }\pi_1
+  \leftrightarrow
+  \text{量化: 实单}\to\text{虚单映射 }\pi_1,
+\]
+\[
+  \text{OpenRA: 二层映射 }\pi_2
+  \leftrightarrow
+  \text{量化: 虚单}\to\text{虚仓映射 }\pi_2,
+\]
+\[
+  \text{OpenRA: 部署 }d(u)=(p,m,\tau)
+  \leftrightarrow
+  \text{量化: 部署 }d(\bar o)=(\tau,\chi).
+\]
+两侧的有效在线控制作用，均完全投影到“组织关系变化”或“部署态变化”。
+\end{theorem}
+
+\begin{Certificate}[证书 T1（状态分解对位证书）]
+\label{cert:tex28-ch18-t1}
+证书由三条对应关系组成：
+\begin{enumerate}
+  \item 对象对应：$u\leftrightarrow\bar o$；
+  \item 组织对应：两层映射 $(\pi_1,\pi_2)$ 对应；
+  \item 部署对应：类型/存在态分量 $\tau$ 对应，剩余参数分量 $(p,m)$ 与 $\chi$ 作为“部署参数集”对应。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+在 OpenRA 侧，任一有效在线动作若在投影上非恒等，必改变组织关系或部署变量；
+在量化侧，任一有效在线动作若在投影上非恒等，必改变实单归属关系（$\pi_1,\pi_2$）或槽位部署态（$\tau,\chi$）。
+两侧在“对象集合 + 双层组织 + 部署态”三元结构上具有同构分解，
+故其控制语义在抽象层严格对位。证毕。
+\end{proof}
+
+\begin{theorem}[T2（吸收结论：$\mathbf{Inv}$ 等价于 $\tau$-重部署并归入 D3）]
+\label{thm:tex28-ch18-t2}
+若把开、撤、平、反、换型等库存变化解释为固定槽位上的 $\tau$ 变换，则
+\[
+  \mathbf{Inv}
+  \equiv
+  \{\tau(\bar o):\emptyset\leftrightarrow t\ \text{或}\ t_1\leftrightarrow t_2\}
+  \subseteq
+  \text{D3（重部署）}.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 T2（库存三分证书）]
+\label{cert:tex28-ch18-t2}
+将库存变化分解为三类生成操作：
+\[
+  t\to\emptyset,\qquad
+  \emptyset\to t,\qquad
+  t_1\to t_2.
+\]
+若三类均可写成槽位部署态 $d(\bar o)$ 的变化，则可吸收到 D3。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+“撤单/平仓/损耗”对应 $\tau:t\to\emptyset$；
+“开仓/挂单/重建”对应 $\tau:\emptyset\to t$；
+“反手/换型/买卖置换”对应 $\tau:t_1\to t_2$（可伴随 $\chi$ 同步更新）。
+三者均改变某槽位的 $d(\bar o)=(\tau,\chi)$，故属于 D3。
+反向看，任一 D3 中的 $\tau$ 变化仅可能落入上述三类之一，故可回译为 $\mathbf{Inv}$ 操作。
+因此在本论域内，$\mathbf{Inv}$ 与 D3 中的 $\tau$-重部署等价。证毕。
+\end{proof}
+
+\subsection{命题（量化运行期动作由重编队与重部署生成）}
+\label{subsec:tex28-ch18-prop}
+
+\begin{proposition}[P1（范畴等价口径：$\mathbf{Act}_{QT}\simeq\mathbf{RD}_{QT}$）]
+\label{prop:tex28-ch18-p1}
+定义动作范畴 $\mathbf{Act}_{QT}$：对象为可达态 $(\Sigma,D)$，态射为可执行动作序列。
+定义子范畴 $\mathbf{RD}_{QT}$：仅由 D3 的两类生成子构成（重编队与重部署，含 $\tau$ 变化）。
+在固定槽位论域下，包含函子
+\[
+  i:\mathbf{RD}_{QT}\hookrightarrow\mathbf{Act}_{QT}
+\]
+为范畴等价（从而神经同伦等价）。
+\end{proposition}
+
+\begin{Certificate}[证书 P1（有效动作投影分解证书）]
+\label{cert:tex28-ch18-p1}
+对任一动作步 $O$，有三分判据：
+\begin{enumerate}
+  \item 若改变 $(\pi_1,\pi_2)$，则归入重编队；
+  \item 若改变 $(\tau,\chi)$，则归入重部署；
+  \item 若两者皆不变，则在 $(\Sigma,D)$ 投影上恒等，可删除而不改变投影态射。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+任取 $\mathbf{Act}_{QT}$ 态射 $\alpha$，逐步应用证书~\ref{cert:tex28-ch18-p1}：
+删除全部投影恒等步后，剩余每步必为重编队或重部署。
+因此 $\alpha$ 与某条 $\mathbf{RD}_{QT}$ 态射投影同值，得充分性。
+必要性由反证得到：若存在有效变化步不属于两类生成子，则其既不改组织也不改部署，
+与“有效变化”矛盾。于是 $i$ 给出范畴等价。证毕。
+\end{proof}
+
+\subsection{推论（组织同伦等价对位的一句结论）}
+\label{subsec:tex28-ch18-cor}
+
+\begin{corollary}[C1（最小生成子结论）]
+\label{cor:tex28-ch18-c1}
+在本章论域下，
+\[
+  \langle\mathbf{RD}_{QT}\cup\mathbf{Inv}\rangle
+  \simeq
+  \langle\mathbf{RD}_{QT}\rangle,
+\]
+其语义即：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{量化交易“实单--虚单--虚仓组织同伦”的}\\
+      &\text{同伦等价对位}
+      \Longleftrightarrow
+      \text{重编队（改 }\pi_1,\pi_2\text{）}\\
+      &\text{+重部署（改 }\tau,\chi\text{）}
+    \end{aligned}
+  }.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C1（由 T2 与 P1 的闭包替换证书）]
+\label{cert:tex28-ch18-c1}
+由定理~\ref{thm:tex28-ch18-t2} 可把 $\mathbf{Inv}$ 全部替换为 D3 的 $\tau$-重部署，
+再由命题~\ref{prop:tex28-ch18-p1} 得到完整动作闭包由 $\mathbf{RD}_{QT}$ 生成。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+先用定理~\ref{thm:tex28-ch18-t2} 对任意序列中的 $\mathbf{Inv}$ 步做逐步替换，
+得到只含重编队与重部署的等价序列；
+再用命题~\ref{prop:tex28-ch18-p1} 得到该等价序列覆盖全部有效态射。
+因此闭包等价成立，推论得证。证毕。
+\end{proof}
+
+\subsection{备注（边界条件，避免论域偷换）}
+\label{subsec:tex28-ch18-remarks}
+
+\begin{remark}[槽位数变化时需增广生成子]
+若允许槽位数本身变化（例如无限加仓、无限挂单、动态扩容），
+则应把“扩容/缩容”作为额外生成子；在槽位固定假设下，上述吸收结论成立。
+\end{remark}
+
+\begin{remark}[虚单/虚仓内部态需并入状态向量]
+若把虚单或虚仓内部态（净敞口、均价、风险预算等）视为独立状态分量，
+应将其并入部署参数 $\chi$ 或并入组织约束 $\mathcal C$；
+一旦并入，本章等价结构保持不变。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{两虚仓位基本模式下的组织同伦最小生成子：可审计约束与对位结论}
+\label{sec:tex28-ch19}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式逻辑（定义 + 定理（证书+证明（基于数学符号推演逻辑的谓词因果链）） + 推论（证书+证明））+ 备注}
+\label{subsec:tex28-ch19-logic}
+本章把“实单--虚单--虚仓”压缩到两虚仓位基本模式，并给出可直接映射工程接口的结论：
+\[
+  \text{组织同伦最小生成子}
+  =
+  \{W1,W2\},
+\]
+其中 $W1$ 为“实单重打包”，$W2$ 为“非锚定虚单跨仓重归属”。
+
+\subsection{定义（固定槽位、双层组织与两虚仓位锚定）}
+\label{subsec:tex28-ch19-defs}
+
+\begin{definition}[D1（固定槽位：实单槽位、虚单槽位、虚仓槽位）]
+\label{def:tex28-ch19-d1}
+取固定槽位集合
+\[
+  \bar O_R=\{\bar o_1,\dots,\bar o_{N_R}\},
+  \qquad
+  \bar O_V=\{\bar v_1,\dots,\bar v_{N_V}\},
+\]
+\[
+  \bar P_V=\{\bar p^+,\bar p^-\},
+  \qquad
+  |\bar P_V|=2.
+\]
+每个实单槽位部署态定义为
+\[
+  d(\bar o):=(\tau(\bar o),\chi(\bar o)),
+  \qquad
+  \tau(\bar o)\in\mathcal T\cup\{\emptyset\},
+\]
+其中 $\emptyset$ 表示空槽位，$\chi(\bar o)$ 表示其余参数（价格、数量、止损、有效期等抽象参数）。
+\end{definition}
+
+\begin{definition}[D2（双层组织同伦：$\pi_1,\pi_2$）]
+\label{def:tex28-ch19-d2}
+定义两层组织映射
+\[
+  \pi_1:\bar O_R\to\bar O_V\quad(\text{实单}\to\text{虚单}),
+  \qquad
+  \pi_2:\bar O_V\to\bar P_V\quad(\text{虚单}\to\text{虚仓}),
+\]
+并定义组织态
+\[
+  \Sigma:=(\pi_1,\pi_2,\mathcal C)\in\Omega,
+\]
+其中 $\mathcal C$ 为可审计约束谓词集合。
+\end{definition}
+
+\begin{definition}[D3（两虚仓位锚定 buy/sell）]
+\label{def:tex28-ch19-d3}
+指定锚定虚单槽位
+\[
+  a^+\in\bar O_V,\qquad a^-\in\bar O_V,
+\]
+并施加硬锚定
+\[
+  \pi_2(a^+)=\bar p^+,\qquad \pi_2(a^-)=\bar p^-.
+\]
+定义锚定标签
+\[
+  \mathrm{anchor}(a^+)=\mathrm{buy},
+  \qquad
+  \mathrm{anchor}(a^-)=\mathrm{sell}.
+\]
+\end{definition}
+
+\subsection{定义（约束谓词集合 $\mathcal C$ 与组织原子算子集 $\mathcal W$）}
+\label{subsec:tex28-ch19-constraints-ops}
+
+\begin{definition}[D4（可审计约束谓词集合 $\mathcal C$）]
+\label{def:tex28-ch19-d4}
+约束谓词定义如下。
+
+\textbf{C0（两虚仓位容量）}：
+\[
+  |\bar P_V|=2,\qquad
+  \bar P_V=\{\bar p^+,\bar p^-\}.
+\]
+
+\textbf{C1（映射总定义与一致性）}：若 $\tau(\bar o)\neq\emptyset$，则
+\[
+  \exists!\bar v\in\bar O_V:\ \pi_1(\bar o)=\bar v.
+\]
+对任意 $\bar v\in\bar O_V$，有
+\[
+  \exists!\bar p\in\bar P_V:\ \pi_2(\bar v)=\bar p.
+\]
+
+\textbf{C2（锚定虚单固定归属）}：
+\[
+  \pi_2(a^+)=\bar p^+,\qquad
+  \pi_2(a^-)=\bar p^-.
+\]
+
+\textbf{C3（虚单内部同向一致性）}：定义
+\[
+  R(\bar v):=\{\bar o\in\bar O_R:\ \tau(\bar o)\neq\emptyset,\ \pi_1(\bar o)=\bar v\}.
+\]
+若 $R(\bar v)\neq\emptyset$，则
+\[
+  \exists d\in\{\mathrm{buy},\mathrm{sell}\}\ \text{s.t.}\
+  \forall \bar o\in R(\bar v),\ \mathrm{dir}(\bar o)=d.
+\]
+记该方向为 $\mathrm{Dir}(\bar v)=d$。
+
+\textbf{C4（虚仓内部同向一致性）}：定义
+\[
+  V(\bar p):=\{\bar v\in\bar O_V:\ \pi_2(\bar v)=\bar p,\ R(\bar v)\neq\emptyset\}.
+\]
+若 $V(\bar p)\neq\emptyset$，则
+\[
+  \exists d\in\{\mathrm{buy},\mathrm{sell}\}\ \text{s.t.}\
+  \forall \bar v\in V(\bar p),\ \mathrm{Dir}(\bar v)=d.
+\]
+记该方向为 $\mathrm{Dir}(\bar p)=d$。
+
+\textbf{C5（扛单+背单：对置与对冲比例）}：令
+\[
+  \sigma(\bar o)=
+  \begin{cases}
+    +q(\bar o), & \mathrm{dir}(\bar o)=\mathrm{buy},\\
+    -q(\bar o), & \mathrm{dir}(\bar o)=\mathrm{sell},
+  \end{cases}
+  \qquad q(\bar o)>0,
+\]
+\[
+  E(\bar p):=
+  \sum_{\bar v:\pi_2(\bar v)=\bar p}\ \sum_{\bar o\in R(\bar v)}\sigma(\bar o).
+\]
+可采用以下口径之一或同时采用：
+\[
+  E(\bar p^+)\cdot E(\bar p^-)\le 0
+  \quad\text{（硬对置）},
+\]
+以及
+\[
+  |E(\bar p_{\mathrm{hedge}})|\le \rho\,|E(\bar p_{\mathrm{carry}})|,\qquad 0\le\rho\le 1
+  \quad\text{（对冲比例上界）}.
+\]
+
+\textbf{C6（风险预算上界）}：例如
+\[
+  \sum_{\bar o:\tau(\bar o)\neq\emptyset}q(\bar o)\le Q_{\max},
+  \qquad
+  \max_{\bar p\in\bar P_V}|E(\bar p)|\le E_{\max}.
+\]
+\end{definition}
+
+\begin{definition}[D5（组织同伦原子编辑算子集 $\mathcal W$）]
+\label{def:tex28-ch19-d5}
+组织算子只改变 $\Sigma=(\pi_1,\pi_2,\mathcal C)$，不改部署分量 $(\tau,\chi)$。
+
+\textbf{W1（实单重打包）}：
+\[
+  \omega_R(\bar o:\bar v_1\to\bar v_2):\
+  \pi_1(\bar o)=\bar v_1\mapsto \pi_1'(\bar o)=\bar v_2.
+\]
+若 $\tau(\bar o)\neq\emptyset$，其前置条件为
+\[
+  R(\bar v_2)=\emptyset\ \ \text{或}\ \ \mathrm{Dir}(\bar v_2)=\mathrm{dir}(\bar o),
+\]
+且移动后 C4/C5 仍成立。
+
+\textbf{W2（虚单跨仓重归属）}：
+\[
+  \omega_V(\bar v:\bar p_1\to\bar p_2):\
+  \pi_2(\bar v)=\bar p_1\mapsto \pi_2'(\bar v)=\bar p_2,\qquad
+  \bar v\notin\{a^+,a^-\}.
+\]
+若 $R(\bar v)\neq\emptyset$，其前置条件为
+\[
+  V(\bar p_2)=\emptyset\ \ \text{或}\ \ \mathrm{Dir}(\bar p_2)=\mathrm{Dir}(\bar v),
+\]
+且移动后 C2/C4/C5 保持成立。
+
+在“虚单槽位固定且允许空槽位”口径下，合并/拆分均可由 W1 有限次组合得到；
+故组织最小原子生成子可取 $\{W1,W2\}$。
+\end{definition}
+
+\subsection{定理（两虚仓位模式下组织态可达的严格充要生成）}
+\label{subsec:tex28-ch19-thm}
+
+\begin{theorem}[T1（组织态可达的严格充要生成：$W1+W2$）]
+\label{thm:tex28-ch19-t1}
+在约束集合 $\mathcal C$ 固定且槽位集合 $(\bar O_R,\bar O_V,\bar P_V)$ 固定的前提下，
+对任意满足 $\mathcal C$ 的两种组织态
+\[
+  \Sigma_0=(\pi_1^{(0)},\pi_2^{(0)},\mathcal C),
+  \qquad
+  \Sigma_1=(\pi_1^{(1)},\pi_2^{(1)},\mathcal C),
+\]
+存在有限序列 $\omega_1,\dots,\omega_K\in\{\omega_R,\omega_V\}$ 使
+\[
+  \Sigma_0\xrightarrow{\omega_1}\Sigma^{(1)}\xrightarrow{\omega_2}\cdots\xrightarrow{\omega_K}\Sigma_1,
+\]
+且每一步中间态均满足 $\mathcal C$。
+反之，任何满足 $\mathcal C$ 的非恒等组织变化都可分解为有限个 W1 或 W2 的作用。
+\end{theorem}
+
+\begin{Certificate}[证书 T1（有限值域分解与构造证书）]
+\label{cert:tex28-ch19-t1}
+证书包含两部分：
+\begin{enumerate}
+  \item 必要性见证：$\Sigma$ 的非恒等变化等价于 $\pi_1$ 与/或 $\pi_2$ 在有限集合上的取值变化；
+  \item 充分性见证：先对齐 $\pi_2$（W2 为主，必要时插入 W1 调整 Pre），再对齐 $\pi_1$（W1），并逐步检查 $\mathcal C$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+\textbf{必要性}：
+若 $\Sigma_0\neq\Sigma_1$，则至少有一种情形成立：
+\[
+  \exists \bar o,\ \pi_1^{(0)}(\bar o)\neq\pi_1^{(1)}(\bar o),
+  \qquad\text{或}\qquad
+  \exists \bar v,\ \pi_2^{(0)}(\bar v)\neq\pi_2^{(1)}(\bar v).
+\]
+前者必须通过改变实单归属实现，其最小原子即 W1；后者必须通过改变虚单归仓实现，
+其最小原子即 W2（锚点由 C2 禁止移动）。故非恒等变化必可分解为 W1/W2 的有限次作用。
+
+\textbf{充分性（构造）}：
+\begin{enumerate}
+  \item 先对所有 $\bar v\notin\{a^+,a^-\}$，逐一用 W2 将 $\pi_2^{(0)}$ 对齐到 $\pi_2^{(1)}$。
+  若某次 W2 的 Pre 不满足，则先施加若干 W1 把不相容实单迁出至空槽位或同向槽位，再执行该 W2。
+  \item 再对所有 $\bar o$，逐一用 W1 将 $\pi_1^{(0)}$ 对齐到 $\pi_1^{(1)}$。
+  若目标虚单当前方向不相容，则先经有限次 W1 清空或对齐方向后再迁移。
+\end{enumerate}
+由于槽位集合有限，且每步至少修正一个目标不一致点，过程有限终止；
+每步均通过 Pre 检查，故中间态保持 $\mathcal C$。结论成立。证毕。
+\end{proof}
+
+\subsection{推论（两虚仓位模式下与 OpenRA 对位的压缩结论）}
+\label{subsec:tex28-ch19-cor}
+
+\begin{corollary}[C1（对位压缩结论）]
+\label{cor:tex28-ch19-c1}
+在“运行期在线控制 + 槽位固定”论域下：
+\begin{enumerate}
+  \item OpenRA 的“移动单元重编队”对应量化侧由 $W1/W2$ 生成的组织同伦；
+  \item OpenRA 的“移动单元重部署”对应量化侧部署同伦（改变 $(\tau,\chi)$），其中库存变化已由 $\tau$ 吸收。
+\end{enumerate}
+故两侧同伦等价生成子结构一致，仅语义载体不同。
+\end{corollary}
+
+\begin{Certificate}[证书 C1（生成子对位证书）]
+\label{cert:tex28-ch19-c1}
+证书由两条映射组成：
+\[
+  \{\text{OpenRA 重编队}\}\leftrightarrow\{W1,W2\},
+  \qquad
+  \{\text{OpenRA 重部署}\}\leftrightarrow\{\Delta(\tau,\chi)\}.
+\]
+结合定理~\ref{thm:tex28-ch19-t1} 与第18章定理~\ref{thm:tex28-ch18-t2}，得到闭包对位同构。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex28-ch19-t1}，量化侧组织变化闭包由 $\{W1,W2\}$ 生成且必要；
+由第18章定理~\ref{thm:tex28-ch18-t2}，库存动作可吸收到 $\tau$-重部署。
+因此量化侧“组织 + 部署”双生成子与 OpenRA 侧“重编队 + 重部署”一一对位，
+两侧结构同构。证毕。
+\end{proof}
+
+\subsection{备注（实现接口与最小审计字段）}
+\label{subsec:tex28-ch19-remarks}
+
+\begin{remark}[组织同伦接口最小集]
+组织同伦 API 可压缩为两类：
+\[
+  \texttt{move\_real\_order(o, v\_to)}\quad(\text{W1})
+\]
+\[
+  \texttt{move\_virtual\_order(v, p\_to)}\quad(\text{W2,\ }v\neq\text{anchor})
+  .
+\]
+\end{remark}
+
+\begin{remark}[最小落盘字段]
+每次组织算子调用至少落盘：
+\[
+  (\Sigma_{\mathrm{id}},\omega_{\mathrm{id}},\bar o/\bar v,\mathrm{from},\mathrm{to},
+  \mathrm{Dir}(\bar v),\mathrm{Dir}(\bar p),E(\bar p^\pm),\rho,\mathrm{Pre\text{-}check}).
+\]
+据此可对 C0--C6 与 Pre 条件逐条验收。
+\end{remark}
+
+\clearpage
+\begin{thebibliography}{99}
+
+\bibitem{onsager1931}
+Lars Onsager.
+\newblock Reciprocal Relations in Irreversible Processes. I.
+\newblock {\em Physical Review}, 37(4):405--426, 1931.
+
+\bibitem{ambrosio2008}
+Luigi Ambrosio, Nicola Gigli, and Giuseppe Savare.
+\newblock {\em Gradient Flows in Metric Spaces and in the Space of Probability Measures}.
+\newblock 2nd edition, Birkhauser, 2008.
+
+\bibitem{polyak1963}
+B.~T. Polyak.
+\newblock Gradient methods for minimizing functionals.
+\newblock {\em USSR Computational Mathematics and Mathematical Physics}, 3(4):864--878, 1963.
+
+\bibitem{karimi2016}
+Hamed Karimi, Julie Nutini, and Mark Schmidt.
+\newblock Linear convergence of gradient and proximal-gradient methods under the Polyak-Lojasiewicz condition.
+\newblock In {\em ECML PKDD 2016}, pages 795--811, 2016.
+
+\bibitem{rockafellar1970}
+R.~Tyrrell Rockafellar.
+\newblock {\em Convex Analysis}.
+\newblock Princeton University Press, 1970.
+
+\bibitem{kurdyka1998}
+Krzysztof Kurdyka.
+\newblock On gradients of functions definable in o-minimal structures.
+\newblock {\em Annales de l'Institut Fourier}, 48(3):769--783, 1998.
+
+\bibitem{bolte2007}
+Jerome Bolte, Aris Daniilidis, and Adrian Lewis.
+\newblock The Lojasiewicz inequality for nonsmooth subanalytic functions with applications to subgradient dynamical
+  systems.
+\newblock {\em SIAM Journal on Optimization}, 17(4):1205--1223, 2007.
+
+\bibitem{GaoZhengAppVol1}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL, Quantum
+  Computing, and Superconductivity.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL,
+  Quantum Computing, and Superconductivity (v1.2)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17686133}.
+
+
+\bibitem{GaoZhengAppVol2}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II — LBOPB, Life-Science Monoids, and
+  Generative Precision Medicine.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II — LBOPB, Life-Science
+  Monoids, and Generative Precision Medicine (v1.1)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17744672}.
+
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+
+\bibitem{appmath-vol4-pub}
+GaoZheng.
+\newblock {\em G-Framework Applied Mathematics Volume IV (Published TeX)}.
+\newblock \code{docs/AppMathVol4/Pub_GFramework_AppMath_Vol4.tex}.
+
+\bibitem{notebook-tex23}
+GaoZheng.
+\newblock {\em pTOPB/eTOPB Operator Decomposition Formal System (Notebook TeX)}.
+\newblock \code{NoteBook/notebook1/tex23_pub/gframework_ptopb_etopb_operator_decomposition_formal_system.tex}.
+
+\bibitem{notebook-tex27}
+GaoZheng.
+\newblock {\em Powerdomain Fiber Extension ORL Gauge Field Formal System (Notebook TeX)}.
+\newblock \code{NoteBook/notebook1/tex27_pub/gframework_powerdomain_fiber_extension_orl_gauge_field_formal_system.tex}.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

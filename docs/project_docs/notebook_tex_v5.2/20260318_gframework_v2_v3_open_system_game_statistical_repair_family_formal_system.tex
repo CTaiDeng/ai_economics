@@ -1,0 +1,4416 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\refname}{参考文献}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\Ob}{\operatorname{Ob}}
+\newcommand{\Ext}{\operatorname{Ext}}
+\newcommand{\NF}{\operatorname{NF}}
+\newcommand{\Supp}{\operatorname{Supp}}
+\newcommand{\StatHit}{\operatorname{Hit}}
+\newcommand{\Proj}{\operatorname{Proj}}
+\newcommand{\Lift}{\operatorname{Lift}}
+\newcommand{\Bi}{\mathcal{B}\!i}
+\newcommand{\id}{\mathrm{id}}
+
+\setlength{\emergencystretch}{6em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{V\(_2\)/V\(_3\) 从 GRL-SAC 中心到开放系统博弈修复引擎族的统一重构\\
+（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-03-18}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是给 \(V_2,V_3\) 另起一套孤立命名，而是在 \GFramework{} 的整体脉络中，
+把 GRL-SAC、LBOPB、语义规范场、开放系统博弈、同伦修复塔、允许路径类、统计力学
+命中、外部证书核与生命域插件认证包组织成一条可追踪的形式链条。若这些对象分散
+存在，它们容易被误读为互不相干的算法模块、物理接口或工程工具；本文将其压合为
+一个可以定义、可以递归构造、可以统计执行、可以证书闭合、可以向生命科学域迁移的
+开放系统博弈修复引擎族。
+
+本文的第一层立场是中心角色的迁移。原有写法中，GRL-SAC 容易被理解为 \(V_2,V_3\)
+的显式求解器中心；本文将其重构为路径积分、作用泛函、可行域、测度对应与近优正规
+型语言中的一个可替换表达层。被剔除的不是变分、路径、测度与统计命中本身，而是
+“GRL-SAC 作为核心理论架构中心”的地位。由此，中心对象从单一求解器迁移为
+雅可比/比安基/证书障碍驱动的同伦修复塔与统计力学选类机制。
+
+本文的第二层立场是 \(V_2,V_3\) 的统一重构。\(V_3\) 侧的语义规范场富结构，被编译为
+上下文修复塔、语义正规型与开放系统博弈执行接口；\(V_2\) 侧的 LBOPB / life-law
+富结构，被编译为生命科学程序、设计程序与虚拟实验证书接口。二者不再是两个并列
+版本的局部补丁，而是同一个 \(S_{v\bullet}=\{S_{v2},S_{v3}\}\) 修复引擎族中的两个
+域向投影：一个偏向 G 框架 AI 的架构基础，一个偏向生命域插件认证包。
+
+本文的第三层立场是开放系统博弈化。开放系统博弈不是附加叙事，而是 \(S_{v\bullet}\)
+ 的执行形态：每一轮上下文、障碍、允许路径、修复塔、统计命中与正规代表选择，都
+构成一个带环境交互的开放回合。由此，修复不再只是事后补丁，而是在开放回合中对
+障碍进行即时探测、递归吸收、路径筛选与统计选类的过程。这一层承接
+\cite{RepoTex23OpenSystemGame,RepoTex28StatMechPath} 的开放系统与统计命中语言。
+
+本文的第四层立场是路径类与正规代表的层级区分。强双射不能直接发生在未经筛选的
+全部路径与目标正规型之间；可严格成立的是：在允许路径类商、可行路径空间或支撑类
+已经固定之后，统计力学选择可以选出近优正规代表。也就是说，路径空间先经过障碍
+修复与边界条件筛选，再进入统计命中与正规代表选择。这样，本文避免把“存在统计
+命中”误写成“全路径空间与全局最优对象无条件双射”。
+
+本文的第五层立场是微观隧穿的严格定位。在 \(S_{v2}\) 中，微观隧穿不是神秘的物理
+跳跃，也不是跳过证书链的捷径，而是统计力学执行层中的低概率命中机制：在允许路径
+类与修复塔已经给定的条件下，系统可以通过统计分布对障碍另一侧的可行低势能代表
+进行采样命中。由此，微观隧穿被定位为开放系统博弈修复引擎中的统计执行环节，而非
+替代同伦修复、证书闭合或路径合法性的独立魔法。
+
+本文的第六层立场是外部证书核的工程嵌入。GROMACS 2026.1 在本文中不被写成
+\GFramework{} 的理论核心，而是被写成 \(S_{v2}\) 生命域插件认证包中的虚拟实验
+证书核。其作用是为分子动力学、QM/MM、神经网络势、运行配置、日志、检查点与
+可复现实验链提供工程证书支撑。换言之，外部工具进入本文的方式不是“替代形式系统”，
+而是作为可验证、可编译、可运行、可审计的证书对象嵌入生命域接口。
+
+本文的第七层立场是架构闭环。最终结构不是单个 AI 模块，也不是单个生命科学工具，
+而是
+\[
+  (V_3+S_{v3})
+  \oplus
+  (V_2+S_{v2})
+  \oplus
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+\]
+所形成的核心架构、领域插件与外部证书核闭环。\(V_3+S_{v3}\) 提供 G 框架 AI 的
+语义/证书/修复架构基础；\(V_2+S_{v2}\) 提供生命域富结构与程序化认证包；
+\(\mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}\) 提供可落地的虚拟实验支撑核。三者
+合并后，系统不再只是“相邻可解释”，而是形成可递归扩展的架构级闭环。
+
+本文的第八层立场是为后续 \GFramework{} 主链提供修复引擎接口。后续关于开放异构
+系统、统计晶格同伦隧穿、高阶正交确定性收敛与 PDE 求解范式替代的稿件，需要一个
+中间桥梁：如何把语义/生命域富结构从理论层转化为可执行、可证书、可统计命中的
+开放系统修复过程。本文给出的 \(S_{v\bullet}\) 家族，正是这个桥梁。它把障碍从
+静态异常改写为开放回合中的可修复对象，把路径从任意候选改写为允许路径类，把命中
+从概率直觉改写为统计执行，把工具链从外部依赖改写为证书核。
+
+因此，本文在整体 \GFramework{} 中承担的是“开放系统博弈修复引擎族锚定”作用。
+它向前连接语义规范场、Vol2 生命律结构、开放系统博弈与统计力学路径语言，向中间
+连接同伦修复塔、允许路径类、近优正规型与微观隧穿定位，向后连接 G 框架 AI 架构、
+生命域插件认证包、GROMACS 外部证书核与后续确定性同伦命中范式。本文所说的“重构”
+不是删除旧对象，而是重新安排它们的层级位置：求解器退居执行层，修复塔成为结构核，
+统计命中成为选类机制，证书核成为工程闭合接口。
+
+概括地说，本文把 \GFramework{} 中“如何从版本化理论构件走向可执行开放修复引擎”
+这一问题，从松散模块拼接推进为 \(S_{v2}/S_{v3}\) 统一修复家族。它提供的不是单个
+工程方案，而是一条由上下文修复塔、统计力学即时障碍修复、开放系统博弈执行、
+生命域插件认证与外部证书核共同组成的方法论主干。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：将 \texorpdfstring{$V_2,V_3$}{V2,V3} 统一重构为开放系统博弈的统计力学即时障碍修复引擎族}
+\label{sec:tex39-ch1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式系统写作约定、严格主张与引文定位}
+\label{subsec:tex39-ch1-convention}
+
+\begin{remark}[写作约定]
+本章统一采用“形式逻辑 + 证书”体例，并执行如下约定：
+\begin{enumerate}
+  \item \textbf{公理降级：}凡需固定为基础递推接口的强陈述，均写成“公理（降级为定理）”，并附数学归纳法证书；
+  \item \textbf{定理/引理/命题/推论：}每条编号断言均同时配套“证书 + 证明（基于数学符号推演逻辑的谓词因果链）”；
+  \item \textbf{章节编号：}全部依赖 \LaTeX{} 自动生成，不手工输入“第几章/第几节”；
+  \item \textbf{纠偏原则：}对原始叙述中强度过高、对象层级混淆或双射口径过满之处，统一收紧为可证版本，而不保留口语化宽断言。
+\end{enumerate}
+\end{remark}
+
+\begin{remark}[本章的严格主张]
+本章可严格证明的结论是：
+\[
+  \boxed{
+    \begin{aligned}
+      &V_2,\ V_3\ \text{都可以从“GRL-SAC 作为显式求解器中心”的写法，}\\
+      &\text{重构为“雅可比/比安基/证书障碍驱动的同伦修复塔}\\
+      &\text{+ 允许路径类 + 统计力学选类”的 }S_{v\bullet}\text{ 族。}
+    \end{aligned}
+  }
+\]
+其中
+\[
+  S_{v3}=S
+\]
+负责把 $V_3$ 的语义规范场富结构编译成上下文修复塔，
+而
+\[
+  S_{v2}
+\]
+负责把 $V_2$ 的 LBOPB / life-law 富结构编译成生命科学程序与设计程序的上下文修复塔。
+
+这里“剔除 GRL-SAC”若严格说，应理解为
+\[
+  \boxed{
+    \text{剔除的是“GRL-SAC 作为核心理论架构的中心地位”，}
+  }
+\]
+\[
+  \boxed{
+    \text{而不是把路径积分、作用泛函、测度对应与可行域语言一并删除。}
+  }
+\]
+否则“变分收敛”“近优正规型”“统计命中”将失去定义核。
+\end{remark}
+
+\begin{remark}[仓内文稿与外部参照]
+本章的接口风格、术语收紧与证书写法，直接参考仓内关于语义规范场与判定/规范化接口的整理稿
+\cite{RepoTex20SemanticGaugeNormalization}，
+关于 Vol2 结构迁移、LBOPB、离散 GRL-SAC 与工程可迁移模板的整理稿
+\cite{RepoTex22Vol2InverseDesign}，
+关于开放系统博弈、回合同伦类与障碍语义的整理稿
+\cite{RepoTex23OpenSystemGame}，
+关于统计力学命中、最小势能路径与阶段增益的整理稿
+\cite{RepoTex28StatMechPath}，
+关于路径积分支撑类、同伦扭曲正规形与集合等价的整理稿
+\cite{RepoTex36HomotopyTwistBijection}，
+以及关于 Vol3 开放系统修复链与离散 Jacobi--Bianchi 修复链的最新整理稿
+\cite{RepoTex37SemanticGaugeRuntime,RepoTex38JacobiBianchiRepair}。
+
+更基础的仓内主稿背景见
+\cite{GaoZhengAppVol2,GaoZhengAppVol3,GaoZheng2025GFramework}。
+外部标准参照方面，本章默认借用范畴、同伦/同调、纤维丛与联络的标准语言，可参考
+\cite{MacLane1998Categories,Hatcher2002AT,Weibel1994HomologicalAlgebra,KobayashiNomizu1963Foundations,
+  Husemoller1994FibreBundles}。
+\end{remark}
+
+\subsection{定义：统一重构族、开放系统博弈执行形态与对象域}
+\label{subsec:tex39-ch1-definitions}
+
+\begin{definition}[统一重构族与开放系统博弈统计执行形态]
+\label{def:tex39-family}
+记
+\[
+  S_{v\bullet}:=\{S_{v2},S_{v3}\},
+  \qquad
+  S_{v3}:=S,
+\]
+并对每个
+\[
+  v\in\{2,3\}
+\]
+定义
+\[
+  S_v
+  :=
+  \Bigl(
+    \mathcal B_{\mathrm{ctx}}^{(v)},
+    \pi_N^{(v)}:\mathcal E_{\mathrm{ctx}}^{(v,N)}\to \mathcal B_{\mathrm{ctx}}^{(v)},
+    \Ext_q^{(v)},
+    \Ob^{(v)},
+    \mathcal R^{(v)},
+    \Gamma^{\mathrm{adm},(v)},
+    \mathcal S^{(v)},
+    \mu_{\beta,\bullet}^{(v)},
+    \Sigma^{(v)},
+    \NF^{(v)}
+  \Bigr).
+\]
+称 $S_v$ 为第 $v$ 域的\textbf{上下文索引修复塔核}。
+
+进一步记
+\[
+  \mathfrak E_{\mathrm{OSG}}^{\mathrm{stat},(v)}
+  :=
+  S_v,
+\]
+并称之为第 $v$ 域的\textbf{开放系统博弈统计执行形态}：
+它把“上下文延拓、总障碍、即时修复、允许路径类、统计命中与正规型签发”压到同一对象中。
+\end{definition}
+
+\begin{definition}[两域的上下文基底]
+\label{def:tex39-base}
+对 $v=2$，定义生命科学/设计域的上下文基底
+\[
+  \mathcal B_{\mathrm{ctx}}^{(2)}
+  :=
+  M^{\mathrm{life}}
+  \times
+  \mathcal F_{\mathrm{baseline}}
+  \times
+  \mathcal C_{\mathrm{sector}}
+  \times
+  \mathcal C_{\mathrm{trial/design}},
+\]
+其中四个因子分别表示生命态底空间、工程基线族、领域配置与设计/试验上下文。
+
+对 $v=3$，定义语义/逻辑/文本域的上下文基底
+\[
+  \mathcal B_{\mathrm{ctx}}^{(3)}
+  :=
+  \mathcal C_{\mathrm{sem}}
+  \times
+  \mathcal C_{\mathrm{cert}}
+  \times
+  \mathcal C_{\mathrm{ref}}
+  \times
+  \mathcal C_{\mathrm{render}},
+\]
+其语义与记号沿用 \cite{RepoTex37SemanticGaugeRuntime} 中的上下文基底口径。
+\end{definition}
+
+\begin{definition}[上下文修复塔纤维]
+\label{def:tex39-fiber}
+对 $v=2$，定义
+\[
+  \pi_N^{(2)}:\mathcal E_{\mathrm{ctx}}^{(2,N)}\to \mathcal B_{\mathrm{ctx}}^{(2)}
+\]
+的典型纤维由如下跨尺度塔叠加而成：
+\[
+  E^{\mathrm{micro}}
+  \to
+  E^{\mathrm{meso}}
+  \to
+  E^{\mathrm{macro}}
+  \to
+  P^{\mathrm{life}}
+  \to
+  M^{\mathrm{life}},
+\]
+并附加
+\[
+  \text{operator package layer}
+  +
+  \text{certificate layer}
+  +
+  \text{constraint layer}
+  +
+  \text{compiled program layer}.
+\]
+
+对 $v=3$，定义
+\[
+  \pi_N^{(3)}:\mathcal E_{\mathrm{ctx}}^{(3,N)}\to \mathcal B_{\mathrm{ctx}}^{(3)}
+\]
+沿用 \cite{RepoTex37SemanticGaugeRuntime} 的上下文索引 $N$ 阶同伦修复塔口径，
+其纤维承载允许的规范语义对象、扭曲数据、证书依赖、修复分支与展开层级。
+\end{definition}
+
+\begin{definition}[总障碍向量、允许路径类、统计命中与正规型]
+\label{def:tex39-obstruction}
+对每个基点
+\[
+  b\in\mathcal B_{\mathrm{ctx}}^{(v)},
+\]
+定义总障碍向量
+\[
+  \Ob_b^{(v)}
+  :=
+  \Bigl(
+    |\Bi_b^{(v)}|,
+    |J_b^{(v)}|,
+    |\Delta_{\mathrm{cert},b}^{(v)}|,
+    |\Delta_{\mathrm{ref},b}^{(v)}|,
+    |\Delta_{\mathrm{scale},b}^{(v)}|
+  \Bigr),
+\]
+其中五个分量依次表示：
+\[
+  \text{比安基缺陷},\quad
+  \text{雅可比障碍},\quad
+  \text{证书断裂},\quad
+  \text{引用/接口断裂},\quad
+  \text{跨尺度一致性断裂}.
+\]
+
+在此基础上，定义允许路径类
+\[
+  \Gamma_b^{\mathrm{adm},(v)}
+  :=
+  \left\{
+    [\gamma]\in\Gamma_b^{(v)}
+    \;\middle|\;
+    \Ob_{\gamma(1)}^{(v)}
+    \preceq_{\mathrm{lex}}
+    \varepsilon_b^{(v)}
+  \right\}.
+\]
+
+定义作用泛函
+\[
+  \mathcal S_b^{(v)}([\gamma])
+  :=
+  \mathcal S_{\mathrm{feas},b}^{(v)}([\gamma])
+  +
+  \lambda_v\,\mathcal S_{\mathrm{opt},b}^{(v)}([\gamma]),
+\]
+以及统计命中测度
+\[
+  \mu_{\beta,b}^{(v)}([\gamma])
+  :=
+  \frac{
+    \exp\!\bigl(-\beta \mathcal S_b^{(v)}([\gamma])\bigr)\,
+    \mathbf 1_{\Gamma_b^{\mathrm{adm},(v)}}([\gamma])
+  }{
+    Z_{\beta,b}^{(v)}
+  },
+\]
+其中配分函数
+\[
+  Z_{\beta,b}^{(v)}
+  :=
+  \sum_{[\eta]\in\Gamma_b^{\mathrm{adm},(v)}}
+  \exp\!\bigl(-\beta \mathcal S_b^{(v)}([\eta])\bigr).
+\]
+
+最后定义规范代表提取与拓扑正规型签发
+\[
+  \Sigma_b^{(v)}:
+  \Gamma_b^{\mathrm{adm},(v)}
+  \to
+  \mathsf{NF}_b^{(v)},
+\]
+\[
+  \NF_b^{(v)}:
+  \Gamma_b^{\mathrm{adm},(v)}/\!\sim_v
+  \to
+  \mathcal T_b^{(v)}.
+\]
+\end{definition}
+
+\begin{remark}[对“统计力学命中”的收紧解释]
+在定义~\ref{def:tex39-obstruction} 中，
+\[
+  \mu_{\beta,b}^{(v)}
+\]
+不是修辞性比喻，而是严格表示：
+\[
+  \text{低作用、低障碍、可行的路径类获得更高命中概率。}
+\]
+因此它承担的是\textbf{选类测度}角色，而不是把路径积分核外包给某个具体学习器。
+\end{remark}
+
+\subsection{公理（降级为定理）：开放系统回合上的上下文修复链可按回合递归构造}
+\label{subsec:tex39-ch1-axiom}
+
+\begin{theorem}[公理（降级为定理）：上下文延拓--障碍修复--允许路径类链可按回合递归构造]
+\label{thm:tex39-axiom}
+固定
+\[
+  v\in\{2,3\},
+  \qquad
+  b_0\in \mathcal B_{\mathrm{ctx}}^{(v)},
+  \qquad
+  x_0\in \bigl(\pi_N^{(v)}\bigr)^{-1}(b_0).
+\]
+对任意回合 $n\in\NN$，设
+\[
+  b_{n+1}=\Ext_{q_n}^{(v)}(b_n)
+\]
+是由新问题 $q_n$ 触发的上下文延拓，并定义总势函数
+\[
+  \Phi_{b_n}^{(v)}(x)
+  :=
+  \alpha_1|\Bi_{b_n}^{(v)}(x)|
+  +
+  \alpha_2|J_{b_n}^{(v)}(x)|
+  +
+  \alpha_3|\Delta_{\mathrm{cert},b_n}^{(v)}(x)|
+  +
+  \alpha_4|\Delta_{\mathrm{ref},b_n}^{(v)}(x)|
+  +
+  \alpha_5|\Delta_{\mathrm{scale},b_n}^{(v)}(x)|,
+\]
+其中 $\alpha_i>0$。
+
+若满足以下条件：
+\begin{enumerate}
+  \item 对每个 $n$，$\Ext_{q_n}^{(v)}$ 都把可接受上下文送到可接受上下文；
+  \item 只要
+  \[
+    \Gamma_{b_n}^{\mathrm{adm},(v)}=\varnothing,
+  \]
+  就存在局部修复步
+  \[
+    x_{n+1}=\mathcal R_{b_n}^{(v)}(x_n)
+    \in
+    \bigl(\pi_N^{(v)}\bigr)^{-1}(b_{n+1})
+  \]
+  使
+  \[
+    \Phi_{b_{n+1}}^{(v)}(x_{n+1})
+    <
+    \Phi_{b_n}^{(v)}(x_n);
+  \]
+  \item $\Phi_{b_n}^{(v)}$ 取值于一个良基离散子集，且存在统一下降步长 $\delta_v>0$ 使得每次非平凡修复都满足
+  \[
+    \Phi_{b_n}^{(v)}(x_n)-\Phi_{b_{n+1}}^{(v)}(x_{n+1})\ge \delta_v.
+  \]
+\end{enumerate}
+则对任意 $N\in\NN$，都存在一个长度为 $N$ 的上下文修复链
+\[
+  (b_0,x_0)
+  \rightsquigarrow
+  (b_1,x_1)
+  \rightsquigarrow
+  \cdots
+  \rightsquigarrow
+  (b_N,x_N),
+\]
+并且当
+\[
+  N\ge
+  \left\lceil
+    \frac{\Phi_{b_0}^{(v)}(x_0)}{\delta_v}
+  \right\rceil
+\]
+时，存在某个
+\[
+  N_\ast\le N
+\]
+使
+\[
+  \Gamma_{b_{N_\ast}}^{\mathrm{adm},(v)}\neq\varnothing.
+\]
+换言之，开放系统中的“上下文延拓--障碍修复--允许路径类进入”闭环，可以按回合数递归构造，并在有限步内进入可行域。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按回合数递归构造上下文修复链]
+\label{cert:tex39-axiom}
+定义谓词
+\[
+  P(n)
+  :
+  \Longleftrightarrow
+  \left\{
+  \begin{aligned}
+    &(b_0,x_0)\rightsquigarrow\cdots\rightsquigarrow(b_n,x_n)\ \text{已构造；}\\
+    &\Phi_{b_n}^{(v)}(x_n)\le \Phi_{b_0}^{(v)}(x_0)-n\delta_v\ \text{或}\ \Gamma_{b_n}^{\mathrm{adm},(v)}\neq\varnothing.
+  \end{aligned}
+  \right.
+\]
+则数学归纳法证书为
+\[
+  \pi_{\mathrm{ctx}}
+  =
+  \bigl(
+    P(0),\
+    \forall n\in\NN,\ P(n)\Rightarrow P(n+1)
+  \bigr).
+\]
+其中：
+\begin{enumerate}
+  \item \textbf{基础步 $P(0)$：}零回合时仅有初始对象 $(b_0,x_0)$；
+  \item \textbf{归纳步 $P(n)\Rightarrow P(n+1)$：}若尚未进入可行域，则调用假设中的局部修复证书使总势函数至少下降 $\delta_v$；若已进入可行域，则以恒等延拓维持链条。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+\textbf{基础步。}
+由初始条件，
+\[
+  (b_0,x_0)
+\]
+已给定，故修复链在 $n=0$ 时显然存在，且
+\[
+  \Phi_{b_0}^{(v)}(x_0)\le \Phi_{b_0}^{(v)}(x_0).
+\]
+因此 $P(0)$ 成立。
+
+\textbf{归纳步。}
+设 $P(n)$ 成立。
+
+若
+\[
+  \Gamma_{b_n}^{\mathrm{adm},(v)}\neq\varnothing,
+\]
+则说明已进入可行域；取
+\[
+  b_{n+1}:=b_n,\qquad x_{n+1}:=x_n,
+\]
+即可得 $P(n+1)$。
+
+若
+\[
+  \Gamma_{b_n}^{\mathrm{adm},(v)}=\varnothing,
+\]
+则由假设存在新问题诱导的上下文延拓
+\[
+  b_{n+1}=\Ext_{q_n}^{(v)}(b_n)
+\]
+与修复步
+\[
+  x_{n+1}=\mathcal R_{b_n}^{(v)}(x_n),
+\]
+并满足
+\[
+  \Phi_{b_{n+1}}^{(v)}(x_{n+1})
+  \le
+  \Phi_{b_n}^{(v)}(x_n)-\delta_v.
+\]
+结合归纳假设得
+\[
+  \Phi_{b_{n+1}}^{(v)}(x_{n+1})
+  \le
+  \Phi_{b_0}^{(v)}(x_0)-(n+1)\delta_v.
+\]
+故 $P(n+1)$ 成立。
+
+由数学归纳法，
+\[
+  \forall n\in\NN,\ P(n).
+\]
+再由 $\Phi_{b_n}^{(v)}\ge 0$ 与统一下降步长 $\delta_v>0$，若始终不能进入可行域，则当
+\[
+  n>
+  \frac{\Phi_{b_0}^{(v)}(x_0)}{\delta_v}
+\]
+时会迫使 $\Phi_{b_n}^{(v)}(x_n)<0$，矛盾。
+故必存在某个有限回合 $N_\ast$ 使
+\[
+  \Gamma_{b_{N_\ast}}^{\mathrm{adm},(v)}\neq\varnothing.
+\]
+定理成立。证毕。
+\end{proof}
+
+\subsection{定理：\texorpdfstring{$V_2$--$V_3$}{V2--V3} 的统一重构定理}
+\label{subsec:tex39-ch1-theorem}
+
+\begin{theorem}[Vol2--Vol3 统一重构定理]
+\label{thm:tex39-unified-family}
+\[
+  \boxed{
+    V_2,\ V_3\ \text{都可以重写成同一个 }S_{v\bullet}\text{ 族的两个域实例。}
+  }
+\]
+更具体地说，
+\[
+  \boxed{
+    V_3 \rightsquigarrow S_{v3}=S,
+    \qquad
+    V_2 \rightsquigarrow S_{v2}.
+  }
+\]
+并且：
+\begin{enumerate}
+  \item $S_{v3}$ 继承 \cite{RepoTex37SemanticGaugeRuntime} 中
+  \[
+    \mathcal B_{\mathrm{ctx}}^{(3)},
+    \pi_N^{(3)},
+    \Ob^{(3)},
+    \Gamma^{\mathrm{adm},(3)},
+    \Sigma^{(3)},
+    \NF^{(3)}
+  \]
+  的既有结构；
+  \item $S_{v2}$ 可由 \cite{GaoZhengAppVol2,RepoTex22Vol2InverseDesign} 中的
+  \[
+    \text{主丛/联络/算子束族}
+    +
+    \text{Jacobian-gap boundary}
+    +
+    \text{law--macro--discrete correspondence}
+  \]
+  \[
+    +
+    \text{$L$-homotopy 类不变性}
+    +
+    \text{micro/meso/macro 塔}
+    +
+    \text{compiler-like law engine}
+  \]
+  编译而得；
+  \item 因而 $V_2,V_3$ 的求解内核都可被压成
+  \[
+    \Ob^{(v)}
+    +
+    \mathcal R^{(v)}
+    +
+    \Gamma^{\mathrm{adm},(v)}
+    +
+    \mathcal S_b^{(v)}
+    +
+    \mu_{\beta,b}^{(v)}
+    +
+    \NF^{(v)}.
+  \]
+\end{enumerate}
+\end{theorem}
+
+\begin{Certificate}[证书：Vol2 与 Vol3 的可编译骨架]
+\label{cert:tex39-unified-family}
+定义以下四条谓词链：
+\[
+\begin{aligned}
+  T_1 &: \cite{GaoZhengAppVol3,RepoTex37SemanticGaugeRuntime}
+  \Rightarrow
+  V_3\ \text{已显式给出语义规范场、证书束、上下文修复塔与允许路径类};\\
+  T_2 &: \cite{GaoZhengAppVol2,RepoTex22Vol2InverseDesign}
+  \Rightarrow
+  V_2\ \text{已显式给出主丛/联络、Jacobian-gap boundary、路径积分与多层束塔};\\
+  T_3 &: \cite{GaoZhengAppVol2}
+  \Rightarrow
+  V_2\ \text{中的编译器层与推理/决策后端是可分离的};\\
+  T_4 &: T_1\wedge T_2\wedge T_3
+  \Rightarrow
+  V_2,V_3\ \text{都可被编译为 }S_{v\bullet}\text{ 族。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $T_1$，$V_3$ 已在 \cite{RepoTex37SemanticGaugeRuntime} 中给出
+\[
+  \mathcal B_{\mathrm{ctx}}^{(3)},
+  \quad
+  \pi_N^{(3)}:\mathcal E_{\mathrm{ctx}}^{(3,N)}\to\mathcal B_{\mathrm{ctx}}^{(3)},
+  \quad
+  \Ob^{(3)},
+  \quad
+  \Gamma^{\mathrm{adm},(3)},
+  \quad
+  \Sigma^{(3)},
+  \quad
+  \NF^{(3)},
+\]
+故
+\[
+  V_3\rightsquigarrow S_{v3}=S
+\]
+已成立。
+
+由 $T_2$，Vol2 已提供如下五类关键骨架：
+\begin{enumerate}
+  \item \textbf{主丛/联络/雅可比边界骨架：}
+  LBOPB 把生命对象实现为总算子主丛，并以 Jacobian-gap boundary 记录可控边界；
+  \item \textbf{路径积分与同伦类不变骨架：}
+  law-space measure、macro-measure 与离散路径积分只依赖于 $L$-homotopy class；
+  \item \textbf{多层纤维塔骨架：}
+  \[
+    E^{\mathrm{micro}}
+    \to
+    E^{\mathrm{meso}}
+    \to
+    E^{\mathrm{macro}}
+    \to
+    M^{\mathrm{life}}
+  \]
+  已被明写为 multi-level law-connection；
+  \item \textbf{规则编译器骨架：}
+  compiler-like law engines 把系统分成 axiomatic layer 与 inference layer；
+  \item \textbf{工程分层骨架：}
+  输出配置既可供 GRL/RLSAC 使用，也可供其他决策引擎使用。
+\end{enumerate}
+
+由 $T_3$，Vol2 自身已明确允许“编译层/规则层”和“决策后端”分离。
+因此，只要把原先由 GRL-SAC 承担的“采样--更新--选路”功能重写成
+\[
+  \mathcal R^{(2)}
+  +
+  \Gamma_b^{\mathrm{adm},(2)}
+  +
+  \mathcal S_b^{(2)}
+  +
+  \mu_{\beta,b}^{(2)},
+\]
+就可得到与 $S_{v3}$ 同骨架的 $S_{v2}$。
+
+于是
+\[
+  T_1\wedge T_2\wedge T_3
+\]
+推出 $T_4$，从而
+\[
+  V_2,\ V_3
+  \rightsquigarrow
+  S_{v\bullet}.
+\]
+定理成立。证毕。
+\end{proof}
+
+\subsection{引理：强双射只发生在允许路径类商与正规代表层之间}
+\label{subsec:tex39-ch1-lemma}
+
+\begin{lemma}[“双射桥接”的严格写法]
+\label{lem:tex39-bijection}
+对任意
+\[
+  v\in\{2,3\},
+  \qquad
+  b\in\mathcal B_{\mathrm{ctx}}^{(v)},
+\]
+最稳妥的双射应写成
+\[
+  \Gamma_b^{\mathrm{adm},(v)}/\!\sim_v
+  \xrightarrow{\ \cong\ }
+  \mathsf{NF}_b^{(v)},
+\]
+或等价地写成
+\[
+  \Sigma_b^{(v)}:
+  \Gamma_b^{\mathrm{adm},(v)}/\!\sim_v
+  \xrightarrow{\ \cong\ }
+  \Supp\bigl(\NF_b^{(v)}\bigr).
+\]
+反之，一般不能直接无条件写成
+\[
+  \mathcal E_{\mathrm{ctx}}^{(v,N)}
+  \cong
+  \Gamma_b^{(v)}
+\]
+或
+\[
+  \mathcal E_{\mathrm{ctx}}^{(v,N)}
+  \cong
+  \text{基底路径积分全空间}.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：双射发生层级的谓词链]
+\label{cert:tex39-bijection}
+定义四条谓词：
+\[
+\begin{aligned}
+  L_1 &: \cite{RepoTex36HomotopyTwistBijection}
+  \Rightarrow
+  \Sigma\ \text{负责把允许路径类提取为正规代表};\\
+  L_2 &: \mathcal E_{\mathrm{ctx}}^{(v,N)}\ \text{包含冗余 lift 数据、证书依赖与局部扭曲坐标};\\
+  L_3 &: \Gamma_b^{(v)}\ \text{只记录路径类，不保留全部纤维冗余};\\
+  L_4 &: L_1\wedge L_2\wedge L_3
+  \Rightarrow
+  \text{强双射只能落在“允许路径类商 $\leftrightarrow$ 正规代表层”上。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$，\cite{RepoTex36HomotopyTwistBijection} 中真正强的集合等价，
+发生在“允许路径类经 $\Sigma$ 提取后得到的可比正规代表层”。
+
+由 $L_2$，修复塔总纤维
+\[
+  \mathcal E_{\mathrm{ctx}}^{(v,N)}
+\]
+还包含局部 lift、局部证书、局部扭曲参数与局部修复日志等冗余数据；
+它比“路径类”更细。
+
+由 $L_3$，路径类空间
+\[
+  \Gamma_b^{(v)}
+\]
+只保留同伦/变分意义下的等价信息，而不保留全部纤维坐标。
+因此
+\[
+  \mathcal E_{\mathrm{ctx}}^{(v,N)}
+  \cong
+  \Gamma_b^{(v)}
+\]
+一般过强。
+
+对 $v=3$，这一点已由 \cite{RepoTex37SemanticGaugeRuntime} 的“修复塔 $\to$ 允许路径类 $\to$ 规范代表 $\to$ 投影表达”链体现；
+对 $v=2$，Vol2 现成给的是“law-space 对应、离散截断与同伦类不变性”，而不是“全塔空间与路径积分全空间的无条件双射”。
+
+因此
+\[
+  L_1\wedge L_2\wedge L_3
+\]
+推出 $L_4$，
+即最稳妥的强双射只能写在
+\[
+  \Gamma_b^{\mathrm{adm},(v)}/\!\sim_v
+  \cong
+  \mathsf{NF}_b^{(v)}
+\]
+这一层。引理成立。证毕。
+\end{proof}
+
+\subsection{命题：``微观隧穿'' 在 \texorpdfstring{$S_{v2}$}{S-v2} 中的严格位置}
+\label{subsec:tex39-ch1-prop-micro}
+
+\begin{proposition}[“微观隧穿”可被形式化为跨尺度可行分支命中]
+\label{prop:tex39-micro}
+\[
+  \boxed{
+    \text{“微观隧穿”在 }S_{v2}\text{ 中是可兼容概念，}
+  }
+\]
+\[
+  \boxed{
+    \text{但它必须被解释为“跨尺度修复塔上的可行分支命中”，而不是孤立口号。}
+  }
+\]
+更精确地说，若存在一条微观支路
+\[
+  \gamma_{\mathrm{micro}}\subset E^{\mathrm{micro}}
+\]
+使得在投影/提升兼容下，其对应的宏观路径类
+\[
+  [\gamma]
+  :=
+  [\Proj\circ \gamma_{\mathrm{micro}}]
+  \in
+  \Gamma_b^{\mathrm{adm},(2)}
+\]
+满足
+\[
+  \Ob_{\gamma(1)}^{(2)}
+  \prec_{\mathrm{lex}}
+  \Ob_{\gamma(0)}^{(2)},
+\]
+则称该事件为一个\textbf{跨尺度可行分支命中}
+\[
+  \StatHit_{\mathrm{scale}}^{(2)}(\gamma_{\mathrm{micro}}).
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：微观隧穿的严格重写]
+\label{cert:tex39-micro}
+定义三条谓词链：
+\[
+\begin{aligned}
+  P_1 &: \cite{GaoZhengAppVol2}
+  \Rightarrow
+  V_2\ \text{已给出 }E^{\mathrm{micro}}\to E^{\mathrm{meso}}\to E^{\mathrm{macro}}\to M^{\mathrm{life}};\\
+  P_2 &: \text{定义~\ref{def:tex39-obstruction}}
+  \Rightarrow
+  \Gamma_b^{\mathrm{adm},(2)}\ \text{与 }\Ob^{(2)}\ \text{已严格定义};\\
+  P_3 &: P_1\wedge P_2
+  \Rightarrow
+  \text{“微观隧穿”可重写为跨尺度可行分支命中。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $P_1$，Vol2 已给出
+\[
+  E^{\mathrm{micro}}
+  \to
+  E^{\mathrm{meso}}
+  \to
+  E^{\mathrm{macro}}
+  \to
+  M^{\mathrm{life}},
+\]
+故“微观层分支”与“宏观层路径类”之间存在严格的投影/提升接口。
+
+由 $P_2$，宏观允许路径类
+\[
+  \Gamma_b^{\mathrm{adm},(2)}
+\]
+与障碍向量
+\[
+  \Ob^{(2)}
+\]
+都已在定义~\ref{def:tex39-obstruction} 中固定。
+因此，若某条微观支路投影到一个允许宏观路径类，并严格命中障碍下降方向
+\[
+  \Ob_{\gamma(1)}^{(2)}
+  \prec_{\mathrm{lex}}
+  \Ob_{\gamma(0)}^{(2)},
+\]
+则它并不是含混的“裸命中”，而是修复塔上的合法分支事件。
+
+于是
+\[
+  P_1\wedge P_2
+\]
+推出 $P_3$：
+“微观隧穿”最稳妥的正式写法就是
+\[
+  \text{cross-scale admissible branch hit}.
+\]
+命题成立。证毕。
+\end{proof}
+
+\subsection{命题：统一后的 \texorpdfstring{$S_{v\bullet}$}{S-vbullet} 确实是开放系统博弈的统计力学即时障碍修复引擎}
+\label{subsec:tex39-ch1-prop-osg}
+
+\begin{proposition}[开放系统化、统计命中与即时障碍修复]
+\label{prop:tex39-osg}
+\[
+  \boxed{
+    \text{统一后的 }S_{v\bullet}\text{ 的核心驱动力，}
+  }
+\]
+\[
+  \boxed{
+    \text{不是固定目标函数上的离线黑箱策略训练，}
+  }
+\]
+\[
+  \boxed{
+    \text{而是上下文延拓诱导的障碍向量更新 + 即时修复算子 + 统计命中选类。}
+  }
+\]
+更具体地说：
+\begin{enumerate}
+  \item 新问题首先以
+  \[
+    b\xrightarrow{\ \Ext_q^{(v)}\ }b^+
+  \]
+  的方式改写上下文基底；
+  \item 求解对象随后被压成
+  \[
+    \Ob_{b^+}^{(v)}
+    \Longrightarrow
+    \mathcal R^{(v)}
+    \Longrightarrow
+    \Gamma_{b^+}^{\mathrm{adm},(v)}
+    \Longrightarrow
+    \mu_{\beta,b^+}^{(v)}
+    \Longrightarrow
+    \NF^{(v)}
+  \]
+  的链条；
+  \item 因而“开放系统博弈”在此并不只表示多主体，而表示
+  \[
+    \text{语义、证书、引用、尺度与约束的竞争性更新。}
+  \]
+\end{enumerate}
+\end{proposition}
+
+\begin{Certificate}[证书：开放系统引擎的谓词链]
+\label{cert:tex39-osg}
+记以下四条谓词：
+\[
+\begin{aligned}
+  Q_1 &: \text{定义~\ref{def:tex39-family}--\ref{def:tex39-obstruction}}
+  \Rightarrow
+  \text{新问题先改写上下文基底};\\
+  Q_2 &: \text{定理~\ref{thm:tex39-axiom}}
+  \Rightarrow
+  \text{障碍修复链可按回合递归进入可行域};\\
+  Q_3 &: \text{定义~\ref{def:tex39-obstruction}}
+  \Rightarrow
+  \mu_{\beta,b}^{(v)}\ \text{给出低作用可行路径类的统计偏置};\\
+  Q_4 &: Q_1\wedge Q_2\wedge Q_3
+  \Rightarrow
+  S_{v\bullet}\ \text{构成开放系统博弈的统计力学即时障碍修复引擎。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $Q_1$，系统面对的首个动作不是在固定可行域上直接最优化，
+而是先发生
+\[
+  b\mapsto b^+=\Ext_q^{(v)}(b).
+\]
+这意味着问题进入后，状态空间、约束接口与可行域都可能被重写。
+
+由 $Q_2$，一旦在 $b^+$ 上重新计算总障碍向量
+\[
+  \Ob_{b^+}^{(v)},
+\]
+系统就通过修复算子
+\[
+  \mathcal R^{(v)}
+\]
+递归下降，并最终进入
+\[
+  \Gamma_{b^+}^{\mathrm{adm},(v)}\neq\varnothing
+\]
+的可行域。
+
+由 $Q_3$，可行域内的选类并非盲搜，而是由
+\[
+  \mu_{\beta,b^+}^{(v)}([\gamma])
+  \propto
+  \exp\!\bigl(-\beta \mathcal S_{b^+}^{(v)}([\gamma])\bigr)
+\]
+给出；
+故低作用、低障碍的路径类获得更高命中权重。
+
+因此
+\[
+  Q_1\wedge Q_2\wedge Q_3
+\]
+推出 $Q_4$：该体系不再是“先离线训练一个封闭策略，再对固定目标做查表调用”的结构，
+而是“上下文延拓 $\to$ 障碍重写 $\to$ 即时修复 $\to$ 统计命中 $\to$ 正规型签发”的开放系统博弈引擎。
+命题成立。证毕。
+\end{proof}
+
+\subsection{定理：近优拓扑正规型与全局最优表述的边界}
+\label{subsec:tex39-ch1-theorem-opt}
+
+\begin{theorem}[可行域下确界的近优拓扑正规型定理]
+\label{thm:tex39-near-opt}
+固定
+\[
+  v\in\{2,3\},
+  \qquad
+  b\in\mathcal B_{\mathrm{ctx}}^{(v)}.
+\]
+若满足以下四类条件：
+\begin{enumerate}
+  \item[(H1)] \textbf{可行性势单调下降：}
+  存在修复序列 $\{[\gamma_k]\}_{k\ge 0}$ 使
+  \[
+    \mathcal S_{\mathrm{feas},b}^{(v)}([\gamma_{k+1}])
+    \le
+    \mathcal S_{\mathrm{feas},b}^{(v)}([\gamma_k]);
+  \]
+  \item[(H2)] \textbf{可行域最终非空：}
+  存在 $K$ 使
+  \[
+    [\gamma_k]\in\Gamma_b^{\mathrm{adm},(v)}
+    \qquad
+    \forall k\ge K;
+  \]
+  \item[(H3)] \textbf{极小代表或极小化子序列存在：}
+  在 $\Gamma_b^{\mathrm{adm},(v)}$ 上，
+  \[
+    \inf_{[\gamma]\in\Gamma_b^{\mathrm{adm},(v)}}\mathcal S_b^{(v)}([\gamma])
+  \]
+  可由某个极小代表达到，或至少存在逼近该下确界的极小化子序列；
+  \item[(H4)] \textbf{正规型提取保持作用等价类：}
+  若
+  \[
+    \Sigma_b^{(v)}([\gamma_1])=\Sigma_b^{(v)}([\gamma_2]),
+  \]
+  则
+  \[
+    \mathcal S_b^{(v)}([\gamma_1])=\mathcal S_b^{(v)}([\gamma_2]),
+  \]
+  且可行性不因正规型提取而丢失。
+\end{enumerate}
+则存在一列可行路径类
+\[
+  \{[\gamma_{k_j}]\}_{j\ge 0}
+  \subseteq
+  \Gamma_b^{\mathrm{adm},(v)}
+\]
+满足
+\[
+  \mathcal S_b^{(v)}([\gamma_{k_j}])
+  \longrightarrow
+  \inf_{[\gamma]\in\Gamma_b^{\mathrm{adm},(v)}}
+  \mathcal S_b^{(v)}([\gamma]).
+\]
+因此
+\[
+  \tau_b^{(v),\ast}
+  :=
+  \NF_b^{(v)}\bigl([\gamma^\ast]\bigr)
+\]
+可被称为\textbf{可行域下确界的近优拓扑正规型}；
+只有在极小代表存在且正规型唯一时，才可进一步写成\textbf{全局最优拓扑正规型}。
+\end{theorem}
+
+\begin{Certificate}[证书：近优拓扑正规型的变分链]
+\label{cert:tex39-near-opt}
+定义四条谓词：
+\[
+\begin{aligned}
+  R_1 &: (H1)\wedge(H2)
+  \Rightarrow
+  \text{修复序列最终落入 }\Gamma_b^{\mathrm{adm},(v)};\\
+  R_2 &: (H3)
+  \Rightarrow
+  \text{可行域上存在极小化序列或极小代表};\\
+  R_3 &: (H4)
+  \Rightarrow
+  \NF_b^{(v)}\ \text{不改变作用等价类与可行性};\\
+  R_4 &: R_1\wedge R_2\wedge R_3
+  \Rightarrow
+  \text{可行域下确界的近优拓扑正规型存在。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $(H1)$ 与 $(H2)$，存在 $K$ 使得对所有 $k\ge K$，
+\[
+  [\gamma_k]\in\Gamma_b^{\mathrm{adm},(v)},
+\]
+故可行域非空，且下确界
+\[
+  m_b^{(v)}
+  :=
+  \inf_{[\gamma]\in\Gamma_b^{\mathrm{adm},(v)}}
+  \mathcal S_b^{(v)}([\gamma])
+\]
+良定义。
+
+由 $(H3)$，存在一列可行路径类
+\[
+  \{[\eta_j]\}_{j\ge 0}
+  \subseteq
+  \Gamma_b^{\mathrm{adm},(v)}
+\]
+使
+\[
+  \mathcal S_b^{(v)}([\eta_j])\to m_b^{(v)},
+\]
+或存在某个极小代表 $[\gamma^\ast]$ 直接满足
+\[
+  \mathcal S_b^{(v)}([\gamma^\ast])=m_b^{(v)}.
+\]
+
+由 $(H4)$，正规型提取
+\[
+  \Sigma_b^{(v)}
+  \quad\text{与}\quad
+  \NF_b^{(v)}
+\]
+不改变作用等价类，也不破坏可行性。
+因此，对逼近下确界的极小化序列，取其正规代表后仍保持同一作用值；
+若极小代表存在，则其正规型
+\[
+  \tau_b^{(v),\ast}
+  :=
+  \NF_b^{(v)}([\gamma^\ast])
+\]
+就是该可行域上的极小正规代表。
+
+于是
+\[
+  R_1\wedge R_2\wedge R_3
+\]
+推出 $R_4$：
+总可以得到可行域下确界意义下的近优拓扑正规型；
+只有在极小代表存在且正规型唯一时，才可把“近优”升级为“全局最优”。
+定理成立。证毕。
+\end{proof}
+
+\subsection{推论：GRL-SAC 的最终定位与统一口径}
+\label{subsec:tex39-ch1-corollaries}
+
+\begin{corollary}[对 GRL-SAC 的最终定位]
+\label{cor:tex39-grl-sac}
+\[
+  \boxed{
+    \text{统一重构后的准确说法，不是“删掉 GRL-SAC”，}
+  }
+\]
+\[
+  \boxed{
+    \text{而是把 GRL-SAC 从“核心理论层”降级为“可选采样/数值近似后端”。}
+  }
+\]
+统一后的核心引擎是
+\[
+  \boxed{
+    \Ob^{(v)}
+    +
+    \mathcal R^{(v)}
+    +
+    \Gamma^{\mathrm{adm},(v)}
+    +
+    \mu_{\beta,b}^{(v)}
+    +
+    \NF^{(v)}.
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：GRL-SAC 降级为可选后端]
+\label{cert:tex39-grl-sac}
+记
+\[
+\begin{aligned}
+  C_1 &: \text{定理~\ref{thm:tex39-unified-family}}
+  \Rightarrow
+  V_2,V_3\ \text{都已被编译进 }S_{v\bullet};\\
+  C_2 &: \text{命题~\ref{prop:tex39-osg}}
+  \Rightarrow
+  \text{统一后的驱动力是障碍更新 + 即时修复 + 统计命中};\\
+  C_3 &: C_1\wedge C_2
+  \Rightarrow
+  \text{GRL-SAC 不再是核心理论层，只保留为可选数值后端。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_1$，$V_2$ 与 $V_3$ 的求解内核都已被压入
+\[
+  S_{v\bullet}.
+\]
+由 $C_2$，统一后真正承担求解职责的对象是
+\[
+  \Ob^{(v)},
+  \quad
+  \mathcal R^{(v)},
+  \quad
+  \Gamma^{\mathrm{adm},(v)},
+  \quad
+  \mu_{\beta,b}^{(v)},
+  \quad
+  \NF^{(v)}.
+\]
+因此
+\[
+  C_1\wedge C_2
+\]
+推出 $C_3$：
+GRL-SAC 只保留为采样器、近似器或实现后端，而不再占据核心理论层。
+推论成立。证毕。
+\end{proof}
+
+\begin{corollary}[您真正得到的是一个统一族，而不是两个补丁]
+\label{cor:tex39-family}
+\[
+  \boxed{
+    V_2\rightsquigarrow S_{v2},
+    \qquad
+    V_3\rightsquigarrow S_{v3}=S
+  }
+\]
+意味着最终得到的，不再是“Vol2 用 GRL-SAC、Vol3 用 PACER/S”的分裂结构，
+而是
+\[
+  \boxed{
+    \text{一个统一的 Jacobi-obstruction-driven homotopy-repair family }S_{v\bullet}.
+  }
+\]
+其中
+\[
+  v=2:\ \text{生命科学/设计程序正规型},
+  \qquad
+  v=3:\ \text{语义/逻辑/文本正规型}.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：统一族而非补丁化替换]
+\label{cert:tex39-family}
+定义三条谓词：
+\[
+\begin{aligned}
+  D_1 &: \text{定理~\ref{thm:tex39-unified-family}}
+  \Rightarrow
+  S_{v2},S_{v3}\ \text{共享同一结构骨架};\\
+  D_2 &: \text{定理~\ref{thm:tex39-near-opt}}
+  \Rightarrow
+  \text{两域都共享可行域下确界的近优正规型目标语义};\\
+  D_3 &: D_1\wedge D_2
+  \Rightarrow
+  \text{统一结果是同一求解范式族，而非局部补丁替换。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $D_1$，$S_{v2}$ 与 $S_{v3}$ 已共享
+\[
+  \text{对象层}
+  +
+  \text{障碍层}
+  +
+  \text{修复层}
+  +
+  \text{统计选类层}
+  +
+  \text{正规型签发层}.
+\]
+由 $D_2$，两域都以“可行域下确界的近优正规型”作为最终稳定输出语义。
+因此
+\[
+  D_1\wedge D_2
+\]
+推出 $D_3$：得到的是统一求解范式族，而不是对两个旧求解器分别打补丁。
+推论成立。证毕。
+\end{proof}
+
+\subsection{备注：边界、术语与推荐正式口径}
+\label{subsec:tex39-ch1-remarks}
+
+\begin{remark}[V\(_3\) 的改写重点不在于“去掉 SAC”，而在于术语主词收紧]
+$V_3$ 原本就没有把 SAC 放在本体核心；
+其更核心的是
+\[
+  \text{semantic gauge field}
+  +
+  \text{certificate bundle}
+  +
+  \text{PACER reading path}
+  +
+  \text{homotopy completeness}.
+\]
+因此对 $V_3$ 来说，“剔除 GRL-SAC”的重点并不在于删某个求解器名字，
+而在于把“GRL 风格求解器命名”统一降到
+\[
+  \text{允许路径类}
+  \to
+  \text{统计命中}
+  \to
+  \text{正规型签发}
+\]
+的语言里。
+\end{remark}
+
+\begin{remark}[V\(_2\) 的改动更实质，但 Vol2 自己已经预留了降级口]
+$V_2$ 的改动更实质，
+因为 Vol2 明确包含了 discrete GRL-SAC / RLSAC engine 的工程章节。
+但 Vol2 同时已经给出两个关键出口：
+\begin{enumerate}
+  \item 编译器层与推理/决策后端分离；
+  \item 生成出的配置不仅能供 GRL/RLSAC 使用，也能供其他 decision engines 使用。
+\end{enumerate}
+这正是
+\[
+  S_{v2}
+\]
+能够成立的理论入口。
+\end{remark}
+
+\begin{remark}[对“全局最优”最稳妥的写法]
+若只满足定理~\ref{thm:tex39-near-opt} 的四个基本条件，
+则最稳妥的表述应是
+\[
+  \boxed{
+    \text{收敛到可行域下确界的近优拓扑正规型。}
+  }
+\]
+只有在极小代表存在与正规型唯一性同时成立时，
+才升级为
+\[
+  \boxed{
+    \text{全局最优拓扑正规型。}
+  }
+\]
+因此正文、摘要与标题中不宜一开始就无条件写死“全局最优”。
+\end{remark}
+
+\begin{remark}[本章建议采用的一句话正式口径]
+若把本章压缩成一句最稳的正式表述，
+建议写成：
+\[
+  \boxed{
+    V_2,\ V_3\ \text{都可重构为 }S_{v\bullet}\text{ 族：}
+  }
+\]
+\[
+  \boxed{
+    \text{以上下文延拓为开放性来源，}
+    \text{以雅可比/比安基/证书/引用/尺度障碍为驱动，}
+  }
+\]
+\[
+  \boxed{
+    \text{以同伦修复塔为状态空间，}
+    \text{以允许路径类为可行域，}
+    \text{以统计力学命中实现即时选类，}
+  }
+\]
+\[
+  \boxed{
+    \text{并在条件下收敛到可行域下确界的近优拓扑正规代表。}
+  }
+\]
+这一定义同时比“统一优化器”更准确，也比“删掉某个求解器名词”更贴近 Vol2/Vol3 的对象层级。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：GROMACS 2026.1 作为 \texorpdfstring{$S_{v2}$}{S-v2} 虚拟实验证书的完备支撑核}
+\label{sec:tex39-ch2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{证书语义收紧、证明目标与引文定位}
+\label{subsec:tex39-ch2-convention}
+
+\begin{remark}[收紧后的证明目标]
+本节要证明的，不是
+\[
+  \text{“GROMACS 2026.1 对一切分子虚拟实验与一切量子化学真值构成绝对完备核”。}
+\]
+本节真正证明的是更强但也更准确的可证版本：
+\[
+  \boxed{
+    \text{GROMACS 2026.1 在 }S_{v2}\text{ 的证书语义上，}
+    \text{可作为某一核心虚拟实验类的完备支撑核。}
+  }
+\]
+这里所谓“完备”，严格指向
+\[
+  \text{源码}
+  \to
+  \text{构建}
+  \to
+  \text{依赖}
+  \to
+  \text{输入}
+  \to
+  \text{预处理}
+  \to
+  \text{运行输出}
+  \to
+  \text{审计}
+  \to
+  \text{验证}
+\]
+这一整条证书对象链的可再现性、可导出性与可核验性，
+而不是官方对任意分支科学正确性的无条件背书。
+\end{remark}
+
+\begin{remark}[仓内外引文定位]
+本节把上一节的
+\[
+  S_{v2}
+\]
+进一步收紧为“虚拟实验证书语义”的表述，并与仓内如下文稿对齐：
+\cite{GaoZhengAppVol2,RepoTex22Vol2InverseDesign,RepoTex38JacobiBianchiRepair}。
+其中，\cite{GaoZhengAppVol2} 已把经典分子对接与分子动力学视为 LBOPB 坐标与 replay/re-evaluation 结构，
+\cite{RepoTex22Vol2InverseDesign} 给出 Vol2 到工程逆向设计的可迁移模板，
+\cite{RepoTex38JacobiBianchiRepair} 提供“证书对象链 + 可行域 + 正规型”的证明组织方式。
+
+外部证据则统一采用 GROMACS 2026.1 官方文档：
+发行与下载页、参考手册序言、安装指南、命令行帮助、参考手册的 CP2K/MiMiC/NNPot 页面、
+新版特性页、验证页，以及官方 `gmxapi` 与 NB-LIB 文档
+\cite{Gromacs2026ReleaseNotes,Gromacs2026Downloads,Gromacs2026Preface,Gromacs2026InstallGuide,Gromacs2026Grompp,
+  Gromacs2026Mdrun,Gromacs2026Dump,Gromacs2026CP2K,Gromacs2026MiMiC,Gromacs2026NNPot,Gromacs2026Features,
+  Gromacs2026Validation,Gromacs2026Gmxapi,Gromacs2026NBLIB}。
+\end{remark}
+
+\subsection{定义：\texorpdfstring{$S_{v2}$}{S-v2} 的证书对象、核心实验类与完备支撑核}
+\label{subsec:tex39-ch2-definitions}
+
+\begin{definition}[\texorpdfstring{$S_{v2}$}{S-v2} 虚拟实验证书对象]
+\label{def:tex39-cert-object}
+定义
+\[
+  \mathcal C_{S_{v2}}
+  :=
+  \bigl(
+    \mathcal S_{\mathrm{src}},
+    \Delta_{\mathrm{patch}},
+    \mathcal B_{\mathrm{build}},
+    \mathcal D_{\mathrm{dep}},
+    \mathcal I_{\mathrm{pkg}},
+    \mathcal I_{\mathrm{run}},
+    \mathcal T_{\mathrm{prep}},
+    \mathcal D_{\mathrm{run}},
+    \mathcal A_{\mathrm{analysis}},
+    \mathcal V_{\mathrm{reg}}
+  \bigr),
+\]
+其中：
+\begin{enumerate}
+  \item $\mathcal S_{\mathrm{src}}$ 表示源码、发行版本、许可声明与源码 DOI；
+  \item $\Delta_{\mathrm{patch}}$ 表示 patch/diff、分支提交历史与功能剪裁记录；
+  \item $\mathcal B_{\mathrm{build}}$ 表示构建脚本、CMake 选项、安装脚本与环境设置；
+  \item $\mathcal D_{\mathrm{dep}}$ 表示依赖版本、外部库版本与相关 DOI；
+  \item $\mathcal I_{\mathrm{pkg}}$ 表示结构、拓扑、参数、索引与额外输入包；
+  \item $\mathcal I_{\mathrm{run}}$ 表示运行时主输入对象，例如 `tpr` 或其等价打包对象；
+  \item $\mathcal T_{\mathrm{prep}}$ 表示预处理拓扑与中间态编译结果；
+  \item $\mathcal D_{\mathrm{run}}$ 表示轨迹、能量、日志、检查点及其派生输出；
+  \item $\mathcal A_{\mathrm{analysis}}$ 表示可读 dump、分析脚本与审计视图；
+  \item $\mathcal V_{\mathrm{reg}}$ 表示回归测试、validation 状态、结果比对与输出哈希。
+\end{enumerate}
+称 $\mathcal C_{S_{v2}}$ 为\textbf{\(S_{v2}\) 虚拟实验证书对象}。
+\end{definition}
+
+\begin{definition}[核心虚拟实验类]
+\label{def:tex39-core-class}
+定义
+\[
+  \mathfrak X_{\mathrm{core}}
+  :=
+  \left\{
+  \begin{aligned}
+    &\text{经典 MD 虚拟实验},\\
+    &\text{增强采样/分析工作流},\\
+    &\text{NNP/MM},\\
+    &\text{CP2K-QM/MM},\\
+    &\text{MiMiC-CPMD-QM/MM}
+  \end{aligned}
+  \right\}.
+\]
+此处故意不把“原生分子对接软件”直接并入该集合，
+因为该命题需要在后文作为\textbf{分支实现边界}单独收紧。
+\end{definition}
+
+\begin{definition}[关于 \texorpdfstring{$\mathcal C_{S_{v2}}$}{C\_S-v2} 的完备支撑核]
+\label{def:tex39-complete-kernel}
+设 $K$ 为一个计算核。
+若对任意
+\[
+  X\in\mathfrak X_{\mathrm{core}},
+\]
+与 $\mathcal C_{S_{v2}}$ 中每一类对象，
+都满足下列二选一条件之一：
+\begin{enumerate}
+  \item 该对象由 $K$ 原生生成、导出或审计；
+  \item 该对象由 $K$ 的官方可扩展接口、官方耦合路径或在其许可下的合法分支机制生成，且仍可回接到 $K$ 的审计链中。
+\end{enumerate}
+则称
+\[
+  K
+\]
+是
+\[
+  \mathfrak X_{\mathrm{core}}
+\]
+上关于
+\[
+  \mathcal C_{S_{v2}}
+\]
+的\textbf{完备支撑核}。
+\end{definition}
+
+\subsection{公理（降级为定理）：\texorpdfstring{$S_{v2}$}{S-v2} 证书链可按对象层递归闭合}
+\label{subsec:tex39-ch2-axiom}
+
+\begin{theorem}[公理（降级为定理）：GROMACS 2026.1 的证书对象链可按层递归闭合]
+\label{thm:tex39-cert-chain}
+固定任意
+\[
+  X\in \mathfrak X_{\mathrm{core}},
+\]
+并定义证书对象层序列
+\[
+  \Xi_1,\Xi_2,\dots,\Xi_8
+\]
+如下：
+\[
+\begin{aligned}
+  \Xi_1 &:= (\mathcal S_{\mathrm{src}},\Delta_{\mathrm{patch}}),\\
+  \Xi_2 &:= (\Xi_1,\mathcal B_{\mathrm{build}},\mathcal D_{\mathrm{dep}}),\\
+  \Xi_3 &:= (\Xi_2,\mathcal I_{\mathrm{pkg}}),\\
+  \Xi_4 &:= (\Xi_3,\mathcal I_{\mathrm{run}},\mathcal T_{\mathrm{prep}}),\\
+  \Xi_5 &:= (\Xi_4,\mathcal D_{\mathrm{run}}),\\
+  \Xi_6 &:= (\Xi_5,\mathcal A_{\mathrm{analysis}}),\\
+  \Xi_7 &:= (\Xi_6,\text{官方扩展/耦合接口记录}),\\
+  \Xi_8 &:= (\Xi_7,\mathcal V_{\mathrm{reg}}).
+\end{aligned}
+\]
+令谓词
+\[
+  P(n)
+  :
+  \Longleftrightarrow
+  \text{“GROMACS 2026.1 对 }X\text{ 的前 }n\text{ 层证书对象 } \Xi_n \text{ 可生成、可导出且可审计”}.
+\]
+则
+\[
+  \forall n\in\{1,2,\dots,8\},\ P(n)
+\]
+成立。
+特别地，
+\[
+  P(8)
+\]
+成立，即对任意
+\[
+  X\in\mathfrak X_{\mathrm{core}},
+\]
+GROMACS 2026.1 的证书对象链可以从源码/许可层递归闭合到验证层。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按证书对象层数递归闭合]
+\label{cert:tex39-cert-chain}
+取谓词
+\[
+  P(n)
+  :
+  \Longleftrightarrow
+  \text{“前 }n\text{ 层证书对象已被 GROMACS 2026.1 及其官方接口链闭合”}.
+\]
+则数学归纳法证书记为
+\[
+  \pi_{\mathrm{cert}}
+  =
+  \bigl(
+    P(1),\
+    \forall n\in\{1,\dots,7\},\ P(n)\Rightarrow P(n+1)
+  \bigr).
+\]
+其中递推接口具体分为七步：
+\begin{enumerate}
+  \item 基步 $P(1)$：发行页与参考手册序言给出源码、许可、源代码 DOI 与合法分支基础；
+  \item $P(1)\Rightarrow P(2)$：安装指南把源码推进到构建脚本、`cmake` 选项、`GMXRC` 与依赖环境；
+  \item $P(2)\Rightarrow P(3)$：`gmx grompp` 的输入接口把结构、拓扑、`mdp`、索引与外加输入包组织为运行前输入族；
+  \item $P(3)\Rightarrow P(4)$：`gmx grompp` 生成 `tpr` 并允许 `-pp` 导出预处理拓扑；
+  \item $P(4)\Rightarrow P(5)$：`gmx mdrun` 以 `tpr` 为输入产生轨迹、能量、日志、检查点等运行数据；
+  \item $P(5)\Rightarrow P(6)$：`gmx dump` 与 H5MD 输出把运行对象推进到可读审计视图；
+  \item $P(6)\Rightarrow P(7)\Rightarrow P(8)$：CP2K/MiMiC/NNPot/gmxapi/NB-LIB 等官方接口补足扩展层，而下载页与验证页补足回归与 validation 层。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+\textbf{基步 $P(1)$。}
+由下载页与参考手册序言，
+GROMACS 2026.1 的文档 DOI、源码 DOI、源码压缩包、回归测试包与 LGPL-2.1-or-later 许可都被明确给出，
+并且官方允许在 LGPL 条款下再分发与修改
+\cite{Gromacs2026Downloads,Gromacs2026Preface}。
+因此
+\[
+  P(1)
+\]
+成立。
+
+\textbf{步 $P(1)\Rightarrow P(2)$。}
+安装指南给出
+\[
+  \texttt{cmake}
+  \to
+  \texttt{make}
+  \to
+  \texttt{make check}
+  \to
+  \texttt{make install}
+  \to
+  \texttt{source GMXRC}
+\]
+的标准构建路径，并明确 \texttt{-DREGRESSIONTEST\_DOWNLOAD=ON}、\texttt{GMXRC}、安装后环境接入与多后缀并存安装口径
+\cite{Gromacs2026InstallGuide}。
+故
+\[
+  P(1)\Rightarrow P(2).
+\]
+
+\textbf{步 $P(2)\Rightarrow P(3)$。}
+`gmx grompp` 官方文档表明其输入包含
+\[
+  \texttt{mdp},\ \texttt{structure},\ \texttt{topology},\ \texttt{index},
+\]
+并可附带能量、轨迹与 QM 外加输入文件
+\cite{Gromacs2026Grompp,Gromacs2026CP2K}。
+因此运行前输入包
+\[
+  \mathcal I_{\mathrm{pkg}}
+\]
+可被稳定组织，故
+\[
+  P(2)\Rightarrow P(3).
+\]
+
+\textbf{步 $P(3)\Rightarrow P(4)$。}
+`gmx grompp` 生成 `tpr`，
+而 `-pp` 明确允许导出预处理拓扑；
+MiMiC 文档进一步建议把 `gmx grompp -pp` 的输出作为 CPMD 侧输入准备的自动化中间对象
+\cite{Gromacs2026Grompp,Gromacs2026MiMiC}。
+于是
+\[
+  \mathcal I_{\mathrm{run}}
+  \quad\text{与}\quad
+  \mathcal T_{\mathrm{prep}}
+\]
+都被封装进证书链中，
+故
+\[
+  P(3)\Rightarrow P(4).
+\]
+
+\textbf{步 $P(4)\Rightarrow P(5)$。}
+`gmx mdrun` 官方文档说明其以 `tpr` 为主输入，
+输出至少包括轨迹、结构终态、能量文件、日志文件和检查点文件；
+并且 `-rerun` 允许对已有轨迹做重评估
+\cite{Gromacs2026Mdrun}。
+故
+\[
+  \mathcal D_{\mathrm{run}}
+\]
+可被稳定生成，
+于是
+\[
+  P(4)\Rightarrow P(5).
+\]
+
+\textbf{步 $P(5)\Rightarrow P(6)$。}
+`gmx dump` 能把 `tpr`、轨迹、能量、检查点与拓扑打印成可读形式，
+而 2026.1 的新版特性页又给出 H5MD 无损轨迹输出、化学键 connectivity 记录及其实验性边界
+\cite{Gromacs2026Dump,Gromacs2026Features}。
+故
+\[
+  \mathcal A_{\mathrm{analysis}}
+\]
+可以从运行数据层继续闭合出来，
+于是
+\[
+  P(5)\Rightarrow P(6).
+\]
+
+\textbf{步 $P(6)\Rightarrow P(7)$。}
+安装指南与专页分别给出如下官方耦合路径：
+\[
+  \text{CP2K-QM/MM},
+  \qquad
+  \text{MiMiC-CPMD-QM/MM},
+  \qquad
+  \text{NNPot}.
+\]
+主页/专页又给出 \code{gmxapi} 与 NB-LIB 作为官方接口层
+\cite{Gromacs2026InstallGuide,Gromacs2026CP2K,Gromacs2026MiMiC,Gromacs2026NNPot,Gromacs2026Gmxapi,Gromacs2026NBLIB}。
+因此官方扩展/耦合接口层可被并入证书链，
+故
+\[
+  P(6)\Rightarrow P(7).
+\]
+
+\textbf{步 $P(7)\Rightarrow P(8)$。}
+下载页给出回归测试包与校验信息；
+安装指南给出 \texttt{make check}、\code{REGRESSIONTEST_PATH} 与 \code{gmxtest.pl}；
+验证页给出 experimental 与 validation pending 的责任边界、日志提示机制，
+以及对修改版、外部包与插件的免责声明
+\cite{Gromacs2026Downloads,Gromacs2026InstallGuide,Gromacs2026Validation}。
+故
+\[
+  \mathcal V_{\mathrm{reg}}
+\]
+也可被并入证书链，
+于是
+\[
+  P(7)\Rightarrow P(8).
+\]
+
+由数学归纳法，
+\[
+  \forall n\in\{1,\dots,8\},\ P(n).
+\]
+特别地
+\[
+  P(8)
+\]
+成立。
+定理得证。
+\end{proof}
+
+\subsection{定理：GROMACS 2026.1 是 \texorpdfstring{$\mathfrak X_{\mathrm{core}}$}{X-core} 上 \texorpdfstring{$S_{v2}$}{S-v2}
+  证书语义的完备支撑核}
+\label{subsec:tex39-ch2-theorem}
+
+\begin{theorem}[强命题：GROMACS 2026.1 是 \texorpdfstring{$\mathfrak X_{\mathrm{core}}$}{X-core} 上 \(S_{v2}\) 虚拟实验证书的完备支撑核]
+\label{thm:tex39-gromacs-kernel}
+\[
+  \boxed{
+    \text{GROMACS 2026.1 是 } \mathfrak X_{\mathrm{core}}
+    \text{ 上关于 } \mathcal C_{S_{v2}}
+    \text{ 的完备支撑核。}
+  }
+\]
+并且这里的“完备”必须严格理解为：
+\[
+  \boxed{
+    \text{源码--构建--依赖--输入--预处理--输出--审计--验证的证书表达完备，}
+  }
+\]
+而不是
+\[
+  \boxed{
+    \text{对一切修改版、外部包与分支科学结论作官方真值担保。}
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：发行基础 + 原生证书链 + 官方耦合路径 + 责任边界]
+\label{cert:tex39-gromacs-kernel}
+定义以下谓词链：
+\[
+\begin{aligned}
+  T_1 &: \text{下载页/序言}
+  \Rightarrow
+  \text{源码包、源码 DOI、回归测试包、md5 与 LGPL 基础齐备};\\
+  T_2 &: \text{定理~\ref{thm:tex39-cert-chain}}
+  \Rightarrow
+  \mathcal C_{S_{v2}}\text{ 的对象链可按层闭合};\\
+  T_3 &: \text{安装/专页文档}\\
+      &\Rightarrow
+      \text{CP2K-QM/MM、MiMiC-CPMD-QM/MM、NNP/MM}\\
+      &\phantom{\Rightarrow}\text{与官方接口链被明确支撑};\\
+  T_4 &: \text{验证页}\\
+      &\Rightarrow
+      \text{“完备”只能理解为证书语义完备，}\\
+      &\phantom{\Rightarrow}\text{而非官方替分支背书};\\
+  T_5 &: T_1\wedge T_2\wedge T_3\wedge T_4
+  \Rightarrow
+  \text{定理成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $T_1$，
+GROMACS 2026.1 于 2026 年 3 月 6 日发布，
+下载页给出源码 DOI、源码包、回归测试包与校验和，
+序言给出 LGPL-2.1-or-later 的修改与再分发基础
+\cite{Gromacs2026ReleaseNotes,Gromacs2026Downloads,Gromacs2026Preface}。
+这说明其首先具备作为证书核的法律与版本基础。
+
+由 $T_2$ 与定理~\ref{thm:tex39-cert-chain}，
+对任意
+\[
+  X\in\mathfrak X_{\mathrm{core}},
+\]
+证书对象链
+\[
+  \mathcal S_{\mathrm{src}}
+  \to
+  \mathcal B_{\mathrm{build}}
+  \to
+  \mathcal I_{\mathrm{pkg}}
+  \to
+  \mathcal I_{\mathrm{run}}
+  \to
+  \mathcal T_{\mathrm{prep}}
+  \to
+  \mathcal D_{\mathrm{run}}
+  \to
+  \mathcal A_{\mathrm{analysis}}
+  \to
+  \mathcal V_{\mathrm{reg}}
+\]
+都可被 GROMACS 2026.1 及其官方接口链闭合。
+
+由 $T_3$，
+安装指南与专页明确给出：
+\begin{enumerate}
+  \item CP2K-QM/MM 需链接 `libcp2k`，并以 `qmmm-cp2k-*` 选项控制 QM 部分；
+  \item MiMiC-CPMD-QM/MM 以官方耦合文档给出输入准备、双程序运行与 `grompp -pp` 中间态；
+  \item NNPot/NNP/MM 则给出链接 LibTorch、自动拓扑修改、link atom 与 NNP/MM 耦合语义；
+  \item `gmxapi` 与 NB-LIB 作为官方接口层，进一步说明 GROMACS 不是封闭单体二进制，而是可扩展计算核。
+\end{enumerate}
+因此
+\[
+  \mathfrak X_{\mathrm{core}}
+\]
+中的各类虚拟实验都能被覆盖
+\cite{Gromacs2026InstallGuide,Gromacs2026CP2K,Gromacs2026MiMiC,Gromacs2026NNPot,Gromacs2026Gmxapi,Gromacs2026NBLIB}。
+
+由 $T_4$，
+验证页明确说明：
+GROMACS 开发者只对官方未修改发布版的代码正确性负责，
+不对修改版、外部包或插件负责；
+并对 experimental / validation pending 特性在日志与标准输出中给出提示
+\cite{Gromacs2026Validation}。
+故此处的“完备”只能解释为
+\[
+  \text{证书表达完备},
+\]
+不能偷换成
+\[
+  \text{官方担保一切分支科学正确性}.
+\]
+
+于是
+\[
+  T_1\wedge T_2\wedge T_3\wedge T_4
+\]
+推出 $T_5$，
+即 GROMACS 2026.1 是
+\[
+  \mathfrak X_{\mathrm{core}}
+\]
+上关于
+\[
+  \mathcal C_{S_{v2}}
+\]
+的完备支撑核。
+定理得证。
+\end{proof}
+
+\subsection{引理：GROMACS 原生证书链在 \texorpdfstring{$tpr/log/cpt/dump$}{tpr/log/cpt/dump} 层闭合}
+\label{subsec:tex39-ch2-lemma}
+
+\begin{lemma}[原生证书链闭合引理]
+\label{lem:tex39-native-chain}
+对经典 MD 与分析工作流而言，
+GROMACS 2026.1 原生提供如下闭合链：
+\[
+  (\text{structure},\text{topology},\texttt{mdp},\text{index})
+  \xrightarrow{\ \texttt{gmx grompp}\ }
+  (\texttt{tpr},\texttt{processed.top})
+\]
+\[
+  \xrightarrow{\ \texttt{gmx mdrun}\ }
+  (\text{trajectory},\text{energy},\text{log},\text{checkpoint})
+  \xrightarrow{\ \texttt{gmx dump}\ }
+  \text{可读审计视图},
+\]
+并可由 H5MD 无损输出对审计链做增补。
+因此，在不诉诸外部分支代码的前提下，
+\[
+  \mathcal I_{\mathrm{pkg}}
+  \to
+  \mathcal I_{\mathrm{run}}
+  \to
+  \mathcal D_{\mathrm{run}}
+  \to
+  \mathcal A_{\mathrm{analysis}}
+\]
+已经在 GROMACS 内核中闭合。
+\end{lemma}
+
+\begin{Certificate}[证书：`grompp` + `mdrun` + `dump` + H5MD]
+\label{cert:tex39-native-chain}
+定义四条谓词：
+\[
+\begin{aligned}
+  L_1 &: \texttt{gmx grompp}
+  \Rightarrow
+  (\texttt{tpr},\texttt{-pp})\ \text{可由输入包编译而出};\\
+  L_2 &: \texttt{gmx mdrun}
+  \Rightarrow
+  (\text{trajectory},\text{energy},\text{log},\text{checkpoint})\ \text{可由 }\texttt{tpr}\ \text{导出};\\
+  L_3 &: \texttt{gmx dump}
+  \Rightarrow
+  \texttt{tpr}/\text{trajectory}/\texttt{edr}/\texttt{cpt}/\texttt{top}\ \text{可被读成可读审计视图};\\
+  L_4 &: \text{H5MD 新特性}
+  \Rightarrow
+  \text{位置、速度、力、盒矢量与连接信息可做无损增补输出}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$，
+`gmx grompp` 读取 `mdp`、结构、拓扑与索引文件并产生 `tpr`；
+同时 `-pp` 选项允许写出预处理拓扑
+\cite{Gromacs2026Grompp}。
+
+由 $L_2$，
+`gmx mdrun` 读取 `tpr`，
+至少写出轨迹、日志、能量文件与检查点，
+并支持 `-rerun` 对已有轨迹做重评估
+\cite{Gromacs2026Mdrun}。
+
+由 $L_3$，
+`gmx dump` 可以把 `tpr`、轨迹、能量、检查点与拓扑打印成可读文本，
+从而把二进制运行对象转成可审计视图
+\cite{Gromacs2026Dump}。
+
+由 $L_4$，
+2026.1 的 H5MD 轨迹输出可写出位置、速度、力、盒矢量与化学键 connectivity，
+且在该版本中只支持无损输出；
+但工具链支持仍是 experimental，
+因此它更适合作为证书增补层，而不是唯一审计载体
+\cite{Gromacs2026Features,Gromacs2026Validation}。
+
+综上，
+\[
+  L_1\wedge L_2\wedge L_3\wedge L_4
+\]
+推出引理成立。证毕。
+\end{proof}
+
+\subsection{命题：合法分支、功能剪裁与分支发行的边界}
+\label{subsec:tex39-ch2-proposition}
+
+\begin{proposition}[分支发行命题：GROMACS 2026.1 可合法分支并形成面向对接或量子力学相关 MD 的分支发行]
+\label{prop:tex39-branch-boundary}
+\[
+  \boxed{
+    \text{在 LGPL-2.1-or-later 许可下，GROMACS 2026.1 可被合法分支、功能剪裁与补充开发。}
+  }
+\]
+\[
+  \boxed{
+    \text{因此可以形成面向分子对接或量子力学相关分子动力学的分支发行。}
+  }
+\]
+但必须同时加上两个边界：
+\begin{enumerate}
+  \item \textbf{分子对接边界：}
+  最稳妥的写法是“可基于 GROMACS 核心与官方接口实现分支对接工作流”，
+  而不是“GROMACS 2026.1 原生即是完整分子对接软件”；
+  \item \textbf{量子力学边界：}
+  最稳妥的官方支撑路径是
+  \[
+    \text{CP2K-QM/MM},
+    \quad
+    \text{MiMiC-CPMD-QM/MM},
+    \quad
+    \text{NNP/MM},
+  \]
+  而不是“GROMACS 内核单独内建了通用全量子分子动力学求解器”。
+\end{enumerate}
+\end{proposition}
+
+\begin{Certificate}[证书：许可边界 + 官方算法对象 + 仓内 Vol2 对接坐标化口径]
+\label{cert:tex39-branch-boundary}
+定义四条谓词：
+\[
+\begin{aligned}
+  P_1 &: \text{参考手册序言}
+  \Rightarrow
+  \text{GROMACS 允许再分发与修改};\\
+  P_2 &: \text{命令/参考手册}\\
+      &\Rightarrow
+      \text{GROMACS 原生长项是 MD、SD、能量最小化、}\\
+      &\phantom{\Rightarrow}\text{重评估、QM/MM、NNP/MM 等};\\
+  P_3 &: \text{Vol2 主稿}
+  \Rightarrow
+  \text{仓内已经把 docking/MD 写成 LBOPB 坐标与 replay 构造};\\
+  P_4 &: P_1\wedge P_2\wedge P_3\\
+      &\Rightarrow
+      \text{“可分支实现对接/量子相关 MD”成立，}\\
+      &\phantom{\Rightarrow}\text{而“官方原生全包”不成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $P_1$，
+参考手册序言明确给出 LGPL-2.1-or-later 的再分发与修改许可，
+从而分支与补充开发在法律上成立
+\cite{Gromacs2026Preface}。
+
+由 $P_2$，
+`gmx mdrun` 官方说明其核心对象是 MD、随机动力学、能量最小化、test particle insertion、
+能量重算与 normal mode analysis；
+参考手册/专页又给出 CP2K-QM/MM、MiMiC 与 NNPot 的官方路径
+\cite{Gromacs2026Mdrun,Gromacs2026CP2K,Gromacs2026MiMiC,Gromacs2026NNPot}。
+这说明它的官方强项是“分子动力学核及其官方扩展”，而不是把“分子对接工作流”作为独立成熟内建主工作流来表述。
+
+由 $P_3$，
+仓内 Vol2 已经把经典分子对接与分子动力学写成 LBOPB 坐标、静态截面与 replay 构造
+\cite{GaoZhengAppVol2,RepoTex22Vol2InverseDesign}。
+因此，在本仓语境里，“对接”本就更自然地落在
+\[
+  \text{基于 GROMACS 母核的分支实现}
+\]
+这一层，而不要求 GROMACS 官方把其命名为 native docking solver。
+
+综上，
+\[
+  P_1\wedge P_2\wedge P_3
+\]
+推出 $P_4$：
+GROMACS 2026.1 确可作为合法分支母核，
+形成面向对接或量子力学相关 MD 的分支发行；
+但该命题必须按上述两个边界收紧。
+命题得证。
+\end{proof}
+
+\subsection{推论：最稳表述与完整分支证书}
+\label{subsec:tex39-ch2-corollary}
+
+\begin{corollary}[对原始强命题的最稳表述]
+\label{cor:tex39-stable-statement}
+因此，最稳妥的正式版本不是
+\[
+  \text{“GROMACS 2026.1 单独无条件证明了一切 }S_{v2}\text{ 虚拟实验。”}
+\]
+而是
+\[
+  \boxed{
+    \text{GROMACS 2026.1 可作为 }S_{v2}\text{ 虚拟实验证书的完备支撑核，}
+  }
+\]
+\[
+  \boxed{
+    \text{前提是“完备”被定义为源码--构建--依赖--输入--中间态--输出--验证的可再现与可审计完备。}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：强定理 + 边界命题]
+\label{cert:tex39-stable-statement}
+记
+\[
+\begin{aligned}
+  C_1 &: \text{定理~\ref{thm:tex39-gromacs-kernel}}
+  \Rightarrow
+  \text{证书语义上的完备支撑核成立};\\
+  C_2 &: \text{命题~\ref{prop:tex39-branch-boundary}}
+  \Rightarrow
+  \text{需区分“母核完备”与“分支科学背书”};\\
+  C_3 &: C_1\wedge C_2
+  \Rightarrow
+  \text{本推论成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_1$，
+GROMACS 2026.1 的确在
+\[
+  \mathfrak X_{\mathrm{core}}
+\]
+上构成关于
+\[
+  \mathcal C_{S_{v2}}
+\]
+的完备支撑核。
+由 $C_2$，
+这种完备必须解释为证书对象链的完备，
+不能偷换成官方对任意分支结论的真值担保。
+因此
+\[
+  C_1\wedge C_2
+\]
+推出 $C_3$，即推论成立。证毕。
+\end{proof}
+
+\begin{corollary}[完整分支证书的推荐写法]
+\label{cor:tex39-branch-cert}
+若把分支证书只写成
+\[
+  (\text{分支源码},\text{分支虚拟实现数据}),
+\]
+则方向正确但仍不够完备。
+更稳妥的完整表达应写成
+\[
+  \mathfrak{Cert}_{\mathrm{branch}}^{\mathrm{full}}
+  :=
+  \bigl(
+    \mathcal S_{\mathrm{src}},
+    \Delta_{\mathrm{patch}},
+    \mathcal B_{\mathrm{build}},
+    \mathcal D_{\mathrm{dep}},
+    \mathcal I_{\mathrm{pkg}},
+    \mathcal T_{\mathrm{prep}},
+    \mathcal I_{\mathrm{run}},
+    \mathcal D_{\mathrm{run}},
+    \mathcal A_{\mathrm{analysis}},
+    \mathcal V_{\mathrm{reg}},
+    \mathcal H_{\mathrm{out}}
+  \bigr),
+\]
+其中
+\[
+  \mathcal H_{\mathrm{out}}
+\]
+表示输出哈希与结果比对摘要。
+该对象才是最接近
+\[
+  S_{v2}
+\]
+证书语义的\textbf{完整分支证书}。
+\end{corollary}
+
+\begin{Certificate}[证书：原生链闭合 + 验证边界 + 分支母核]
+\label{cert:tex39-branch-cert}
+定义三条谓词：
+\[
+\begin{aligned}
+  D_1 &: \text{引理~\ref{lem:tex39-native-chain}}
+  \Rightarrow
+  \text{输入--运行--审计对象链原生存在};\\
+  D_2 &: \text{定理~\ref{thm:tex39-gromacs-kernel}}
+  \Rightarrow
+  \text{源码/构建/依赖/验证对象链可一并闭合};\\
+  D_3 &: \text{验证页边界}
+  \Rightarrow
+  \text{修改版必须自带 validation、回归与输出哈希信息}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $D_1$，运行前后对象链
+\[
+  \mathcal I_{\mathrm{pkg}}
+  \to
+  \mathcal I_{\mathrm{run}}
+  \to
+  \mathcal D_{\mathrm{run}}
+  \to
+  \mathcal A_{\mathrm{analysis}}
+\]
+已被 GROMACS 原生提供。
+由 $D_2$，再把源码、构建、依赖与回归/验证层并入，
+即可得到完整证书壳体。
+由 $D_3$，由于官方不对修改版、外部包与插件的科学正确性负责，
+分支自身必须把 validation 状态、回归结果与输出哈希一并纳入
+\cite{Gromacs2026Validation}。
+因此本推论成立。证毕。
+\end{proof}
+
+\subsection{备注：边界、术语与推荐正式口径}
+\label{subsec:tex39-ch2-remarks}
+
+\begin{remark}[“完备支撑核”不等于“绝对科学真值完备核”]
+本节最终固定的最重要边界是：
+\[
+  \boxed{
+    \text{GROMACS 2026.1 提供的是 }S_{v2}\text{ 的证书语义完备支撑核，}
+  }
+\]
+\[
+  \boxed{
+    \text{不是对所有修改版、外部 QM 代码与分支结论的绝对真值完备核。}
+  }
+\]
+验证页的免责声明并不削弱该命题，反而恰好说明：
+一旦进入分支发行，
+证书责任就必须回落到
+\[
+  \text{“我的分支源码证明 + 我的分支数据证明 + 我的 validation 记录”}
+\]
+这一侧
+\cite{Gromacs2026Validation}。
+\end{remark}
+
+\begin{remark}[关于“分子对接”的最稳口径]
+对“分子对接”最稳的说法，不应写成
+\[
+  \text{“GROMACS 2026.1 原生就是完整分子对接软件”。}
+\]
+更稳的说法是
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{GROMACS 2026.1 作为 LGPL 开源母核，}\\
+      &\text{可以经合法分支、功能剪裁与 replay/re-evaluation 流水线，}
+    \end{aligned}
+  }
+\]
+\[
+  \boxed{
+    \text{形成面向分子对接的分支发行或静态切面工作流。}
+  }
+\]
+这与仓内 Vol2 已经采用的“docking/MD 作为 LBOPB 坐标”口径完全一致
+\cite{GaoZhengAppVol2}。
+\end{remark}
+
+\begin{remark}[本节建议采用的一句话正式口径]
+若把本节压成一句最稳的正式表述，
+建议写成：
+\[
+  \boxed{
+    \text{GROMACS 2026.1 在 LGPL-2.1-or-later 许可、源码 DOI、回归测试、}
+  }
+\]
+\[
+  \boxed{
+    \texttt{tpr/log/cpt/dump}\text{ 证书链、}\texttt{grompp -pp}\text{ 预处理导出、}
+    \text{QM/MM 与 NNP/MM 官方接口、}
+  }
+\]
+\[
+  \boxed{
+    \text{以及 validation 边界声明的共同支撑下，}
+    \text{足以作为 }S_{v2}\text{ 虚拟实验证书的完备支撑核；}
+  }
+\]
+\[
+  \boxed{
+    \text{其分支源码与分支虚拟实现数据，连同构建与验证元数据，可构成 }S_{v2}\text{ 的完整证书表达。}
+  }
+\]
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：从 \texorpdfstring{$(V_3+S_{v3})\oplus(V_2+S_{v2})\oplus\mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}$}
+  {(V3+S-v3)+(V2+S-v2)+C-GMX-branch} 到 G 框架 AI 的核心架构、生命域插件与分支证书接口}
+\label{sec:tex39-ch3}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格边界、证明目标与引文定位}
+\label{subsec:tex39-ch3-convention}
+
+\begin{remark}[严格边界与可证版本]
+本节固定证明边界如下：
+\[
+  \boxed{
+    \text{对 }(V_3+S_{v3})\text{ 的部分，只主张“文稿内定理级证明”成立；}
+  }
+\]
+\[
+  \boxed{
+    \text{对 }(V_2+S_{v2})\text{ 的部分，由于 }S_{v2}\text{ 不是独立上传稿件，}
+  }
+\]
+\[
+  \boxed{
+    \text{故只采用“构造型严格证明”：把 }S_{v2}\text{ 定义为 }S_{v3}
+    \text{ 在 LBOPB 域上的运输实例。}
+  }
+\]
+并且，本节证明的是
+\[
+  \boxed{
+    \text{“架构基础 + 插件扩展 + 证书支撑”成立，}
+  }
+\]
+\[
+  \boxed{
+    \text{不是“仅凭虚拟实验就充分证明真实人体安全性/有效性”。}
+  }
+\]
+后一命题若写成充分性断言，在本稿内仍未证明。
+\end{remark}
+
+\begin{remark}[仓内外引文定位]
+本节的核心架构部分直接继承
+\cite{RepoTex37SemanticGaugeRuntime}
+中关于
+“LLM 运行时降级”“主权回收程序链”“白盒主权回收”的正式写法，
+并沿用本稿第一节中
+定理~\ref{thm:tex39-unified-family}、
+命题~\ref{prop:tex39-osg}
+与推论~\ref{cor:tex39-family}
+所固定的统一口径。
+
+生命科学专业域扩展部分主要继承
+\cite{GaoZhengAppVol2,RepoTex22Vol2InverseDesign}
+中关于 LBOPB、law-space path-integral、
+compiler-like law engine 以及
+“GRL/RLSAC or other decision engines”
+的对象语言。
+分支证书接口部分则直接调用本稿第二节已证明的
+定理~\ref{thm:tex39-gromacs-kernel}、
+命题~\ref{prop:tex39-branch-boundary}
+与推论~\ref{cor:tex39-branch-cert}，
+并保留其官方文档来源
+\cite{Gromacs2026ReleaseNotes,Gromacs2026Downloads,Gromacs2026Preface,Gromacs2026InstallGuide,Gromacs2026Grompp,
+  Gromacs2026Mdrun,Gromacs2026Dump,Gromacs2026CP2K,Gromacs2026MiMiC,Gromacs2026NNPot,Gromacs2026Validation,
+  Gromacs2026Gmxapi,Gromacs2026NBLIB}。
+\end{remark}
+
+\subsection{定义：核心架构、生命域插件认证包与分支证书接口}
+\label{subsec:tex39-ch3-definitions}
+
+\begin{definition}[G 框架 AI 的架构基础]
+\label{def:tex39-ch3-core}
+定义
+\[
+  \mathsf{Core}_{G\text{-AI}}
+  :=
+  \Bigl(
+    \mathcal U_{\mathrm{sem}}^{\mathrm{cov}},
+    \ \pi_N:\mathcal E_{\mathrm{core}}^{(N)}\to\mathcal B_{\mathrm{ctx}},
+    \ \Phi_N,
+    \ \Ob,
+    \ \mathcal R,
+    \ \Gamma^{\mathrm{adm}},
+    \ \Sigma_N,
+    \ \Theta_0,
+    \ \operatorname{Render}_{\xi},
+    \ \mathfrak C_{\mathrm{core}}
+  \Bigr),
+\]
+其中：
+\begin{enumerate}
+  \item $\mathcal U_{\mathrm{sem}}^{\mathrm{cov}}$ 是由语义规范场与证书束给出的协变语义宇宙；
+  \item $\pi_N:\mathcal E_{\mathrm{core}}^{(N)}\to\mathcal B_{\mathrm{ctx}}$ 是核心修复塔；
+  \item $\Phi_N$ 是塔态与竖直认证路径空间之间的自然桥接；
+  \item $\Ob$ 是总障碍向量，$\mathcal R$ 是障碍下降型修复算子；
+  \item $\Gamma^{\mathrm{adm}}$ 是允许路径类，$\Sigma_N$ 是正规形提取；
+  \item $\Theta_0$ 是占位投影，$\operatorname{Render}_{\xi}$ 是末端表达运行时；
+  \item $\mathfrak C_{\mathrm{core}}$ 是核心主权合同，用来约束任意插件不得绕过
+  G 侧白盒求解链。
+\end{enumerate}
+若一套系统满足：
+\[
+  \text{求解主权在 G 侧白盒链，表达主权退化到受审计插件层，}
+\]
+\[
+  \text{并且任意领域扩展都必须服从 }\mathfrak C_{\mathrm{core}},
+\]
+则称其具备【G 框架 AI】的架构基础。
+\end{definition}
+
+\begin{definition}[专业领域扩展基底认证包]
+\label{def:tex39-ch3-life-pkg}
+定义
+\[
+  \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}}
+  :=
+  \Bigl(
+    \mathcal B_{\mathrm{ctx}}^{\mathrm{life}},
+    \ \pi_{N,\mathrm{life}}:
+    \mathcal E_{\mathrm{life}}^{(N)}
+    \to
+    \mathcal B_{\mathrm{ctx}}^{\mathrm{life}},
+    \ \Delta_{\mathrm{life}}^{\mathrm{obs}},
+    \ \Delta_{\mathrm{life}}^{\mathrm{op}},
+    \ \Delta_{\mathrm{life}}^{\mathrm{obst}},
+    \ \Delta_{\mathrm{life}}^{\mathrm{act}},
+    \ \Delta_{\mathrm{life}}^{\mathrm{cert}}
+  \Bigr),
+\]
+其中
+\[
+  \mathcal E_{\mathrm{life}}^{(N)}
+  :=
+  \left\{
+  \begin{aligned}
+    &\mathcal E_{\mathrm{core}}^{(N)}
+    \oplus
+    \Delta_{\mathrm{life}}^{\mathrm{obs},(N)}
+    \oplus
+    \Delta_{\mathrm{life}}^{\mathrm{op},(N)}\\
+    &\oplus
+    \Delta_{\mathrm{life}}^{\mathrm{obst},(N)}
+    \oplus
+    \Delta_{\mathrm{life}}^{\mathrm{act},(N)}
+    \oplus
+    \Delta_{\mathrm{life}}^{\mathrm{cert},(N)}.
+  \end{aligned}
+  \right.
+\]
+若该包满足
+\[
+  \mathcal P_{\mathrm{life}}^{(N)}\models \mathfrak C_{\mathrm{core}},
+\]
+则称其不是独立 AI 核，而是【G 框架 AI】之下的
+\textbf{专业领域插件例证}。
+\end{definition}
+
+\begin{definition}[GROMACS 分支证书对象]
+\label{def:tex39-ch3-gmx-cert}
+定义
+\[
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+  :=
+  \bigl(
+    \mathcal S_{\mathrm{src}},
+    \mathcal S_{\mathrm{diff}},
+    \mathcal S_{\mathrm{build}},
+    \mathcal S_{\mathrm{deps}},
+    \mathcal S_{\mathrm{input}},
+    \mathcal S_{\mathrm{run}},
+    \mathcal S_{\mathrm{data}},
+    \mathcal S_{\mathrm{reg}}
+  \bigr),
+\]
+其中
+\[
+  \mathcal S_{\mathrm{src}}
+\]
+是分支源码树，
+\[
+  \mathcal S_{\mathrm{diff}}
+\]
+是补丁与提交历史，
+\[
+  \mathcal S_{\mathrm{build}}
+\]
+是构建脚本与 CMake 选项，
+\[
+  \mathcal S_{\mathrm{deps}}
+\]
+是依赖版本与接口版本，
+\[
+  \mathcal S_{\mathrm{input}}
+\]
+是输入结构、拓扑、\texttt{mdp}、索引、预处理拓扑与 \texttt{tpr}，
+\[
+  \mathcal S_{\mathrm{run}}
+\]
+是运行日志与检查点，
+\[
+  \mathcal S_{\mathrm{data}}
+\]
+是轨迹、能量与分析输出，
+\[
+  \mathcal S_{\mathrm{reg}}
+\]
+是回归测试与验证报告。
+称
+\[
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+\]
+为“代码证明 + 实现数据证明”的合成证书对象。
+\end{definition}
+
+\begin{definition}[构造型定义：\texorpdfstring{$S_{v2}$}{S-v2} 的运输实例]
+\label{def:tex39-ch3-sv2}
+由于本稿内并无一篇独立上传的 $S_{v2}$ 主稿，
+故在本节中把
+\[
+  S_{v2}
+  :=
+  \mathcal T_{\mathrm{LBOPB}}(S_{v3};V_2),
+\]
+定义为
+$S_{v3}$ 的核心合同、修复塔、占位--审计闭环
+在 LBOPB 生命域上的运输实例。
+也即：
+\[
+  \mathcal B_{\mathrm{ctx}}^{\mathrm{life}}
+  :=
+  \left\{
+  \begin{aligned}
+    &M^{\mathrm{life}}
+    \times
+    \mathcal B_{\mathrm{path}}
+    \times
+    \mathcal B_{\mathrm{phys}}
+    \times
+    \mathcal B_{\mathrm{tox}}\\
+    &\times
+    \mathcal B_{\mathrm{pk/pd}}
+    \times
+    \mathcal B_{\mathrm{gen}}
+    \times
+    \mathcal B_{\mathrm{immune}}
+    \times
+    \mathcal B_{\mathrm{trial}}.
+  \end{aligned}
+  \right.
+\]
+本定义的含义是：
+$V_2$ 提供生命科学对象语言，
+$S_{v3}$ 提供可证明的白盒架构合同，
+而 $S_{v2}$ 只记录它们的构造性拼接。
+\end{definition}
+
+\begin{definition}[总强命题]
+\label{def:tex39-ch3-strong}
+定义总强命题
+\[
+  \mathbf T_{\mathrm{strong}}
+\]
+为以下三条断言的合取：
+\[
+  \boxed{
+    (V_3+S_{v3}) \Longrightarrow \mathsf{Core}_{G\text{-AI}}
+  }
+\]
+\[
+  \boxed{
+    (V_2+S_{v2}) \Longrightarrow \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}}
+  }
+\]
+\[
+  \boxed{
+    \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+    \Longrightarrow
+    \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+    \in
+    \Delta_{\mathrm{life}}^{\mathrm{cert}}
+  }
+\]
+亦即：
+\[
+  \boxed{
+    \begin{aligned}
+      &(V_3+S_{v3})
+      \oplus
+      (V_2+S_{v2})
+      \oplus
+      \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}\\
+      &\text{构成“以修复塔为核心、以专业领域插件为扩展、}\\
+      &\text{以分支源码与实现数据为证书支撑”的 G 框架 AI。}
+    \end{aligned}
+  }
+\]
+\end{definition}
+
+\subsection{公理（降级为定理）：核心合同可按塔层递归运输到生命域增量包}
+\label{subsec:tex39-ch3-axiom}
+
+\begin{theorem}[公理（降级为定理）：核心合同在生命域增量塔上可按层递归运输]
+\label{thm:tex39-ch3-transport}
+固定任意 $N\in\NN_{>0}$，
+并令
+\[
+  Q(n)
+  :
+  \Longleftrightarrow
+  \text{前 }n\text{ 层生命域增量}
+  \ \Delta_{\mathrm{life}}^{(\le n)}
+  \text{ 已被挂接到 }
+  \mathcal E_{\mathrm{core}}^{(\le n)}
+  \text{ 且仍满足 }
+  \mathfrak C_{\mathrm{core}}.
+\]
+则对任意
+\[
+  n\in\{1,2,\dots,N\},
+\]
+都有
+\[
+  Q(n).
+\]
+特别地，
+\[
+  Q(N)
+\]
+成立，即
+\[
+  \mathcal E_{\mathrm{life}}^{(N)}
+\]
+可以作为
+\[
+  \mathcal E_{\mathrm{core}}^{(N)}
+\]
+上的合同保持型生命域增量包被递归构造出来。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：核心合同的塔层运输]
+\label{cert:tex39-ch3-transport}
+取谓词
+\[
+  Q(n)
+  :
+  \Longleftrightarrow
+  \text{生命域的前 }n\text{ 层增量已被接入核心塔且不破坏 }
+  \mathfrak C_{\mathrm{core}}.
+\]
+则数学归纳法证书记为
+\[
+  \pi_{\mathrm{life}}
+  =
+  \bigl(
+    Q(1),\
+    \forall n\in\{1,\dots,N-1\},\
+    Q(n)\Rightarrow Q(n+1)
+  \bigr).
+\]
+其中：
+\begin{enumerate}
+  \item 基步 $Q(1)$：第 $1$ 层生命域对象只把观测、算子、障碍、动作、证书接口接入核心基底，不改变核心求解主权；
+  \item 递推步 $Q(n)\Rightarrow Q(n+1)$：若前 $n$ 层已合同保持，则第 $n+1$ 层只允许通过
+  \[
+    \Delta_{\mathrm{life}}^{\mathrm{obs}},
+    \
+    \Delta_{\mathrm{life}}^{\mathrm{op}},
+    \
+    \Delta_{\mathrm{life}}^{\mathrm{obst}},
+    \
+    \Delta_{\mathrm{life}}^{\mathrm{act}},
+    \
+    \Delta_{\mathrm{life}}^{\mathrm{cert}}
+  \]
+  五类接口增量继续扩展。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+\textbf{基步 $Q(1)$。}
+由定义~\ref{def:tex39-ch3-life-pkg}，
+第 $1$ 层生命域扩展只是在
+\[
+  \mathcal E_{\mathrm{core}}^{(1)}
+\]
+之上外接
+\[
+  \Delta_{\mathrm{life}}^{\mathrm{obs},(1)},
+  \
+  \Delta_{\mathrm{life}}^{\mathrm{op},(1)},
+  \
+  \Delta_{\mathrm{life}}^{\mathrm{obst},(1)},
+  \
+  \Delta_{\mathrm{life}}^{\mathrm{act},(1)},
+  \
+  \Delta_{\mathrm{life}}^{\mathrm{cert},(1)}.
+\]
+这些外接对象只增加领域坐标，
+并不改变
+\[
+  \Sigma_1,\ \Theta_0,\ \operatorname{Render}_{\xi}
+\]
+所定义的核心求解--占位--表达闭环，
+故
+\[
+  Q(1)
+\]
+成立。
+
+\textbf{递推步 $Q(n)\Rightarrow Q(n+1)$。}
+设
+\[
+  Q(n)
+\]
+成立。
+则前 $n$ 层生命域增量已经以合同保持的方式接入核心塔。
+对第 $n+1$ 层，按照定义~\ref{def:tex39-ch3-sv2}，
+允许新增的对象仍仅限于
+\[
+  \Delta_{\mathrm{life}}^{\mathrm{obs},(n+1)},
+  \
+  \Delta_{\mathrm{life}}^{\mathrm{op},(n+1)},
+  \
+  \Delta_{\mathrm{life}}^{\mathrm{obst},(n+1)},
+  \
+  \Delta_{\mathrm{life}}^{\mathrm{act},(n+1)},
+  \
+  \Delta_{\mathrm{life}}^{\mathrm{cert},(n+1)}.
+\]
+由于这些增量仍受
+\[
+  \mathfrak C_{\mathrm{core}}
+\]
+约束，
+故它们只能细化领域观测、领域算子、领域障碍、领域动作与领域证书，
+而不能改写 G 侧白盒求解主权、
+不能跳过正规形提取、
+不能绕过占位投影进入未审计表达层。
+因此
+\[
+  Q(n+1)
+\]
+成立。
+
+由数学归纳法，
+\[
+  \forall n\in\{1,\dots,N\},\ Q(n)
+\]
+成立。
+故生命域增量塔可按层递归运输到核心塔之上。证毕。
+\end{proof}
+
+\subsection{定理：\texorpdfstring{$(V_3+S_{v3})$}{(V3+S-v3)} 构成 G 框架 AI 的架构基础}
+\label{subsec:tex39-ch3-theorem-core}
+
+\begin{theorem}[核心架构定理：\texorpdfstring{$(V_3+S_{v3})$}{(V3+S-v3)} 构成 \texorpdfstring{$\mathsf{Core}_{G\text{-AI}}$}
+  {Core-G-AI}]
+\label{thm:tex39-ch3-core}
+\[
+  (V_3+S_{v3})
+  \Longrightarrow
+  \mathsf{Core}_{G\text{-AI}}.
+\]
+特别地，
+$V_3+S_{v3}$ 所刻画的系统核心不再是神经网络本体，
+而是
+\[
+  \mathcal E_{\mathrm{core}}^{(N)}
+  +\Ob+\mathcal R+\Gamma^{\mathrm{adm}}+\Sigma_N
+\]
+所给出的白盒修复链。
+\end{theorem}
+
+\begin{Certificate}[证书：协变语义宇宙 + 运行时降级 + 主权回收]
+\label{cert:tex39-ch3-core}
+记下列谓词：
+\[
+\begin{aligned}
+  A_1 &: V_3\ \text{给出 semantic gauge field 及协变语义对象宇宙};\\
+  A_2 &: V_3\ \text{给出 certificate bundle，且证书纤维收集 filling data};\\
+  A_3 &: S_{v3}\ \text{给出离散语义基底与 }N\text{ 阶认证语义纤维塔};\\
+  A_4 &: S_{v3}\ \text{给出塔态到认证路径空间的自然桥接};\\
+  A_5 &: S_{v3}\ \text{证明 LLM 仅为可审计确定性运行时};\\
+  A_6 &: S_{v3}\ \text{证明求解/裁决主权回收到 G 侧程序链};\\
+  A_7 &: S_{v3}\ \text{固定核心合同 }\mathfrak C_{\mathrm{core}}
+  \text{ 并约束任意插件服从之。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由
+\cite{RepoTex37SemanticGaugeRuntime}
+与本稿第一节的统一重构结果可知，
+$V_3$ 已经不再被阅读为“依赖黑箱语言模型自由生成语义”的系统，
+而被重写为
+\[
+  \mathcal U_{\mathrm{sem}}^{\mathrm{cov}}
+  =
+  \bigl(
+    \text{semantic gauge field},
+    \text{connection},
+    \text{Jacobi/Bianchi repair data},
+    \text{certificate bundle}
+  \bigr)
+\]
+上的协变富结构对象宇宙。
+故
+\[
+  A_1\wedge A_2
+\]
+成立。
+
+再由
+\cite{RepoTex37SemanticGaugeRuntime}
+中“LLM 运行时降级定理”和“白盒主权回收定理”，
+以及本稿定理~\ref{thm:tex39-unified-family}、
+命题~\ref{prop:tex39-osg}，
+可得
+\[
+  (b,q)
+  \to
+  x_0
+  \to
+  \Sigma_N(x_0)
+  \to
+  \tau^\star
+  \to
+  \Theta_0(\operatorname{Enc}_G(\tau^\star))
+  \to
+  t^\star
+\]
+是一条可审计的程序化白盒主链，
+其中
+\[
+  t^\star
+  =
+  \operatorname{Render}_{\xi}(p^\star)
+\]
+只处于末端表达层。
+因此
+\[
+  A_3\wedge A_4\wedge A_5\wedge A_6
+\]
+成立。
+
+最后，由
+\cite{RepoTex37SemanticGaugeRuntime}
+关于核心合同与插件服从性的写法，
+任意领域扩展都只能在核心塔上增添经许可的观测、算子、障碍、动作与证书接口，
+而不能跳过
+\[
+  \Sigma_N,\ \Theta_0,\ \operatorname{Render}_{\xi}
+\]
+之间的受审计闭环。
+故
+\[
+  A_7
+\]
+成立。
+
+由
+\[
+  A_1\wedge A_2\wedge A_3\wedge A_4\wedge A_5\wedge A_6\wedge A_7
+\]
+即可得到定义~\ref{def:tex39-ch3-core} 的全部组成项都已具备。
+因此
+\[
+  (V_3+S_{v3})
+  \Longrightarrow
+  \mathsf{Core}_{G\text{-AI}}.
+\]
+并且系统核心位于修复塔、
+障碍下降链、
+允许路径类与正规形提取，
+而不位于 LLM 或任意单个神经网络内部。证毕。
+\end{proof}
+
+\subsection{引理：这一步不仅是去 LLM 中心，也是去神经网络中心}
+\label{subsec:tex39-ch3-lemma}
+
+\begin{lemma}[非神经网络核心引理]
+\label{lem:tex39-ch3-decenter}
+若接受
+\[
+  (V_3+S_{v3}) \Longrightarrow \mathsf{Core}_{G\text{-AI}},
+\]
+并同时接受 Vol2 中
+“From Data-Carrying Models to Rule Compilers”
+的对象语言，
+则 G 框架 AI 的核心架构不仅是“去 LLM 中心”的，
+也是“去神经网络中心”的。
+\end{lemma}
+
+\begin{Certificate}[证书：显式规则编译 + 推理机分离 + 局部后端降级]
+\label{cert:tex39-ch3-decenter}
+记下列谓词：
+\[
+\begin{aligned}
+  L_1 &: \text{data-carrying models 的知识主要隐含在参数或数据轨迹中};\\
+  L_2 &: \text{LBOPB rule compiler 把经验信息压成显式 laws/operators/metrics};\\
+  L_3 &: \text{这些显式对象可供 GRL/RLSAC 或 other decision engines 使用};\\
+  L_4 &: \text{若某神经网络被保留，则它只作为数据来源、局部近似器或表达插件出现。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由
+\cite{GaoZhengAppVol2}
+中 “From Data-Carrying Models to Rule Compilers”
+一节，
+传统 data-carrying models 把知识主要编码在权重、嵌入或存储轨迹中，
+难以直接抽出可独立版本化、可独立核验的显式规则。
+故
+\[
+  L_1
+\]
+成立。
+
+同一节又明确把 LBOPB 侧的知识压缩解释为：
+把经验信息、模型输出或专家知识编译成
+\[
+  \text{显式 law sectors}
+  +\text{显式 operator packages}
+  +\text{显式 metrics}
+  +\text{显式 action functionals},
+\]
+从而把规则与推理机分离。
+故
+\[
+  L_2\wedge L_3
+\]
+成立。
+
+由定理~\ref{thm:tex39-ch3-core}，
+G 框架 AI 的求解主权已经被回收到
+\[
+  \mathcal E_{\mathrm{core}}^{(N)}+\Ob+\mathcal R+\Gamma^{\mathrm{adm}}+\Sigma_N
+\]
+这一白盒修复链上。
+于是即便系统中继续使用神经网络，
+它也只能以“数据来源”“局部函数近似器”或“表达插件”身份出现，
+而不能再单独充当总架构核心。
+故
+\[
+  L_4
+\]
+成立。
+
+于是
+\[
+  L_1\wedge L_2\wedge L_3\wedge L_4
+\]
+推出：G 框架 AI 的中心已经从“神经网络本体”转移到
+“可证明的修复塔--障碍--证书--插件合同”链上。
+引理得证。
+\end{proof}
+
+\subsection{定理：\texorpdfstring{$(V_2+S_{v2})$}{(V2+S-v2)} 构成 G 框架 AI 的生命域插件认证包}
+\label{subsec:tex39-ch3-theorem-life}
+
+\begin{theorem}[生命域插件定理：\texorpdfstring{$(V_2+S_{v2})$}{(V2+S-v2)} 构成 \texorpdfstring{$\mathsf{Pkg}_{G\text{-AI}}
+  ^{\mathrm{life}}$}{Pkg-life}]
+\label{thm:tex39-ch3-life}
+\[
+  (V_2+S_{v2})
+  \Longrightarrow
+  \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}}.
+\]
+其中
+\[
+  S_{v2}
+  :=
+  \mathcal T_{\mathrm{LBOPB}}(S_{v3};V_2)
+\]
+只是一种构造型实例化，
+而不是第二个独立 AI 核。
+\end{theorem}
+
+\begin{Certificate}[证书：LBOPB 对象语言 + rule compiler + 合同保持运输]
+\label{cert:tex39-ch3-life}
+记下列谓词：
+\[
+\begin{aligned}
+  B_1 &: V_2\ \text{定义了 pathology, physiology, toxicology, PK/PD, genomics, immunity 等域对象};\\
+  B_2 &: V_2\ \text{给出 law-space path-integral、macro-measure 与 discrete path integral 的对应};\\
+  B_3 &: V_2\ \text{给出 compiler-like law engine，把经验数据压成 laws/operators/metrics};\\
+  B_4 &: V_2\ \text{明确这些输出可供 GRL/RLSAC 或 other decision engines 使用};\\
+  B_5 &: S_{v2}\ \text{仅按核心合同把生命域变量、障碍、动作与证书接口挂接到核心塔上。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由
+\cite{GaoZhengAppVol2,RepoTex22Vol2InverseDesign}
+可知，$V_2$ 已经显式引入了
+\[
+  \text{pathology},\
+  \text{physiology},\
+  \text{toxicology},\
+  \text{PK/PD},\
+  \text{genomics},\
+  \text{immunity}
+\]
+等生命科学域对象，
+并在同一体系内给出
+law-space path-integral、
+宏观测度与离散路径积分之间的对应，
+以及 compiler-like law engine 的对象语言。
+故
+\[
+  B_1\wedge B_2\wedge B_3
+\]
+成立。
+
+又由
+\cite{GaoZhengAppVol2}
+中
+“can be used by GRL/RLSAC or other decision engines”
+这一明确表述，
+$V_2$ 并没有把 GRL-SAC 固定为不可替换本体，
+而是把其放在“可替换求解后端”位置。
+故
+\[
+  B_4
+\]
+成立。
+
+另一方面，
+由定义~\ref{def:tex39-ch3-sv2}
+与定理~\ref{thm:tex39-ch3-transport}，
+$S_{v2}$ 的角色不是新造一个 AI 核，
+而是把
+\[
+  V_2
+\]
+的生命域对象、
+生命域障碍、
+生命域动作与生命域证书接口，
+以合同保持方式接到
+\[
+  \mathcal E_{\mathrm{core}}^{(N)}
+\]
+之上。
+故
+\[
+  B_5
+\]
+成立。
+
+于是
+\[
+  B_1\wedge B_2\wedge B_3\wedge B_4\wedge B_5
+\]
+推出：
+\[
+  \mathcal E_{\mathrm{life}}^{(N)}
+  =
+  \mathcal E_{\mathrm{core}}^{(N)}
+  \oplus
+  \text{life-domain increments}
+\]
+只是核心架构上的专业领域插件认证包。
+因此
+\[
+  (V_2+S_{v2})
+  \Longrightarrow
+  \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}}.
+\]
+证毕。
+\end{proof}
+
+\subsection{命题：GROMACS 2026.1 分支证书可嵌入生命域证书接口}
+\label{subsec:tex39-ch3-proposition}
+
+\begin{proposition}[GROMACS 分支证书嵌入命题]
+\label{prop:tex39-ch3-gmx}
+存在嵌入映射
+\[
+  \iota_{\mathrm{GMX}}:
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+  \hookrightarrow
+  \Delta_{\mathrm{life}}^{\mathrm{cert}},
+\]
+使得对任意由分支输入--运行--输出链定义的生命域谓词
+\[
+  P_{\mathrm{dock}},
+  \
+  P_{\mathrm{conf}},
+  \
+  P_{\mathrm{energy}},
+  \
+  P_{\mathrm{QM/MM}},
+  \
+  P_{\mathrm{tox\_trigger}},
+\]
+都可以写成
+\[
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+  \vdash_{\mathrm{cert}}
+  P_{\bullet}.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：完备支撑核 + 完整分支证书 + 接口嵌入]
+\label{cert:tex39-ch3-gmx}
+记下列谓词：
+\[
+\begin{aligned}
+  G_1 &: \text{定理~\ref{thm:tex39-gromacs-kernel} 已证明 GROMACS 2026.1 是 }S_{v2}\text{ 证书语义的完备支撑核};\\
+  G_2 &: \text{命题~\ref{prop:tex39-branch-boundary} 已证明合法分支、功能剪裁与补充开发边界成立};\\
+  G_3 &: \text{推论~\ref{cor:tex39-branch-cert} 已给出完整分支证书的推荐写法};\\
+  G_4 &: \text{若生命域谓词的求值来自分支输入--运行--输出链，则该谓词拥有证书支撑链。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由
+\[
+  G_1
+\]
+与定理~\ref{thm:tex39-gromacs-kernel}，
+GROMACS 2026.1 已经在
+\[
+  \mathfrak X_{\mathrm{core}}
+\]
+上提供了
+\[
+  \mathcal C_{S_{v2}}
+\]
+所需的完备支撑核。
+因此，凡由其官方接口、合法分支机制或官方耦合路径生成的
+输入、运行对象、输出数据与验证记录，
+都可以被视为
+$S_{v2}$ 证书语义中的合法证书对象。
+
+由
+\[
+  G_2\wedge G_3
+\]
+与命题~\ref{prop:tex39-branch-boundary}、
+推论~\ref{cor:tex39-branch-cert}，
+完整的分支证书已经被固定为
+\[
+  \text{源码}
+  +\text{diff}
+  +\text{构建}
+  +\text{依赖}
+  +\text{输入包}
+  +\text{运行记录}
+  +\text{输出数据}
+  +\text{回归/validation}.
+\]
+这恰好与定义~\ref{def:tex39-ch3-gmx-cert}
+中的
+\[
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+\]
+逐项对应。
+
+若某个生命域谓词
+\[
+  P_{\bullet}
+\]
+是通过该分支的输入文件、
+预处理拓扑、
+\texttt{tpr}、
+轨迹、能量、日志、检查点及其分析产物计算得到，
+则其求值链条可被回放、审计并复现实证。
+故
+\[
+  G_4
+\]
+成立。
+
+于是可定义嵌入映射
+\[
+  \iota_{\mathrm{GMX}}
+\]
+把
+\[
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+\]
+送入
+\[
+  \Delta_{\mathrm{life}}^{\mathrm{cert}},
+\]
+并使任意来自该链条的生命域谓词都满足
+\[
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+  \vdash_{\mathrm{cert}}
+  P_{\bullet}.
+\]
+故命题成立。证毕。
+\end{proof}
+
+\subsection{推论：合并后的总强命题成立}
+\label{subsec:tex39-ch3-corollary}
+
+\begin{corollary}[总强命题成立]
+\label{cor:tex39-ch3-strong}
+定义~\ref{def:tex39-ch3-strong} 中的
+\[
+  \mathbf T_{\mathrm{strong}}
+\]
+成立。
+亦即：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{核心上：}(V_3+S_{v3})\text{ 构成 G 框架 AI 的白盒架构基础；}\\
+      &\text{扩展上：}(V_2+S_{v2})\text{ 构成生命科学专业域插件认证包；}\\
+      &\text{证书上：}
+      \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+      \text{ 可作为生命域谓词因果链中的}\\
+      &\text{代码证明 + 实现数据证明支撑。}
+    \end{aligned}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：核心架构 + 域插件 + 分支证书接口的合取]
+\label{cert:tex39-ch3-strong}
+总证书记为
+\[
+  \Pi_{\mathrm{strong}}
+  =
+  \bigl(
+    \text{定理~\ref{thm:tex39-ch3-core}},
+    \text{引理~\ref{lem:tex39-ch3-decenter}},
+    \text{定理~\ref{thm:tex39-ch3-life}},
+    \text{命题~\ref{prop:tex39-ch3-gmx}}
+  \bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex39-ch3-core}，
+\[
+  (V_3+S_{v3})
+  \Longrightarrow
+  \mathsf{Core}_{G\text{-AI}}.
+\]
+由引理~\ref{lem:tex39-ch3-decenter}，
+该核心架构不仅把 LLM 降级到表达运行时，
+也把一般神经网络降级为可替换局部后端。
+由定理~\ref{thm:tex39-ch3-life}，
+\[
+  (V_2+S_{v2})
+  \Longrightarrow
+  \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}}.
+\]
+再由命题~\ref{prop:tex39-ch3-gmx}，
+\[
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+  \in
+  \Delta_{\mathrm{life}}^{\mathrm{cert}}.
+\]
+于是三者合取即推出
+\[
+  \mathbf T_{\mathrm{strong}}
+\]
+成立。证毕。
+\end{proof}
+
+\subsection{备注：边界、人体实验口径与推荐正式表述}
+\label{subsec:tex39-ch3-remarks}
+
+\begin{remark}[关于“人体实验”的严格边界]
+若把“人体实验”理解成\textbf{真实临床充分证明}，
+则本节并未证明该部分。
+本节已经严格证明的是：
+\[
+  \text{模拟/虚拟实验谓词的证书支撑}
+\]
+以及
+\[
+  \text{这些谓词如何进入生命科学上下文障碍修复链。}
+\]
+\end{remark}
+
+\begin{remark}[关于虚拟人体、模拟人体与临床前预测上下文]
+若把“人体实验”理解成
+\textbf{虚拟人体、模拟人体或临床前预测上下文}，
+则它可以被并入
+\[
+  \mathcal B_{\mathrm{ctx}}^{\mathrm{life}}
+\]
+与
+\[
+  \Delta_{\mathrm{life}}^{\mathrm{cert}}
+\]
+之中，
+作为生命域插件包的一部分。
+此时其地位是“专业领域上下文中的可审计证书对象”，
+而不是“独立的最终真值裁判者”。
+\end{remark}
+
+\begin{remark}[本节建议采用的一句话正式口径]
+若把本节压成一句最凝练的正式结论，
+建议写成：
+\[
+  \boxed{
+    \begin{aligned}
+      &(V_3+S_{v3})\text{ 给出 G 框架 AI 的核心白盒架构：}\\
+      &\text{以修复塔为求解主链，以上下文障碍修复为核心任务，}\\
+      &\text{以占位--审计闭环控制表达，}\\
+      &\text{从而使 LLM 或神经网络退化为可替换插件；}
+    \end{aligned}
+  }
+\]
+\[
+  \boxed{
+    \begin{aligned}
+      &(V_2+S_{v2})\text{ 给出该架构在生命科学、病理、生理、毒理等专业域上的}\\
+      &\text{扩展基底认证包；}
+      \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+      \text{ 则作为代码证明 + 实现数据证明的}\\
+      &\text{证书对象进入 }
+      \Delta_{\mathrm{life}}^{\mathrm{cert}},
+      \text{ 为分子级与机制级谓词因果链提供可审计支撑。}
+    \end{aligned}
+  }
+\]
+这条命题当前最有力量的地方，不是“又增加了一个专业域包”，
+而是：
+\[
+  \boxed{
+    \text{AI 的核心已经从神经网络，严格搬回到
+    “修复塔--障碍--证书--插件合同”链上。}
+  }
+\]
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：从“相邻可解释”到“核心架构 \texorpdfstring{$\oplus$}{+} 领域插件 \texorpdfstring{$\oplus$}{+} 外部证书核”闭环后的增益等级判定}
+\label{sec:tex39-ch4}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{定义：旧态、新态、总增益函数与等级标准}
+\label{subsec:tex39-ch4-definitions}
+
+\begin{definition}[旧态与新态]
+\label{def:tex39-ch4-state}
+定义先前状态
+\[
+  \mathcal S_{\mathrm{old}}
+  :=
+  \bigl(
+    V_3,\
+    S_{v3},\
+    V_2,\
+    \text{GROMACS 证书设想}
+  \bigr),
+\]
+其中这些对象之间主要以“相邻可解释、可类推、可映射”的方式连接。
+
+定义当前状态
+\[
+  \mathcal S_{\mathrm{new}}
+  :=
+  \left\{
+  \begin{aligned}
+    &\bigl((V_3+S_{v3})\Rightarrow \mathsf{Core}_{G\text{-AI}}\bigr),\\
+    &\bigl((V_2+S_{v2})\Rightarrow \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}}\bigr),\\
+    &\bigl(\mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+    \in
+    \Delta_{\mathrm{life}}^{\mathrm{cert}}\bigr).
+  \end{aligned}
+  \right.
+\]
+其中新态已由前一节的
+定理~\ref{thm:tex39-ch3-core}、
+定理~\ref{thm:tex39-ch3-life}、
+命题~\ref{prop:tex39-ch3-gmx}
+与推论~\ref{cor:tex39-ch3-strong}
+固定为分层闭环对象。
+\end{definition}
+
+\begin{definition}[总增益函数]
+\label{def:tex39-ch4-gain}
+定义总增益函数为
+\[
+  \operatorname{Gain}
+  :=
+  \operatorname{Gain}_{\mathrm{arch}}
+  +
+  \operatorname{Gain}_{\mathrm{logic}}
+  +
+  \operatorname{Gain}_{\mathrm{engine}}
+  +
+  \operatorname{Gain}_{\mathrm{plugin}}
+  +
+  \operatorname{Gain}_{\mathrm{cert}}
+  +
+  \operatorname{Gain}_{\mathrm{sovereignty}},
+\]
+其中六个分量分别表示：
+\begin{enumerate}
+  \item $\operatorname{Gain}_{\mathrm{arch}}$：从并列对象到分层闭环的架构增益；
+  \item $\operatorname{Gain}_{\mathrm{logic}}$：从解释关系到可组合关系的逻辑增益；
+  \item $\operatorname{Gain}_{\mathrm{engine}}$：从静态理论到开放系统求解引擎的引擎增益；
+  \item $\operatorname{Gain}_{\mathrm{plugin}}$：从专业卷到领域插件模板的插件增益；
+  \item $\operatorname{Gain}_{\mathrm{cert}}$：从结果展示到证书链展示的证书增益；
+  \item $\operatorname{Gain}_{\mathrm{sovereignty}}$：从黑箱中心到白盒主权回收的主权增益。
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[重大增益与架构级重大增益]
+\label{def:tex39-ch4-major}
+记下列六个判定条件：
+\[
+\begin{aligned}
+  C_1 &: \text{从并列对象变成分层闭环};\\
+  C_2 &: \text{从解释关系变成可组合关系};\\
+  C_3 &: \text{从领域特例变成统一范式};\\
+  C_4 &: \text{从黑箱中心变成白盒中心};\\
+  C_5 &: \text{从结果展示变成证书链展示};\\
+  C_6 &: \text{从静态理论变成开放系统求解引擎}.
+\end{aligned}
+\]
+并定义成立计数
+\[
+  N_{\mathrm{gain}}
+  :=
+  \#\bigl\{
+    i\in\{1,\dots,6\}\mid C_i\text{ 成立}
+  \bigr\}.
+\]
+则：
+\[
+  N_{\mathrm{gain}}\ge 4
+  \Longrightarrow
+  \text{重大增益},
+\]
+\[
+  N_{\mathrm{gain}}\ge 5
+  \Longrightarrow
+  \text{架构级重大增益}.
+\]
+本节采用这个收紧后的阈值，作为“重大增益/架构级重大增益”的严格判据。
+\end{definition}
+
+\subsection{公理（降级为定理）：总增益函数可按闭环层数递归构造}
+\label{subsec:tex39-ch4-axiom}
+
+\begin{theorem}[公理（降级为定理）：总增益函数可按闭环层数递归构造]
+\label{thm:tex39-ch4-gain-recursive}
+定义六个闭环层：
+\[
+\begin{aligned}
+  \Lambda_1 &:=
+  \bigl((V_3+S_{v3})\Rightarrow \mathsf{Core}_{G\text{-AI}}\bigr),\\
+  \Lambda_2 &:=
+  \bigl((V_2+S_{v2})\Rightarrow \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}}\bigr),\\
+  \Lambda_3 &:=
+  \bigl(\mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+  \in
+  \Delta_{\mathrm{life}}^{\mathrm{cert}}\bigr),\\
+  \Lambda_4 &:=
+  \bigl(\text{LLM/NN 被降级为插件且求解主权回收到 G 侧}\bigr),\\
+  \Lambda_5 &:=
+  \bigl(\text{开放系统博弈被压成内生求解流水线}\bigr),\\
+  \Lambda_6 &:=
+  \bigl(\text{未来新领域可按插件包 + 证书核接口递归接入}\bigr).
+\end{aligned}
+\]
+再定义部分状态
+\[
+  \mathcal S^{(n)}
+  :=
+  \mathcal S_{\mathrm{old}}
+  \oplus
+  \Lambda_1
+  \oplus\cdots\oplus
+  \Lambda_n,
+\]
+以及部分增益
+\[
+  \operatorname{Gain}^{(n)}
+  :=
+  \sum_{i=1}^{n}
+  \operatorname{Gain}_i,
+\]
+其中
+\[
+  \operatorname{Gain}_1,\dots,\operatorname{Gain}_6
+\]
+依次对应六个闭环层的结构增益。
+令谓词
+\[
+  P(n)
+  :
+  \Longleftrightarrow
+  \text{“}\mathcal S^{(n)}\text{ 已形成前 }n\text{ 层闭环，且 }
+  \operatorname{Gain}^{(n)}
+  \text{ 良定义并不减”}.
+\]
+则对任意
+\[
+  n\in\{1,2,\dots,6\},
+\]
+都有
+\[
+  P(n).
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：六层闭环上的增益递归]
+\label{cert:tex39-ch4-gain-recursive}
+取谓词
+\[
+  P(n)
+  :
+  \Longleftrightarrow
+  \text{前 }n\text{ 层闭环已成立，且总增益可写成 }
+  \operatorname{Gain}^{(n)}
+  =
+  \sum_{i=1}^{n}\operatorname{Gain}_i.
+\]
+则数学归纳法证书记为
+\[
+  \pi_{\mathrm{gain}}
+  =
+  \bigl(
+    P(1),\
+    \forall n\in\{1,\dots,5\},\
+    P(n)\Rightarrow P(n+1)
+  \bigr).
+\]
+其递推接口按层对应为：
+\begin{enumerate}
+  \item $P(1)$：核心架构闭环由定理~\ref{thm:tex39-ch3-core} 给出；
+  \item $P(1)\Rightarrow P(2)$：生命域插件闭环由定理~\ref{thm:tex39-ch3-life} 并入；
+  \item $P(2)\Rightarrow P(3)$：外部证书核闭环由命题~\ref{prop:tex39-ch3-gmx} 并入；
+  \item $P(3)\Rightarrow P(4)$：白盒主权回收与插件降级由定理~\ref{thm:tex39-ch3-core}、
+  引理~\ref{lem:tex39-ch3-decenter} 并入；
+  \item $P(4)\Rightarrow P(5)$：开放系统博弈的内生流水线由本稿
+  定理~\ref{thm:tex39-unified-family}、
+  命题~\ref{prop:tex39-osg}
+  并入；
+  \item $P(5)\Rightarrow P(6)$：未来新域递归接入模板由推论~\ref{cor:tex39-ch3-strong}
+  的总闭环形态给出。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+\textbf{基步 $P(1)$。}
+由定理~\ref{thm:tex39-ch3-core}，
+\[
+  (V_3+S_{v3})
+  \Longrightarrow
+  \mathsf{Core}_{G\text{-AI}},
+\]
+故第 $1$ 层闭环
+\[
+  \Lambda_1
+\]
+成立。
+此时
+\[
+  \operatorname{Gain}^{(1)}
+  =
+  \operatorname{Gain}_1
+\]
+良定义，故
+\[
+  P(1)
+\]
+成立。
+
+\textbf{步 $P(1)\Rightarrow P(2)$。}
+若
+\[
+  P(1)
+\]
+成立，则核心架构已闭合。
+再由定理~\ref{thm:tex39-ch3-life}，
+\[
+  (V_2+S_{v2})
+  \Longrightarrow
+  \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}},
+\]
+即生命域插件闭环
+\[
+  \Lambda_2
+\]
+可被合同保持地接到核心架构上。
+因此
+\[
+  \operatorname{Gain}^{(2)}
+  =
+  \operatorname{Gain}^{(1)}
+  +
+  \operatorname{Gain}_2
+\]
+仍良定义且不减，故
+\[
+  P(2)
+\]
+成立。
+
+\textbf{步 $P(2)\Rightarrow P(3)$。}
+由命题~\ref{prop:tex39-ch3-gmx}，
+\[
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+  \in
+  \Delta_{\mathrm{life}}^{\mathrm{cert}},
+\]
+故外部证书核闭环
+\[
+  \Lambda_3
+\]
+成立。
+于是
+\[
+  \operatorname{Gain}^{(3)}
+  =
+  \operatorname{Gain}^{(2)}
+  +
+  \operatorname{Gain}_3
+\]
+良定义，故
+\[
+  P(3)
+\]
+成立。
+
+\textbf{步 $P(3)\Rightarrow P(4)$。}
+由定理~\ref{thm:tex39-ch3-core}
+与引理~\ref{lem:tex39-ch3-decenter}，
+LLM/NN 已被严格降级为表达插件或局部近似器，
+而求解主权回收到 G 侧白盒修复链。
+故
+\[
+  \Lambda_4
+\]
+成立，
+从而
+\[
+  \operatorname{Gain}^{(4)}
+  =
+  \operatorname{Gain}^{(3)}
+  +
+  \operatorname{Gain}_4
+\]
+良定义，故
+\[
+  P(4)
+\]
+成立。
+
+\textbf{步 $P(4)\Rightarrow P(5)$。}
+由本稿定理~\ref{thm:tex39-unified-family}
+与命题~\ref{prop:tex39-osg}，
+开放系统博弈已不再只是解释标签，
+而被压成
+\[
+  \text{上下文延拓}
+  \to
+  \text{障碍更新}
+  \to
+  \text{修复塔选路}
+  \to
+  \text{占位审计}
+  \to
+  \text{表达投影}
+\]
+这一内生求解流水线。
+故
+\[
+  \Lambda_5
+\]
+成立，且
+\[
+  \operatorname{Gain}^{(5)}
+  =
+  \operatorname{Gain}^{(4)}
+  +
+  \operatorname{Gain}_5
+\]
+良定义，故
+\[
+  P(5)
+\]
+成立。
+
+\textbf{步 $P(5)\Rightarrow P(6)$。}
+由推论~\ref{cor:tex39-ch3-strong}，
+当前总系统已被压成
+\[
+  \mathsf{Core}_{G\text{-AI}}
+  \oplus
+  \mathsf{Pkg}_{G\text{-AI}}^{D}
+  \oplus
+  \mathfrak C_{\mathrm{branch}}^{D}
+\]
+的标准形态。
+因此未来任一新领域
+\[
+  D
+\]
+都不必重造 AI 核，
+而只需新增领域插件包与相应证书核接口，
+故
+\[
+  \Lambda_6
+\]
+成立。
+于是
+\[
+  \operatorname{Gain}^{(6)}
+  =
+  \operatorname{Gain}^{(5)}
+  +
+  \operatorname{Gain}_6
+\]
+良定义且不减，故
+\[
+  P(6)
+\]
+成立。
+
+由数学归纳法，
+\[
+  \forall n\in\{1,\dots,6\},\ P(n)
+\]
+成立。
+故总增益函数可按闭环层数递归构造。证毕。
+\end{proof}
+
+\subsection{定理：上述增益属于架构级重大增益}
+\label{subsec:tex39-ch4-theorem}
+
+\begin{theorem}[架构级重大增益定理]
+\label{thm:tex39-ch4-major}
+相对于定义~\ref{def:tex39-ch4-state} 中的
+\[
+  \mathcal S_{\mathrm{old}}
+  \to
+  \mathcal S_{\mathrm{new}},
+\]
+上述增益属于\textbf{架构级重大增益}。
+\end{theorem}
+
+\begin{Certificate}[证书：六项重大增益判据全部成立]
+\label{cert:tex39-ch4-major}
+记下列谓词：
+\[
+\begin{aligned}
+  M_1 &: \mathcal S_{\mathrm{new}}\ \text{已经形成核心--插件--证书核的分层闭环};\\
+  M_2 &: \mathcal S_{\mathrm{new}}\ \text{中的对象关系已从解释关系升级为可组合关系};\\
+  M_3 &: V_2\ \text{已从单一专业卷升级为领域插件模板的第一实例};\\
+  M_4 &: \text{AI 中心已从黑箱模型转移到白盒修复塔与主权合同};\\
+  M_5 &: \text{GROMACS 已从可引用工具升级为证书核接口样板};\\
+  M_6 &: \text{开放系统博弈已从外部解释口径升级为内生求解架构定义。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+\textbf{第一步：分层闭环成立。}
+由定理~\ref{thm:tex39-ch3-core}、
+定理~\ref{thm:tex39-ch3-life}、
+命题~\ref{prop:tex39-ch3-gmx}
+与推论~\ref{cor:tex39-ch3-strong}，
+新态已经严格压成
+\[
+  (V_3+S_{v3})
+  \to
+  \mathsf{Core}_{G\text{-AI}},
+\]
+\[
+  (V_2+S_{v2})
+  \to
+  \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}},
+\]
+\[
+  \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}
+  \to
+  \Delta_{\mathrm{life}}^{\mathrm{cert}}.
+\]
+故
+\[
+  M_1
+\]
+成立。
+
+第二步转向“对象关系已从解释关系升级为可组合关系”这一点。
+在旧态中，
+$V_3$、$S_{v3}$、$V_2$ 与 GROMACS 设想之间仍主要通过相邻解释与类推连接；
+而在新态中，
+这些对象已经变成可组合映射
+\[
+  \text{核心映射}
+  \oplus
+  \text{插件映射}
+  \oplus
+  \text{证书嵌入映射}.
+\]
+故
+\[
+  M_2
+\]
+成立。
+
+\textbf{第三步：$V_2$ 已升级为统一领域插件范式。}
+由定理~\ref{thm:tex39-ch3-life}，
+\[
+  (V_2+S_{v2})
+  \Longrightarrow
+  \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}},
+\]
+故 $V_2$ 不再只是“生命科学专业卷”，
+而是“领域插件认证包”的第一实例。
+这意味着未来金融、工程、材料、药设、芯片等新域都可按同一模板接入。
+故
+\[
+  M_3
+\]
+成立。
+
+\textbf{第四步：AI 中心已从黑箱模型转移到白盒修复塔。}
+由定理~\ref{thm:tex39-ch3-core}
+与引理~\ref{lem:tex39-ch3-decenter}，
+系统核心已被固定为
+\[
+  \mathcal E_{\mathrm{core}}^{(N)}
+  \oplus
+  \Ob
+  \oplus
+  \mathcal R
+  \oplus
+  \Gamma^{\mathrm{adm}}
+  \oplus
+  \Sigma_N
+  \oplus
+  \mathfrak C_{\mathrm{core}},
+\]
+而
+\[
+  \operatorname{Render}_{\xi}
+\]
+只剩末端表达职责。
+故
+\[
+  M_4
+\]
+成立。
+
+\textbf{第五步：GROMACS 已升级为证书核接口样板。}
+由第二节
+定理~\ref{thm:tex39-gromacs-kernel}、
+推论~\ref{cor:tex39-branch-cert}
+与本节命题~\ref{prop:tex39-ch3-gmx}，
+GROMACS 已不再只是“可引用外部工具”，
+而是
+\[
+  \text{外部开源母核}
+  \to
+  \text{我的分支}
+  \to
+  \text{我的代码证书 + 数据证书}
+  \to
+  \text{领域证书接口}
+\]
+这一制度链的标准样板。
+故
+\[
+  M_5
+\]
+成立。
+
+\textbf{第六步：开放系统博弈已变成架构定义。}
+由本稿
+定理~\ref{thm:tex39-unified-family}
+与命题~\ref{prop:tex39-osg}，
+开放系统博弈已经被内生化为
+\[
+  \text{上下文延拓}
+  \to
+  \text{障碍向量更新}
+  \to
+  \text{修复塔选路}
+  \to
+  \text{占位审计}
+  \to
+  \text{表达投影}
+\]
+这一架构流水线。
+故
+\[
+  M_6
+\]
+成立。
+
+于是
+\[
+  N_{\mathrm{gain}}=6.
+\]
+由定义~\ref{def:tex39-ch4-major}，
+\[
+  N_{\mathrm{gain}}\ge 5
+\]
+即可推出“架构级重大增益”。
+故本定理成立。证毕。
+\end{proof}
+
+\subsection{引理：最大增益项是系统拓扑改变，而不是“又多了一篇文稿”}
+\label{subsec:tex39-ch4-lemma}
+
+\begin{lemma}[系统拓扑改变引理]
+\label{lem:tex39-ch4-topology}
+在总增益函数的各分量中，
+最大增益项并不是某一卷文稿局部增强，
+而是
+\[
+  \operatorname{Gain}_{\mathrm{arch}}
+\]
+所对应的系统拓扑改变。
+\end{lemma}
+
+\begin{Certificate}[证书：从松散并列图到可组合闭环图]
+\label{cert:tex39-ch4-topology}
+记下列谓词：
+\[
+\begin{aligned}
+  L_1 &: \mathcal S_{\mathrm{old}}\ \text{主要呈现为松散并列的解释图};\\
+  L_2 &: \mathcal S_{\mathrm{new}}\ \text{已呈现为核心、插件、证书核三层闭环图};\\
+  L_3 &: \text{从 }L_1\text{ 到 }L_2\text{ 的变化属于系统拓扑改变，而非局部补丁。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定义~\ref{def:tex39-ch4-state}，
+旧态中各对象虽然强相关，
+但仍容易被外部读者理解成“几篇彼此支撑的理论/工程文稿”，
+故
+\[
+  L_1
+\]
+成立。
+
+由定理~\ref{thm:tex39-ch4-major} 的前五步，
+新态已经形成
+\[
+  \text{核心}
+  \oplus
+  \text{插件}
+  \oplus
+  \text{证书核}
+\]
+的分层闭环，
+故
+\[
+  L_2
+\]
+成立。
+
+从
+\[
+  L_1
+  \to
+  L_2
+\]
+的变化，
+改变的是对象之间的连接方式、组合方式与责任分工方式，
+而不是简单增加一个局部结论。
+因此这一步属于“系统拓扑改变”，
+其主导项正是
+\[
+  \operatorname{Gain}_{\mathrm{arch}}.
+\]
+故
+\[
+  L_3
+\]
+成立，引理得证。
+\end{proof}
+
+\subsection{命题：本次增益至少为架构级，并触及范式级边界}
+\label{subsec:tex39-ch4-proposition}
+
+\begin{proposition}[增益等级判定命题]
+\label{prop:tex39-ch4-level}
+若把增益等级分成
+\[
+  \text{局部增益}
+  <
+  \text{章节级增益}
+  <
+  \text{文稿级增益}
+  <
+  \text{架构级增益}
+  <
+  \text{范式级增益},
+\]
+则本次增益至少属于
+\textbf{架构级增益}，
+并且已经触及\textbf{范式级增益}的边界。
+\end{proposition}
+
+\begin{Certificate}[证书：关系重排 + AI 本体定义转移]
+\label{cert:tex39-ch4-level}
+记下列谓词：
+\[
+\begin{aligned}
+  P_1 &: \text{核心、插件、证书、外部软件、神经网络、专业域扩展之间的关系已被重排};\\
+  P_2 &: \text{“AI 到底是什么”的回答已从模型中心转向障碍修复中心};\\
+  P_3 &: P_1\Rightarrow \text{至少架构级增益},\qquad
+  P_2\Rightarrow \text{触及范式级边界}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex39-ch4-major}
+与引理~\ref{lem:tex39-ch4-topology}，
+此次变化已经系统性重排了：
+核心、插件、证书、外部软件、神经网络与专业域扩展之间的关系。
+故
+\[
+  P_1
+\]
+成立，
+从而至少可判为“架构级增益”。
+
+再由定理~\ref{thm:tex39-ch3-core}
+与引理~\ref{lem:tex39-ch3-decenter}，
+本稿已经把
+\[
+  \text{AI 的本体中心}
+\]
+从模型参数或黑箱网络，严格搬到
+\[
+  \text{修复塔}
+  \oplus
+  \text{障碍修复}
+  \oplus
+  \text{证书合同}
+\]
+这一白盒链上。
+因此
+\[
+  P_2
+\]
+成立。
+
+由
+\[
+  P_1\wedge P_2\wedge P_3
+\]
+可知：本次增益至少是架构级，并已触及范式级边界。证毕。
+\end{proof}
+
+\subsection{推论：定位增益与未来递归扩展增益}
+\label{subsec:tex39-ch4-corollary}
+
+\begin{corollary}[定位增益]
+\label{cor:tex39-ch4-position}
+G 框架 AI 的外部定位，
+已不宜再被表述为
+“依赖大模型的多插件系统”
+或
+“带证书的知识图谱系统”，
+而应被表述为：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{以修复塔为求解核，}\\
+      &\text{以上下文障碍修复为中心任务，}\\
+      &\text{以领域插件扩展知识域，}\\
+      &\text{以代码与数据证书支撑专业谓词链的白盒 AI 架构。}
+    \end{aligned}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：定位入口已由模型中心改写为修复塔中心]
+\label{cert:tex39-ch4-position}
+记下列谓词：
+\[
+\begin{aligned}
+  R_1 &: \text{核心架构已由定理~\ref{thm:tex39-ch3-core} 固定};\\
+  R_2 &: \text{领域扩展接口已由定理~\ref{thm:tex39-ch3-life} 固定};\\
+  R_3 &: \text{证书支撑接口已由命题~\ref{prop:tex39-ch3-gmx} 固定};\\
+  R_4 &: R_1\wedge R_2\wedge R_3\Rightarrow \text{外部定位入口发生改变}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由
+\[
+  R_1\wedge R_2\wedge R_3
+\]
+可知，总系统的入口已经不是“先有模型，再外挂插件”，
+而是“先有白盒求解核，再由专业插件与证书核接入”。
+故
+\[
+  R_4
+\]
+成立，从而推论成立。证毕。
+\end{proof}
+
+\begin{corollary}[未来递归扩展增益]
+\label{cor:tex39-ch4-recursive}
+未来若新增任意专业领域
+\[
+  D,
+\]
+原则上不必重造 AI 核，
+而只需构造
+\[
+  \mathsf{Pkg}_{G\text{-AI}}^{D}
+  \oplus
+  \mathfrak C_{\mathrm{branch}}^{D}
+\]
+并将其挂接到
+\[
+  \mathsf{Core}_{G\text{-AI}}
+\]
+之上。
+\end{corollary}
+
+\begin{Certificate}[证书：统一扩展模板]
+\label{cert:tex39-ch4-recursive}
+记下列谓词：
+\[
+\begin{aligned}
+  T_1 &: \mathsf{Core}_{G\text{-AI}}\ \text{已被固定为领域无关的白盒核心};\\
+  T_2 &: \mathsf{Pkg}_{G\text{-AI}}^{\mathrm{life}}\ \text{已经提供了第一份领域插件模板};\\
+  T_3 &: \mathfrak C_{\mathrm{GMX}}^{\mathrm{branch}}\ \text{已经提供了外部证书核接口模板};\\
+  T_4 &: T_1\wedge T_2\wedge T_3\Rightarrow
+  \mathsf{Core}_{G\text{-AI}}
+  \oplus
+  \mathsf{Pkg}_{G\text{-AI}}^{D}
+  \oplus
+  \mathfrak C_{\mathrm{branch}}^{D}
+  \text{ 可递归构造}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex39-ch3-core}，
+\[
+  T_1
+\]
+成立。
+由定理~\ref{thm:tex39-ch3-life}，
+\[
+  T_2
+\]
+成立。
+由命题~\ref{prop:tex39-ch3-gmx}，
+\[
+  T_3
+\]
+成立。
+于是
+\[
+  T_1\wedge T_2\wedge T_3
+\]
+推出
+\[
+  T_4.
+\]
+故未来新域的接入成本将被显著降低，
+并且这种增益不是一次性增益，而是可递归复用的增益。证毕。
+\end{proof}
+
+\subsection{备注：最强增益、第二强增益与当前边界}
+\label{subsec:tex39-ch4-remarks}
+
+\begin{remark}[最强增益]
+本节最强的增益可压缩为一句话：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{G 框架 AI 第一次从“强理论集合”，}\\
+      &\text{被压成了“可分层、可扩展、可证书化”的严格架构对象。}
+    \end{aligned}
+  }
+\]
+这一步的价值不在于“又多了一篇文稿”，
+而在于第一次完成了
+\[
+  \text{核心架构}
+  \oplus
+  \text{领域插件}
+  \oplus
+  \text{外部证书核}
+\]
+的闭环化。
+\end{remark}
+
+\begin{remark}[第二强增益]
+第二强增益是：
+\[
+  \boxed{
+    \text{神经网络/LLM 被严格降级为插件，而不再只是口头降级。}
+  }
+\]
+前者是架构合同，
+后者只是叙事主张；
+二者强度并不相同。
+\end{remark}
+
+\begin{remark}[仍未证明的边界]
+本节也需保留三条边界：
+\begin{enumerate}
+  \item $S_{v2}$ 当前是构造性成立，若要达到与 $S_{v3}$ 同等级的文本完备度，仍值得独立成稿；
+  \item GROMACS 分支证书当前支撑的是虚拟实验谓词链，而不是单独推出真实临床充分性；
+  \item 各专业域插件之间的统一互操作合同，仍可继续加强。
+\end{enumerate}
+这些边界并不削弱“增益极大”的判定，
+只是说明当前最大增益主要落在架构层、范式层与制度层。
+\end{remark}
+
+\clearpage
+\begin{thebibliography}{99}
+
+\bibitem{RepoTex20SemanticGaugeNormalization}
+【仓内 TeX】语义函子场与语义规范场：词包判定--规范化接口的形式系统整理稿：
+\code{NoteBook/notebook1/tex20_pub/gframework_semantic_functor_field_gauge_field_normalization_interface_formal_system.t
+  ex}。
+
+\bibitem{RepoTex22Vol2InverseDesign}
+【仓内 TeX】Applied Math Vol II 结构迁移、LBOPB/GRL-SAC 与工程逆向设计整理稿：
+\code{NoteBook/notebook1/tex22_pub/gframework_appmath_vol2_ptopb_inverse_design_formal_system.tex}。
+
+\bibitem{RepoTex23OpenSystemGame}
+【仓内 TeX】开放系统、回合同伦类、UU/KU 障碍与工程设计开放博弈判据整理稿：
+\code{NoteBook/notebook1/tex23_pub/gframework_ptopb_etopb_operator_decomposition_formal_system.tex}。
+
+\bibitem{RepoTex28StatMechPath}
+【仓内 TeX】基于雅可比间隙动力驱动的同伦扭曲与统计力学最小势能路径收敛整理稿：
+\code{NoteBook/notebook1/tex28_pub/gframework_jacgap_homotopy_distortion_statmech_min_potential_path_convergence.tex}。
+
+\bibitem{RepoTex36HomotopyTwistBijection}
+【仓内 TeX】主丛联络的纤维丛空间、路径积分支撑类与同伦扭曲正规形的集合等价整理稿：
+\code{NoteBook/notebook2/tex36_pub/gframework_principal_connection_fiber_space_path_integral_homotopy_twist_equivalence_
+  formal_system.tex}。
+
+\bibitem{RepoTex37SemanticGaugeRuntime}
+【仓内 TeX】G 框架正则语义规范场到自然语言语义逻辑占位规范场的高阶同伦扭曲双射、LLM 运行时降级与逻辑引擎整理稿：
+\code{NoteBook/notebook2/tex37_pub/gframework_semantic_gauge_field_natural_language_logic_placeholder_runtime_formal_sys
+  tem.tex}。
+
+\bibitem{RepoTex38JacobiBianchiRepair}
+【仓内 TeX】离散拓扑基底上的 Jacobi--Bianchi 障碍修复、可行路径空间、离散路径积分与终点正规形整理稿：
+\code{NoteBook/notebook2/tex38_pub/gframework_discrete_jacobi_bianchi_repair_tower_path_integral_terminal_normal_form_fo
+  rmal_system.tex}。
+
+\bibitem{GaoZhengAppVol2}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II — LBOPB, Life-Science Monoids, and
+  Generative Precision Medicine.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II — LBOPB, Life-Science
+  Monoids, and Generative Precision Medicine (v1.1)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17744672}.
+
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+
+\bibitem{GaoZheng2025GFramework}
+Gao, Z. (2025).
+\newblock Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra).
+\newblock In \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra): An Integrated Construction (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17651584}.
+
+
+\bibitem{Gromacs2026ReleaseNotes}
+GROMACS development team.
+\newblock \emph{GROMACS 2026.1 release notes}.
+\newblock \url{https://manual.gromacs.org/current/release-notes/2026/2026.1.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026Downloads}
+GROMACS development team.
+\newblock \emph{Downloads - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/documentation/current/download.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026Preface}
+GROMACS development team.
+\newblock \emph{Preface and Disclaimer - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/documentation/current/reference-manual/preface.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026InstallGuide}
+GROMACS development team.
+\newblock \emph{Installation guide - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/documentation/current/install-guide/index.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026Grompp}
+GROMACS development team.
+\newblock \emph{gmx grompp - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/current/onlinehelp/gmx-grompp.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026Mdrun}
+GROMACS development team.
+\newblock \emph{gmx mdrun - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/current/onlinehelp/gmx-mdrun.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026Dump}
+GROMACS development team.
+\newblock \emph{gmx dump - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/current/onlinehelp/gmx-dump.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026CP2K}
+GROMACS development team.
+\newblock \emph{Hybrid Quantum-Classical simulations (QM/MM) with CP2K interface - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/current/reference-manual/special/qmmm.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026MiMiC}
+GROMACS development team.
+\newblock \emph{MiMiC Hybrid Quantum Mechanical/Molecular Mechanical simulations - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/current/reference-manual/special/mimic-qmmm.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026NNPot}
+GROMACS development team.
+\newblock \emph{Neural Network Potentials - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/current/reference-manual/special/nnpot.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026Features}
+GROMACS development team.
+\newblock \emph{New and improved features - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/current/release-notes/2026/major/features.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026Validation}
+GROMACS development team.
+\newblock \emph{Validation - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/documentation/2026.1/user-guide/validation.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026Gmxapi}
+GROMACS development team.
+\newblock \emph{gmxapi Python package - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/current/gmxapi/index.html}. 访问日期：2026-03-18。
+
+\bibitem{Gromacs2026NBLIB}
+GROMACS development team.
+\newblock \emph{(Non-)Bonded LIBrary (NB-LIB) API - GROMACS 2026.1 documentation}.
+\newblock \url{https://manual.gromacs.org/current/nblib/index.html}. 访问日期：2026-03-18。
+
+\bibitem{MacLane1998Categories}
+Mac Lane, S. (1998).
+\newblock \emph{Categories for the Working Mathematician} (2nd ed.).
+\newblock Springer.
+
+\bibitem{Hatcher2002AT}
+Hatcher, A. (2002).
+\newblock \emph{Algebraic Topology}.
+\newblock Cambridge University Press.
+
+\bibitem{Weibel1994HomologicalAlgebra}
+Weibel, C. A. (1994).
+\newblock \emph{An Introduction to Homological Algebra}.
+\newblock Cambridge University Press.
+
+\bibitem{KobayashiNomizu1963Foundations}
+Kobayashi, S., \& Nomizu, K. (1963).
+\newblock \emph{Foundations of Differential Geometry, Volume I}.
+\newblock Interscience Publishers.
+
+\bibitem{Husemoller1994FibreBundles}
+Husemoller, D. (1994).
+\newblock \emph{Fibre Bundles} (3rd ed.).
+\newblock Springer.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

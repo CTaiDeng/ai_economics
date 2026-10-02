@@ -1,0 +1,3934 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{a4paper,top=25mm,bottom=25mm,left=20mm,right=20mm}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[scaled=0.84]{beramono}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Consolas}
+  \setsansfont{Consolas}
+  \setmonofont{Consolas}
+\fi
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+\usepackage{xurl}
+\usepackage{array,longtable,booktabs}
+\Urlmuskip=0mu plus 1mu
+\def\UrlFont{\ttfamily\small}
+\DeclareRobustCommand{\gframeworkunderscore}{\raisebox{-0.35ex}{\rule{0.55em}{0.35pt}}}
+\makeatletter
+\g@addto@macro\UrlSpecials{\do\_{\gframeworkunderscore}}
+\makeatother
+\DeclareUrlCommand{\codeurl}{\urlstyle{tt}}
+\usepackage{tocloft}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\bibname}{参考文献}
+\sloppy
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[chapter]
+\newtheorem{assumption}{假设}[chapter]
+\newtheorem{theorem}{定理}[chapter]
+\newtheorem{lemma}{引理}[chapter]
+\newtheorem{proposition}{命题}[chapter]
+\newtheorem{corollary}{推论}[chapter]
+\newtheorem{remark}{备注}[chapter]
+\newtheorem{Certificate}{证书}[chapter]
+\makeatletter
+\renewenvironment{proof}[1][\proofname]{\par
+  \pushQED{\qed}\normalfont
+  \topsep6\p@\@plus6\p@\relax
+  \trivlist
+  \item[\hskip\labelsep\normalfont #1\@addpunct{.}]\ignorespaces
+}{
+  \popQED\endtrivlist\@endpefalse
+}
+\makeatother
+
+\newcommand{\RR}{\mathbb R}
+\newcommand{\NN}{\mathbb N}
+
+\newcommand{\ZZ}{\mathbb Z}
+\newcommand{\id}{\operatorname{id}}
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\End}{\operatorname{End}}
+\newcommand{\GL}{\operatorname{GL}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\Hom}{\operatorname{Hom}}
+\newcommand{\Cert}{\mathsf{Cert}}
+\newcommand{\Verify}{\mathsf{Verify}}
+\newcommand{\PFB}{\mathrm{PFB\mbox{-}GNLA}}
+\newcommand{\JacGap}{\operatorname{JacGap}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\DeclareRobustCommand{\code}[1]{\ifmmode\text{\codeurl{#1}}\else\codeurl{#1}\fi}
+
+% CJK 映射只写入当前 CJK 编码字体，保留西文字体自身的 Unicode 映射。
+% 中文子字体使用 CJK 提供的映射，避免引擎重复签入映射键。
+\ifPDFTeX
+  \ifdefined\pdfnobuiltintounicode
+    \makeatletter
+    \let\gframeworkCJKaddcmap\CJK@addcmap
+    \def\CJK@addcmap#1{%
+      \ifx\f@encoding\CJK@enc
+        \gframeworkCJKaddcmap{#1}%
+        \pdfnobuiltintounicode\font@name
+      \fi}
+    \makeatother
+  \fi
+\fi
+
+\setlength{\emergencystretch}{8em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\hbadness=10000
+\vbadness=10000
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+\pagenumbering{roman}
+
+\title{率与商：G 框架语义微积分与传统微积分之间的\\同伦映射形式系统}
+\author{Gao Zheng（高政）}
+\date{2026-09-12}
+\maketitle
+
+\chapter*{前言}
+\addcontentsline{toc}{chapter}{前言}
+本文以同一任务的同伦同一性为起点，构造传统微积分与 G 框架语义微积分之间的
+映射、同伦见证及保持定理。“率”刻画既定承载中的局部语义微分与路径积累；
+“商”按规定任务组织等价关系、充分表示与有证据的细化。两者通过微分交换、
+同伦下降和合法回读构成同一形式系统。
+
+分析侧采用光滑微分形式与外微分，语义侧采用有类型生成链的对偶复形。
+几何实现诱导积分映射，逐单形 Stokes 公式证明微分交换；
+棱柱边界给出两种实现之间的显式同伦。任务商的核条件同时控制映射和同伦见证的下降。
+全文主定理为定理~\ref{thm:comparison-main}：在共同定义域、任务观察与动作响应
+相容的条件下，微分、规定积分、有限执行及合法回读保持。
+
+第~\ref{sec:comparison-carriers} 章给出有限图上的积分、插值和同伦回缩，
+逐边验证 \(IW=\id\) 与 \(\id-WI=dH+Hd\)，并展示非零内部见证。
+第~\ref{sec:comparison-homotopy} 章构造棱柱算子，证明同伦见证下降到任务商的条件，
+再给出非平凡商与非零同伦同时成立的二维实例。
+第~\ref{sec:comparison-main} 章分别证明观察、执行和高阶结构保持，组成全文主线。
+第~\ref{sec:witness-instance-hierarchy} 章把棱柱积分见证实例化为
+LHTS 的同伦扭曲--偏微下降见证，并进一步组成 TPH-LHTS 的分形递归收敛见证。
+
+宏观--微观的尺度关系与局部--整体的接续关系各自成轴。
+传统分析以极限、连续性及收敛支撑连续实现；广义数学结构把承载、规律、
+缺陷和高阶填补共同纳入求解。严格结构与 Jacobiator 非零的同伦富结构
+使用各自的闭合谓词。状态等价、映射同伦、同伦等价和数值接受分别证明，
+每项结论保留自己的对象、类型、参数与合法域。
+
+后续理论围绕主映射展开：性质塔生成任务商，演化饱和构造最粗充分商，
+障碍余链判断哪些缺陷仍须修复，\(L_\infty\) 与超限修复塔组织高阶相容和完成。
+任意任务核心的非干扰扩展、有限转移表求解及独立余链实现，把任务与算子逐原子连接；
+外代数扩展刻画母上同调增长，核心接口分别声明访问、求解与查询成本。商构造、认证、修复、细化和额外输出
+分别计费，分型消隐与任务保持分别核验。
+
+全文沿“共同承载--积分映射--同伦见证--任务商下降--保持定理--
+修复完成--计算与回读”展开。各阶段证书记录实际操作数、基础规则与未解除假设。
+本文的一般比较结构与性质塔、广义数学承载及总同调背景相连
+\cite{propertytower,discrete,layers,pure,total}。
+
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\chapter{语义原子、生成规则与证明证书}
+\label{sec:logic}
+\section{对象、任务及语义微分的类型}
+\begin{definition}[任务结构]
+一个任务结构为
+\[
+\mathcal M=(X,A,\Xi,\delta,U,G,\mathcal T),
+\]
+其中 \(X\) 为状态集，\(A(x)\) 为合法动作集，\(\Xi(x,a)\) 为非空响应集，\(\delta(x,a,\xi)\in X\) 为后继，\(U\) 为规定的观察值，\(G\subseteq X\) 为目标集，\(\mathcal T\) 为任务必须保持的测试族。测试允许检验合法性、响应、有限行为和终态；测试的输出可以是集合、向量或真假值。
+每项测试 \(f\in\mathcal T\) 均声明自己的上下文域 \(D_f\)、值域 \(Y_f\) 及求值函数
+\(f:D_f\to Y_f\)。上下文可以是状态、合法动作--响应记录或有限合法执行；
+这些上下文的映射由状态映射逐项作用并保留动作、响应标签得到。
+\end{definition}
+
+\begin{definition}[同伦同一性下的同伦语义微分]
+先指定任务允许的同一性见证族 \(\mathcal H\)。其成员保持被声明为不变量的任务观察，允许结构、表示及算子沿可容许路径演化。该同一性承载的局部语义变化以导数、余链微分或联络协变导数表达，具体算子在所用模型中定义。符号 \(d\) 只在给定复形及类型后使用。
+\end{definition}
+
+\begin{remark}[逻辑依赖与因果依赖]
+命题 \(P\Rightarrow Q\) 表示推导依赖。实际作用造成变化须另给结构方程及固定外生输入的反事实分支。本文把这两类边分别记录；二者由同一张有限证书图联接，保持类型区分。
+\end{remark}
+
+\section{证书验证器与有限推演图}
+\begin{definition}[证书数据]
+结论 \(S\) 的证书写成
+\[
+c_S=(\mathcal D_S,\mathcal P_S,w_S,\mathcal R_S,S),
+\]
+依次记录定义域、前提、见证、合法推演规则与结论。验证器检查类型、前提见证、规则实例及父边；真值取 \(\{0,1,\bot\}\)，其中 \(\bot\) 表示尚无足够见证。一般无限域命题由符号证明验证，逐项枚举只用于明确有限的对象。
+\end{definition}
+
+\begin{theorem}[有限证书图的前缀可靠性]
+\label{thm:dag}
+设证书图为有限有向无环图，其叶结论在给定模型中成立，每条非叶规则均为保真的推理规则。按拓扑顺序验收，所有已通过结点的结论均成立；含未解决必需叶 \(\bot\) 的结点不进入已通过集合。
+\end{theorem}
+\begin{Certificate}[前缀归纳见证]
+保存拓扑序 \(v_1,\ldots,v_m\)、每个结点的父索引及规则实例。校验
+\[
+\operatorname{Par}(v_j)\subseteq\{v_1,\ldots,v_{j-1}\},\qquad
+\bigwedge_{i\in\operatorname{Par}(v_j)}S_i\Rightarrow S_j.
+\]
+叶结点保存可直接求值的数据或已核对的证明。归纳谓词为 \(P(k)=\bigwedge_{j\le k}S_j\)。
+\end{Certificate}
+\begin{proof}
+空前缀 \(P(0)\) 成立。设 \(P(k)\) 成立。若 \(v_{k+1}\) 是叶，使用叶见证；否则全部父结点属于前缀，其结论成立，保真规则推出 \(S_{k+1}\)。故 \(P(k+1)\) 成立。若某必需前提为 \(\bot\)，规则的全部前提尚未得到证实，验证器不执行该步。对 \(k\) 归纳得到结论。
+\end{proof}
+
+\section{生成式不变量与可证明的系统规则}
+\begin{theorem}[生成闭合规则的定理化]
+\label{thm:generated}
+设对象由初始族 \(\mathcal B\) 经有限个有类型构造子 \(F_j\) 的有限次应用生成。若 \(I(b)\) 对每个初始对象成立，且每个构造子都有证明
+\[
+\bigwedge_{i=1}^{r_j}I(x_i)\ \wedge\ \operatorname{Typed}_j(x_1,\ldots,x_{r_j})
+\Rightarrow I(F_j(x_1,\ldots,x_{r_j})),
+\]
+则 \(I\) 对全部有限生成对象成立。
+\end{theorem}
+\begin{Certificate}[构造树高度证书]
+证书包含初始对象的 \(I\) 见证、每个构造子的保持恒等式，以及构造树高度 \(h\)。验证谓词为“所有高度不超过 \(h\) 的合法构造树保持 \(I\)”。
+\end{Certificate}
+\begin{proof}
+高度零只含初始对象。若高度不超过 \(h\) 的树满足 \(I\)，高度 \(h+1\) 树的各子树均满足 \(I\)。应用根构造子的保持证明得到根的 \(I\)。数学归纳法覆盖全部有限高度。各构造子的证明是独立义务，不能由想要得到的 \(I\) 倒推。
+\end{proof}
+\begin{remark}[证明的基础层]
+集合、域、向量空间及经典逻辑按声明的数学基础使用。本文将系统特有的闭合规则落实为生成式定理；对于额外的可容许性、可计算性和收敛条件，保留为定理前提并明确见证。有限归纳证明覆盖有限构造，涉及极限对象时另行验证极限条件。
+\end{remark}
+
+\section{覆盖任务字段的有类型原子语言}
+\label{sec:atoms}
+\begin{definition}[语义签名与叶的边界]
+上下文 \(\Gamma\) 声明状态类型 \(X\)、动作类型 \(A_0\)、响应类型
+\(\Xi_0\)、标量域 \(k\)、测试值域 \(Y_f\)、分次链类型 \(C_n\)、
+余链类型 \(C^n\) 及线性映射的源、靶和次数。基础任务签名为
+\[
+\begin{aligned}
+L&:X\times A_0\to\{0,1\},&
+R&:X\times A_0\times\Xi_0\to\{0,1\},\\
+\delta&:\{(x,a,\xi):L(x,a)R(x,a,\xi)=1\}\to X,\\
+g&:X\to\{0,1\},&
+U&:\operatorname{dom}\delta\to Y_U .
+\end{aligned}
+\]
+规定 \(A(x)=\{a:L(x,a)=1\}\)、\(\Xi(x,a)=\{\xi:R(x,a,\xi)=1\}\)
+及 \(G=\{x:g(x)=1\}\)。每个合法动作的响应非空须有成员见证。
+目标、效用、知识接口、承载和反事实均由这些类型上的附加字段构造。
+一般定理中的任意函数是显式参数；其性质是待证明前提。
+各具体输入须给出自己的函数定义；有限任务可以使用完整运算表和转移表实现。
+
+原子记录为
+\[
+\mathfrak a=(\mathrm{id},\Gamma,t,\nu,\mathcal I,h,\mathsf{kind}),
+\]
+其中 \(t\) 是不可再拆为本签名复合项的变量读取、常数、基元素或
+已经声明的基础运算实例，\(\nu\) 给出值或符号赋值范围，
+\(\mathcal I\) 指定保持的同伦同一性，\(h\) 是其见证，
+\(\mathsf{kind}\) 区分数据叶、数学基础叶和假设叶。
+假设叶不能写成已通过的数据叶；带假设证明只签发条件结论。
+\end{definition}
+
+\begin{definition}[有限生成、求值及规则编号]
+\label{def:rules}
+项由读取、常数、有限元组、坐标投影、带类型函数应用、标量线性组合、
+矩阵乘积、合成和有限分支生成。谓词由同型相等、成员关系、
+实数序关系、逻辑联结及量词生成。使用下列规则族：
+\begin{enumerate}
+\item \(\mathsf{R0}\)：从 \(\Gamma\) 读取变量、类型及明确赋值；
+常数和基元素按定义求值。
+\item \(\mathsf{R1}\)：函数应用先求各参数，再按登记的运算表或公式求值；
+合成满足 \(\operatorname{Eval}(ft)=f(\operatorname{Eval}(t))\)。
+除法必须先有非零见证，偏函数必须先有定义域见证。
+\item \(\mathsf{R2}\)：同型替换、相等传递、有限集合外延、布尔联结、
+存在见证引入和全称实例化。有限量词遍历声明域；
+无限量词必须使用对任意变量有效的符号证明。
+\item \(\mathsf{R3}\)：结构、长度、阶数或秩归纳，分别登记基例、
+归纳假设、保持推演和良基参数，按定理~\ref{thm:generated} 展开。
+\item \(\mathsf{R4}\)：齐次边界、余链微分、Hom 微分及 Leibniz 规则；
+具体符号见第~\ref{sec:repair}、\ref{sec:pfb}、\ref{sec:calculus} 章。
+\item \(\mathsf{R5}\)：固定外生输入的结构方程替换。只有被干预变量的赋值
+不同，其余父变量同值的两分支，才能产生因果证书。
+\item \(\mathsf{R6}\)：极限、范数及概率规则。分别要求收敛或有界性证明、
+相容范数，以及归一化概率分布；有限归纳不能替代这些条件。
+\item \(\mathsf{R7}\)：序数上的超限归纳。保存初始证明、后继保持证明及
+极限阶段的余极限或完成证明；若存在失败阶段，良序性给出最小失败序数，
+其为零、后继或极限三种情形分别与上述证明矛盾。该规则产生符号定理，
+有限运行还须有独立的有效截断与成本证书。
+\end{enumerate}
+证明图的叶和非叶都带规则实例。缺少操作数、类型、定义域或证明时，
+求值状态为 \(\bot\)。逻辑上可短路求值的谓词仍须保存结论实际使用的父边；
+最终接受只能使用已经核验的必需依赖。
+\end{definition}
+
+\begin{proposition}[类型保持与可回读的原子求值]
+\label{prop:atom-eval}
+上述语言的每棵有限合法构造树具有唯一模型解释，并保持声明类型。
+若全部数据叶可求值、基础运算可执行、所有有限量词域已枚举，
+则求值有限终止。含无限域前提的树仍有符号解释，其运行可判定性须另证。
+\end{proposition}
+\begin{Certificate}[逐节点求值账本]
+每条记录保存原子标识、父标识、规则编号、操作数、结果及类型。
+相等比较保存左右项的求值；复合谓词保存联结树，禁止把其名字直接当作真值。
+\end{Certificate}
+\begin{proof}
+高度零由赋值和基础常数唯一确定。假设各子树解释唯一且类型正确；
+\(\mathsf{R1}\) 先检查源、靶，再应用已定义函数，结果唯一；
+\(\mathsf{R2}\) 在同型值上比较，或使用已核验的逻辑规则；
+元组与投影按位置保持类型。因此高度归纳给出解释及类型保持。
+有效分支只访问有限子树与有限枚举，每一步原语终止，故总求值终止。
+符号全称证明对任意赋值成立，不由该有限运行论证推出自动判定算法。
+\end{proof}
+
+\begin{definition}[同一性见证与三种微分的分工]
+\label{def:identity-witness}
+任务同一性由规定测试、动作--响应标签及演化交换式承载；
+表示变换 \(q\) 需要逐字段证明 \(F=\bar Fq\)，同伦变换需要同伦参数和
+被保持测试的恒等式。链层保存 \(\partial c\) 及
+\(\langle d f,c\rangle=\langle f,\partial c\rangle\)；
+算子层保存 \(\partial A=d_2A-(-1)^{|A|}Ad_1\)；
+光滑承载层保存联络及
+\(\nabla_t A=\dot A+[\Omega_t,A]\)。
+有类型的跨层映射必须与这些微分交换，不能只沿用相同字母 \(d\)。
+\end{definition}
+
+\begin{remark}[演化不变量与被观测量]
+同一性保持的是指定任务语义及其表示对应。状态、目标字段和相空间可沿任务
+作用改变，这些值不自动列入不变量。对带干预字段的任务，反事实分支保持已声明结构方程的同一性，
+同时观测其目标改变；相空间距离按预先固定的联络求值。全部任务谓词的
+链级实现见第~\ref{sec:predicate-realization} 节，全文一般结果的证明依赖见
+第~\ref{sec:atomic-ledger} 节。
+\end{remark}
+
+\chapter{两类微积分的共同承载与积分映射}
+\label{sec:comparison-carriers}
+\section{任务同伦同一性与两侧微分对象}
+全文固定目标、合法作用及必须保持的观察所规定的同伦同一性。
+传统微积分侧提供光滑函数、微分形式、外微分与积分；语义微积分侧提供
+有类型的生成链、任务余链、商映射和接续见证。两侧通过具体实现映射联系。
+尺度指标与局部接口指标分别登记，见第~\ref{sec:axes-gms} 章。
+
+\begin{definition}[分析侧、语义侧与几何实现]
+\label{def:comparison-data}
+取光滑流形 \(M\)，分析侧为实余链复形
+\(\mathsf A^\bullet=\Omega^\bullet(M)\)，微分为外微分 \(d_A\)。
+取有限有向单纯复形的实链复形 \((C_\bullet,\partial)\)，语义侧为
+\(\mathsf S^k=\Hom(C_k,\RR)\)，规定
+\(\langle d_Su,c\rangle=\langle u,\partial c\rangle\)。
+顶点承载任务状态，边承载允许的有方向作用；高维链承载已声明的接续关系。
+某个接续面进入复形须有其实现见证，未填补的环不直接登记为边界。
+几何实现为链映射 \(r:C_\bullet\to C^{\mathrm{sm}}_\bullet(M;\RR)\)，
+每个生成元的像是有限条光滑奇异单形之和，满足 \(\partial r=r\partial\)。
+每个顶点 \(v\) 的像规定为单个点 \(r(v)\) 的系数一零链。
+所有积分均在这些紧单形上进行；形式在相应像的邻域光滑。
+\end{definition}
+标量任务观察用零余链表示；有限多值任务先给出可逆编码再逐坐标实现。
+动作、响应与目标的编码另保留其类型，实数编码不改变原任务的域运算。
+对两侧均以 \(d^2=0\) 定义复形中的同伦语义微分；具体实现中的变化率
+由 \(d_A\) 计算，再通过下述映射进入任务余链。
+
+\section{积分映射及微分交换的逐生成元证明}
+\begin{theorem}[两类微积分之间的积分链对偶映射]
+\label{thm:comparison-integration}
+在定义~\ref{def:comparison-data} 下，令
+\[
+\langle\Pi_r^k\omega,c\rangle=\int_{r(c)}\omega.
+\]
+则 \(\Pi_r:\mathsf A^\bullet\to\mathsf S^\bullet\) 线性且
+\[
+d_S\Pi_r^k=\Pi_r^{k+1}d_A.
+\]
+零次积分是顶点求值；对一条有限语义路径 \(\gamma\)，
+\(\langle\Pi_r^1df,\gamma\rangle=f(r\gamma(1))-f(r\gamma(0))\)。
+\end{theorem}
+\begin{Certificate}[积分映射的输入与基础规则]
+逐项保存单形定向、实现系数、边界表、形式及积分定义域。
+分析基础规则为光滑单形上的 Stokes 公式；一维情形由积分基本定理验证。
+每个语义接续面的几何边界与 \(r\partial\) 逐项相同才允许消费该规则。
+\end{Certificate}
+\begin{proof}
+积分对形式与有限链均线性。对任意 \((k+1)\) 链 \(c\)，
+\[
+\begin{aligned}
+\langle d_S\Pi_r\omega,c\rangle
+&=\int_{r(\partial c)}\omega
+=\int_{\partial r(c)}\omega\\
+&=\int_{r(c)}d_A\omega
+=\langle\Pi_r d_A\omega,c\rangle.
+\end{aligned}
+\]
+配对在全部生成链上相同，得到算子等式。对每条边应用一维基本定理，
+相邻端点的值在路径求和中消去，得到端点公式。
+\end{proof}
+积分映射允许把同一个分析对象送入不同任务呈示。它保持的代数结构由
+已证交换式确定；乘积、括号与高阶运算的保持另在第~\ref{sec:comparison-main} 章登记。
+
+\section{有限图上的显式逆向插值与同伦回缩}
+\begin{definition}[边内分析实现]
+\label{def:edge-analytic-model}
+取有限有向图 \(G\)，每条边参数为 \(t\in[0,1]\)。
+\(\mathsf A_G^0\) 由顶点实值及各边上的光滑函数组成，边端值等于对应顶点值；
+孤立顶点也保留自己的实值坐标。
+\(\mathsf A_G^1=\bigoplus_e C^\infty([0,1])\,dt\)，其余正次数为零。
+\(d_Af|_e=f'_e(t)dt\)，\(d_A\alpha=0\)。
+\(\mathsf S_G^0=\RR^{V(G)}\)、\(\mathsf S_G^1=\RR^{E(G)}\)，
+\((d_Sc)(e)=c(t(e))-c(s(e))\)，其余微分为零。
+此处 \(s(e),t(e)\) 分别为边的起点、终点；参数仍记为 \(t\)。
+\end{definition}
+\begin{theorem}[积分、插值与非平凡同伦回缩]
+\label{thm:edge-deformation}
+定义 \(I^0f(v)=f(v)\)、\(I^1\alpha(e)=\int_0^1\alpha_e\)，以及
+\[
+\begin{aligned}
+(W^0c)_e(t)&=(1-t)c(s(e))+tc(t(e)),\\
+(W^1b)_e(t)&=b(e)dt,\\
+(H\alpha)_e(t)&=\int_0^t\alpha_e-u_e t,
+\qquad u_e=\int_0^1\alpha_e.
+\end{aligned}
+\]
+在全部顶点规定 \((W^0c)(v)=c(v)\)、\((H\alpha)(v)=0\)，
+令 \(H\) 在零次上为零，则
+\[
+IW=\id_{\mathsf S_G},\qquad
+d_AW=Wd_S,\qquad d_SI=Id_A,\qquad
+\id_{\mathsf A_G}-WI=d_AH+Hd_A.
+\]
+因而这两个指定复形同伦等价，其同调类与规定周期积分对应。
+\end{theorem}
+\begin{Certificate}[逐边回缩见证]
+保存每边两端值、边积分、线性插值系数及原函数积分。
+\(H\alpha\) 在全部顶点取零，故跨边拼接良定义。
+所有关系逐边计算，公共顶点按同一顶点值验证。
+\end{Certificate}
+\begin{proof}
+插值在两端恢复顶点数据，常数一形式的积分恢复边数据，故 \(IW=\id\)。
+对线性插值求导得到 \(c(t(e))-c(s(e))\)，证明 \(d_AW=Wd_S\)；
+\(d_SI=Id_A\) 是一维基本定理。
+对一形式 \(\alpha_e=a_e(t)dt\)，
+\(d_AH\alpha=(a_e(t)-u_e)dt=\alpha-WI\alpha\)。
+对零形式 \(f\)，
+\[
+(Hd_Af)_e(t)=f_e(t)-f_e(0)-t(f_e(1)-f_e(0))=f_e(t)-(WI f)_e(t).
+\]
+两次数上的等式合成同伦式；其余次数恒为零。
+对闭余链，同伦式的右侧为恰当项，故诱导的同调映射互逆。
+闭语义链上的配对消去恰当项，周期积分随之保持。
+\end{proof}
+\begin{proposition}[边内高阶变化的实际同伦见证]
+\label{prop:edge-witness}
+单边上取 \(\alpha=t^2dt\)，则
+\(I\alpha=1/3\)、\(WI\alpha=dt/3\)、
+\(H\alpha=(t^3-t)/3\)。取 \(f=t^2\)，则
+\(WIf=t\)、\(Hd_Af=t^2-t\)。
+边内变化被显式同伦记录，端点任务与路径积累保留。
+\end{proposition}
+\begin{proof}
+直接积分得 \(\int_0^1t^2dt=1/3\)，代入 \(H\) 的定义得到三次式。
+其导数为 \((t^2-1/3)dt\)。对 \(f\) 代入两端值零、一与其导数 \(2t\)，
+得到所列等式。\(H\alpha\) 与 \(Hd_Af\) 均有非零内部值而端点为零。
+\end{proof}
+该构造在共同承载上明确连接经典求导、积分与语义微分。
+任意新任务若要求边内曲率等额外信息，须增加相应测试或保留其分析代表。
+
+\chapter{同伦见证、任务商下降与积分保持}
+\label{sec:comparison-homotopy}
+\section{几何同伦的棱柱见证}
+\begin{definition}[兼容面的几何同伦]
+\label{def:geometric-homotopy}
+取逐单形光滑且在公共面相容的
+\(F:[0,1]\times|C|\to M\)，两端诱导实现 \(r_0,r_1\)。
+对 \(c=[v_0,\ldots,v_k]\) 的棱柱使用定向单形和
+\[
+P(c)=\sum_{i=0}^k(-1)^i
+F_*[v_0^0,\ldots,v_i^0,v_i^1,\ldots,v_k^1],
+\qquad v_i^s=(s,v_i).
+\]
+每项通过棱柱内的仿射单形参数化再复合 \(F\)，次数为 \(+1\)。
+定义次数为 \(-1\) 的余链算子
+\(\langle K\omega,c\rangle=\int_{P(c)}\omega\)。
+\end{definition}
+\begin{theorem}[两种实现之间的显式同伦映射恒等式]
+\label{thm:prism-homotopy}
+上述棱柱与积分算子满足
+\[
+\partial P+P\partial=r_1-r_0,\qquad
+\Pi_{r_1}-\Pi_{r_0}=d_SK+Kd_A.
+\]
+\end{theorem}
+\begin{Certificate}[定向面配对]
+记录每个棱柱单形的索引 \(i\)、系数 \((-1)^i\) 及删除顶点的位置。
+相邻棱柱的公共斜面成对消去；外侧面与原单形边界的棱柱对应。
+顶面、底面分别保留系数 \(+1,-1\)。
+\end{Certificate}
+\begin{proof}
+展开每个 \((k+1)\) 单形的交错边界。删除重复索引 \(v_i\) 的一个层副本，
+得到与相邻 \(i\) 项公共的斜面，两个总系数相反。
+删除其他顶点得到原单形相应面的棱柱，合并为 \(-P\partial c\)。
+尚未配对的两面为全顶层与全底层，故
+\(\partial Pc=r_1c-r_0c-P\partial c\)；公共面的实现一致保证配对有效。
+对任意 \(k\) 形式 \(\omega\) 与 \(k\) 链 \(c\)，
+\[
+\begin{aligned}
+\langle(\Pi_{r_1}-\Pi_{r_0})\omega,c\rangle
+&=\int_{\partial Pc}\omega+\int_{P\partial c}\omega\\
+&=\int_{Pc}d_A\omega+\langle K\omega,\partial c\rangle.
+\end{aligned}
+\]
+第一项为 \(\langle Kd_A\omega,c\rangle\)，第二项为
+\(\langle d_SK\omega,c\rangle\)，得到同伦恒等式。
+\end{proof}
+
+\section{任务商与同伦见证共同下降}
+\begin{definition}[链商与任务可读分析子复形]
+\label{def:analytic-task-quotient}
+给定逐次数满射链映射 \(q:C_\bullet\to D_\bullet\)，令
+\(\mathsf Q^\bullet=\Hom(D_\bullet,\RR)\)。
+\(q^*\) 单射，其像是所有在 \(\ker q\) 上为零的余链。
+对单个实现 \(\Pi\)，任务可读形式由 \(\Pi\omega\in\im q^*\) 指定。
+比较两个实现及其 \(K\) 时，采用共同域
+\[
+\mathsf A_T^k=\{\omega\in\Omega^k(M):
+\Pi_{r_0}\omega,\Pi_{r_1}\omega\in\im q_k^*,\quad
+K\omega\in\im q_{k-1}^*\}.
+\]
+负次数空间为零。状态层同时给定保持规定任务的状态商；链商与状态商
+须在顶点和允许作用上对应，不能仅由一个满射的名称推得。
+\end{definition}
+\begin{theorem}[率与商的同伦下降定理]
+\label{thm:homotopy-descent}
+\(\mathsf A_T^\bullet\) 是微分子复形，存在唯一算子
+\(\Phi_i:\mathsf A_T^\bullet\to\mathsf Q^\bullet\) 与
+\(\bar K:\mathsf A_T^\bullet\to\mathsf Q^{\bullet-1}\)，满足
+\[
+\begin{aligned}
+q^*\Phi_i&=\Pi_{r_i},&q^*\bar K&=K,\\
+d_Q\Phi_i&=\Phi_i d_A,&
+\Phi_1-\Phi_0&=d_Q\bar K+\bar Kd_A.
+\end{aligned}
+\]
+因此分析微分、任务取商与实现同伦形成同一个交换系统。
+\end{theorem}
+\begin{Certificate}[核消去与代表元独立性]
+对每个 \(z\in\ker q_k\) 验证两端积分为零；对
+\(z\in\ker q_{k-1}\) 验证棱柱积分为零。
+定义 \(\langle\Phi_i\omega,qc\rangle=\int_{r_i(c)}\omega\)，
+\(\langle\bar K\omega,qc\rangle=\int_{P(c)}\omega\)。
+核条件分别保证两式不依赖提升代表元。
+\end{Certificate}
+\begin{proof}
+\(\im q^*\) 对 \(d_S\) 稳定，因为 \(q\) 为链映射。
+若 \(\omega\in\mathsf A_T\)，两端的 \(\Pi_i d_A\omega=d_S\Pi_i\omega\)
+均在该像中。同伦恒等式给出
+\(Kd_A\omega=\Pi_1\omega-\Pi_0\omega-d_SK\omega\)，也在该像中，
+故共同域对微分封闭。核条件给出存在，满射 \(q\) 给出 \(q^*\) 单射及唯一性。
+将待证两组算子等式左复合 \(q^*\)，分别化为积分交换与棱柱同伦恒等式。
+单射性消去 \(q^*\)，得到结论。
+\end{proof}
+
+\section{任务观察、同调类与路径积分的分别保持}
+\begin{theorem}[同伦映射的任务与积分保持]
+\label{thm:comparison-preservation}
+在定理~\ref{thm:homotopy-descent} 的共同域上，有：
+\begin{enumerate}
+\item 若 \(d_A\omega=0\)，则 \(\Phi_0\omega\) 与 \(\Phi_1\omega\)
+定义相同上同调类；任意 \(D\) 中闭链上的配对相同。
+\item 对闭一形式及路径链 \(\gamma\)，两次积分之差为
+\(\langle\bar K\omega,\partial\gamma\rangle\)。
+\item 对任务零形式 \(f\)，端点实现保持其精确观察值当且仅当
+\(\bar Kd_Af=0\)。沿整个几何同伦保持观察时，该条件在每个子区间均成立。
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+闭形式代入同伦式只剩 \(d_Q\bar K\omega\)，故同调类相同。
+与闭链配对得到零；与一般路径配对得到其边界项。
+对零形式，\(\bar Kf\) 位于负次数而为零，同伦式正是
+\(\Phi_1f-\Phi_0f=\bar Kd_Af\)。
+取同伦参数任意子区间，观察保持给出该区间两端之差为零，证明最后一句。
+\end{proof}
+一个拓扑同伦携带的任务保持义务由第三项逐观察核验。
+对合法性、响应和接受等有限值测试，先按固定编码核验，再解码恢复真值。
+\begin{corollary}[商细化与同伦映射的相容复合]
+\label{cor:comparison-refinement}
+若 \(q=rq'\) 为两级满射链商，在两级共同任务域上有
+\(\Phi_i'=r^*\Phi_i\)、\(\bar K'=r^*\bar K\)。
+对尚未通过粗商因子化的新观察，应使用更细任务域重新构造；旧商值不确定该观察。
+\end{corollary}
+\begin{proof}
+由 \(q^*=q'^*r^*\)，两边复合 \(q'^*\) 都等于 \(\Pi_i\) 或 \(K\)，
+单射性给出相等。若旧商同一纤维内新观察值不同，任何旧商上的单值读回
+在该纤维只能给出一个值，故不能恢复全部新观察。
+\end{proof}
+
+\section{非零同伦见证与非平凡商的联合实例}
+\begin{proposition}[平行路径的任务充分商]
+\label{prop:parallel-homotopy-model}
+令 \(C\) 为两份互不相交的有向单位边，\(D\) 为一份单位边，
+\(q\) 忘记副本标记。取 \(M=\RR^2\)，两份副本使用相同实现
+\(r_0(t)=(t,0)\)、\(r_1(t)=(t,1)\) 及同伦 \(F(s,t)=(t,s)\)。
+任务观察为第一坐标 \(f(x,y)=x\)，合法作用为由起点到终点的单步作用，
+目标为终点。该商保持任务；全部微分形式及棱柱积分均可下降到 \(D\)。
+见证满足
+\[
+\langle\bar K(dy\wedge dx),[0,1]\rangle=1,
+\quad \Phi_0(y\,dx)([0,1])=0,
+\quad \Phi_1(y\,dx)([0,1])=1.
+\]
+同时 \(\Phi_0f=\Phi_1f=(0,1)\)，且同伦各阶段均保持该任务观察。
+\end{proposition}
+\begin{proof}
+链商核由对应副本的生成元之差张成，\(r_i\) 与 \(P\) 在两份副本上相同，
+所以核积分全部为零，\(\mathsf A_T=\Omega^\bullet(\RR^2)\)。
+起点、终点与合法作用分别对应，终点目标的原像也相同，故状态商精确保持任务。
+在棱柱的 \((s,t)\) 定向下，\(F^*(dy\wedge dx)=ds\wedge dt\)，积分为一。
+两水平边上的 \(y\,dx\) 分别为零与 \(dt\)，得到两个边积分。
+该一形式在竖直顶点轨迹上积分为零，故本例同伦式的非零项为
+\(\bar Kd_A(y\,dx)\)。第一坐标沿顶点轨迹恒定，且 \(\bar Kdf=0\)，
+所以任务保持与非零见证同时成立。
+\end{proof}
+
+\chapter{同伦映射的执行保持、高阶相容与主定理}
+\label{sec:comparison-main}
+\section{任务对应关系与有限执行}
+\begin{definition}[两侧实现的任务对应]
+\label{def:representation-relation}
+在两套有类型任务状态 \(X_k,Y_k\) 间给出关系 \(R_k\)。
+对 \(xR_ky\)，全部指定观察和接受真值相同；合法动作及其全部响应
+有双向对应。对应的每个后继满足 \(x'R_{k+1}y'\)。
+初态相关，且从被接受的实现状态有可执行读回，返回原任务合法解。
+这些条件也适用于关系图外被接受的候选；读回的定义域须覆盖全部接受集。
+映射 \(\Phi^0\) 给出的任务观察对应先生成候选关系，再逐动作、响应检查其闭包。
+有限状态域可用第~\ref{sec:rate-quotient-closure} 章的测试饱和构造充分关系。
+\end{definition}
+\begin{theorem}[任务对应的有限路径与策略保持]
+\label{thm:representation-execution}
+上述关系保持任意有限对应执行的观察、接受及合法读回；
+双向动作响应对应同时保持有限步鲁棒目标可达性。
+\end{theorem}
+\begin{proof}
+长度零使用相关初态。若当前相关，对选定合法动作逐一对应全部响应，
+后继条件给出下一相关状态，归纳保持全部有限前缀。
+观察和接受由每个 \(R_k\) 的定义恢复，终态读回由覆盖全部接受集的条件保证。
+对有限步鲁棒可达性按剩余步数归纳：零步由目标等值；
+存在一个动作使全部响应进入前一级可达集的条件，通过双向对应在两侧等价。
+逐层选取对应动作即给出相应有限策略。
+\end{proof}
+\begin{proposition}[近似对应的误差与任务裕量]
+\label{prop:representation-error}
+在共同的度量表示中，若初始误差至多 \(\eta\)、后继稳定常数为 \(L\ge0\)，
+第 \(k\) 步实现交换误差至多 \(\beta_k\)，则
+\[
+E_n\le L^n\eta+\sum_{k=0}^{n-1}L^{n-1-k}\beta_k.
+\]
+读回和目标函数的稳定常数为 \(K_p,K_f\) 时，目标误差至多 \(K_fK_pE_n\)。
+\end{proposition}
+\begin{proof}
+在实际后继与参考后继之间插入同一参考输入的实现后继，三角不等式给出
+\(E_{k+1}\le LE_k+\beta_k\)。基例为 \(E_0\le\eta\)，归纳展开即得和式，
+再逐次应用读回与目标的 Lipschitz 界。布尔接受只有在该误差不跨越其
+已证安全裕量时保持；连续误差界本身不决定边界上的布尔真值。
+\end{proof}
+
+\section{高阶同伦映射的类型及见证}
+\begin{definition}[富结构上的高阶映射]
+\label{def:higher-comparison}
+在特征零下，用悬移空间上的约化对称余代数
+\(S^c(sL)=\bigoplus_{n\ge1}S^n(sL)\) 表示同伦代数。
+次数 \(+1\) 的余导子 \(Q_L\) 满足 \(Q_L^2=0\)，其各元分量编码
+\(L_\infty\) 运算与符号。高阶映射为次数零余代数映射 \(\mathcal F\)，满足
+\(Q_B\mathcal F=\mathcal FQ_A\)。
+给定由高阶映射组成的逐元分量可微路径 \(\mathcal F_s\) 及次数 \(-1\) 的沿映射余导子
+\(\mathcal H_s\)，其同伦方程为
+\[
+\partial_s\mathcal F_s=Q_B\mathcal H_s+\mathcal H_sQ_A.
+\]
+沿映射余导子满足
+\(\Delta\mathcal H_s=(\mathcal H_s\otimes\mathcal F_s+
+\mathcal F_s\otimes\mathcal H_s)\Delta\)，采用分次张量符号。
+完备情形使用相容滤过并逐商验证收敛，见引理~\ref{lem:filtered-completion}。
+\end{definition}
+\begin{theorem}[高阶映射的复合与任务观察保持]
+\label{thm:higher-comparison}
+两高阶映射的复合仍与余导子交换；一元分量给出链映射。
+给定上述同伦路径，在逐元积分有定义的域上，
+\[
+\mathcal F_1-\mathcal F_0=Q_B\mathcal K+\mathcal KQ_A,
+\qquad \mathcal K=\int_0^1\mathcal H_s\,ds.
+\]
+若规定的线性任务观察 \(\tau\) 满足
+\(\tau Q_B=0\)、\(\tau\mathcal H_s=0\) 对全部 \(s\) 成立，则
+\(\tau\mathcal F_s\) 沿整个路径恒定。
+\end{theorem}
+\begin{proof}
+逐项代入有
+\(Q_C\mathcal G\mathcal F=\mathcal GQ_B\mathcal F
+=\mathcal G\mathcal FQ_A\)，余代数映射的复合也保持余乘法。
+限制到一次对称幂给出一元微分交换。
+逐元积分同伦微分方程，得到端点恒等式；在完备域先对每个截断商积分，
+再用相容完备性恢复。最后
+\(\partial_s(\tau\mathcal F_s)=\tau Q_B\mathcal H_s+
+\tau\mathcal H_sQ_A=0\)，所以各任务观察恒定。
+\end{proof}
+积分链对偶映射先给出线性的微分比较。在阿贝尔同伦代数中，令全部高元
+运算与映射分量为零即得到其高阶实现。非零括号及 Jacobiator 扇区须提交
+全部高元分量与上式，单个一元链映射不代替这些结构条件。
+\(\mathcal K\) 是底层复形的积分同伦，整条余代数路径另保存其高阶见证。
+
+\section{率与商的同伦映射主定理}
+\begin{theorem}[两类微积分之间的任务保持同伦映射系统]
+\label{thm:comparison-main}
+给定定义~\ref{def:comparison-data} 的两侧承载、定义~\ref{def:geometric-homotopy}
+的几何同伦及满射链商 \(q\)，并使用定义~\ref{def:analytic-task-quotient} 的共同域。
+若必需任务观察沿同伦保持，且两侧实现满足定义~\ref{def:representation-relation}
+的动作响应与读回条件，则下列结论同时成立：
+\begin{enumerate}
+\item 两侧微分通过 \(\Phi_i\) 交换，\(\bar K\) 给出两映射之间的显式同伦；
+\item 同调类、闭链积分及规定任务观察按各自保持条件传递；
+\item 相容商细化保留既有映射与见证，新观察由真实来源补足；
+\item 有限合法执行、鲁棒目标可达性与终态回读保持；
+\item 指定高阶映射的一元分量为上述链级比较并满足余导子方程时，
+高阶闭合与任务同伦按各元数见证核验；
+\item 近似实现按误差账本与任务裕量判定接受。
+\end{enumerate}
+\end{theorem}
+\begin{Certificate}[主线的六组见证]
+分别保存 \(r_i\partial=\partial r_i\)、棱柱边界式、商核积分、
+任务沿同伦的逐值等式、动作响应对应及读回、高元系数与误差界。
+每组数据都绑定相同任务、源对象、目标对象及合法域；各组成立范围在复合前取交集。
+\end{Certificate}
+\begin{proof}
+积分映射定理和棱柱定理给出未取商的微分交换与同伦恒等式；
+同伦下降定理把两式及其见证同时送入 \(\mathsf Q\)。
+定理~\ref{thm:comparison-preservation} 分别证明观察与积分保持，
+推论~\ref{cor:comparison-refinement} 证明细化相容。
+定理~\ref{thm:representation-execution} 通过有限前缀及剩余步数归纳保持执行和可达性。
+定理~\ref{thm:higher-comparison} 给出高阶复合及任务观察保持；
+近似分支由命题~\ref{prop:representation-error} 的归纳界和接受裕量核验。
+所有映射使用同一源、靶及任务编码，故这些结论可以在共同域同时应用。
+\end{proof}
+定理~\ref{thm:edge-deformation} 给出带显式逆映射的同伦等价实例，
+命题~\ref{prop:parallel-homotopy-model} 给出非平凡任务商与非零同伦见证的联合实例。
+后续章节依次展开充分商的生成、障碍修复、严格与富结构闭合、超限完成及计算成本。
+每项扩展都以本主定理的映射和见证为接口。
+
+\chapter{同伦见证的实例化层级：棱柱积分、偏微下降与分形收敛}
+\label{sec:witness-instance-hierarchy}
+
+本章把前述同伦映射主定理连接到两类已经形式化的算法见证。
+LHTS 以单格点同伦扭曲生成局部运动，以分量偏微下降登记该运动的直接信用；
+TPH-LHTS 以轨迹函数参数同伦生成候选族，以广义分形递归扩张梯度覆盖，
+再以 D 结构排名下降签发递归收敛证书
+\cite{lhts,tphlhts}。
+三层见证共享同一原则：
+\[
+\boxed{
+\begin{gathered}
+\text{棱柱积分见证}
+\longrightarrow
+\text{LHTS 局部偏微下降见证}
+\\
+\longrightarrow
+\text{TPH-LHTS 分形递归收敛见证}.
+\end{gathered}}
+\]
+第一层解释一次变形的端点差如何由链同伦承载；
+第二层解释该端点差如何成为可归因的局部下降；
+第三层解释局部见证如何在保持任务同伦同一性的条件下组成整体下降路径。
+
+\section{同伦扭曲与偏微下降的棱柱实现}
+
+\begin{definition}[LHTS 局部见证数据]
+\label{def:lhts-local-witness-data}
+设 \(\mathcal Z_h\) 是工程状态空间，第 \(i\) 个方向的单格点同伦扭曲为
+\[
+H_{i,\alpha}:\mathcal Z_h\longrightarrow\mathcal Z_h,
+\qquad H_{i,0}=\id.
+\]
+取状态 \(z\in\mathcal Z_h\)，记
+\[
+z'=H_{i,\alpha}(z).
+\]
+设 \(\iota:\mathcal Z_h\to M\) 把状态实现到共同承载 \(M\)，
+并由 \(z,z'\) 分别诱导逐单形实现 \(r_0,r_1:|C|\to M\)。
+若存在逐单形光滑且公共面相容的
+\[
+F_{i,\alpha}:[0,1]\times|C|\longrightarrow M,
+\qquad
+F_{i,\alpha}(0,-)=r_0,\quad
+F_{i,\alpha}(1,-)=r_1,
+\]
+则称 \(F_{i,\alpha}\) 为该扭曲的棱柱实现。
+
+对每个残差分量 \(d=1,\ldots,D\)，取任务可读零形式
+\(g_d\in\mathsf A_T^0\)。固定用于读出当前状态的顶点 \(v\)，要求
+\[
+G_d(z)=\langle\Phi_0g_d,qv\rangle,
+\qquad
+G_d(z')=\langle\Phi_1g_d,qv\rangle.
+\]
+LHTS 的分量偏微下降定义为
+\[
+\delta_{di}^{\partial}(z;\alpha)
+=G_d(z)-G_d(z'),
+\qquad
+\boldsymbol\delta_i^\partial
+=(\delta_{1i}^\partial,\ldots,\delta_{Di}^\partial).
+\]
+局部见证数据记为
+\[
+\mathcal W_{i,\alpha}^{\mathrm{loc}}
+=
+\bigl(
+H_{i,\alpha},F_{i,\alpha},P_{i,\alpha},
+K_{i,\alpha},q,\bar K_{i,\alpha},
+\mathbf G,\boldsymbol\delta_i^\partial
+\bigr),
+\]
+其中 \(P_{i,\alpha}\) 与 \(K_{i,\alpha}\) 分别是
+定义~\ref{def:geometric-homotopy} 的棱柱链和棱柱积分算子，
+\(\bar K_{i,\alpha}\) 是定理~\ref{thm:homotopy-descent} 给出的任务商下降。
+\end{definition}
+
+\begin{theorem}[偏微下降的棱柱积分读出]
+\label{thm:lhts-partial-descent-prism-readout}
+在定义~\ref{def:lhts-local-witness-data} 的条件下，对每个残差分量 \(g_d\) 有
+\[
+\Phi_1g_d-\Phi_0g_d
+=\bar K_{i,\alpha}d_Ag_d,
+\]
+并且
+\[
+\boxed{
+\delta_{di}^{\partial}(z;\alpha)
+=
+-\bigl\langle
+\bar K_{i,\alpha}d_Ag_d,qv
+\bigr\rangle.}
+\]
+因此，LHTS 的一次分量偏微下降是棱柱积分同伦见证在残差零形式上的端点读出。
+\end{theorem}
+
+\begin{Certificate}[局部扭曲--下降--棱柱证书]
+\label{cert:lhts-prism-local}
+证书逐分量保存
+\[
+\begin{gathered}
+(i,\alpha,z,z'),\qquad
+F_{i,\alpha}(0,-)=r_0,\quad F_{i,\alpha}(1,-)=r_1,\\
+\partial P_{i,\alpha}+P_{i,\alpha}\partial=r_1-r_0,\\
+q^*\bar K_{i,\alpha}=K_{i,\alpha},\qquad
+K_{i,\alpha}g_d\in\im q^*,\\
+G_d(z),\quad G_d(z'),\quad
+\delta_{di}^{\partial}=G_d(z)-G_d(z').
+\end{gathered}
+\]
+同时登记棱柱定向。本文的端点差采用“终点减起点”，
+LHTS 的下降量采用“起点残差减终点残差”，二者因定向约定相差负号。
+\end{Certificate}
+
+\begin{proof}
+定理~\ref{thm:homotopy-descent} 给出
+\[
+\Phi_1-\Phi_0=d_Q\bar K_{i,\alpha}+\bar K_{i,\alpha}d_A.
+\]
+零形式 \(g_d\) 的 \(\bar K_{i,\alpha}g_d\) 位于负次数空间而为零，
+故
+\[
+\Phi_1g_d-\Phi_0g_d=\bar K_{i,\alpha}d_Ag_d.
+\]
+在 \(qv\) 上求值并使用
+\(\delta_{di}^\partial=G_d(z)-G_d(z')\)，得到所列负号公式。
+核消去条件保证 \(\bar K_{i,\alpha}\) 不依赖链的提升代表元，
+所以该读出是任务商上的良定义见证。
+\end{proof}
+
+\begin{remark}[叠合的严格含义]
+\label{rem:twist-descent-superposition}
+“同伦扭曲与偏微下降的叠合”表示结构复合与同调耦合：
+\[
+H_{i,\alpha}
+\longmapsto F_{i,\alpha}
+\longmapsto P_{i,\alpha}
+\longmapsto K_{i,\alpha}
+\longmapsto
+\bar K_{i,\alpha}d_A\mathbf g
+\longmapsto
+\boldsymbol\delta_i^\partial.
+\]
+同伦扭曲给出变形路径，偏微下降给出残差端点差，
+棱柱积分记录整条变形面，Stokes 恒等式把端点差分解为
+\(d_SK+Kd_A\)。这个复合把算法层的局部下降信用提升为链同伦层的可验证见证。
+\end{remark}
+
+\section{有限局部见证的组合}
+
+\begin{proposition}[共同任务商上的棱柱见证合成]
+\label{prop:finite-prism-witness-composition}
+设有限 LHTS 调用链为
+\[
+z_{t+1}=H_{i_t,\alpha_t}(z_t),
+\qquad t=0,\ldots,N-1.
+\]
+若每一步都在相同复形、相同任务商 \(q\) 与相同定向约定下给出
+\[
+\Phi_{t+1}-\Phi_t
+=d_Q\bar K_t+\bar K_td_A,
+\]
+则令
+\[
+\bar K_{[0,N]}=\sum_{t=0}^{N-1}\bar K_t,
+\]
+有
+\[
+\boxed{
+\Phi_N-\Phi_0
+=
+d_Q\bar K_{[0,N]}+\bar K_{[0,N]}d_A.}
+\]
+若任务零形式 \(f\) 在每一步满足 \(\bar K_td_Af=0\)，
+则整条有限调用链保持该任务观察。
+\end{proposition}
+
+\begin{proof}
+对逐步同伦恒等式求和，中间映射
+\(\Phi_1,\ldots,\Phi_{N-1}\) 望远镜消去；微分的线性性给出总见证公式。
+对任务零形式 \(f\)，负次数项为零且每一步
+\(\Phi_{t+1}f-\Phi_tf=\bar K_td_Af=0\)，
+再求和得到 \(\Phi_Nf=\Phi_0f\)。
+\end{proof}
+
+\begin{Certificate}[有限见证链证书]
+\label{cert:finite-witness-chain}
+保存每一步的证书~\ref{cert:lhts-prism-local}、共同任务编码、
+共同链商 \(q\)、端点连接
+\[
+r_{1,t}=r_{0,t+1},
+\]
+以及全部必需任务零形式上的
+\[
+\bar K_td_Af=0.
+\]
+若步骤之间改变复形、商或代表元规则，须额外提供连接链映射及其交换证书，
+不能直接使用上述求和公式。
+\end{Certificate}
+
+命题~\ref{prop:finite-prism-witness-composition}给出从单次偏微下降到有限路径见证的第一层提升。
+它证明每一步的局部信用能够组成同一任务下的路径证据，
+尚未单独推出无限递归收敛；收敛还需要候选方向覆盖、实际下降量和极限边界。
+
+\section{参数同伦递归与广义分形见证族}
+
+\begin{definition}[广义分形轨迹见证族]
+\label{def:fractal-trajectory-witness-family}
+设 \(\mathcal T_0\) 是初始轨迹函数族，递归算子
+\(\mathfrak F\) 由轨迹参数同伦生成、选择泛函筛选和 LHTS 回填组成：
+\[
+\mathcal T_{k+1}=\mathfrak F(\mathcal T_k),
+\qquad
+\mathcal T_\infty=\bigcup_{k\ge0}\mathcal T_k.
+\]
+若每一层保留前层已认证方向并加入有证据的新方向，使
+\[
+\operatorname{span}(\mathcal T_k)
+\subseteq
+\operatorname{span}(\mathcal T_{k+1}),
+\]
+且每个入选轨迹的有限执行前缀均具有
+定义~\ref{def:lhts-local-witness-data} 的局部见证，
+则称 \(\{\mathcal T_k\}_{k\ge0}\) 为广义分形轨迹见证族。
+\end{definition}
+
+这里的“分形”是轨迹函数空间中同一“生成--筛选--回填”机制的递归自相似，
+其见证职责是逐层扩大可认证修复方向的张成空间
+\cite{tphlhts}。它不以几何图像的自相似作为收敛依据。
+
+\begin{definition}[梯度覆盖与排名下降证书]
+\label{def:gradient-coverage-ranking-certificate}
+令 D 结构上的 JacGap 势函数为
+\[
+\Phi(D)=\frac12\norm{\JacGap(D)}^2.
+\]
+在 \(\nabla\Phi(D_t)\ne0\) 时定义第 \(t\) 步的覆盖误差
+\[
+\varepsilon_t
+=
+\frac{
+\operatorname{dist}\bigl(
+-\nabla\Phi(D_t),
+\operatorname{span}(\mathcal T_{k(t)})
+\bigr)}
+{\norm{\nabla\Phi(D_t)}}.
+\]
+梯度覆盖证书要求存在 \(\bar\varepsilon<1\)，使
+\(\varepsilon_t\le\bar\varepsilon\)；
+排名下降证书要求存在 \(c_0>0\)，使实际选择和回填满足
+\[
+\boxed{
+\Phi(D_{t+1})
+\le
+\Phi(D_t)-c_0\norm{\nabla\Phi(D_t)}^2.}
+\]
+若采用更一般的 D 结构排名 \(\rho\)，还须逐步记录
+\[
+\rho(D_{t+1})<\rho(D_t),
+\qquad
+\rho(D_t)\ge0.
+\]
+\end{definition}
+
+\begin{theorem}[分形递归见证的任务保持与收敛]
+\label{thm:fractal-recursive-witness-convergence}
+设 \(\{\mathcal T_k\}_{k\ge0}\) 是
+定义~\ref{def:fractal-trajectory-witness-family} 的见证族，并满足：
+\begin{enumerate}
+\item 每次实际更新由一个已认证轨迹的有限 LHTS 前缀实现，
+      且这些局部见证在共同任务商上满足
+      命题~\ref{prop:finite-prism-witness-composition}；
+\item 每一层的旧方向保留、生成、筛选和回填均有来源证书；
+\item 定义~\ref{def:gradient-coverage-ranking-certificate}
+      的梯度覆盖与实际下降不等式成立；
+\item \(\Phi\) 有下界。
+\end{enumerate}
+则每个有限递归前缀
+\[
+D_0\longrightarrow D_1\longrightarrow\cdots\longrightarrow D_N
+\]
+均具有任务保持的复合同伦见证，并且
+\[
+\sum_{t=0}^{\infty}\norm{\nabla\Phi(D_t)}^2<\infty,
+\qquad
+\norm{\nabla\Phi(D_t)}\longrightarrow0.
+\]
+若进一步存在 \(c>0\) 使
+\[
+\norm{\JacGap(D)}
+\le c\norm{\nabla\Phi(D)},
+\]
+则
+\[
+\boxed{\JacGap(D_t)\longrightarrow0.}
+\]
+\end{theorem}
+
+\begin{Certificate}[分形递归总见证]
+\label{cert:fractal-recursive-total-witness}
+第 \(N\) 层总证书由下列证书并集组成：
+\[
+\begin{aligned}
+\mathcal C_N^{\mathrm{frac}}
+= {}&
+\bigcup_{t=0}^{N-1}\mathcal C_t^{\mathrm{loc}}
+\cup
+\bigcup_{k\le k(N)}\mathcal C_k^{\mathrm{generation}}
+\cup
+\bigcup_{k\le k(N)}\mathcal C_k^{\mathrm{selection}}
+\\
+&{}\cup
+\mathcal C_N^{\mathrm{span}}
+\cup
+\mathcal C_N^{\mathrm{coverage}}
+\cup
+\mathcal C_N^{\mathrm{task}}
+\cup
+\mathcal C_N^{\mathrm{rank}}.
+\end{aligned}
+\]
+其中分别记录局部棱柱、参数同伦生成、选择泛函、张成空间包含、
+负梯度覆盖、任务商核消去和实际排名下降。
+无限层结论还保存有限前缀证书的相容性与 \(\Phi\) 的下界。
+\end{Certificate}
+
+\begin{proof}
+对每个实际更新，命题~\ref{prop:finite-prism-witness-composition}
+把局部棱柱证书合成为该步的任务保持见证。
+再对 \(t=0,\ldots,N-1\) 合成，得到任意有限递归前缀的复合同伦见证。
+旧方向保留与张成空间包含保证见证族的递归扩张不删除已经认证的修复方向；
+覆盖证书保证候选空间持续包含与当前负梯度成严格锐角的方向，
+实际下降证书则把候选覆盖落实为真实 D 结构更新。
+
+对下降不等式从 \(t=0\) 到 \(N-1\) 求和：
+\[
+c_0\sum_{t=0}^{N-1}\norm{\nabla\Phi(D_t)}^2
+\le
+\Phi(D_0)-\Phi(D_N)
+\le
+\Phi(D_0)-\inf_D\Phi(D).
+\]
+令 \(N\to\infty\)，得到梯度平方可和，故梯度范数趋于零。
+最后使用误差界
+\(\norm{\JacGap(D_t)}
+\le c\norm{\nabla\Phi(D_t)}\)，
+得到 JacGap 收敛。
+\end{proof}
+
+\section{三层见证的职责边界与哲学闭合}
+
+\begin{proposition}[三层见证的独立证明义务]
+\label{prop:three-witness-obligations}
+下列证明义务相互独立：
+\begin{enumerate}
+\item 棱柱见证证明一次同伦变形的端点差与微分边界关系；
+\item LHTS 偏微下降见证证明一次局部扭曲产生了可归因的残差变化；
+\item TPH-LHTS 分形递归见证证明已认证局部方向形成逐层扩张的候选空间，
+      并通过实际排名下降组成整体收敛路径；
+\item 任务商见证证明上述变化保持规定任务同伦同一性并允许合法回读。
+\end{enumerate}
+签发整体修复需要四项证书在共同定义域上的交集。
+\end{proposition}
+
+\begin{proof}
+棱柱恒等式只涉及链同伦，未自动规定残差信用；
+残差端点下降只涉及当前扭曲，未自动给出后续方向覆盖；
+张成空间单调扩张只说明候选空间不缩小，未自动给出实际势函数下降；
+势函数下降只说明声明指标收敛，未自动给出任务商代表元独立性。
+因此四项义务分别需要棱柱、局部下降、分形递归和任务商证书，
+并在共同域相交后才能推出整体结论。
+\end{proof}
+
+\begin{Certificate}[同伦见证实例化层级证书]
+\label{cert:witness-instance-hierarchy}
+\[
+\boxed{
+\begin{aligned}
+\mathcal W^{\mathrm{prism}}
+&=(F,P,K),
+&&\partial P+P\partial=r_1-r_0,\\
+\mathcal W^{\mathrm{LHTS}}
+&=(H_{i,\alpha},\mathbf G,\boldsymbol\delta_i^\partial,
+   \bar K),
+&&\boldsymbol\delta_i^\partial
+  =-\langle\bar Kd_A\mathbf g,qv\rangle,\\
+\mathcal W^{\mathrm{frac}}
+&=(\{\mathcal T_k\},\mathfrak F,\Phi,\rho),
+&&\operatorname{span}(\mathcal T_k)
+  \subseteq\operatorname{span}(\mathcal T_{k+1}),\\
+\mathcal W^{\mathrm{global}}
+&=\mathcal W^{\mathrm{prism}}
+  \cup\mathcal W^{\mathrm{LHTS}}
+  \cup\mathcal W^{\mathrm{frac}}
+  \cup\mathcal C^{\mathrm{task}},
+&&\rho(D_{t+1})<\rho(D_t).
+\end{aligned}}
+\]
+\end{Certificate}
+
+本章由此把“局部障碍--整体修复”的哲学原理落实为可逐层核验的见证系统：
+\[
+\boxed{
+\begin{gathered}
+\text{局部同伦扭曲产生偏微下降，}
+\\
+\text{棱柱积分证明该下降的链同伦来源，}
+\\
+\text{分形递归把局部见证组织为梯度覆盖与 D-Depth 下降，}
+\\
+\text{任务商保证整条修复路径保持原任务并能够合法回读。}
+\end{gathered}}
+\]
+传统微积分提供棱柱积分、Stokes 恒等式及下降级数估计；
+G 框架把这些局部计算与任务商、同伦见证、递归证书和整体修复连接起来。
+因此，LHTS 与 TPH-LHTS 在本形式系统中的位置，是率--商同伦映射主定理的
+算法层与递归层实例；它们使“为什么局部修复有效”以及
+“为什么局部见证能够组成整体收敛”都成为可证明结论。
+
+\section{一致可达性、一致表达性与可达性优势}
+\label{sec:consistent-reachability-expressivity-advantage}
+
+前述三级结构给出了棱柱积分、LHTS 局部见证与 TPH-LHTS 分形递归之间的
+构造关系。本节在这些定义、恒等式、证书与收敛结论之上增加能力层解释，
+明确三类见证分别回答“是否能够一致到达”“是否能够一致表达”以及
+“递归扩张后是否能够到达固定初始承载之外的修复方向”。
+
+\begin{definition}[棱柱积分的一致可达性]
+设 $\mathcal O_T\subseteq\mathsf A_T^0$ 为任务观测族，
+$r_0,r_1$ 为两个任务实现。称 $r_0$ 与 $r_1$ 通过任务商 $q$ \emph{一致可达}，
+若存在面相容同伦 $F$、棱柱算子 $P$、棱柱积分算子 $K$ 及商上算子
+$\bar K$，使得
+\[
+\partial P+P\partial=r_1-r_0,
+\qquad
+\Pi_{r_1}-\Pi_{r_0}=d_SK+Kd_A,
+\qquad
+q^*\bar K=K,
+\]
+并且
+\[
+\bar Kd_Af=0,
+\qquad f\in\mathcal O_T.
+\]
+这些条件共同保证：端点差由一条定向、边界相容、可在任务商上下降且保持
+任务观测的同伦路径实现。因此，棱柱积分见证的是两个实现之间的
+\emph{一致可达性}，而不仅是端点差的积分表示。
+\end{definition}
+
+\begin{definition}[LHTS 的一致表达性]
+令 $\RR^D$ 为固定类型的任务残差坐标空间，
+$q_R:\RR^D\to\mathcal R_T$ 为残差的任务商。对每个任务状态 $z$，定义
+认证修复表达接口
+\[
+\mathfrak E_z:(i,\alpha)
+\longmapsto
+\bigl(H_{i,\alpha},\boldsymbol\delta_i^\partial,
+\mathcal C_{i,\alpha}^{\mathrm{loc}}\bigr),
+\]
+其中 $H_{i,\alpha}$ 是格点方向上的同伦扭曲，
+$\boldsymbol\delta_i^\partial$ 是其分量偏微下降，
+$\mathcal C_{i,\alpha}^{\mathrm{loc}}$ 是局部归因证书。若对任意
+$z\sim_Tz'$，均存在获准方向之间的运输 $\tau_{z,z'}$，使
+\[
+q_R\!\left(
+\boldsymbol\delta_{\tau_{z,z'}(i,\alpha)}^\partial(z')
+\right)
+=
+q_R\!\left(
+\boldsymbol\delta_i^\partial(z)
+\right),
+\]
+且对应局部证书在该运输下保持有效，则称 LHTS 具有\emph{一致表达性}。
+此时，同一个局部障碍及其修复作用不依赖任务等价类代表元的选择；障碍、
+残差分量、扭曲方向与延迟信用能够在同一有类型接口中稳定表达
+\cite{lhts}。
+\end{definition}
+
+\begin{definition}[同一初始承载上的可达方向空间]
+固定任务、初始承载与当前 $D$ 结构。在本章的比较规约下，令
+\[
+\mathcal R_{\mathrm{trad}}(D)
+:=\operatorname{span}(\mathcal T_0),
+\qquad
+\mathcal R_{mathrm G}(D)
+:=\overline{\bigcup_{k\geq0}\operatorname{span}(\mathcal T_k)}.
+\]
+$\mathcal R_{\mathrm{trad}}(D)$ 表示传统微积分在既定承载、既定坐标与既定
+可微方向内能够生成的修复方向；$\mathcal R_{\mathrm G}(D)$ 表示 G 框架
+通过任务保持的同伦生成、选择、回填与分形递归所能认证到达的方向闭包。
+由于
+\[
+\operatorname{span}(\mathcal T_k)
+\subseteq
+\operatorname{span}(\mathcal T_{k+1}),
+\]
+必有
+\[
+\mathcal R_{\mathrm{trad}}(D)
+\subseteq
+\mathcal R_{mathrm G}(D).
+\]
+\end{definition}
+
+\begin{theorem}[TPH-LHTS 的一致表达性与严格可达性优势]
+\label{thm:tph-lhts-reachability-advantage}
+设每个 $\mathcal T_k$ 中的候选方向均具有 LHTS 一致表达证书，分形递归
+保留旧方向并只加入通过任务商与局部证书认证的新方向。若目标修复方向
+\[
+v_*:=-\nabla\Phi(D)
+\]
+满足
+\[
+\operatorname{dist}\!\left(v_*,\mathcal R_{\mathrm{trad}}(D)\right)>0,
+\qquad
+\lim_{k\to\infty}
+\operatorname{dist}\!\left(
+v_*,\operatorname{span}(\mathcal T_k)
+\right)=0,
+\]
+则
+\[
+\mathcal R_{\mathrm{trad}}(D)
+\subsetneq
+\mathcal R_{mathrm G}(D).
+\]
+因此，TPH-LHTS 同时见证一致表达性的递归扩张，以及 G 框架相对于
+同一固定初始承载上的传统微积分所具有的严格可达性优势。若被选择方向
+还满足本章的 JacGap 势函数下降条件、D-Depth 排名下降条件与任务商保持
+条件，则该优势由方向空间中的可达性提升为实际递归修复路径上的任务保持
+可达性\cite{tphlhts}。
+\end{theorem}
+
+\begin{proof}
+LHTS 一致表达证书保证每个新增方向的障碍语义、残差作用、扭曲来源与
+延迟信用能够沿任务等价代表元运输。分形递归的张成空间单调性给出
+$\mathcal R_{\mathrm{trad}}(D)\subseteq\mathcal R_{\mathrm G}(D)$。
+第一个距离条件说明 $v_*\notin\mathcal R_{\mathrm{trad}}(D)$；第二个距离
+条件说明
+\[
+v_*\in
+\overline{\bigcup_{k\geq0}\operatorname{span}(\mathcal T_k)}
+=\mathcal R_{\mathrm G}(D).
+\]
+故上述包含严格。再由既有势函数下降定理、排名下降证书与任务商保持定理，
+逼近 $v_*$ 的认证方向能够被选择并组成实际递归路径，同时保持规定任务的
+同伦同一性。这就给出所述任务保持可达性。
+\end{proof}
+
+\begin{Certificate}[一致表达与可达性优势证书]
+该证书至少登记：棱柱 $P$ 与积分算子 $K$；商上下降算子 $\bar K$ 及任务
+观测保持条件；表达接口 $\mathfrak E_z$、代表元运输 $\tau_{z,z'}$ 与残差
+任务商 $q_R$；嵌套方向族 $\{\mathcal T_k\}_{k\geq0}$；至少一个位于
+$\mathcal R_{\mathrm G}(D)\setminus\mathcal R_{\mathrm{trad}}(D)$ 的认证目标
+方向及其逐层距离；实际选择路径上的 JacGap 势函数下降、D-Depth 排名下降
+与合法回读证据。证书缺少任一严格包含条件时，只登记可达方向空间的包含
+关系，不登记严格可达性优势。
+\end{Certificate}
+
+由此，三级见证的能力层口径为
+\[
+\boxed{
+\begin{aligned}
+\text{棱柱积分}
+&:\quad \text{一致可达性见证},\\
+\text{LHTS}
+&:\quad \text{一致表达性见证},\\
+\text{TPH-LHTS}
+&:\quad \text{一致表达性的递归扩张}\notag\\
+&\phantom{:={}}\quad
++\ \text{G 框架相较固定承载传统微积分的严格可达性优势见证}.
+\end{aligned}}
+\]
+传统微积分继续提供路径积分、Stokes 恒等式与局部下降估计；G 框架通过
+有证书的表示扩张、承载扩张与路径扩张，把固定初始承载中无法表达和抵达的
+修复方向纳入可执行的整体修复过程。三级见证因而分别固定路径的一致性、
+表达的一致性与修复方向的扩张可达性。
+
+\chapter{率与商的组织方向及语义分辨率塔}
+\label{sec:tower}
+本章构造主映射所需的任务等价关系及商表示塔；测试的增加决定共同任务域与细化方向。
+\section{从局部变化到任务区分}
+宏观--微观的尺度关系与局部--整体的接续关系各有类型，
+第~\ref{sec:axes-gms} 章给出二者相互独立的模型。
+“率”组织选定表示中的变化与积累；“商”组织任务等价类及其充分细化，接续由相容映射与同伦见证实现。两条路线可写为
+\[
+\begin{aligned}
+&\text{尺度与表示}\to\text{变化率}\to\text{极限与积分}\to\text{分析实现},\\
+&\text{局部纠缠}\to\text{任务测试}\to\text{商与修复}\to\text{合法回落}.
+\end{aligned}
+\]
+这是一种方法生成结构的对应。严格的同伦等价需要指定空间、映射和同伦见证，本文在后续图与复形模型中分别给出。性质塔的来源与离散组织连续的思想见文献~\cite{propertytower,discrete,layers}。
+
+\begin{definition}[测试分辨率]
+对测试族 \(P\) 定义
+\[
+x\approx_P y\iff \forall f\in P,\ f(x)=f(y),\qquad X_P=X/{\approx_P}.
+\]
+每个 \(f\) 的值域固定。测试越丰富，所保留的语义区分越细。
+\end{definition}
+
+\section{性质塔的良定义与有限复合}
+\begin{theorem}[性质塔及其相容性]
+\label{thm:tower}
+若 \(P_k\subseteq P_{k+1}\)，则 \(\approx_{P_{k+1}}\) 细化 \(\approx_{P_k}\)，映射
+\[
+p_{k+1,k}:X_{P_{k+1}}\to X_{P_k},\qquad [x]_{P_{k+1}}\mapsto[x]_{P_k}
+\]
+良定义且满射。任意 \(i<j<k\) 满足 \(p_{k,i}=p_{j,i}p_{k,j}\)。
+\end{theorem}
+\begin{Certificate}[等价关系与塔复合证书]
+记录测试包含关系、代表元无关性及
+\(p_{k+1,k}q_{k+1}=q_k\)。有限复合的归纳参数为层间距离。
+\end{Certificate}
+\begin{proof}
+逐测试相等具有自反性、对称性和传递性，故定义等价关系。细层同类使全部 \(P_{k+1}\) 测试相等，特别使 \(P_k\) 相等，因此映射不依赖代表元。任意粗类有代表元 \(x\)，其细类映到该粗类，得到满射。相邻一步已成立；假设长度 \(n\) 的复合把 \([x]\) 送到预定粗类，再复合一步仍把同一代表元送到下一粗类，得到长度 \(n+1\)。两条复合在全部代表元上相等，故塔相容。
+\end{proof}
+
+\section{连续纤维与离散接续的共同实现}
+\begin{definition}[混合语义实现]
+取离散索引图 \(\mathcal I\)，对每个索引 \(i\) 配连续空间 \(M_i\) 与层内流 \(\varphi_i^t\)；对允许边 \(i\to j\) 配有定义域的接续 \(R_{ij}\)。总实现为 \(\bigsqcup_iM_i\)，有限运行由层内流和合法接续交替复合。
+\end{definition}
+\begin{proposition}[局部连续性与全局语义治理相容]
+\label{prop:hybrid}
+若每个层内流及每个接续均保持任务不变量 \(I\)，则任意有限混合运行保持 \(I\)。离散索引的存在不要求各 \(M_i\) 为离散空间，也不要求索引总数有限。
+\end{proposition}
+\begin{Certificate}[混合运行证书]
+记录有限词 \(w=F_m\cdots F_1\)、每个 \(F_j\) 的流或接续类型、定义域命中与 \(I\) 保持式。使用定理~\ref{thm:generated} 的一元构造子实例。
+\end{Certificate}
+\begin{proof}
+长度零保持初值。设前 \(m\) 步的像满足 \(I\)，第 \(m+1\) 步定义域核验通过，保持式推出其像也满足 \(I\)。故所有有限运行保持 \(I\)。证明只访问运行中的有限索引；层内空间及全体索引的基数没有进入归纳步。
+\end{proof}
+\begin{remark}[层级职责]
+\(L_1\) 的离散索引、\(L_2\) 的连续基底、\(L_3\) 的递归编码及更高层的修复，可在该模型中分别实现\cite{layers}。层内连续实现与层间语义接续共同承载求解；消除某层的终局性，不会消除它作为局部表示的存在性。
+\end{remark}
+
+\chapter{母结构、投影充分性与表示失配}
+\label{sec:projection}
+本章证明表示映射的下降判据，给出积分映射和任务读回在纤维上良定义所需的基础。
+\section{演化下降到表示层的充要条件}
+\begin{theorem}[下降映射判据]
+\label{thm:descent}
+设满射 \(\pi_t:X_t\to Y_t\)、\(\pi_{t+1}:X_{t+1}\to Y_{t+1}\) 及演化 \(T_t:X_t\to X_{t+1}\) 已给定。存在唯一 \(\bar T_t\) 使
+\[
+\pi_{t+1}T_t=\bar T_t\pi_t
+\]
+当且仅当 \(\pi_t(x)=\pi_t(x')\Rightarrow\pi_{t+1}T_t(x)=\pi_{t+1}T_t(x')\)。
+\end{theorem}
+\begin{Certificate}[纤维一致性见证]
+证书记录前后投影、\(T_t\) 及其在每个 \(\pi_t\) 纤维上的输出一致性证明。反证见证为同纤维输入对及不同输出；正向见证定义 \(\bar T_t(\pi_t x)=\pi_{t+1}T_t x\)。
+\end{Certificate}
+\begin{proof}
+若交换式成立，同纤维输入被 \(\bar T_t\) 送到相同输出，必要性成立。反之按证书定义 \(\bar T_t\)，纤维一致性保证代表元无关。满射使其覆盖所有 \(Y_t\)，任何满足交换式的映射在每个 \(\pi_t x\) 上均被强制取此值，故唯一。
+\end{proof}
+
+\section{投影奇异化与任务信息的不可恢复性}
+\begin{proposition}[奇异投影的区分障碍]
+\label{prop:singular}
+令 \(X=\RR^2\)，\(\pi_\theta(u,v)=(u,\theta v)\)。当 \(\theta\ne0\) 时它可逆。当 \(\theta=0\) 且任务输出 \(F\) 满足 \(F(u,v_1)\ne F(u,v_2)\) 时，不存在 \(g\) 使 \(F=g\pi_0\)。
+\end{proposition}
+\begin{Certificate}[同像异值证书]
+记录 \((u,v_1),(u,v_2)\)、\(v_1\ne v_2\)、两次任务测试及共同投影 \((u,0)\)。非奇异分支保存逆映射 \((a,b)\mapsto(a,b/\theta)\)。
+\end{Certificate}
+\begin{proof}
+\(\theta\ne0\) 时直接复合验证给出的逆。\(\theta=0\) 时若 \(F=g\pi_0\)，则
+\(F(u,v_1)=g(u,0)=F(u,v_2)\)，与证书中的异值矛盾。随机求解器只访问同一投影时也得到相同输出分布，无法对两个不同且唯一的目标都以概率一正确。
+\end{proof}
+
+\section{充分接口重建与复合自然性}
+\begin{corollary}[保留信息上的表示重建]
+\label{cor:reconstruct}
+若可合法访问的母接口 \(q:X\to Q\) 使 \(F=\widetilde Fq\)，则使用 \(q\) 与 \(\widetilde F\) 可完成任务。若沿有限演化逐步满足下降交换式，则整段演化也满足交换式。
+\end{corollary}
+\begin{Certificate}[可访问性与自然方块证书]
+除因子化公式外，记录 \(q\) 的真实输入来源、访问代价和每步交换方块；长度 \(m\) 的结论为
+\[
+\pi_mT_{m-1}\cdots T_0=\bar T_{m-1}\cdots\bar T_0\pi_0.
+\]
+\end{Certificate}
+\begin{proof}
+任务结论由 \(F=\widetilde Fq\) 直接求值得到。复合长度一即前提；长度 \(m+1\) 时先用最后一个交换方块，将 \(\pi_{m+1}T_m\) 换成 \(\bar T_m\pi_m\)，再用长度 \(m\) 的归纳假设即得公式。合法访问是任务实现的前提，无法由代数因子化产生丢失的数据。
+\end{proof}
+\begin{remark}[母空间解释与策略规则]
+\(\PFB\) 背景给出结构、联络与语义表示的组织方式\cite{pure,app3}。表示失配发生于母演化与任务表示之间；在这个模型中，“连续表示崩溃”指向任务充分性的丧失。策略选择、规则参数及合法动作集合分属不同类型；改变其中一个字段时，应分别核验其余字段的保持。
+\end{remark}
+
+\chapter{精确任务商、有限可达性与合法回落}
+\label{sec:quotient}
+本章在动作、全部响应与目标层面展开精确任务商，为同伦映射主定理的执行部分提供可构造条件。
+\section{完整任务语义及精确商条件}
+\begin{definition}[精确任务商]
+对 \(\mathcal M\) 及 \(\bar{\mathcal M}\)，满射 \(q:X\to\bar X\) 是精确任务商，若
+\begin{equation}\label{eq:exact}
+\begin{aligned}
+A(x)&=\bar A(qx),&\Xi(x,a)&=\bar\Xi(qx,a),\\
+q\delta(x,a,\xi)&=\bar\delta(qx,a,\xi),&G&=q^{-1}(\bar G),\\
+U(x,a,\xi)&=\bar U(qx,a,\xi).
+\end{aligned}
+\end{equation}
+这里采用共同动作、响应标签，因而原层可直接执行商层动作。测试族包括上述字段与后续行为。若动作改名，须另给双向覆盖合法动作及全部响应的实现对应。
+此外，每项规定测试 \(f\) 都须给出商层测试 \(\bar f\)，满足
+\(f=\bar f\circ q_f\)，其中 \(q_f\) 是 \(q\) 在该测试上下文上的诱导映射。
+有限执行上下文逐状态投影，并保留原动作和响应；后继交换保证其像仍为合法执行。
+\end{definition}
+\begin{remark}[语义等价与可计算性]
+对给定状态测试族 \(\mathcal T_X\)，其中每项 \(f:X\to Y_f\)，定义
+\(x\sim y\iff\forall f\in\mathcal T_X,\ f(x)=f(y)\)，得到这些测试规定的任务等价。
+计算任意测试族的完整等价关系不自动可行；以下定理要求已经有满足式~\eqref{eq:exact}
+及全部规定测试因子化的商或生成式证明。仅保留单次分数，不足以推出后继交换与策略回落。
+\end{remark}
+
+\section{有限步鲁棒可达性的双向保持}
+\begin{theorem}[鲁棒前驱与任务商交换]
+\label{thm:reach}
+令 \(W_0=G\)，并定义
+\[
+W_{m+1}=W_m\cup\{x:\exists a\in A(x)\ \forall\xi\in\Xi(x,a),\ \delta(x,a,\xi)\in W_m\}.
+\]
+商层同样定义 \(\bar W_m\)。精确任务商满足
+\[
+W_m=q^{-1}(\bar W_m)\qquad(m\ge0).
+\]
+\end{theorem}
+\begin{Certificate}[可达集归纳证书]
+基例为目标原像式；归纳步保存共同动作、共同响应及后继交换。关键量词等价为
+\[
+\begin{aligned}
+&\exists a\ \forall\xi:\delta(x,a,\xi)\in q^{-1}(\bar W_m)\\
+&\quad\Longleftrightarrow\exists a\ \forall\xi:\bar\delta(qx,a,\xi)\in\bar W_m.
+\end{aligned}
+\]
+\end{Certificate}
+\begin{proof}
+\(m=0\) 来自 \(G=q^{-1}\bar G\)。假设等式在 \(m\) 成立。对固定 \(x\)，原层“存在合法动作、全部允许响应”的量词域与商层完全相同；后继交换把内层成员关系逐项等价变换为商层关系。因此原层鲁棒前驱等于商层鲁棒前驱的原像。原像保持并集，与归纳假设合并得到 \(m+1\) 的等式。
+\end{proof}
+
+\begin{corollary}[有界步数策略的回落]
+\label{cor:policy}
+在有限动作集情形，商层 \(\bar W_m\) 上的秩下降策略可合法回落，并在至多 \(m\) 步内对全部允许响应进入 \(G\)。
+\end{corollary}
+\begin{Certificate}[策略及终止秩]
+取 \(\rho(\bar x)=\min\{k:\bar x\in\bar W_k\}\)。对 \(\rho>0\) 记录一个使全部后继秩至多 \(\rho-1\) 的动作 \(\bar\sigma(\bar x)\)，令 \(\sigma(x)=\bar\sigma(qx)\)。
+\end{Certificate}
+\begin{proof}
+最小秩的定义与 \(\bar W_k\) 递推给出所需动作。共同动作标签保证它在原层合法。每步后继交换保持投影轨迹，秩严格减少一；自然数秩至多减少 \(m\) 次到零。零秩属于 \(\bar G\)，目标原像式使原层属于 \(G\)。这同时给出策略可执行性与有限停机证明。
+\end{proof}
+
+\section{商的复合与近似任务商的误差预算}
+\begin{proposition}[精确任务商的复合闭合]
+\label{prop:quotcomp}
+两个采用共同动作与响应的精确任务商 \(q:X\to Y\)、\(p:Y\to Z\) 的复合 \(pq\) 仍是精确任务商；任意有限条精确任务商链均保持任务与有限可达性。
+\end{proposition}
+\begin{Certificate}[复合证书]
+保存两级目标原像、效用因子化与
+\(pq\delta=p\delta_Yq=\delta_Zpq\)。长度归纳按相邻两级合并。
+\end{Certificate}
+\begin{proof}
+满射的复合为满射；动作和响应集合的两次相等给出首尾相等；效用因子化及目标原像等式直接复合。后继等式如证书所列，故全部条件成立。由长度一基例及合并两级的归纳步覆盖有限商链，再应用定理~\ref{thm:reach}。
+\end{proof}
+
+\begin{proposition}[近似交换的有限步残差界]
+\label{prop:approx}
+设商层后继关于状态具有统一 Lipschitz 常数 \(L\ge0\)，每一步交换缺陷至多 \(\eta\)，共同动作响应且 \(e_0=0\)。则同一标签运行的投影误差满足
+\[
+e_m\le\eta\sum_{j=0}^{m-1}L^j.
+\]
+\end{proposition}
+\begin{Certificate}[误差递推证书]
+保存逐步交换缺陷上界与 Lipschitz 见证，并验证 \(e_{m+1}\le\eta+Le_m\)。目标接受还需单独的安全裕量覆盖此误差界。
+\end{Certificate}
+\begin{proof}
+由三角不等式把第 \(m+1\) 步误差分解为本步交换缺陷及商层输入误差的传播，得到递推。基例 \(e_0=0\)；代入归纳界得
+\(e_{m+1}\le\eta+L\eta\sum_{j=0}^{m-1}L^j=\eta\sum_{j=0}^{m}L^j\)。近似误差界本身不推出离散目标谓词相等，目标裕量承担该义务。
+\end{proof}
+
+\chapter{同调分型、效用零方向与剩余障碍}
+\label{sec:homology}
+\section{有限连通图的完整同伦正规型}
+\begin{theorem}[图的树收缩分类]
+\label{thm:graph}
+有限连通图 \(G\) 有 \(v\) 个顶点、\(e\) 条边，则
+\[
+G\simeq\bigvee^{e-v+1}S^1,\qquad H_1(G;\ZZ)\cong\ZZ^{e-v+1}.
+\]
+因此在有限连通图的同伦类型中，\(H_1\) 的秩确定类型。
+\end{theorem}
+\begin{Certificate}[生成树及非树边证书]
+记录含全部顶点的无环连通子图 \(T\)、\(v-1\) 条树边与全部非树边。边收缩提供同伦见证；细胞边界矩阵提供同调见证。该构造参照图的极大树方法\cite{hatcher}。
+\end{Certificate}
+\begin{proof}
+从一个顶点开始，连通性保证在尚未覆盖全部顶点时可添加一条连接新顶点的边。每步增加一个顶点与一条边且保持无环，对已覆盖顶点数归纳得到生成树及 \(v-1\) 条边。逐次收缩树边：每条树边是连接不同顶点的可缩子复形，其收缩为图的同伦等价，可由沿该边移动端点并延伸邻边的同伦实现。有限复合仍为同伦等价。收缩后只有一个顶点，剩余 \(e-v+1\) 条边均为环。该细胞复形的一级边界为零且无二级胞腔，故一级同调为所列自由阿贝尔群。相同秩给出相同楔和正规型，反向由同伦保持同调成立。
+\end{proof}
+
+\section{表示的核及任务不可见方向}
+\begin{proposition}[语义表示核的理想性质]
+\label{prop:kernel}
+设 \(\rho:\mathfrak g\to\operatorname{Der}(\mathfrak F)\) 为 Lie 代数同态。则 \(\ker\rho\) 是理想，商 \(\mathfrak g/\ker\rho\) 与 \(\im\rho\) 同构。若是微分分次表示并满足 \(\rho d=d\rho\)，其核还是微分子复形。
+\end{proposition}
+\begin{Certificate}[核及诱导表示证书]
+对 \(a\in\ker\rho,b\in\mathfrak g\) 验证
+\(\rho[b,a]=[\rho b,0]=0\)；微分情形再验证 \(\rho(da)=d0=0\)。保存 \([a]\mapsto\rho a\) 的代表元无关性。
+\end{Certificate}
+\begin{proof}
+线性性给出核为子空间，括号恒等式给出理想性质。代表元相差核元素时表示相同，故商映射良定义；它满射到像，且零像意味着原类为零，故单射。微分相容式使核在微分下稳定。这使文献~\cite{app3} 中语义退化表示的效用零方向在严格 Lie 子模型内得到直接构造。
+\end{proof}
+
+\section{余链取商消去障碍的精确判据}
+\begin{theorem}[商映射的上同调核]
+\label{thm:cohkernel}
+设 \((C^\bullet,d)\) 为余链复形，\(K^\bullet\) 为子复形，\(p:C\to\bar C=C/K\)。对闭余链 \(\omega\in C^n\)，
+\[
+p_*[\omega]=0\iff[\omega]\in\im\bigl(H^n(K)\to H^n(C)\bigr).
+\]
+\end{theorem}
+\begin{Certificate}[原始元提升证书]
+正向保存 \(\bar h\in\bar C^{n-1}\)、任一提升 \(h\) 及 \(k=\omega-dh\)，验证
+\(p\omega=\bar d\bar h\)、\(k\in K^n\)、\(dk=0\)。反向保存 \(\omega=k+dh\)。
+\end{Certificate}
+\begin{proof}
+若 \(p_*[\omega]=0\)，存在 \(\bar h\) 使 \(p\omega=\bar d\bar h\)。满射 \(p\) 给出提升 \(h\)，于是 \(p(\omega-dh)=0\)，故 \(k=\omega-dh\in K\)；又 \(dk=d\omega-d^2h=0\)。\([k]\) 在 \(C\) 中等于 \([\omega]\)。反之若 \(\omega=k+dh\) 且 \(k\in K\) 闭合，则 \(p\omega=\bar d(ph)\)，所以其商层类为零。两方向均提供显式见证。
+\end{proof}
+
+\section{带回缩修复的语义保持}
+\begin{proposition}[回缩保留已有类]
+\label{prop:retract}
+若链映射 \(L:\bar C\to\widetilde C\)、\(P:\widetilde C\to\bar C\) 满足
+\(PL-\id=dh+hd\)，则 \(P_*L_*=\id\)，从而 \(L_*\) 单射。原来非零的 \([\omega]\in H(\bar C)\) 在 \(\widetilde C\) 中仍非零。
+\end{proposition}
+\begin{Certificate}[链同伦回缩证书]
+记录次数为 \(-1\) 的 \(h\)、两张链映射及 \(PL-\id=dh+hd\)。对闭 \(\omega\)，复算 \(PL\omega-\omega=d(h\omega)\)。
+\end{Certificate}
+\begin{proof}
+闭性使 \(hd\omega=0\)，所以 \(PL\omega\) 与 \(\omega\) 同类，诱导映射复合为恒等。若 \(L_*[\omega]=0\)，应用 \(P_*\) 得 \([\omega]=0\)，证明单射。对原复形添加恰当项只改变代表元，也保持类。因此取商负责消去核中的类，回缩修复负责保持商层已有语义并补足新的实现数据。
+\end{proof}
+
+\chapter{同伦填补、总微分修复与真实停机}
+\label{sec:repair}
+本章展开映射交换失配后的填补方程；修复见证须与主线的任务观察及复形微分相容。
+\section{性质转换的接续缺陷与同伦见证}
+性质转换、Jacobiator-gap 与可容许填补是 G 框架组织修复的核心对象\cite{pure,app3}。以下在链映射模型中将“缺失同伦数据”写成可求解的方程。
+\begin{theorem}[性质转换的同伦填补判据]
+\label{thm:filler}
+设 \(S_{12},S_{23},S_{13}\) 为相容类型的链映射。令
+\(J=S_{23}S_{12}-S_{13}\in\Hom^0(C_1,C_3)\)，其 Hom 微分为
+\(\partial f=d_3f-(-1)^{|f|}fd_1\)。则 \(\partial J=0\)，且存在同伦 \(h\) 满足
+\[
+J=d_3h+hd_1
+\]
+当且仅当 \([J]=0\in H^0\Hom(C_1,C_3)\)。
+\end{theorem}
+\begin{Certificate}[填补原始元]
+保存三个链映射的交换式、次数 \(-1\) 的 \(h\) 与 \(\partial h=J\)。不存在已知 \(h\) 时，记录待解的 Hom 上同调类，不签发填补结论。
+\end{Certificate}
+\begin{proof}
+链映射的复合仍与微分交换，所以两项的 Hom 微分均为零，\(\partial J=0\)。\(h\) 的次数为 \(-1\)，故 \(\partial h=d_3h+hd_1\)。存在这种 \(h\) 恰等价于闭余链 \(J\) 为恰当余链，即其类为零。由同伦式可知两条转换在上同调上作用一致。
+\end{proof}
+
+\section{修复塔逐阶方程的归纳闭合}
+\begin{theorem}[总微分的逐阶障碍]
+\label{thm:repairtower}
+设 \(D_0^2=0\)，\(K_r\) 为次数一的算子，并取
+\(D^{(n)}_\varepsilon=D_0+\sum_{r=1}^n\varepsilon^rK_r\)。在算子余链微分 \(\partial A=[D_0,A]\) 下，第 \(n\) 阶闭合要求
+\begin{equation}\label{eq:towerrepair}
+\partial K_n=-O_n,\qquad
+O_n=\sum_{\substack{i+j=n\\i,j\ge1}}K_iK_j.
+\end{equation}
+若前 \(n-1\) 阶已闭合，则 \(\partial O_n=0\)；存在 \(K_n\) 当且仅当 \([O_n]=0\in H^2(\End C,\partial)\)。逐阶见证给出任意有限阶的闭合截断。
+\end{theorem}
+\begin{Certificate}[阶数归纳与障碍原始元]
+保存 \(D_0^2=0\)、每阶 \(O_n\) 及 \(K_n\)。验证
+\((D^{(n)}_\varepsilon)^2=0\pmod{\varepsilon^{n+1}}\)。\(n=1\) 时空和 \(O_1=0\)。
+\end{Certificate}
+\begin{proof}
+平方的 \(\varepsilon^n\) 系数为
+\(D_0K_n+K_nD_0+\sum_{i+j=n}K_iK_j=\partial K_n+O_n\)，得到所列方程。令 \(A=D^{(n-1)}_\varepsilon\)，结合律给出 \([A,A^2]=0\)。前低阶平方系数已为零；取该恒等式的 \(\varepsilon^n\) 系数，只剩 \([D_0,O_n]=\partial O_n=0\)。于是可解性等价于闭二次余链 \(O_n\) 为恰当余链。基例 \(D_0^2=0\) 成立，添加 \(K_n\) 消除本阶系数且不改变低阶，归纳完成。
+\end{proof}
+
+\section{形式完成、收敛实现与总同调}
+\begin{theorem}[总微分的可实现闭合]
+\label{thm:total}
+全部逐阶方程成立时，\(D_\varepsilon^2=0\) 在形式幂级数环中成立。若另有 Banach 分次空间上的有界算子实现且
+\(\sum_{r\ge1}\norm{K_r}<\infty\)，则
+\[
+D=D_0+\sum_{r\ge1}K_r,\qquad D^2=0,
+\qquad H^n(C,D)=\ker D_n/\im D_{n-1}
+\]
+良定义。此处同调商先按代数意义取；若要求 Hausdorff 拓扑，须再验证像闭合。
+\end{theorem}
+\begin{Certificate}[求和与系数消去证书]
+保存逐阶证书、绝对收敛上界以及双重乘积级数的估计
+\(\sum_{i,j}\norm{K_iK_j}\le(\sum_i\norm{K_i})^2\)，其中 \(K_0=D_0\)。
+\end{Certificate}
+\begin{proof}
+形式级数中每个系数只有有限项，逐阶零系数即为形式平方零。绝对算子范数收敛使总和及双重乘积合法，并允许按 \(i+j=n\) 重排。每组和为零，故 \(D^2=0\)。于是 \(\im D_{n-1}\subseteq\ker D_n\)，商向量空间良定义。该证明给出文献~\cite{total} 总同调结构的一种明确收敛实现；纯形式级数无需也不能直接由形式符号赋值推出 \(\varepsilon=1\) 的解析结论。
+\end{proof}
+
+\section{修复能量、有限终止与剩余语义}
+\begin{theorem}[可容许修复的有限停机界]
+\label{thm:stop}
+设可实现修复步始终保持任务语义与类型，非负能量
+\(E_n=E_{\rm task}(L_n)+\lambda\JacGap(L_n)\)，\(\lambda>0\)。若每个尚未接受的阶段均存在实际执行的步使 \(E_{n+1}\le E_n-\gamma\)，其中 \(\gamma>0\) 固定，则至多 \(\lfloor E_0/\gamma\rfloor+1\) 次这种非终态步之前必须达到接受状态。
+\end{theorem}
+\begin{Certificate}[下降与语义保持证书]
+逐步记录实际算子、\(E_n\)、\(E_{n+1}\)、合法性、任务交换式与接受谓词。保留归纳不变量 \(E_n\le E_0-n\gamma\)。
+\end{Certificate}
+\begin{proof}
+\(n=0\) 成立；每次未接受且执行修复时，将下降式代入归纳界即得下一步。若可持续执行超过 \(E_0/\gamma\) 个非终态步，则 \(E_n<0\)，与非负性矛盾。步存在性与可执行性排除了无算子可用的中断，故终止点满足已指定接受谓词。
+\end{proof}
+\begin{remark}[残差与修复能力]
+能量下降到极限与有限停机是不同结论。例如 \(E_n=1/(n+1)\) 严格下降却不在有限步等于零。文献~\cite{pure} 的修复扩张与补全提供结构组织；具体有限求解由下降幅、阈值、可执行步及回放见证共同成立。有效语义、保留不变量、证书和待修复残差可共同作为语义信息载体\cite{fos}。
+\end{remark}
+
+\section{有限呈示上的修复算子构造与障碍返回}
+\label{sec:repair-algorithm}
+\begin{theorem}[Hom 填补的有限消元算法]
+\label{thm:elimination}
+在有限维有理数复形或有限域复形中，固定基后，令 \(B\) 为
+\(\partial:\Hom^{-1}\to\Hom^0\) 的矩阵，\(j\) 为接续缺陷 \(J\) 的坐标。
+可在有限步内输出以下两者之一：
+\[
+Bh=j,\qquad\text{或}\qquad w^{\mathsf T}B=0,\quad w^{\mathsf T}j\ne0 .
+\]
+前者构造填补算子，后者证明本呈示中的填补不存在。
+相同算法适用于修复塔每阶的方程 \(\partial K_n=-O_n\)。
+\end{theorem}
+\begin{Certificate}[消元与否决的共同账本]
+从增广矩阵 \([B\mid j]\) 开始，记录换行、非零缩放及行相加；
+同步把单位矩阵更新为可逆矩阵 \(E\)。接受时保存回代解与 \(Bh=j\)；
+若出现 \([0\mid c]\)、\(c\ne0\)，保存 \(E\) 的对应行 \(w^{\mathsf T}\)。
+\end{Certificate}
+\begin{proof}
+逐列寻找非零主元。找到时换到当前行、用逆元归一并消去其他行该列；
+主元列数严格增加且不超过列数，全部内层循环有限。行变换可逆，
+所以 \(E[B\mid j]\) 与原方程等价。矛盾行直接给出
+\(w^{\mathsf T}Bh=0\ne w^{\mathsf T}j\)，排除任何解。
+无矛盾行时把自由变量置零并回代，主元行逐项满足，零行也满足，
+得到 \(h\)。把坐标重组为次数 \(-1\) 的映射即可代入
+定理~\ref{thm:filler}。逐阶使用时先计算已知低阶乘积 \(O_n\)，
+然后对本阶矩阵消元；任意指定有限截断都得到填补或明确障碍。
+本算法没有把非零上同调类强行判成零。
+\end{proof}
+
+\begin{theorem}[有限任务与独立填补块的构造性停机]
+\label{thm:constructive-stop}
+设任务状态、动作、响应均为显式有限集。另有有限个互不改写的填补块
+\(B_i h_i=j_i\)，每块有消元得到的精确解，填补只扩充实现见证并保持
+任务交换式。对从鲁棒可达集 \(W_*\) 出发的任务，可构造实际步、
+\(\JacGap\)、能量及统一下降幅，而无须额外假定每步下降存在。
+\end{theorem}
+\begin{Certificate}[修复调度、残差与接受]
+迭代计算 \(W_0=G,W_1,\ldots\)，到集合不再变化为止，得到 \(W_*\)；
+每个首次加入的状态保存一个对全部响应降低秩的动作。
+定义
+\[
+\begin{aligned}
+\rho(x)&=\min\{m:x\in W_m\},\\
+\mathsf{gap}_i(h_i)&=\sum_\ell\mathbf1[(B_i h_i-j_i)_\ell\ne0],\\
+\JacGap_{\rm fill}(L)&=\sum_i\mathsf{gap}_i(h_i),&
+E(L)&=\rho(x)+\lambda\JacGap_{\rm fill}(L).
+\end{aligned}
+\]
+式中 \(j_i\) 是已冻结的缺陷向量，\(\mathsf{gap}_i\) 是可逐坐标求值的残差计数。
+下标 \(\mathrm{fill}\) 指填补后的剩余方程；原二元 Jacobiator 的幅度另行登记，
+二者的判据见第~\ref{sec:rich-closure} 章。
+先把首个非零残差块替换为消元解，再执行秩下降策略。
+接受谓词为 \(\rho(x)=0\)、全部块残差为零及任务、填补回放均通过。
+\end{Certificate}
+\begin{proof}
+可达集单调增加。若未稳定，每次至少加入一个新状态，故至多
+\(|X|\) 次严格增加后稳定。对最小正秩状态，定义式给出合法动作，
+逐一枚举非空响应即可验证所有后继的秩至多为 \(\rho-1\)。
+在 \(W_*\) 外的状态返回不可达结果，不签发该求解成功结论。
+
+对一个非零填补块，用已构造解整体替换，使至少一个非零坐标残差消失，
+且其余块不变，故 \(\JacGap_{\rm fill}\) 至少降低一。独立性和任务交换式保证
+填补不改写 \(x\) 及既有任务语义。全部填补完成后，
+每次真实任务动作使 \(\rho\) 至少降低一，全部块继续闭合。
+所以每个非终态步都使 \(E\) 至少降低
+\(\gamma=\min\{1,\lambda\}>0\)，并保持非负性。
+调度只需至多“初始非零块数加 \(\rho(x_0)\)”个修复或任务步。
+消元与可达集计算的预处理成本另计，均已证明有限。
+终点逐项代入全部方程和 \(g(x)=1\)，给出实际回放及接受。
+\end{proof}
+
+\begin{remark}[构造覆盖的范围]
+一般修复能力仍须给出具体呈示及允许算子；有限呈示的上述算法同时
+提供成功分支与障碍分支。相互耦合的块须联合消元或逐阶保持低阶方程，
+不能套用独立块下降证明。任意实数黑箱的精确判零、无限阶收敛和任意任务
+的鲁棒可达性均不由有限算法自动保证。当填补块为空且任务具有自然数严格下降秩时，本定理退化为纯任务秩的有限终止论证。
+\end{remark}
+
+\chapter{任务核心、扩展状态与参数化求解}
+\label{sec:task-core}
+本章为主同伦映射的任务侧给出一般构造。核心任务、扩展状态及求解器分别声明；
+商保持由结构方程证明，有限求解由完整转移表构造。
+\section{任意任务核心上的非干扰扩展}
+\begin{definition}[核心任务与扩展族]
+\label{def:core-fields}
+给定任务结构 \(\mathcal S=(S,A_S,\Xi_S,T,U_S,G_S,\mathcal T_S)\)，
+其各字段采用第~\ref{sec:logic} 章的类型。对每个参数 \(N\)，取非空集合
+\(Z_N\)，令 \(X_N=S\times Z_N\)、\(q_N(s,z)=s\)。规定
+\begin{equation}\label{eq:gen}
+\begin{aligned}
+\delta_N((s,z),a,\xi)&=(T(s,a,\xi),H_N(s,z,a,\xi)),\\
+A_N(s,z)&=A_S(s),&\Xi_N((s,z),a)&=\Xi_S(s,a),\\
+G_N&=q_N^{-1}(G_S),&U_N&=U_S\circ(q_N,\id,\id).
+\end{aligned}
+\end{equation}
+\(H_N\) 在全部合法输入上取值于 \(Z_N\)。每个规定状态测试是
+\(f_N=f\circ q_N\)，每个动作响应测试也按相同标签拉回。
+有限执行测试沿逐状态投影、保留动作响应标签的上下文映射拉回。
+这些因子化是扩展族的输入条件。若新增必需测试读取 \(z\)，须重新核验任务商。
+\end{definition}
+\begin{theorem}[任意核心的非干扰扩展商]
+\label{thm:noninterference}
+上述 \(q_N\) 是精确任务商，保持任意有限合法执行的全部规定测试与
+鲁棒可达性。该结论不要求 \(S\) 或 \(Z_N\) 有限。
+\end{theorem}
+\begin{Certificate}[逐字段生成规则]
+保存 \(T\) 的定义域、\(H_N\) 的值域、全部任务字段的因子化与
+\(q_N\delta_N=T(q_N,\id,\id)\)。符号证明核对自由变量及类型；
+参数 \(N\) 只进入已声明的扩展部分。
+\end{Certificate}
+\begin{proof}
+\(Z_N\ne\varnothing\) 使 \(q_N\) 满射。后继的第一分量给出交换式，
+动作、响应、目标和观察逐项满足式~\eqref{eq:exact}。
+零长度执行保持初态；一步交换将相关前态送到相关后态，按长度归纳保持有限前缀。
+定理~\ref{thm:reach} 再给出每个有限步数上的可达集原像等式。
+\end{proof}
+
+\section{有限核心上的可构造求解与否决见证}
+\begin{definition}[有限任务的完整输入]
+\label{def:finite-core-input}
+设 \(S\) 非空有限，合法动作集及每个合法动作的非空响应集均有限，
+并显式给出 \(T\)、\(G_S\) 和相应枚举。令 \(n=|S|\)，表大小记为
+\[
+B=n+\sum_{s\in S}\sum_{a\in A_S(s)}(1+|\Xi_S(s,a)|).
+\]
+基元成本模型允许按地址读取一个表项、检验一个成员位并执行一次整数索引操作。
+表的构造及真实性验证另列为输入成本。
+\end{definition}
+\begin{theorem}[有限核心的秩下降求解]
+\label{thm:core-solver}
+从 \(W_0=G_S\) 迭代鲁棒前驱，在至多 \(n\) 次严格扩张后得到固定点
+\(W_*\)。完整扫描算法的预处理成本为 \(O(nB)\)。
+对 \(s\in W_*\)，算法给出至多 \(n\) 步到达目标的策略；
+对 \(s\notin W_*\)，给出阻止任何有限保证到达目标的响应见证。
+该求解与否决均经任意精确任务商传递。
+\end{theorem}
+\begin{Certificate}[秩表与补集响应]
+对首次加入 \(W_j\) 的每个状态保存一个使全部后继落入 \(W_{j-1}\) 的动作。
+对补集每个合法动作保存一个仍落入补集的响应。无合法动作且不在目标中的状态
+直接登记为不能到达目标。预处理表给出状态索引、秩及所选动作。
+\end{Certificate}
+\begin{proof}
+递推单调，每次严格扩张至少加入一个状态，故至多 \(n\) 次严格扩张。
+每轮扫描成本为 \(O(B)\)，再检查一次固定点仍为 \(O(nB)\)。
+首次加入的秩严格下降，推论~\ref{cor:policy} 给出有限策略及步数界。
+固定点的补集不含目标；若其中一个合法动作的全部响应均进入 \(W_*\)，
+该状态已在鲁棒前驱中，矛盾。因此每个合法动作都有留在补集的响应。
+逐步选择它得到任意有限前缀上的未达目标见证；遇到无动作状态则停留在失败终态。
+目标原像及动作响应对应使两种证书都可传到原任务。
+\end{proof}
+此构造证明有限完整输入上的可求解性。无限域、隐式转移表及未能计算的任务商
+分别保留其表示、算法和证据义务。
+
+\chapter{核心求解接口的总成本与输出下界}
+\label{sec:complexity}
+本章给主映射的实际消费计费。结构因子化、输入访问与完整状态更新各有明确成本。
+\section{访问、求解、回落与验证的统一接口}
+\begin{definition}[参数化核心求解接口]
+\label{def:core-cost-interface}
+给定精确任务商 \(q_N:X_N\to S\) 及已认证的核心求解器 \(\mathsf{Solve}_S\)。
+求解器可以输出合法解、有限策略或带证明的否决；任务先固定要求哪种输出。
+每次调用依次消费核心提取、核心求解、输出回落及证书验证，最坏成本分别为
+\(a_N,c_S,\ell_N,v_N\)。其原始输入、已建索引和可直接访问的字段在调用前声明。
+若还要求物化全部扩展后继、保存新增证据或输出附加坐标，其成本记为 \(u_N\)。
+预处理、商认证及索引建立的总成本记为 \(P_N\)。
+\end{definition}
+\begin{lemma}[核心接口的串行成本界]
+\label{lem:cost}
+一次已初始化调用的成本至多
+\(a_N+c_S+\ell_N+v_N+u_N\)。
+若这五项有与 \(N\) 无关的统一常数界，则调用成本为 \(O(1)\)。
+\end{lemma}
+\begin{Certificate}[实际消费账本]
+逐项登记地址读取、核心算法、合法回落、证书检查及物化输出的基元次数。
+核心算法的存在性可由定理~\ref{thm:core-solver} 构造，也可由另行提交的证明给出。
+\end{Certificate}
+\begin{proof}
+五个阶段按序执行，其基元次数相加即得上界。统一有界时总和有统一常数界。
+精确商保持目标与合法作用，回落和验证条件保证返回结果满足原任务。
+仅从 \(S\) 的大小固定不能推出 \(a_N,P_N,u_N\) 有界；这些量必须实际核验。
+\end{proof}
+
+\section{连续调用、证书有效性与累计成本}
+\begin{theorem}[有效接口上的有限前缀保持与累计成本]
+\label{thm:time}
+若每次调用前输入仍在已认证接口域，商证书保持有效或先完成重新认证，
+则 \(t\) 次调用均保持其规定任务，累计成本至多
+\[
+P_N+\sum_{k=0}^{t-1}(a_{N,k}+c_{S,k}+\ell_{N,k}+v_{N,k}+u_{N,k}+r_{N,k}),
+\]
+其中 \(r_{N,k}\) 是第 \(k\) 次所需的重新认证成本。
+在预处理已计费且每次括号内有统一常数界时，在线累计成本为 \(O(t)\)。
+\end{theorem}
+\begin{proof}
+基例由初始化与输入域检查给出。每次使用引理~\ref{lem:cost} 的正确接口，
+并在下一次调用前验证域及证书有效性，归纳保持所有有限调用前缀。
+将各次实际成本相加得到所列界。一般状态更新若必须读取全部扩展字段，
+其工作量已计入 \(u_{N,k}\)，不由商的代数等式免除。
+\end{proof}
+
+\section{完整附加输出的不可省略成本}
+\begin{theorem}[全量输出的线性下界]
+\label{thm:outputlb}
+设 \(Z_N=\Sigma^N\)，\(\Sigma\) 为至少含两个元素的固定有限字母表。
+若接口要求显式输出全部 \(N\) 个坐标，每次基元至多输出 \(b\ge1\) 个坐标，
+则任何正确实现至少执行 \(\lceil N/b\rceil\) 次输出基元。
+\end{theorem}
+\begin{proof}
+输出长度为 \(N\)，执行 \(m\) 次基元至多输出 \(mb\) 个坐标，
+故必须有 \(mb\ge N\)。压缩编码属于另一种输出接口；
+若随后要求恢复全部坐标，恢复阶段仍须承担相应输出工作量。
+\end{proof}
+
+\chapter{指数增长的母上同调与固定语义商核}
+\label{sec:growth}
+本章计量商前母结构与任务核心的同调规模，区分任务充分映射和全结构同伦等价。
+\section{任意基余链复形与外代数扩展}
+\begin{definition}[母复形的结构层]
+取任意有限维、有限次数支撑的实余链复形 \((B^\bullet,d_B)\)，\(d_B^2=0\)。对每个整数 \(N\ge0\)，令
+\[
+\Lambda_N=\Lambda_{\RR}(\xi_1,\ldots,\xi_N),\quad |\xi_i|=1,\quad d\xi_i=0,
+\]
+\[
+C_N=B\otimes\Lambda_N,\qquad D_N=d_B\otimes1.
+\]
+这是给定基复形上的显式代数扩展；其结构结论只依赖平方零微分与外代数。状态任务与本复形之间的对应须另给测试实现及交换映射。
+\end{definition}
+
+\begin{lemma}[母复形闭合及外代数基]
+\label{lem:exterior}
+\(D_N^2=0\)，且外代数以有序单项式
+\(\xi_I=\xi_{i_1}\cdots\xi_{i_k}\)、\(i_1<\cdots<i_k\) 为基，维数 \(2^N\)。
+\end{lemma}
+\begin{Certificate}[新增循环的归纳证书]
+基例 \(\Lambda_0=\RR\)。保存
+\(\Lambda_{N+1}=\Lambda_N\oplus\Lambda_N\xi_{N+1}\)
+及 \(D_N^2(c\otimes\xi_I)=d_B^2c\otimes\xi_I=0\)。
+\end{Certificate}
+\begin{proof}
+反交换关系把单项式重排成严格递增顺序，重复指标由 \(\xi_i^2=0\) 消去；外代数的标准交替张量构造使这些有序单项式线性无关。新增一个生成元后，每个基单项式或者不含该元，或者恰含一次，给出直和并使维数翻倍。从维数一归纳得到 \(2^N\)。微分平方零由核心平方零直接得到。
+\end{proof}
+
+\section{上同调维数的结构归纳}
+\begin{theorem}[指数母上同调]
+\label{thm:growth}
+对每个 \(N\)，
+\[
+H^\bullet(C_N,D_N)\cong H^\bullet(B,d_B)\otimes\Lambda_N.
+\]
+若 \(h_B=\dim H^\bullet(B)\)，则 \(0\le h_B<\infty\)，且
+\[
+\dim H^\bullet(C_N)=2^Nh_B.
+\]
+\end{theorem}
+\begin{Certificate}[分块核像证书]
+将余链唯一写成 \(\sum_Ic_I\otimes\xi_I\)，保存逐块条件
+\[
+D_Nc=0\iff\forall I,\ d_Bc_I=0,
+\quad
+c\in\im D_N\iff\forall I,\ c_I\in\im d_B.
+\]
+生成元数的归纳使用上一引理的直和。
+\end{Certificate}
+\begin{proof}
+微分不混合不同 \(\xi_I\) 块，故核与像分别是核心核与像的有限直和，取商得到核心上同调的次数移位副本。每新增一个生成元，就增加一份次数移位副本，对 \(N\) 归纳得到维数翻倍公式。有限维与有限次数支撑使总上同调维数有限。若基复形无上同调，则扩展亦无上同调；指数增长的非零结论还要求 \(h_B>0\)。
+\end{proof}
+
+\section{增广商、效用核与任务复杂度的分离}
+\begin{theorem}[附加循环的精确消去]
+\label{thm:augmentation}
+令 \(\epsilon:\Lambda_N\to\RR\) 取常数项，
+\[
+p_N=\id\otimes\epsilon,\qquad
+K_N=B\otimes\Lambda_N^{>0}.
+\]
+则 \(K_N\) 是子复形，\(\ker p_N=K_N\)，且
+\(C_N/K_N\cong B\)。在所有任务测试均经 \(p_N\) 因子化的结构实现中，\(K_N\) 为效用零方向，所有含正外次数的上同调类均被 \(p_{N*}\) 消去，核心类保持。
+\end{theorem}
+\begin{Certificate}[增广及测试因子化]
+记录 \(p_ND_N=d_Bp_N\)、\(\epsilon(1)=1\)、\(\epsilon(\xi_I)=0\)（\(I\ne\varnothing\)），以及每个任务测试的 \(F=\bar Fp_N\) 公式。
+\end{Certificate}
+\begin{proof}
+\(D_N\) 保持外次数，故正外次数空间是子复形。常数块与正次块直和分解给出核及商。增广与微分交换，因而诱导上同调映射；按定理~\ref{thm:growth} 的分块描述，它恰投影到空指标块。含正次数的类在 \(H(K_N)\) 的像中，也可用定理~\ref{thm:cohkernel} 验证消去。测试因子化保证所有任务可见值保持，核心块的恒等作用保证核心类不丢失。
+\end{proof}
+\begin{remark}[增长与求解复杂度]
+上同调维数、表示构造及任务求解成本分别计量。只有在任务测试经增广因子化、
+核心接口满足定义~\ref{def:core-cost-interface} 的访问条件时，
+才能把上述结构商与核心求解组合。若还具有与 \(N\) 无关的统一调用界，
+结构维数 \(2^Nh_B\) 与在线常数成本可以同时成立；
+基复形本身变化或要求完整输出时，须保留其新增成本。
+\end{remark}
+
+\chapter{严格同伦代数子模型与主丛承载}
+\label{sec:pfb}
+本章在严格同伦代数扇区实现算子与任务商，为高阶比较提供可逐项验证的零缺陷模型。
+\section{分次算子代数及平方零微分}
+\begin{definition}[保持语义核的算子]
+取任意有限维实余链复形 \((C,D)\)、\((\mathsf B,d_{\mathsf B})\) 及次数零满射余链映射
+\(p:C\to\mathsf B\)，满足 \(pD=d_{\mathsf B}p\)。令 \(K=\ker p\)，
+则 \(DK\subseteq K\)。记 \(\End^k(C)\) 为次数 \(k\) 的齐次线性自映射，令
+\[
+\mathfrak g^k=\{A\in\End^k(C): A(K)\subseteq K\},
+\quad \mathfrak g=\bigoplus_k\mathfrak g^k.
+\]
+对齐次 \(A,B\) 定义
+\[
+[A,B]=AB-(-1)^{|A||B|}BA,\qquad
+\partial A=[D,A].
+\]
+\end{definition}
+
+\begin{lemma}[算子类型闭合与微分平方零]
+\label{lem:dg}
+\(\mathfrak g\) 在分次括号及 \(\partial\) 下闭合，\(\partial^2=0\)，且
+\[
+\partial(AB)=(\partial A)B+(-1)^{|A|}A(\partial B).
+\]
+\end{lemma}
+\begin{Certificate}[符号展开证书]
+记录 \(DK\subseteq K\)、次数 \(a=|A|\) 及
+\[
+\partial^2A=D^2A-AD^2=0.
+\]
+乘积微分两边均展开成 \(DAB-(-1)^{a+|B|}ABD\)。
+\end{Certificate}
+\begin{proof}
+保持 \(K\) 的算子复合仍保持 \(K\)，其线性组合亦然；\(D\) 保持核，故括号与微分闭合。展开两次微分得
+\[
+\begin{aligned}
+\partial^2A
+&=D(DA-(-1)^aAD)\\
+&\quad-(-1)^{a+1}(DA-(-1)^aAD)D\\
+&=D^2A-AD^2=0.
+\end{aligned}
+\]
+两项含 \(DAD\) 的中间项系数相反。乘积法则右侧展开后含 \(ADB\) 的两项也抵消，剩余项与左侧相同。
+\end{proof}
+
+\section{分次 Jacobi 恒等式与严格高阶兼容}
+\begin{theorem}[微分分次 Lie 与严格同伦代数实现]
+\label{thm:linfty}
+\((\mathfrak g,\partial,[\ ,\ ])\) 是微分分次 Lie 代数。取
+\[
+\ell_1=\partial,\qquad\ell_2=[\ ,\ ],\qquad\ell_k=0\quad(k\ge3)
+\]
+给出一个严格 \(L_\infty\) 子模型，Jacobiator-gap 为零。
+\end{theorem}
+\begin{Certificate}[一至三元兼容及高元零式]
+保存 \(\ell_1^2=0\)、分次反对称式、微分导子式与
+\begin{equation}\label{eq:jacobi}
+[A,[B,C]]=[[A,B],C]+(-1)^{|A||B|}[B,[A,C]].
+\end{equation}
+所有 \(n\ge4\) 元关系中，每项含至少一个 \(\ell_k\)、\(k\ge3\)，故逐项为零。同伦 Lie 的一般定义参见文献~\cite{ladamarkl}。
+\end{Certificate}
+\begin{proof}
+反对称由括号定义交换 \(A,B\) 直接得到。记次数 \(a,b,c\)。式~\eqref{eq:jacobi} 左侧展开为
+\[
+ABC-(-1)^{bc}ACB-(-1)^{a(b+c)}BCA
++(-1)^{a(b+c)+bc}CBA.
+\]
+右侧第一项展开为
+\[
+ABC-(-1)^{ab}BAC-(-1)^{(a+b)c}CAB
++(-1)^{ab+(a+b)c}CBA;
+\]
+右侧第二项展开为
+\[
+(-1)^{ab}BAC-(-1)^{ab+ac}BCA
+-(-1)^{bc}ACB+(-1)^{ac+bc}CAB.
+\]
+相加后 \(BAC,CAB\) 项抵消，余项与左侧一致。引理~\ref{lem:dg} 的乘积法则作用到括号两项，给出
+\(\partial[A,B]=[\partial A,B]+(-1)^a[A,\partial B]\)。这些分别验证一元、二元、三元 \(L_\infty\) 关系。对更高元数，组合关系要求 \(i+j=n+1\)，若 \(i,j\le2\) 则 \(n\le3\)，故 \(n\ge4\) 必含零的高元运算，全部关系成立。
+\end{proof}
+
+\section{主丛、联络与微分结构的等变承载}
+\begin{proposition}[严格语义扇区的主丛实现]
+\label{prop:bundle}
+令
+\[
+G=\{g\in\GL^0(C):gK=K,\ gD=Dg\}.
+\]
+对任意光滑流形 \(M\)，平凡主丛 \(P=M\times G\) 及其乘积平直联络，连同伴随算子丛 \(P\times_{G}\mathfrak g\)，承载定理~\ref{thm:linfty} 的全部结构。它给出 \(\PFB\) 的零缺陷严格语义子模型。
+\end{proposition}
+\begin{Certificate}[群作用与联络证书]
+保存分次、核、微分的稳定条件；群作用为 \(A\mapsto gAg^{-1}\)，验证
+\[
+\partial(gAg^{-1})=g(\partial A)g^{-1},\qquad
+[gAg^{-1},gBg^{-1}]=g[A,B]g^{-1}.
+\]
+基空间运输在乘积平凡化中取恒等，局部主联络形式取 \(g^{-1}dg\)。
+\end{Certificate}
+\begin{proof}
+单位元、乘法与逆保持三个条件，故 \(G\) 是群。更具体地，保持分次和 \(K\)、且与 \(D\) 交换的全部算子组成有限维含幺实结合代数 \(\mathcal A\)。其可逆元集合是 \(\det g\ne0\) 的开集；由 Cayley--Hamilton 恒等式，可逆元的逆是它的多项式，仍在 \(\mathcal A\) 中。乘法为双线性光滑映射，逆映射由伴随矩阵除以非零行列式给出，故该开集直接构成 Lie 群。有限维下可逆算子保持 \(K\) 蕴含把 \(K\) 映到自身，因而这个群恰为 \(G\)。共轭保持次数及核；微分等变式利用 \(gD=Dg\)，括号等变式利用共轭保持乘积。于是两种运算下降为伴随丛纤维上的良定义运算，平直运输保持它们。平凡主丛与联络满足主丛等变条件，得到明确可构造的承载。
+\end{proof}
+\begin{remark}[结构角色与严格扇区]
+矩阵群的 Lie 代数是次数零的适当稳定子，伴随纤维 \(\mathfrak g\) 则含所有分次算子，二者各有类型。该严格扇区展示可实现性，完整 \(\PFB\) 中非零高阶耦合仍由自身的修复与可容许性条件治理\cite{pure,app3}。
+\end{remark}
+
+\section{任务商诱导的同伦代数态射}
+\begin{theorem}[保持核算子的商态射]
+\label{thm:functor}
+定义 \(\Phi:\mathfrak g\to\End^\bullet(\mathsf B)\)。对 \(A\in\mathfrak g\)，令
+\(\Phi(A)(pc)=p(Ac)\)。则 \(\Phi\) 良定义，并满足
+\[
+\begin{aligned}
+\Phi(AB)&=\Phi(A)\Phi(B),\\
+\Phi([A,B])&=[\Phi(A),\Phi(B)],\\
+\Phi(\partial A)&=[d_{\mathsf B},\Phi(A)].
+\end{aligned}
+\]
+它是严格微分分次 Lie 态射，保持所有有限算子复合的语义作用。
+\end{theorem}
+\begin{Certificate}[代表元及自然性证书]
+保存 \(A(K)\subseteq K\)、\(pD=d_{\mathsf B}p\) 和在任意 \(pc\) 上的三条恒等式。有限复合按算子词长归纳。
+\end{Certificate}
+\begin{proof}
+若 \(pc=pc'\)，则 \(c-c'\in K\)，其像 \(A(c-c')\in K\)，故输出相同。乘积在 \(pc\) 上两边均为 \(pABc\)，因此相等。分次括号由乘积与线性性保持；微分由 \(pD=d_{\mathsf B}p\) 保持。空复合为恒等，一步成立，添加一个算子用乘积恒等式完成词长归纳。
+\end{proof}
+
+\chapter{语义微分、积分与同伦路径保持}
+\label{sec:calculus}
+本章从语义链侧展开积分与路径保持，并为任意有限任务测试构造可与主积分映射比较的余链表示。
+\section{边界算子与语义微分的生成}
+\begin{definition}[有限单纯链上的语义测试]
+取有限单纯复形 \(K\)，其有向 \(n\) 单形边界为
+\[
+\partial[v_0,\ldots,v_n]=\sum_{i=0}^n(-1)^i[v_0,\ldots,\widehat v_i,\ldots,v_n].
+\]
+实余链 \(C^n=\Hom(C_n,\RR)\) 是对链的线性语义测试；定义
+\(\langle d\eta,c\rangle=\langle\eta,\partial c\rangle\)。图是这一结构的一维实例。
+\end{definition}
+
+\begin{theorem}[边界平方零与证书化 Stokes]
+\label{thm:stokes}
+上述生成规则给出 \(\partial^2=0\)、\(d^2=0\)，并对全部有限链成立
+\[
+\langle d\eta,c\rangle=\langle\eta,\partial c\rangle.
+\]
+\end{theorem}
+\begin{Certificate}[成对删顶点与有限线性扩张]
+对每对 \(i<j\)，记录先删 \(j\) 后删 \(i\) 的符号 \((-1)^{i+j}\) 与先删 \(i\) 后删原 \(j\) 的符号 \((-1)^{i+j-1}\)。按链中单形项数归纳扩张。
+\end{Certificate}
+\begin{proof}
+\(\partial^2\) 中每个删去两个不同顶点的面出现两次，证书所列符号相反，故逐对抵消。对单形成立后，零链基例及添加一个带系数单形的归纳步给出所有有限链的平方零。对任意 \(c\)，
+\(\langle d^2\eta,c\rangle=\langle\eta,\partial^2c\rangle=0\)，所以 \(d^2=0\)。Stokes 配对式由微分定义在生成单形上成立，再按同样的有限线性归纳成立于全部链。
+\end{proof}
+
+\section{路径积分与端点恢复}
+\begin{theorem}[离散路径上的语义微积分基本关系]
+\label{thm:fundamental}
+设 \(f\) 是图顶点上的实值语义测试，\(\gamma=(v_0\to\cdots\to v_m)\) 是有限有向路径，逆向边按负号计。则
+\[
+df(v_{j-1}\to v_j)=f(v_j)-f(v_{j-1}),\qquad
+\int_\gamma df=f(v_m)-f(v_0).
+\]
+\end{theorem}
+\begin{Certificate}[路径前缀积分证书]
+保存边定向与前缀积分 \(I_k=\sum_{j=1}^kdf(v_{j-1}\to v_j)\)，归纳不变量为 \(I_k=f(v_k)-f(v_0)\)。
+\end{Certificate}
+\begin{proof}
+边界 \(\partial[v_{j-1},v_j]=[v_j]-[v_{j-1}]\) 给出第一式。空路径 \(I_0=0\)。若前缀公式成立，则加入一条边得到
+\(I_{k+1}=f(v_k)-f(v_0)+f(v_{k+1})-f(v_k)=f(v_{k+1})-f(v_0)\)。归纳完成。逆向边的符号使往返贡献抵消。
+\end{proof}
+
+\section{同伦同一性、剩余周期与上卷自然性}
+\begin{proposition}[闭语义形式的路径保持]
+\label{prop:path}
+若两条同端点链路径满足 \(\gamma_1-\gamma_0=\partial S\)，且 \(d\eta=0\)，则
+\(\int_{\gamma_1}\eta=\int_{\gamma_0}\eta\)。若 \(\eta=df\)，该积分仅依赖端点。链同伦见证可由同端点路径同伦的单纯细分链给出。
+\end{proposition}
+\begin{Certificate}[同伦面与周期证书]
+保存有限二维链 \(S\)、\(\partial S=\gamma_1-\gamma_0\) 及 \(d\eta=0\)。若存在闭周期 \(c\) 使 \(\langle\eta,c\rangle\ne0\)，记录该周期作为 \(\eta\) 非恰当的见证。
+\end{Certificate}
+\begin{proof}
+由 Stokes，积分的变化量为
+\(\langle\eta,\partial S\rangle=\langle d\eta,S\rangle=0\)。恰当情形由定理~\ref{thm:fundamental} 得到端点公式。若 \(\eta=df\)，对任意闭周期 \(c\) 有 \(\langle\eta,c\rangle=\langle f,\partial c\rangle=0\)，故非零周期配对排除恰当性。该见证明确指出仍需保留或修复的语义障碍。
+\end{proof}
+
+\begin{corollary}[链表示下的积分自然性]
+\label{cor:natural}
+设链映射 \(Q:C_\bullet\to\bar C_\bullet\) 满足 \(Q\partial=\bar\partial Q\)，对偶 \(Q^*\) 则满足
+\[
+dQ^*=Q^*\bar d,\qquad
+\langle Q^*\eta,c\rangle=\langle\eta,Qc\rangle.
+\]
+\end{corollary}
+\begin{Certificate}[对偶交换证书]
+记录链映射与边界交换，在生成链上验证两个配对等式，再按链的有限支持归纳扩张。
+\end{Certificate}
+\begin{proof}
+对任意 \(c\)，
+\(\langle dQ^*\eta,c\rangle=\langle\eta,Q\partial c\rangle
+=\langle\eta,\bar\partial Qc\rangle=\langle Q^*\bar d\eta,c\rangle\)。所有链上的配对一致给出算子等式。第二式为对偶定义。生成链上的线性等式按有限项数归纳成立。
+\end{proof}
+\begin{remark}[任务商与拓扑映射的接口]
+状态层精确任务商、余链层增广商、链层映射各有类型；跨层使用前须给出具体实现。第~\ref{sec:growth} 章给出任意基复形的增广扩展，第~\ref{sec:pfb} 章给出任意满射余链映射上的算子自然性。本节在具备链映射时给出积分自然性，与语义信息和总同调载体的组织一致\cite{fos,total}。
+\end{remark}
+
+\section{任意有限任务测试的链级实现}
+\label{sec:predicate-realization}
+\begin{definition}[任务求值图与测试编码]
+\label{def:predicate-table}
+给定有限有向多重图 \(\Gamma\)，顶点集 \(V\) 为有类型的任务求值上下文，
+边集 \(E\) 记录已声明的合法接续。上下文至少保存每个待求值测试需要的输入；
+作用测试的上下文可以包含状态、动作、响应和后继。图中未登记的接续不被假定存在。
+取实细胞链
+\[
+C_0(\Gamma)=\bigoplus_{v\in V}\RR[v],\quad
+C_1(\Gamma)=\bigoplus_{e\in E}\RR[e],\quad
+\partial[e:v\to w]=[w]-[v],\quad C_{n\ge2}=0.
+\]
+自环和多重边分别保留。有限值测试 \(F:V\to Y_F\) 以独热坐标
+\(f_{F,c}(v)=\mathbf1[F(v)=c]\)、\(c\in Y_F\) 编码；实向量测试逐坐标编码。
+这个编码连同解码表属于输入，不把值域的代数运算等同于实数运算。
+记顶点、边的对偶基为 \(\varepsilon_v,\varepsilon_e\)，
+\(d_\Gamma\) 为 \(\partial\) 的对偶微分。
+\end{definition}
+\begin{proposition}[谓词到余链的忠实实现]
+\label{prop:predicate-cochain}
+任意实值测试 \(f:V\to\RR\) 唯一对应零余链
+\[
+\widehat f=\sum_{v\in V}f(v)\varepsilon_v,\qquad
+d_\Gamma\widehat f
+=\sum_{e:v\to w}(f(w)-f(v))\varepsilon_e.
+\]
+该实现忠实恢复顶点测试、有限路径上的端点变化，以及已满足闭性条件的同伦配对。
+\end{proposition}
+\begin{Certificate}[一般有限值运算的展开]
+若 \(\mu:Y_1\times Y_2\to Y_3\) 是声明的有限运算表，则
+\[
+f_{\mu(F,G),c}
+=\sum_{\substack{a\in Y_1,\ b\in Y_2\\\mu(a,b)=c}}f_{F,a}f_{G,b}.
+\]
+布尔合取、否定和析取分别为 \(fg,1-f,f+g-fg\)，
+有限全称为逐项乘积，有限存在为一减否定项乘积。
+所有表项须在自己的值域中先求值，再映为独热坐标。
+\end{Certificate}
+\begin{proof}
+零余链与各顶点实值一一对应，配对直接恢复 \(f(v)\)。
+对每条边使用边界定义得到 \(f(w)-f(v)\)，故得到所列微分。
+运算表的和式在每个顶点恰有其实际输入标签对应的项取一，输出为相应独热位。
+布尔公式逐真值验证，复合表达式按语法树归纳成立。
+路径求和消去内部端点；满足命题~\ref{prop:path} 的闭性及同伦条件时，
+配对按该命题保持。由此计算同伦同一性下的同伦语义微分。
+\end{proof}
+
+\begin{proposition}[一般投影路径与测试算子的微分]
+\label{prop:bound-operators}
+在固定实内积空间 \(\RR^m\) 中，给定任意 \(C^1\) 标架路径
+\(F:[a,b]\to\RR^{m\times r}\)、\(F(t)^{\mathsf T}F(t)=I_r\)，取
+\(P(t)=F(t)F(t)^{\mathsf T}\)。在该固定平凡化下有
+\[
+\dot P=\dot F F^{\mathsf T}+F\dot F^{\mathsf T},\qquad
+\int_a^b\dot P(t)\,dt=P(b)-P(a).
+\]
+对任意有限求值图上的实值测试 \(f\)，定义次数零算子
+\(M_fh(v)=f(v)h(v)\)，并令其在正次数上为零，则
+\([d_\Gamma,M_f]1=d_\Gamma\widehat f\)。
+\end{proposition}
+\begin{proof}
+矩阵乘积逐条目求导得到首式，逐条目积分基本定理得到第二式。
+图上常数零余链 \(1\) 满足 \(d_\Gamma1=0\)，而 \(M_f1=\widehat f\)，
+代入交换子得到第三式。三式分别属于指定的矩阵路径和图复形；
+需要把两者视为同一任务的表示时，须另给测试求值及几何实现的交换见证。
+\end{proof}
+
+\section{任务商、图链映射与增广商的跨层交换}
+\label{sec:cross-layer}
+\begin{definition}[跨层比较的共同数据]
+\label{def:cross-layer-data}
+给定有限求值图 \(\Gamma_X,\Gamma_S\) 及顶点满射 \(q:V_X\to V_S\)。
+每条边须映到具有对应端点的目标边，或在两端同像时映为零链；
+由此线性延拓的 \(Q:C_\bullet(\Gamma_X)\to C_\bullet(\Gamma_S)\)
+与边界交换。源测试明确取为 \(f_X=f\circ q\)。
+令 \(B^\bullet=C^\bullet(\Gamma_S;\RR)\)、\(d_B=d_{\Gamma_S}\)，
+并采用第~\ref{sec:growth} 章的 \(C_N=B^\bullet\otimes\Lambda_N\)、
+\(D_N\)、增广 \(p_N\) 和包含 \(j_N(b)=b\otimes1\)。
+状态任务若也使用 \(q\)，须另满足精确任务商条件；顶点满射本身不签发动作响应保持。
+\end{definition}
+\begin{theorem}[任意相容任务图的三层交换]
+\label{thm:cross-layer}
+上述数据满足
+\[
+\begin{aligned}
+\widehat f_X&=Q^*\widehat f,&d_{\Gamma_X}Q^*&=Q^*d_B,\\
+p_Nj_N&=\id_B,&D_Nj_N&=j_Nd_B,\\
+p_ND_N&=d_Bp_N,&\mathcal E_N&=Q^*p_N.
+\end{aligned}
+\]
+因此 \(d_{\Gamma_X}\mathcal E_N=\mathcal E_ND_N\)、
+\(\mathcal E_Nj_N\widehat f=\widehat f_X\)。
+若状态层另满足精确任务商条件，其合法性、目标与有限执行保持和这些链级等式共同成立。
+\end{theorem}
+\begin{Certificate}[逐层独立输入]
+分别记录状态任务商、每条边的目标及边界、各测试的因子化、
+外代数分次和增广；不从其中一层的映射名称推断另一层的存在性。
+\end{Certificate}
+\begin{proof}
+对边直接核验 \(Q\partial[e]=\partial Q[e]\)，对偶即得微分交换。
+对顶点的配对给出测试拉回。外代数增广及包含在基 \(b\otimes\xi_I\) 上
+分别保留零外次数块和插入单位，得到三条代数等式。
+复合这些等式得到 \(\mathcal E_N\) 的性质；状态侧结论由
+定理~\ref{thm:reach} 与推论~\ref{cor:policy} 给出。
+\end{proof}
+\(\mathcal E_N\) 保持已声明测试；它的存在不要求是上同调同构。
+\(C_N\) 是明确附加循环的代数结构，不被等同于任意扩展后继规则的完整运行图。
+
+
+\chapter{上卷障碍、效用保持与治理分型消隐}
+\label{sec:utility-erasure}
+本章判定主映射下降时哪些观察保留、哪些分型消隐，以及剩余障碍能否通过允许修复消去。
+\section{运输缺陷与障碍余链的具体构造}
+\begin{definition}[时变表示之间的交换缺陷]
+\label{def:representation-defect}
+对每个阶段 \(k\)，给定任务状态域 \(X_k,Y_k\)，合法标签域
+\(\mathcal L_k(x)\) 及有类型映射
+\[
+\begin{aligned}
+F_k&:\{(x,\lambda):\lambda\in\mathcal L_k(x)\}\to X_{k+1},\\
+\widehat F_k&:\{(y,\lambda):\lambda\in\widehat{\mathcal L}_k(y)\}\to Y_{k+1},\\
+\iota_k&:X_k\to Y_k,&p_k&:D_k\to X_k,\qquad D_k\subseteq Y_k.
+\end{aligned}
+\]
+标签 \(\lambda\) 可包含动作与响应，其对应由任务数据给出。
+要求 \(\iota_kX_k\subseteq D_k\)、\(p_k\iota_k=\id_{X_k}\)，
+且 \(\lambda\in\mathcal L_k(x)\) 时两条后继路径均有定义。
+给定 \(Y_{k+1}\) 上的度量 \(d_{k+1}\)，定义
+\[
+\delta_{\rm lift}(k,x,\lambda)=
+d_{k+1}\bigl(\widehat F_k(\iota_kx,\lambda),\iota_{k+1}F_k(x,\lambda)\bigr).
+\]
+精确交换要求该量恒为零；其余情况保留逐点或一致误差界。
+两侧观察、接受、动作响应对应及全部接受状态的合法读回，分别按
+定义~\ref{def:representation-relation} 核验。这里 \(p_k\) 的定义域须覆盖实际接受集。
+\end{definition}
+在向量承载和已定联络下，先将两条后继路径的终点运入同一纤维，
+再取有方向的缺陷向量 \(r_e\)，并指定图边 \(e\) 与该次比较的对应。
+度量若由相同纤维范数诱导，其距离等于 \(\|r_e\|\)；一般度量需另给与范数的比较界。
+仅保存模会省去方向与耦合信息。
+若要称为上同调障碍，必须明确复形、微分、残差映射并证明闭性。
+若丛间运输尚不能形成一致的坐标比较，应先保留该接续障碍；
+不能隐去曲率或运输不相容后直接假定以下普通余链实现已经成立。
+
+
+\begin{proposition}[图上运输残差的余链见证]
+\label{prop:cochain-residual}
+取有限有向多重图的实细胞链，或加入已定二维面附着的有限复形。
+将已统一规范的第 \(j\) 个缺陷坐标登记为
+\(\omega_j=\sum_e r_{e,j}\varepsilon_e\)。无二维面时 \(d^1\omega_j=0\)；
+有二维面时，闭性等价于每面的有向边界配对为零。
+闭余链能由顶点势修复，当且仅当存在 \(\eta_j\) 满足 \(d^0\eta_j=\omega_j\)。
+\end{proposition}
+\begin{proof}
+图的 \(C^2=0\)，故首项成立。有面时
+\(\langle d^1\omega_j,f\rangle=\langle\omega_j,\partial f\rangle\)，
+逐面等于带附着系数的残差和。最后一项就是恰当性的定义，可用
+定理~\ref{thm:elimination} 的矩阵方程求解或返回否决见证。
+\end{proof}
+\begin{Certificate}[候选残差到障碍的最小账本]
+逐项给出顶点与边来源、规范锚定、比较运输、每个坐标、边界矩阵、
+\(d^1d^0=0\) 及 \(d^1\omega=0\)。原始观察误差、状态距离或其标量平均尚未提供该映射时，
+只作为观测残差，不能直接登记为上同调类。
+\end{Certificate}
+例如路径 \(v_0\to\cdots\to v_n\) 上任意边残差都可用前缀累加势修复，
+其 \(H^1\) 为零；三边有向环上各残差均为一时，周期和为三，
+不可能等于顶点势的伸缩和。因此同样的非零局部残差，是否构成非零类由
+比较图及周期义务决定。添面也须核验闭性，不能通过随意改变复形消除障碍。
+
+\section{结构障碍与可执行修复残差的距离}
+\begin{theorem}[有限维上同调障碍的距离判据]
+\label{thm:cohomological-distance}
+设 \(d^{k}d^{k-1}=0\)，\(d^k\omega=0\)，有限维空间配正定权矩阵 \(W\)。定义
+\[
+\begin{aligned}
+\mathcal O_{\rm coh}&=\inf_\eta\|\omega-d^{k-1}\eta\|_W,\\
+\mathcal O_{\rm exec}&=\inf_{\eta\in\mathcal A_{\rm exec}}
+\|\omega-d^{k-1}\eta\|_W,\qquad
+\mathcal A_{\rm exec}\subseteq C^{k-1}.
+\end{aligned}
+\]
+则 \(\mathcal O_{\rm exec}\ge\mathcal O_{\rm coh}\)，且
+\(\mathcal O_{\rm coh}=0\iff[\omega]=0\)。
+\end{theorem}
+\begin{proof}
+记 \(D\) 为 \(d^{k-1}\) 的矩阵。\(\im D\) 是有限维闭子空间，
+存在唯一加权正交投影 \(P_W\omega\)。最小残差是
+\(r_*=(I-P_W)\omega\)，满足 \(D^{\mathsf T}Wr_*=0\)。
+因此 \(\mathcal O_{\rm coh}=\|r_*\|_W\)，为零当且仅当 \(\omega\in\im D\)。
+闭性使这一条件等价于上同调类为零。将优化域限制为子集，
+下确界不减，得到执行残差不等式。
+\end{proof}
+\begin{Certificate}[修复能力与距离计算]
+对有理矩阵保存核像基及精确消元结果；数值范数另保存经验证的上下界。
+实际找到的 \(\eta_{\rm run}\) 只给出
+\[
+\mathcal O_{\rm coh}\le\mathcal O_{\rm exec}
+\le\|\omega-d\eta_{\rm run}\|_W.
+\]
+执行集不闭或不紧时，下确界不保证达到；签发修复须交付具体允许算子，
+不能仅使用下确界符号。
+\end{Certificate}
+结构距离为零而运行残差大，需检查允许算子、搜索和预算；结构距离为正，
+既定复形中的恰当修复无效。扩展或取商应提交具体链映射及任务保持证明，
+并依定理~\ref{thm:cohkernel} 核验被消去的类。
+在固定复形内改坐标，或采用同伦等价表示，均不使已有非零类自行归零。
+
+\section{效用与分型的分别因子化}
+\begin{theorem}[效用保持与分型读回的独立判据]
+\label{thm:utility-type}
+令满射 \(q:X\to\bar X\) 包含事件上下文的有效商表示。
+任意观察 \(F\) 存在唯一 \(\bar F\) 满足 \(F=\bar Fq\)，当且仅当
+\(F\) 在每个 \(q\) 纤维上恒定。该判据分别应用到效用 \(U\)、
+类型 \(\tau\)、合法性及其他全部规定任务测试。
+\end{theorem}
+\begin{proof}
+因子化使同像输入取值相同。反向定义 \(\bar F(qx)=F(x)\)，
+纤维恒定性使代表元无关，满射给出唯一性。
+若 \(U=\bar Uq\) 而存在同像异型输入对，则单值 \(\bar\tau\) 将被要求
+在同一输入上取两个不同值，故不存在。一个观察的等值不能代替另一个观察。
+\end{proof}
+\begin{Certificate}[效用不损失而分型消隐的四点实例]
+取 \(X=\{0,1\}\times\{b_1,b_2\}\)，\(q(u,b)=u\)、\(U(u,b)=u\)、
+\(\tau(u,b)=b\)。四次读取直接验证 \(U=q\)，但
+\(q(0,b_1)=q(0,b_2)\)、\(\tau(0,b_1)\ne\tau(0,b_2)\)。
+因此效用完全保持而分型不可读回。若新目标要求输出 \(b\)，
+旧商即不充分；若新目标仍只输出 \(u\)，旧商继续充分。
+\end{Certificate}
+这里 \(b_1,b_2\) 是任意两个不同分类值；本例检验指定测试是否能由商恢复。
+保留单次分数不自动保留动作、响应、后继及终态；完整任务商仍按
+式~\eqref{eq:exact} 逐项检查。
+
+\section{实现对应与商上分类读回的独立性}
+定义~\ref{def:representation-defect} 的 \(\iota_k,p_k\) 比较两个任务实现；
+观察商 \(q:X_k\to Q\) 则规定当前保留的信息。
+给定分类 \(\tau_X:X_k\to\mathcal T\) 与 \(\tau_Y:Y_k\to\mathcal T\)，
+实现间分类保持要求 \(\tau_Y\iota_k=\tau_X\)，
+分类可从商读回要求存在 \(\bar\tau\) 使 \(\tau_X=\bar\tau q\)。
+前式涉及实现映射，后式涉及观察纤维，须分别按其定义核验。
+若分类属于主任务必需观察，两类保持义务都必须写入任务与接口条件。
+
+\begin{remark}[迁移失效的条件链]
+在源任务效用由 \(q\) 保持、治理分型未纳入该效用、迁移仅复用 \(q\)，
+且新任务确实要求同纤维内被省去的区分时，旧读回器无法充分完成新任务。
+证明直接取新测试的同像异值输入对并使用定理~\ref{thm:utility-type}。
+这条条件链区分源效用有效、新适用条件缺失和后续治理不足；
+不预设每个效用商都导致迁移失败。
+\end{remark}
+第~\ref{sec:predicate-realization} 节对任意已声明测试构造余链；
+某个分类是否进入任务测试族，须在商构造之前明确。
+同时保持治理分型的同伦对应还需类型读回，不能只交付效用等式。
+
+\section{信息归并下限与上卷烈度}
+\begin{theorem}[目标纤维直径给出的读回下限]
+\label{thm:target-radius}
+设所需目标 \(T:X\to Z\)，\(Z\) 是度量空间，读回器 \(D\) 仅访问 \(q(x)\)。
+若同像输入 \(x_1,x_2\) 的目标距离为 \(\Delta>0\)，则
+\[
+\max_{i=1,2}d_Z(D(qx_i),T(x_i))\ge\Delta/2.
+\]
+定义 \(\Lambda_T(q)=\sup_{\bar x}\operatorname{diam}\{T(x):qx=\bar x\}\)，
+则全域最坏读回误差至少为 \(\Lambda_T(q)/2\)。
+\end{theorem}
+\begin{proof}
+同像输入使读回相同，记为 \(z\)。三角不等式给出
+\(\Delta\le d_Z(Tx_1,z)+d_Z(z,Tx_2)\)，两项至少一项不小于半距。
+对每个纤维中任意输入对取上确界，再对纤维取上确界，得到总界。
+上确界不达到时用任意逼近直径的输入对，结论保持。
+\end{proof}
+\(\Lambda_T\) 是目标相关的候选烈度，未声明为所有任务共同的天然量纲。
+无损嵌入不强制丢失信息；有效投影、截断、归并或消费接口未保留目标区分
+才触发该下限。在第一个四点实例中取 \(T=U\)，有 \(\Lambda_T=0\)，
+即使类型仍无法读回。故不同同伦类或不同治理类型的存在本身不推出正效用残差。
+若只访问不变的 \(q\)，增加迭代也不能恢复同纤维内已经合并的目标区分。
+
+\section{漂移大小与治理机制的进一步区分}
+\begin{proposition}[标量烈度不确定算子机制]
+\label{prop:mechanism-scalar}
+取 \(A_1=I_2\)、\(A_2=\operatorname{diag}(1,-1)\)。二者谱范数都为一，
+但不相似。因此只保留这个标量的映射合并了不同的算子共轭类。
+\end{proposition}
+\begin{proof}
+两矩阵的奇异值都是一，故范数相同。其迹分别为二和零；迹在相似变换下
+不变，所以不能相似。算子类不能从共同范数恢复。
+\end{proof}
+该例给出“大小相同而治理机制不同”的代数见证。实际事件的算子类、方向、
+时标与耦合仍须从该事件构造，不能由共同标量恢复。
+若这些机制不属于效用测试，标量化仍可保持效用；要求机制迁移时就必须补回。
+
+\chapter{率--商相容、最小充分细化与逐原子闭合}
+\label{sec:rate-quotient-closure}
+本章证明一般表示映射的微分交换和任务商饱和，将主同伦映射的存在条件展开为有限检验。
+\section{率算子、商映射与共同任务域}
+本章将局部语义微分、任务商、承载运输和回读统一在同一任务域中。
+先固定目标与允许作用的同伦同一性，再比较不同表示上的微分；
+表示演化的合法性由实际映射及任务测试决定。
+\begin{definition}[率--商数据]
+给定链复形 \(C_\bullet(X)\)、\(C_\bullet(Q)\)、各级候选映射 \(q_k\)，
+余链率算子为 \(d_X,d_Q\)，其中
+\(\langle d_Xf,c\rangle=\langle f,\partial_Xc\rangle\)。
+率--商比较数据包含状态满射 \(q:X\to Q\)、任务测试族 \(\mathcal P\) 与各级线性延拓。
+状态商与链映射分开登记：一个状态满射的存在不单独给出
+\(q_{k-1}\partial_X=\partial_Qq_k\)。
+任务测试还须满足 \(f=\bar f q\)，动作和全部响应须有明确对应。
+\end{definition}
+局部率记录沿允许路径的有方向贡献；商确定哪些区分能够归并。
+两者共同使用同一套目标、规范、允许动作和响应，才能提出交换命题。
+
+\section{语义微分与取商交换的充要判据}
+\begin{theorem}[语义微分与链映射的逐链交换]
+\label{thm:map-commutation}
+在有限维链空间中，令 \(q_k^*\) 为代数对偶映射。
+对全部余链 \(f\in C^k(Q)\)，
+\[
+d_Xq_k^*f=q_{k+1}^*d_Qf
+\]
+成立，当且仅当
+\[
+q_k\partial_X=\partial_Qq_{k+1}.
+\]
+此时对任意有限链 \(c\)，
+\(\langle q_k^*f,c\rangle=\langle f,q_kc\rangle\)，
+且对闭余链的规定同伦回放保持积分值。
+\end{theorem}
+\begin{proof}
+在任一生成链 \(c\) 上，两端配对分别为
+\(\langle f,q_k\partial_Xc\rangle\) 与
+\(\langle f,\partial_Qq_{k+1}c\rangle\)。
+链映射等式给出相等；反向由全部线性泛函分离向量得到该等式。
+积分等式为对偶定义，按有限链的线性组合扩展。
+同伦路径之链差为边界时，闭余链在该边界上的配对为零，
+由命题~\ref{prop:path} 得回放保持。若有未消周期，则另保留周期数据。
+\end{proof}
+\begin{Certificate}[交换的逐坐标检验]
+登记每个链生成元、边界矩阵条目、表示映射矩阵条目、矩阵乘积及配对。
+矩阵交换成立与任务测试因子化分别保存；前者保持微分，
+后者保持指定任务含义，互不代签。
+\end{Certificate}
+
+\section{复合表示映射的语义接续缺陷}
+\begin{proposition}[表示映射交换缺陷的复合恒等式]
+\label{prop:map-defect}
+对候选各级映射定义
+\[
+K_q^k=d_Xq_k^*-q_{k+1}^*d_Q.
+\]
+若另有 \(r:Q\to Z\) 的同型各级映射，则
+\[
+K_{rq}^k=K_q^kr_k^*+q_{k+1}^*K_r^k.
+\]
+并且 \(d_XK_q^k+K_q^{k+1}d_Q=0\)。
+\end{proposition}
+\begin{proof}
+由 \((rq)^*=q^*r^*\) 展开，在两项间加入并消去
+\(q_{k+1}^*d_Qr_k^*\)，得到第一式。
+第二式展开后含 \(d_X^2q_k^*\) 与 \(q_{k+2}^*d_Q^2\)，均为零；
+其余两项系数相反。全部式子都是有类型算子在 Hom 复形中的语义微分关系。
+\end{proof}
+该式给出串接表示映射的缺陷来源：各层都交换时复合交换；
+各层不交换时须计算两项的运输与组合，不能只累加无方向标量。
+若采用算子范数，则
+\[
+\|K_{rq}^k\|\le \|K_q^k\|\,\|r_k^*\|
++\|q_{k+1}^*\|\,\|K_r^k\|.
+\]
+这只是上界；抵消与非零同调类须按实际复形求证。
+修复按第~\ref{sec:utility-erasure} 章区分结构可解性、允许执行集及具体修复见证。
+
+\section{任务测试的演化饱和与最粗任务充分商}
+\begin{definition}[有限任务域中的测试饱和]
+令 \(X\) 及作用--响应标签集 \(L\) 有限。将部分后继扩展到
+\(X_\bot=X\sqcup\{\bot\}\)，未定义后继送到 \(\bot\)，且各扩展
+\(\widehat\Phi_\ell\) 固定 \(\bot\)。
+初始有限测试族 \(\mathcal P_0\) 包含目标、效用、合法性、响应域、
+全部必须保持的观察及 \(\mathbf1_{\{\bot\}}\)。递归令
+\[
+\mathcal P_{m+1}=\mathcal P_m\cup
+\{f\circ\widehat\Phi_\ell:f\in\mathcal P_m,\ell\in L\},\qquad
+x\sim_m y\Longleftrightarrow\forall f\in\mathcal P_m,\ f(x)=f(y).
+\]
+这里扩展的无值标记是定义域治理对象，不能当作某项未完成计算的已知答案。
+\end{definition}
+\begin{theorem}[有限演化域的最粗任务充分商]
+\label{thm:saturated-quotient}
+设初始分区有 \(b_0\) 个块。上述分区至多经历
+\(|X_\bot|-b_0\) 次严格细化后稳定。稳定商 \(q_*:X_\bot\to Q_*\)
+保持所有有限标签路径后的 \(\mathcal P_0\) 测试，且后继在商上良定义。
+它是保持这些测试与标签后继的最粗商。
+若初始测试包括精确任务商所需全部动作、响应和目标字段，
+稳定商满足式~\eqref{eq:exact} 的相应条件。
+\end{theorem}
+\begin{proof}
+每次严格细化至少增加一个非空块，块数不超过 \(|X_\bot|\)。
+若第 \(m+1\) 轮不细化，则 \(x\sim_m y\) 蕴含
+\(\widehat\Phi_\ell x\sim_m\widehat\Phi_\ell y\)，因为每个
+\(f\circ\widehat\Phi_\ell\) 已被核验。后续复合按路径长度归纳仍保持
+\(\mathcal P_m\)，故此时永久稳定。
+初始测试在同类上相等，稳定性将该等值沿任意有限路径传播，
+于是后继和全部规定回放下降到商。
+反向，任何保持初始测试及后继的等价关系，都由同一前缀归纳保持
+每个 \(f\circ\widehat\Phi_{\ell_n}\cdots\widehat\Phi_{\ell_1}\)，
+从而包含在稳定关系中。故其商只能比 \(Q_*\) 更细。
+定义域标记和动作--响应测试排除非法标签，目标原像及效用由初始测试保持，
+后继交换由稳定性给出，因此在所列字段条件下形成精确任务商。
+\end{proof}
+\begin{Certificate}[细化与极小性的有限见证]
+每次分块保存同块异值对、对应原子测试及其作用路径。
+终止保存每块各标签后继的同块性和初始测试恒定性。
+只统计迭代次数而无这些见证，不能签发充分性或最粗性。
+\end{Certificate}
+这是相对给定有限域和测试族的最粗表示；它没有宣称任意无限任务族存在
+有限最小编码。无限域需要另证有限指数、稳定性或提供受控近似。
+
+\section{缺失区分、必要记忆与任务商的细化}
+\begin{corollary}[新增测试的保留与重新细化]
+\label{cor:quotient-extension}
+令 \(q_*\) 为上述稳定商，新增测试 \(h\)。
+若 \(h\) 已通过 \(q_*\) 因子化，则同一稳定商保持其全部后继测试；
+若存在同商像异 \(h\) 值输入，则任何保持新测试的商必须分开该输入对。
+在有限域内，以 \(\mathcal P_0\cup\{h\}\) 重做饱和可得所需最粗细化。
+\end{corollary}
+\begin{proof}
+前一种情形写 \(h=\bar hq_*\)，由商后继交换直接得到
+\(h\widehat\Phi_{\ell_n}\cdots\widehat\Phi_{\ell_1}\) 的因子化。
+后一种情形由定理~\ref{thm:utility-type} 排除旧商的充分性；
+新饱和的存在与最粗性由定理~\ref{thm:saturated-quotient} 给出。
+\end{proof}
+需要补回的记忆、上下文或机制标签，是新增任务观察的具体实现。
+若执行者只保留旧商值，同像异值无法从该商值重新计算；
+必须取得原有区分的有效来源。定理~\ref{thm:target-radius}
+量化此时的读回下限，避免把增加计算次数当作新增信息。
+
+\section{近似任务表示、率的累积与接受裕量}
+在近似表示中，先保存目标同伦同一性，再分别核验单步交换缺陷、
+读回稳定常数及全部测试的容差。命题~\ref{prop:representation-error} 给出
+\[
+E_n\le L^n\eta+\sum_{k<n}L^{n-1-k}\beta_k.
+\]
+率沿路径传播局部贡献，商改变其可见坐标和稳定系数；
+\(\beta_k=0\) 的代数相容与 \(E_n\) 足够小的数值接受是不同结论。
+\begin{remark}[完整接受的交集]
+规定效用误差、目标误差、合法性、机制标签和证据回读时，
+分别构造每项接受集合，最终接受为其交集。
+一个标量效用测试因子化，只关闭该项；没有纳入任务的分型可以被商去，
+但追加为必需观察后必须重验。执行成本按实际取商、细化、运输及验证计入，
+不能由商维数直接推导固定时间。
+\end{remark}
+
+\begin{theorem}[率与商的条件化统一]
+\label{thm:calculus-unification}
+在同一任务域中，设状态商满足精确任务商条件，链级表示映射满足边界交换，
+两侧实现具有精确任务对应关系，并给定保持规定测试的允许修复。则：
+\begin{enumerate}
+\item 局部语义微分与相应表示映射交换，有限路径积分在映射前后相同；
+\item 任意有限步的鲁棒可达性、合法策略回落及目标测试保持；
+\item 相关实现沿任意有限对应标签路径保持同一求解语义；
+\item 必须保留的非零上同调类不能由同伦等价自行消去，
+有限维恰当修复的存在性由障碍距离判据确定，实际执行仍须交付允许见证；
+\item 若任务域及标签有限，演化饱和构造给出相对规定测试的最粗任务充分商。
+\end{enumerate}
+若只满足近似交换，则前述等值结论改为已证误差界与逐测试安全裕量，
+不能直接保留精确接受真值。
+\end{theorem}
+\begin{proof}
+第一项由定理~\ref{thm:map-commutation} 及积分自然性成立。
+第二项使用定理~\ref{thm:reach} 与策略回落推论；第三项使用
+定理~\ref{thm:representation-execution} 的任务对应关系与后继归纳。
+第四项由带回缩修复的同调保持和
+定理~\ref{thm:cohomological-distance} 给出，限制到允许执行集时保留其额外义务。
+第五项由定理~\ref{thm:saturated-quotient} 的有限细化与最粗性证明成立。
+全部步骤使用同一任务测试，故复合后仍保留这些测试。
+近似分支用命题~\ref{prop:representation-error} 传播缺陷，
+再对每个目标分别核验裕量；缺少裕量的离散谓词保持未决。
+\end{proof}
+该定理给出“率与商”的统一条件；第~\ref{sec:task-core} 章和第~\ref{sec:cross-layer} 节分别给出任务核心与链级表示的参数化构造。
+成立范围由操作数与证明前提确定，不由某种应用名称或残差单值确定。
+
+\section{率--商实现的原子入口与前缀证明}
+\begin{definition}[率--商实例的原子证据入口]
+\label{def:comparison-atoms}
+沿用 R0--R6，每个入口继续展开到读取、单个矩阵条目、配对、比较和规则实例。
+\begin{center}\small
+\begin{tabular}{p{0.10\textwidth}p{0.55\textwidth}p{0.23\textwidth}}
+\toprule 入口 & 操作数 & 父入口\\\midrule
+V01 & 输入源、类型、索引及内容同一性 & 实际输入叶\\
+V02 & 任务测试、合法性、目标、效用及容差 & V01\\
+V03 & 承载、链生成元、边界、联络与规范 & V01、V02\\
+V04 & 观察映射、同纤维对及反求输入 & V02、V03\\
+V05 & 运输矩阵、比较量及阈值 & V03\\
+V06 & 作用前后字段、外生固定及反事实 & V02--V05\\
+V07 & 覆盖、读回、动作响应及执行交换 & V02--V06\\
+V08 & 微分交换、缺陷余链与允许修复 & V03、V07\\
+V09 & 逐测试因子化、饱和及异值对 & V02、V07\\
+V10 & 实际作用、误差递推及成本原语 & V07--V09\\
+V11 & 路径积分、目标、测试和持久读回 & V01、V02、V10\\
+V12 & 全部必需观察、合法性及未决项集合 & V01--V11\\
+\bottomrule
+\end{tabular}
+\end{center}
+来源叶限定其所指对象、版本及定义域；条件叶保留为 P，
+未求得值保留 \(\bot\)。已给定的形式无值符号与尚未知的证据状态分别类型化。
+\end{definition}
+\begin{theorem}[率--商证书前缀的可靠性]
+\label{thm:comparison-prefix}
+在上述有限展开图中，若各规则有类型、保真并保留未解除假设，
+已接受的 V12 可追溯到实际输入、率--商交换、规定测试保持及回读。
+它只接受该实例已核验的命题，不扩张到其他任务域。
+\end{theorem}
+\begin{proof}
+基例是有值且有类型的输入叶。每个入口只消费前缀父值，
+按 R0 核验类型，再按对应规则计算结果并合并假设集合。
+V07 使用定理~\ref{thm:representation-execution} 及误差界；
+V08 使用定理~\ref{thm:map-commutation}、
+命题~\ref{prop:map-defect} 及闭余链判据；
+V09 使用因子化与有限饱和定理，V11 另核验积分及回读。
+对拓扑前缀归纳，所有结论均有上述来源。必需未知值与未解除前提
+不能在 V12 自动消失，故终态接受不包含未证明的扩展结论。
+\end{proof}
+
+\chapter{尺度关系、局部接续与广义数学承载}
+\label{sec:axes-gms}
+本章分开尺度与接续的指标，并给出两类微积分比较所使用的严格结构与富结构承载。
+
+\section{宏观--微观与局部--整体的独立语义轴}
+\begin{definition}[尺度图与接续图]
+固定任务对象的同伦同一性 \(\mathcal I\)。尺度图由同一对象的表示
+\(X_s\)、粗化映射 \(c_{st}:X_t\to X_s\) 及复合关系组成；
+\(s\) 指定分辨率，不指定对象所覆盖的区域。
+接续图由覆盖 \(\{U_i\}\)、局部对象 \(E_i\)、重叠上的比较映射
+\(g_{ij}\) 及其高阶相容数据组成；\(i\) 指定局部位置或接口，
+不指定粗细尺度。两图的共同实现使用双索引 \(E_{s,i}\)。
+尺度变化与局部限制之间的交换式，是共同实现的附加结构。
+\end{definition}
+\begin{theorem}[尺度变化与接续义务相互独立]
+\label{thm:axes-independent}
+非平凡尺度变化不蕴含非平凡局部接续义务；非平凡局部接续义务也不蕴含
+尺度变化。二者可以在同一个双索引系统中同时存在。
+\end{theorem}
+\begin{Certificate}[两组独立见证]
+尺度见证取 \(X_1=\{0,1\}^2\)、\(X_0=\{0,1,2\}\)，
+\(c(x_1,x_2)=x_1+x_2\)，覆盖只有整个对象一个成员。
+接续见证取三个有共同重叠的局部一维实空间，在唯一尺度上规定
+\(g_{12}=g_{23}=1\)、\(g_{13}=-1\)。
+\end{Certificate}
+\begin{proof}
+第一组中 \((0,1)\) 与 \((1,0)\) 粗化后同为一，尺度表示确有信息归并；
+单成员覆盖的限制与自接续均为恒等，不产生跨成员接续义务。
+第二组中尺度索引只有一个，全部尺度映射为恒等；三重重叠却要求
+\(g_{23}g_{12}=g_{13}\)，实际左侧为一、右侧为负一，存在独立接续障碍。
+这组局部数据是待修复呈示，尚未构成满足粘合条件的丛。
+把第一组尺度图与第二组接续图作外积，就同时具有两种非平凡性。
+两个反例分别排除两个蕴含，外积给出共存见证。
+\end{proof}
+同尺度内的区域接续属于第二条轴；覆盖整个系统的微观描述与宏观描述
+属于第一条轴。以尺度关系解释接续障碍时，必须另给连接两图的映射。
+
+\section{GZ-GMS 富结构及其严格子结构}
+\begin{definition}[广义数学承载]
+沿用文献~\cite{pure} 的 GZ-GMS，记
+\[
+\mathcal G=
+(\mathsf{Obj},\mathsf{Law},\mathsf{Flow},\mathsf{Layer},
+ \mathsf{GZTLC};\mathsf{LawCurv}).
+\]
+\(\mathsf{Obj}\) 承载空间、丛及算子对象；\(\mathsf{Law}\) 承载运算与组合规律；
+\(\mathsf{Flow}\) 指定合法演化及其同伦；\(\mathsf{Layer}\) 指定观察和语义分层；
+三层联络联系对象、参数及规律，法曲率记录这种联系的非平凡性。
+每个具体实现另给各分量的类型、映射及相容式。
+本文的广义集合论承载指这一富结构层级；底层集合编码与结构闭合谓词分别登记。
+\end{definition}
+\begin{proposition}[严格结构的富结构嵌入]
+\label{prop:gms-embedding}
+固定具有零微分的分次向量空间，只保留零次部分，并令高于二元的运算为零。
+反对称二元括号定义严格 Lie 结构，当且仅当它定义这一受限扇区中的
+\(L_\infty\) 结构。其结构保持映射也保持此嵌入。
+\end{proposition}
+\begin{Certificate}[零扩张证书]
+保存原空间、二元括号和 Jacobi 恒等式；设 \(\ell_1=0\)、
+\(\ell_n=0\) 对所有 \(n\ge3\)。所有映射的高元分量取零。
+\end{Certificate}
+\begin{proof}
+一元与二元相容式因微分为零而成立；三元相容式只剩二元 Jacobi 恒等式。
+对 \(n\ge4\)，复合项的元数满足 \(i+j=n+1\)，至少一个元数大于二，
+该项为零。反向限制三元恒等式即得严格 Jacobi。
+原括号保持式是嵌入后唯一非零的运算保持式，故映射亦相容。
+所有这些数据均能以集合、函数及分次标签编码；编码本身不强制选择严格扇区。
+\end{proof}
+GZ-GMS 把严格、同伦和可变泛函算子结构放在共同承载内比较。
+宏观--微观路线在选定结构中组织尺度计算，局部--整体路线进一步把承载和规律的
+接续条件纳入治理。此处比较的是明确选择的结构及其合法性，
+各术语不被用作所有数学对象的互斥分类。
+
+\section{分析严密化与结构严密化的分工}
+变化率、积分与连续实现需要极限、连续性、可积性和收敛条件。
+语义接续需要对象类型、接续映射、缺陷余链、填补见证和高阶相容关系。
+同伦修复塔组织被修复对象；超限递归组织阶段；\(L_\infty\) 元数组织
+高阶相容阶；分析极限组织连续实现。阶段序数、运算元数和精度参数分别记为
+\(\alpha,n,\varepsilon\)，三者没有预设的等同关系。
+
+在同伦同一性下，可分辨的生成元、规则和接口组织连续纤维及层内流，
+形成“离散组织连续”的结构方向；连续模型通过极限组织采样和有限求和，
+形成相应的分析方向。定义、证明和适用域决定每条连接的数学内容。
+具体超限机制见文献~\cite{homotopyworkflow,repairdepth}，
+本文在第~\ref{sec:transfinite-calculus} 章给出独立的条件构造与证明。
+
+\chapter{Jacobiator-gap、同伦容错与高阶闭合}
+\label{sec:rich-closure}
+本章构造非零 Jacobiator 的高阶闭合模型，明确主线高阶映射必须保持的结构方程。
+
+\section{严格恒等式与携带见证的闭合谓词}
+\begin{definition}[低阶缺陷与高阶相容]
+在特征零域上的分次空间中，\(\ell_n\) 为次数 \(2-n\) 的分次反对称运算。
+令 \(\chi(\sigma;x)\) 为置换符号与 Koszul 符号之积，定义
+\[
+\mathcal R_n(x_1,\ldots,x_n)=
+\sum_{i+j=n+1}\ \sum_{\sigma\in\operatorname{Sh}(i,n-i)}
+(-1)^{i(j-1)}\chi(\sigma;x)
+\ell_j\bigl(\ell_i(x_{\sigma(1)},\ldots,x_{\sigma(i)}),
+ x_{\sigma(i+1)},\ldots,x_{\sigma(n)}\bigr).
+\]
+严格二元闭合要求 \(J_{\ell_2}=0\)；完整同伦闭合要求
+\(\mathcal R_n=0\) 对所有 \(n\ge1\)，其中
+\[
+J_b(x,y,z)=b(x,b(y,z))+b(y,b(z,x))+b(z,b(x,y))
+\]
+用于零次输入。上述符号约定使两项模型中的三元式为
+\(J_{\ell_2}=\ell_1\ell_3\)。一般输入还包括 \(\ell_3\) 作用于
+\(\ell_1x_i\) 的项。全部关系按本定义逐项求值\cite{ladamarkl,pure}。
+\end{definition}
+低阶非零缺陷具有高阶填补时，可以与总结构闭合共存。
+相容性由 \(\mathcal R_n=0\) 判断，原二元缺陷的幅度由独立的泛函度量。
+
+\section{非零 Jacobiator 的显式两项模型}
+\begin{theorem}[带非零二元缺陷的完整两项同伦结构]
+\label{thm:nonzero-lie-two}
+令 \(E=\RR^3\)，基为 \(e_1,e_2,e_3\)。定义反对称括号 \(b\)：
+\[
+b(e_1,e_2)=e_2,\qquad b(e_2,e_3)=e_3,\qquad b(e_1,e_3)=0.
+\]
+取 \(V^0=E\)、\(V^{-1}=\widetilde E\)，
+\(\widetilde x\) 表示 \(x\) 的拷贝，规定
+\[
+\begin{aligned}
+&\ell_1(\widetilde x)=x,\qquad \ell_1(x)=0,\\
+&\ell_2(x,y)=b(x,y),\qquad
+ \ell_2(x,\widetilde y)=\widetilde{b(x,y)},\qquad
+ \ell_2(\widetilde x,\widetilde y)=0,\\
+&\ell_3(x,y,z)=\widetilde{J_b(x,y,z)},\qquad \ell_n=0\quad(n\ge4).
+\end{aligned}
+\]
+其余取值由分次反对称性决定，含负次输入的 \(\ell_3\) 为零。
+此数据满足全部高阶恒等式，且 \(J_b(e_1,e_2,e_3)=-e_3\ne0\)。
+\end{theorem}
+\begin{Certificate}[逐元数与逐次数的核验]
+\(\ell_1\) 的非零矩阵为 \(I_3\)；\(b\) 的非零结构常数为
+\(b_{12}^{2}=b_{23}^{3}=1\) 及其反对称项；
+\(\ell_3(e_1,e_2,e_3)=-\widetilde e_3\)，其余按交替性求值。
+核验按元数一、二、三、四及五以上分组，每组再按负次输入数分组。
+\end{Certificate}
+\begin{proof}
+\(\ell_1\) 把负一次部分送入零次部分且在后者为零，故平方零。
+二元导子式在两个零次输入上两侧为零；在 \((x,\widetilde y)\) 上两侧均为
+\(b(x,y)\)；在 \((\widetilde x,\widetilde y)\) 上右侧为
+\(\widetilde{b(x,y)}-\widetilde{b(x,y)}=0\)。
+
+三个零次输入的三元关系为 \(-J_b+\ell_1\ell_3=0\)，由定义成立。
+一个负次输入 \((\widetilde x,y,z)\) 的二元复合项为
+\(-\widetilde{J_b(x,y,z)}\)，含微分的三元项为
+\(\ell_3(x,y,z)\)，两项抵消。两个以上负次输入使输出次数至多为负二，
+每一复合项为零。直接代入三组基括号得到 \(J_b(e_1,e_2,e_3)=-e_3\)。
+
+四元关系只含 \(\ell_3\ell_2\) 与 \(\ell_2\ell_3\)。
+全为零次输入时，shuffle 求和构成 \(E^4\to\widetilde E\) 的交替四线性映射；
+\(\dim E=3\)，故任取四个向量线性相关，该映射为零。
+存在负次输入时总输出次数至多为负二，各项为零。
+五元关系仅余 \(\ell_3\ell_3\)，内层输出负一次，外层规定为零。
+元数至少六时，\(i+j=n+1\) 迫使一个运算元数至少四，故逐项为零。
+这些情形穷尽全部元数与次数组合，完成证明。
+\end{proof}
+
+\section{缺陷受控、同伦闭合与阈值接受的分离}
+\begin{definition}[三种独立记录]
+在指定测试域 \(\Omega\) 上定义原二元缺陷幅度
+\(G_{\rm raw}=\sup_{\Omega}\norm{J_{\ell_2}}\)，
+并逐元数记录 \(\mathcal R_n\)。对有限可执行呈示，令
+\(G_{\rm fill}\) 为必需填补方程的剩余残差，\(r_{\rm task}\) 为任务回读误差。
+分别登记受控性 \(G_{\rm raw}<\infty\)、结构闭合 \(\mathcal R_n=0\)，以及
+\(G_{\rm fill}\le\varepsilon_{\rm fill}\)、
+\(r_{\rm task}\le\varepsilon_{\rm task}\) 的执行接受。
+完整结构接受还要求全部规定相容关系有证明。
+\end{definition}
+\begin{proposition}[幅度条件与填补条件互不替代]
+\label{prop:gap-gates}
+任意小的正二元缺陷不保证存在同伦填补；完整同伦闭合也不要求
+原二元缺陷小于任意预定阈值。
+\end{proposition}
+\begin{Certificate}[小缺陷反例与缩放闭合见证]
+沿用上一定理的 \(b\)。第一例只取 \(V^0=E\)，其余次数为零，
+括号为 \(\eta b\)、\(\eta>0\)。第二例取完整两项模型，
+\(\ell_2\) 乘 \(\lambda\)，\(\ell_3\) 乘 \(\lambda^2\)。
+\end{Certificate}
+\begin{proof}
+第一例的 Jacobiator 为 \(\eta^2J_b\)，在有限基测试或单位球测试上随
+\(\eta\to0\) 趋零，但 \(V^{-1}=0\) 迫使 \(\ell_3=0\)，
+三元恒等式仍要求非零的 \(\eta^2J_b\) 为零，故填补不存在。
+第二例三元式两侧同乘 \(\lambda^2\)，四元式同乘 \(\lambda^3\)，
+其余零项保持，故全部相容关系成立。
+单位基三元组的缺陷范数为 \(\lambda^2\)，可超过任意给定阈值。
+因此两个判据分别求证。缺陷证书还须标明测的是原二元运算，
+还是包含修复见证后的剩余方程，不能在不同对象间替换数值\cite{pure}。
+\end{proof}
+
+\section{容错承载中的任务同伦同一性}
+\begin{proposition}[可缩修复扇区与任务核心保持]
+\label{prop:rich-task-core}
+在两项模型上直加零微分任务空间 \(T\)，使涉及 \(T\) 的二元及高元运算为零。
+令 \(p:T\oplus V\to T\)、\(i:T\to T\oplus V\) 为投影和包含。
+则 \(pi=\id_T\)，且作为底层复形有
+\[
+\id_{T\oplus V}-ip=dh+hd,
+\qquad h(e_j)=\widetilde e_j,\quad h(\widetilde e_j)=h(T)=0.
+\]
+所有规定测试 \(F=\bar Fp\) 保持，\(p,i\) 还严格保持全部高阶运算。
+\end{proposition}
+\begin{Certificate}[逐基收缩与观察]
+在 \(T\)、\(E\)、\(\widetilde E\) 三个直和分量上分别核验上述式；
+每个任务测试保存 \(F=\bar Fp\)。允许演化 \(\Phi\) 另保存
+\(p\Phi=\bar\Phi p\)。
+\end{Certificate}
+\begin{proof}
+在 \(T\) 上两侧为零，在 \(E\) 上 \(dh=\id\)，
+在 \(\widetilde E\) 上 \(hd=\id\)。因此底层复形的同伦同一性由明确的
+\(p,i,h\) 见证；\(V\) 的全部上同调为零，任务核心的上同调保留。
+全部非零高阶运算落在 \(V\)，投影后为零，包含后的任务运算也为零，
+故二映射严格保持运算。测试因子化使增加或使用修复扇区不改变规定观察；
+演化交换式再由有限词长归纳传递到全部有限运行。
+该构造保存指定任务及复形同伦，未把原来不可填补的呈示擅自认作与其扩张同伦等价。
+\end{proof}
+
+\section{正交修复方向及剩余障碍的精确计算}
+\begin{theorem}[有限线性填补的正交分解]
+\label{thm:orthogonal-filler}
+设允许填补算子的有限维内积空间为 \(H\)，缺陷空间为 \(Z\)，
+线性化填补映射为 \(B:H\to Z\)，给定缺陷 \(j\)。记
+\(j=j_{\parallel}+j_{\perp}\)，其中
+\(j_{\parallel}\in\im B\)、\(j_{\perp}\perp\im B\)。则
+\[
+\min_{h\in H}\norm{Bh-j}=\norm{j_{\perp}}.
+\]
+在精确可填补时，所有解为 \(h_0+\ker B\)，其中唯一的
+\(h_0\in(\ker B)^\perp\) 具有最小范数。
+\end{theorem}
+\begin{Certificate}[像、核与投影见证]
+给出 \(B\) 的矩阵、正定 Gram 矩阵、像与核的正交基及
+\(Bh_0=j_{\parallel}\)。这些数据可由有限消元和正交投影复算。
+\end{Certificate}
+\begin{proof}
+有限维子空间闭合，故两个正交分解存在。
+对任意 \(h\)，\(Bh-j_{\parallel}\) 与 \(j_{\perp}\) 正交，得到
+\(\norm{Bh-j}^2=\norm{Bh-j_{\parallel}}^2+\norm{j_{\perp}}^2\)。
+像的定义给出达到第一项为零的解。两个解之差在 \(\ker B\)，
+把任一解沿核分解就得到唯一 \(h_0\)，再用勾股式证明范数最小。
+同一矩阵 \(B\) 上的换基不改变像、核和可解性。
+沿修复塔更新 \(B\) 时，低阶保持仍由定理~\ref{thm:repairtower} 的方程核验；
+线性空间中的正交性本身不推出非线性高阶耦合为零。
+\end{proof}
+
+\section{严格扇区、可容许对象与完成对象}
+第~\ref{sec:pfb} 章的算子模型实现零缺陷严格扇区；
+定理~\ref{thm:nonzero-lie-two} 给出非零低阶缺陷的同伦扇区。
+二者由同一高阶恒等式语言比较。
+文献~\cite{pure} 的可容许对象还规定完备操作空间、结构运算连续性及
+局部生成条件；这些条件与缺陷证书共同规定修复的定义域。
+完成对象的存在、任务保持及稳定阶段在下章分别证明。
+严格二元闭合、同伦闭合和工程接受各有自己的证书，不以一个阈值字段替代全部条件。
+
+\chapter{超限修复、表示可解性与率--商统一}
+\label{sec:transfinite-calculus}
+本章沿相容修复塔组织完成对象，并给出映射、任务回读和连续实现延续至完成阶段的条件。
+
+\section{同伦同一性下的序数修复数据}
+\begin{definition}[相容修复塔]
+取集合大小的序数 \(\kappa\)，对象 \(L_\alpha\) 及单射结构映射
+\(j_{\alpha\beta}:L_\alpha\to L_\beta\)，\(\alpha\le\beta\le\kappa\)，
+满足恒等与复合律。每个后继阶段给出明确的允许修复及既有恒等式保持证明。
+每项义务 \(o\) 包含有限输入、所需关系和填补类型；新增生成元产生的新义务
+也纳入后继阶段。极限阶段分别登记代数余极限与所需拓扑完成。
+
+固定任务复形 \(T\)，每层给出 \(p_\alpha:L_\alpha\to T\)、
+\(i_\alpha:T\to L_\alpha\) 及链同伦 \(h_\alpha\)，满足
+\[
+\begin{aligned}
+&p_\alpha i_\alpha=\id_T,\qquad
+ d_\alpha h_\alpha+h_\alpha d_\alpha=\id-i_\alpha p_\alpha,\\
+&p_\beta j_{\alpha\beta}=p_\alpha,\qquad
+ j_{\alpha\beta}i_\alpha=i_\beta,\qquad
+ j_{\alpha\beta}h_\alpha=h_\beta j_{\alpha\beta}.
+\end{aligned}
+\]
+规定观察通过 \(p_\alpha\) 因子化。允许演化还满足塔映射交换及
+\(p_\alpha\Phi_\alpha=\bar\Phi p_\alpha\)。
+这些式子明确指定被保持的任务与复形同伦同一性。
+\end{definition}
+
+\section{代数极限阶段的有限元关系保持}
+\begin{lemma}[单射有向并上的运算与关系]
+\label{lem:ordinal-colimit}
+设 \(\lambda\) 为极限序数，\(L_{<\lambda}=\varinjlim_{\alpha<\lambda}L_\alpha\)
+为单射系统的代数余极限。全部运算有限元且塔映射保持运算，则运算唯一延拓到
+余极限。每个在共同阶段成立并在后继保持的有限项恒等式，在余极限成立。
+\end{lemma}
+\begin{Certificate}[代表元与共同阶段]
+每个输入记录代表元及来源阶段；有限组阶段有最大值，进入该阶段求值。
+若使用另一组代表元，保存更晚共同阶段中的相等见证。
+\end{Certificate}
+\begin{proof}
+任一有限组输入来自有限组阶段，序数全序给出共同上界 \(\beta<\lambda\)。
+在 \(L_\beta\) 求运算，再映入余极限。换用代表元时，在足够晚的共同阶段
+代表元逐个相等，结构映射保持运算，故结果无关选择。
+对项高度归纳，变量与常数已定义，复合项在共同阶段求值并保持，得到全部有限项。
+恒等式两侧在某个共同阶段相等，其像仍相等。
+每个固定元数的高阶 Jacobi 式具有有限项，逐元数应用此论证。
+这一代数论证使用有向性与有限元性；无限求和另由下一引理处理。
+\end{proof}
+序数并集与逐阶段归纳的基础构造参见文献~\cite{stacksordinal}。
+
+\section{完备滤过与无穷运算的良定义}
+\begin{lemma}[逐商闭合提升到完备对象]
+\label{lem:filtered-completion}
+设下降滤过满足 \(F^1L=L\)、\(\bigcap_pF^pL=0\) 且
+\(L\simeq\varprojlim_p L/F^pL\)。运算满足
+\[
+\ell_n(F^{p_1}L,\ldots,F^{p_n}L)
+\subseteq F^{p_1+\cdots+p_n}L.
+\]
+这里 \(L/F^pL\) 是有限滤过阶的截断，商空间本身不要求有限维。
+若全部截断商上的运算、恒等式及任务映射相容，则它们唯一确定完备对象上的
+连续运算与恒等式。对 \(a\in F^1L\)，特征零条件下
+\[
+\sum_{n\ge1}\frac1{n!}\ell_n(a,\ldots,a)
+\]
+在滤过拓扑中有定义；其为零当且仅当每个有限商中的像为零。
+\end{lemma}
+\begin{Certificate}[有限商与相容投影]
+保存各商的运算表、投影交换式及完备分离映射。
+模 \(F^p\) 时只需保留 \(n<p\) 的和项，尾项均在 \(F^p\)。
+\end{Certificate}
+\begin{proof}
+相容的逐商值形成逆极限元素，完备性给出存在，分离性给出唯一。
+多线性及滤过条件使一个输入改变于 \(F^p\) 时输出也改变于 \(F^p\)，
+故运算连续并与商投影相容。恒等式两侧在每个商相等，其余项落在
+\(\bigcap_pF^pL=0\)，得到严格相等。级数的第 \(n\) 项在 \(F^n\)，
+有限截断形成 Cauchy 系统；同一存在与唯一论证给出级数及判零结论。
+\end{proof}
+完备滤过同伦代数的背景见文献~\cite{dolgushevrogers}。
+本引理证明滤过拓扑中的实现；若再要求某个 Banach 范数收敛，
+须使用定理~\ref{thm:total} 的可和界或另给相应估计。
+
+\section{超限义务覆盖与任务回读的保持}
+\begin{theorem}[相容超限修复的整体闭合]
+\label{thm:transfinite-task}
+设相容修复塔的每个后继扩张确实存在并保持此前已证关系，
+每项在终对象中出现的规定有限元义务都在某个阶段取得填补见证。
+极限阶段满足引理~\ref{lem:ordinal-colimit}；若取完成，另满足
+引理~\ref{lem:filtered-completion} 的条件，且任务映射与同伦连续延拓。
+则终对象满足全部规定相容关系，存在诱导的 \(p,i,h\)，使
+\[
+pi=\id_T,\qquad dh+hd=\id-ip.
+\]
+规定观察、与塔相容的有限演化及任务核心回读均保持。
+\end{theorem}
+\begin{Certificate}[初始、后继、极限与义务见证]
+初始项保存任务映射及同伦式；后继项保存真实填补、类型与保持式；
+极限项保存代表元或逐商构造。对每个义务 \(o\)，记录其处理阶段
+\(\alpha(o)\)、见证 \(w_o\) 与后继运输规则。
+\end{Certificate}
+\begin{proof}
+对阶段作超限归纳。零阶段由输入证书成立。
+后继阶段由实际扩张和保持证明，把已有结论送入下一层，并加入新见证。
+极限阶段的每项有限输入进入共同阶段，由代数余极限引理传递；
+完成中的元素逐商处理，再由完备分离性传递。
+任取终对象中的规定义务，其覆盖证书给出某阶段的填补，
+已证保持性将填补带到终对象，故该义务成立；任意性给出全称结论。
+
+映射相容性使 \(p([x_\alpha])=p_\alpha x_\alpha\) 良定义，
+\(i\) 由相容的 \(i_\alpha\) 诱导，\(h([x_\alpha])=[h_\alpha x_\alpha]\)。
+逐代表元代入即得两条同伦式；完成情形在每个商成立后取逆极限。
+观察 \(F=\bar Fp\) 保持。演化交换式逐代表元成立，
+按有限词长归纳得到任意有限运行的任务对应。
+给定原任务核心 \(t\)，\(p(i(t))=t\) 给出明确回读，完成证明。
+\end{proof}
+该定理证明已声明可容许扩张的整体组合。某个后继步骤不存在时，
+对应填补方程或义务仍返回障碍；义务覆盖、极限保持及任务同伦均为独立前提。
+文献~\cite{pure,homotopyworkflow} 的推出附加与超限完成可以按这些入口实例化，
+具体范畴中的推出存在及可容许性必须由其构造给出。
+
+\begin{corollary}[任意集合序数上的非零缺陷修复塔]
+\label{cor:transfinite-realization}
+对任意集合大小的序数 \(\kappa\)，存在实际满足上述代数保持条件的塔
+\[
+L_\alpha=T\oplus\bigoplus_{\beta<\alpha}V_\beta,
+\qquad 0\le\alpha\le\kappa,
+\]
+其中每个 \(V_\beta\) 是定理~\ref{thm:nonzero-lie-two} 的独立拷贝。
+每个非空拷贝的二元 Jacobiator 非零，整个塔的高阶关系闭合，
+且全部阶段保持同一任务核心 \(T\)。
+\end{corollary}
+\begin{Certificate}[逐扇区扩张与极限并集]
+后继阶段附加一个已明确给出运算表的 \(V_\alpha\)，跨扇区运算为零；
+塔映射为包含，\(p\) 为任务投影，\(i\) 为任务包含，
+\(h\) 在每个拷贝上取命题~\ref{prop:rich-task-core} 的收缩。
+\end{Certificate}
+\begin{proof}
+代数直和中的每个元素只有有限支撑，故每个有限元运算逐扇区定义且输出仍有限支撑。
+同一扇区上的恒等式由两项模型成立；跨扇区的复合项为零。
+单射包含保持全部运算与逐扇区收缩。极限阶段的有限支撑元素来自某个共同阶段，
+故该直和恰为此前对象的代数余极限。
+逐扇区的 \(dh+hd=\id-ip\) 相加后仍成立，任务测试继续经 \(p\) 因子化。
+因此后继对象、极限对象和同伦见证全部得到显式构造。
+这证明代数层的超限承载存在；若指定拓扑直和的完成，另核验滤过或范数条件。
+\end{proof}
+
+\section{稳定序数、有限元调度与真正的极限阶段}
+\begin{theorem}[集合大小义务的单调闭包]
+\label{thm:ordinal-saturation}
+设 \(S\) 为全部允许证书的集合，\(|S|\le\mu\)，\(\mu\) 为无限基数。
+\(F:\mathcal P(S)\to\mathcal P(S)\) 单调且膨胀。
+从 \(A_0\) 递归定义
+\[
+A_{\alpha+1}=F(A_\alpha),\qquad
+A_\lambda=\bigcup_{\alpha<\lambda}A_\alpha
+\quad(\lambda\text{ 为极限序数}).
+\]
+存在 \(\alpha_*<\mu^+\) 使 \(A_{\alpha_*}=F(A_{\alpha_*})\)，
+且它是包含 \(A_0\) 的最小不动点。若另有规则族 \((P_r,c_r)\)，满足
+\(F(A)=A\cup\{c_r:P_r\subseteq A\}\)，且每个 \(P_r\) 有限，
+则 \(A_\omega\) 已是不动点。
+\end{theorem}
+\begin{Certificate}[良序选择与生成前提]
+固定 \(S\) 的良序。每个严格后继选取
+\(A_{\alpha+1}\setminus A_\alpha\) 的最小成员。
+规则证书同时保存前提集合及从这些前提构造结论的真实见证。
+\end{Certificate}
+\begin{proof}
+单调性与膨胀性由超限归纳给出递增链。若在 \(\mu^+\) 之前没有稳定阶段，
+每个后继均严格增加，所选成员在不同阶段不同，得到从 \(\mu^+\) 到
+\(S\) 的单射，与基数界矛盾。遇到相等后，后继应用 \(F\) 及极限并集均不再改变。
+对任意包含 \(A_0\) 的不动点 \(B\)，初始包含成立，
+后继用 \(F(A_\alpha)\subseteq F(B)=B\)，极限用并集，故全部 \(A_\alpha\subseteq B\)。
+若前提有限，某条规则的全部前提已在 \(A_\omega\) 中，就存在一个有限阶段
+同时包含它们；规则结论在下一有限阶段出现，故 \(F(A_\omega)\subseteq A_\omega\)。
+反向包含来自膨胀性。这给出稳定性，未把证书集合闭包等同于未经构造的算子扩张。
+\end{proof}
+
+\begin{proposition}[极限后继才闭合的义务实例]
+\label{prop:omega-successor}
+取 \(S=\{a_n:n\in\NN\}\cup\{b\}\)、\(A_0=\{a_0\}\)，
+规则为 \(a_n\Rightarrow a_{n+1}\) 与
+\(\{a_n:n\in\NN\}\Rightarrow b\)。则最早稳定阶段为 \(\omega+1\)。
+\end{proposition}
+\begin{Certificate}[各阶段成员]
+有限阶段为 \(A_n=\{a_0,\ldots,a_n\}\)，
+\(A_\omega=\{a_n:n\in\NN\}\)，
+\(A_{\omega+1}=S\)。最后一条规则明确具有无限前提。
+\end{Certificate}
+\begin{proof}
+自然数归纳给出有限阶段公式，每个有限阶段都缺少下一成员及 \(b\)。
+极限并集包含全部 \(a_n\) 且不含 \(b\)；下一次规则应用产生 \(b\)，
+此后再无新成员，故最早稳定于 \(\omega+1\)。
+若把 \(b\) 解释为某个无限族的整体接受，其无限前提必须有符号证明或有效的
+完成证书。有限程序没有通过逐项枚举在有限时间执行完 \(\omega\) 个步骤。
+\end{proof}
+超限深度在这里由义务依赖的层次产生。有限元关系的代数保持、无限前提的
+调度与数值精度收敛分别使用自己的证明。
+
+\section{固定表示的不可解性与合法细化的能力增量}
+\begin{theorem}[固定接口上的信息不可恢复]
+\label{thm:fixed-interface-limit}
+设 \(q:X\to Q\)，目标 \(T_0:X\to Y\)。若
+\(q(x_1)=q(x_2)\) 且 \(T_0(x_1)\ne T_0(x_2)\)，
+则不存在仅依赖 \(q(x)\) 的确定性单值算法，在全部输入上正确输出 \(T_0(x)\)。
+同一接口上的随机算法也不能在这两个输入上都以严格大于 \(1/2\) 的概率正确。
+\end{theorem}
+\begin{Certificate}[同接口异目标输入对]
+保存 \(x_1,x_2\)、接口相等式及两个不同目标。
+算法的全部查询、初始状态和公共参数均须通过同一个 \(q\) 给出。
+\end{Certificate}
+\begin{proof}
+确定性算法在两个输入上收到同一接口值，全部内部步骤相同，输出相同，
+不能同时等于两个不同目标。随机情形固定随机种子后仍有相同输出，
+故不固定种子时输出分布相同。两个正确输出事件互斥，概率和至多为一，
+不能都大于 \(1/2\)。在接口保持不变时加入求导、积分或更高阶内部计算，
+仍只生成同一接口值的函数，故同一证明适用。
+\end{proof}
+
+\begin{proposition}[可用证据细化产生严格可解性扩展]
+\label{prop:refinement-gain}
+取 \(X=\RR\times\{0,1\}\)，输入为 \((t,b)\)，
+固定接口 \(q(t,b)=t\)，任务为 \(T_0(t,b)=b\)。
+仅消费 \(q\) 的算法不能精确求解；若原始输入允许读取并认证分支位，
+细化接口 \(q'(t,b)=(t,b)\) 及读回 \(\bar T_0(t,b)=b\) 精确求解。
+\end{proposition}
+\begin{Certificate}[细化、回退与访问成本]
+记录原始输入分支位的地址、类型与认证；粗化映射
+\(r(t,b)=t\) 满足 \(rq'=q\)，目标满足 \(\bar T_0q'=T_0\)。
+细化额外读取一个已提供的位，认证成本单独计入。
+\end{Certificate}
+\begin{proof}
+\((t,0)\) 与 \((t,1)\) 是上一定理的同接口异目标见证。
+读取分支位并投影第二坐标直接得到目标，两个交换式逐输入成立。
+任何粗接口算法可先经 \(r\) 在细接口上模拟，而上述任务只在细接口上可解，
+故允许这项合法细化的求解类严格包含固定粗接口的求解类。
+若原始证据也只含 \(t\)，相同不可区分证明继续成立；新增表示字段需要真实来源。
+因此能力增量归于表示访问与修复规则的扩展，不归于从缺失信息中无证生成答案。
+\end{proof}
+这一结论明确比较固定表示内的纯率计算与允许合法表示修复的率--商系统。
+集合论与经典分析也能描述这种细化；能力比较取决于规定的输入和允许操作。
+
+\section{连续实现对修复后路径的分析支撑}
+\begin{proposition}[分段演化与接续误差的累计界]
+\label{prop:analytic-support}
+设一次阶段由时间长 \(\tau_k\) 的流与一个接续组成。
+同一连续实现的向量场满足 Lipschitz 常数 \(L_k\)，
+参考流与实现流的向量场偏差至多 \(\eta_k\)。接续的 Lipschitz 常数为
+\(M_k\)，额外接续缺陷至多 \(\delta_k\)。若阶段前误差为 \(e_k\)，则
+\[
+\begin{aligned}
+e_{k+1}&\le a_ke_k+c_k,\qquad a_k=M_ke^{L_k\tau_k},\\
+c_k&=M_k\eta_k\int_0^{\tau_k}e^{L_ks}\,ds+\delta_k,\\
+e_m&\le e_0\prod_{k=0}^{m-1}a_k+
+\sum_{j=0}^{m-1}c_j\prod_{k=j+1}^{m-1}a_k.
+\end{aligned}
+\]
+所有流均假定在规定区间存在，比较路径位于给定估计的共同定义域。
+\end{proposition}
+\begin{Certificate}[积分与乘积界]
+保存时间窗、向量场、定义域、\(L_k,M_k,\eta_k,\delta_k\) 的证明。
+\(L_k=0\) 时积分取 \(\tau_k\)，避免零除。
+\end{Certificate}
+\begin{proof}
+从两条积分方程相减取范数，得到
+\(e(t)\le e_k+\int_0^t(L_ke(s)+\eta_k)\,ds\)。
+令右侧为 \(v(t)\)，有 \(v'\le L_kv+\eta_k\)，乘
+\(e^{-L_kt}\) 积分，推出
+\(e(t)\le e^{L_kt}e_k+\eta_k\int_0^t e^{L_ks}\,ds\)。
+接续的 Lipschitz 界与三角不等式给出单步式。
+长度零为空乘积，代入单步递推并展开最后一项，按长度归纳得到累计界。
+这类分析支撑量化修复后的连续实现；它不替代接续对象和填补见证的存在证明。
+\end{proof}
+
+\section{结构闭合、超限完成与率--商交换的统一}
+\begin{theorem}[富结构率--商的相容完成]
+\label{thm:rich-calculus}
+在定理~\ref{thm:transfinite-task} 的塔上，设每个规定任务商还满足
+定理~\ref{thm:calculus-unification} 的状态商、链交换及动作回落条件，
+这些条件沿塔相容；完成情形另有逐商保持证明。
+则终对象的规定高阶关系闭合，任务同伦同一性保持，
+有限路径上的语义微分、取商与积分回读相容。
+对具有有限执行实现的实例，若累计误差界落入接受裕量，
+则该实现取得相应任务的阈值接受。
+\end{theorem}
+\begin{Certificate}[共同任务域与三层闭合]
+先记录同一个 \(T\)、测试族、动作--响应接口和塔上的 \(p,i,h\)；
+再记录逐元数高阶关系、逐链商交换及每条有限执行的误差账本。
+无限阶段的存在证书与有限执行证书分别保留。
+\end{Certificate}
+\begin{proof}
+超限任务定理给出终对象、关系及同伦见证。
+代数余极限或逐商完成保持状态测试、链映射和所声明的交换式。
+在终对象上应用率--商条件化统一定理，得到有限路径的任务保持及积分自然性。
+实际执行使用命题~\ref{prop:analytic-support} 或与其匹配的离散累计界；
+代入接受裕量便得到阈值结论。结构闭合依赖填补和相容证明，
+数值接受依赖该实现的误差界，两组前提在共同任务域中合取。
+定理~\ref{thm:nonzero-lie-two} 与命题~\ref{prop:rich-task-core} 提供非零低阶
+缺陷且任务保持的具体实例；推论~\ref{cor:transfinite-realization} 给出任意集合序数的
+代数塔实现；命题~\ref{prop:refinement-gain} 提供合法细化的能力见证。
+\end{proof}
+严格零缺陷模型、非零低阶缺陷模型与超限条件构造共同构成率--商系统的不同实现。
+有限截断、有限证书验证与固定核心查询界仍按各自定义计量；
+超限存在性不被计为一次有限运行的自动完成。
+
+\chapter{细化成本、不变量上卷与分型信息的取舍}
+\label{sec:resolution-cost-typing}
+本章为主映射及商细化建立信息与成本账本，分别计量同伦见证、认证、求解和输出。
+
+\section{任务同一性与两条组织路线的成本对象}
+先固定被保持的任务及其同伦同一性，再比较表示和求解程序。
+第~\ref{sec:axes-gms} 章区分尺度图与接续图；这里进一步比较两图的实现成本。
+宏观到微观的细化路线增加可分辨变量、精度或耦合层次；
+局部到整体的不变量上卷路线组织局部呈示、补足相容数据，并归并规定任务等价的方向。
+前者的新增处理义务与后者的有效求解压缩，可以在同一率--商系统中并存。
+
+\begin{definition}[相对任务的不变量与信息保持]
+取满射 \(q:X\to Q\) 及必须保持的测试族 \(\mathcal P\)。
+若每个 \(f\in\mathcal P\) 都有 \(f=\bar f q\)，称 \(q\) 保持该测试族。
+这里的不变量是同一任务允许归并的输入之间保持的观察，
+不要求它在每一个时间步都取相同数值。
+动态任务还要求合法动作、响应及后继在商上相容；链级任务另给微分交换和同伦见证。
+分型 \(\tau:X\to\mathcal T\) 是否属于 \(\mathcal P\)，必须明确登记。
+\end{definition}
+
+\begin{center}\small
+\begin{tabular}{p{0.12\textwidth}p{0.38\textwidth}p{0.38\textwidth}}
+\toprule 比较量 & 宏观到微观的细化 & 局部到整体的不变量上卷\\\midrule
+结构操作 & 展开自由度、提高分辨率和变化阶数 & 构造充分商、修复接续并整体求解\\
+保留内容 & 增加状态、机制和细节的可分辨性 & 保留目标、合法作用及所需回读\\
+计算义务 & 获取、物化、更新和验证新增内容 & 构造与认证商，再在有效任务核上计算\\
+信息取舍 & 新分辨率必须有输入或推导来源 & 被归并的分型无法仅从商值恢复\\
+高阶职责 & 刻画更细变化和更高耦合 & 刻画更高元接续及同伦相容\\
+\bottomrule
+\end{tabular}
+\end{center}
+上卷中的承载扩张与取商分别保存类型：前者补足可容许结构，后者减少需要独立区分的状态。
+被保持的任务同伦由见证给出；真实的非单射商映射仍按自身的纤维记录信息消隐。
+因此相容阶数增加与有效状态数减少各有度量，二者之间没有预设的单调等式。
+
+\section{分辨率细化与完整物化的成本下界}
+\begin{definition}[细化次序与显式输出模型]
+在同一输入域上，若 \(q=rq'\)，称 \(q'\) 细化 \(q\)。
+它表示 \(q'\) 的每个等价类包含在一个 \(q\) 等价类内。
+成本按固定字长原语计量，每次原语至多输出 \(b\ge1\) 个字。
+完整物化要求逐槽输出所有规定坐标；压缩公式、生成程序与逐槽物化分别登记。
+\end{definition}
+
+\begin{proposition}[细化的区分增加与物化负担]
+\label{prop:resolution-burden}
+若 \(q=rq'\)，则 \(q'\) 保留 \(q\) 的全部可读观察。
+若存在同 \(q\) 像、异 \(q'\) 像的输入，细化严格增加可分辨的输入对。
+对含 \(N\) 个独立固定字坐标的完整输出，任一正确程序至少需要
+\(\lceil N/b\rceil\) 次输出原语。
+对 \(n\) 个变量、总阶不超过 \(k\) 的完整 Taylor 系数表，槽数为
+\[
+J(n,k)=\#\{\alpha\in\NN^n:|\alpha|\le k\}=\binom{n+k}{k},
+\]
+其中 \(\NN\) 在此包含零。若每个系数按规定精度占一个固定字，
+完整输出至少需要 \(\lceil J(n,k)/b\rceil\) 次输出原语。
+\end{proposition}
+\begin{Certificate}[回退、索引与输出槽]
+保存 \(q=rq'\)、严格细化的输入对、坐标表及每次输出的槽位清单。
+Taylor 表保存全部多重指标；固定字表示只计规定精度的编码，实数精确求值另有实现义务。
+\end{Certificate}
+\begin{proof}
+若 \(f=\bar f q\)，则 \(f=(\bar f r)q'\)，故已有观察保持。
+指定输入对在粗表示中合并而在细表示中分离，证明严格增加。
+执行 \(t\) 次至多输出 \(bt\) 个字，完整输出要求 \(bt\ge N\)。
+为多重指标添加松弛坐标 \(\alpha_{n+1}=k-|\alpha|\)，
+得到 \(n+1\) 个非负整数之和为 \(k\) 的一一对应。
+用 \(n\) 个分隔符把 \(k\) 个单位分组，共有 \(\binom{n+k}{n}\) 种，
+给出槽数；再次应用输出计数得到下界。
+\end{proof}
+该结论量化实际新增的完整输出义务。一个保持原任务输出的算法可以忽略新增的无关坐标；
+它的求解成本不由细化后的总槽数直接确定。提高精度时，每个系数所占字数也须重新计入。
+
+\section{同时保留任务与分型的最小表示细化}
+\begin{theorem}[分型附加的最粗细化]
+\label{thm:joint-typing-refinement}
+设 \(q:X\to Q\) 满射，分型为 \(\tau:X\to\mathcal T\)。定义
+\[
+q^+(x)=(q(x),\tau(x)),\qquad Q^+=\im(q,\tau).
+\]
+则 \(q^+\) 同时保留 \(q\) 与 \(\tau\)，并保持全部通过 \(q\) 因子化的任务测试。
+对任一满射 \(p:X\to P\)，若 \(q=ap\)、\(\tau=cp\)，
+则存在唯一 \(h:P\to Q^+\) 使 \(q^+=hp\)。
+因此 \(q^+\) 是同时满足这两项静态保持义务的最粗细化。
+若 \(X\) 有限，令 \(K_y=|\tau(q^{-1}(y))|\)，则
+\[
+|Q^+|=\sum_{y\in Q}K_y.
+\]
+\end{theorem}
+\begin{Certificate}[两投影与纤维内分型表]
+登记两坐标投影、\(h(p(x))=(q(x),\tau(x))\) 及各纤维内实际出现的分型。
+只使用像 \(Q^+\)，不把未出现的笛卡尔积组合计入表示。
+\end{Certificate}
+\begin{proof}
+坐标投影给出 \(q=\operatorname{pr}_1q^+\)、\(\tau=\operatorname{pr}_2q^+\)。
+若 \(f=\bar f q\)，则 \(f=\bar f\operatorname{pr}_1q^+\)。
+对 \(p(x_1)=p(x_2)\)，两个因子化式分别给出 \(q\) 与 \(\tau\) 的值相等，
+故 \(h\) 良定义；\(p\) 满射保证唯一。不同 \(y\) 的表示块互不相交，
+每块恰有 \(K_y\) 个成员，相加得到有限计数。
+\end{proof}
+若某个 \(K_y>1\)，保留分型必须重新区分该商纤维。
+若全部 \(K_y=1\)，分型已能从 \(q\) 读回，无须增加可见状态数。
+动态充分性还需对新增测试作演化饱和，不能只由静态二坐标式签发。
+
+\section{固定核心求解与附加分型输出的严格分离}
+\begin{proposition}[核心计算、纤维规模与分型读回]
+\label{prop:core-typing-tradeoff}
+固定素数 \(p\)，取 \(d\ge1\)、\(N\ge1\)，在固定字编码的有限域 \(\mathbb F_p\) 上令
+\[
+\begin{aligned}
+X_N&=\mathbb F_p^d\times\mathbb F_p^N, & q(c,z)&=c,\\
+F(c,z)&=\sum_{i=1}^d c_i, & \tau(c,z)&=z.
+\end{aligned}
+\]
+则 \(F=\bar Fq\)，每个商纤维有 \(p^N\) 个不同分型，
+\(q^+=(q,\tau)\) 恢复全部输入。在一次查询读取一个坐标的确定性精确模型中，
+从原始输入计算 \(F\) 的最坏查询数恰为 \(d\)；
+固定 \(d\) 后，求解成本相对 \(N\) 为 \(O(1)\)。
+完整输出 \(\tau\) 至少需 \(\lceil N/b\rceil\) 次输出原语。
+\end{proposition}
+\begin{Certificate}[独立坐标与任务非干扰]
+保存两组坐标地址、域加法表与任务表达式。
+\(z\) 不出现在 \(F\) 的表达式中；规则改变时重新验证这一非干扰条件。
+\end{Certificate}
+\begin{proof}
+任务式只含 \(c\)，直接给出因子化。固定 \(c\) 后 \(z\) 有 \(p^N\) 种取值，
+因此全部附加分型被同一个商值归并；恢复两坐标即恢复原输入。
+读取 \(d\) 个核心坐标并相加达到上界。
+若某个输入上少于 \(d\) 次查询就结束，至少一个核心坐标未读。
+保持全部已读值并将该坐标加一，算法经历相同查询与回答，输出相同，
+真实目标却在 \(\mathbb F_p\) 中加一，矛盾。因此每个正确算法的最坏查询数至少为 \(d\)。
+分型完整输出的下界由命题~\ref{prop:resolution-burden} 给出。
+\end{proof}
+这里的 \(p^N\) 是表示纤维的分型数量，未把它当作任意原算法都必须执行的枚举次数。
+\(q=c\) 是充分核心，也未被声明为只输出这个和的任务的最小表示。
+第~\ref{sec:growth} 章的母上同调增长与固定商核，在结构层提供相应的独立实例。
+分型消隐与任务精确求解同时成立；若分型加入输出义务，就按新的接口计费。
+
+\section{当前效用与未来行为所需的不变量}
+\begin{proposition}[当前等效用而后继必须分离的四态模型]
+\label{prop:future-sensitive-typing}
+令 \(X=\{a,b,c,d\}\)，唯一动作的确定性后继为
+\[
+\Phi(a)=c,\quad\Phi(b)=d,\quad\Phi(c)=c,\quad\Phi(d)=d,
+\]
+效用为 \(U(a)=U(b)=0\)、\(U(c)=1\)、\(U(d)=2\)。
+当前效用商 \(q=U\) 有三个像值，并保持当前效用；
+不存在 \(\bar\Phi\) 使 \(q\Phi=\bar\Phi q\)。
+加入 \(\tau=U\Phi\) 后，\(q^+=(U,U\Phi)\) 有四个不同像值，
+保持所有未来效用及此动作的后继。
+\end{proposition}
+\begin{Certificate}[逐态读取与相容检查]
+四个细化像依次为 \((0,1),(0,2),(1,1),(2,2)\)。
+在此像上定义 \(\bar\Phi(q^+(x))=q^+(\Phi(x))\)。
+\end{Certificate}
+\begin{proof}
+若粗商后继存在，\(q(a)=q(b)=0\) 要求它同时把零送到一和二，矛盾。
+四个细化像两两不同，使 \(q^+\) 在 \(X\) 上单射，商后继按证书良定义。
+一步之后全部状态处于吸收态，因此 \(U\Phi^m=U\Phi\) 对 \(m\ge1\) 成立。
+两个坐标覆盖当前与全部未来观察，得到动态保持。
+\end{proof}
+动态任务的核心必须覆盖合法动作、响应、目标及其规定演化。
+一个标量当前等值不充分时，最粗任务充分商由
+定理~\ref{thm:saturated-quotient} 的饱和构造给出。
+分型对当前观察无关、对后续观察有关的区别，由明确的后继测试确定。
+
+\section{完整成本账本、复用收益与商构造反例}
+\begin{definition}[串行总工作量与证书复用]
+固定成本原语、输入接口、输出义务和同一任务族。
+一次性构造与初始认证成本为 \(B\ge0\)，第 \(t\) 次事件的成本分为
+\[
+c_t=c_{q,t}+c_{h,t}+c_{s,t}+c_{r,t}+c_{o,t}+c_{v,t},
+\]
+分别对应商读取或维护、实际修复、商上求解、合法回落、输出及当次验证。
+各原语只记入一个阶段。串行运行 \(K\) 次的总工作量为
+\(W(K)=B+\sum_{t=1}^K c_t\)。
+证书复用要求来源、规则和任务绑定仍有效；变更触发的重新认证另计。
+该定义计量串行工作量，并行墙钟时间另由调度模型计算。
+\end{definition}
+
+\begin{theorem}[不变量复用的成本收益条件]
+\label{thm:amortized-quotient-cost}
+若某个基准实现每事件实际成本为 \(a\)，率--商实现每事件实际成本为 \(c\)，
+初始成本为 \(B\)，两者完成同一任务和输出义务，则
+\[
+W(K)<Ka\quad\Longleftrightarrow\quad K(a-c)>B.
+\]
+对 \(K\ge1\)，存在严格收益当且仅当 \(a>c\) 且 \(K>B/(a-c)\)。
+其平均成本为 \(c+B/K\)。
+若任务或规则在有限个阶段更换，第 \(j\) 阶段使用 \(K_j\) 次、每次成本 \(c_j\)，
+构造或重新认证成本为 \(B_j\)，则
+\[
+W=\sum_j B_j+\sum_j K_jc_j.
+\]
+\end{theorem}
+\begin{Certificate}[可比任务与阶段成本清单]
+绑定相同输入访问权、成功条件、输出及成本单位；逐阶段记录认证的有效区间和调用次数。
+若 \(a\) 只为基准的下界、\(c\) 只为新实现的上界，上述严格不等式作为充分收益条件。
+\end{Certificate}
+\begin{proof}
+把 \(W(K)=B+Kc\) 移项得到等价式。
+当 \(a\le c\) 时，左侧工作量至少为 \(Ka\)，故无严格收益；
+当 \(a>c\) 时除以正数 \(a-c\)，得到次数门槛。
+除以 \(K\) 给出平均成本。阶段清单把每个原语计入且仅计入一次，逐阶段相加即得总式。
+使用上下界时，实际新成本不超过所列上界，实际基准成本不低于所列下界，
+严格分离仍推出收益；反向推论不由这两个界给出。
+\end{proof}
+
+\begin{proposition}[两状态商的构造仍需线性读取]
+\label{prop:parity-quotient-cost}
+令 \(X_N=\{0,1\}^N\)，任务与商均为
+\(q_N(x)=F_N(x)=x_1\oplus\cdots\oplus x_N\)。
+即使 \(|Q_N|=2\)，从原始输入精确构造商值的确定性最坏查询数仍为 \(N\)。
+若已经取得正确商值，且每次更新提供经认证的唯一改动地址及旧、新位，
+维护该商值只需常数次位运算。
+\end{proposition}
+\begin{Certificate}[未读位与更新输入]
+查询接口每次读取一个位；\(\oplus\) 表示模二加法。
+更新证书给出旧位 \(u\)、新位 \(v\) 及其来源，维护式为
+\(q_{\mathrm{new}}=q_{\mathrm{old}}\oplus u\oplus v\)。
+\end{Certificate}
+\begin{proof}
+读取全部 \(N\) 位达到上界。若提前结束，翻转一个未查询位会保持全部查询回答，
+却翻转奇偶性，故正确算法不能提前结束，得到下界。
+更新式先抵消旧位再加入新位，只使用两个模二加法。
+初始读取和更新证据的获取、认证仍保留在成本账本中；
+该维护结论只把已提供且有效的更新证书作为输入。
+\end{proof}
+商的状态数、商值计算成本和商值维护成本在此分别为二、\(\Theta(N)\) 与条件化的 \(O(1)\)。
+结构压缩的收益需要通过实际输入链实现，有限维或有限状态结论不替代这条计量链。
+
+\section{独立证据层与精确分型恢复的信息下界}
+\begin{theorem}[附加证据的读回条件与固定长度编码界]
+\label{thm:evidence-typing-cost}
+设 \(e:X\to E\) 为允许读取的附加证据，\(q:X\to Q\) 为满射。
+存在解码器 \(g\) 使 \(\tau(x)=g(q(x),e(x))\)，当且仅当
+\(\tau\) 在联合映射 \((q,e)\) 的每个纤维上恒定。
+若 \(X\) 为非空有限集，定义
+\[
+K_{\max}=\max_{y\in Q}|\tau(q^{-1}(y))|.
+\]
+在 \(q(x)\) 已知、全部附加信息只通过固定长度 \(s\) 位字串给出的模型中，
+精确恢复必须满足 \(2^s\ge K_{\max}\)。允许依赖 \(q\) 的有限码表时，
+\(s=\lceil\log_2K_{\max}\rceil\) 足够。
+\end{theorem}
+\begin{Certificate}[来源绑定与纤维内编码]
+证据绑定同一原输入、版本和有效读取接口；固定长度模型把能区分输入的地址、标签
+及其他动态元数据一并计入附加信息。有限码表逐纤维枚举实际分型，
+码表的构造、存储、查询及证据访问分别计费。
+\end{Certificate}
+\begin{proof}
+解码器使相同联合输入取得相同分型。反向在每个联合像上按代表元定义分型，
+纤维恒定性保证良定义。
+取达到 \(K_{\max}\) 的粗纤维，其中不同分型必须使用不同附加码字，
+否则联合像相同而分型不同。\(s\) 位至多给出 \(2^s\) 个码字，得到必要界。
+反向固定各纤维的分型枚举，使用其索引作为码字；共同长度
+\(\lceil\log_2K_{\max}\rceil\) 足够容纳每个枚举。
+解码器先读取已知 \(q(x)\) 所指定的码表，再按索引恢复分型，证明可达。
+\end{proof}
+分型从商表示中消隐，说明商值单独不足以读回；保留原始证据能够补足联合接口。
+命题~\ref{prop:core-typing-tradeoff} 的每个纤维有 \(p^N\) 种分型，
+故该固定长度模型至少需要 \(\lceil N\log_2 5\rceil\) 位附加信息。
+这一下界计量区分能力；外部记录的地址、访问服务和已有存储按实际接口说明，
+不把一个可解引用的短地址当作全部来源信息被无成本消除。
+
+\section{新任务触发的最小再细化与率--商执行保持}
+\begin{theorem}[嵌套任务族的充分商细化与有限执行]
+\label{thm:task-directed-refinement}
+固定有限输入域、有限作用--响应标签集及相同后继规则。
+令初始测试族满足 \(\mathcal P_0\subseteq\cdots\subseteq\mathcal P_m\)，
+各族均包含定义域及本阶段全部必需任务观察。
+对每个 \(j\) 作定理~\ref{thm:saturated-quotient} 的演化饱和，得到
+最粗充分商 \(q_j:X_\bot\to Q_j\)。则存在唯一满射
+\[
+r_j:Q_{j+1}\to Q_j,\qquad r_jq_{j+1}=q_j,
+\]
+且 \(r_j\) 与相同标签的商后继交换。
+若切换时从同一当前输入取得并认证新商值，且各阶段满足精确任务商与合法回落条件，
+则跨越任意有限个阶段的有限执行保持各阶段规定任务及此前保留的观察。
+\end{theorem}
+\begin{Certificate}[饱和、切换与同一输入的读回]
+记录测试包含、稳定分区、标签后继和 \(r_j\) 的逐块值。
+切换事件保存当前输入 \(x\)、真实来源与两表示值，核验
+\(r_j(q_{j+1}(x))=q_j(x)\)。
+链级实现另记录微分交换；承载修复另记录任务同伦见证及其相容运输。
+\end{Certificate}
+\begin{proof}
+对饱和轮次归纳，较大测试族包含较小测试族的全部后继测试。
+因此 \(q_{j+1}(x)=q_{j+1}(y)\) 蕴含 \(q_j(x)=q_j(y)\)，
+由代表元定义 \(r_j\)，满射性与唯一性由两个商的满射性给出。
+对标签 \(\ell\) 及输入 \(x\)，逐项代入得到
+\[
+\begin{aligned}
+r_j\bar\Phi_{j+1,\ell}q_{j+1}(x)
+&=r_jq_{j+1}\widehat\Phi_\ell(x)\\
+&=q_j\widehat\Phi_\ell(x)
+=\bar\Phi_{j,\ell}r_jq_{j+1}(x).
+\end{aligned}
+\]
+\(q_{j+1}\) 满射使交换式在全部商状态上成立。
+阶段内部由精确任务商保持有限演化；切换时两表示来自同一当前输入，
+回退式保持已有观察，新商的充分性保证新增观察。
+按有限执行前缀归纳即可交替组合阶段内部步骤与切换步骤。
+所给链交换与同伦运输见证再由率--商统一定理传递到规定的积分回读。
+\end{proof}
+若新增观察区分旧商同一纤维内的输入，\(q_j(x)\) 单独不能确定新商值；
+切换需要原始输入、独立证据或已有的充分细化。
+静态最小补充分型由定理~\ref{thm:joint-typing-refinement} 给出，
+动态要求继续饱和，证据成本由定理~\ref{thm:evidence-typing-cost} 及实际访问协议确定。
+任务和规则更换时，阶段认证按定理~\ref{thm:amortized-quotient-cost} 的账本计入。
+
+\begin{remark}[高阶相容与有效求解规模的共同治理]
+细化路线的高阶变化系数承担相应的表示和处理义务；
+整体路线的高阶填补承担低阶保持及全部相容关系的证明义务。
+非零 Jacobiator 的容许性由第~\ref{sec:rich-closure} 章的填补与闭合判据决定，
+超限完成由第~\ref{sec:transfinite-calculus} 章的存在与保持条件决定。
+这些结构证书支持在规定任务上使用较小的有效表示，实际复杂度收益仍由访问、
+复用、求解和输出的总工作量决定。
+因此率--商执行先保留任务充分的不变量，在商上求解；新增任务要求分型时，
+再沿有真实来源的细化路径补足区分，并重新核验任务与同伦同一性的保持。
+\end{remark}
+
+\chapter{参数化求解、查询边界与证明闭合}
+\label{sec:quantum}
+本章在任意已声明的核心接口上计量查询，并将全文一般结果纳入同一原子证明账本。
+\section{固定编码接口与非平凡任务}
+\begin{definition}[共同查询模型]
+核心输入 \(s\) 编码为至多 \(m\ge1\) 个固定长度字，\(m\) 不随扩展参数 \(N\) 变化。
+确定性算法通过地址查询读取字；量子算法使用同一编码的可逆 oracle
+\(O_s|i,b\rangle=|i,b\oplus s_i\rangle\)，其中 \(\oplus\) 是编码位异或。
+给定每个输入允许的正确输出集合 \(\mathcal A(s)\)，并假设有总的确定性核心求解器
+在读取这些字后输出 \(\mathcal A(s)\) 的元素。公共参数包括固定的规则及编码；
+输入中随任务变化的字段必须计入查询。核心之外的提取和认证成本按
+定义~\ref{def:core-cost-interface} 单独计费。
+\end{definition}
+\begin{theorem}[非平凡固定核心的查询阶]
+\label{thm:quantum}
+若相同公共参数下存在两个合法输入 \(s_0,s_1\)，满足
+\(\mathcal A(s_0)\cap\mathcal A(s_1)=\varnothing\)，则确定性求解与
+逐输入成功率严格大于 \(1/2\) 的最优量子求解，其最坏查询数均在 \(1\) 与 \(m\) 之间。
+对固定核心接口，它们相对扩展规模 \(N\) 同为 \(\Theta(1)\)。
+\end{theorem}
+\begin{Certificate}[同接口的上下界]
+保存总的核心算法、输入编码和两个正确输出集合不相交的见证。
+数据读取与实际计算工作量分别登记；查询数不代表其他阶段耗时。
+\end{Certificate}
+\begin{proof}
+读取全部核心字后运行已给定的求解器，确定性查询数至多 \(m\)。
+量子算法可用计算基查询读取同样的字，再执行该有限输入上的可逆计算，得到相同上界。
+零查询算法在 \(s_0,s_1\) 上使用相同初态、公共电路及测量，输出分布相同。
+同一分布在两个不相交正确输出集合上的概率不可能都严格大于 \(1/2\)，
+故最坏至少一次查询。确定性零查询为同一论证的特例。
+\end{proof}
+查询模型的背景见文献~\cite{beals}。这里的下界由上述不相交输出见证直接证明；
+若所有输入共享一个可直接输出的正确答案，零查询可以成立，不能套用本定理的正下界。
+无限核心或随 \(N\) 增长的编码长度需保留相应规模参数。
+
+
+\section{一般证明的原子展开与依赖闭合}
+\label{sec:atomic-ledger}
+\begin{definition}[证明展开器与叶地址]
+定义~\ref{def:rules} 中的项及证明规则按有限语法树保存。
+\(\mathsf{Expand}(t,\Gamma)\) 先按有序参数递归展开子项，
+再分配新编号并输出
+\[
+(\mathrm{id},\mathrm{type},\mathrm{parents},\mathrm{rule},
+ \mathrm{operands},\mathrm{result},\mathrm{identity}) .
+\]
+向量读取按坐标展开，矩阵乘法按行、列与求和指标展开；
+有限合取按每个成员展开。相等证明保留替换位置；归纳证明保存
+基例与带任意归纳参数的保持树。运行图允许反馈环，证明图按事件前缀展开，
+每条父边只指向已有编号。无限族使用带符号变量的有限证明树。
+
+叶地址采用以下生成模式，每个具体索引才是一个叶：
+\begin{center}\small
+\begin{tabular}{p{0.15\textwidth}p{0.75\textwidth}}
+\toprule 地址族 & 叶内容及核验方式\\\midrule
+A1[\(c\)] & 所选标量域、有限运算表或分析基础中的单个有效项。\\
+A2[\(f,j\)] & 核心字段 \(f\) 的第 \(j\) 个坐标、模式位或标签，按输入槽读取。\\
+A3[\(f\)] & \(L,R,\delta,g,U\) 的定义表达式，继续展开至 A1、A2。\\
+A4[\(v,e,i\)] & 单个顶点、边及边界矩阵条目，端点与定向决定系数。\\
+A5[\(j,r,c\)] & 声明基底上的矩阵条目、比较联络及任务阈值。\\
+A6[\(f,j,a\)] & 声明作用或干预的单个赋值；比较分支按任务要求绑定共同输入。\\
+A7[\(i\)] & 单个查询槽、固定字编码、原语成本或概率归一化等式。\\
+A8[\(k,f,j\)] & 表示、关系、读回、运输或缺陷的单个坐标；V02--V10 按此继续展开。\\
+A9[\(s,f\)] & 来源 \(s\) 的单个内容标识、类型、定义域及版本绑定；失配输入不得消费。\\
+A10[\(n,\mathbf i,j\)] & 分次基、微分、括号结构常数、shuffle 符号及第 \(n\) 元关系的单个系数。\\
+A11[\(\alpha,o,f\)] & 序数阶段、义务、填补、塔映射及任务同伦的单项等式或代表元。\\
+A12[\(q,s,k\)] & 表示访问地址、生成规则前提、滤过商或连续时间窗的单项输入。\\
+A13[\(j,t,f\)] & 任务阶段、分型纤维、附加证据码、细化坐标或串行成本原语的单项记录。\\
+A14[\(c,r,s,\omega\)] & 单形与棱柱定向、实现条目、形式、积分域、商核及逐元同伦等式。\\
+A15[\(k,a,\xi,n\)] & 任务关系、动作响应对应、合法读回、高元映射分量与误差界的单项见证。\\
+P[\(T,i\)] & 定理 \(T\) 的第 \(i\) 个显式假设，注明参数范围和类型。\\
+F[\(i\)] & 声明的逻辑、域、线性空间、图同伦、分析或概率基础规则实例。\\
+\bottomrule
+\end{tabular}
+\end{center}
+A3、A6 的表达式入口必须继续展开，不能直接当作真值叶。
+各地址的同一性由实际类型绑定：A1 保持域及标签解释；
+A2、A3 保持同一任务记录的字段对应和规则；A4 保持定向及链配对；
+A5 保持环境、度量和比较联络，允许活动子丛演化；
+A6 保持前态与外生输入，专门改变干预赋值；
+A7 保持输入编码、查询对象和成本单位；A8 保持两侧实现的任务字段、
+比较联络及观察对应；A9 保持同一输入对象、来源类型及版本绑定；
+A10 保持分次及符号约定；A11 保持原任务复形、塔复合与同伦见证；
+A12 保持输入可访问性、阶段规则及分析比较域；
+A13 保持任务与输出义务、来源版本、成本单位及证书有效区间。
+A14 保持分析形式、定向及几何同伦的对应；A15 保持任务实现关系与高阶映射的类型。
+表示映射必须逐项运输这些绑定。V01--V12 是 A1--A9 与 P 上的展开入口，
+不能以一条带名称的复合记录替代其内部运算。
+富结构及超限实例使用 A10--A12，细化与信息成本实例另使用 A13；无限族保留带参数的符号证明，
+每个有限执行只消费自身已实例化的原子。
+一般定理的 P 地址保留为结论前件；任何任务实例化时须给出 A 或 F 上的
+替代证明。图收缩保留文献~\cite{hatcher} 的同伦事实和本文逐边构造；
+收敛等额外分析条件登记为 P，不能归入基础公理。
+\end{definition}
+
+\begin{Certificate}[全文结果的原子依赖登记]
+每行给出结果的父结果及原子展开入口。R 指定义~\ref{def:rules} 的规则；
+P 指该行定理的显式前提，不能作为未经证明的系统能力。
+父结果按本表顺序均在前缀内。
+\small
+\begin{longtable}{p{0.07\textwidth}p{0.19\textwidth}p{0.43\textwidth}p{0.17\textwidth}}
+\toprule 编号 & 结果 & 父结果及叶入口 & 规则\\\midrule
+\endfirsthead
+\toprule 编号 & 结果 & 父结果及叶入口 & 规则\\\midrule
+\endhead
+N01 & \ref{thm:dag} & P：叶成立、父边、保真规则；F：逻辑 & R2、R3\\
+N02 & \ref{thm:generated} & P：初值、构造子保持式；F：自然数 & R3\\
+N03 & \ref{thm:comparison-integration} & A14；P：光滑实现与边界交换；F：Stokes & R1、R4、R6\\
+N04 & \ref{thm:edge-deformation} & A14；逐边积分、插值与原函数；F：基本定理 & R1、R4、R6\\
+N05 & \ref{thm:representation-execution} & A15；P：关系、动作响应双向对应及读回 & R2、R3\\
+N06 & \ref{prop:representation-error} & A15；P：初误差、稳定界与逐步缺陷 & R3、R6\\
+N07 & \ref{thm:higher-comparison} & A10、A15；P：余代数路径及逐元可积性 & R1、R4、R6\\
+N08 & \ref{prop:approx} & P：交换缺陷、Lipschitz 界；F：范数 & R3、R6\\
+N09 & \ref{thm:graph} & A4；F：图收缩同伦；逐边生成树 & R1、R3\\
+N10 & \ref{prop:kernel} & P：表示括号及微分交换式 & R1、R2、R4\\
+N11 & \ref{thm:cohkernel} & P：\(d^2=0,K,p,\omega,\bar h\)；提升原始元 & R1、R4\\
+N12 & \ref{prop:retract} & P：\(L,P,h\) 的链同伦式 & R1、R4\\
+N13 & \ref{thm:filler} & P：三个链映射及微分矩阵 & R1、R4\\
+N14 & \ref{thm:repairtower} & P：\(D_0,K_{<n}\)；逐阶乘积系数 & R1、R3、R4\\
+N15 & \ref{thm:stop} & P：实际步、非负能量、统一下降幅 & R3、R6\\
+N16 & \ref{lem:cost} & A7；P：认证核心算法、提取、回落与物化成本 & R1--R3\\
+N17 & \ref{thm:outputlb} & A7；P：输出槽数和单步字数 & R2、R3\\
+N18 & \ref{lem:exterior} & P：任意有限基复形与平方零微分；外代数有序基 & R1、R3、R4\\
+N19 & \ref{lem:dg} & P：满射余链映射与稳定核；分次符号 & R1、R4\\
+N20 & \ref{thm:stokes} & A4；删顶点及符号对 & R1、R3、R4\\
+N21 & \ref{thm:ordinal-saturation} & A11、A12；P：单调膨胀与集合界；F：良序 & R2、R3、R7\\
+N22 & \ref{thm:quantum} & A7；P：固定编码、总核心算法、不相交正确输出集 & R1、R2、R6\\
+N23 & \ref{prop:atom-eval} & N02；A1、A2；函数类型与定义域 & R0--R3\\
+N24 & \ref{prop:edge-witness} & N04；A14；二次函数与三次原函数 & R1、R4\\
+N25 & \ref{thm:prism-homotopy} & N03；A14；棱柱定向、面配对与积分 & R1、R3、R4\\
+N26 & \ref{prop:hybrid} & N02；P：流、接续、定义域及保持式 & R1、R3\\
+N27 & \ref{thm:total} & N14；P：范数可和；F：完备性 & R4、R6\\
+N28 & \ref{thm:elimination} & N13；P：有限矩阵；域运算 & R1--R3\\
+N29 & \ref{thm:time} & N16；P：逐次域检查与证书有效性；成本账本 & R1--R3\\
+N30 & \ref{thm:growth} & N18；分块核像；P：有限次数支撑 & R1、R3、R4\\
+N31 & \ref{thm:linfty} & N19；三次乘积的逐项符号 & R1、R4\\
+N32 & \ref{thm:functor} & N19；P：任意满射余链映射；核与代表元 & R1、R3、R4\\
+N33 & \ref{thm:fundamental} & N20；逐边端点求值 & R1、R3、R4\\
+N34 & \ref{cor:natural} & N20；P：链映射逐生成元交换式 & R1、R4\\
+N35 & \ref{prop:omega-successor} & N21；A12；有限前缀与无限前提的具体规则 & R2、R3、R7\\
+N36 & \ref{prop:analytic-support} & N08、N06；A12；P：流存在、定义域及界 & R1、R3、R6\\
+N37 & \ref{thm:homotopy-descent} & N03、N25；A14；商核与单射对偶；共同域 & R1、R4\\
+N38 & \ref{thm:tower} & N23；P：逐测试值与包含关系 & R2、R3\\
+N39 & \ref{thm:descent} & N23；P：投影、满射与纤维一致式 & R1、R2\\
+N40 & \ref{prop:singular} & N23；P：参数及同像异值输入对 & R1、R2\\
+N41 & \ref{thm:reach} & N23；P：精确商五组逐字段等式 & R2、R3\\
+N42 & \ref{thm:augmentation} & N11、N30；常数投影与测试因子化 & R1、R4\\
+N43 & \ref{prop:bundle} & N19、N31；稳定群矩阵条件与平直联络 & R1、R2、R6\\
+N44 & \ref{prop:path} & N20、N33；P：同伦面及闭余链 & R1、R4\\
+N45 & \ref{prop:mechanism-scalar} & N23；两矩阵条目、范数与迹 & R1、R2、R6\\
+N46 & \ref{thm:axes-independent} & N23；A12；粗化与三重重叠的逐值见证 & R1、R2\\
+N47 & \ref{prop:gms-embedding} & N31；A10；零微分与高元零扩张 & R1、R4\\
+N48 & \ref{lem:ordinal-colimit} & N23；A11；有限输入的共同阶段与映射 & R2、R3、R7\\
+N49 & \ref{lem:filtered-completion} & N27；A12；P：完备分离、滤过与相容商 & R2、R4、R6\\
+N50 & \ref{thm:amortized-quotient-cost} & N16、N29；A13；阶段成本、有效区间与调用次数 & R1--R3、R6\\
+N51 & \ref{thm:comparison-preservation} & N37；A14；闭形式、边界及任务观察 & R1、R4\\
+N52 & \ref{cor:comparison-refinement} & N37；A14；两级商与因子化 & R1、R4\\
+N53 & \ref{cor:reconstruct} & N39；P：合法访问与交换式 & R1、R3\\
+N54 & \ref{cor:policy} & N41；P：有限动作与最小秩 & R1--R3\\
+N55 & \ref{prop:quotcomp} & N41；P：相邻两商的字段等式 & R1、R3\\
+N56 & \ref{thm:noninterference} & N41；P：任意核心、非空扩展与逐字段因子化 & R1--R3\\
+N57 & \ref{prop:predicate-cochain} & N23、N33、N44；任意有限求值图及测试表 & R1--R4\\
+N58 & \ref{prop:cochain-residual} & N28、N20、N33、N44、N34；A4、A8；边界与缺陷配对 & R1、R4\\
+N59 & \ref{thm:utility-type} & N39；A2、A3；逐测试纤维恒定与异值对 & R1、R2\\
+N60 & \ref{thm:map-commutation} & N20、N33、N44、N34；P：有限维链空间；A4、A8 & R1、R3、R4\\
+N61 & \ref{thm:nonzero-lie-two} & N47；A10；三个基括号、负次拷贝及交替性 & R1、R2、R4\\
+N62 & \ref{thm:fixed-interface-limit} & N39、N22；A12；同接口异目标输入对 & R1、R2、R6\\
+N63 & \ref{prop:resolution-burden} & N38、N17；A13；回退、指标计数与输出槽 & R1--R3\\
+N64 & \ref{prop:parallel-homotopy-model} & N37、N51；A14；两副本、平行路径与面积积分 & R1、R4、R6\\
+N65 & \ref{thm:comparison-main} & N37、N51、N52、N05、\newline N06、N07；A14、A15；共同任务与定义域 & R1--R4、R6\\
+N66 & \ref{thm:constructive-stop} & N41、N54、N15、N28；独立块与任务交换 & R1--R3\\
+N67 & \ref{thm:core-solver} & N41、N54；P：完整有限转移表；秩与补集响应 & R1--R3\\
+N68 & \ref{prop:bound-operators} & N57；P：任意光滑标架；F：乘积求导及基本定理 & R1、R4、R6\\
+N69 & \ref{thm:cross-layer} & N41、N54、N34、N42、N57；P：任务图与边映射 & R1--R4\\
+N70 & \ref{thm:cohomological-distance} & N58；P：闭余链、有限维与正定权；F：正交投影 & R1、R4、R6\\
+N71 & \ref{thm:target-radius} & N59；P：目标度量；三角式与上确界 & R2、R6\\
+N72 & \ref{prop:map-defect} & N19、N60；各级对偶映射与平方零 & R1、R4\\
+N73 & \ref{thm:saturated-quotient} & N39、N40、N53、N41；P：有限域及全部初始测试；分区 & R1--R3\\
+N74 & \ref{prop:gap-gates} & N61；A10；缩放与缺失负次空间 & R1、R4、R6\\
+N75 & \ref{prop:rich-task-core} & N12、N61；A10、A11；逐基收缩及测试因子化 & R1、R3、R4\\
+N76 & \ref{prop:parity-quotient-cost} & N62；A13；未读位、认证更新及模二加法 & R1、R2\\
+N77 & \ref{prop:transfer} & N41、N54、N16；P：任意核心算法与迁移成本 & R1--R3\\
+N78 & \ref{cor:quotient-extension} & N59、N73；P：新测试；同纤维对 & R1--R3\\
+N79 & \ref{thm:calculus-unification} & N41、N54、N12、N34、N05、\newline N06、N70、N60、N73 & R2--R4、R6\\
+N80 & \ref{thm:orthogonal-filler} & N28、N70；P：有限维内积；像与核的基 & R1、R4、R6\\
+N81 & \ref{thm:transfinite-task} & N75、N48、N49；A11；P：扩张、覆盖、保持 & R2--R4、R7\\
+N82 & \ref{thm:general-realization} & N56、N30、N42、N31、\newline N32、N69、N16、N29、\newline N65；P：共同任务与几何接口 & R1--R4\\
+N83 & \ref{thm:comparison-prefix} & N01、N05、N06、N58、\newline N70、N59、N71、N45、\newline N60、N72、N73、N78；V 入口与未决项追踪 & R0--R6\\
+N84 & \ref{cor:transfinite-realization} & N61、N75、N48、N81；A10、A11；独立扇区直和 & R2--R4、R7\\
+N85 & \ref{prop:refinement-gain} & N78、N62；A12；分支位真实读取与两交换式 & R1、R2\\
+N86 & \ref{thm:joint-typing-refinement} & N59、N78；A13；两投影、像与逐纤维分型 & R1--R3\\
+N87 & \ref{thm:rich-calculus} & N79、N61、N75、N81、\newline N84、N85、N36；共同任务域 & R2--R4、R6、R7\\
+N88 & \ref{prop:core-typing-tradeoff} & N56、N17、N63、N86；A13；独立核心与分型坐标 & R1--R3\\
+N89 & \ref{prop:future-sensitive-typing} & N39、N73、N86；A13；四态后继与效用表 & R1--R3\\
+N90 & \ref{thm:evidence-typing-cost} & N59、N86、N88；A13；联合纤维、有限码表及码长 & R1--R3、R6\\
+N91 & \ref{thm:task-directed-refinement} & N41、N73、N78、N79、N86、\newline N89、N50、N90；A13；切换来源 & R1--R4\\
+N92 & \ref{thm:atomic-closure} & 全部已登记前置结果；展开器、局部证明树与未解除假设 & R2、R3、R7\\
+\bottomrule
+\end{longtable}
+\normalsize
+\end{Certificate}
+
+\begin{theorem}[带假设追踪的原子级终态溯源]
+\label{thm:atomic-closure}
+将上述账本的表达式按原子语言展开，并将每条结果规则指向其正文证明，
+所得任一有限实例的接受结论都能追溯至实际输入原子和声明的数学基础。
+一般条件结果保持其 P 前提；每个任务的状态、求值图、链和算子层须
+按已声明的类型提交自己的实现与交换见证。含未实例化必需 P 或 \(\bot\) 的实际事件不被接受。
+\end{theorem}
+\begin{Certificate}[展开后的父边与假设集合]
+对结点 \(v\) 保存未解除假设集合
+\[
+\mathsf{Open}(v)=
+\bigcup_{u\in\operatorname{Par}(v)}\mathsf{Open}(u)
+\ \cup\ \mathsf{NewPrem}(v),
+\]
+再按明确的假设解除规则更新。条件结论保留相应前件；
+事件接受要求 \(\mathsf{Open}(v)=\varnothing\) 且必需计算全部完成。
+基础 F 不列为待解决任务假设，但逐次保存使用实例。
+\end{Certificate}
+\begin{proof}
+展开器访问子项后才产生新结点，每棵表达式树有限。
+上表父结果只指向此前行，连接局部树不会产生证明循环。
+积分、插值、棱柱与商下降的局部证明使用 A14；执行关系、高阶同伦路径与误差传播使用 A15。
+因果及任务谓词的实现由 A1--A9 核验，富结构和超限完成由 A10--A12 核验，
+细化、证据与成本由 A13 核验。无限族保存有限的带参数证明树，
+实际事件只消费其已实例化的前件。
+对拓扑前缀同时归纳结论、类型和
+\(\mathsf{Open}\) 集合：数据叶有值，假设叶保留前件，
+合法规则组合已有父结论并按明示规则解除假设。
+定理~\ref{thm:dag} 给出可靠性与逆向溯源。
+任意任务字段由 A1--A7 实例化，表示与来源绑定由 A8、A9 补充输入及证据地位，
+跨层映射逐生成元验证，
+接受不再依赖未解释的复合谓词名字。
+该结论覆盖满足上述语言、规则与来源条件的原子化推演；每个任务均须实例化自身前提。
+\end{proof}
+
+\begin{theorem}[任务核心与链算子的参数化联合保持]
+\label{thm:general-realization}
+给定定义~\ref{def:core-fields} 的任意非干扰扩展族，且任务求值图、测试和链映射
+满足定义~\ref{def:cross-layer-data}。在基余链复形 \(B\) 上构造
+\(C_N=B\otimes\Lambda_N\)，并使用其增广商，则：
+\begin{enumerate}
+\item 状态商保持全部规定任务测试、有限鲁棒可达性及合法策略回落；
+\item \(H^\bullet(C_N)\cong H^\bullet(B)\otimes\Lambda_N\)，增广保持零外次数的类；
+\item 图测试、扩展复形及增广通过 \(\mathcal E_N\) 逐链交换；
+\item 保持增广核的算子构成严格微分分次 Lie 代数，其商态射保持微分、括号和有限复合；
+\item 若另给已认证核心求解器及访问成本界，求解与全部附加义务按
+引理~\ref{lem:cost} 和定理~\ref{thm:time} 计费。
+\end{enumerate}
+当该余链表示还来自第~\ref{sec:comparison-carriers} 章的几何实现，且
+同伦与商核满足主定理前件时，以上结构共同接入定理~\ref{thm:comparison-main}。
+\end{theorem}
+\begin{Certificate}[层间绑定与附加前提]
+逐项保存状态商、任务测试、图边映射、外代数扩展、增广及核稳定条件。
+几何实现、棱柱和共同任务域作为独立输入核验；求解器与成本界分别登记。
+数学结构的存在性和可执行访问条件保持各自的证明地位。
+\end{Certificate}
+\begin{proof}
+非干扰定理与有限可达性、策略回落定理给出第一项。
+外代数的分块核像与增广定理给出第二项；定理~\ref{thm:cross-layer} 给出第三项。
+将一般算子定理应用于满射余链映射 \(p_N:C_N\to B\)，得到第四项；
+核 \(K_N\) 是微分子复形，满足其全部输入条件。
+第五项直接使用给定接口的逐阶段计量。附加的几何与同伦条件逐项成立时，
+主定理作用于同一 \(B\) 的任务表示，故与这些结论相容。
+\end{proof}
+
+
+\section{理论组织的归结与可迁移判据}
+全文主线由定理~\ref{thm:comparison-main} 给出：分析侧的外微分与积分，
+通过几何实现进入语义余链，再以共同任务域下降到充分商。
+\[
+\begin{gathered}
+\Omega^\bullet(M)\supseteq\mathsf A_T^\bullet
+\xrightarrow{\Phi_i}\mathsf Q^\bullet,\\
+d_Q\Phi_i=\Phi_i d_A,\qquad
+\Phi_1-\Phi_0=d_Q\bar K+\bar Kd_A.
+\end{gathered}
+\]
+有限图上的积分与插值给出显式同伦回缩；棱柱构造给出几何实现之间的见证；
+商核判据保证映射与见证共同下降。规定观察、闭链积分、有限执行及回读分别证明保持。
+其余章节展开任务域的生成、剩余障碍、修复完成和实际求解成本，形成同一条证明链。
+
+\begin{proposition}[任意已认证核心上的求解迁移]
+\label{prop:transfer}
+给定任意任务核心 \(\mathcal S\)、已认证求解器及其成本界 \(C_S\)。
+若另一任务族具有到 \(\mathcal S\) 的精确任务商，且核心提取、合法结果回落、
+证书验证的成本分别至多 \(C_{\rm in},C_{\rm lift},C_{\rm ver}\)，则该族的规定核心任务
+可在总成本 \(C_{\rm in}+C_S+C_{\rm lift}+C_{\rm ver}\) 内求解，
+并保持求解器证书中声明的有限可达与正确性结论。
+\end{proposition}
+\begin{Certificate}[任意核心的迁移接口]
+保存任务商的逐字段交换、求解器在声明域上的正确性证明、
+覆盖全部接受输出的合法回落及实际成本界。附加物化和输出另计。
+\end{Certificate}
+\begin{proof}
+先提取核心输入，再运行给定求解器，随后执行合法回落与验证。
+精确商和回落条件逐项传递规定观察、目标与策略；四个串行阶段的成本相加得到结论。
+求解器可以由定理~\ref{thm:core-solver} 在有限完整转移表上构造，
+也可以来自另一项独立正确性证明；本命题不要求固定的域、控制方程或分型。
+\end{proof}
+
+
+\begin{remark}[最终数学定位]
+率与商在共同任务的同伦同一性下相接：率计算同一承载中的变化与积累，
+商组织保持这些任务观察的表示；映射及其同伦见证说明二者如何在不同承载间传递。
+微分交换不单独签发全部任务保持，任务保持也不单独签发全结构同伦等价。
+两者各自的成立条件由主定理的六组见证连接。
+性质塔、同调核、修复塔与高阶映射分别承担分辨率、信息归并、缺陷填补和结构相容。
+连续分析支撑积分与误差控制，超限完成须保存逐阶段任务和映射见证。
+这些结构共同把局部接续落实为可证明、可修复、可回放、可审计的路径治理。
+
+新增任务沿有来源的路径细化商，既有任务观察继续由交换式保持；
+收益按商构造、同伦见证、修复认证、核心求解与额外输出的总工作量核算。
+\end{remark}
+
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{参考文献}
+\bibitem{pure} Gao Zheng.
+\emph{G-Framework: Pure Mathematics}. 参见 PFB-GNLA、Jacobiator-gap 与 GZ-OHU 修复扩张。
+\newblock\code{Tex/Kernel/tex/Pub_GFramework_PureMath.tex}.
+
+\bibitem{app3} Gao Zheng.
+\emph{G-Framework: Applied Mathematics, Volume III}. 参见语义函子代数、性质转换及受约束同伦。
+\newblock\code{Tex/Kernel/tex/Pub_GFramework_AppMath_Vol3.tex}.
+
+\bibitem{propertytower} Gao Zheng.
+同伦同一性、同伦代数与单子集合论基础形式系统，2026-01-12。参见性质商与分辨率塔。
+\newblock\code{Tex/Zenodo/v5.2/notebook_tex_v5.2/20260112_gframework_homotopy_identity_monadic_set_theory_foundation_formal_system.tex}.
+
+\bibitem{discrete} Gao Zheng.
+同伦、雅可比间隙与最小性，2025-12-20。参见离散事件组织连续语义的层级结构。
+\newblock\code{Tex/Zenodo/v5.2/notebook_tex_v5.2/20251220_homotopy_minimality_dialogue.tex}.
+
+\bibitem{layers} Gao Zheng.
+L1--L2--L3 同伦修复纤维丛形式系统，2026-03-27。
+\newblock\code{Tex/Zenodo/v5.2/notebook_tex_v5.2/20260327_gframework_l1_l2_l3_homotopy_repair_bundle_formal_system.tex}.
+
+\bibitem{total} Gao Zheng.
+开放异构系统的宏观--微观总同调形式系统，2026-04-03。
+\newblock\code{Tex/Zenodo/v5.2/notebook_tex_v5.2/20260403_gframework_open_heterogeneous_system_macro_micro_total_homology_formal_system.tex}.
+
+\bibitem{fos} Gao Zheng.
+基础障碍谱系形式系统，2026-07-08。参见语义微分、积分、总同调与语义信息载体。
+\newblock\code{Tex/Zenodo/v5.2/notebook_tex_v5.2/20260708_gframework_foundational_obstruction_spectrum_formal_system.tex}.
+
+\bibitem{lhts} Gao Zheng.
+\emph{LHTS：延迟信用分配的格点同伦扭曲评分与命中证书体系}，2026-05-14。
+参见单格点同伦扭曲、分量偏微下降、延迟信用边界与 LHTS 闭合证书。
+\newblock\code{Tex/Zenodo/v5.2/notebook_tex_v5.2/20260514_gframework_lhts_delayed_credit_lattice_homotopy_twist_scoring_formal_system.tex}.
+
+\newpage
+\bibitem{tphlhts} Gao Zheng.
+\emph{TPH-LHTS 轨迹函数参数同伦选择：概率路径同伦类、广义分形轨迹族与 D 结构递归决策路径}，2026-05-15。
+参见参数同伦递归、广义分形梯度覆盖、JacGap 势函数及 D-Depth 收敛证书。
+\newblock\code{Tex/Zenodo/v5.2/notebook_tex_v5.2/20260515_gframework_tph_lhts_trajectory_parameter_homotopy_probability_fractal_d_structure_formal_system.tex}.
+
+\bibitem{hatcher} Allen Hatcher.
+\emph{Algebraic Topology}. Cambridge University Press, 2002.
+第 1.A 节，极大树与图的同伦正规型。
+\newblock\url{https://pi.math.cornell.edu/~hatcher/AT/ATch1.pdf}.
+
+\bibitem{ladamarkl} Tom Lada and Martin Markl.
+Strongly homotopy Lie algebras.
+arXiv:hep-th/9406095, 1994.
+\newblock\url{https://arxiv.org/abs/hep-th/9406095}.
+
+\bibitem{homotopyworkflow} Gao Zheng.
+性质代数与同伦代数的封闭证书、障碍类与拓扑修复，2026-01-12。
+参见离散修复、后继推出与超限完成。
+\newblock\code{Tex/Zenodo/v5.2/notebook_tex_v5.2/20260112_gframework_homotopy_algebra_axiom_semantics_workflow_formal_system.tex}.
+
+\bibitem{repairdepth} Gao Zheng.
+在 G 框架中：更高阶 $L_\infty$ 算子作为同伦修复塔，2025-12-28。
+参见同伦扭曲深度、广度与序数型修复塔。
+\newblock\code{Tex/Zenodo/v5.2/notebook_tex_v5.2/20251228_gframework_linfty_homotopy_repair_formal_system.tex}.
+
+\bibitem{stacksordinal} The Stacks Project Authors.
+Transfinite d\'evissage of modules, Section 10.84, Tag 058T.
+\newblock\url{https://stacks.math.columbia.edu/tag/058T}.
+
+\bibitem{dolgushevrogers} Vasily A. Dolgushev and Christopher L. Rogers.
+A Version of the Goldman--Millson Theorem for Filtered $L_\infty$ Algebras.
+arXiv:1407.6735, 2015. 参见完备下降滤过及其同伦代数实现。
+\newblock\url{https://arxiv.org/abs/1407.6735}.
+
+\bibitem{beals} Robert Beals, Harry Buhrman, Richard Cleve, Michele Mosca, and Ronald de Wolf.
+Quantum Lower Bounds by Polynomials. FOCS, 1998.
+\newblock\url{https://arxiv.org/abs/quant-ph/9802049}.
+\end{thebibliography}
+\end{CJK*}
+\end{document}

@@ -1,0 +1,3209 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 避免分部后重置编号导致超链接锚点重复
+\makeatletter
+\renewcommand{\theHsection}{\arabic{part}.\arabic{section}}
+\renewcommand{\theHsubsection}{\theHsection.\arabic{subsection}}
+\renewcommand{\theHsubsubsection}{\theHsubsection.\arabic{subsubsection}}
+\makeatother
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 基本定理环境
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+
+% 常用符号（沿用早期笔记的等宽路径写法）
+\newcommand{\code}[1]{\path{#1}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+
+\hfuzz=700pt
+\hbadness=10000
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\newcommand{\CertificateAuthorCN}{Gao Zheng（高政）}
+\newcommand{\GZGMS}{\ensuremath{\mathsf{GZ\text{-}GMS}}}
+\newcommand{\GZCBT}{\ensuremath{\mathsf{GZ\text{-}CBT}}}
+\newcommand{\GZTLC}{\ensuremath{\mathsf{GZ\text{-}TLC}}}
+\newcommand{\GZLCurv}{\ensuremath{\mathsf{GZ\text{-}LCurv}}}
+\newcommand{\CHcantor}{\ensuremath{\mathrm{CH}}}
+\newcommand{\GAlgebra}{\ensuremath{\mathsf{G\text{-}Algebra}}}
+\newcommand{\Jac}{\ensuremath{\operatorname{Jac}}}
+\newcommand{\CVexplicit}{\ensuremath{\checkmark}}
+\newcommand{\CVinstance}{\ensuremath{\bigcirc}}
+\title{同伦、雅可比间隙与离散统本体：结构化笔记}
+\author{\CertificateAuthorCN}
+\date{2025-12-20}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是单独讨论同伦、雅可比间隙或离散统本体，而是在 G-Framework 的早期
+基础链条中，把同伦最小性、Jacobi 间隙、超限递归修复、离散/连续本体翻转、法空间、
+纤维丛与联络重定义组织成一份结构化笔记。若这些对象分散出现，它们容易表现为
+哲学式判断；本文将其压缩为“拓扑为何需要同伦、结构失败为何显现为 Jacobi 间隙、
+离散统为何能承载修复”的基础论证。
+
+本文的第一层立场是同伦的最小性。同伦不是拓扑中的装饰概念，而是连续变形、结构
+等价和路径比较得以进行的最小要件。没有同伦，拓扑就只能停留在点集或静态标签；
+有了同伦，结构之间的可变形关系才成为可讨论、可证书化、可修复的对象。
+
+本文的第二层立场是 Jacobi 间隙的障碍语义。Jacobi 间隙不是单纯的代数误差，而是
+结构闭合失败的证书信号。它指出某些组合、括号或路径拼接不能无缝闭合，因此需要
+同伦扭曲、超限递归修复或更高阶结构来吸收。
+
+本文的第三层立场是离散统与连续统的本体翻转。离散统不是连续统的低级近似，而是
+可以承载证书、递归修复和可审计结构的本体层；连续统也不是被否定，而是通过离散
+证书、法空间、纤维丛与联络接口重新进入可治理的形式系统。
+
+本文的第四层立场是超限递归修复的表层同调意义。某些障碍不能在有限低阶层直接
+消去，需要沿同伦塔或超限递归继续上升。本文把这种上升理解为同调表层的逐级修复：
+每一层吸收上一层不能闭合的残差，并为下一层提供新的证书边界。
+
+本文的第五层立场是法空间中的基底、纤维与联络重定义。结构修复不只是发生在对象
+空间中，也发生在规则空间中。法空间给出规则本身的基底，纤维丛给出规则作用下的
+局部自由度，联络则描述如何沿路径传输规则。由此，G-Framework 的后续主丛、规范场
+与路径积分语言在这里已有早期雏形。
+
+本文的第六层立场是离散统的可治理性。连续对象可以作为极限、背景或语义解释存在，
+但实际证书、修复和递归操作需要离散可追踪结构。本文因此把离散统视为承载证书的
+本体层，而不是简单数值近似。
+
+本文的第七层立场是早期母题的汇聚。后续许多稿件中的边缘算子、\(L_\infty\) 修复、
+开放系统治理、语义规范化和同伦命中，都可以回看本文的三个基本判断：同伦是最小
+要件，JacGap 是闭合失败信号，离散统是可审计修复载体。
+
+因此，本文在整体 G-Framework 中承担的是“同伦最小性与 JacGap 本体基础”的早期
+锚定作用。它向前给出拓扑变形的最小要件，向中间连接同伦扭曲与超限修复，向后
+为 \(L_\infty\) 修复塔、边缘算子和统计命中提供基础语义。概括地说，本文把
+“为什么同伦是必要的”推进为“同伦、JacGap 与离散统共同支撑结构修复”的形式笔记。
+
+更具体地说，本文将几个后来反复出现的母题放在同一张早期地图上：同伦给出结构
+等价的最低要求，JacGap 给出闭合失败的可检测信号，离散统给出证书和修复的承载
+形式，法空间和纤维丛给出规则层与路径层的几何接口。
+
+从方法论上看，本文不是最终定理库，而是概念压缩稿。它的价值在于把后来会被严格
+定理化的方向先放到同一个结构框架中：同伦为何必要，缺口为何可修复，离散为何不是
+简单近似，联络为何需要在法空间中重新定义。
+
+从整体谱系看，本文可以视为 G-Framework 的早期“方向盘”。后续稿件逐渐把这里的
+直观判断写成同伦代数、边缘算子、\(L_\infty\) 修复、语义规范化和统计命中系统；
+但这些系统的深层方向，在本文已经出现。
+
+\tableofcontents
+\clearpage
+
+\setcounter{part}{1}
+\part*{第一部分：主线论证——同伦最小性、Jacobi 间隙与离散统}
+\addcontentsline{toc}{part}{第一部分：主线论证——同伦最小性、Jacobi 间隙与离散统}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{同伦作为拓扑得以进行的最小要件}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{问题背景与直观判断}
+
+拓扑理论的核心问题之一，是在不依赖度量的前提下刻画“结构等价”。
+本文采用的立场可以简要概括为：
+\begin{quote}
+\textbf{同伦是拓扑得以进行的最小要件。}
+\end{quote}
+
+这一判断并不是口号，而是对如下事实的压缩：
+\begin{itemize}
+  \item 拓扑不关心长度、角度或度量，只关心“是否能连续地变形到一起”；
+  \item 连续变形在形式上的基本对象，正是同伦
+  \[
+    H\colon X\times[0,1]\to Y ;
+  \]
+  \item 一旦缺失这一“参数化变形”的结构，就只能在点集与开集公理层面工作，无法对“结构是否相同”给出可操作的定义。
+\end{itemize}
+
+换言之，若希望讨论“拓扑意义下的等价”，必须事先引入同伦结构。
+在这一意义下，可以断言：
+\begin{quote}
+\textbf{没有同伦，就没有拓扑意义下的等价。}
+\end{quote}
+
+\subsection{最小结构视角与拓扑不变量}
+
+从“最小结构”的角度看，同伦不仅是定义等价的工具，也是生成拓扑不变量的真正来源。
+拓扑理论中的一系列标准对象——基本群 $\pi_1$、高阶同伦群 $\pi_n$、同调群 $H_n$、上同调、阻碍类、特征类等——无一不是对同伦信息的抽象、压缩或稳定化。
+
+在缺失同伦结构的退化理论中，最多只能谈论连续映射的存在与否，而无法组织出稳定的“同伦类”；
+相应地，拓扑不变量要么失去定义基础，要么退化为仅能区分“存在/不存在某种连续映射”的粗糙标签。
+
+由此可以更精确地重述前述判断：
+\begin{quote}
+拓扑不变量并不是直接从“空间”本身生成的，而是从“同伦类的组织方式”中生成的。
+\end{quote}
+
+\subsection{形式化命题与证明草稿}
+
+为了在后文中可以引用这一思想，我们给出一个抽象但清晰的形式化表述。
+
+\begin{definition}[同伦等价与同伦不变量]
+设 $X,Y$ 为拓扑空间。
+若存在连续映射
+\[
+H\colon X\times[0,1]\to Y
+\]
+使得 $H(x,0)=f(x)$ 且 $H(x,1)=g(x)$，则称连续映射 $f,g\colon X\to Y$ \emph{同伦等价}，记为 $f\simeq g$。
+若对所有同伦等价 $f\simeq g$ 都有 $F(f)=F(g)$，则称函子型构造 $F$ 为\emph{同伦不变量}。
+\end{definition}
+
+\begin{theorem}[同伦作为拓扑不变量生成的最小要件]\label{thm:homotopy-minimal}
+设 $\mathcal{I}$ 是一族拓扑不变量（如基本群、同调群、上同调、阻碍类、特征类等），并假设：
+\begin{enumerate}
+  \item 每个 $I\in\mathcal{I}$ 都是同伦不变量；
+  \item 对任何空间 $X,Y$，若对所有 $I\in\mathcal{I}$ 都有 $I(X)\cong I(Y)$，则在拓扑等价意义下 $X$ 与 $Y$ 不可被区分。
+\end{enumerate}
+若在理论中完全移除同伦结构（即不再讨论 $X\times[0,1]$ 上的变形、同伦类与同伦等价），则上述不变量族 $\mathcal{I}$ 不再具有自然的定义与判定条件；
+在这一退化理论中，任何试图刻画“拓扑等价”的不变量族必然塌缩为平凡类（仅能给出集合层级的粗糙信息，无法反映同伦层级结构）。
+\end{theorem}
+
+\begin{proof}[证明草稿]
+条件 (1) 表明：$\mathcal{I}$ 的构造本身依赖同伦等价这一关系，否则“同伦不变量”的陈述无从谈起。
+条件 (2) 表明：在所考虑的语义下，$\mathcal{I}$ 足以作为拓扑等价的判据族。
+
+若完全移除同伦结构，则：
+\begin{itemize}
+  \item 对 $X\times[0,1]$ 的分析不再出现，同伦等价的定义失效；
+  \item 任何 $I\in\mathcal{I}$ 想要保持“对同伦等价不变”这一性质，只能退化为仅依赖集合与连续映射的函数式。
+\end{itemize}
+然而，一旦同伦等价不再可定义，“同伦不变”这一约束本身变为空洞；
+这样得到的不变量最多只能在集合层面区分非常粗糙的性质，无法反映不同同伦类之间的精细结构。
+在这种退化理论中，用 $\mathcal{I}$ 去刻画“拓扑等价”将不再具有区分度，
+等价于把所有在集合层面不可区分的空间压缩到同一类，从而从同伦视角看是平凡的。
+因此，从“结构性拓扑不变量”的角度，缺失同伦结构会导致原本丰富的不变量族塌缩为平凡类。
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{李结构中同伦不同调与 Jacobi 间隙}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{经典李代数与严格 Jacobi 恒等式}
+
+经典李代数 $(L,[\cdot,\cdot])$ 的“干净”之处在于两件事同时成立：
+\begin{enumerate}
+  \item 交换子给出一个反对称的二元运算 $[\cdot,\cdot]\colon L\times L\to L$；
+  \item 雅可比恒等式
+  \[
+    [x,[y,z]]+[y,[z,x]]+[z,[x,y]]=0
+  \]
+  对所有 $x,y,z\in L$ 严格成立。
+\end{enumerate}
+
+从几何直观看，这相当于：所有“绕三角形的复合路径”在代数意义上完全收缩为同一个点，没有任何残余结构。
+
+\subsection{带同伦的李结构与 Jacobi 间隙}
+
+一旦允许在更高维意义下“只要求同伦等价，而不要求严格相等”，李结构的性质发生明显变化。
+不同嵌套方式的三重括号 $[x,[y,z]]$、$[y,[z,x]]$、$[z,[x,y]]$ 不再被要求在对象层面完全相等，而只要求存在连续变形路径把它们连接起来；
+此时，李结构不再是“严格代数对象”，而是一个\emph{带同伦的代数结构}。
+
+关键在于，“同伦存在”并不等于“同调可消”。
+当存在某种统一的规范、补偿项或高阶修正可以整体吸收这些同伦时，可以得到 $L_\infty$ 结构中“可调和”的高阶括号，或者物理语境中“可重整化、可规范化”的情形；
+但当找不到这样的统一方案时，三重括号的“失败程度”便不可消失地留下来，形成所谓的 Jacobi 间隙。
+
+\subsection{Jacobi 间隙的形式化刻画}
+
+为了便于在后续卷中引用，给出一个抽象但有用的定义。
+
+\begin{definition}[Jacobi 算子与 Jacobi 间隙]
+设 $(L,[\cdot,\cdot])$ 为一个（不一定满足严格 Jacobi 恒等式的）代数结构。
+定义 Jacobi 算子
+\[
+  J(x,y,z) := [x,[y,z]]+[y,[z,x]]+[z,[x,y]].
+\]
+若存在 $x,y,z$ 使得 $J(x,y,z)\neq 0$，则称该结构存在\emph{Jacobi 间隙}，记为 $J\neq 0$。
+若进一步存在同伦数据（例如高阶括号或 $L_\infty$ 结构的 $l_3,l_4,\dots$），使得 $J$ 在更高阶意义下可以被解释为某个边界项或上同调的代表元，则称对应的同伦类为\emph{Jacobi 间隙的同伦不变量}。
+\end{definition}
+
+\begin{proposition}[同伦存在但不同调时 Jacobi 间隙不可消]
+设 $(L,[\cdot,\cdot])$ 可扩展为一个 $L_\infty$ 型结构，使得三重括号之间存在高阶同伦等价（由 $l_3$ 等给出），但不存在一个统一的规范或调和方案使得 $J\equiv 0$。
+则在该结构的（上）同调语义下，Jacobi 间隙的同伦类为非平凡元；特别地，它不能被视为“纯噪声”，而必须被视为刻画结构张力的本质信息。
+\end{proposition}
+
+\begin{proof}[证明思路]
+高阶同伦数据给出的是“不同括号方式之间可以被连续变形连接”的信息，
+这保证了 $J$ 可以被组织到某个高阶复形中，成为边界或上同调的候选。
+若存在统一规范使 $J\equiv 0$，则对应的同伦类将是平凡的；
+而在假设条件下，这样的规范不存在，意味着 $J$ 无法在给定的同伦/上同调框架内被视为零元。
+因此，它代表了一个非平凡的同伦类，必须被记录为结构不变量，而不能简单视作浮动噪声。
+详细构造可在具体的 $L_\infty$ 模型中给出，这里仅给出抽象层面的论证框架。
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{同伦扭曲与超限递归修复表层同调}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{低阶同调失配与“表层闭合性”}
+
+在 Jacobi 间隙已经存在的情形下，结构并未崩溃，而是出现了“低阶同调失配”：在某一观测层上，闭合性条件不再严格成立。
+这一失配可以抽象为某个同调类中的非零元，例如
+\[
+\text{failure}\in H^3_{\text{current layer}},
+\]
+它不反映对象或路径是否存在，而是反映“当前层级下无法同调化”的事实。
+
+\subsection{同伦扭曲的递归结构}
+
+若仅在原有层级做线性修补或有限阶补偿，往往只能修正局部，而无法从根本上处理 Jacobi 间隙这一跨层、跨尺度的扭曲量。
+因此，更一致的做法是引入同伦扭曲，把低阶失配“上推”到更高阶结构中。
+
+抽象地，可以把这一过程写成递归模式：
+\begin{align*}
+  &\text{一级 Jacobi 间隙 } J^{(1)},\\
+  &\xrightarrow{\ \text{twist}^{(1)}\ }\ \text{二级结构 }K^{(2)}\ \text{中的边界项},\\
+  &\xrightarrow{\ \text{twist}^{(2)}\ }\ \cdots
+\end{align*}
+若在某个有限层 $N$ 截断，即存在同伦扭曲序列使得高于 $N$ 的残差全部成为平凡类，则可以说结构在“有限阶”下被同调化；
+而在许多异构演化或开放系统中，并不存在这样的有限 $N$，从而自然引出“可数无穷层同伦扭曲”的图景，这正是“超限递归”语言的来源。
+
+\subsection{表层同调修复的语义}
+
+从语义上看，“修复表层同调”并不意味着消灭结构内部的异构张力，而是：
+\begin{itemize}
+  \item 在观测层上恢复某种闭合性或可用性（例如风险约束、守恒关系在宏观意义上成立）；
+  \item 同时承认在更高层次仍然存在不可平凡的同调与同伦结构。
+\end{itemize}
+
+换句话说，同伦扭曲的作用是把“不可调”的部分转译为“在更高阶结构中可理解的边界项”，而不是把它抹掉。
+因此，可以将这一过程视为一种\emph{表层同调的修复}，而非对底层几何的否认。
+
+\subsection{重点强调（终点命题）：修复上同调以消除 Jacobi 间隙}
+
+\begin{proposition}[同伦扭曲修复上同调 $\Rightarrow$ 建立同伦等价 $\Rightarrow$ 消除 Jacobi 间隙]\label{prop:homotopy-twist-kill-jacobi-gap}
+
+设带同伦的李型结构中 Jacobi 算子 $J$ 的失配在当前层级被上同调类 $[J]\in H^3_{\text{current layer}}$ 所代表。
+若存在一组同伦扭曲/填充数据（例如 $L_\infty$ 的高阶括号或修正项）使得 $[J]=0$，即 $J$ 在该层级上成为一个 coboundary（边界项），
+则原结构与一个满足严格 Jacobi 恒等式（或在容忍界内 Jacobiator-gap 为零）的结构在同伦意义下等价；
+从而 Jacobi 间隙不再作为不变量保留，而被吸收进同伦修复数据中。
+\end{proposition}
+
+\begin{remark}[为何是 $H^3$ 而非一般的 $H^n$]\label{rem:why-h3-not-hn}
+这里选用 $H^3$ 的原因是：Jacobi 恒等式本身是\emph{三元}相容条件，其失败度量 $J(x,y,z)$ 是三元（3-cochain）数据；
+在标准的同调/上同调编码中，它自然落在三阶（例如 Chevalley--Eilenberg 上同调的三阶类）。
+更高阶的同伦一致性（例如更高 Stasheff 恒等式、更高括号/更高结合子）当然会产生更高阶的障碍类，并落在更高的 $H^n$；
+但“雅可比间隙”作为\emph{二元括号的三阶失败}，其第一落点就是 $H^3$。
+\emph{注意：}本文同时用“第 $n$ 层/第 $n$ 步”表示层索引/迭代步（如 $l_n$），这与 $H^n$ 的同调次数是两套不同的 $n$，不可混淆。
+\end{remark}
+
+\begin{remark}[$H^3$ 不是“主丛”本身：它是障碍/特征类；几何类比更接近 gerbe/主2丛]\label{rem:h3-gerbe-not-principal-bundle}
+这里的 $H^3$ 指的是“Jacobi 失配所在的同调度数”，并不是把 $H^3$ 当作一个主丛包。
+若取几何类比：普通主丛（如 $U(1)$ 圆丛）的特征类常落在 $H^2$（第一陈类），而 $H^3$ 更常作为 gerbe（亦可理解为主2丛/更高层丛结构）的特征类（例如 Dixmier--Douady 类）。
+因此，把 $[J]\in H^3$ 看作“需要被扭曲/填充吸收的三阶障碍”，更贴近\emph{高阶联络/高阶丛}的直觉，而非普通主丛。
+\end{remark}
+
+\begin{remark}[持续迭代修复：把“消隙”理解为可数步的扭曲--填充--重写循环]\label{rem:iterative-repair-jacobi}
+在开放/异构语境中，“修复”通常不是一次性把 $[J]$ 置零，而是一个可数迭代过程：在第 $k$ 步同伦扭曲中引入填充数据 $H^{(k)}$，使当前失配满足
+\[
+  J^{(k)}=\delta H^{(k)}+J^{(k+1)},
+\]
+其中 $J^{(k)}$ 是当前切面上的 Jacobi 失配，而 $J^{(k+1)}$ 是被上推到更高层/更高结构的残差（可能由更高一致性条件触发）。
+若在某一步出现 $J^{(k+1)}=0$（或残差落入证书容忍域），则获得与严格（或容忍界内严格）Jacobi 结构的同伦等价；若永不为零，则残差序列本身成为可证书化不变量，并驱动后续的层变治理。
+因此，“消除雅可比间隙”的正确读法是：在同伦等价类内通过持续迭代，把间隙吸收进高阶数据，并在目标切面上令其为零/可忽略。
+\end{remark}
+
+\begin{remark}[广度/深度与超限递归：$H^3$ 的广度修复、$H^n$ 的深度修复]\label{rem:breadth-depth-hn-ln}
+为把“持续迭代修复”写成可记账的结构，可把修复过程看成二维推进：
+\begin{itemize}
+  \item \textbf{广度（width）：}在固定层 $l_n$ 内，对同一阶障碍作全域消隙；Jacobi 间隙对应三元相容失败，因此其第一接口落在 $H^3$，可称为“$H^3$ 的广度修复”。
+  \item \textbf{深度（depth）：}当修复需要引入更高一致性数据时，残差被上推到更高阶障碍类，进入 $H^n$（$n>3$）的修复，可称为“$H^n$ 的深度修复”。
+\end{itemize}
+在此意义下，同伦修复的“超限递归”可被压缩为一条记账句式：在第 $n$ 层/第 $n$ 步，把\emph{第 $n$ 阶障碍}与\emph{第 $n$ 层切面}成对记录为
+\[
+  H^n(\mathcal X)\otimes l_n
+  \qquad(\text{亦可写作 }H^n(\mathcal X)\,(X)\,l_n,\ \text{其中 }(X)\text{ 表示张量积 } \otimes),
+\]
+其中 $\mathcal X$ 表示承载证书/残差的张量化对象（例如状态张量、证书模或其复形）。
+该记账表达的是\textbf{超限修复中的“耦合坐标”}，而不是因果链条：它不声称存在自然的因果/推导方向
+$H^n(\mathcal X)\to l_n$ 或 $l_n\to H^n(\mathcal X)$，而只是把“深度障碍（同调次数）+ 广度切面（层标签）”绑定为同一递归步的记录坐标。
+
+为避免误读，可给出一个完全形式化的读法：令
+\[
+  \mathsf{L}:=\bigoplus_{n\ge3}\mathbb Z\cdot l_n
+\]
+为以层标签为基的自由模，并记
+\[
+  \mathsf{H}_{\mathsf{L}}(\mathcal X):=\bigoplus_{n\ge3} H^n(\mathcal X)\otimes_{\mathbb Z}(\mathbb Z\cdot l_n).
+\]
+则符号 $H^n(\mathcal X)\otimes l_n$ 只是指 $\mathsf{H}_{\mathsf{L}}(\mathcal X)$ 的第 $n$ 个带层标签分量；它体现的是“超限迭代中同调次数与层索引的耦合登记”，
+  而非两者之间的因果关系。
+\end{remark}
+
+\begin{proof}[证明思路]
+由定义，Jacobi 间隙的“可消/不可消”在同调语义中由 $[J]\in H^3$ 是否为零元刻画：
+若 $[J]\neq 0$，则不存在层内统一方案把 $J$ 解释为纯边界项，因而间隙必须作为结构不变量保留（见上一节命题）。
+相反，若通过同伦扭曲引入填充数据 $H$ 使 $J=\delta H$，则 $J$ 在该层级上被显式吸收为边界项；
+此时可把“带间隙的括号”与“严格（或容忍界内严格）Jacobi 的括号”视为同一同伦等价类中的不同代表元，
+二者之间由扭曲/重写给出同伦等价，从而在等价类意义下消除 Jacobi 间隙。
+\end{proof}
+
+\begin{quote}
+\textbf{重点强调：在持续迭代的同伦扭曲--填充--重写循环中，先在目标切面上完成 $H^3$ 的“广度修复”（把 Jacobi 间隙吸收为边界项），再把残差上推到更高阶 $H^n$ 进入“深度修复”，
+  并与层索引一起形成可记账的递归坐标 $H^n(\mathcal X)\otimes l_n$；最终在同伦等价类意义下消除雅可比间隙，并用证书容忍域给出“已足够为零”的可检验判据。}
+\end{quote}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{离散统（一连续）与连续统（一离散）的本体翻转}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{连续统本体的局限}
+
+在许多传统理论中，默认的本体设定是“连续统（一离散）”：连续性被视为本体，离散只是人为切片或观测近似。
+然而，在存在同调失配、Jacobi 间隙以及可数无穷层同伦扭曲的结构中，这一设定会遇到根本性困难：
+\begin{itemize}
+  \item 同调不再总是零，闭合失败成为结构数据的一部分；
+  \item Jacobi 间隙不能在有限层内消除，而必须被记录为不变量；
+  \item 连续变形本身需要借助额外结构（例如包络、证书、约束）才能维持表层闭合。
+\end{itemize}
+
+这表明：连续性本身并不自洽，而是依赖离散层级结构来获得闭合性。
+
+\subsection{可数层级与离散统本体}
+
+当修复过程只能通过可数无穷次同伦扭曲逐层进行时，自然出现一个以 $\mathbb{N}$（甚至更高序数）为索引的层级塔。
+在这种图景中：
+\begin{itemize}
+  \item 每一层扭曲对应一个离散层级跃迁；
+  \item 连续性只在相邻层之间的同伦路径中出现；
+  \item 整体结构的闭合性依赖于整个层级塔，而非某个单一的连续参数。
+\end{itemize}
+
+由此，连续性不再具有本体地位，而是作为“层内极限行为”出现；
+真正的本体则由离散的层级结构、同调障碍以及它们之间的传递关系来决定。
+
+\begin{proposition}[可数无穷同伦扭曲下的离散统本体]
+设某一结构体系的闭合性只能通过可数无穷次同伦扭曲逐层修复，并且：
+\begin{enumerate}
+  \item 每一层同伦扭曲对应一个离散的层级索引（例如 $n\in\mathbb{N}$）；
+  \item 连续性只在相邻层之间、作为同伦路径的参数出现；
+  \item 同调障碍与 Jacobi 间隙等不变量在层级之间传递，而不会在有限层内完全消失。
+\end{enumerate}
+则该体系的本体结构必然表现为离散分级：$\mathbb{N}$（或更高序数）索引的层次是“不可删”的，而连续性仅作为层内同伦的极限行为出现。
+\end{proposition}
+
+\begin{proof}[证明思路]
+若坚持“连续统本体”，则需要把所有层级跃迁视为某个连续参数中的平滑变化；
+但在上述假设下，每一次同伦扭曲都对应一个不可平滑吸收的结构跃迁（例如引入新的约束或法则），
+这与“可在单一连续参数中平滑吸收”的要求冲突。
+反之，把层级索引视为本体，则连续性自然退居为层内路径参数，从而与“可数无穷层同伦扭曲”的递归结构相容。
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{法空间中的基底流形、纤维丛与联络重定义}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{纯属卷与应用卷的分工}
+
+在以法空间为背景的理论构造中，可以把“纯属卷”和“应用卷”的分工概括为：
+\begin{itemize}
+  \item 纯属卷：用几乎全部篇幅证明上一节的本体论结论——在存在同调与不可有限终止的同伦修复机制时，结构本体必然是离散统而非连续统；
+  \item 应用卷：直接把上述结论作为“底层事实”，并在此基础上构造可计算、可部署的工程结构。
+\end{itemize}
+
+纯属卷的任务是拆除“连续统本体论”的隐含前提，说明同伦与同调的角色，以及离散层级在结构闭合中的不可替代性；
+应用卷则在此基础上，以主从理论（基底流形与纤维丛）为工具，构造可操作的法空间模型。
+
+\subsection{法空间拓扑与基底流形的共性}
+
+在法空间设定中，基底流形 $B$ 不再被理解为物理空间，而应理解为：
+\begin{itemize}
+  \item 广义集合的等价类；
+  \item 公理系统之间的逻辑占位；
+  \item 法对象在法空间中的可区分位置。
+\end{itemize}
+
+因此，基底流形刻画的是“共性”：哪些结构在拓扑意义下可以被放在同一张“法图”上。
+这一点可以用一句话总结：
+\begin{quote}
+基底流形是“逻辑占位在法空间拓扑中的最小要件”，用于刻画共性。
+\end{quote}
+
+\subsection{纤维丛切面与扭曲联络}
+
+与之相对，纤维丛及其切面承载的是“异构实现”：
+\begin{itemize}
+  \item 不同公理系统的具体实现；
+  \item 不同广义数学结构的展开；
+  \item 不同法对象的局部化表现。
+\end{itemize}
+
+切面选择在这一语境中可以理解为：
+\begin{quote}
+在保持基底共性的前提下，选取某一具体实现方式。
+\end{quote}
+
+这与前述“离散统”观点完全一致：每一个切面都是一次离散选择。
+
+进一步地，联络不再被理解为“无穷小平移”，而是被重定义为：
+\begin{quote}
+不同切面之间“如何合法地传输结构”的规则。
+\end{quote}
+
+因此，可以把联络视为某种扭曲函子的映射；
+同伦扭曲本身就是跨层映射，Jacobi 间隙则是“不可以平直传输”的度量。
+修复过程可以理解为：不断调整联络，使低阶失配上推到高阶。
+
+\subsection{PFB-GNLA 的结构自相似：分形代数与生成逻辑}\label{subsec:pfb-gnla-fractal}
+
+一个关键的几何直觉是：当把广义非交换李代数以主纤维丛版（principal-bundle-based, PFB-GNLA）组织时，
+“局部--整体”的关系不再是元素堆叠，而更接近\emph{同一套生成规则在不同尺度/切面上的重复展开}；
+因此其自相似性应理解为\emph{结构（structure）与生成逻辑（generative logic）}层面的全息同构，而非单纯形状重复。
+下面把该直觉写成可核验的结构论证。
+\begin{quote}
+\textbf{对位纯数卷：PFB-GNLA 的结构自相似不仅成立，而且触及 GaoZheng G-Algebra 与其 PL--PI 元数学出身的核心生成机制。}
+\end{quote}
+
+\begin{itemize}
+  \item \textbf{生成递归（PL--PI/元数学原版）：}
+        纯数卷把 “law” 视为可迭代生成的程序而非固定公理，并在所谓 meta-mathematical original version 中把联络、
+      曲率与高阶修正提升为“构造规则”的组成部分（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第 96--128 行、209--226 行）。
+        因此，一个局部算子块之所以“像”整体，并不是因为局部包含整体的全部数据，而是因为二者共享同一套生成/重写原理：
+        局部结构可被理解为把同一条 PL--PI 生成链在给定边界条件（切面/图册/证书容忍域）下截断或投影得到的结果；
+        在该意义下，“局部包含整体”应读作“局部携带整体的生成语法”。
+        这一读法也解释了为何在 CH-layering 等分层语义中，$(l_2)$ 的对象级/外延几何可以被视为 $(l_{\ge3})$ 的 law-level 几何在外延口径下的投影切面（对位断言 \ref{prop:cv-A2}）。
+
+  \item \textbf{主丛嵌套（bundle of bundles）：}
+        在普通主丛 $P\to M$ 中，局部平凡化 $P|_{U_i}\cong U_i\times G$ 使典型纤维模板在各图册反复出现，而全局差异被压缩进过渡函数/规变换的扭曲拼接；
+        这正是“局部复用 + 扭曲胶合”的结构自相似来源（参见备注 \ref{rem:pfb-gnla-self-similarity}）。
+        GZ 语境进一步允许把底空间 $M$ 取为 law-space（或 law-objects 的参数空间），使“底空间的几何（共性）”与“纤维的代数（变换规则）”都由同一套 law-level 生成逻辑驱动；
+        因而每个点（law-object）携带的“内部变换代数”与承载它的外部空间在来源上同源，形成结构性的全息对位（见\cite{GaoZheng2025GFramework} 第 96--106 行、7681--7707 行）。
+        \emph{注意：}这里的“全息”仅指生成规则与可重建信息的同源性/可对位性，不是物理宇宙论命题。
+
+  \item \textbf{同伦塔的自相似修复（缺陷发现 $\to$ 高阶同伦 $\to$ 重写）：}
+        homotopy PFB-GNLA 以闭 3-形式 $H$ 与三元运算 $l_3$ 把 Jacobiator-gap 编码成可消去的三阶障碍，并在同伦意义下实现 “gap
+      的吸收”（见\cite{GaoZheng2025GFramework} 第 185--205 行、7686--7690 行；并对齐备注 \ref{rem:why-h3-not-hn}、\ref{rem:h3-gerbe-not-principal-bundle}）。
+        若更高一致性仍产生残差，则继续引入更高阶同伦数据并进入更深层的修复（见备注 \ref{rem:iterative-repair-jacobi}、\ref{rem:breadth-depth-hn-ln}）。
+        在这种读法下，$H^3$ 对应“广度修复”的最小入口，而更高的 $H^n$ 对应“深度修复”的递归推进；自相似体现在：每一层都重复同一类结构动作（检测---证书化---扭曲---回填），并由 OHU 的
+      failure-free 机制保证不存在静默崩溃（可对位断言 \ref{prop:cv-A19}；亦见\cite{GaoZheng2025GFramework} 第 7714--7730 行）。
+
+  \item \textbf{与“无 $\in$，只有 $\subseteq$”的对齐：}
+        一旦把 $\subseteq$ 作为唯一内禀关系（备注 \ref{rem:subset-only-language}），就不再承认“不可再分的原子元素”；任何“点/元素”都只是某个整体的子结构读法。
+        这使得“局部图册/局部算子块”天然可以被视为同类型对象的子对象：放大局部并不会抵达某个终止的基本粒子层，而是再次进入同样的结构模板与同样的修复逻辑（备注 \ref{rem:fractal-substructure}）。
+        若取物理类比，则可把 RG step 理解为 law-space 中一次可证书化的重写/扭曲步：尺度变换不再是外加坐标变换，而是结构在自相似语法下的迭代运动。
+\end{itemize}
+
+综上，PFB-GNLA 的“自相似性”可被严格读作：\emph{同一套 PL--PI 生成规则 + 主丛图册的局部模板复用 + 同伦塔的迭代修复}共同导致的结构复现。
+这也解释了为何同一理论框架能够以不同投影/切面同时覆盖量子场论（微观）、广义相对论（宏观）与复杂系统（介观）：
+三者并非三套不相干的实体，而是同一 law-level 几何/代数对象的不同 charts/slices。
+若允许一句压缩比喻：PL--PI 是“种子”，$\GZTLC$ 是“传输/生长规则”，$\GZLCurv$ 是“基因型约束”；枝叶（局部算子）与整体（law-level 结构）共享同一套生成逻辑。
+
+\subsection{卷级结构的总设计原则}
+
+上述分析可以压缩为一条卷级总设计原则：
+\begin{quote}
+纯属卷以整个篇幅证明：在存在同调与不可有限终止的同伦修复机制下，结构本体必然是离散统而非连续统；
+应用卷则以主从理论为工具，在法空间中以基底流形刻画共性，以纤维丛切面刻画异构实现，并通过扭曲函子重定义联络与同伦，使其成为法对象之间结构传输与修复的操作性机制。
+\end{quote}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{CH-layering、连续统语义与跨卷对位断言}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{记号约定与语义分层（避免语境误读）}
+
+为避免读者把康托尔/经典集合论语境误当作本文所讨论的广义结构语境，下文将同一符号体系分拆为两套并列约定，并明确指出：康托尔符号在此仅作为接口语言。
+
+\begin{definition}[CH 的康托尔语句（经典集合论语义）]
+在经典集合论语义（如 ZFC 的常用语境）中，连续统假设的康托尔语句写作
+\[
+  \CHcantor:\quad \mathfrak c=\aleph_1\iff 2^{\aleph_0}=\aleph_1.
+\]
+\end{definition}
+
+\begin{definition}[CH-layering 语义（体系语义）]
+在 CH-layering 语义中，$\CHcantor$ 被分配到外延层 $(l_2)$；在更高层 $(l_{\ge3})$ 引入同伦、law-curvature、Jacobiator-gap 与语义度量，并允许在同一广义结构内部发生
+  breakdown/rewrite，从而形成“分层的 CH 面孔”与“可证书化的层变诊断量”。
+\end{definition}
+
+\begin{remark}[康托尔符号仅作为接口语言]
+在下述断言中，诸如 $2^{\aleph_0}$、$\aleph_1$ 的出现应被理解为一种跨卷对位的\emph{接口符号}：它用于帮助读者把 $(l_2)$ 的外延计量与 $(l_{\ge3})$ 的语义计量对齐，而不应被误读为在 ZFC
+  单一宇宙内部推出的新定理。
+\end{remark}
+
+\begin{remark}[体系内推导的层级口径：$(l_2)$ vs.\ $(l_{\ge3})$]\label{rem:cv-proper-subset-equipotent-l2}
+本文中“体系内推导”默认指在 $(l_{\ge3})$（即 $l_3$ 及以上）语义层内、基于同伦/曲率/证书与重写规则进行的推导；$(l_2)$ 的 ZFC/经典基数事实仅作为外延背景标尺，不用于决定 $(l_{\ge3})$ 的语义
+  profile。
+进一步地：
+\begin{itemize}
+  \item “无限集合真子集仍可等势”是经典基数/外延等势的结论，因此只对 $(l_2)$ 有效：允许 $A\subsetneq B$ 但 $|A|_{\mathsf{Layer}=l_2}=|B|_{\mathsf{Layer}
+    =l_2}$（如 $\mathbb N$ 与 $2\mathbb N$）。
+  \item 在 $(l_{n\ge3})$ 采用证书化的“有效规模”标尺 $|\cdot|_{\mathsf{Layer}=l_n}$：它只要求对“层内允许的等价/变形”一致，不要求对任意双射不变；因此当差异可由证书区分时，
+    严格包含会推出严格不等式（参见定义 \ref{def:cv-layer-powerset} 的严格性约定）。
+\end{itemize}
+\end{remark}
+
+\begin{remark}[纯结构化语言：以 $\subseteq$ 为唯一内禀关系（不设 $\in$）]\label{rem:subset-only-language}
+在本文所采用的广义集合论/广义结构语境中，我们不把经典集合论的成员关系符号 $\in$ 作为\emph{基本}语言符号；
+体系内的基本关系取为“子对象/包含/部分-整体”关系 $\subseteq$，并把“元素”概念降格为“子对象”的一种读法：所谓“$x$ 属于 $Y$”在体系内应读作
+\[
+  x\subseteq Y,
+\]
+即 $x$ 与 $Y$ 在本体上同型、同等地位，只是处在“部分/整体”的不同角色中。
+因此，本节中出现的 $\subseteq$ 不被定义为 $\forall z\,(z\in x\Rightarrow z\in Y)$ 的外延缩写；相反，它是\emph{原始}结构关系，其可允等价、证书严格性与层间传输规则由
+  $(l_{\ge3})$ 的同伦/曲率/证书语义给出。
+
+从范畴论视角看，这相当于在一个\emph{thin}（posetal）语义中工作：态射被压缩为包含关系，元素追逐被替换为子对象关系的推理；
+本文所说“比范畴论更彻底”的含义是：我们刻意丢弃一般态射层，仅保留可被证书化治理的结构偏序，从而获得更纯粹的结构化记账接口。
+\end{remark}
+
+\begin{remark}[分形类比：无最小“像素点”，只有自相似的子结构]\label{rem:fractal-substructure}
+“一切皆集合”若放在同伦扭曲语义下理解，可以用“分形”作直观类比：
+\begin{itemize}
+  \item \textbf{无最小点：}分形图形的理论刻画不依赖某个“最小像素点”作为本体起点；对应到本文的纯结构化语言，就是不设 $\in$ 为基本关系，而以 $\subseteq$（部分--整体）作为唯一内禀接口。
+  \item \textbf{局部即子结构：}分形的每个局部都是整体的一个缩影（自相似）；对应到体系语义，是把“局部”理解为某个可允子对象 $x\subseteq Y$，其结构信息通过同伦扭曲/重写与整体 $Y$ 在同伦意义下对齐。
+  \item \textbf{生成靠迭代而非堆点：}分形常由可数步迭代的缩放/重写生成；对应到本体系，是通过可数无穷次同伦扭曲与证书筛选在层塔中逐步压缩/重建可见子结构（从而形成离散事件链对“连续语义”的治理）。
+\end{itemize}
+因此，“分形”在这里并非几何对象的比喻，而是对一种更根本的本体论选择的说明：整体不是由不可再分的元素堆叠而成，而是由可迭代的子结构关系与同伦扭曲的耦合所刻画。
+\end{remark}
+
+\begin{remark}[对位纯数卷：PFB-GNLA 的“局部模板 + 扭曲拼接”导致结构自相似]\label{rem:pfb-gnla-self-similarity}
+上述“自相似/分形”并非纯比喻：在纯数卷中，广义非交换李代数被组织为“主纤维丛版”结构（principal-bundle-based generalised noncommutative Lie algebras,
+  \texttt{PFB-GNLA}）。
+主纤维丛的局部平凡化意味着：在一个（可取可数的）开覆盖 $\{U_i\}$ 上，每个局部块都以同一典型纤维模板（结构群、联络、曲率以及由此诱导的 GNLA 运算型数据）被复用；不同块之间则在交叠区 $U_i\cap U_j$
+  通过过渡函数/规变换进行\emph{非交换}的扭曲胶合。
+因此整体结构可被理解为“同一模板的反复出现 + 受控扭曲的胶合”；每个局部块在扭曲后仍通过同伦/联络数据与全局对齐，从而呈现出本文强调的结构性自相似（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第
+  96--116 行，可检索关键词 \texttt{PFB-GNLA}）。
+更系统的结构论证见第 \ref{subsec:pfb-gnla-fractal} 小节。
+\end{remark}
+
+\subsection{断言 A1--A13（逐条对位）}
+
+下列命题以“可核验断言”的形式陈述，并在证明中给出其在\textbf{纯数卷 + 应用卷 I--IV} 的“对位位置”（出现形式与承担功能）。其中“对位”指：在对应卷中可直接找到原句、定义、命题或工程化实现。
+
+\begin{proposition}[断言 A1：PIP/PLP 的逻辑占位在全丛书中等价存在]\label{prop:cv-A1}
+异构系统统一的第一性任务不是先做分类，而是先在同一 law-space 上建立与底层状态空间无关的\emph{逻辑占位}：统一适用的谓词（真/可允/等价）与可度量的 logicality metrics。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+所谓“异构统一”至少包含两件可操作的事：其一，能在不同实现/不同语义对象之间陈述同一类可判定命题（真/可允/等价）；其二，能在不同对象/不同流之间比较“更真/更可允/更一致”的程度。
+若缺少与底层状态空间无关的占位谓词与度量，则“统一”只能退化为把某一实现的判定规则硬编码到另一实现里；此时任何“等价/可允”都随表示方式漂移，无法形成可传输的 law-space 规则。
+因此，在任何要求跨实现可比、可迁移的统一框架中，必须先抽象出 representation-free 的逻辑占位（谓词族 + 度量族），使后续的层变、重写与证书约束都能在同一接口上表述。
+
+\textbf{对位核验。}
+纯数卷先定义 PIP，再明确提出 PLP：抽象 logical placeholders / logical predicates / metrics（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第
+  330--370 行）。
+应用卷给出实例化：Vol.3 以语义谓词 $\chi:\mathcal S(L)\to\{\mathrm{true},\mathrm{false}\}$ 与函子性/闭包要求落实逻辑占位（见 Vol.3
+  发布稿\cite{GaoZhengAppVol3} 第 696--750 行）；Vol.1/Vol.4 则把“可允/证书”作为路径积分权重或策略可行域约束嵌入工程语义（见断言 \ref{prop:cv-A11}、\ref{prop:cv-A12}）。
+\end{proof}
+
+\begin{proposition}[断言 A2：CH-layering 的核心分配：$\CHcantor$ 属于 $(l_2)$，而 $(l_{\ge3})$ 属于同伦/曲率/语义度量]\label{prop:cv-A2}
+$\CHcantor$ 被视为 $(l_2)$ 的外延层命题（基数/测度）；而 $(l_{\ge3})$ 的“连续统语义”由同伦、law-curvature、Jacobiator-gap 与语义度量来控制，并允许发生
+  breakdown/rewrite。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+CH-layering 的目标不是在 ZFC 单一宇宙内决定 $\CHcantor$ 的真假，而是把同一接口符号体系拆成两种语义切面：
+\begin{itemize}
+  \item $(l_2)$：外延/计数量（基数、测度、积分口径），用于给出“背景标尺”；
+  \item $(l_{\ge3})$：在同一对象上叠加同伦、law-curvature、Jacobiator-gap 与语义度量，用于表达“层变中的漂移、失配与可证书化修复”。
+\end{itemize}
+若不作此分配，则 breakdown/rewrite 只能被误读为 $\CHcantor$ 命题在 ZFC 语境中的真假翻转；而一旦把 $\CHcantor$ 固定在 $(l_2)$，把可变的同伦/曲率/证书度量放到 $(l_{\ge3})
+  $，就能同时实现“层内刚性（标尺固定）+ 跨层流变（语义可漂移并可修复）”的最小结构。
+
+\textbf{对位核验。}
+纯数卷摘要段落直接写出：$\CHcantor$ 分配到 $(l_2)$（cardinalities），而 $(l_{\ge3})$ 承载 homotopy/curvature/semantic metrics，
+  并组合为证书型量约束可允路径（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第 132--146 行）。
+Vol.2 把 $(l_2)$ 解释为 “extensional quantities”，以 measure/integral 口径表达（见 Vol.2 发布稿\cite{GaoZhengAppVol2} 第 356--390 行）；
+  Vol.3 把 $(L_3)$ 定义为在 $(L_2)$ 上叠加 homotopy 与 Jacobiator-gap data（见 Vol.3 发布稿\cite{GaoZhengAppVol3} 第 120--145 行）。
+\end{proof}
+
+\begin{proposition}[断言 A3：ZFC 对 $\CHcantor$ 的经典结论仅作为 $(l_2)$ 的背景标尺，并不决定 $(l_{\ge3})$]\label{prop:cv-A3}
+在经典集合论语义（ZFC）中，$\CHcantor$ 等价于 $(\mathfrak c=\aleph_1)$ 亦等价于 $(2^{\aleph_0}=\aleph_1)$；Gödel 与 Cohen 给出独立性：ZFC 不能决定
+  $\CHcantor$。在 CH-layering 的语义分配中，这套经典事实被放置在 $(l_2)$ 的背景中使用，而不用于决定 $(l_{\ge3})$ 的同伦/曲率/语义度量。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+在 ZFC 语境中，$\CHcantor$ 属于外延层基数算术命题，且有等价写法
+\[
+  \CHcantor:\quad \mathfrak c=\aleph_1\iff 2^{\aleph_0}=\aleph_1.
+\]
+Gödel 证明：若 $\mathrm{Con}(\mathrm{ZFC})$，则 $\mathrm{Con}(\mathrm{ZFC}+\CHcantor)$；Cohen 证明：若 $\mathrm{Con}(\mathrm{ZFC})$，
+  则 $\mathrm{Con}(\mathrm{ZFC}+\neg\CHcantor)$。
+于是 ZFC 既不能证明 $\CHcantor$，也不能证明 $\neg\CHcantor$，即 $\CHcantor$ 在 ZFC 中独立。
+
+CH-layering 的分配（断言 \ref{prop:cv-A2}）把上述经典事实固定为 $(l_2)$ 的背景标尺：它告诉我们“外延切面并不唯一决定连续统口径”，从而为引入更高层语义切面留出结构空间。
+另一方面，$(l_{\ge3})$ 携带的同伦/曲率/证书度量不是 ZFC 的外延基数语言所能决定的；因此，ZFC 关于 $\CHcantor$ 的独立性不会、也不应被用来决定 $(l_{\ge3})$ 的语义 profile。
+
+\textbf{对位核验。}
+纯数卷在 CH 章节中给出 $\CHcantor$ 的等价形式、Gödel/Cohen 独立性的标准表述与一致性蕴含式（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第 7990--8160 行；源文件
+  \code{docs/PureMath/Pub_GFramework_PureMath.tex} 可检索关键词 \texttt{independence} 快速定位）。
+\end{proof}
+
+\begin{proposition}[断言 A4：CH-layering 不是外部评论，而是广义结构内部的切面分层]\label{prop:cv-A4}
+CH-layering 并非在康托尔/集合论宇宙内部推导新定理，而是把 $\CHcantor$ 作为 $(l_2)$ 的外延切面语言，并在同一广义结构内部引入更高层语义切面；因此 CH-layering 是 internal
+  stratification。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+CH-layering 的“分层”不是对外部集合论宇宙做评论，也不是在 ZFC 单一语义中推出新定理；它是在同一 ambient structure 内部引入一个 $\mathsf{Layer}$ 组件，使同一 law-object
+  可以被不同层的语义读出。
+因此：
+\begin{itemize}
+  \item 在层内：切面是刚性的（同一层的计量口径固定）；
+  \item 在跨层：允许同伦扭曲触发切面重写（切面之间通过受控的 change of layer 传输）。
+\end{itemize}
+这正是“internal stratification”的含义。
+
+\textbf{对位核验。}
+纯数卷明确写：在 $\GZGMS$ 内，CH-layering “not an external commentary on classical set theory, but an internal stratification …
+  controlled change of layer inside the same ambient structure”（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第 1158--1186 行）。
+\end{proof}
+
+\begin{proposition}[断言 A5：$\GZCBT$ 将“CH 崩溃—重建”从静态分层升级为动态事件（breakdown + rewriting）]\label{prop:cv-A5}
+CH-layering 给出“不同层的 CH 面孔”；$\GZCBT$ 给出“CH-like 语义如何在演化中失配（breakdown）并通过调整联络/同伦数据重建（rewriting）”，并强调证书化（certificate-based）、
+  failure-free 的修复逻辑。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+仅有 CH-layering 只能得到“静态的多切面”：它告诉我们不同层如何读出不同 CH-profile，但尚未说明 profile 在演化中如何失配、如何被修复。
+$\GZCBT$ 补上动力学成分：把“失配”定义为可检测的 breakdown 事件，并把“修复”定义为受控 rewriting/rewriting-flow（例如沿某种联络的水平流进行重写），同时要求修复过程可被证书化且不允许无声失败。
+因此，“CH 崩溃—重建”从静态叙述被提升为可迭代的动态事件链（breakdown + rewriting）。
+
+\textbf{对位核验。}
+纯数卷整章定义 $\GZCBT$，并明确：
+\begin{itemize}
+  \item breakdown：extensional 与 semantic CH 数据失去一致（loss of coherence）；
+  \item rewriting：调整 law-space connections、homotopy data、PL--PI configurations，以恢复或稳定 CH-layer constraints；
+  \item 并强调 certificate-based 与 failure-free。
+\end{itemize}
+见纯数卷发布稿\cite{GaoZheng2025GFramework} 第 8888--8920 行。
+\end{proof}
+
+\begin{proposition}[断言 A6：CH 崩溃事件可作为“同伦扭曲发生”的见证（每次非平凡扭曲对应一次 breakdown）]\label{prop:cv-A6}
+若把“同伦扭曲”在动力学上刻画为：层变曲率 $\mathcal F_{\mathrm{layer}}$ 与动力学曲率 $\mathcal F_{\mathrm{dyn}}$ 超阈值并导致 CH-profile
+  离开对齐区域（alignment region），则 “CH breakdown event” 与“扭曲事件”在定义上对齐。于是，“每次扭曲 CH 崩溃一次”在体系内成为诊断等价（而非康托尔语境命题）。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+在 $\GZCBT$ 语义里，“同伦扭曲”若要成为可诊断对象，必须对应一组可观测判据；而 breakdown event 正是为此设计的事件对象：它以“离开对齐区域 + 曲率超阈值”刻画一次不可忽略的层变。
+因此，只要把“非平凡同伦扭曲”定义为上述判据被触发的事件（而不是把它理解为 ZFC 命题真假翻转），就得到诊断等价：一次非平凡扭曲 $\Longleftrightarrow$ 一次 CH breakdown event。
+
+\textbf{对位核验。}
+纯数卷给出 breakdown event 的判别：CH-profile 离开 alignment region 且 $(|\mathcal F_{\mathrm{layer}}|,|\mathcal F_{\mathrm{dyn}}|)$
+  超阈值（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第 9032--9062 行）。
+\end{proof}
+
+\begin{proposition}[断言 A7：离散统（一连续）——连续语义由离散的层变/扭曲事件统一治理]\label{prop:cv-A7}
+“连续统语义”不是康托尔式固定外延对象，而是受层变/同伦扭曲治理的语义对象；其演化由离散事件（breakdown/rewrite steps）控制，从而“离散控制统一连续”。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+由断言 \ref{prop:cv-A4}，CH-layering 把“连续统口径”放入同一结构内部的多切面：层内读法固定，但允许跨层受控改变；由断言 \ref{prop:cv-A5}，跨层改变不是连续漂移的黑箱，
+  而被拆成可诊断的离散事件（breakdown）与可证书化的修复步（rewriting）。
+因此，“连续统语义”只能以\emph{事件驱动}方式演化：连续性只在每一段重写路径/水平流的内部作为参数出现，而全局演化由离散的 breakdown/rewrite 步拼接而成。
+这正是“离散统（一连续）”的含义：连续语义由离散层变/扭曲事件统一治理。
+
+\textbf{对位核验。}
+纯数卷对 CH-layering 的 internal stratification 与 controlled change of layer 直接给出文字定义（见 \cite{GaoZheng2025GFramework} 第
+  1158--1186 行）；并在 $\GZCBT$ 章节把 CH-like 失配/修复写成 breakdown + rewriting 的离散事件链（见 \cite{GaoZheng2025GFramework} 第
+  8888--8920 行）。
+\end{proof}
+
+\begin{proposition}[断言 A8：工程层面的“克罗内克主义”＝离散实现 + 有限算子族 + 有限路径，但用证书残差钉住与纯数卷的一致性]\label{prop:cv-A8}
+工程实现不能承载无穷层同伦塔，因此以有限对象/有限步为主（可被称作克罗内克式操作主义）；其合法性来自证书残差控制：离散结构被解释为连续 law-space 的可测逼近，并受可检验约束（gap/certificate）。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+工程层面必须面对可计算性约束：真实部署的算子、策略与路径搜索只能是有限对象/有限步更新。
+若把纯数卷的连续 law-space 直接当作可枚举状态空间，则会与计算资源发生根本冲突；因此工程实现必然采用离散化：有限算子族、离散时间步、有限路径采样/积分。
+但离散化本身不足以保证与高层语义一致，必须引入\emph{证书残差}作为桥接：把“离散实现的偏差”转写为可检验的 gap/certificate 约束，并在容忍域内判定可允，从而把工程的有限对象钉在纯数卷的可允语义上。
+
+\textbf{对位核验。}
+Vol.2 明确指出：纯数卷/CH-layering 给出连续 law-space；工程实现使用离散更新、有限算子族与离散 GRL path integrals，并以 measure-theoretic approximations
+  解释差异（见 Vol.2 发布稿\cite{GaoZhengAppVol2} 第 356--372 行）。
+同时，应用卷更常用“离散逼近连续 + 证书化可允性”的工程表述（见断言 \ref{prop:cv-A11}、\ref{prop:cv-A12} 对应的证书语义落点）。
+\end{proof}
+
+\begin{proposition}[断言 A9：“幂集筛选为有意义子集”在应用卷中以算子幂集/语义幂集路径等形式出现]\label{prop:cv-A9}
+通过同伦扭曲与结构约束，幂集并不作为“全体子集”直接参与，而是先被筛成“满足真理逻辑/证书逻辑的有意义子集”；在 GRL 中再从“有意义”进一步筛到“最优”。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+在 CH-layering/GZ 语义中，“幂集”不是一个裸的 $\mathcal P(X)$，而是带着“可观测/可实现/同伦稳定/证书可允”等谓词的结构对象。
+因此，高层语义里的“幂集对象”必然先经历一次筛选：把不满足真理逻辑与证书逻辑的子集剔除，得到“有意义子族”；在此基础上，GRL/路径积分再根据目标函数与权重对“有意义子族”作第二次筛选，得到“最优”路径或策略。
+这解释了为什么高层对 $2^{\aleph_0}$ 的口径应理解为“有效幂集规模”，而不是 ZFC 语境下的全体子集基数。
+
+\textbf{对位核验。}
+Vol.2 给出算子侧表达：operator powersets 生成“subject to structural constraints”的算子序列族，并作为离散路径积分的积分域/宏观测度（见 Vol.2
+  发布稿\cite{GaoZhengAppVol2} 第 406--430 行）。
+Vol.3 给出语义侧表达：$(L_2)$ 由 “intentional power-set construction of observable, homotopy-stable, law-space--realizable
+  subsets” 构成，用于 “meaning” 层（见 Vol.3 发布稿\cite{GaoZhengAppVol3} 第 120--135 行）。
+\end{proof}
+
+\begin{proposition}[断言 A10：“上同调修复/同伦填充”在应用卷 III 中被写成三阶上同调 coboundary 的可检验条件]\label{prop:cv-A10}
+当 property-layer Jacobiator-gap 可被同伦填充数据 $H_i$ 吸收时，该 gap 在相关 third cohomology 上为 trivial class（coboundary）；这使得 operator
+  bundle 可 gaugeable，并允许定义 law-space certificates。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+把 Jacobiator-gap 视为三阶障碍的标准方式是：它给出一个 3-cocycle（或等价的三阶上同调类）来度量“不可严格结合/不可平直传输”的残差。
+若存在同伦填充数据 $H_i$ 使该 3-cocycle 成为 coboundary，则该上同调类为平凡类；等价地，gap 可以通过一次 gauge/重参数化被吸收，从而 operator bundle 在相应意义下可 gaugeable。
+在此情形下，可把“gap 被吸收后的剩余偏差”登记为可检验的证书数据（certificate data），并将其作为可允性判据进入后续的路径筛选与优化。
+
+\textbf{对位核验。}
+Vol.3 直接定义 homotopy admissible，并明确说 $(J_{\mathrm{prop}},H_i)$ 定义 third cohomology trivial class，gap 为 coboundary，
+  从而可定义证书（见 Vol.3 发布稿\cite{GaoZhengAppVol3} 第 4236--4265 行）。
+\end{proof}
+
+\begin{proposition}[断言 A11：Vol.1 的 GRL/路径积分实现“从有意义到最优”的第二次筛选，并把证书数据纳入权重]\label{prop:cv-A11}
+Vol.1 把 law-space trajectories 的权重定义为“action + information-theoretic cost + certificate data”，从而把“可允/一致性”嵌入优化目标；这构成“先筛意义，
+  再做最优”的机制原型。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+由断言 \ref{prop:cv-A9}，“有意义子族”给出第一重可行域；但“有意义”并不等于“最优”，仍需一个目标函数把可行域内的路径/策略排序。
+当权重泛函把 certificate data 与 action/cost 一并纳入时，证书不再只是事后验收材料，而是直接参与优化：任何违反可允性或超出容忍残差的路径会在权重上被惩罚，从而在路径积分/策略搜索中被系统性排除。
+因此，Vol.1 的权重设计实现了从“有意义”到“最优”的第二次筛选，并把“证书化一致性”嵌入最优化机制本身。
+
+\textbf{对位核验。}
+Vol.1 原文写：trajectories weighted by functionals combining physical action, information-theoretic cost, and certificate
+  data；policies optimized；performance certified（见 Vol.1 发布稿\cite{GaoZhengAppVol1} 第 140--162 行）。
+\end{proof}
+
+\begin{proposition}[断言 A12：Vol.4 将“同伦约束 + 证书可允性”用于金融风险域，并明确四簇 homotopy bundle clusters 与风险/雅可比函数]\label{prop:cv-A12}
+Vol.4 将策略/风险/执行组织为 law-objects 与 property layers，强调 homotopy-based constraints 与 certificate-style admissibility；并以四簇
+  homotopy bundle clusters + Jacobi/risk functionals 连接离散同伦控制与 GRL。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+在金融风险域中，“策略—执行—风险”同样呈现异构：不同市场机制、不同风险度量与不同执行约束无法靠单一连续模型闭合。
+把它们组织为 law-objects 与 property layers 的意义在于：风险/雅可比残差可以被记录为可检验的 gap 量，而同伦约束提供“允许哪些变形/哪些对接”的结构性边界；证书可允性则把这些边界转成可部署的判定条件。
+因此，Vol.4 的结构是把断言 \ref{prop:cv-A8}--\ref{prop:cv-A11} 的“离散实现 + 证书约束 + 优化权重”迁移到风险语境，并用 bundle clusters 的方式显式组织这些约束耦合。
+
+\textbf{对位核验。}
+Vol.4 开头段落直接写出 homotopy-based constraints + certificate-style admissibility，并写出 four coupled homotopy bundle clusters 与
+  Jacobi or risk functionals、minimal-action/path-integral 与 GRL 的关系（见 Vol.4 发布稿\cite{Vol4Pub} 第 100--125 行）。
+\end{proof}
+
+\begin{proposition}[断言 A13：康托尔 vs.\ 克罗内克的分层统一]\label{prop:cv-A13}
+在纯数卷语义层面，CH-layering 与 $\GZCBT$ 允许并要求高层同伦/曲率/语义度量与动态重写，从而形成“可用无穷语义”的统一框架；在工程层面，应用卷选择有限对象/有限步的离散实现，
+  但以证书/残差把其合法性钉在可检验的同伦修复与 gap 约束上。由此更准确的结论是：纯数层面辩证统一了康托尔式“可用无穷语义”与克罗内克式“可计算有限实现”，而非简单复活克罗内克。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+“康托尔式可用无穷语义”与“克罗内克式可计算有限实现”并非互斥，而是分别回答两个层级的问题：
+\begin{itemize}
+  \item 语义层（纯数卷）：为了刻画层变、同伦塔与证书型量，必须允许无穷结构作为描述语言（断言 \ref{prop:cv-A2}、\ref{prop:cv-A4}、\ref{prop:cv-A5}）。
+  \item 工程层（应用卷）：为了部署与搜索，必须回到有限对象/有限步的离散实现（断言 \ref{prop:cv-A8}、\ref{prop:cv-A9}）。
+\end{itemize}
+两者的统一不在于“把无穷消成有限”，而在于用证书把有限实现锚定到无穷语义：通过 gap/certificate 约束与权重机制（断言 \ref{prop:cv-A10}--\ref{prop:cv-A12}），
+  工程轨道被限制在语义允许的容忍域内，并可被检验与修复。
+因此得到“分层统一”：语义允许无穷，工程坚持有限，但二者通过证书逻辑在同一体系内闭合。
+
+\textbf{对位核验。}
+纯数侧对位来自断言 \ref{prop:cv-A2}、\ref{prop:cv-A4}、\ref{prop:cv-A5}；工程侧对位来自断言 \ref{prop:cv-A8}--\ref{prop:cv-A12}。
+同时需注意：应用卷文本不必直接使用“康托尔/克罗内克”的历史哲学标签；此处用语仅作为读者级压缩概括。
+\end{proof}
+
+\subsection{对位矩阵（A1--A13 落卷位置）}
+
+表中 $\CVexplicit$ 表示该卷中有\emph{显式定义/叙述}；$\CVinstance$ 表示该卷中以\emph{实例化/工程表达}出现。
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{p{0.47\textwidth}ccccc}
+\hline
+断言 & 纯数卷 & Vol.1 & Vol.2 & Vol.3 & Vol.4 \\
+\hline
+A1 逻辑占位（PLP） & $\CVexplicit$ & $\CVinstance$ & $\CVinstance$ & $\CVexplicit$ & $\CVinstance$ \\
+A2 CH-layering：$(l_2)$ vs.\ $(l_{\ge3})$ & $\CVexplicit$ & $\CVinstance$ & $\CVexplicit$ & $\CVinstance$ & $\CVinstance$
+  \\
+A3 ZFC/$\CHcantor$ 独立性回顾 & $\CVexplicit$ &  &  &  &  \\
+A4 CH-layering 内部切面（internal stratification） & $\CVexplicit$ &  & $\CVexplicit$ &  &  \\
+A5 $\GZCBT$：breakdown + rewriting & $\CVexplicit$ &  &  &  &  \\
+A6 breakdown event 作为扭曲见证 & $\CVexplicit$ &  &  &  &  \\
+A7 离散控制连续（层变治理） & $\CVexplicit$ & $\CVinstance$ & $\CVexplicit$ & $\CVexplicit$ & $\CVexplicit$ \\
+A8 工程克罗内克 + 证书残差 &  & $\CVinstance$ & $\CVexplicit$ & $\CVinstance$ & $\CVexplicit$ \\
+A9 幂集筛选为有意义子集 & $\CVinstance$ & $\CVinstance$ & $\CVexplicit$ & $\CVexplicit$ & $\CVinstance$ \\
+A10 上同调修复 = coboundary & $\CVinstance$ & $\CVinstance$ & $\CVinstance$ & $\CVexplicit$ & $\CVinstance$ \\
+A11 从有意义到最优：GRL 权重含证书 &  & $\CVexplicit$ & $\CVinstance$ & $\CVinstance$ & $\CVinstance$ \\
+A12 金融域同伦约束与证书可允 &  &  &  &  & $\CVexplicit$ \\
+A13 康托尔/克罗内克分层统一 & $\CVexplicit$ & $\CVinstance$ & $\CVexplicit$ & $\CVexplicit$ & $\CVexplicit$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{读者版三行公式：嵌回丛书语境的读法}
+
+\begin{remark}[避免将不等式误读为 ZFC 内命题]
+读者版钩子式写法
+\[
+  l_2:\ \aleph_1=2^{\aleph_0}\ (\CHcantor),\qquad
+  l_{n\ge3}:\ \aleph_1>2^{\aleph_0}
+\]
+在丛书语境中应读作：
+\begin{itemize}
+  \item $(l_2)$ 的 $2^{\aleph_0}$ 是外延切面里按基数计量的连续统（断言 \ref{prop:cv-A2}）。
+  \item $(l_{n\ge3})$ 的 $2^{\aleph_0}$ 是高层切面里“经同伦扭曲/真理逻辑筛选后的有效幂集规模”（Vol.3 的 intentional power-set、Vol.2 的 constrained
+    operator powerset 是其应用表达，见断言 \ref{prop:cv-A9}）。
+  \item “CH 崩溃—重建”由 $\GZCBT$ 的 breakdown/rewrite 机制严格承载（见断言 \ref{prop:cv-A5}、\ref{prop:cv-A6}）。
+\end{itemize}
+因此，该三行并非在 ZFC 内新增结论，而是用康托尔符号把 $(l_2)$ 外延层与 $(l_{\ge3})$ 同伦层的对比压缩成最短记忆钩子。
+\end{remark}
+
+\subsection{断言 A14--A20：关于“同伦压缩、崩溃与重建”的补充落地}
+
+为使
+\[
+  l_{n\ge 3}:\ \aleph_1>2^{\aleph_0},
+  \qquad
+  \text{“$2^{\aleph_0}$ 被同伦压缩，CH 崩溃（后重建，体现缩小）”}
+\]
+具备更明确的语义落点，下列命题把三点写成可核验断言：\textbf{(i) 仅在 $\GZGMS$ 语境成立；(ii) 何谓“同伦压缩的 $2^{\aleph_0}$”；(iii) CH 崩溃/重建如何被定义为可迭代事件。}
+
+\begin{definition}[层内幂集、层内标尺与“压缩”]\label{def:cv-layer-powerset}
+在 $\GZGMS$ 语境中，对每一层 $l_n$ 与每个底层集合 $X$，记
+\[
+  \mathcal P_n(X):=\{A\subseteq X: A \text{ 在层 } l_n \text{ 中可观测、同伦稳定且 law-space 可实现}\}.
+\]
+并用 $|\cdot|_{\mathsf{Layer}=l_n}$ 表示该层的\emph{刚性标尺}（可理解为“有效规模/有效计数”），它满足：
+\begin{enumerate}
+  \item \textbf{单调性：}若 $\mathcal A\subseteq\mathcal B$，则 $|\mathcal A|_{\mathsf{Layer}=l_n}\le |\mathcal
+    B|_{\mathsf{Layer}=l_n}$；
+  \item \textbf{证书严格性：}若存在 $A\in\mathcal B\setminus\mathcal A$ 且 $A$ 在层内可作为证书区分（并非同一语义对象的重命名），则 $|\mathcal
+    A|_{\mathsf{Layer}=l_n}<|\mathcal B|_{\mathsf{Layer}=l_n}$。
+\end{enumerate}
+定义
+\[
+  2^{\aleph_0}_{(n)}:=\bigl|\mathcal P_n(\mathbb N)\bigr|_{\mathsf{Layer}=l_n},
+\]
+并称 $\mathcal P_{n+1}(X)\subsetneq\mathcal P_n(X)$ 为“幂集在第 $n\to n{+}1$ 步被压缩一次”；若该压缩由一次层变/同伦扭曲触发，则称该扭曲在幂集口径上\emph{非平凡}。
+\end{definition}
+
+\begin{proposition}[断言 A14：$(l_{\ge3})$ 的断言只能在 $\GZGMS$ 语境成立]\label{prop:cv-A14}
+$(l_{\ge3})$ 的“连续统语义”不是 ZFC 单一宇宙内的 $|\mathcal P(\mathbb N)|$；它只能在 $\GZGMS$ 这种把“什么算对象/什么算法则/什么算可允流与可允变形”统一组织的 ambient
+  structure 中成立，且 CH-layering 作为其中 $(\mathsf{Layer})$ 组件的一部分出现。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+$(l_{\ge3})$ 的语义包含同伦、曲率、证书与重写流等结构数据；这些数据本质上是“在什么结构中允许哪些对象/哪些变形/哪些可允流”的组成部分，而不是 ZFC 单一宇宙里对集合基数的断言。
+因此，若要对 $(l_{\ge3})$ 作可检验陈述，必须先给出一个把对象、法则、流、层、以及层间传输规则统一组织起来的 ambient structure；这正是 $\GZGMS$ 的角色。
+换言之：$(l_{\ge3})$ 的断言之所以“只能在 $\GZGMS$ 中成立”，并非因为它与 ZFC 结论矛盾，而是因为它谈论的对象已超出 ZFC 的外延语言。
+
+\textbf{对位核验。}
+纯数卷把 $\GZGMS$ 定位为组织对象、法则、流、层的 ambient object，并以示意定义形式给出
+\[
+  \GZGMS=(\mathsf{Obj},\mathsf{Law},\mathsf{Flow},\mathsf{Layer},\GZTLC;\GZLCurv),
+\]
+并将 CH-layering 归入 $(\mathsf{Layer})$ 组件（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第 1010--1065 行）。
+\end{proof}
+
+\begin{proposition}[断言 A15：$2^{\aleph_0}$ 在 $(l_n)$ 中是层内刚性切面量，但切面可随同伦扭曲改变]\label{prop:cv-A15}
+在 CH-layering 语义中，每一层都有其\emph{层内刚性}的连续统标尺；可用记号约定
+\[
+  2^{\aleph_0}_{(n)}\ :=\ \bigl|\mathcal P_n(\mathbb N)\bigr|_{\mathsf{Layer}=l_n},
+\]
+其中 $\mathcal P_n(\mathbb N)$ 表示“在第 $n$ 层被承认为幂集对象/子集对象的族”。层内计数是刚性的，但 $\mathcal P_n(\mathbb N)$ 的可允对象会随同伦扭曲被重写，从而使
+  $2^{\aleph_0}_{(n)}$ 在跨层意义下流变。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+由定义 \ref{def:cv-layer-powerset}，对固定层 $l_n$，$\mathcal P_n(\mathbb N)$ 与其层内标尺 $|\cdot|_{\mathsf{Layer}=l_n}$ 是该层语义的一部分：
+  一旦选定层的可观测/可实现/证书逻辑口径，层内的“有效幂集族”与“有效规模”就被刚性确定。
+但在跨层演化中，同伦扭曲会改变可允谓词与层间传输规则，从而把某些原先可见/可允的子集剔除或重写进新的语义对象；这等价于把 $\mathcal P_n(\mathbb N)$ 替换为新的 $\mathcal P_{n+1}(\mathbb N)
+  $。
+因此，层内标尺刚性不变（同一层口径固定），而切面对象族 $\mathcal P_n(\mathbb N)$ 会随扭曲流变，导致 $2^{\aleph_0}_{(n)}$ 在跨层意义下发生变化。
+
+\textbf{对位核验。}
+纯数卷在 CH-layering 章节区分 $(l_2)$ 的 extensional CH 与 $(l_{\ge3})$ 的 semantic CH data，并将二者漂移视为 breakdown 的核心机制（见断言 \ref{prop:cv-A17}）。
+同时，纯数卷用数据型表述刻画 $(l_{\ge3})$ 的 semantic CH data（例如以 $(|X|,\mathbf S(X))$ 记述高层语义），并以 $\mathcal E_n$ 等对象记录“到 layer $\le n$
+  可见的信息”，强调 $n\ge3$ 时额外携带同伦/曲率信息（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第 8408--8425 行附近的定义性段落）。
+\end{proof}
+
+\begin{proposition}[断言 A16：同伦压缩 = “幂集被筛成意向幂集/受约束幂集”，从而 $2^{\aleph_0}_{(n)}$ 变小]\label{prop:cv-A16}
+“同伦压缩 $2^{\aleph_0}$”的技术含义不是外部 ZFC 中 $|\mathcal P(\mathbb N)|$ 变小，而是：在高层语义或算子语义中，$\mathcal P_n(\cdot)$ 被定义为“可观测、同伦稳定、
+  law-space 可实现”或“受结构约束”的子族，从而在层内刚性计数意义下出现
+\[
+  \mathcal P_{n+1}(\cdot)\subsetneq \mathcal P_n(\cdot)
+  \quad\Longrightarrow\quad
+  2^{\aleph_0}_{(n+1)}<2^{\aleph_0}_{(n)}.
+\]
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+由定义 \ref{def:cv-layer-powerset}，$\mathcal P_n(X)$ 本就不是全体 $\mathcal P(X)$，而是“满足可观测/同伦稳定/法空间可实现/证书可允”的子族。
+若层变/同伦扭曲使可允谓词变得更强（例如引入额外的同伦稳定性或证书逻辑约束），则对每个 $X$ 都有自然包含
+\[
+  \mathcal P_{n+1}(X)\subseteq \mathcal P_n(X).
+\]
+当该扭曲在幂集口径上\emph{非平凡}时，存在至少一个在 $l_n$ 可允但在 $l_{n+1}$ 被剔除的对象，从而包含为严格真子集 $\subsetneq$。
+再由定义 \ref{def:cv-layer-powerset} 的证书严格性，严格剔除会导致层内标尺严格下降：
+\[
+  \mathcal P_{n+1}(X)\subsetneq \mathcal P_n(X)
+  \Longrightarrow
+  \bigl|\mathcal P_{n+1}(X)\bigr|_{\mathsf{Layer}=l_{n+1}}
+  <\bigl|\mathcal P_n(X)\bigr|_{\mathsf{Layer}=l_n}.
+\]
+取 $X=\mathbb N$ 即得到 $2^{\aleph_0}_{(n+1)}<2^{\aleph_0}_{(n)}$。
+需强调：这里的 $|\cdot|_{\mathsf{Layer}=l_n}$ 是层内“有效规模”标尺，而非 $(l_2)$ 外延层的纯集合基数；因此不会与“无限集合真子集仍可等势”的 $(l_2)$ 事实冲突（见备注 \ref{rem:cv-proper-subset-equipotent-l2}）。
+
+\textbf{对位核验。}
+Vol.3 明写 $(L_2)$ 由 “intentional power-set construction of observable, homotopy-stable, law-space--realizable subsets”
+  构造（见 Vol.3 发布稿\cite{GaoZhengAppVol3} 第 110--150 行）。
+Vol.2 明写 powerset constructions 生成的族 “subject to structural constraints”，并将其作为离散路径域（见 Vol.2 发布稿\cite{GaoZhengAppVol2} 第
+  404--430 行）。
+\end{proof}
+
+\begin{proposition}[断言 A17：$(l_{\ge3})$ 使 $\CHcantor$ “崩溃一次”的严格含义是 $(l_2)$ 外延数据与高层语义数据漂移]\label{prop:cv-A17}
+“CH 崩溃”不是康托尔语境下命题真假翻转，而是一个 law-level 事件：当 $(l_2)$ 的 $\CHcantor$ 外延数据与 $(l_{\ge3})$ 的 semantic CH 数据 drift apart，
+  且层变曲率/动力学曲率变大时，发生 CH breakdown event。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+由断言 \ref{prop:cv-A4}，$\CHcantor$ 只作为 $(l_2)$ 的外延切面语言；由断言 \ref{prop:cv-A5}，$\GZCBT$ 把“失配”定义为可检测的 breakdown 事件。
+因此，当 $(l_2)$ 的外延口径（例如 $2^{\aleph_0}_{(2)}$ 的标定）与 $(l_{\ge3})$ 的语义 profile（同伦/曲率/证书数据）不再一致，并且层变曲率或动力学曲率跨越阈值时，就发生一次
+  law-level breakdown：这就是“CH 崩溃一次”的严格含义。
+该表述刻画的是\emph{两类数据的漂移}，而不是集合论宇宙中命题真值的翻转。
+
+\textbf{对位核验。}
+纯数卷把 breakdown 写得具体： “CH breakdown event … causing $\CHcantor^{(l_2)}$ and semantic CH data at $l_{\ge3}$ to drift apart
+  …” 并把原因归结到 $\GZLCurv$ 的 layer-change components 与 $\mathcal F_{\mathrm{dyn}}$（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第
+  8824--8850 行）。
+\end{proof}
+
+\begin{proposition}[断言 A18：崩溃“后重建”= 沿 $\GZTLC$-horizontal 的重写流把两类 CH 约束重新对齐，并用 Jacobiator-gap 给出容忍界（体现“缩小”）]\label{prop:cv-A18}
+“后重建，体现缩小”的技术含义是：存在 reconstruction path，使 continuum law-object 回到某个 regime，使得外延 CH 与高层语义 CH 被重新对齐到可接受容忍度；该容忍度由
+  Jacobiator-gap 证书界定，并可被理解为 breakdown energy 的下降流或修复步的稳定化结果。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+在 $\GZCBT$ 中，breakdown 不是终点，而是触发重写的信号；重写的目标不是“恢复到某个外部真值”，而是把 extensional 口径与 semantic profile 拉回到同一容忍域内。
+若把容忍域用 Jacobiator-gap 证书界定，则“重建”可表述为：存在一条沿 $\GZTLC$ 水平流的 reconstruction path，使漂移后的 profile 回到允许偏差的集合，从而恢复 coherence。
+所谓“体现缩小”，指的是：在重写过程中，高层约束往往更强，允许的语义偏差区间被证书界收缩（或等价地，breakdown energy 沿修复流下降），因此重建后的有效语义范围更窄、更可控。
+
+\textbf{对位核验。}
+纯数卷在 breakdown 段落中明确写： “Reconstruction path … returns … re-aligned within acceptable tolerances (e.g.\
+  Jacobiator-gap-based bounds on semantic deviations)”（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第 8839--8849 行）。
+\end{proof}
+
+\begin{proposition}[断言 A19：“每次同伦扭曲 CH 都会崩溃一次”对应为 breakdown index/energy 触发—重写—严格下降（可迭代、无静默崩溃）]\label{prop:cv-A19}
+若把“同伦扭曲一步”定义为一次“breakdown 阈值超越并触发补救 rewriting/OHU completion 的离散步”，则“每次扭曲 $\Rightarrow$ 一次崩溃事件”成为定义对齐；并且修复方案要求 breakdown
+  指标非增、阈值超越时严格下降，从而崩溃—重建可重复发生且被控制，且不存在静默崩溃（no unsignalled breakdown）。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+把“扭曲一步”理解为“跨阈值的层变事件”时，扭曲与 breakdown 在定义上对齐（见断言 \ref{prop:cv-A6}）：每次非平凡扭曲都会把 profile 推出对齐区域，从而触发一次 breakdown；而每次
+  breakdown 必须进入 rewriting/OHU completion，形成一条离散修复步。
+进一步，若修复方案对某个可计算的 breakdown 指标/能量施加单调性约束：常规区间不增、跨阈值时严格下降，则事件链不仅可迭代，而且在每次跨阈值处留下可检验信号，从而排除“无静默崩溃”。
+由于层索引 $n\in\mathbb N$ 可数，迭代步自然形成可数序列；这也与“可数无穷扭曲—修复塔”的叙述一致。
+
+\textbf{对位核验。}
+纯数卷给出：
+\begin{enumerate}
+  \item Local CH breakdown index
+        \[
+          \mathcal B_{\mathrm{CH}}(t)=w_\Delta\Delta_{\mathrm{CH}}(t)+w_B B_{\mathrm{CH}}(t),
+        \]
+        并以阈值 $\theta_{\mathrm{CH}}$ 区分 regular/singular（见纯数卷发布稿\cite{GaoZheng2025GFramework} 第 9338--9362 行）。
+  \item Breakdown energy
+        \[
+          \mathcal E_{\mathrm{CH}}=\int \Phi(\mathcal B_{\mathrm{CH}}(t))\,dt
+        \]
+        （见同卷第 9445--9460 行附近）。
+  \item CBT--OHU scheme 的单调性与“无静默崩溃”：要求 $\mathcal B_{\mathrm{CH+op}}^{(n)}$ 非增，阈值超越时严格下降；并强调 “no unsignalled
+    breakdowns”——任何跨阈值都会触发补救步（见同卷第 9658--9730 行）。
+\end{enumerate}
+\end{proof}
+
+\begin{proposition}[断言 A20：把 $l_{n\ge3}:\ \aleph_1>2^{\aleph_0}$ 写成层内命题，并解释“同伦压缩 + 崩溃后重建”]\label{prop:cv-A20}
+若在 $(l_2)$ 采用外延 CH 标定
+\[
+  \CHcantor^{(l_2)}:\quad 2^{\aleph_0}_{(2)}=\aleph_1,
+\]
+并在 $(l_{n\ge3})$ 以更强真理逻辑/证书逻辑将幂集对象收缩为意向子族（断言 \ref{prop:cv-A16}），则在层内刚性计数语义下可写作
+\[
+  \mathcal P_n(\mathbb N)\subsetneq\mathcal P_2(\mathbb N)
+  \Longrightarrow
+  2^{\aleph_0}_{(n)}<2^{\aleph_0}_{(2)}=\aleph_1,
+\]
+从而得到读者版不等式
+\[
+  l_{n\ge3}:\quad \aleph_1>2^{\aleph_0},
+  \qquad(\text{其中 }2^{\aleph_0}\text{理解为 }2^{\aleph_0}_{(n)}).
+\]
+“CH 崩溃（后重建，体现缩小）”则由断言 \ref{prop:cv-A17}--\ref{prop:cv-A19} 的 breakdown/rewrite 循环严格承载：旧的 $\CHcantor^{(l_2)}$ 与 $(l_{\ge3}
+  )$ 的 semantic CH profile 漂移导致崩溃，重写把其压回容忍域，体现“缩小后的连续统语义”。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+由定义 \ref{def:cv-layer-powerset}，$2^{\aleph_0}_{(n)}$ 是层内“有效幂集”的刚性标尺；由断言 \ref{prop:cv-A16}，当同伦扭曲在幂集口径上非平凡时，$\mathcal
+  P_n(\mathbb N)$ 会被严格压缩，从而 $2^{\aleph_0}_{(n)}$ 严格下降。
+若在 $(l_2)$ 采用外延标定 $2^{\aleph_0}_{(2)}=\aleph_1$，则对 $n\ge3$ 有
+\[
+  2^{\aleph_0}_{(n)}<2^{\aleph_0}_{(2)}=\aleph_1.
+\]
+把右端 $\aleph_1$ 继续作为接口符号，则可将该层内不等式压缩成读者版口径
+\[
+  l_{n\ge3}:\ \aleph_1>2^{\aleph_0},
+  \qquad(\text{其中 }2^{\aleph_0}\text{理解为 }2^{\aleph_0}_{(n)}).
+\]
+此外，“崩溃（后重建）”由断言 \ref{prop:cv-A17}--\ref{prop:cv-A19} 的 breakdown/rewrite 事件链承载：漂移触发崩溃，重写回拉对齐，且在证书容忍域内稳定化。
+
+\textbf{对位核验。}
+读者版不等式本身是接口语言；其对位支撑来自四部分：
+\begin{itemize}
+  \item \textbf{高层幂集筛选：}Vol.2/Vol.3 的 constrained powerset 与 intentional power-set（见断言 \ref{prop:cv-A16}，对应发布稿见
+    \cite{GaoZhengAppVol2,GaoZhengAppVol3}）。
+  \item \textbf{崩溃事件定义：}$(l_2)$ 外延 CH 与 $(l_{\ge3})$ 语义 CH 的漂移判据（见断言 \ref{prop:cv-A17}，见 \cite{GaoZheng2025GFramework}）。
+  \item \textbf{重建容忍界：}re-alignment within tolerances 与 Jacobiator-gap bounds（见断言 \ref{prop:cv-A18}，见
+    \cite{GaoZheng2025GFramework}）。
+  \item \textbf{可迭代诊断--修复：}breakdown index/energy 与 CBT--OHU scheme（见断言 \ref{prop:cv-A19}，见 \cite{GaoZheng2025GFramework}
+    ）。
+\end{itemize}
+\end{proof}
+
+\subsection{对位显式程度分档（Ⅰ/Ⅱ/Ⅲ）}
+
+为区分“书中是否直接写出/定义出”与“需要读者补桥”的程度，可按以下三档描述：
+\begin{itemize}
+  \item \textbf{Ⅰ 明确对位}：在丛书文本中有原句、定义、命题或明确段落叙述，读者基本无需补桥。
+  \item \textbf{Ⅱ 半明确对位}：材料已在书中，但需补一句“约定/命名”或把两处机制连接起来才能得到完整断言。
+  \item \textbf{Ⅲ 需要推理对位}：更多是读者版角度或哲学标签，书中未以该断言原话出现；如欲“明确对位”，需额外说明或公理化。
+\end{itemize}
+
+按此分档：
+\begin{itemize}
+  \item \textbf{Ⅰ 明确对位}：A1 A2 A3 A4 A5 A6 A7 A9 A10 A11 A12 A14 A17 A18 A19。
+  \item \textbf{Ⅱ 半明确对位}：A15 A16（需补“层内刚性切面量”的记号约定，及 $\subsetneq$ 的严格性前提）。
+  \item \textbf{Ⅲ 需要推理对位}：A8 A13 A20（涉及“克罗内克主义”“康托尔/克罗内克统一”等哲学标签，以及读者版不等式的接口化解释）。
+\end{itemize}
+
+\subsection{将读者版不等式升级为“明确对位”的最小补丁建议}
+
+\begin{remark}[三行约定即可把 A16/A20 升级为“明确对位”]
+若希望读者版写法
+\[
+  l_{n\ge3}:\ \aleph_1>2^{\aleph_0}
+\]
+在丛书正文中不被视为“未充分体现”，最省改动的做法是在纯数卷 CH-layering 小节开头补三行约定（即可把断言 A16 与断言 A20 从“半明确/推理对位”提升为“明确对位”）：
+\begin{enumerate}
+  \item \textbf{层内刚性切面记号}：$2^{\aleph_0}_{(n)}:=|\mathcal P_n(\mathbb N)|_{\mathsf{Layer}=l_n}$。
+  \item \textbf{同伦压缩严格性}：$\mathcal P_{n+1}(\mathbb N)\subsetneq \mathcal P_n(\mathbb N)$（由更强真理逻辑/证书逻辑剔除无意义对象）。
+  \item \textbf{读者版推论}：若 $(l_2)$ 采用 $\CHcantor^{(l_2)}:2^{\aleph_0}_{(2)}=\aleph_1$，则对 $n\ge3$ 有 $2^{\aleph_0}_{(n)}
+    <\aleph_1$，并可写作接口口径 $\aleph_1>2^{\aleph_0}$。
+\end{enumerate}
+如需进一步将该段落做成可直接粘贴的定理环境，可将上述三行写成 \texttt{remark} + 一条 1 行证明的 \texttt{proposition}。
+\end{remark}
+
+\begin{remark}[后续写入建议：将“断言—对位”固化为可引用小节]
+若需把本节的“断言—对位”直接固化为 \code{docs/PureMath/} 下主稿中的一小节（例如作为 CH-layering 开头的“读者认知版总述 + 跨卷对位表”），可按现有定理环境风格给出一段可直接粘贴的正文（含
+  Definition/Remark/Proposition 的最小证明骨架），并将 A1--A13 以 “Cross-Volume Assertions” 的形式登记到 Notation / Cross-Volume Index，
+  使其在后续卷间引用时具有统一的索引入口。
+\end{remark}
+
+\subsection{综合陈述：通过可数无穷非平凡同伦扭曲逐层压缩幂集的离散统}
+
+本节断言 A1--A20 的结论可被压缩为一句“本体句式”：
+\begin{quote}
+\textbf{通过可数无穷的非平凡同伦扭曲逐层压缩幂集，实现离散统一连续，即离散统。}
+\end{quote}
+
+\begin{proposition}[第 6 章断言 A1--A20 的综合陈述：离散统]\label{prop:cv-summary-discrete-unify}
+在 $\GZGMS$ 的 CH-layering 语义中，存在以 $n\in\mathbb N$ 索引的层塔 $(l_n)_{n\ge2}$。每一次非平凡同伦扭曲（等价于一次 CH breakdown 事件）都会触发对层内幂集对象的严格筛选，
+  从而形成严格递减链
+\[
+  \mathcal P_{n+1}(\mathbb N)\subsetneq \mathcal P_n(\mathbb N),\qquad n\ge2,
+\]
+并相应压缩连续统标尺 $2^{\aleph_0}_{(n)}:=|\mathcal P_n(\mathbb N)|_{\mathsf{Layer}=l_n}$。
+连续统语义不是一次性由外延对象固定，而是由可数无穷个离散的 breakdown/rewrite 步拼接生成；连续性仅在每一步 reconstruction path（重写路径/水平流）的内部作为参数出现。
+因此，连续被离散事件统一治理：离散事件链给出统一的治理框架，而“连续”只是该链条每一步内部的局部行为——这就是离散统。
+\end{proposition}
+
+\begin{proof}[充分证明]
+\textbf{体系内推导。}
+断言 \ref{prop:cv-A2}、\ref{prop:cv-A4} 给出 CH-layering 的层结构与内部切面语义；定义 \ref{def:cv-layer-powerset} 给出每一层的“有效幂集” $\mathcal
+  P_n(\mathbb N)$ 与层内刚性标尺 $2^{\aleph_0}_{(n)}$。
+断言 \ref{prop:cv-A6} 把“非平凡同伦扭曲”与“CH breakdown 事件”对齐为同一类可诊断事件；断言 \ref{prop:cv-A16} 说明该事件在幂集口径上体现为严格压缩 $\mathcal P_{n+1}
+  (\mathbb N)\subsetneq \mathcal P_n(\mathbb N)$，并由定义 \ref{def:cv-layer-powerset} 的证书严格性推出标尺严格下降。
+断言 \ref{prop:cv-A5}、\ref{prop:cv-A18} 说明每次 breakdown 都触发 rewriting/reconstruction：存在沿 $\GZTLC$ 水平流的重写路径把 profile 拉回容忍域；
+  这给出“连续性只在每一步内部作为路径参数出现”的含义。
+断言 \ref{prop:cv-A19} 给出该事件链的可迭代性与无静默崩溃：跨阈值时严格下降并触发补救步，因而可数层索引对应可数无穷离散修复步。
+综上，连续统语义的全局形态由离散事件链拼接生成，而每一步内部的连续路径仅是局部机制，故“离散统一连续”成立。
+
+\textbf{对位核验。}
+上述每一块拼接所需的对位证据已在断言 A1--A20 的“充分证明”中逐条给出；综合陈述所依赖的关键合成点为断言 \ref{prop:cv-A2}、\ref{prop:cv-A4}、\ref{prop:cv-A5}、\ref{prop:cv-A6}、\ref{prop:cv-A16}、\ref{prop:cv-A18}、\ref{prop:cv-A19}。
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{结构不变量视角下的“总结压缩”}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{从展开态到结构不变量态}
+
+在理论构造的早期阶段，往往需要大量推理、构造、反例与修复机制；
+随着结构逐渐清晰，“总结”会呈现出一种明显的压缩趋势：
+很多内容会被凝聚成少数几条不可再删的判断。
+
+这一现象可以理解为：贡献正在从“展开态”向“结构不变量态”收敛。
+在结构不变量态中：
+\begin{itemize}
+  \item 细节被隐藏在定义、定理与命题的内部；
+  \item 外显的文本更多是在陈列本体判据与闭合方案；
+  \item 新的总结往往只是对已有结构的不同切面，而非新增本体内容。
+\end{itemize}
+
+\subsection{结构位移型贡献}
+
+从贡献类型的角度看，上述工作并不属于常见的“定理补丁型”“技术改进型”或“应用扩展型”，而更接近于：
+\begin{quote}
+\textbf{结构位移型贡献（structural displacement）}。
+\end{quote}
+
+所谓结构位移，是指：不是在既有坐标轴上前进一小段距离，而是\emph{换了一套坐标系}。
+一旦坐标系被换掉，许多原本复杂的现象会自动塌缩为结构不变量。
+在本文语境下，“连续—离散”“同伦—同调”“结构失败—修复机制”等对偶被提升为本体判据，正是这种位移的体现。
+
+\subsection{本体判据与闭合方案}
+
+当一组判据被提升到本体层级后，任何不同意这一构造的后续工作，不再是在“观点层面”争论，而是在承担一个义务：
+\begin{quote}
+必须给出一套替代性的本体闭合方案，否则体系在同调与修复问题上将不自洽。
+\end{quote}
+
+在这种意义上，“总结变少”反而是一种成熟信号：
+\begin{itemize}
+  \item 再加，只是展开现有结构；
+  \item 不加，已经达到最小完备。
+\end{itemize}
+
+当一套理论进入这一阶段时，文字量会自然减少，而结构后果却会迅速放大。
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Vol.4 中四层主丛包络与 GRL 式全局优化}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{四层主丛包络的抽象}
+
+在应用卷 Vol.4 中，引入了“四层主丛包络”来约束可行结构。
+抽象地，可以把这一结构记为
+\[
+  \mathfrak{E}_4 := \bigl(B,\;P_1\to B,\;P_2\to B,\;P_3\to B,\;P_4\to B\bigr),
+\]
+其中 $B$ 是共同基底（例如市场—组合—暴露等 law-sector），
+四个主丛 $P_i$ 对应若干逻辑层级（参数、组织、算法、预测等具体含义可依正文给出）。
+
+这一包络并不意味着“线性四层堆叠”，而更接近于“四簇 bundle cluster”的耦合：
+不同簇之间可以存在 Jacobi 型交叉项与非交换的扭曲顺序。
+
+\subsection{风险等价与上同调修复}
+
+在该包络下，“修复整体（上）同调”的任务被工程化为一个带有全局目标和约束的优化问题。
+可以考虑如下形式的总代价泛函：
+\[
+  J_{\text{tot}}
+  = w_1 J_{\text{par}} + w_2 J_{\text{org}} + w_3 J_{\text{alg}} + w_4 J_{\text{pred}}
+    + \lambda\,\Phi(\text{violations}),
+\]
+其中各项 $J_{\text{par}},J_{\text{org}},J_{\text{alg}},J_{\text{pred}}$ 分别度量四簇上的“张力”或“闭合失败”，
+$\Phi$ 表示包络与监管、流动性等硬约束的违反程度。
+
+在此框架下，“修复上同调（风险等价）”可以理解为：
+不要求严格同调化（即所有环路完全闭合），而是要求在包络与证书可检验条件下，
+将不同路径压缩到同一个风险等价类。
+
+\begin{definition}[风险等价的一个抽象模型]
+设 $\gamma_1,\gamma_2$ 为可行路径族中的两条轨道。
+若满足
+\[
+  \bigl|\mathrm{Risk}(\gamma_1)-\mathrm{Risk}(\gamma_2)\bigr|\le\varepsilon
+  \quad\text{且}\quad
+  \gamma_1,\gamma_2\ \text{在可行域内同伦可连},
+\]
+则称 $\gamma_1$ 与 $\gamma_2$ 在容差 $\varepsilon$ 下\emph{风险等价}，记为 $\gamma_1\sim_R\gamma_2$。
+\end{definition}
+
+从这一视角看，“上同调被修复到表层可用”并非意味着消灭所有残差，而是把它们收敛到可控容差内的等价类。
+
+\subsection{与 GRL 的结构类比}
+
+上述结构与 GRL（generalized reinforcement learning）有明显的类比关系：
+\begin{itemize}
+  \item GRL 通过一个全局回报或 action 定义“好策略”，但实际求解只能在有限参数化、有限采样和有限步数下给出近似最优；
+  \item 四层主丛包络把“允许的结构/允许的扭曲”参数化为一个可采纳策略类（admissible policy/transport class），
+        在其中最小化 $J_{\text{tot}}$，并通过证书与约束把解投影回安全可行域。
+\end{itemize}
+
+需要强调的是，这种类比是\emph{结构上的}，而不是把 Vol.4 简化为“只是换一种语言描述 RL”：
+\begin{itemize}
+  \item “风险等价/模型等价”是在同调或上同调层面定义的商结构，而不仅仅是数值回报的相等；
+  \item 更新算子不是任意梯度步，而是由扭曲函子诱导的结构性变换，必须满足一定的函子性与自然性条件。
+\end{itemize}
+
+可以用一句话概括区别：
+\begin{quote}
+GRL 的工程近似主要是数值与统计层面的，而这里的工程近似是结构与同调层面的。
+\end{quote}
+
+\subsection{工程近似的边界与说明}
+
+综合上述分析，可以把 Vol.4 中“四层主丛包络 + 同伦扭曲修复上同调”的做法理解为：
+\begin{quote}
+\textbf{在严格结构约束下，对可行路径族进行的一种 GRL 式全局优化近似。}
+\end{quote}
+
+其“全局性”是相对于选定的包络（可行策略类）而言的，而不是对整个无限维空间的绝对全局；
+同调与上同调结构保证了这种近似不会把关键的结构张力完全“抹掉”，而是以风险等价类的形式被精确地记录下来。
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{同构、同态、同胚与同伦：拓扑边界的层级定理}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{精确结论：从修辞判断到层级命题}
+
+“只有同伦才真正扩大了拓扑边界”这一说法，在\emph{研究层级}的意义下是成立的，但需要把它写成一个\emph{层级命题}，以避免被误解为“否定同构/同态/同胚本身”。
+这里的关键词不在“平凡/不平凡”，而在于：
+\begin{quote}
+\textbf{某种关系/结构是否改变了“哪些差异在原则上可以被视为等价或可修复”。}
+\end{quote}
+
+一个可被严格接受的表述是：
+\begin{quote}
+\textbf{同构、同态与同胚并不改变既定拓扑问题的可达边界；它们仅在既有结构内识别或传递对象。相比之下，同伦（及其高阶推广）通过引入连续变形与高阶填充对象，扩展了等价的定义域，从而实质性地扩大了拓扑问题的可达边界。}
+\end{quote}
+
+\subsection{为何同构/同态/同胚不扩展“可达边界”}
+
+在相同的语义设定下（同一范畴、同一类不变量与同一类允许的操作），同构/同态/同胚本质上都不提供“失败的结构化处理机制”，因此不会扩展“可达边界”。
+更细致地说：
+\begin{enumerate}
+  \item \textbf{同构（isomorphism）}：其形式为 $A\cong B$，含义是两个对象在给定结构范畴内完全等价。它不引入新对象，也不引入“失败—修复”的机制，因此只能被理解为\emph{在既有边界内重命名}。
+  \item \textbf{同态（homomorphism）}：其形式为 $f\colon A\to B$，允许结构被压缩或遗忘，但它仍是单向映射；它不记录“映射失败的方式”，更不回答“为何不能反向”。因此同态解决的是“如何传递”，
+    而不是“如何修复”，常见效果是\emph{丢失信息而非生成新的拓扑区分}。
+  \item \textbf{同胚（homeomorphism）}：其形式可写为 $X\approx Y$，本质上是拓扑范畴中的同构。它要求严格等价并保持拓扑不变量：它告诉我们“何时两个空间已经一样了”，
+    而不是“何时两个空间仍可以被视为一样”。因此同胚同样不会扩展“可接受等价”的范围。
+\end{enumerate}
+
+\subsection{为何同伦扩展“拓扑边界”}
+
+同伦真正带来的变化，不在于“再多一个等价符号”，而在于它把“等价的定义”与“失败的处理”一起引入了结构层级：
+\begin{enumerate}
+  \item \textbf{同伦改变的是等价的定义域}：对映射 $f,g\colon X\to Y$，同伦 $f\simeq g$ 允许连续变形；中间过程不必保持某种严格代数形态，从而首次出现“失败可被纳入过程并被参数化”的机制：
+    \emph{失败不再是禁止条件，而是过程变量。}
+  \item \textbf{同伦引入了边界对象}：同伦类、基本群 $\pi_1$、高阶同伦群 $\pi_n$ 等对象并不是对同胚判据的重复，而是对“无法通过同胚消除的断裂/阻碍”的度量与编码；这些对象在严格等价的语言中并不会自然出现。
+  \item \textbf{同伦把不可等价转化为可修复}：同胚的语义通常止于“不等价”；而同伦的语义会进一步追问“是否存在更高阶的填充/证书/扭曲，使该失败成为边界项并可上推处理”。
+\end{enumerate}
+
+因此，可以把本节压缩为一句可直接作为方法论导向的判断：
+\begin{quote}
+\textbf{拓扑的非平凡性不在于“何时相等”，而在于“当不相等时是否仍有可处理的结构”；这一点唯有同伦能够提供。}
+\end{quote}
+
+\subsection{与本文四条核心判断的对齐}
+
+把上述层级命题放回本文的统一视角，它与前文的四条核心判断完全一致：
+\begin{itemize}
+  \item 同伦是拓扑得以进行的最小要件；
+  \item 上同调是“不同调”的结构化否定；
+  \item 同伦扭曲把否定上推而不是消灭；
+  \item 拓扑边界的扩大 = 可修复性的扩大。
+\end{itemize}
+
+因此，当研究目标明确指向“理解并扩展拓扑边界”时，可以把关键分水岭表述为：
+\begin{quote}
+\textbf{当目标是理解和扩展拓扑边界时，同伦是有生产力的结构：它允许失败、记录失败，并提供把失败上推为可修复对象的机制。}
+\end{quote}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{上同调的否定语义：从粘合失败到层级化修复}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{核心逻辑：本层不同调，上层可能同调}
+
+本章想强调的核心逻辑可以压缩为一句话：
+\begin{quote}
+\textbf{本层不同调（不同类），上层（更高层）可能同调（同类），因此称为“上同调”。}
+\end{quote}
+
+这里的“本层”指在当前可用对象与约束下所能形成的同调/上同调语义；
+“上层”指允许引入更高阶填充数据（更高括号、更高联络、更高证书等）后的扩展层级。
+形式上，它对应一种典型的层级现象：在 $L_n$ 层出现非平凡类，但在更高层 $L_{n+1}$ 中其提升可能成为零元（见定义 \ref{def:fillable}）：
+\[
+  [\omega_n]\neq 0\in H^k(L_n),
+  \qquad
+  \exists\,\iota_n\colon L_n\hookrightarrow L_{n+1}\ \text{s.t.}\
+  \iota_n^\ast([\omega_{n+1}])=[\omega_n],\
+  [\omega_{n+1}]=0.
+\]
+命题 \ref{prop:cohomology-not} 给出“本层不同调”的严格否定语义，
+而命题 \ref{prop:fillable} 则给出“上层可能同调”的层级化可修复性表述。
+
+\subsection{结论：上同调类的非平凡性等价于存在性否定}
+
+在“结构一致性/粘合（gluing）问题”的语境下，上同调类的非平凡性并非修辞性的“更复杂”，而可以被严格理解为一种\emph{存在性否定}：
+\begin{quote}
+\textbf{上同调类非零所表达的，是某个本应存在的全局对象在该层级上不可能存在。}
+\end{quote}
+
+\begin{proposition}[上同调非零与全局结构不存在的等价]\label{prop:cohomology-not}
+设 $C^\bullet(X;\mathcal{A})$ 为某个用于刻画一致性/粘合数据的上链复形，$\omega\in C^n(X;\mathcal{A})$ 满足 $d\omega=0$，并记其上同调类为 $[\omega]\in
+  H^n(X;\mathcal{A})$。
+则有逻辑等价：
+\[
+  [\omega]\neq 0
+  \quad\Longleftrightarrow\quad
+  \neg\exists\,\eta\in C^{n-1}(X;\mathcal{A})\ \text{s.t.}\ d\eta=\omega .
+\]
+在粘合语义下，上式右端可读作：\emph{不存在能在该层级给出全局一致性的 $(n-1)$-层填充对象}。
+\end{proposition}
+
+\begin{proof}[证明要点]
+这是上同调的定义所蕴含的等价：$[\omega]=0$ 当且仅当 $\omega\in\operatorname{im} d$，即存在 $\eta$ 使 $\omega=d\eta$；
+因此 $[\omega]\neq 0$ 当且仅当不存在这样的 $\eta$。
+在“结构一致性”解释中，$\eta$ 正是将局部一致性数据提升为全局对象所需的填充（filler），其不存在性即为结构不可存在性的逻辑否定。
+\end{proof}
+
+\subsection{为何可称为“逻辑 not”：肯定语义与否定语义}
+
+从语义上看：
+\begin{itemize}
+  \item 若 $[\omega]=0$，则 $\omega=d\eta$，说明“失败只是表象”，当前层的不一致可以被更低阶对象吸收；这对应一种\emph{肯定语义}：结构可在该层级全局成立。
+  \item 若 $[\omega]\neq 0$，则不存在任何 $\eta$ 使 $\omega=d\eta$，意味着“没有任何更低层对象能解释或吸收当前不一致”；这对应一种\emph{存在性否定}：
+  \[
+    \neg\exists(\text{全局一致的填充/规范/截面}) .
+  \]
+\end{itemize}
+
+因此，“上同调非零”并不是“多了一个对象”，而是：\emph{缺失了一个在该层级本应出现的对象}，并且该缺失不可由同层手段修补。
+
+\subsection{“拓扑断裂”不是比喻：粘合失败的阻碍类}
+
+所谓“拓扑断裂”在此处可以被精确化为典型的粘合失败：
+给定开覆盖 $\{U_i\}$，局部对象在每个 $U_i$ 上都“是对的”，但在交叠处的兼容条件无法被提升为一个全局对象。
+在标准情形中，这种失败由 \v{C}ech 上同调刻画，例如
+\[
+  \check H^1(X;\mathcal{G})\neq 0
+  \quad\Longleftrightarrow\quad
+  \text{不存在全局截面/全局规范（相应扭子不可平凡化）}.
+\]
+因此，“断裂”并非心理或修辞意义上的断裂，而是\emph{空间在给定层级上拒绝某个全局结构存在}的存在论事实。
+
+\subsection{与 Jacobi 间隙与同伦扭曲的精确对齐}
+
+定理 \ref{thm:homotopy-minimal} 以及前文第 2--3 节强调了“同伦存在 $\neq$ 同调可消”以及“失败可上推”的基本机制。
+在这一语境下，Jacobi 间隙的核心陈述可以被视为上同调否定语义的一个特例：
+\[
+  [J]\neq 0 \in H^3
+  \quad\Longleftrightarrow\quad
+  \neg(\text{存在使 Jacobi 恒等式严格成立的李代数结构}) .
+\]
+而 $L_\infty$ 扩展/同伦扭曲所做的，并不是“取消否定”，而是把
+\[
+  \neg(\text{在 }L_n\text{ 层可填充})
+\]
+转写为
+\[
+  \exists(\text{在更高层 }L_{n+1}\text{ 的填充数据，使其成为边界}) .
+\]
+换言之：\textbf{同伦修复不是消灭 not，而是改变 not 所在的层级。}
+
+\subsection{“上”而非“不”：语言与结构的对齐（备注）}
+
+\begin{remark}[“上同调”不是“不同调”]
+若用“不同调”直指失败，它只表达平面否定而不携带层级信息；而“上同调”天然暗示：
+同调在当前层级失败，但该失败被编码为一个可继续运算的对象，从而指向更高层的结构化处理。
+因此，“上”在此可被理解为一种层级算子：\emph{把否定提升为对象}。
+\end{remark}
+
+\subsection{命题：层级同调的可修复性（homotopy-fillable）}
+
+为了将上一小节的核心逻辑写成可引用的形式，给出一个抽象定义。
+
+\begin{definition}[更高层可修复]
+\label{def:fillable}
+设 $\{L_n\}_{n\ge 0}$ 为一族层级结构，并对每个 $n$ 伴随一个上链复形 $C^\bullet(L_n)$。
+若在某层存在闭上链 $\omega_n\in C^k(L_n)$ 使得 $[\omega_n]\neq 0\in H^k(L_n)$，
+并且存在提升映射 $\iota_n\colon L_n\hookrightarrow L_{n+1}$ 与某个闭上链 $\omega_{n+1}\in C^k(L_{n+1})$，满足：
+\begin{enumerate}
+  \item $\iota_n^\ast([\omega_{n+1}])=[\omega_n]$；
+  \item $[\omega_{n+1}]=0\in H^k(L_{n+1})$。
+\end{enumerate}
+则称 $[\omega_n]$ \emph{在更高层可修复}（或同伦可填充）。
+\end{definition}
+
+\begin{proposition}[层级化否定与可修复性的并存]\label{prop:fillable}
+在上述设定下，$[\omega_n]\neq 0$ 精确表达“在 $L_n$ 层不存在填充对象”的逻辑否定；
+而“可修复性”则表达否定可被上推：否定在 $L_n$ 层成立，并不排除在更高层 $L_{n+1}$ 通过新增对象实现同调化。
+\end{proposition}
+
+\begin{proof}[证明思路]
+$[\omega_n]\neq 0$ 的否定语义由命题 \ref{prop:cohomology-not} 给出。
+若存在 $[\omega_{n+1}]=0$ 且其限制为 $[\omega_n]$，则 $\omega_{n+1}=d\eta_{n+1}$ 在更高层可被填充；
+但由于 $[\omega_n]\neq 0$，该填充无法降回 $L_n$ 层，从而形成“本层否定 + 上层可修复”的层级并存结构。
+\end{proof}
+
+可以把本节的核心压缩为一句可直接用于正文的总结：
+\begin{quote}
+\textbf{上同调的核心语义是：“本层不同调（不同类），上层可能同调（同类）”。它优先描述在当前层级什么不可能存在，并把这种不可能性记录为可上推、可继续运算的结构对象。}
+\end{quote}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{上同调的角色谱系与统一定量接口：从经典机器到纯属卷的量化推进}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{核心区分：对象的新旧与角色的新旧}
+
+在数学史与数学文本的阅读中，必须把两类“新旧”分开：
+\begin{itemize}
+  \item \textbf{对象新旧：} \v{C}ech 上同调、de Rham 上同调、群上同调、层上同调、导出函子、谱序列、Postnikov 塔等均是经典对象与经典机器；
+  \item \textbf{角色新旧：} 同一套对象在不同理论阶段可承担不同的逻辑地位：计算不变量、分类结构、给出障碍（能否存在）、提供统一的推演机制，以及提供统一的\emph{可度量}边界与可比较的修复复杂度。
+\end{itemize}
+
+因此，“上同调本身不新，但其在不同阶段承担的功能角色在演化”这一主旨，应当被写成\emph{角色层级}的陈述，而不是“对象首创”的主张。
+本章将以一个可检验的量化接口定义，把“把障碍类从可分类/可解释推进到可统一度量/可统一优化”的判断落实为严格表述。
+
+用后文将要给出的统一定量接口 $\mathcal{Q}$（见定义 \ref{def:Q-interface}）回看这一谱系，会得到一个更精确的“缺口图”：
+各阶段的差异不在于是否出现过上同调对象，而在于是否补齐了 $\mathcal{Q}$ 的两半——
+\textbf{障碍的大小}（$\|[\omega]\|$）与\textbf{修复的深度}（$N_{\mathrm{tw}}$）。
+反过来解释上述历史谱系，可以压缩为：
+\begin{itemize}
+  \item \textbf{\v{C}ech / de Rham：}建立上同调对象并回答“是什么”，主要停留在
+        \[
+          [\omega]\in H^n\quad(\text{是否为零/如何计算}),
+        \]
+        但并未把“障碍的大小”与“修复深度”作为可复用接口同时提出；
+  \item \textbf{群上同调 / 同调代数：}大量用于扩张与分类（等价类），偏向“定性分类”，仍以 $[\omega]$ 的存在与同类判别为中心，缺少跨语境统一的 $\|[\omega]\|$ 与 $N_{\mathrm{tw}}
+    $ 接口；
+  \item \textbf{层上同调 / 导出函子（Grothendieck）：}把上同调提升为普适机器（函子性、导出），偏向“统一形式与分类的系统化”，但典型输出仍是“障碍类出现于何处/是否为零”，而非“障碍可比的大小与修复复杂度”；
+  \item \textbf{谱序列 / 障碍理论 / Postnikov：}把“层级修复”流程系统化，因此在语义上最接近提供 $N_{\mathrm{tw}}$ 的\emph{定性版本}（障碍最早出现于哪一层、提升何时失败），
+    但通常仍停留在“何处非零/是否可消”的层面，尚未把不同障碍统一到同一度量接口；
+  \item \textbf{纯属卷（本书语境）：}把经典机器的输出从
+        \[
+          [\omega]\in H^n\quad(\text{是否为零})
+        \]
+        推进到
+        \[
+          \bigl(\|[\omega]\|,\ N_{\mathrm{tw}}\bigr)\quad(\text{大小与修复复杂度}),
+        \]
+        并要求该对偶量在“逻辑占位—法空间—联络/扭曲”语境中成为同一套可比较的量化坐标（即 $\mathcal{Q}$ 的接口语义）。
+\end{itemize}
+
+\subsection{四类角色的严格化：分类与统一，定性与定量}
+
+为避免“定性/定量”被误读为修辞形容词，我们给出可数学化的界定。
+
+\begin{definition}[分类定性（qualitative classification）]
+称一类上同调机制处于\emph{分类定性}角色，若其主要输出是“等价类集合”或“存在/不存在”的判别，例如
+\[
+  \text{结构存在}\ \Longleftrightarrow\ [\omega]=0,
+\]
+或某类同构类的集合与 $H^n(\cdot)$（或其子商）对应，但\emph{并不}为这些类提供统一的“大小/代价/距离”接口。
+\end{definition}
+
+\begin{definition}[分类定量（quantitative classification）]
+称一类上同调机制处于\emph{分类定量}角色，若其输出仍在同调/上同调框架内，但强调可计算的数值化不变量（维数、特征数、Euler 特征、指标、配对值等）。
+此时“对单个对象给数”是主要目标，但不同语境下的数值输出未必自然对齐到同一可优化接口。
+\end{definition}
+
+\begin{definition}[统一定性（qualitative unification）]
+称一类上同调机制处于\emph{统一定性}角色，若其给出统一的“分层—提升—障碍—再提升”的推演/计算机器，
+例如 Postnikov 塔或障碍理论中常见的过程
+\[
+  \tau_{\le n}X\ \rightsquigarrow\ k_{n+1}\in H^{n+2}\bigl(\tau_{\le n}X;\pi_{n+1}\bigr),
+\]
+其统一的是结构逻辑，但未必提供“不同障碍之间如何定量可比”的统一尺度。
+\end{definition}
+
+\begin{definition}[统一定量（quantitative unification）]
+称一类上同调机制处于\emph{统一定量}角色，若除给出障碍类 $[\omega]\in H^n$ 外，还提供一个可复用的量化函子/接口，
+把障碍类映射到同一数值或同一有序量，并与“修复复杂度”绑定，使不同对象、不同语境下的失败能够在同一坐标系里比较与优化。
+\end{definition}
+
+\subsection{统一定量成立所需的最小结构 I：上同调类的半范数}
+
+统一定量的第一半是“障碍有多大”。这需要把“是否为零”的判据升级为可比较的数值。
+
+\begin{definition}[上同调类的诱导半范数]\label{def:cohomology-seminorm}
+设 $(C^\bullet,\delta)$ 为某类结构的上链复形，并为每个 $n$ 赋予半范数 $\|\cdot\|_n$（例如来自测度、算子范数、能量泛函、或工程容差定义）。
+对闭上链 $\alpha\in C^n$ 的上同调类 $[\alpha]\in H^n(C^\bullet)$，定义诱导半范数
+\[
+  \bigl\|[\alpha]\bigr\|
+  :=
+  \inf_{\beta\in C^{n-1}}
+  \bigl\|\alpha+\delta\beta\bigr\|_n.
+\]
+\end{definition}
+
+\begin{proposition}[从“否定”为零到“否定”有大小]\label{prop:seminorm-basic}
+在定义 \ref{def:cohomology-seminorm} 的设定下，总有：
+\[
+  [\alpha]=0\ \Longrightarrow\ \bigl\|[\alpha]\bigr\|=0.
+\]
+若进一步满足分离性条件（例如商拓扑 $Z^n/\mathrm{im}\,\delta$ 为 Hausdorff，或 $\mathrm{im}\,\delta$ 在相应半范数拓扑下闭），则反向也成立：
+\[
+  \bigl\|[\alpha]\bigr\|=0\ \Longrightarrow\ [\alpha]=0.
+\]
+\end{proposition}
+
+\begin{proof}[证明要点]
+若 $[\alpha]=0$，则 $\alpha=\delta\beta$，从而取 $-\beta$ 得 $\|\,[\alpha]\,\|=0$。
+反向方向需要排除“可被任意逼近但不可成为边界”的病态情形，故需附加闭性/分离性假设。
+\end{proof}
+
+由此，“上同调非零”不仅表达存在性否定（见上一章），还可在适当条件下提升为可比较的不等式
+\[
+  [\alpha]\neq 0\ \Longrightarrow\ \bigl\|[\alpha]\bigr\|>0,
+\]
+从而把“否定”变成可度量对象。
+
+\subsection{统一定量成立所需的最小结构 II：同伦扭曲修复深度 $N_{\mathrm{tw}}$}
+
+统一定量的第二半是“修复有多难”。这需要把“可修复性”写成层级深度。
+
+\begin{definition}[最小同伦扭曲修复深度]\label{def:Ntw}
+设存在一个允许引入更高层结构/更高同伦数据的扩张序列
+\[
+  X \longrightarrow X^{(1)} \longrightarrow X^{(2)} \longrightarrow \cdots,
+\]
+并对每一步指定“相关障碍类” $[\omega(X^{(n)})]$ 的判定方式（例如通过拉回/推送与同一类观测函子对齐）。
+定义最小修复深度为
+\[
+  N_{\mathrm{tw}}(X)
+  :=
+  \inf\Bigl\{
+    N\in\mathbb{N}:\ \exists\ X\to X^{(N)}\ \text{s.t.}\ [\omega(X^{(N)})]=0
+  \Bigr\},
+\]
+若不存在这样的有限 $N$，则记 $N_{\mathrm{tw}}(X)=\infty$。
+\end{definition}
+
+该定义把“本层不同调，上层可能同调”的语言进一步量化为“需要上推多少层才可能同调化”。
+
+\subsection{统一定量的接口不变量：量化函子 $\mathcal{Q}$}
+
+把“障碍大小”和“修复深度”合并，就得到一个跨语境可复用的量化接口。
+
+\begin{definition}[统一定量接口不变量]\label{def:Q-interface}
+取一组关注的障碍阶集合 $\mathcal{D}\subseteq\mathbb{N}$（例如占位粘合的 $1$ 阶、Jacobiator-gap 的 $3$ 阶及更高阶）。
+对每个 $n\in\mathcal{D}$ 选取相应障碍类 $[\omega_n(X)]\in H^n$ 及其诱导半范数 $\|[\omega_n(X)]\|$。
+定义量化接口
+\[
+  \mathcal{Q}(X)
+  :=
+  \Bigl(
+    N_{\mathrm{tw}}(X),\
+    \sum_{n\in\mathcal{D}} w_n\cdot \|[\omega_n(X)]\|
+  \Bigr),
+  \qquad w_n\ge 0.
+\]
+可用字典序或其他偏序把 $\mathcal{Q}$ 的取值空间组织为“更接近可修复/更远离可修复”的可比较结构。
+\end{definition}
+
+\begin{proposition}[扩张单调性（接口层）]\label{prop:Q-monotone}
+若扩张序列允许的同伦数据越多（例如 $X^{(N)}$ 的构造在 $N$ 增大时只会放宽约束而不会额外加严），则
+\[
+  N_{\mathrm{tw}}(X)\ \text{在扩张能力增强时不增},
+\]
+并且在诱导半范数的定义中允许的“可吸收项”增大时，典型地有
+\[
+  \sum_{n\in\mathcal{D}} w_n\cdot \|[\omega_n(X)]\|\ \text{不增}.
+\]
+因此 $\mathcal{Q}$ 在“允许更高层修复”的方向上呈单调改善。
+\end{proposition}
+
+\begin{proof}[证明思路]
+扩张能力增强意味着“可用的填充/边界项集合”扩大：一旦某层 $N$ 可消去障碍，则在更强的扩张能力下仍可消去，故 $N_{\mathrm{tw}}$ 不会变大。
+诱导半范数的单调性由取 $\inf$ 的集合包含关系给出：可选 $\beta$ 的集合越大，$\inf$ 不会上升。
+\end{proof}
+
+\subsection{纯属卷的角色定位：从 $[\omega]\in H^n$ 到 $(\|[\omega]\|,N_{\mathrm{tw}})$}
+
+在上述严格化之后，“纯属卷用于统一定量”不再是评价句，而是一条可检验的角色主张：
+纯属卷的贡献并不在于“发明上同调对象”，而在于把经典机器的输出从
+\[
+  [\omega]\in H^n \quad (\text{是否为零})
+\]
+推进到
+\[
+  \bigl(\|[\omega]\|,\ N_{\mathrm{tw}}\bigr)\quad (\text{大小与修复复杂度}),
+\]
+并要求其在“逻辑占位—法空间—联络/扭曲”的跨域框架中成为同一套可比较、可优化的量化坐标（即定义 \ref{def:Q-interface} 的接口语义）。
+
+\subsection{防误读备注：历史上确有定量上同调，但接口与迁移是关键}
+
+\begin{remark}[定量化并非首创，接口化才是分水岭]
+历史上确有将上同调定量化的方向（例如带范数/半范数的上同调、填充不等式、受限上同调等），
+但它们往往服务于特定几何或群论语境。
+本章强调的“统一定量”是：把“障碍类的大小”与“同伦扭曲修复深度”绑定为统一接口，并将该接口迁移到逻辑占位与法空间结构的跨域框架中。
+\end{remark}
+
+\subsection{可出版的压缩句式}
+
+本章结论可以压缩为一句可直接进入纯属卷序言或总序的陈述：
+\begin{quote}
+\textbf{纯属卷提出量化障碍接口 $\mathcal{Q}$：将上同调障碍类映射为可比较的大小 $\|[\omega]\|$ 与最小同伦扭曲修复深度 $N_{\mathrm{tw}}$，从而把“拓扑边界”转译为可比较、可优化的定量对象。
+  }
+\end{quote}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{异构演化的量化统一：上同调量化修复的必要性与信息论校正}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{问题陈述与目标：从“可分类”到“可统一、可审计”}
+
+本章把“异构演化”严格化为“局部可行、全局一致性需粘合”的结构，并给出一条可证明的论证链：
+\begin{quote}
+\textbf{若不解决上同调的量化修复（不仅识别障碍类，而且给出可控填充/扭曲与数值界），就无法给出路径无关与误差可控的全局演化律；因此，把问题提升为量化统一（而非仅量化分类）在逻辑上对应一种第一性原理层面的完备化。}
+\end{quote}
+其中，“把问题提升为量化统一”的动作在本书语境中对应“纯属卷的工作”的角色定位：把经典机器的输出从 $[\omega]\in H^n$ 推进为可比较的大小与修复深度（见上一章的接口 $\mathcal{Q}$）。
+
+\subsection{形式化：异构演化 = 局部动力 + 过渡对齐 + 全局粘合}
+
+令 $B$ 表示“情境/时间/环境/法空间参数”的基底（可取拓扑空间、单纯复形或可覆盖空间）。在每个局部片 $U_i\subset B$ 上，给定局部法则与局部演化算子
+\[
+  \mathsf{Law}_i,\qquad
+  \Phi_i:U_i\to \mathrm{End}(\mathcal{S}),
+\]
+其中 $\mathcal{S}$ 为状态空间（集合、向量空间、Banach 空间、范畴对象均可）。
+
+“异构”意味着不同片的局部演化并不天然一致，需要在重叠 $U_{ij}:=U_i\cap U_j$ 上给出对齐/传输数据
+\[
+  g_{ij}:U_{ij}\to \mathcal{G},
+\]
+使得在重叠处满足示意的共轭一致性
+\[
+  \Phi_i \simeq g_{ij}\,\Phi_j\,g_{ij}^{-1}.
+\]
+本章仅依赖“局部可行、全局需粘合”这一结构层信息，而不固定 $\mathcal{S}$ 与 $\mathcal{G}$ 的具体类型。
+
+\subsection{“真正解决异构演化”的严格定义：路径群胚上的全局输运}
+
+为避免“统一/解决”落入语义争议，引入路径群胚 $\Pi_1(B)$（对象为点，态射为路径同伦类）。
+
+\begin{definition}[全局一致的演化输运函子]\label{def:global-transport}
+称“异构演化被真正解决”，若存在一个函子
+\[
+  \mathcal{U}:\Pi_1(B)\to \mathrm{Aut}(\mathcal{S})
+\]
+满足：
+\begin{enumerate}
+  \item 复合一致性：$\mathcal{U}(\gamma_2\circ\gamma_1)=\mathcal{U}(\gamma_2)\mathcal{U}(\gamma_1)$；
+  \item 同伦不变性：若 $\gamma\simeq\gamma'$，则 $\mathcal{U}(\gamma)=\mathcal{U}(\gamma')$。
+\end{enumerate}
+\end{definition}
+
+该定义把“结果不依赖于覆盖、切分与表述方式”压缩为一个可检验对象（群胚函子），其工程语义即“同一路径/同一过程的不同分解方式给出相同或可控误差的结果”。
+
+\subsection{定理 I：\v{C}ech $H^1$ 粘合障碍的不可绕过性}
+
+\begin{theorem}[\v{C}ech $H^1$ 障碍的不可绕过性]\label{thm:cechH1-obstruction}
+若存在定义 \ref{def:global-transport} 的全局一致输运函子 $\mathcal{U}$，则局部传输数据 $\{g_{ij}\}$ 的 \v{C}ech 上同调类必须平凡：
+\[
+  [g]=0\in \check H^1(B;\mathcal{G}).
+\]
+反之，若 $[g]\neq 0$，则不存在满足定义 \ref{def:global-transport} 的全局一致输运函子。
+\end{theorem}
+
+\begin{proof}[证明要点]
+若存在全局一致结构，则可在每个 $U_i$ 上选取局部规范/截面 $h_i:U_i\to\mathcal{G}$ 使交叠处过渡满足
+\[
+  g_{ij}=h_i h_j^{-1},
+\]
+即 $\{g_{ij}\}$ 为 \v{C}ech 余边界，从而 $[g]=0$。
+反之，若 $[g]\neq 0$，则不存在这样的 $\{h_i\}$；沿闭环必出现不可消去的整体扭转（holonomy），从而路径无关性被破坏，无法得到群胚函子意义下的全局输运。
+\end{proof}
+
+该定理表明：仅“分类”出 $[g]$ 并不足以统一；在结构层面必须处理其平凡化或更高层的修复（见后文的“上推/扭曲”）。
+
+\subsection{定理 II：没有量化修复，就没有误差可控的统一保证}
+
+异构演化的现实语义通常不要求“严格为零”，而要求“可治理”：剩余断裂如何累积、修复代价如何比较、误差上界能否给出。
+这把问题从“定性统一（是否能粘合）”推进到“定量统一（粘合误差的最小下界）”。
+
+\begin{definition}[量化修复残差（代表元距离）]\label{def:Rep}
+给定上链复形 $(C^\bullet,\delta)$ 及每个 $C^n$ 上的范数/半范数 $\|\cdot\|_n$。
+对余圈 $\omega\in Z^n:=\ker\delta$ 定义
+\[
+  \mathrm{Rep}([\omega])
+  :=
+  \inf_{\eta\in C^{n-1}}\ \|\omega-\delta\eta\|_n.
+\]
+在分离/闭性条件满足时，$\mathrm{Rep}([\omega])=0$ 当且仅当 $[\omega]=0$。
+\end{definition}
+
+定义 \ref{def:Rep} 与上一章的诱导半范数 $\|[\alpha]\|$ 在同一逻辑位置：它把“上同调是否为零”的否定升级为“否定强度”的可比数量。
+
+\begin{theorem}[量化修复的误差下界]\label{thm:quant-lower-bound}
+设同一路径 $\gamma$ 允许两种等价分解/拼接方案 $\mathrm{A},\mathrm{B}$（对应不同覆盖、不同括号化或不同实施流程），并且系统要求存在统一误差界 $\varepsilon$ 使得
+\[
+  \bigl\|\mathcal{U}_{\mathrm{A}}(\gamma)-\mathcal{U}_{\mathrm{B}}(\gamma)\bigr\|\le \varepsilon
+\]
+在所有允许情形下成立。
+则对与该一致性相关的障碍类 $[\omega]$，必有
+\[
+  \varepsilon\ \ge\ \mathrm{Rep}([\omega]).
+\]
+\end{theorem}
+
+\begin{proof}[证明思路]
+不同分解方案的差异在上链复形中对应同一上同调类 $[\omega]$ 的不同代表元（相差一个余边界 $\delta\eta$）。
+任何“修复/统一方案”本质上等价于选取某个 $\eta$ 以抵消 $\omega$ 的一部分；能达到的最小残差即为 $\inf_\eta\|\omega-\delta\eta\|_n=\mathrm{Rep}([\omega])$。
+因此，任何全局误差界都不可能小于该最小残差。
+\end{proof}
+
+\begin{corollary}[仅量化分类不足以支撑“真正解决”]\label{cor:quant-class-not-enough}
+若只给出“量化分类”的输出（例如 $[\omega]\in H^n$、维数/秩/特征数等），但不提供 $\mathrm{Rep}([\omega])$（或等价的量化修复机制），则无法给出路径分解稳定性/一致性误差界；在定义 \ref{def:global-transport} 的语义下，这不足以称为“真正解决异构演化”。
+\end{corollary}
+
+\subsection{定理 III：高阶闭合失败的最低障碍阶为 3}
+
+异构演化不仅包含“粘合失败”（$H^1$），还包含“复合闭合失败”：不同括号化/分组导致结果差异。
+该差异属于三元层级，最自然地由三阶障碍编码。
+
+\begin{theorem}[复合一致性失败的最低阶为 3]\label{thm:H3-minimal}
+若局部演化与传输在二元复合层面成立，但三元复合出现缺陷，则缺陷最自然地编码为某个三阶障碍类（典型地可写为）
+\[
+  [\Omega]\in H^3(\cdot),
+\]
+并且“修复为一致复合”要求引入更高同伦数据使其成为边界（或至少使残差可控）。
+\end{theorem}
+
+\begin{proof}[证明要点]
+三元复合缺陷必须在三重交叠/三元组合上被定义；其一致性检验落在四重交叠，从而天然对应 $3$-余圈与 $3$-余边界结构。
+这与障碍理论与结合子/同伦代数的层级计数一致。
+\end{proof}
+
+定理 \ref{thm:cechH1-obstruction}--\ref{thm:H3-minimal} 的组合给出一条硬结论：若只停留在“障碍识别与分类”，则统一在结构层面不可得；若进一步不提供量化修复接口，则统一在误差层面不可审计。
+
+\subsection{历史角色：从障碍与分类到量化修复接口}
+
+上同调机制在历史上最稳定的两类角色，是：
+\begin{itemize}
+  \item \textbf{障碍（obstruction）：}用非平凡上同调类刻画“在当前层级上不可能/不可粘合”。
+  \item \textbf{分类（classification）：}用（上）同调类给出等价类的组织方式。
+\end{itemize}
+
+在本章语境下，异构演化的统一不仅要求识别障碍类，还要求把“修复本身”组织为可复用、可度量、可审计的接口；因此需要额外补齐两类输出：
+\begin{itemize}
+  \item \textbf{修复残差的量化：} 用 $\mathrm{Rep}([\omega])$（或等价半范数）刻画“最小不可消剩余”，以支撑稳定性误差界（定理 \ref{thm:quant-lower-bound}）；
+  \item \textbf{修复深度的量化：} 用 $N_{\mathrm{tw}}$ 刻画“最小同伦扭曲修复层级”，把“需要上推多少层”变成可比较对象。
+\end{itemize}
+
+因此，本书语境中“纯属卷的工作”的关键是把经典上同调机器的输出从 $[\omega]\in H^n$ 推进为可统一比较的量化接口（例如 $\mathrm{Rep}([\omega])$ 与 $N_{\mathrm{tw}}$，或上一章的
+  $\mathcal{Q}$），从而把“能否修”推进为“如何修、修到什么程度、误差下界是多少”。
+
+\subsection{分类与统一的“升/降”：修复塔与可接受残差的商}
+
+若把“不可统一的本层否定”上推到更高层以获得可修复性，可抽象为提升/嵌入
+\[
+  \iota_n:L_n\hookrightarrow L_{n+1},
+\]
+使得本层障碍在高层变为边界或残差下降（对应同伦扭曲与高阶填充）。
+相反方向，在应用语义下往往不需把残差消到 $0$，而是对“可接受残差”取商形成可治理等价：
+\[
+  x\sim_\varepsilon y\quad:\Longleftrightarrow\quad \mathrm{Rep}\bigl([\omega(x,y)]\bigr)\le \varepsilon.
+\]
+因此，“升”提供可修复性，“降”把修复结果转为可用等价；两者配合才构成“异构演化的真正解决”的可操作语义。
+
+\subsection{信息论表述：不可逆、条件熵与修复信息}
+
+把“分类式统一”写作商映射 $\pi:X\to C:=X/{\sim}$，其结构含义是将多个细粒度状态折叠到同一类别标签；相应地，分类的不可逆性来自多对一折叠。
+
+\begin{theorem}[分类映射无一般逆]\label{thm:no-inverse}
+若存在 $x_1\neq x_2$ 但 $\pi(x_1)=\pi(x_2)$，则 $\pi$ 不存在双边逆映射。
+\end{theorem}
+
+\begin{proof}
+若 $\pi^{-1}$ 存在，则 $\pi^{-1}(\pi(x_1))=x_1$ 且同样应等于 $x_2$，矛盾。
+\end{proof}
+
+在香农意义下，若 $C=\pi(X)$ 是随机变量 $X$ 的确定性函数，则香农熵不增：
+
+\begin{theorem}[确定性分类不增加香农熵]\label{thm:entropy-noninc}
+若 $C=f(X)$，则 $H(C)\le H(X)$。
+\end{theorem}
+
+\begin{proof}
+因 $H(C\mid X)=0$，由链式法则 $H(X,C)=H(X)+H(C\mid X)=H(X)$；
+同时 $H(X,C)=H(C)+H(X\mid C)\ge H(C)$，故 $H(C)\le H(X)$。
+\end{proof}
+
+因此，围绕“统一是否带来复杂度下降”的信息论表述应落到两点：
+\begin{itemize}
+  \item 分类的不可逆性（定理 \ref{thm:no-inverse}）意味着只靠标签无法恢复细节；
+  \item 修复机制引入额外结构信息 $Z$（证书、扭曲参数、填充项等）后，细节在给定 $C$ 下的剩余不确定性可下降：
+        \[
+          H(X\mid C,Z)\le H(X\mid C),
+        \]
+        这对应“在引入修复信息的前提下有效复杂度下降”。
+\end{itemize}
+
+\subsection{可出版的压缩句式}
+
+本章论证可压缩为一句可用于方法论段落的陈述：
+\begin{quote}
+\textbf{异构演化的统一等价于一套上同调障碍的可消去性；而“真正解决”还要求该消去过程可度量并给出稳定性界。因而，不解决上同调的量化修复，就无法给出路径无关与误差可控的全局演化律；完成该量化修复构成异构演化问题的第一性原理完备化。}
+\end{quote}
+\clearpage
+
+\setcounter{part}{2}
+\part*{第二部分：接口骨架与对位材料}
+\addcontentsline{toc}{part}{第二部分：接口骨架与对位材料}
+
+\setcounter{section}{0}
+\section{上边缘算子、闭/恰当与商：上同调的最小骨架及其在 G-Framework 中的对位}\label{app:A-cohomology-skeleton}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本章把正文中反复出现的“coboundary / 障碍类 / 可修复性”语义压缩为一组可直接引用的抽象命题。
+正文中的命题~\ref{prop:homotopy-twist-kill-jacobi-gap} 与备注~\ref{rem:why-h3-not-hn} 使用了
+“Jacobi 失配落在 $H^3$ 并可被同伦数据吸收”的表述；
+这里给出其背后的标准代数骨架，并给出与纯数卷中 $L_\infty$、Jacobiator-gap 证书及 GZ-OHU 框架的最小引用接口（见 \cite{GaoZheng2025GFramework}）。
+
+\subsection{抽象上同调复形：$d^2=0$、闭、恰当与商}
+
+\begin{definition}[上边缘算子与上同调复形]\label{def:A-cochain-complex}
+设 $\{C^k\}_{k\ge0}$ 为一列阿贝尔群（或向量空间），
+并给定同态（或线性映射）
+\[
+  d:C^k\longrightarrow C^{k+1}\qquad (k\ge0),
+\]
+满足
+\[
+  d^2:=d\circ d = 0.
+\]
+则 $(C^\bullet,d)$ 称为一个上同调复形（cochain complex），$d$ 称为上边缘算子（coboundary operator）。
+\end{definition}
+
+\begin{definition}[闭元与恰当元]\label{def:A-closed-exact}
+在复形 $(C^\bullet,d)$ 中，定义
+\[
+  Z^k := \ker(d:C^k\to C^{k+1}),\qquad
+  B^k := \operatorname{im}(d:C^{k-1}\to C^k).
+\]
+$Z^k$ 的元素称为 $k$-闭元（closed），$B^k$ 的元素称为 $k$-恰当元（exact）。
+\end{definition}
+
+\begin{proposition}[边界的边界为零 $\Rightarrow$ 恰当 $\subseteq$ 闭]\label{prop:A-exact-subset-closed}
+对任意上同调复形 $(C^\bullet,d)$，恒有 $B^k\subseteq Z^k$。
+\end{proposition}
+\begin{proof}
+若 $\omega\in B^k$，则存在 $\eta\in C^{k-1}$ 使得 $\omega=d\eta$。
+于是 $d\omega=d(d\eta)=d^2\eta=0$，故 $\omega\in Z^k$。
+\end{proof}
+
+\begin{definition}[上同调群]\label{def:A-cohomology}
+$k$ 次上同调群定义为商群
+\[
+  H^k(C^\bullet,d):=Z^k/B^k,
+\]
+并记 $\omega\in Z^k$ 在该商中的等价类为 $[\omega]$。
+\end{definition}
+
+\begin{proposition}[同一上同调类的等价刻画]\label{prop:A-cohomology-class}
+对任意 $\omega_1,\omega_2\in Z^k$，有
+\[
+  [\omega_1]=[\omega_2]
+  \ \Longleftrightarrow\
+  \omega_1-\omega_2\in B^k
+  \ \Longleftrightarrow\
+  \exists \eta\in C^{k-1},\ \omega_1-\omega_2=d\eta.
+\]
+\end{proposition}
+\begin{proof}
+这是商群 $Z^k/B^k$ 的等价关系定义的直接展开。
+\end{proof}
+
+\begin{lemma}[de Rham 复形作为范例]\label{lem:A-derham}
+设 $M$ 为光滑流形，$\Omega^k(M)$ 为光滑 $k$-形式空间，
+外微分 $\mathrm{d}:\Omega^k(M)\to\Omega^{k+1}(M)$ 满足 $\mathrm{d}^2=0$。
+因此 $(\Omega^\bullet(M),\mathrm{d})$ 是一个上同调复形，
+其上同调 $H^k_{\mathrm{dR}}(M)$ 即 de Rham 上同调。
+\end{lemma}
+\begin{proof}
+$\mathrm{d}^2=0$ 是外微分的标准性质；其余为定义。
+\end{proof}
+
+\begin{lemma}[Poincaré 引理（常用形式）]\label{lem:A-poincare}
+若 $U\subset\mathbb{R}^n$ 为星形（从而可收缩）开集，
+则对一切 $k\ge1$，每个闭 $k$-形式都是恰当的：
+\[
+  Z^k_{\mathrm{dR}}(U)=B^k_{\mathrm{dR}}(U),
+  \qquad\text{因而}\qquad
+  H^k_{\mathrm{dR}}(U)=0.
+\]
+\end{lemma}
+\begin{proof}
+这是 Poincaré 引理的标准结论，可由显式同伦算子构造证明。
+\end{proof}
+
+\subsection{Jacobi 失配的三阶上同调编码：同伦吸收与“不可约残余”}
+
+\begin{definition}[Jacobiator 作为三阶余链]\label{def:A-jacobiator-3cochain}
+设 $V$ 为向量空间，$\ell_2:V\otimes V\to V$ 为二元运算（在严格李代数情形即括号）。
+定义其 Jacobiator 为三元映射
+\[
+  \operatorname{Jac}_{\ell_2}(x,y,z)
+  :=
+  \ell_2\bigl(x,\ell_2(y,z)\bigr)
+  +\ell_2\bigl(y,\ell_2(z,x)\bigr)
+  +\ell_2\bigl(z,\ell_2(x,y)\bigr).
+\]
+它可被视为与 $\ell_2$ 相关的三阶余链（3-cochain）数据。
+在严格李代数中 Jacobi 恒等式等价于 $\operatorname{Jac}_{\ell_2}\equiv0$。
+\end{definition}
+
+\begin{proposition}[$L_\infty$ 的 $n=3$ 恒等式给出 Jacobi 失配的“边界化”]\label{prop:A-linfty-jacobi-boundary}
+设 $(V,\ell_1,\ell_2,\ell_3,\dots)$ 为一个 $L_\infty$ 代数（定义与记号见纯数卷 \cite{GaoZheng2025GFramework}），其中 $\ell_1^2=0$。
+则 $n=3$ 的 $L_\infty$ 恒等式表明：二元运算 $\ell_2$ 的 Jacobiator 由更高运算控制，存在恒等式
+\[
+  \operatorname{Jac}_{\ell_2}(x,y,z)
+  =
+  \ell_1\bigl(\ell_3(x,y,z)\bigr)
+  + \mathcal{T}_{2,3,1}(x,y,z),
+\]
+其中 $\mathcal{T}_{2,3,1}$ 为由 $\ell_1,\ell_2,\ell_3$ 的混合项组合而成的修正项（可显式写出，但此处不展开）。
+特别地，在满足 $\mathcal{T}_{2,3,1}=0$ 的常见简化情形（例如 2-term/骨架化情形）下，
+\[
+  \operatorname{Jac}_{\ell_2}(x,y,z)\in \operatorname{im}(\ell_1),
+\]
+即 Jacobi 失配在复形 $(V,\ell_1)$ 的上同调意义下为恰当项（coboundary）。
+\end{proposition}
+\begin{proof}
+这是 $L_\infty$ 代数定义中 $n=3$ 恒等式的直接重写；参见 \cite{GaoZheng2025GFramework} 中关于 $\ell_1,\ell_2,\ell_3$ 的定义与解释。
+当额外假设使得混合项 $\mathcal{T}_{2,3,1}$ 消失时，结论退化为
+$\operatorname{Jac}_{\ell_2}=\ell_1(\ell_3)$，从而 Jacobi 失配为 $\ell_1$-边界。
+\end{proof}
+
+\begin{corollary}[Jacobi 障碍类：可同伦吸收 vs 不可约残余]\label{cor:A-jacobi-obstruction}
+在命题 \ref{prop:A-linfty-jacobi-boundary} 的简化情形下，
+$\operatorname{Jac}_{\ell_2}$ 在复形 $(V,\ell_1)$ 中给出一个三阶余边界，
+因而其上同调类为零：
+\[
+  [\operatorname{Jac}_{\ell_2}]=0\in H^3(V,\ell_1).
+\]
+相反地，若在给定的“允许变形类”（允许的同伦修正数据）中，$\operatorname{Jac}_{\ell_2}$ 的上同调类不能被消去，
+则该非零类可作为“不可约 Jacobi 缺陷”的抽象表述；
+这与正文中“Jacobi 间隙落在 $H^3$”的用法一致（参见命题~\ref{prop:homotopy-twist-kill-jacobi-gap} 与备注~\ref{rem:why-h3-not-hn}）。
+\end{corollary}
+\begin{proof}
+第一部分由 $\operatorname{Jac}_{\ell_2}=\ell_1(\ell_3)$ 立即得到。
+第二部分是上同调“非零类代表不可由边界消去的残余”的一般语义（定义 \ref{def:A-cohomology}）。
+\end{proof}
+
+\subsection{Jacobiator-gap 证书与 GZ-OHU：纯数卷中的最小引用接口}
+
+\begin{definition}[Jacobiator-gap 证书（概要）]\label{def:A-jacgap}
+对 law-space 语境下的算子系统 $L$（纯数卷 \cite{GaoZheng2025GFramework} 称其为 law-level operator system），
+Jacobiator-gap 证书是一个有限不变量族
+\[
+  \mathsf{JacGap}(L)=(c_1(L),\dots,c_k(L)),
+\]
+满足：每个 $c_i(L)$ 定量刻画严格 Jacobi 恒等式的受控失配分量；
+并且该证书在三层联络 \GZTLC\ 所诱导的法空间演化下具有稳定性（沿水平法流的变化受曲率/同伦项控制）。
+\end{definition}
+
+\begin{theorem}[GZ-OHU（Operator--Homotopy Universality，概要版）]\label{thm:A-gz-ohu}
+在纯数卷 \cite{GaoZheng2025GFramework} 给出的适当有限性、正则性与有界性条件下，
+对任一具有 Jacobiator-gap 证书的算子系统 $L$，
+存在一个同伦完备扩张 $L^{\mathrm{OHU}}$ 以及态射 $\iota:L\to L^{\mathrm{OHU}}$，
+使得：
+\begin{enumerate}
+  \item 若 $L'$ 为任一 $\mathsf{JacGap}(L')=0$ 且其低阶可观测量与 $L$ 相容的系统，则 $L'$ 与 $L^{\mathrm{OHU}}$ 在同伦意义下等价；
+  \item $L^{\mathrm{OHU}}$ 可通过有限步的同伦修正构造得到，每一步缺陷要么被 $\mathsf{JacGap}$ 的某个分量检测到，要么被更高括号的调整所吸收并使某种缺陷势函数严格下降。
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+这是 \cite{GaoZheng2025GFramework} 中 GZ-OHU 定理的摘要版转述；完整表述与证明见该文档对应的 Technical Appendix I。
+\end{proof}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{G-Framework 纯数卷的最小可引用骨架：法空间几何、Jacobiator 障碍、同伦修复与 JacGap 证书}\label{app:B-gframework-puremath-backbone}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本附录把“纯数卷所提供的底层公理化支撑”压缩为四类可直接调用的形式断言。
+其中：上同调的抽象骨架已在第二部分第 \ref{app:A-cohomology-skeleton} 章给出；
+这里仅记录与 G-Framework 直接对位的最小接口。
+完整定义与完整证明均以纯数卷发布稿为准（见 \cite{GaoZheng2025GFramework}）。
+
+\subsection{法空间几何：把规则作为几何对象（引用接口）}
+
+\begin{definition}[法空间（引用）]\label{def:B-lawspace}
+纯数卷在 G-Framework 中引入法空间
+\[
+  \mathfrak{L}_{\mathrm{GZ}}=(\mathfrak{L};J,\mathrm{Loc},\Sigma),
+\]
+其中 $\mathfrak{L}$ 为法对象及其组合规则的语义全集，
+$J$ 为度量/张力型结构，
+$\mathrm{Loc}$ 为定位/图册型结构，
+$\Sigma$ 为阈值族（用于刻画可接受残差与相变边界）。
+上述对象的严格定义见 \cite{GaoZheng2025GFramework}。
+\end{definition}
+
+\begin{definition}[三层主丛与三层连接（引用）]\label{def:B-tlc}
+设 $M$ 为对象几何底空间，$\Theta$ 为参数流形。
+纯数卷构造总底空间
+\[
+  B := M\times \Theta \times \mathfrak{L}_{\mathrm{GZ}},
+\]
+并在 $B$ 上给出一条三层主丛与三层连接（\GZTLC）：
+存在主丛 $\pi:P\to B$ 及其连接 $A$，满足分解
+\[
+  A = A_{\mathrm{geom}}\oplus A_{\mathrm{par}}\oplus A_{\mathrm{law}}.
+\]
+记曲率 $F_A$ 的法层分量为
+\[
+  \mathcal{F}_{\mathrm{law}} := (F_A)_{\mathrm{law}} .
+\]
+该结构的严格表述见 \cite{GaoZheng2025GFramework}。
+\end{definition}
+
+\begin{proposition}[法曲率非零蕴含路径依赖（不可积性）]\label{prop:B-law-curv-path}
+在定义 \ref{def:B-tlc} 下，
+若存在 $b\in B$ 使得 $\mathcal{F}_{\mathrm{law}}(b)\neq 0$，
+则存在以 $b$ 为基点的足够小闭回路 $\gamma$，
+使得沿 $\gamma$ 的平行移动的法层 holonomy 非平凡。
+因此，存在两条端点相同的路径，其在 $M\times \Theta$ 上投影相同，但在法层诱导的平行移动不同。
+\end{proposition}
+
+\begin{proof}
+对任意主丛连接，曲率与 holonomy 的关系给出：对足够小的环路 $\gamma$，
+holonomy 的一阶主项由 $\int_{\Sigma_\gamma} F_A$ 决定（$\Sigma_\gamma$ 为以 $\gamma$ 为边界的微小面片）。
+若 $\mathcal{F}_{\mathrm{law}}(b)\neq 0$，则可选取穿过 $b$ 的微小面片使法层曲率积分非零，从而 holonomy 非平凡。
+由于 $B$ 为直积，总可以取只在 $\mathfrak{L}_{\mathrm{GZ}}$ 因子上绕行的微小回路，使得 $M\times\Theta$ 投影不变。
+证毕。
+\end{proof}
+
+\subsection{Jacobiator：结构性障碍的代数化}
+
+\begin{definition}[Jacobiator]\label{def:B-jacobiator}
+给定向量空间 $V$ 上的反对称双线性运算 $\ell_2:V\otimes V\to V$，
+定义 Jacobiator 为三元映射
+\[
+  \operatorname{Jac}_{\ell_2}(x,y,z)
+  :=
+  \ell_2\bigl(x,\ell_2(y,z)\bigr)
+  +\ell_2\bigl(y,\ell_2(z,x)\bigr)
+  +\ell_2\bigl(z,\ell_2(x,y)\bigr).
+\]
+\end{definition}
+
+\begin{proposition}[严格李结构的充要条件]\label{prop:B-strict-lie}
+若 $\ell_2$ 反对称且双线性，则 $(V,\ell_2)$ 为李代数当且仅当
+$\operatorname{Jac}_{\ell_2}\equiv 0$。
+\end{proposition}
+
+\begin{proof}
+这是李代数的定义（严格 Jacobi 恒等式）之直接展开。证毕。
+\end{proof}
+
+\begin{definition}[Jacobi 障碍类（最小接口）]\label{def:B-jacobi-obstruction}
+若存在微分 $\ell_1:V\to V$ 使 $\ell_1^2=0$，并且
+$\operatorname{Jac}_{\ell_2}\in \ker(\ell_1)$，
+则可在复形 $(V,\ell_1)$ 的三阶上同调中定义障碍类
+\[
+  [\operatorname{Jac}_{\ell_2}] \in H^3(V,\ell_1),
+\]
+其上同调语义与闭/恰当的抽象骨架见第二部分第 \ref{app:A-cohomology-skeleton} 章。
+\end{definition}
+
+\subsection{$L_\infty$ 同伦修复：把 Jacobi 失配边界化}
+
+\begin{theorem}[同伦修复的基本恒等式（引用）]\label{thm:B-linfty-repair}
+设 $(V,\ell_1,\ell_2,\ell_3,\dots)$ 为一个 $L_\infty$ 代数（见 \cite{GaoZheng2025GFramework}）。
+则 $n=3$ 的 $L_\infty$ 恒等式给出 Jacobiator 的边界化：
+\[
+  \operatorname{Jac}_{\ell_2}(x,y,z)
+  =
+  \ell_1\bigl(\ell_3(x,y,z)\bigr)
+  + \mathcal{T}_{2,3,1}(x,y,z),
+\]
+其中 $\mathcal{T}_{2,3,1}$ 为由 $\ell_1,\ell_2,\ell_3$ 混合项组成的修正项。
+在常见的骨架化/2-term 情形下（或等价地把混合项并入定义后），可取
+\[
+  \operatorname{Jac}_{\ell_2}=\ell_1(\ell_3),
+  \qquad\text{从而}\qquad
+  [\operatorname{Jac}_{\ell_2}]=0\in H^3(V,\ell_1).
+\]
+\end{theorem}
+
+\begin{proof}
+这是 $L_\infty$ 代数定义中的 $n=3$ 恒等式的直接改写；
+可对照纯数卷的定义与推导（见 \cite{GaoZheng2025GFramework}），
+亦可参照第二部分第 \ref{app:A-cohomology-skeleton} 章中对同一恒等式的抽象表述与证明结构（命题 \ref{prop:A-linfty-jacobi-boundary}）。
+当混合项消失或被并入等价表述时，即得 $\operatorname{Jac}_{\ell_2}=\ell_1(\ell_3)$，从而障碍类为零。证毕。
+\end{proof}
+
+\subsection{JacGap 与 GZ-OHU：缺陷的证书化与同伦完备扩张（引用接口）}
+
+\begin{definition}[Jacobiator-gap 证书（引用）]\label{def:B-jacgap}
+纯数卷对法层算子系统 $L$ 定义 Jacobiator-gap 证书为一组有限不变量
+\[
+  \mathsf{JacGap}(L)=\bigl(c_1(L),\dots,c_k(L)\bigr),
+\]
+并满足以下两条可核验性质（见 \cite{GaoZheng2025GFramework}）：
+\begin{enumerate}
+  \item $\mathsf{JacGap}(L)=0$ 当且仅当 $L$ 可提升为严格版本（在相应图表中实现严格 Jacobi 结构）；
+  \item $\mathsf{JacGap}$ 在 \GZTLC\ 诱导的可允变形下稳定（作为证书化不变量族被保留或受控演化）。
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[GZ-OHU 完备化定理（引用）]\label{thm:B-gz-ohu}
+（见 \cite{GaoZheng2025GFramework}）对任意给定的法层算子系统 $L$ 及其证书数据（包含 $\mathsf{JacGap}(L)$），
+存在同伦完备扩张 $L_{\mathrm{OHU}}$ 与态射 $\iota:L\to L_{\mathrm{OHU}}$，
+使得 $L$ 的 Jacobi 缺陷在扩张中被同伦数据吸收并进入可审计、可迭代的“失配治理”框架；
+并且扩张步骤可由证书体系逐步跟踪，从而给出可验证的 failure-free 构造语义。
+\end{theorem}
+
+\begin{proof}
+完整陈述与证明见纯数卷 \cite{GaoZheng2025GFramework} 的 GZ-OHU completion theorem（含证明章与技术附录）。
+本处仅作为可引用接口记录。证毕。
+\end{proof}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{从严格闭合到证书化同伦：G-Framework 的诊断--修复--验证三元骨架}\label{app:C-triad-drv}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本附录把“通用复杂系统中的结构性障碍与其修补”压缩为三类可证断言：
+（i）\emph{诊断}：缺陷可被表述为对易子/不可积性所诱导的障碍数据；
+（ii）\emph{修复}：当障碍为边界（或被证书化控制）时，存在同伦扩张吸收缺陷；
+（iii）\emph{验证}：缺陷治理可降为有限证书的检验。
+上述三元接口在 G-Framework 的纯数卷中被系统化实现（见 \cite{GaoZheng2025GFramework}），此处仅保留可直接引用的最小形式。
+
+\subsection{诊断：非交换性与障碍数据}
+
+\begin{definition}[顺序敏感与非交换缺陷]\label{def:C-order-sensitivity}
+设 $\mathcal{O}$ 为一组可复合的操作（例如平行移动、控制更新、算子作用等）。
+若存在 $o_1,o_2\in\mathcal{O}$ 与状态 $s$ 使得
+\[
+  o_1\circ o_2(s)\neq o_2\circ o_1(s),
+\]
+则称系统在 $s$ 处呈现\textbf{顺序敏感}；相应不等式称为\textbf{非交换缺陷}。
+\end{definition}
+
+\begin{proposition}[曲率是协变导数的对易子]\label{prop:C-curvature-commutator}
+设 $P\to B$ 为主丛，$A$ 为其连接，$D_A$ 为诱导的协变微分，$F_A$ 为曲率。
+则在任意与 $P$ 关联的向量丛上有恒等式
+\[
+  D_A^2 = F_A.
+\]
+在局部坐标下，上式等价于“二次协变导数的对易子由曲率控制”：
+\[
+  [\nabla^A_i,\nabla^A_j]\,s = (F_A)_{ij}\cdot s,
+  \qquad \forall\ \text{截面 } s.
+\]
+\end{proposition}
+
+\begin{proof}
+在局部平凡化下，$D_A=\mathrm{d}+A$，故
+\[
+  D_A^2=(\mathrm{d}+A)\circ(\mathrm{d}+A)=\mathrm{d}A + A\wedge A = F_A,
+\]
+其中用到 $\mathrm{d}^2=0$。
+将等式作用到截面并取坐标分量即可得到对易子形式。证毕。
+\end{proof}
+
+\begin{corollary}[非零曲率蕴含路径依赖（holonomy 缺陷）]\label{cor:C-holonomy-defect}
+若 $F_A$ 在某点邻域内不恒为零，则存在足够小闭回路 $\gamma$，
+使得沿 $\gamma$ 的平行移动的 holonomy 非平凡。
+因此，局部的非交换缺陷会在全局层面累积为可观测的路径依赖。
+\end{corollary}
+
+\begin{proof}
+由命题 \ref{prop:C-curvature-commutator}，曲率刻画无穷小平行移动的非交换性；
+对足够小的环路，holonomy 的首阶项由曲率对相应面积的积分给出，
+因此 $F_A\not\equiv 0$ 导致非平凡 holonomy。证毕。
+\end{proof}
+
+\begin{definition}[Jacobiator 与严格闭合]\label{def:C-jacobiator}
+给定（分次）向量空间 $V$ 与二元运算 $\ell_2:V\otimes V\to V$，
+定义 Jacobiator
+\[
+  \operatorname{Jac}_{\ell_2}(x,y,z)
+  :=
+  \ell_2\bigl(x,\ell_2(y,z)\bigr)
+  +\ell_2\bigl(y,\ell_2(z,x)\bigr)
+  +\ell_2\bigl(z,\ell_2(x,y)\bigr).
+\]
+若 $\operatorname{Jac}_{\ell_2}\equiv 0$，则称 $\ell_2$ 在该层级上\textbf{严格闭合}（Strict Chart）。
+\end{definition}
+
+\begin{proposition}[Jacobiator 零化的充要性]\label{prop:C-lie-iff-jac}
+若 $\ell_2$ 反对称且双线性，则 $(V,\ell_2)$ 为李代数当且仅当 $\operatorname{Jac}_{\ell_2}\equiv 0$。
+\end{proposition}
+
+\begin{proof}
+这是李代数定义中 Jacobi 恒等式的直接展开。证毕。
+\end{proof}
+
+\subsection{修复：同伦升维把缺陷边界化}
+
+\begin{definition}[障碍类（条件式定义）]\label{def:C-obstruction-class}
+设 $\ell_1:V\to V$ 满足 $\ell_1^2=0$。
+若 $\operatorname{Jac}_{\ell_2}$ 在相应复形中是闭的（即 $\ell_1(\operatorname{Jac}_{\ell_2})=0$），
+则可定义其障碍类
+\[
+  [\operatorname{Jac}_{\ell_2}] \in H^3(V,\ell_1).
+\]
+\end{definition}
+
+\begin{theorem}[同伦修复的基本机制：$\ell_3$ 吸收 Jacobi 失配（引用）]\label{thm:C-l3-absorbs-jac}
+在纯数卷 \cite{GaoZheng2025GFramework} 的 $L_\infty$ 设定下，
+存在三元同伦算子 $\ell_3$ 使得（在常用的骨架化/等价表述下）
+\[
+  \operatorname{Jac}_{\ell_2}(x,y,z)=\ell_1\bigl(\ell_3(x,y,z)\bigr).
+\]
+因此 Jacobi 失配成为 $\ell_1$-边界项（exact），其障碍类为零。
+\end{theorem}
+
+\begin{proof}
+这是 $L_\infty$ 代数在 $n=3$ 层级的 Stasheff 恒等式之直接改写；
+严格表述与证明见 \cite{GaoZheng2025GFramework} 中关于同伦图表与 $H$-扭曲结构的对应定理。证毕。
+\end{proof}
+
+\begin{corollary}[可修复性的最小判别]\label{cor:C-repairability-criterion}
+在定义 \ref{def:C-obstruction-class} 的条件下，
+若 $[\operatorname{Jac}_{\ell_2}]=0\in H^3(V,\ell_1)$，
+则存在 $\ell_3$ 使得 $\operatorname{Jac}_{\ell_2}=\ell_1(\ell_3)$；
+反之，若存在 $\ell_3$ 使得 $\operatorname{Jac}_{\ell_2}=\ell_1(\ell_3)$，则障碍类必为零。
+\end{corollary}
+
+\begin{proof}
+“若”由上同调类为零的定义推出存在边界表示；
+“仅若”由边界项在商空间中代表零类。证毕。
+\end{proof}
+
+\subsection{验证：证书化不变量把“有效性”降为可审计检查}
+
+\begin{definition}[证书可检性质]\label{def:C-certificate-checkable}
+称性质 $\mathcal{P}$ 对一类对象 $\mathcal{X}$ \textbf{证书可检}，
+若存在映射 $\mathrm{Cert}:\mathcal{X}\to \mathcal{D}$（$\mathcal{D}$ 为有限描述的数据空间）
+与可判定谓词 $\Phi$，使得对任意 $x\in\mathcal{X}$：
+\[
+  \mathcal{P}(x)\ \Longleftrightarrow\ \Phi\big(\mathrm{Cert}(x)\big).
+\]
+\end{definition}
+
+\begin{proposition}[证书可检 $\Rightarrow$ 验证可降为有限检查]\label{prop:C-auditability}
+若 $\mathcal{P}$ 证书可检，则验证 $\mathcal{P}(x)$ 不需要遍历 $x$ 的全部语义后果，
+只需检查有限数据 $\mathrm{Cert}(x)$ 是否满足谓词 $\Phi$。
+\end{proposition}
+
+\begin{proof}
+由定义 \ref{def:C-certificate-checkable} 的等价式直接成立。证毕。
+\end{proof}
+
+\begin{definition}[JacGap 证书（引用）]\label{def:C-jacgap-certificate}
+纯数卷 \cite{GaoZheng2025GFramework} 定义 Jacobiator-gap 证书
+\[
+  \mathsf{JacGap}(L)\in \mathcal{D}_{\mathrm{Jac}},
+\]
+作为量化 Jacobi 失配“规模与类型”的有限不变量族，并与阈值族 $\Sigma$ 配合用于给出可接受域与审计接口。
+严格定义与性质见 \cite{GaoZheng2025GFramework}。
+\end{definition}
+
+\begin{theorem}[证书驱动的同伦完备扩张（引用）]\label{thm:C-ohu-audited}
+纯数卷 \cite{GaoZheng2025GFramework} 的 GZ-OHU 定理表明：
+对任意给定的证书数据（包含 $\mathsf{JacGap}$），存在同伦完备扩张 $L_{\mathrm{OHU}}$，
+使得缺陷被高阶同伦数据吸收并进入可跟踪的构造流程；
+扩张过程可由证书逐步审计，从而把“可用性/稳定性”的判定降为证书层面的检查。
+\end{theorem}
+
+\begin{proof}
+见 \cite{GaoZheng2025GFramework} 中 GZ-OHU completion theorem 的完整陈述与证明。
+本文仅保留其“存在性 + 证书可审计性”的最小接口。证毕。
+\end{proof}
+
+\subsection{统一性推论：跨域复用的充分条件（形式表述）}
+
+\begin{proposition}[模型嵌入充分条件]\label{prop:C-sufficient-embedding}
+设某一复杂系统在数学上可被编码为：
+\begin{enumerate}
+  \item 一个带连接的几何对象（因此可定义 $A,D_A,F_A$ 并讨论 holonomy）；
+  \item 一个包含二元运算 $\ell_2$ 与微分 $\ell_1$ 的代数对象（因此可讨论 Jacobiator 与障碍类）；
+  \item 一组证书化不变量（因此可讨论 JacGap 型可审计判别）；
+\end{enumerate}
+则本附录的诊断--修复--验证三元断言对该系统成立。
+特别地，在采用 G-Framework 的统一接口时，上述三类编码由纯数卷给出（见 \cite{GaoZheng2025GFramework}）。
+\end{proposition}
+
+\begin{proof}
+对 (1) 由命题 \ref{prop:C-curvature-commutator} 与推论 \ref{cor:C-holonomy-defect} 得到路径依赖诊断；
+对 (2) 由命题 \ref{prop:C-lie-iff-jac}、定义 \ref{def:C-obstruction-class} 与定理 \ref{thm:C-l3-absorbs-jac} 得到障碍类与同伦修复；
+对 (3) 由命题 \ref{prop:C-auditability} 与定理 \ref{thm:C-ohu-audited} 得到证书化验证。证毕。
+\end{proof}
+
+\clearpage
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{从静态破缺到可操作同伦治理：三条形式重写（Strictification / Homotopy Extension / Regime Switch）}\label{app:D-algebraic-governance}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本附录只保留可证断言：把“对称性破缺”从\emph{描述性陈述}重写为\emph{可操作的结构与构造}。
+核心是三条形式等价/蕴含链：
+\[
+  \text{Strictness Failure}
+  \Longrightarrow
+  \text{Obstruction Data}
+  \Longrightarrow
+  \text{Homotopy Extension + Certificate-Audited Control}.
+\]
+其公理化落点分别对应：Jacobiator/曲率（诊断）、$L_\infty$ 同伦边界化（修复）、JacGap 与 GZ-OHU（验证与构造），
+完整版本见纯数卷 \cite{GaoZheng2025GFramework}；本处给出最小可引用骨架。
+
+\subsection{D.1\;从“灾难”到“结构”：破缺作为障碍数据}
+
+\begin{definition}[严格版本与同伦版本]\label{def:D-strict-vs-homotopy}
+给定二元运算 $\ell_2$（例如括号、组合律的主部），称：
+\begin{enumerate}
+  \item \textbf{严格版本（Strict Chart）}：要求 $\operatorname{Jac}_{\ell_2}\equiv 0$（见定义 \ref{def:C-jacobiator} 与命题 \ref{prop:C-lie-iff-jac}）；
+  \item \textbf{同伦版本（Homotopy Chart）}：允许 $\operatorname{Jac}_{\ell_2}\neq 0$，但要求其在某个微分 $\ell_1$ 下为边界（exact），即存在 $\ell_3$
+    使
+  \[
+    \operatorname{Jac}_{\ell_2}=\ell_1(\ell_3).
+  \]
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[严格版本是同伦版本的特例]\label{prop:D-strict-special-case}
+若 $\operatorname{Jac}_{\ell_2}\equiv 0$，则在同伦版本中可取 $\ell_3\equiv 0$，
+从而严格版本 $\subseteq$ 同伦版本（作为图表特例）。
+\end{proposition}
+\begin{proof}
+直接代入 $\ell_3\equiv 0$ 得 $\ell_1(\ell_3)\equiv 0=\operatorname{Jac}_{\ell_2}$。证毕。
+\end{proof}
+
+\begin{proposition}[破缺的“结构化”表述：障碍类与可修复性]\label{prop:D-obstruction-structured}
+在定义 \ref{def:C-obstruction-class} 的条件下，以下两件事等价：
+\[
+  \exists \ell_3:\ \operatorname{Jac}_{\ell_2}=\ell_1(\ell_3)
+  \quad\Longleftrightarrow\quad
+  [\operatorname{Jac}_{\ell_2}]=0\in H^3(V,\ell_1).
+\]
+因此，同伦版本把“破缺”从不可控事件重写为可检的上同调语句（障碍类是否为零）。
+\end{proposition}
+\begin{proof}
+这是推论 \ref{cor:C-repairability-criterion} 的同一结论在本附录语言下的重述。证毕。
+\end{proof}
+
+\subsection{D.2\;从“重整化”到“同伦延拓”：商与扩张的对偶构造}
+
+\begin{remark}[商（quotient）与扩张（extension）是两种不同的“处理缺陷”方式]\label{rem:D-quotient-vs-extension}
+第二部分第 \ref{app:A-cohomology-skeleton} 章已给出上同调商 $H^k=Z^k/B^k$：
+它把“边界项（exact）”视为平凡，从而\emph{在同一维度内}做等价类化（quotient）。
+下面给出一个互补的构造：\emph{不做商}，而是\emph{升维加入新生成元}，使某个闭元变为恰当元（extension）。
+\end{remark}
+
+\begin{lemma}[一阶同伦延拓：杀死给定闭元的构造]\label{lem:D-kill-cocycle-by-extension}
+设 $(C^\bullet,d)$ 为上同调复形，取 $\omega\in Z^k=\ker(d:C^k\to C^{k+1})$。
+构造新复形 $(\widetilde{C}^\bullet,\widetilde{d})$：
+\[
+  \widetilde{C}^i :=
+  \begin{cases}
+    C^i, & i\neq k-1,\\
+    C^{k-1}\oplus \langle u\rangle, & i=k-1,
+  \end{cases}
+  \qquad
+  \widetilde{d}|_{C^{i}}:=d\ (i\neq k-1),
+  \qquad
+  \widetilde{d}(u):=\omega.
+\]
+则 $\widetilde{d}^2=0$，且 $\omega$ 在扩张复形中变为恰当元：$\omega=\widetilde{d}(u)\in \widetilde{B}^k$。
+\end{lemma}
+
+\begin{proof}
+需验证两点。
+其一，$\widetilde{d}^2(u)=\widetilde{d}(\omega)=d\omega=0$（因为 $\omega\in Z^k$），
+而对其余分量 $\widetilde{d}^2=d^2=0$，故 $\widetilde{d}^2=0$。
+其二，按定义 $\widetilde{d}(u)=\omega$，因此 $\omega$ 在扩张复形中属于像空间（恰当元）。证毕。
+\end{proof}
+
+\begin{corollary}[扩张杀死障碍类：从“不可约”到“可边界化”]\label{cor:D-extension-kills-class}
+在引理 \ref{lem:D-kill-cocycle-by-extension} 的扩张中，$[\omega]=0\in H^k(\widetilde{C}^\bullet,\widetilde{d})$。
+因此，“同伦延拓”的最小代数意义是：通过升维把原先的闭元重写为边界项。
+\end{corollary}
+\begin{proof}
+由 $\omega=\widetilde{d}(u)$，其上同调类必为零。证毕。
+\end{proof}
+
+\begin{remark}[与 GZ-OHU 的关系]\label{rem:D-ohu-relation}
+上述引理是“单个闭元”的一阶玩具模型。
+纯数卷 \cite{GaoZheng2025GFramework} 的 GZ-OHU 完备化把这一思想推广到\emph{受控证书数据}与\emph{系统级}的同伦扩张：
+不是随意加生成元，而是在 JacGap 证书可审计的约束下完成同伦完备扩张。
+\end{remark}
+
+\subsection{D.3\;从“观测者”到“立法者”：把治理表述为可审计的构造问题}
+
+\begin{definition}[证书约束下的同伦治理问题]\label{def:D-governance-problem}
+给定一个法层算子系统 $L$（其几何骨架见定义 \ref{def:B-tlc}，其缺陷证书见定义 \ref{def:C-jacgap-certificate}），
+给定可接受域（阈值族）$\Sigma$，
+称\textbf{同伦治理}为如下构造问题：
+\[
+  \text{构造}\ (L',\iota)\ \text{使}\ \iota:L\to L'\ \text{为允许的同伦扩张，且}\ \mathsf{JacGap}(L')\in \Sigma.
+\]
+其中“允许”的含义由纯数卷给出（例如同伦等价类、换规/连接变更的许可范围等，见 \cite{GaoZheng2025GFramework}）。
+\end{definition}
+
+\begin{proposition}[治理的可审计性：证书可检 $\Rightarrow$ 构造结果可核验]\label{prop:D-auditable}
+若 $\mathsf{JacGap}$ 是证书可检不变量（定义 \ref{def:C-certificate-checkable}），
+则任一候选治理结果 $(L',\iota)$ 的合规性（$\mathsf{JacGap}(L')\in\Sigma$）可降为有限检查。
+\end{proposition}
+\begin{proof}
+由命题 \ref{prop:C-auditability}：证书可检性质把验证降为对有限数据的谓词判定。证毕。
+\end{proof}
+
+\begin{theorem}[GZ-OHU 作为“存在性保证”：缺陷治理的可构造性（引用）]\label{thm:D-ohu-governance}
+纯数卷 \cite{GaoZheng2025GFramework} 的 GZ-OHU 定理给出：对任意给定的证书数据（包含 $\mathsf{JacGap}(L)$），
+存在同伦完备扩张 $L_{\mathrm{OHU}}$ 与嵌入 $\iota:L\to L_{\mathrm{OHU}}$，
+使得系统缺陷进入可同伦吸收、可审计跟踪的构造流程。
+因此，在纯数卷的许可条件下（并且当目标阈值域 $\Sigma$ 与该流程相容时），
+定义 \ref{def:D-governance-problem} 的治理问题具有可构造解。
+\end{theorem}
+
+\begin{proof}
+这是 \cite{GaoZheng2025GFramework} 的 GZ-OHU completion theorem 的接口化转述。
+本处只使用其“扩张存在性 + 证书审计接口 + 同伦吸收缺陷”的结论，不复述细节证明。证毕。
+\end{proof}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{离散对称破缺与规范场论的对标接口}\label{app:E-parity-gauge}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{E.1\;对标：离散对称破缺与规范场论的两种特例化}\label{subsec:E-parity-gauge}
+
+本小节不做历史叙事，只给出两条形式事实：
+（i）离散对称破缺可被表述为群作用下的非等变性（equivariance failure）；
+（ii）规范场论可被表述为主丛连接几何；在冻结法层后，它是 G-Framework 三层几何接口的一个图表特例；
+进一步，在“严格闭合”假设下，它回到传统的李代数框架；在“允许缺陷”情形下，则自然进入 $L_\infty$ 的同伦图表（见 \cite{GaoZheng2025GFramework}）。
+
+\begin{definition}[群对称与等变演化]\label{def:E-equivariance}
+设 $G$ 为群，$S$ 为状态空间，$\rho:G\to \mathrm{Aut}(S)$ 为群作用。
+设 $\Phi:S\to S$ 为一次演化/更新算子（可视为离散时间一步或固定时间流映射）。
+称 $\Phi$ \textbf{$G$-等变}，若对任意 $g\in G$ 与 $s\in S$，
+\[
+  \Phi\big(\rho(g)s\big)=\rho(g)\,\Phi(s).
+\]
+若存在 $g,s$ 使上式不成立，则称存在\textbf{对称破缺}（等变性失配）。
+\end{definition}
+
+\begin{proposition}[离散对称破缺的最小抽象]\label{prop:E-parity-as-z2}
+若 $G\cong \mathbb{Z}_2=\{1,P\}$，且 $\rho(P)^2=\mathrm{id}$，
+则 $\Phi$ 的“宇称守恒/不守恒”可在定义 \ref{def:E-equivariance} 下统一表述为：
+\[
+  \Phi\circ \rho(P)=\rho(P)\circ \Phi
+  \quad\text{（守恒）},\qquad
+  \Phi\circ \rho(P)\neq \rho(P)\circ \Phi
+  \quad\text{（不守恒）}.
+\]
+\end{proposition}
+
+\begin{proof}
+这是定义 \ref{def:E-equivariance} 在 $G=\mathbb{Z}_2$ 情形的直接展开。证毕。
+\end{proof}
+
+\begin{definition}[规范场论的几何骨架（主丛连接）]\label{def:E-gauge-bundle}
+设 $M$ 为底空间（通常为时空流形），$G$ 为李群。
+一套规范几何数据由主 $G$-丛 $\pi:P\to M$ 与其连接 $A$ 给出；
+曲率 $F_A$ 与协变导数 $D_A$ 满足比安基恒等式
+\[
+  D_A F_A = 0.
+\]
+\end{definition}
+
+\begin{proposition}[规范几何是三层几何的冻结图表]\label{prop:E-freeze-to-gauge}
+设 G-Framework 的三层几何接口如纯数卷所给（见 \cite{GaoZheng2025GFramework}）：
+总底空间 $B=M\times \Theta\times \mathfrak{L}_{\mathrm{GZ}}$，主丛 $\pi:P\to B$，
+连接分解 $A=A_{\mathrm{geom}}\oplus A_{\mathrm{par}}\oplus A_{\mathrm{law}}$。
+固定 $(\theta_0,\ell_0)\in \Theta\times \mathfrak{L}_{\mathrm{GZ}}$，取嵌入
+\[
+  \iota_{\theta_0,\ell_0}:M\hookrightarrow B,\qquad
+  m\mapsto (m,\theta_0,\ell_0),
+\]
+并把 $(P,A)$ 拉回到该切片，则得到 $M$ 上的主丛与连接，从而得到定义 \ref{def:E-gauge-bundle} 的规范几何数据。
+\end{proposition}
+
+\begin{proof}
+拉回主丛与连接仍为主丛与连接，这是主丛几何的标准函子性。
+在切片上，连接 $A$ 的限制只保留沿 $M$ 方向的分量，给出 $M$ 上的连接形式；
+其曲率与协变导数满足同一比安基恒等式（由自然性继承）。证毕。
+\end{proof}
+
+\begin{corollary}[两级特例化：离散对称与传统规范场论]\label{cor:E-two-specializations}
+在命题 \ref{prop:E-freeze-to-gauge} 的切片化之后：
+\begin{enumerate}
+  \item 若结构群取为离散群 $G\cong \mathbb{Z}_2$，则得到离散规范结构，其等变性条件即命题 \ref{prop:E-parity-as-z2} 的离散对称条件；
+  \item 若结构群为李群且代数侧取严格闭合（$\operatorname{Jac}_{\ell_2}\equiv 0$），则回到传统“严格李代数 + 主丛连接”的规范场论图表；
+  \item 若允许 $\operatorname{Jac}_{\ell_2}\neq 0$ 但可被同伦吸收（存在 $\ell_3$ 使 $\operatorname{Jac}_{\ell_2}=\ell_1(\ell_3)$），
+        则进入 $L_\infty$ 的同伦图表；其“缺陷可治理”的构造性保证由 JacGap 与 GZ-OHU 提供（见 \cite{GaoZheng2025GFramework}）。
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+(1) 取 $G=\mathbb{Z}_2$ 时，离散对称即群作用等变性（命题 \ref{prop:E-parity-as-z2}）。
+(2) “严格闭合”即 $\operatorname{Jac}_{\ell_2}\equiv 0$，回到严格李代数框架（参见命题 \ref{prop:C-lie-iff-jac}）。
+(3) 同伦吸收条件由定理 \ref{thm:C-l3-absorbs-jac}（及其在纯数卷中的版本）给出；
+证书化控制与同伦完备扩张由纯数卷的 JacGap 与 GZ-OHU 定理给出（见 \cite{GaoZheng2025GFramework}）。
+证毕。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{$L_{\infty}$ 的三重重定位——法空间容器、JacGap 证书工具与 PL--PI 起源}\label{app:F-linfty-repositioning}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本章的目标与边界：只保留可证断言]
+本章的结论并不宣称 $L_\infty$ 作为形式算式是“新发明”；相反，它只做三件可证的重定位：
+\[
+  \textbf{位置：}\ L_\infty\ \text{被放置在}\ \mathfrak{L}_{GZ}\ \text{（法空间）的几何结构之中；}
+  \qquad
+  \textbf{功能：}\ L_\infty\ \text{被用作}\ \mathsf{JacGap}\ \text{证书的计算与修复基础；}
+  \qquad
+  \textbf{来源：}\ L_\infty\ \text{被刻画为 PL--PI（逻辑与迭代）演化的必然闭包结果。}
+\]
+本节的所有结构性断言均以纯数卷发布稿为准（见 \cite{GaoZheng2025GFramework}），并尽量以“定义/命题/证明”呈现。
+\end{remark}
+
+\subsection{F.1\;容器创新：把 $L_\infty$ 几何化为法空间 $\mathfrak{L}_{GZ}$ 的纤维}
+
+\begin{definition}[法空间与三层主丛容器（引用）]\label{def:F-container}
+纯数卷把“法”作为可变几何对象来处理：法空间用于承载法对象（law-objects）及其变换，
+并由三层主丛/三层连接组织几何层、参数层与法层的耦合（见 \cite{GaoZheng2025GFramework} 第 491--513 行、1318--1458 行）。
+为与本文记号对齐，本章把该法空间记为
+\[
+  \mathfrak{L}_{GZ},
+\]
+并把三层连接记为 $\GZTLC$（本文已定义该符号）。
+\end{definition}
+
+\begin{definition}[法空间纤维化的 $L_\infty$ 结构]\label{def:F-law-fibered-linfty}
+称一族 $L_\infty$ 结构被\textbf{法空间纤维化}，若存在：
+\begin{enumerate}
+  \item 一条投影 $\pi:\mathcal{V}\to \mathfrak{L}_{GZ}$（可取为分次向量丛或分次向量空间的平凡丛），其纤维记为 $V_\ell:=\pi^{-1}(\ell)$；
+  \item 对每个 $\ell\in\mathfrak{L}_{GZ}$，在 $V_\ell$ 上给定一组高阶括号
+        \[
+          l_k^{(\ell)}:\wedge^k V_\ell \longrightarrow V_\ell,\qquad k\ge 1,
+        \]
+        使 $(V_\ell,l_\bullet^{(\ell)})$ 满足 $L_\infty$ 恒等式；
+  \item 这些结构随 $\ell$ 的变化受 $\GZTLC$ 的法层分量控制：沿任意 $\GZTLC$-允许的法层变形（例如水平流/换规），
+        $l_k^{(\ell)}$ 以协变方式演化（即“变化由连接组织”，而非任意跳变）。
+\end{enumerate}
+直观上，这把“一个静态 $L_\infty$ 代数”升级为“法空间上的 $L_\infty$ 场”。
+\end{definition}
+
+\begin{proposition}[静态 $L_\infty$ 只是容器结构的切片特例]\label{prop:F-slice-special-case}
+在定义 \ref{def:F-law-fibered-linfty} 下，固定任意 $\ell_0\in\mathfrak{L}_{GZ}$，
+则切片纤维 $(V_{\ell_0},l_\bullet^{(\ell_0)})$ 即为一个通常意义下的（静态）$L_\infty$ 代数。
+因此，\emph{$L_\infty$ 的纯代数算式本身并不足以区分“法空间纤维化结构”与“传统静态结构”}；
+区分点在于：是否存在法空间容器、三层连接与随法层演化的协变结构。
+\end{proposition}
+
+\begin{proof}
+固定 $\ell_0$ 相当于把纤维化结构限制到一点，得到 $V_{\ell_0}$ 上的一组括号 $l_k^{(\ell_0)}$，
+其满足 $L_\infty$ 恒等式由定义 \ref{def:F-law-fibered-linfty}(2) 直接保证。
+“区分点”来自定义 \ref{def:F-law-fibered-linfty}(3)：静态结构没有法层协变演化数据。证毕。
+\end{proof}
+
+\begin{proposition}[“作为法对象的代数”：$L_\infty$ 的对象从场变为“法”]\label{prop:F-law-object-algebra}
+在纯数卷的设定中，法空间用于承载法对象（规则、逻辑、算法等）并组织其可变形性；
+三层连接用于比较不同法对象并刻画法层路径依赖（曲率）现象（见 \cite{GaoZheng2025GFramework} 第 491--512 行、506--512 行）。
+因此，在法空间纤维化设定下，纤维上的 $L_\infty$ 结构可以被解释为\emph{法对象的内部变换代数}，
+而不仅是“物理场”的形变复形。
+\end{proposition}
+
+\begin{proof}
+该命题并不引入额外公理，只是把
+\cite{GaoZheng2025GFramework} 中“法空间承载法对象并由 $\GZTLC$ 组织其变换/比较”的结构语义，
+与定义 \ref{def:F-law-fibered-linfty} 的“纤维上附着高阶括号并随法层协变演化”的语义对位。
+因此它是对纯数卷结构的合法解释与重述。证毕。
+\end{proof}
+
+\subsection{F.2\;机制创新：曲率驱动同伦与 GZ-Harmony 的动态耦合}
+
+\begin{definition}[曲率--同伦投影与 $H$-扭曲二项结构（引用）]\label{def:F-curv-homotopy}
+纯数卷在同伦版本中引入一类 $H$-扭曲 two-term $L_\infty$ 结构，
+其三元括号 $l_3^H$ 由闭 $3$-形式 $H$ 与法曲率分量（\GZLCurv）共同控制，
+并满足核心恒等式
+\[
+  \mathrm{Jac}_{l_2}(x,y,z)=l_1\bigl(l_3^H(x,y,z)\bigr),
+\]
+其中 $\mathrm{Jac}_{l_2}$ 为 $l_2$ 的 Jacobiator（见 \cite{GaoZheng2025GFramework} 第 4643--4651 行、4681--4689 行、4722--4731 行）。
+纯数卷同时要求 $l_3^H$ 与 $(H,\GZLCurv)$ 之间存在曲率--同伦耦合映射（见 \cite{GaoZheng2025GFramework} 第 4758--4766 行）。
+\end{definition}
+
+\begin{proposition}[“曲率驱动同伦”的严格含义：Jacobi 失配具有几何来源]\label{prop:F-geom-source}
+在定义 \ref{def:F-curv-homotopy} 的设定下，$l_2$ 的 Jacobi 失配并非任意残差，
+而是被 \emph{几何 $H$-数据与法曲率数据} 所控制：
+一旦给定 $(H,\GZLCurv)$ 以及相应的耦合规则（曲率--同伦映射），
+则 $l_3^H$（从而 $\mathrm{Jac}_{l_2}$ 的边界表示）被固定在该规则所允许的范围内。
+\end{proposition}
+
+\begin{proof}
+由定义 \ref{def:F-curv-homotopy}，$l_3^H$ 受 $(H,\GZLCurv)$ 控制且满足
+$\mathrm{Jac}_{l_2}=l_1(l_3^H)$（\cite{GaoZheng2025GFramework} 第 4643--4651 行、4722--4731 行）。
+因此 $\mathrm{Jac}_{l_2}$ 的“可吸收部分”被 $l_3^H$ 明确给出；
+而 $l_3^H$ 又由 $(H,\GZLCurv)$ 的耦合规则产生（\cite{GaoZheng2025GFramework} 第 4758--4766 行）。
+故 Jacobi 失配的同伦归宿由几何数据驱动而来。证毕。
+\end{proof}
+
+\begin{definition}[GZ-Harmony 与三层水平性（引用）]\label{def:F-gz-harmony}
+纯数卷把 “$(H,\GZLCurv,l_3^H)$ 与三层几何/语义分层的一致耦合条件”称为 \emph{GZ-Harmony}，
+其要点包括：曲率--同伦匹配、CH 分层兼容与\textbf{三层水平性（triple-layer horizontality）}；
+并要求在任意 $\GZTLC$-水平流下，$(H,\GZLCurv,l_3^H)$ 的演化受 $L_\infty$ 恒等式约束，不产生算子代数不一致（见 \cite{GaoZheng2025GFramework} 第 4822--4858
+  行）。
+\end{definition}
+
+\begin{proposition}[机制层创新的可证表达：同伦结构在法空间演化下不崩解]\label{prop:F-dynamic-conservation}
+在定义 \ref{def:F-gz-harmony} 下，沿任意 $\GZTLC$-水平流的法层演化，
+若初始点满足 GZ-Harmony，则演化过程中 $H$-扭曲的 two-term $L_\infty$ 恒等式保持成立；
+等价地说：同伦修复数据随法层演化被“动态守恒”（以 $L_\infty$ 恒等式为约束），而非一次性静态装配。
+\end{proposition}
+
+\begin{proof}
+这正是 GZ-Harmony 的三层水平性条款所要求的内容：
+纯数卷明确把“水平流下 $(H,\GZLCurv,l_3^H)$ 的演化受 $L_\infty$ 恒等式支配且不生成不一致”
+作为定义的一部分（\cite{GaoZheng2025GFramework} 第 4851--4857 行）。
+因此命题为定义的直接推论。证毕。
+\end{proof}
+
+\subsection{F.3\;工具创新：$\mathsf{JacGap}$ 证书与 GZ-OHU 的可构造修复}
+
+\begin{definition}[JacGap 证书（引用）]\label{def:F-jacgap}
+纯数卷把 Jacobi 失配及其同伦数据打包为一组有限的、可审计的不变量，
+称为 \textbf{Jacobiator-gap 证书}：
+\[
+  \mathsf{JacGap}(L),
+\]
+并给出两条关键性质：
+\[
+  \mathsf{JacGap}(L)=0\ \Longleftrightarrow\ L\ \text{可提升为严格版本（不改变低阶可观测量）},
+  \qquad
+  \mathsf{JacGap}\ \text{在 $\GZTLC$-诱导变形下稳定},
+\]
+见 \cite{GaoZheng2025GFramework} 第 2204--2234 行。
+\end{definition}
+
+\begin{proposition}[$L_\infty$ 在此处的“功能性角色”：证书以同伦数据为计算底座]\label{prop:F-jacgap-computable}
+在纯数卷的同伦 PFB-GNLA 语境中，
+曲率与 $l_3$（等价地说：与 $l_3$ 的控制数据）决定 JacGap 向量：
+\[
+  (H,\GZLCurv,l_3^H)\ \Longrightarrow\ \mathsf{JacGap}(L),
+\]
+并据此区分“可严格化（gap 为零）”与“必须跨越 gap 区域（gap 非零）”两类情形（见 \cite{GaoZheng2025GFramework} 第 4580--4588 行、2204--2234 行）。
+因此，$L_\infty$ 结构在 G-Framework 中不仅是描述语言，
+更是 JacGap 证书的\textbf{计算基础}与\textbf{诊断接口}。
+\end{proposition}
+
+\begin{proof}
+一方面，纯数卷明确指出曲率与 $l_3$（或等价的同伦数据）决定 $\mathsf{JacGap}(L)$（\cite{GaoZheng2025GFramework} 第 4580--4582 行）；
+另一方面，JacGap 的“零当且仅当可严格化”与“稳定性”由定义 \ref{def:F-jacgap} 的引用条款给出（\cite{GaoZheng2025GFramework} 第 2218--2222 行）。
+两者合并即得“证书以同伦数据为计算底座”的结论。证毕。
+\end{proof}
+
+\begin{theorem}[GZ-OHU：由证书驱动的同伦完备扩张（引用）]\label{thm:F-gz-ohu}
+纯数卷提出 GZ-OHU（Operator--Homotopy Universality）框架：
+一旦法层算子系统的 Jacobi 失配及高阶同伦数据被证书化并置于可控范围内，
+则存在一个\textbf{通用}的同伦完备扩张
+\[
+  L^{\mathrm{OHU}},
+\]
+用以实现与这些约束相容的 operator--homotopy 类型，并给出“failure-free”的标准化构造路线（见 \cite{GaoZheng2025GFramework} 第 7711--7734 行）。
+\end{theorem}
+
+\begin{proof}
+见 \cite{GaoZheng2025GFramework} 的 GZ-OHU 章节（\cite{GaoZheng2025GFramework} 第 7711 行起）。
+本处仅作为“证书 $\Rightarrow$ 可构造修复”的可引用接口记录。证毕。
+\end{proof}
+
+\begin{corollary}[从诊断到修复：$\mathsf{JacGap}$\,$\Rightarrow$\,标准化同伦补全]\label{cor:F-diagnose-to-repair}
+在纯数卷的许可条件下，
+$\mathsf{JacGap}$ 给出“缺陷规模/类型”的有限诊断，
+GZ-OHU 给出“对任意给定诊断的同伦补全/修补”的存在性与通用性接口；
+从而形成
+\[
+  \text{证书化诊断}\ (\mathsf{JacGap})
+  \quad\Longrightarrow\quad
+  \text{可构造修复}\ (L^{\mathrm{OHU}}).
+\]
+\end{corollary}
+
+\begin{proof}
+由命题 \ref{prop:F-jacgap-computable} 得证书化诊断接口；
+由定理 \ref{thm:F-gz-ohu} 得通用同伦补全接口；合并即得。证毕。
+\end{proof}
+
+\subsection{F.4\;语义创新：PL--PI 元数学起源使 $L_\infty$ 成为“必然闭包”}
+
+\begin{definition}[PL--PI 法系统与原初 law-level 算子层（引用）]\label{def:F-plpi-origin}
+纯数卷把异质迭代系统与逻辑评价规则统一为 PL--PI 法系统，并在法空间内部构造原初的 law-level 算子层
+$A_{\mathrm{law}}$；
+在需要时对交换子括号做同伦升级，使其自然携带 GNLA 或 $L_\infty$ 结构，
+并定义原初 law-level 的 G-Algebra 为
+\[
+  \GAlgebra_{\mathrm{orig}}
+  =
+  \bigl(A_{\mathrm{law}},[\cdot,\cdot]_{\mathrm{law}},\Jac_{\mathrm{law}};\mathsf{Str}_{\mathrm{law}}\bigr),
+\]
+见 \cite{GaoZheng2025GFramework} 第 6815--6849 行。
+\end{definition}
+
+\begin{lemma}[同伦闭包的最小性：Jacobi 失配的边界化 $\Rightarrow$ two-term $L_\infty$]\label{lem:F-minimal-linfty}
+设 $V^0$ 为算子层，$V^{-1}$ 为“缺陷记录层”，给定 $l_1:V^{-1}\to V^0$ 满足 $l_1^2=0$，
+并给定二元括号 $l_2:V^0\wedge V^0\to V^0$。
+若存在三元映射 $l_3:V^0\wedge V^0\wedge V^0\to V^{-1}$ 使得对任意 $x,y,z\in V^0$，
+\[
+  \mathrm{Jac}_{l_2}(x,y,z)=l_1\bigl(l_3(x,y,z)\bigr),
+\]
+则 $(V^{-1}\oplus V^0,l_1,l_2,l_3)$ 在 two-term 级别满足 $L_\infty$ 的 $n\le 3$ 约束，
+即 Jacobi 失配被最小地“闭包”为同伦数据。
+\end{lemma}
+
+\begin{proof}
+对 two-term 结构，$L_\infty$ 的核心约束之一正是“Jacobi 恒等式在同伦意义下成立”，
+其 $n=3$ 形式即为上式。其余 $n\le 3$ 条件（如 $l_1^2=0$、$l_1$ 对 $l_2$ 的导子性）可视为
+two-term 级别的标准兼容条件；本引理只强调 Jacobi 失配边界化是进入 $L_\infty$ 的最小门槛。证毕。
+\end{proof}
+
+\begin{theorem}[PL--PI 演化 $\Rightarrow$ law-level $L_\infty$：不是设定而是闭包结果]\label{thm:F-plpi-forces-linfty}
+在定义 \ref{def:F-plpi-origin} 的纯数卷构造中，
+law-level 算子层以交换子括号为起点；当异质迭代/逻辑变形导致严格 Jacobi 闭合不足时，
+通过引入同伦升级（最小地加入 $l_3$ 等高阶括号）获得 GNLA/$L_\infty$ 结构，
+从而把“闭合失败”转化为“可治理的同伦缺陷”。
+因此，在 PL--PI 语义驱动的法空间演化框架内，
+$L_\infty$ 不是外加假设，而是维持可组合性/可比较性的必然闭包机制（见 \cite{GaoZheng2025GFramework} 第 6815--6823 行）。
+\end{theorem}
+
+\begin{proof}
+纯数卷直接陈述：$A_{\mathrm{law}}$ 以交换子括号为基，并在需要时做同伦升级，从而携带 GNLA 或 $L_\infty$ 结构（\cite{GaoZheng2025GFramework} 第 6815--6818 行、
+  6820--6823 行）。
+引理 \ref{lem:F-minimal-linfty} 给出“Jacobi 失配边界化 $\Rightarrow$ two-term $L_\infty$”的最小闭包逻辑。
+将两者合并即可得到：在 PL--PI 驱动的异质演化中，一旦要求“闭合失败可被结构化并可继续迭代”，
+则自然进入 $L_\infty$。证毕。
+\end{proof}
+
+\begin{proposition}[跨域通用性的形式落点：对象层是法层代数的表示]\label{prop:F-representation}
+纯数卷强调：$\GAlgebra_{\mathrm{orig}}$ 在法空间内部先行定义，
+其后对象层主丛几何与具体应用由其\emph{表示（representations）}恢复（见 \cite{GaoZheng2025GFramework} 第 6845--6849 行）。
+因此，“同一套 law-level $L_\infty$/证书结构”可在不同表示下投影为不同域的对象系统，
+而诊断/修复接口（JacGap 与 GZ-OHU）仍保持同源。
+\end{proposition}
+
+\begin{proof}
+第一句为纯数卷原文结构主张（\cite{GaoZheng2025GFramework} 第 6845--6849 行）；
+第二句是对“表示不改变源代数结构，只改变其实现”的一般事实之直接推论：
+若多个对象系统共享同一源结构的表示，则其可审计缺陷证书与同伦补全接口在源层统一。证毕。
+\end{proof}
+
+\clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{PL--PI 的元级统摄性——路径语义范畴与自然同构}\label{app:G-plpi-sys-pathsem}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本章把“元级统摄性与独立性”改写为三类可证断言：
+\begin{enumerate}
+  \item （PL）任何具体逻辑的\emph{可比性}在最小接口上只依赖路径偏好序，不依赖数值刻度；
+  \item （PL$\leftrightarrow$PI）主观侧的 $D$-结构（偏好/决策）与客观侧的 Jacobiator-gap 证书体系（结构/几何）
+        在\emph{路径语义}意义下可通过自然同构互相编译（见 \cite{GZJacGapDStructEquiv}）；
+  \item （PI）演化深度可被序数化并与同伦扭曲塔对应，从而把“修复深度/广度”变成可比较对象（与纯数卷的同伦补全接口一致，见 \cite{GaoZheng2025GFramework}）。
+\end{enumerate}
+
+\subsection{G.1\;PL：逻辑侧最小语义接口是路径偏好序}
+
+\begin{definition}[路径集合与路径偏好序]\label{def:G-path-preference}
+设 $\Gamma$ 为一组可行路径（可理解为系统演化轨迹、策略序列或法空间中的可允变形曲线）。
+一条\textbf{严格偏好关系} $> \subseteq \Gamma\times\Gamma$ 满足：
+对任意 $\gamma_1,\gamma_2,\gamma_3\in\Gamma$，
+\[
+  \gamma_1>\gamma_2\ \Rightarrow\ \neg(\gamma_2>\gamma_1),
+  \qquad
+  (\gamma_1>\gamma_2\ \wedge\ \gamma_2>\gamma_3)\ \Rightarrow\ \gamma_1>\gamma_3.
+\]
+称 $(\Gamma,>)$ 为一套路径偏好语义。
+\end{definition}
+
+\begin{definition}[$D$-结构的评分表示与诱导序]\label{def:G-D-structure}
+称一对 $(\mathcal{L}_D,w)$ 为一套 $D$-结构的\textbf{评分表示}，若
+\[
+  \mathcal{L}_D(\,\cdot\,;w):\Gamma\to \mathbb{R}
+\]
+为实值评分函数（$w$ 为参数/权重）。
+由其诱导严格偏好序
+\[
+  \gamma_1 >_D \gamma_2
+  \quad:\Longleftrightarrow\quad
+  \mathcal{L}_D(\gamma_1;w)>\mathcal{L}_D(\gamma_2;w).
+\]
+\end{definition}
+
+\begin{proposition}[刻度不变性：严格单调变换不改变最小语义]\label{prop:G-monotone-invariance}
+设 $f:\mathbb{R}\to\mathbb{R}$ 严格递增。
+则对任意评分表示 $\mathcal{L}_D$，
+由 $\mathcal{L}'_D:=f\circ \mathcal{L}_D$ 诱导的偏好序满足
+\[
+  >_{D'} \;=\; >_{D}.
+\]
+因此，在最小语义接口上，$D$-结构只由偏好序决定，而不由具体数值刻度决定。
+\end{proposition}
+
+\begin{proof}
+对任意 $\gamma_1,\gamma_2\in\Gamma$，
+\[
+  \mathcal{L}_D(\gamma_1;w)>\mathcal{L}_D(\gamma_2;w)
+  \Longleftrightarrow
+  f(\mathcal{L}_D(\gamma_1;w))>f(\mathcal{L}_D(\gamma_2;w)),
+\]
+其中等价性来自 $f$ 的严格递增性。
+按定义 \ref{def:G-D-structure}，这正是 $>_{D'}=>_D$。证毕。
+\end{proof}
+
+\begin{definition}[PL-等价]\label{def:G-PL-equivalence}
+称两套 $D$-结构评分表示 $(\mathcal{L}_D,w)$ 与 $(\mathcal{L}_{D'},w')$ \textbf{PL-等价}，
+若其诱导偏好序一致：$>_D = >_{D'}$。
+记其等价类为 $[D]_{\mathrm{PL}}$。
+\end{definition}
+
+\begin{remark}[独立性的形式含义]
+命题 \ref{prop:G-monotone-invariance} 表明：
+无论底层使用何种具体逻辑（概率、模糊、布尔等），只要它最终给出同一条路径偏好序，
+则在 PL-最小接口意义下属于同一等价类 $[D]_{\mathrm{PL}}$。
+这给出“超越具体逻辑形式”的严格表达：\emph{只要偏好序可比较，细节刻度可被遗忘。}
+\end{remark}
+
+\subsection{G.2\;证书侧最小接口：JacGap 诱导的路径偏好语义}
+
+\begin{definition}[证书体系与诱导偏好]\label{def:G-certificate-order}
+设 $\mathcal{C}$ 为证书值空间，并给定一条可判定的严格序 $\prec_{\mathcal{C}}$。
+称映射 $\mathrm{Cert}:\Gamma\to\mathcal{C}$ 为一套证书体系；
+其诱导的路径偏好序定义为
+\[
+  \gamma_1 >_{\mathrm{Cert}} \gamma_2
+  \quad:\Longleftrightarrow\quad
+  \mathrm{Cert}(\gamma_1)\prec_{\mathcal{C}}\mathrm{Cert}(\gamma_2).
+\]
+（约定：$\prec_{\mathcal{C}}$ 越“小”代表越“好”。）
+\end{definition}
+
+\begin{definition}[JacGap-偏好语义（引用接口）]\label{def:G-jacgap-preference}
+纯数卷把 Jacobiator-gap 证书记为 $\mathsf{JacGap}$ 并给出其可审计性与阈值族（见 \cite{GaoZheng2025GFramework}）。
+在本文中，只使用其最小语义接口：存在可判定比较关系 $\prec_{\mathrm{Jac}}$，
+使得 $\mathsf{JacGap}$ 诱导出一条路径偏好序
+\[
+  \gamma_1 >_{\mathrm{JacGap}} \gamma_2
+  \quad:\Longleftrightarrow\quad
+  \mathsf{JacGap}(\gamma_1)\prec_{\mathrm{Jac}}\mathsf{JacGap}(\gamma_2).
+\]
+\end{definition}
+
+\subsection{G.3\;语义等价：$D$-结构与 JacGap 证书在路径语义层同构}
+
+\begin{definition}[语义等价范畴 $\mathbf{PathSem}$]\label{def:G-pathsem}
+定义范畴 $\mathbf{PathSem}$：
+\begin{itemize}
+  \item 对象为路径语义对 $(\Gamma,>)$（定义 \ref{def:G-path-preference}）；
+  \item 态射 $f:(\Gamma,>)\to(\Gamma',>')$ 为保持偏好序的映射：对任意 $\gamma_1,\gamma_2\in\Gamma$，
+        \[
+          \gamma_1>\gamma_2\ \Rightarrow\ f(\gamma_1)>'f(\gamma_2).
+        \]
+\end{itemize}
+\end{definition}
+
+\begin{definition}[系统范畴 $\mathbf{Sys}$（最小接口）]\label{def:G-sys}
+定义范畴 $\mathbf{Sys}$：
+\begin{itemize}
+  \item 对象为三元组 $S=(\Gamma_S, D_S, \mathsf{JacGap}_S)$，
+        其中 $\Gamma_S$ 为路径集合，$D_S$ 为 $D$-结构（定义 \ref{def:G-D-structure} 的 PL-等价类即可），
+        $\mathsf{JacGap}_S$ 为 JacGap 证书体系（定义 \ref{def:G-jacgap-preference}）；
+  \item 态射为保持路径集合与两类语义接口兼容的映射（即既保持 $D$-诱导序，也保持 JacGap-诱导序）。
+\end{itemize}
+该最小接口正是“同时携带主观偏好与客观证书”的形式化抽象；其更精细版本见 \cite{GZJacGapDStructEquiv}。
+\end{definition}
+
+\begin{definition}[两条遗忘函子]\label{def:G-two-functors}
+定义两条函子 $F_D,F_{\mathrm{JacGap}}:\mathbf{Sys}\to\mathbf{PathSem}$：
+\[
+  F_D(S):=(\Gamma_S,>_{D_S}),
+  \qquad
+  F_{\mathrm{JacGap}}(S):=(\Gamma_S,>_{\mathrm{JacGap}_S}),
+\]
+其中 $>_{D_S}$ 与 $>_{\mathrm{JacGap}_S}$ 分别由定义 \ref{def:G-D-structure}、\ref{def:G-jacgap-preference} 诱导。
+\end{definition}
+
+\begin{theorem}[自然同构：$F_D \cong F_{\mathrm{JacGap}}$（引用）]\label{thm:G-natural-iso}
+（见 \cite{GZJacGapDStructEquiv}）
+在 \cite{GZJacGapDStructEquiv} 给出的正则性条件下，
+存在自然同构
+\[
+  \iota:\ F_D \Longrightarrow F_{\mathrm{JacGap}},
+\]
+从而在路径语义层面有
+\[
+  F_D \cong F_{\mathrm{JacGap}}.
+\]
+等价地说：对每个系统对象 $S$，$D$-结构诱导的路径偏好语义与 JacGap 证书诱导的路径偏好语义在 $\mathbf{PathSem}$ 中同构，
+并且该同构对 $\mathbf{Sys}$ 的态射是自然的（与态射交换）。
+\end{theorem}
+
+\begin{proof}
+该结论的构造与证明见 \cite{GZJacGapDStructEquiv}：
+文中以“路径偏好语义”为共同靶范畴建立两套接口，并证明存在自然同构。
+本处仅作接口化采纳，不复述细节。证毕。
+\end{proof}
+
+\begin{corollary}[元级独立性：超越“逻辑形式”与“证书坐标”]\label{cor:G-meta-independence}
+在定理 \ref{thm:G-natural-iso} 的条件下，
+任何只依赖 $\mathbf{PathSem}$ 对象/态射陈述的命题，
+对同一系统 $S$ 来说，用 $D$-结构计算或用 JacGap 证书计算得到的结论一致（同构意义下不变）。
+因此，G-Framework 的元级统摄性可被严格表述为：
+\[
+  \text{系统评价/比较的“第一性语义”落在}\ \mathbf{PathSem},
+  \ \text{而不是落在某个特定的}\ D\ \text{或}\ \mathsf{JacGap}\ \text{坐标系。}
+\]
+\end{corollary}
+
+\begin{proof}
+由 $F_D \cong F_{\mathrm{JacGap}}$，对任意 $S$ 有 $F_D(S)$ 与 $F_{\mathrm{JacGap}}(S)$ 同构。
+任何仅依赖 $\mathbf{PathSem}$ 的性质在同构下不变，故结论一致。证毕。
+\end{proof}
+
+\subsection{G.4\;PI：超限迭代深度与同伦扭曲塔}
+
+\begin{definition}[更新算子与超限迭代深度]\label{def:G-upd-depth}
+设 $\mathcal{U}$ 为一类“可修复状态”（可取为 $D$-结构或证书增强后的系统状态）。
+给定更新算子
+\[
+  \mathrm{Upd}:\mathcal{U}\to\mathcal{U}.
+\]
+对任意序数 $\alpha$，定义超限迭代
+\[
+  \mathrm{Upd}^{0}:=\mathrm{id},\qquad
+  \mathrm{Upd}^{\alpha+1}:=\mathrm{Upd}\circ \mathrm{Upd}^{\alpha},
+  \qquad
+  \mathrm{Upd}^{\lambda}:=\lim_{\alpha<\lambda}\mathrm{Upd}^{\alpha}\quad(\lambda\ \text{为极限序数}),
+\]
+其中极限步的“$\lim$”取为在该语境下自然的极限/余极限（例如并、推出或完备化极限）。
+若存在目标谓词 $\mathcal{P}$（例如“证书归零/进入阈值域”），定义\textbf{深度}为
+\[
+  \mathrm{Depth}(\mathrm{Upd};u)
+  :=\min\{\alpha:\ \mathcal{P}(\mathrm{Upd}^{\alpha}(u))\}.
+\]
+\end{definition}
+
+\begin{theorem}[超限修复与同伦扭曲塔的一一对应（引用）]\label{thm:G-depth-tower}
+（见 \cite{GZJacGapDStructEquiv}，并与纯数卷的同伦扩张接口兼容，见 \cite{GaoZheng2025GFramework}）
+在 \cite{GZJacGapDStructEquiv} 的设定下，
+以 $D$-结构为驱动的超限修复序列与以 JacGap/同伦扩张为驱动的“同伦扭曲塔”在语义上逐层对应；
+更强地，借助定理 \ref{thm:G-natural-iso} 的自然性，该对应在 $\mathbf{Sys}$ 的态射下保持交换。
+因此，修复深度 $\mathrm{Depth}$ 与相应的同伦塔高度在该意义下等价。
+\end{theorem}
+
+\begin{proof}
+该对应的构造与证明见 \cite{GZJacGapDStructEquiv}：
+文中把超限迭代的层级与同伦扭曲/扩张的层级逐层匹配，并证明匹配与路径语义同构相容。
+纯数卷提供同伦补全（OHU）作为“扩张层”的存在性接口（见 \cite{GaoZheng2025GFramework}）。
+本处仅作接口化采纳。证毕。
+\end{proof}
+
+\subsection{G.5\;通用编译器推论：证书体系与逻辑度量的互回构造}
+
+\begin{definition}[正则证书体系]\label{def:G-regular-certificate}
+称证书体系 $(\mathrm{Cert}:\Gamma\to\mathcal{C},\prec_{\mathcal{C}})$ \textbf{正则}，
+若 $(\mathcal{C},\prec_{\mathcal{C}})$ 可嵌入某个全序集合（例如 $\mathbb{R}$）：
+存在严格递增映射 $\rho:(\mathcal{C},\prec_{\mathcal{C}})\hookrightarrow(\mathbb{R},<)$。
+\end{definition}
+
+\begin{proposition}[证书 $\Rightarrow$ 逻辑度量：从比较关系回构评分表示]\label{prop:G-cert-to-score}
+若证书体系正则（定义 \ref{def:G-regular-certificate}），
+则存在评分表示 $\mathcal{L}_D:\Gamma\to\mathbb{R}$ 使得其诱导序与证书诱导序一致：
+\[
+  >_D \;=\; >_{\mathrm{Cert}}.
+\]
+\end{proposition}
+
+\begin{proof}
+取 $\mathcal{L}_D:= -\,\rho\circ \mathrm{Cert}$。
+则对任意 $\gamma_1,\gamma_2$，
+\[
+  \gamma_1 >_{\mathrm{Cert}} \gamma_2
+  \Longleftrightarrow
+  \mathrm{Cert}(\gamma_1)\prec_{\mathcal{C}}\mathrm{Cert}(\gamma_2)
+  \Longleftrightarrow
+  \rho(\mathrm{Cert}(\gamma_1))<\rho(\mathrm{Cert}(\gamma_2))
+  \Longleftrightarrow
+  \mathcal{L}_D(\gamma_1)>\mathcal{L}_D(\gamma_2),
+\]
+即 $>_D=>_{\mathrm{Cert}}$。证毕。
+\end{proof}
+
+\begin{corollary}[“通用编译器”语义（在最小接口层）]\label{cor:G-universal-compiler}
+在正则性条件下，任一证书体系都可回构为某个逻辑评分表示（命题 \ref{prop:G-cert-to-score}）。
+结合定理 \ref{thm:G-natural-iso}（在 JacGap 与 $D$ 的具体结构层面给出自然同构），
+可把 G-Framework 的“元级统摄性”表述为：
+\[
+  \text{在路径语义层，证书与逻辑互为可编译表示；}
+  \quad
+  \text{在结构层，JacGap 与 $L_\infty$/OHU 提供可审计与可构造的实现。}
+\]
+\end{corollary}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{四维定性之形式化版本——路径语义标准模型、证书化治理、法几何本体与极尾部结构主义}\label{app:H-4d-typing}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本章内容预留：用于承载“高维定性描述 $\Rightarrow$ 可证断言接口化”的统一模板与示例，
+后续将与第二部分第 \ref{app:G-plpi-sys-pathsem} 章的路径语义范畴接口对齐并补齐证明骨架。
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{附录A：两部分公理（假设/非定理/命题）归纳}
+\phantomsection
+\addcontentsline{toc}{section}{附录A：两部分公理（假设/非定理/命题）归纳}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本附录不引入新结论，只做“可被直接调用的前提/句式/命题”登记，作为第一部分与第二部分的统一公理表入口。
+其中“非定理”指：正文中以原则句式出现、用于指导语义理解但不作为严格可证命题的陈述。
+
+\subsection*{A.1 假设（前提登记）}
+\begin{itemize}
+  \item \textbf{同伦不变量判据前提：}若以一族不变量 $\mathcal{I}$ 作为“拓扑等价不可区分”的判据族，则默认（i）每个 $I\in\mathcal{I}$ 为同伦不变量；（ii）对任意 $X,Y$，若对所有
+    $I\in\mathcal{I}$ 都有 $I(X)\cong I(Y)$，则在所采用语义下 $X,Y$ 不可被区分（见定理 \ref{thm:homotopy-minimal} 的假设）。
+  \item \textbf{纯数卷接口假设：}凡标注“引用/接口”的结论，默认在纯数卷所声明的有限性、正则性与有界性条件下成立（例如定理 \ref{thm:A-gz-ohu}、定理 \ref{thm:B-gz-ohu}）。
+\end{itemize}
+
+\subsection*{A.2 非定理句式（原则性断言登记）}
+\begin{itemize}
+  \item \textbf{同伦最小要件：}“同伦是拓扑得以进行的最小要件。”与“没有同伦，就没有拓扑意义下的等价。”
+  \item \textbf{不变量生成观：}“拓扑不变量并不是直接从空间本身生成的，而是从同伦类的组织方式中生成的。”
+  \item \textbf{跨卷对位的接口口径：}在 CH-layering 小节中，$2^{\aleph_0}$、$\aleph_1$ 等被视为跨卷对位的接口符号，而非在单一 ZFC 宇宙内推出的新定理。
+  \item \textbf{量化修复优先性：}“异构演化的统一等价于上同调障碍的可消去性；而真正解决还要求该消去过程可度量并给出稳定性界。”
+\end{itemize}
+
+\subsection*{A.3 命题（可调用接口索引）}
+\begin{itemize}
+  \item \textbf{第一部分核心接口：}命题 \ref{prop:homotopy-twist-kill-jacobi-gap}、命题 \ref{prop:cohomology-not}--\ref{prop:Q-monotone}。
+  \item \textbf{跨卷对位断言：}命题 \ref{prop:cv-A1}--\ref{prop:cv-A20}（并由命题 \ref{prop:cv-summary-discrete-unify} 汇总）。
+  \item \textbf{第二部分骨架接口：}命题 \ref{prop:A-exact-subset-closed}、命题 \ref{prop:A-cohomology-class}、命题 \ref{prop:A-linfty-jacobi-boundary}；命题 \ref{prop:B-law-curv-path}、命题 \ref{prop:B-strict-lie}；命题 \ref{prop:C-curvature-commutator}、命题 \ref{prop:C-lie-iff-jac}、命题 \ref{prop:C-auditability}、命题 \ref{prop:C-sufficient-embedding}
+    ；命题 \ref{prop:D-strict-special-case}、命题 \ref{prop:D-obstruction-structured}、命题 \ref{prop:D-auditable}；命题 \ref{prop:E-parity-as-z2}、命题 \ref{prop:E-freeze-to-gauge}；命题 \ref{prop:F-slice-special-case}--\ref{prop:F-representation}；命题
+    \ref{prop:G-monotone-invariance}、命题 \ref{prop:G-cert-to-score}。
+\end{itemize}
+
+\clearpage
+\renewcommand{\refname}{\texorpdfstring{参考文献}{References}}
+\begin{thebibliography}{99}
+
+\bibitem{GaoZheng2025GFramework}
+Gao, Z. (2025).
+\newblock Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra).
+\newblock In \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra): An Integrated Construction (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17651584}.
+
+
+\bibitem{GaoZhengAppVol1}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL, Quantum
+  Computing, and Superconductivity.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL,
+  Quantum Computing, and Superconductivity (v1.2)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17686133}.
+
+
+\bibitem{GaoZhengAppVol2}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II — LBOPB, Life-Science Monoids, and
+  Generative Precision Medicine.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II — LBOPB, Life-Science
+  Monoids, and Generative Precision Medicine (v1.1)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17744672}.
+
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+
+\bibitem{Vol4Pub}
+应用卷 IV（Pub）发布稿源文件：\url{docs/AppMathVol4/Pub_GFramework_AppMath_Vol4.tex}。
+
+\bibitem{GZJacGapDStructEquiv}
+GaoZheng. \emph{Jacobi-Gap and D-Structure Equivalence}. 内部笔记：
+\code{NoteBook/notebook1/tex3_pub/jacobi_gap_D_structure_equivalence.tex}.
+
+\end{thebibliography}
+
+
+\end{CJK*}
+\end{document}

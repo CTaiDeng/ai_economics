@@ -1,0 +1,1298 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 基本定理环境（工作笔记：形式系统风格）
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+% 记号（仅用于本笔记自洽引用，避免依赖主稿宏定义）
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+\setlength{\emergencystretch}{6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{语义函子场与语义规范场：词包判定--规范化接口\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-01-13}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是单独给出语义函子场、语义规范场或词包判定接口，而是在
+\GFramework{} 的语义--同伦修复链条中，把判定、规范化、边缘算子、表达上同调
+障碍、字符级积分与 GRL 路径积分接口组织成一个可计算的语义场系统。若这些对象
+分散出现，语义场容易被看成隐喻，规范化容易被看成文本清洗，边缘算子也容易与
+表达验证脱节；本文将它们统一为“语义表达如何被判定、规范化并修复闭合”的问题。
+
+本文的第一层立场是语义函子场的场论化。词包判定不是孤立分类器，而是作用在表达
+空间上的局部场；语义规范场则给出把局部判定拼接为全域标准集的规范化规则。由此，
+表达输入不再只是字符串，而是携带局部语义态、规范变换与闭合约束的对象。
+
+本文的第二层立场是边缘算子与上同调障碍。表达失败不只表现为某个词错误，也可以
+表现为边缘算子作用后产生的上同调障碍：局部都看似合理，但整体无法闭合。本文
+因此把语义规范化提升到同伦修复层面，通过边缘算子、字符级积分与全域规范化来
+消去表达障碍。
+
+本文的第三层立场是与路径积分和治理接口对齐。GRL 路径积分、HACA/PACER 与规范化
+接口共同说明：语义场不是前处理小工具，而是后续证书、策略、路径与命中系统的
+输入层。若语义输入不闭合，后续同伦修复和命中泛函都会失去可靠基础。
+
+本文的第四层立场是最小标准集。规范场不应无限膨胀为所有可能表达的集合，而应在
+给定语义等价口径下保留足够分离、足够生成、又尽量不可冗余的标准族。最小性在
+这里不是追求短文本，而是追求判定规则与规范化规则的不可随意删除性。
+
+本文的第五层立场是失败符号的正当化。返回 \(\bot\) 不是系统失败，而是语义规范化
+接口的重要边界：当词包表达无法安全判定、无法给出唯一规范形或无法通过闭合证书
+时，返回失败比生成伪规范更可靠。由此，规范场同时包含通过规则和拒绝规则。
+
+本文的第六层立场是字符级积分。字符级或局部片段的规范化不能停留在局部通过，
+而必须通过积分、拼接和边缘算子检查形成全域闭合。本文通过字符级积分，把局部
+语义场的判断送入全局规范结构，从而避免局部正确但整体失真的表达。
+
+本文的第七层立场是与后续语义函子正则化的前后关系。本文建立场与规范化的基础
+结构，后续语义函子正则化稿件则把这一结构进一步落到可裁决的正则生成、样例验证
+和固定点扫描上。二者共同构成从语义场到工程接口的闭环。
+
+因此，本文在整体 \GFramework{} 中承担的是“语义场规范化与同伦修复接口”的作用。
+它向前连接语义函子与表达判定，向中间连接边缘算子、上同调障碍和字符级积分，
+向后为 MDQ 规范化、开放系统治理与统计命中提供可闭合语义入口。概括地说，本文把
+“文本如何标准化”推进为“语义场如何经由规范变换与同伦修复达到全域闭合”的
+形式系统。
+
+更具体地说，本文把语义表达视为带场结构的对象。局部词包给出局部态，规范化规则
+给出局部变换，边缘算子检查局部到全局的拼接是否闭合。这样，语义错误不再只是
+词语错误，也可能是规范场中的曲率、边界或上同调障碍。
+
+从方法论上看，本文是语义层的“障碍修复稿”。它把表达失败转化为可定位、可规范化、
+可同伦修复的结构问题，并把通过/失败符号作为接口输出。后续语义函子正则化则在此
+基础上给出更工程化的候选生成与裁决机制。
+
+从整体谱系看，本文将 G-Framework 的同伦修复思想引入自然语言和表达层。它说明
+语义不是系统外部的注释，而是需要闭合、需要规范、需要证书的结构对象。这个入口
+对于后续所有依赖表达输入的形式系统都具有基础意义。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{语义函子场与语义规范场：从“判定+规范化”到最小标准集}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（严谨性润色）]
+语义规范场可被刻画为语义函子（将词包表达带入后，返回“通过并给出规范表达”或返回失败符号 $\bot$）的标准最小集。
+其中“标准”指判定规则与规范化规则可追溯且可证书化；“最小”指在给定的语义等价口径下，
+该集合在分离/生成意义上去除任一成员都会破坏其刻画能力。
+\end{remark}
+
+本章将“语义函子场/语义规范场（semantic functor field / semantic gauge field）”在纯数卷 Vol3 中的叙事，
+压缩为一个可执行的接口：在词包表达层上给出\emph{判定}并在通过时返回\emph{唯一规范形}，否则返回失败符号。
+该接口可被证书化为“部分规范化函数 + 最小标准族”的组合。
+
+\subsection{对象域与基本约定：词包层、规范形与失败符号}
+\label{subsec:tex20-domain}
+
+\begin{definition}[词包表达层与规范形子集]
+设形式语言（或语法载体）记为 $L$。将词包表达的集合（或词包算子层）记为
+\[
+\mathsf{WP}:=\Omega^{(1)}(L)\qquad(\text{word-pack level}).
+\]
+称 $\mathsf{NF}\subseteq \mathsf{WP}$ 为规范表达（唯一规范形）的集合。
+约定失败/不通过符号为 $\bot$。
+\end{definition}
+
+\begin{remark}[接口化目标]
+本章只讨论接口层：给定 $x\in \mathsf{WP}$，返回“通过并给出规范形”或“失败 $\bot$”；
+并讨论一组此类接口的“标准最小集”应满足的可检验条件。
+\end{remark}
+
+\subsection{语义函子的严格化：部分规范化函数与“判定+规范化”等价}
+\label{subsec:tex20-semantic-functor-as-partial-normalizer}
+
+\begin{definition}[语义函子（部分规范化函数）]
+称一个映射
+\[
+F:\mathsf{WP}\to \mathsf{NF}\sqcup \{\bot\}
+\]
+为一个语义函子（在本章口径下），并称其为一个部分规范化函数（partial normalizer）。
+\end{definition}
+
+\begin{definition}[判定指示函数]
+对任意 $x\in\mathsf{WP}$，定义
+\[
+\chi_F(x):=
+\begin{cases}
+\mathrm{true}, & F(x)\neq \bot,\\
+\mathrm{false}, & F(x)=\bot.
+\end{cases}
+\]
+\end{definition}
+
+\begin{proposition}[语义函子 $\Longleftrightarrow$ “判定+规范化”的二元数据]
+\label{prop:tex20-partial-normalizer-iff}
+给定 $\mathsf{WP}$、$\mathsf{NF}$ 与 $\bot$。
+以下两种数据完全等价：
+\begin{enumerate}
+  \item 一个语义函子 $F:\mathsf{WP}\to \mathsf{NF}\sqcup\{\bot\}$；
+  \item 一对数据 $(\chi,\mathrm{nf})$，其中
+  \[
+  \chi:\mathsf{WP}\to \{\mathrm{true},\mathrm{false}\},
+  \qquad
+  \mathrm{nf}:\chi^{-1}(\mathrm{true})\to \mathsf{NF}.
+  \]
+\end{enumerate}
+并且该等价可用分段定义表达为：
+\[
+F(x)=
+\begin{cases}
+\mathrm{nf}(x), & \chi(x)=\mathrm{true},\\
+\bot, & \chi(x)=\mathrm{false}.
+\end{cases}
+\]
+\end{proposition}
+
+\paragraph{证明.}
+由 $F$ 定义 $\chi(x):=[F(x)\neq \bot]$，并令 $\mathrm{nf}$ 为 $F$ 在通过域 $\chi^{-1}(\mathrm{true})$ 上的限制。
+反向由 $(\chi,\mathrm{nf})$ 按分段式定义 $F$。两侧互为逆构造。证毕。
+
+\begin{remark}[可证书化接口]
+命题~\ref{prop:tex20-partial-normalizer-iff} 将“返回真并给出规范表达 / 返回错”的表述，
+等价改写为可实现的接口：判定谓词 + 在通过域上的规范化映射。
+因此，语义函子可被视为“判定+规范化”的证书化载体。
+\end{remark}
+
+\subsection{语义规范场：语义函子的标准最小集}
+\label{subsec:tex20-semantic-gauge-field}
+
+\begin{definition}[语义函子族（语义函子场的接口化）]
+设 $I$ 为指标集。给定一族语义函子
+\[
+\mathcal{F}=\{F_i\}_{i\in I},
+\qquad
+F_i:\mathsf{WP}\to \mathsf{NF}_i\sqcup\{\bot\}.
+\]
+称 $\mathcal{F}$ 为一个语义函子场的接口化表达，其中每个 $\mathsf{NF}_i$ 可视为第 $i$ 个坐标方向的规范形空间。
+\end{definition}
+
+\subsubsection{最小分离族（separating family）的刻画}
+\label{subsubsec:tex20-separating-family}
+
+\begin{definition}[坐标化映射]
+定义由函子族诱导的坐标化映射
+\[
+\iota_{\mathcal{F}}:\mathsf{WP}\to \prod_{i\in I}\bigl(\mathsf{NF}_i\sqcup\{\bot\}\bigr),
+\qquad
+x\mapsto (F_i(x))_{i\in I}.
+\]
+\end{definition}
+
+\begin{definition}[语义等价关系（记账口径）]
+设 $\sim_{\mathrm{sem}}$ 为 $\mathsf{WP}$ 上的一个语义等价关系，用于刻画“属于同一语义对象/同一证书类/同一受控同伦类”的任一选定口径。
+\end{definition}
+
+\begin{definition}[语义规范场：标准最小分离族]
+称 $\mathcal{F}=\{F_i\}_{i\in I}$ 为语义规范场，当且仅当满足：
+\begin{enumerate}
+  \item \textbf{标准性（standard）.}
+  每个 $F_i$ 的判定与规范化规则均由固定可引用的语义操作、重写规则或证书集确定，而非依赖临时经验规则；
+  \item \textbf{分离性（separating）.}
+  \[
+  \Bigl(\forall i\in I,\ F_i(x)=F_i(y)\Bigr)\ \Longrightarrow\ x\sim_{\mathrm{sem}} y;
+  \]
+  \item \textbf{最小性（minimal）.}
+  对任意 $j\in I$，若去掉 $F_j$ 得到 $\mathcal{F}\setminus\{F_j\}$，则分离性被破坏。
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[“标准最小集”的可检验含义]
+该定义把“语义规范场等价于语义函子的标准最小集”具体化为三条可检验条件：
+标准性保证规则可追溯，分离性保证坐标足以刻画语义同类，最小性保证无冗余坐标。
+\end{remark}
+
+\subsubsection{最小生成族（generating family）的刻画}
+\label{subsubsec:tex20-generating-family}
+
+\begin{definition}[闭包生成口径]
+给定一族允许的组合规则（例如：与语义操作相容、与布尔组合/阈值化/投影组合相容、与重写/证书调用相容等），
+记由 $\mathcal{F}$ 生成的闭包为 $\langle\mathcal{F}\rangle$。
+\end{definition}
+
+\begin{definition}[语义规范场：标准最小生成族]
+在上述闭包口径下，称 $\mathcal{F}$ 为语义规范场，若满足：
+\begin{enumerate}
+  \item \textbf{完备性（completeness）.} 所有被认可的语义判定/度量/规范化函子均属于 $\langle\mathcal{F}\rangle$；
+  \item \textbf{最小性（minimal）.} 在满足完备性的前提下，$\mathcal{F}$ 取最小。
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[两种口径的对应关系]
+分离族口径强调“语义坐标足以区分等价类”，生成族口径强调“语义操作闭包可生成全部认可函子”。
+在给定闭包规则与等价关系的统一约定下，两者可作为同一“标准最小集”思想的两种等价表达方式。
+\end{remark}
+
+\subsection{与 Vol3 的 semantic functor field / semantic gauge field 的对齐}
+\label{subsec:tex20-align-with-vol3}
+
+在纯数卷 Vol3 的叙事中，“semantic functor field / semantic gauge field”将语义视为对象，
+并取一族
+\[
+F_\alpha:\mathcal{S}(L)\to V_\alpha,
+\]
+要求其与语义操作相容，并可沿 law-space 轨线在连接结构下定义语义梯度/协变导数。
+
+本章的接口化版本可理解为：将值域选择为
+\[
+V_\alpha=\mathsf{NF}_\alpha\sqcup\{\bot\},
+\]
+并把“真/假”视为是否落在 $\bot$：
+若 $F_\alpha(x)\neq \bot$，则给出通过证书与规范形；若 $F_\alpha(x)=\bot$，则给出失败。
+因此，第\ref{subsec:tex20-semantic-functor-as-partial-normalizer}--\ref{subsec:tex20-semantic-gauge-field} 小节的“判定+规范化”接口
+与 Vol3 的 functor-field/gauge-field 结构兼容，且更偏向工程化执行：它直接把语义约束落实为规范化算子族，
+并把“规范场”落实为在“标准+分离/完备+最小”意义下的基。
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{语义函子作为边缘算子：表达上同调障碍与同伦塔修复}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（严谨性润色）]
+在接口化口径下，语义函子不仅给出一条“判定+规范化”规则，同时等价地指定一个基础表达同伦类（或由语义操作闭包生成的表达同伦代数）。
+构成语义规范场的语义函子族可被视为：在最小性约束下，足以将目标阶表达上同调障碍变为上边界的一组可修复表达同伦类生成元。
+在该语义规范场中，语义函子可作为边缘算子参与构造表达复形的（同伦）微分；当出现上同调障碍时，
+通过增广少量新的语义函子并将其作为新的边缘算子加入同伦塔，可把障碍类转移并最终填平，
+从而实现“表达上同调障碍修复”；而新增语义函子的选择与表达可由变分法的最小作用量原则给出。\cite{EdgeOperatorTowerTex17,AxiomSemanticsWorkflowTex18,BV1981}
+\end{remark}
+
+本章把“语义函子族 $\Rightarrow$ 表达复形微分 $\Rightarrow$ 表达上同调障碍 $\Rightarrow$ 增广修复 $\Rightarrow$ 变分生成选择律”
+写成可直接引用的对象与等价命题链。
+
+\subsection{单个语义函子：可接受域与基础表达同伦类}
+\label{subsec:tex20-ch2-single-functor}
+
+沿用第\ref{subsec:tex20-semantic-functor-as-partial-normalizer} 小节的接口式语义函子
+\[
+F:\mathsf{WP}\to \mathsf{NF}\sqcup \{\bot\}.
+\]
+
+\begin{definition}[可接受域（admissible domain）]
+定义 $F$ 的可接受域为
+\[
+\mathsf{WP}_F:=\{x\in\mathsf{WP}:F(x)\neq \bot\}.
+\]
+\end{definition}
+
+\begin{definition}[由规范形诱导的等价关系]
+在 $\mathsf{WP}_F$ 上定义等价关系 $\sim_F$：
+\[
+x\sim_F y\quad:\Longleftrightarrow\quad F(x)=F(y).
+\]
+\end{definition}
+
+\begin{remark}[基础同伦类的 $0$ 阶版本]
+关系 $\sim_F$ 将“在 $F$ 的语义坐标下不可区分”具体化为同一类。
+若进一步指定允许的变形/重写/路径并要求其保持 $\sim_F$（以及体系中的可采纳约束），
+则可将 $(\mathsf{WP}_F,\sim_F)$ 视为一种基础表达同伦类结构的 $0$ 阶版本。
+\end{remark}
+
+\subsection{语义函子族与表达复形：边缘算子诱导的残差边界}
+\label{subsec:tex20-ch2-expression-complex}
+
+\begin{definition}[表达复形（示意）]
+将词包表达看作 $0$-链的生成元，定义
+\[
+C^0:=\mathbb{Z}\langle \mathsf{WP}\rangle.
+\]
+并用一个由“失败/冲突证书标签”生成的自由模承载 $1$-链层：
+\[
+C^1:=\mathbb{Z}\langle \mathsf{Fail}\rangle.
+\]
+此处 $\mathsf{Fail}$ 只要求可被证书化与可审计；其具体构造由实现层决定。
+\end{definition}
+
+\begin{definition}[单个语义函子的残差边界（边缘算子的一种直接写法）]
+对 $x\in\mathsf{WP}$，记 $[x]\in C^0$ 为其基元。
+给定语义函子 $F$，定义一个残差边界算子
+\[
+\partial_F:C^0\to C^0\oplus C^1
+\]
+在基元上的作用为
+\[
+\partial_F([x]):=
+\begin{cases}
+([x]-[F(x)],\,0), & F(x)\neq \bot,\\
+(0,\,[\mathrm{fail}_F(x)]), & F(x)=\bot,
+\end{cases}
+\]
+其中 $[\mathrm{fail}_F(x)]\in C^1$ 为可审计的失败证书标签。
+\end{definition}
+
+\begin{definition}[函子族的合成边缘算子]
+给定语义函子族 $\mathcal{F}=\{F_\alpha\}_{\alpha\in A}$，定义合成边缘算子
+\[
+\partial_{\mathcal{F}}:=\sum_{\alpha\in A}\partial_{F_\alpha}.
+\]
+将 $\partial_{\mathcal{F}}$ 视为表达复形的“微分端”（或同伦微分的低阶部分），其更高阶一致性由同伦塔提供补偿项。
+\end{definition}
+
+\begin{remark}[表达上同调障碍的记账方式]
+在该口径下，“尚未被解释/规范化掉的残差”可被组织为某种上同调类（或其受控版本）：
+边界代表可被当前边缘算子族消去的表象残差，而非平凡类代表在当前表达体系下不可消去的障碍。
+\end{remark}
+
+\subsection{语义规范场的“最小可修复性”：用上同调障碍刻画最小集}
+\label{subsec:tex20-ch2-minimal-repairable-field}
+
+\begin{definition}[目标阶的可修复性（抽象口径）]
+给定目标阶 $k\ge 0$，称语义函子族 $\mathcal{F}_\ast$ 具有 $k$ 阶可修复性，
+若在其诱导的表达复形（含同伦塔补偿项）上，目标阶的表达上同调障碍在受控意义下可消去：
+\[
+H^{\le k}(C^\bullet,\partial_{\mathcal{F}_\ast})\ \text{在选定口径下消失或可控（成为上边界）}.
+\]
+\end{definition}
+
+\begin{definition}[最小性（去除任一成员会破坏可修复性）]
+称 $\mathcal{F}_\ast$ 在 $k$ 阶可修复性下是最小的，若
+\[
+\forall F\in \mathcal{F}_\ast,\quad
+H^{\le k}\bigl(C^\bullet,\partial_{\mathcal{F}_\ast\setminus\{F\}}\bigr)\ \text{出现不可控的非平凡障碍类}.
+\]
+\end{definition}
+
+\begin{remark}[语义规范场与“最小可修复表达同伦类”的对应]
+上述两条性质给出一条严格可检验的语义重述：
+语义规范场可被视为“在标准性约束下，具备目标阶可修复性且最小的语义函子族”，
+从而对应“可修复表达上同调的最小表达同伦类（同伦代数）”的接口化实现。
+\end{remark}
+
+\subsection{将语义函子作为边缘算子加入同伦塔：障碍类的增广修复}
+\label{subsec:tex20-ch2-homotopy-tower-repair}
+
+当出现某一阶障碍类（记为 $[\mathcal{O}_k]\neq 0$）时，修复可被写成标准步骤：
+\begin{enumerate}
+  \item \textbf{定位障碍.} 计算
+  \[
+  [\mathcal{O}_k]\in H^k(C^\bullet,\partial_{\mathcal{F}}).
+  \]
+  \item \textbf{增广边缘算子.} 选取新增语义函子 $F_{\mathrm{new}}$ 并增广
+  \[
+  \mathcal{F}'=\mathcal{F}\cup\{F_{\mathrm{new}}\},
+  \qquad
+  \partial_{\mathcal{F}'}=\partial_{\mathcal{F}}+\partial_{F_{\mathrm{new}}},
+  \]
+  使障碍代表元在增广后变为上边界：
+  \[
+  \mathcal{O}_k=\partial_{\mathcal{F}'}(\eta_{k-1})
+  \quad\text{对某个}\quad \eta_{k-1}.
+  \]
+  \item \textbf{恢复一致性.} 由于增广可能引入新的更高阶残差，需要引入同伦塔的更高阶补偿数据以恢复一致性，
+  直至在目标阶内完成封闭与修复。\cite{EdgeOperatorTowerTex17,AxiomSemanticsWorkflowTex18}
+\end{enumerate}
+
+\subsection{变分法的生成与选择律：从“拍脑袋”到最小作用量}
+\label{subsec:tex20-ch2-variational-selection}
+
+\begin{definition}[参数化候选族与作用量]
+对候选语义函子族作参数化 $F_\theta$（$\theta\in\Theta$），并定义作用量/能量泛函
+\[
+\mathcal{S}(\theta):=
+\bigl\|\Pi_k(\mathcal{O}_k(\theta))\bigr\|^2
+\;+\;
+\lambda\,\mathrm{Comp}(F_\theta)
+\;+\;
+\mu\,\mathrm{Stab}(F_\theta),
+\]
+其中 $\Pi_k$ 表示“投影到真正的障碍分量”，$\mathrm{Comp}$ 为复杂度惩罚项（控制最小性与可审计性），
+$\mathrm{Stab}$ 为稳定性惩罚项（控制可采纳约束），$\lambda,\mu\ge 0$ 为权重。
+\end{definition}
+
+\begin{definition}[变分生成律（最小化选择）]
+定义新增函子的选择律为
+\[
+\theta^\ast:=\arg\min_{\theta\in\Theta}\mathcal{S}(\theta),
+\]
+并以 $F_{\theta^\ast}$（或其生成的小批次）作为增广修复所需的新增语义函子。
+\end{definition}
+
+\begin{remark}[“生成与表达”的含义]
+变分法在此处的作用是：把“杀掉给定上同调障碍类”转写为一个最小作用量问题；
+最优解对应“最小改动、最大修复”的新增语义函子集合，从而把修复从经验选择提升为可计算的生成律。\cite{BV1981}
+\end{remark}
+
+\subsection{可直接引用的等价叙事链（摘要）}
+\label{subsec:tex20-ch2-summary-chain}
+
+以上结构可压缩为一条接口化叙事链：
+\begin{itemize}
+  \item 单个语义函子 $F$ 给出“可接受域 + 规范形等价”，从而定义基础表达同伦类；
+  \item 函子族 $\mathcal{F}$ 诱导边缘算子 $\partial_{\mathcal{F}}$，其（受控）上同调刻画表达障碍；
+  \item 语义规范场 $\mathcal{F}_\ast$ 是在标准性与最小性约束下，使目标阶障碍可被同伦塔填平的最小函子族；
+  \item 当 $[\mathcal{O}_k]\neq 0$ 时，通过由变分最小化生成的 $F_{\mathrm{new}}$ 增广 $\partial$，
+  将障碍类变为上边界，并由更高阶同伦数据恢复一致性。
+\end{itemize}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{字符级积分：全域规范化、上同调消失与可解释表达}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（严谨性润色）]
+若字符级积分（沿输入路径的并行输运）由语义规范场诱导的语义联络实现，且该联络对应的表达复形在 $k\ge 1$ 的上同调上可收缩，
+并满足对输入域的全域可接受性，则任意输入的表达都被送到唯一的规范代表元；
+所有歧义/冲突残差皆为上边界，因此高阶上同调消失，从而得到可审计、可解释且无歧义的标准化表达。\cite{GaoZhengAppVol3,EdgeOperatorTowerTex17,AxiomSemanticsWorkflowTex18}
+\end{remark}
+
+本章把“任意输入 $\Rightarrow$ 标准化、无歧义、可解释、无高阶上同调障碍”的口径统一落入
+第\ref{subsec:tex20-semantic-gauge-field}--\ref{subsec:tex20-ch2-summary-chain} 小节的表达复形与同伦塔框架中，
+并给出可直接引用的充分条件与等价改写。
+
+\subsection{字符级积分对应：沿输入路径的并行输运}
+\label{subsec:tex20-ch3-character-integral}
+
+\begin{definition}[输入域、词包注入与离散输入路径]
+设字母表为 $\Sigma$，输入串为 $s\in\Sigma^\ast$。给定词包/表达注入
+\[
+\omega:\Sigma^\ast\to \mathsf{WP}.
+\]
+将 $s=\sigma_1\cdots\sigma_n$ 视为离散路径 $\gamma_s$（按字符步进），其端点数据由 $\omega(s)$ 给出。
+\end{definition}
+
+\begin{definition}[语义联络与字符级积分（并行输运算子）]
+给定语义规范场 $\mathcal{F}_\ast$（见第\ref{subsec:tex20-semantic-gauge-field}小节），约定其诱导一个语义联络 $A_{\mathcal{F}_\ast}$，
+使得每一步字符推进都对应一个可执行的局部输运算子（允许调用 $\mathcal{F}_\ast$ 内的语义函子并产生证书链）
+\[
+\mathrm{PT}^{A_{\mathcal{F}_\ast}}_{\sigma}:\mathsf{WP}\to \mathsf{WP}.
+\]
+则对 $s=\sigma_1\cdots\sigma_n$，定义字符级积分（离散情形的路径有序指数）为
+\[
+T_{\mathcal{F}_\ast}(s)
+:=
+\mathrm{PT}^{A_{\mathcal{F}_\ast}}_{\sigma_n}\circ\cdots\circ
+\mathrm{PT}^{A_{\mathcal{F}_\ast}}_{\sigma_1}.
+\]
+\end{definition}
+
+\begin{remark}[无歧义与“平坦性”口径]
+若对同一输入端点，输运结果与路径细节无关（在约定的语义等价/同伦口径下满足路径独立性），
+则可把该性质视为语义联络在相应商结构上的“平坦性/零曲率”表述；
+它正是后续“规范代表元唯一性”的几何化充分条件。\cite{GaoZhengAppVol3}
+\end{remark}
+
+\subsection{语义函子作为边缘算子：构造表达复形与障碍类}
+\label{subsec:tex20-ch3-complex-and-obstruction}
+
+沿用第\ref{subsec:tex20-ch2-expression-complex}小节的表达复形口径：在 $C^0:=\mathbb{Z}\langle \mathsf{WP}\rangle$ 上，
+对每个语义函子 $F:\mathsf{WP}\to \mathsf{NF}\sqcup\{\bot\}$ 定义残差边缘算子
+\[
+\partial_F([x]) :=
+\begin{cases}
+[x]-[F(x)], & F(x)\neq \bot,\\
+[\mathrm{fail}_F(x)], & F(x)=\bot.
+\end{cases}
+\]
+对语义规范场 $\mathcal{F}_\ast=\{F_\alpha\}_{\alpha\in I}$，合成边缘算子
+\[
+\partial_{\mathcal{F}_\ast}:=\sum_{\alpha\in I}\partial_{F_\alpha},
+\]
+并把“表达上同调障碍”记为某阶非平凡类
+\[
+[\mathcal{O}_k]\in H^k(C^\bullet,\partial_{\mathcal{F}_\ast}),\qquad [\mathcal{O}_k]\neq 0.
+\]
+其含义是：在当前语义函子族口径下，仍存在无法被解释为上边界的残差/歧义/冲突。
+
+\subsection{“无上同调”的严格口径：高阶上同调消失而 $H^0$ 给出规范形}
+\label{subsec:tex20-ch3-no-cohomology}
+
+\begin{remark}[术语口径]
+此处“无上同调”应理解为“无高阶上同调”：$H^k=0$（$k\ge 1$）。
+而 $H^0$ 预期刻画规范代表元空间，因此不应被抹掉。
+\end{remark}
+
+\begin{definition}[收缩同伦数据（contracting homotopy）]
+称表达复形 $(C^\bullet,\partial_{\mathcal{F}_\ast})$ 在高阶上同调上可收缩，
+若存在线性算子 $h:C^\bullet\to C^{\bullet-1}$ 与投影 $\pi:C^0\to C^0$ 使
+\[
+\partial_{\mathcal{F}_\ast}h+h\partial_{\mathcal{F}_\ast}=\mathrm{id}-\pi,
+\qquad
+\pi^2=\pi,
+\qquad
+\mathrm{im}(\pi)\subseteq \ker(\partial_{\mathcal{F}_\ast}).
+\tag{E3.1}
+\label{eq:tex20-ch3-contraction}
+\]
+并且 $\mathrm{im}(\pi)$ 与 $\mathsf{NF}$（规范形）在约定口径下同构（可理解为“投影到规范代表元”）。
+\end{definition}
+
+\begin{proposition}[高阶上同调消失与唯一规范代表元]
+\label{prop:tex20-ch3-acyclic}
+在定义\ref{eq:tex20-ch3-contraction} 的收缩同伦数据前提下，满足：
+\begin{enumerate}
+  \item 对任意 $k\ge 1$，有 $H^k(C^\bullet,\partial_{\mathcal{F}_\ast})=0$；
+  \item 对任意 $x\in C^0$，差值 $x-\pi(x)$ 为上边界：
+  \[
+  x-\pi(x)=\partial_{\mathcal{F}_\ast}\bigl(h(x)\bigr),
+  \]
+  因此 $\pi(x)$ 可作为 $x$ 的唯一规范代表元（在 $H^0$ 的等价意义下）。
+\end{enumerate}
+\end{proposition}
+
+\paragraph{证明.}
+由 \eqref{eq:tex20-ch3-contraction} 得 $\mathrm{id}-\pi$ 在同调上为零，从而 $H^{k\ge 1}$ 消失；
+并且 $x-\pi(x)=(\partial h+h\partial)(x)$ 对 $0$ 阶元退化为 $\partial(h(x))$，给出边界表达式。
+投影幂等性保证规范代表元的唯一性。证毕。
+
+\subsection{“可解释”作为接口：规范形评估与证书可审计}
+\label{subsec:tex20-ch3-interpretability}
+
+\begin{definition}[规范形语义评估函子（接口）]
+设 $\mathsf{Sem}$ 为语义值域（可为标签、结构对象或证书化值域）。称
+\[
+\mathcal{E}:\mathsf{NF}\to \mathsf{Sem}
+\]
+为规范形评估函子。
+\end{definition}
+
+\begin{remark}[可解释性的充分条件]
+若对每个输入 $s$，既能给出唯一规范形 $\mathrm{nf}(s)\in\mathsf{NF}$，
+又能给出从 $\omega(s)$ 到 $\mathrm{nf}(s)$ 的证书链（例如并行输运调用序列与同伦 $h$ 的见证），
+则 $\mathcal{E}(\mathrm{nf}(s))$ 给出单值语义输出，而证书链给出可审计的解释路径。
+\end{remark}
+
+\subsection{“任意输入都可转化”的前提：全域可接受性与动态增广}
+\label{subsec:tex20-ch3-global-admissibility}
+
+\begin{definition}[全域可接受性（静态）]
+称语义规范场 $\mathcal{F}_\ast$ 对输入域 $\Sigma^\ast$ 全域可接受，
+若对任意 $s\in\Sigma^\ast$，字符级积分 $T_{\mathcal{F}_\ast}(s)$ 在可采纳约束下可执行，
+并能将 $\omega(s)$ 送入规范形域（不落入失败 $\bot$）。
+\end{definition}
+
+\begin{definition}[全域可接受性（动态）]
+当遇到失败 $\bot$ 或产生新的障碍类 $[\mathcal{O}_k]\neq 0$ 时，
+允许按第\ref{subsec:tex20-ch2-variational-selection}小节的变分选择律增广少量新语义函子，
+并保持“标准性+最小性”的约束，使被拒绝的输入被纳入新的可接受域。
+该机制可视为“动态全域覆盖”口径。
+\end{definition}
+
+\subsection{可直接引用的命题：字符级积分给出无歧义且无高阶障碍的规范表达}
+\label{subsec:tex20-ch3-main-proposition}
+
+\begin{proposition}[字符级积分 $\Rightarrow$ 标准化、无歧义、可解释、无高阶上同调障碍]
+\label{prop:tex20-ch3-main}
+设给定语义规范场 $\mathcal{F}_\ast$、注入 $\omega:\Sigma^\ast\to\mathsf{WP}$、以及字符级积分算子 $T_{\mathcal{F}_\ast}$。
+若同时满足：
+\begin{enumerate}
+  \item （全域可接受）$\mathcal{F}_\ast$ 对 $\Sigma^\ast$ 全域可接受（静态或动态口径）；
+  \item （高阶可收缩）存在收缩同伦数据满足 \eqref{eq:tex20-ch3-contraction}；
+  \item （规范形可评估）存在规范形评估函子 $\mathcal{E}:\mathsf{NF}\to\mathsf{Sem}$。
+\end{enumerate}
+则对任意输入 $s\in\Sigma^\ast$，可定义其规范化表达（规范代表元）
+\[
+\mathrm{nf}(s):=\pi\bigl([\omega(s)]\bigr)\ \in\ \mathsf{NF},
+\]
+并且所有由字符级积分产生的歧义/冲突残差皆为上边界，从而 $k\ge 1$ 的表达上同调障碍消失；
+进一步，$\mathcal{E}(\mathrm{nf}(s))$ 给出单值语义输出，配套证书链给出可审计解释路径。
+\end{proposition}
+
+\paragraph{证明.}
+由（2）与命题\ref{prop:tex20-ch3-acyclic}，任意表达都等价于其唯一规范代表元且高阶上同调消失；
+由（1）保证“任意输入”不落入失败域；由（3）给出规范形层的单值评估，从而得到可解释输出。证毕。
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{微分动力量子、\textsf{GRL} 路径积分与 \textsf{HACA}/\textsf{PACER}：与同伦修复框架的对齐}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（严谨性润色）]
+在本笔记的接口化口径下，“微分”可被理解为由语义函子诱导的一族\emph{最小语义步进}（微分动力量子）的生成元；
+“积分”可被理解为在该步进生成的路径空间上做 \textsf{GRL} 路径积分（对候选解释/修复路径进行加权求和或近似）；
+而 \textsf{HACA}（由 \textsf{PACER} 驱动）可被理解为上述“微分动力量子 + 路径积分”在分层表达态上的可运行实现机制。\cite{GaoZhengAppVol3}
+\end{remark}
+
+本章将第\ref{subsec:tex20-ch2-expression-complex}--\ref{subsec:tex20-ch2-variational-selection} 小节的“边缘算子/上同调障碍/同伦修复/变分生成”
+与纯数卷 Vol3 的“微分动力量子、\textsf{GRL} 路径积分、\textsf{HACA}（\textsf{PACER} 驱动）”做接口级对齐。
+对齐的目标不是引入新的外部假设，而是把三者统一翻译为同一套对象--算子--证书语言，从而可被后续章节\emph{纯调用}。
+
+\subsection{对象层：表达态、语义规范场与障碍复形}
+\label{subsec:tex20-ch4-three-layers}
+
+先固定三层对象：
+\begin{itemize}
+  \item \textbf{表达态空间.} 表达态记为 $x\in\mathsf{WP}$，规范形集合为 $\mathsf{NF}\subseteq \mathsf{WP}$。
+  \item \textbf{语义规范场.} $\mathcal{F}_\ast=\{F_\alpha\}_{\alpha\in I}$，其中
+  $F_\alpha:\mathsf{WP}\to \mathsf{NF}_\alpha\sqcup\{\bot\}$（见第\ref{subsec:tex20-semantic-gauge-field}小节）。
+  \item \textbf{障碍/残差.} 以表达复形 $(C^\bullet,\partial_{\mathcal{F}_\ast})$ 组织不可解释残差，
+  其中 $\partial_{\mathcal{F}_\ast}$ 即“边缘算子”（见第\ref{subsec:tex20-ch2-expression-complex}小节）。
+\end{itemize}
+
+\subsection{微分 \texorpdfstring{$\Longleftrightarrow$}{<->} 微分动力量子：最小语义步进与生成微分}
+\label{subsec:tex20-ch4-differential-quantum}
+
+\begin{definition}[微分动力量子（一次最小语义动作）]
+对每个语义函子 $F_\alpha$，定义一次最小语义步进（量子步进算子）
+\[
+q_\alpha:\mathsf{WP}\to \mathsf{WP},
+\qquad
+q_\alpha(x):=
+\begin{cases}
+F_\alpha(x), & F_\alpha(x)\neq \bot,\\
+x, & F_\alpha(x)=\bot.
+\end{cases}
+\]
+其含义是：当 $F_\alpha$ 可执行时，将表达态推进到规范化后的表达；当 $F_\alpha$ 失败时保持原态不动，
+并由边缘算子 $\partial_{F_\alpha}$ 在复形中记录失败残差（参见第\ref{subsec:tex20-ch2-expression-complex}小节）。
+\end{definition}
+
+\begin{definition}[微分增量与生成微分（协变微分）]
+在 $C^0=\mathbb{Z}\langle \mathsf{WP}\rangle$ 上定义“微分增量”
+\[
+\delta_\alpha([x]):=[q_\alpha(x)]-[x].
+\]
+允许权重 $a_\alpha(x)$ 依赖于当前表达态（表示“此处更应调用哪个量子步进”），定义生成微分（协变微分）
+\[
+D_{\mathcal{F}_\ast}([x])
+:=
+\sum_{\alpha\in I} a_\alpha(x)\,\delta_\alpha([x]).
+\tag{E4.1}
+\label{eq:tex20-ch4-covariant-diff}
+\]
+式 \eqref{eq:tex20-ch4-covariant-diff} 即“微分由微分动力量子生成”的接口化表达。
+\end{definition}
+
+\begin{remark}[与边缘算子/上同调口径的兼容]
+在复形层面，$\partial_{\mathcal{F}_\ast}$ 记录“偏离规范形”的残差是否为边界；在动力学层面，
+$D_{\mathcal{F}_\ast}$ 则记录“可调用的最小语义步进”如何推动状态演化。
+二者的对齐点在于：$\partial_{\mathcal{F}_\ast}$ 的障碍类 $[\mathcal{O}_k]\neq 0$ 等价于
+“仅靠当前可调用的量子步进族无法在该阶闭合/解释残差”，从而触发增广与同伦塔修复（见第\ref{subsec:tex20-ch2-homotopy-tower-repair}小节）。\cite{EdgeOperatorTowerTex17,
+  AxiomSemanticsWorkflowTex18}
+\end{remark}
+
+\subsection{积分 \texorpdfstring{$\Longleftrightarrow$}{<->} \textsf{GRL} 路径积分：对候选修复路径加权}
+\label{subsec:tex20-ch4-grl-path-integral}
+
+\begin{definition}[候选路径（量子步进序列）]
+对输入 $s$，记 $x_0:=\omega(s)\in\mathsf{WP}$。一条候选解释/修复路径定义为序列
+\[
+\pi:\quad
+x_0 \xrightarrow{q_{\alpha_0}} x_1 \xrightarrow{q_{\alpha_1}} \cdots \xrightarrow{q_{\alpha_{T-1}}} x_T,
+\qquad x_{t+1}:=q_{\alpha_t}(x_t).
+\]
+\end{definition}
+
+\begin{definition}[作用量：障碍残差 + 复杂度 + \textsf{GRL} 奖励]
+为对路径进行加权，引入作用量（离散型）：
+\[
+\mathcal{S}(\pi):=
+\sum_{t=0}^{T-1}
+\Bigl(
+\underbrace{\|\mathcal{O}(x_t)\|^2}_{\text{上同调/残差能量}}
+\;+\;
+\lambda\,\underbrace{\mathrm{Comp}(q_{\alpha_t})}_{\text{最小性/可审计}}
+\;-\;
+\beta\,\underbrace{r(x_t,q_{\alpha_t})}_{\text{\textsf{GRL} 奖励}}
+\Bigr),
+\tag{E4.2}
+\label{eq:tex20-ch4-action}
+\]
+其中 $\mathcal{O}(x_t)$ 表示在当前口径下的障碍/残差测度（可由证书诊断器给出），
+$r$ 为奖励函数，$\lambda,\beta\ge 0$ 为权重。
+\end{definition}
+
+\begin{definition}[\textsf{GRL} 路径积分与规范化输出]
+定义终点规范形 $n\in\mathsf{NF}$ 的（未归一化）权重为
+\[
+P(n\mid s)\ \propto\
+\sum_{\pi:\ x_T\mapsto n}\exp\bigl(-\mathcal{S}(\pi)\bigr).
+\tag{E4.3}
+\label{eq:tex20-ch4-path-integral}
+\]
+由此给出两种等价的规范化输出口径：
+\[
+\mathrm{nf}(s)=\arg\max_{n\in\mathsf{NF}} P(n\mid s),
+\qquad\text{或（若可加）}\qquad
+\mathrm{nf}(s)=\mathbb{E}[n\mid s].
+\]
+式 \eqref{eq:tex20-ch4-path-integral} 即“积分对应 \textsf{GRL} 路径积分”的接口化表达。
+\end{definition}
+
+\begin{remark}[与第\ref{subsec:tex20-ch3-character-integral}小节字符级积分的关系]
+第\ref{subsec:tex20-ch3-character-integral}小节的字符级积分 $T_{\mathcal{F}_\ast}(s)$ 是对\emph{一条确定的输运路径}做有序复合；
+而 \textsf{GRL} 路径积分 \eqref{eq:tex20-ch4-path-integral} 则是在“量子步进选择”张成的路径空间上做加权求和，
+把“规范化输出”从确定性复合提升为“最优/期望”口径。\cite{GaoZhengAppVol3}
+\end{remark}
+
+\subsection{\textsf{HACA}（\textsf{PACER} 驱动）：分层表达态上的可运行近似器}
+\label{subsec:tex20-ch4-haca-pacer}
+
+\begin{definition}[\textsf{HACA} 分层表达态（示意）]
+将表达态组织为分层向量
+\[
+x=\bigl(x^{(1)},x^{(2)},x^{(3)},x^{(4)},x^{(5)}\bigr),
+\]
+分别对应词法/语法/句法/文法/语义等层（或 \textsf{HACA} 中约定的五层幺半群簇结构）。
+每个微分动力量子 $q_\alpha$ 被要求为受控更新：
+\[
+q_{\alpha}(x)=\bigl(q_{\alpha}^{(1)}(x),\dots,q_{\alpha}^{(5)}(x)\bigr),
+\]
+并以跨层一致性残差定义障碍能量 $\|\mathcal{O}(x)\|^2$（参见 \eqref{eq:tex20-ch4-action}）。
+\end{definition}
+
+\begin{definition}[\textsf{PACER}：路径积分的粒子近似（示意接口）]
+维护 $M$ 条候选路径（或候选态序列）$\{\pi^{(m)}\}_{m=1}^M$，并赋予权重
+\[
+w^{(m)}\propto \exp\bigl(-\mathcal{S}(\pi^{(m)})\bigr).
+\]
+\textsf{PACER} 以“生成--筛选--重采样--修复”的循环近似 \eqref{eq:tex20-ch4-path-integral}：
+\begin{enumerate}
+  \item 在可采纳约束下生成候选量子步进 $q_{\alpha_t}$；
+  \item 应用于 \textsf{HACA} 分层态得到 $x_t\to x_{t+1}$；
+  \item 计算障碍能量与奖励并更新权重 $w^{(m)}$；
+  \item 重采样以淘汰低权重路径；
+  \item 若出现“障碍不降反升/稳定非零”，触发语义规范场的增广修复（见第\ref{subsec:tex20-ch4-augmentation}小节）。
+\end{enumerate}
+该接口表达了“\textsf{HACA}（由 \textsf{PACER} 驱动）是 \textsf{GRL} 路径积分的可运行实现机制”。\cite{GaoZhengAppVol3}
+\end{definition}
+
+\subsection{障碍触发与增广：\textsf{PACER} 采样下的变分生成}
+\label{subsec:tex20-ch4-augmentation}
+
+当在 \textsf{PACER} 采样下观察到某阶障碍类持续非零（可理解为“无论如何选步进都绕不开的闭环残差”）时，
+需要扩展语义规范场：
+\[
+\mathcal{F}_\ast\ \leftarrow\ \mathcal{F}_\ast\cup\{F_\theta\}.
+\]
+
+\begin{definition}[期望意义下的变分生成律（接口）]
+在 \textsf{PACER} 诱导的路径分布下，以期望障碍能量为主项，定义
+\[
+\theta^\ast
+:=
+\arg\min_{\theta}
+\Bigl(
+\underbrace{\mathbb{E}_{\pi\sim \textsf{PACER}}\bigl\|\Pi_k(\mathcal{O}_k(\pi;\theta))\bigr\|^2}_{\text{把第 $k$ 阶障碍压到边界}}
+\;+\;
+\lambda\,\mathrm{Comp}(F_\theta)
+\;+\;
+\mu\,\mathrm{Stab}(F_\theta)
+\Bigr),
+\tag{E4.4}
+\label{eq:tex20-ch4-variational-augment}
+\]
+并用 $F_{\theta^\ast}$（或其生成的小批次）增广 $\mathcal{F}_\ast$，使障碍类在增广系统中可被同伦塔吸收。\cite{BV1981,EdgeOperatorTowerTex17}
+\end{definition}
+
+\begin{remark}[与第\ref{subsec:tex20-ch2-variational-selection}小节的关系]
+式 \eqref{eq:tex20-ch4-variational-augment} 是第\ref{subsec:tex20-ch2-variational-selection}小节变分选择律的“路径积分/采样版”：
+由点态障碍代表元 $\mathcal{O}_k(\theta)$ 推广到路径分布下的期望障碍能量，从而可直接嵌入 \textsf{PACER} 循环作为增广触发的生成律。
+\end{remark}
+
+\subsection{接口化结论（摘要）}
+\label{subsec:tex20-ch4-summary}
+
+以上对齐可压缩为一条链：
+\begin{itemize}
+  \item 微分 $\rightsquigarrow$ 微分动力量子 $\{q_\alpha\}$ 与生成微分 $D_{\mathcal{F}_\ast}$；
+  \item 积分 $\rightsquigarrow$ \textsf{GRL} 路径积分 \eqref{eq:tex20-ch4-path-integral}；
+  \item 机制 $\rightsquigarrow$ \textsf{HACA} 分层态上的 \textsf{PACER} 粒子近似与障碍触发增广；
+  \item 若增广后满足第\ref{subsec:tex20-ch3-no-cohomology}小节的高阶可收缩条件，则回到命题\ref{prop:tex20-ch3-main} 的“任意输入 $\Rightarrow$
+    唯一规范形且无高阶障碍”的结论。
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{相对 Vol3 的接口化增益：从概念到可计算、可选取、可修复}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+对照纯数卷 Vol3（尤其是 Def.\ ``Semantic Gauge Fields of Functors''、将 semantic functor 视为 meaning 的 differential dynamical
+  quantum，
+以及“双层 \textsf{GRL} path integral + \textsf{HACA}/\textsf{PACER} + certificate”的主线），\cite{GaoZhengAppVol3}
+本笔记的增益不在于“更换叙事”，而在于把若干仍偏概念层的位置补全为更可计算、可选取、可修复的
+“接口 + 复形 + 变分生成律”。下文按可直接回写入 Vol3 的角度给出接口化归纳。
+
+\subsection{增益定位：补齐“接口 + 复形 + 生成律”三处缺口}
+\label{subsec:tex20-ch5-positioning}
+
+Vol3 给出“语义规范场—语义函子代数—微分动力量子—\textsf{GRL} 路径积分—\textsf{HACA}/\textsf{PACER}—证书”的总体架构。
+本笔记补齐的三处关键缺口是：
+\begin{enumerate}
+  \item 语义函子的“判定+规范化”接口化（将语义落到 $\mathsf{NF}\sqcup\{\bot\}$ 的可执行算子）；
+  \item 以表达复形/上同调障碍刻画“修复”（把修复落成“杀同调类”的结构命题）；
+  \item 以变分法给出“最小增广函子”的生成律（把“需要引入什么”落成可计算选择机制）。\cite{BV1981}
+\end{enumerate}
+
+\subsection{增益一：将 $F_\alpha:\mathcal{S}(L)\to V_\alpha$ 特化为“判定+规范化”的可执行接口}
+\label{subsec:tex20-ch5-gain1}
+
+Vol3 允许 $V_\alpha$ 取 $\{0,1\}$、区间、标签集等更一般值域。\cite{GaoZhengAppVol3}
+本笔记将语义函子进一步特化为
+\[
+F:\mathsf{WP}\to \mathsf{NF}\sqcup\{\bot\},
+\]
+等价于“返回真并给出规范形/返回错”。增益在于：语义不再仅是抽象值域，而直接成为可审计的规范化算子，
+从而“无歧义”“可解释”都有了硬落点（$\mathsf{NF}$ 与 $\bot$）。
+
+\subsection{增益二：为“语义规范场 = 标准最小集”补齐可检验的最小性准则}
+\label{subsec:tex20-ch5-gain2}
+
+Vol3 定义语义规范场与语义规范联络（semantic gauge field + connection/gradient），但并不强制“最小”。\cite{GaoZhengAppVol3}
+本笔记给出两种等价的最小性刻画（见第\ref{subsec:tex20-semantic-gauge-field}小节）：
+\begin{enumerate}
+  \item \textbf{最小分离族.} $\{F_i\}$ 作为语义坐标足以区分语义等价类，且删去任一成员即不足；
+  \item \textbf{最小生成族.} 在允许的语义操作闭包下能生成所需语义判定/规范化函子，且集合最小。
+\end{enumerate}
+增益在于：“最小表达同伦类/同伦代数”获得可检验定义，而不再停留为口号。
+
+\subsection{增益三：引入“表达上同调”的可计算载体：将语义函子作为边缘算子构造表达复形}
+\label{subsec:tex20-ch5-gain3}
+
+Vol3 讨论 homotopy/cohomology、Jacobiator-gap 与 certificate，但未将“表达层障碍”系统组织为复形并把“修复”写成“杀同调类”。\cite{GaoZhengAppVol3}
+本笔记补齐为（见第\ref{subsec:tex20-ch2-expression-complex}小节）：
+\begin{enumerate}
+  \item 由函子族诱导边缘算子/微分 $\partial_{\mathcal{F}}$；
+  \item 令歧义、失败、冲突残差成为链群生成元；
+  \item 将表达障碍定义为 $H^{k\ge 1}(C^\bullet,\partial_{\mathcal{F}})$ 的非平凡类；
+  \item 修复即增广少量新函子使障碍类变为边界。\cite{EdgeOperatorTowerTex17,AxiomSemanticsWorkflowTex18}
+\end{enumerate}
+增益在于：“修复表达上同调”不再是比喻，而成为可定理化的结构命题。
+
+\subsection{增益四：把“无歧义标准化”提升为干净的充分条件（contracting homotopy）}
+\label{subsec:tex20-ch5-gain4}
+
+“任意输入 $\Rightarrow$ 标准化、无歧义、可解释表达”在严格性上最易卡住的点在于：若误写为“完全无上同调”，则 $H^0$ 亦消失；
+但 $H^0$ 应承载规范形空间。本笔记将口径纠正为（见第\ref{subsec:tex20-ch3-no-cohomology}小节）：
+\[
+H^{k}(C^\bullet,\partial)=0\ (k\ge 1),
+\qquad
+H^0(C^\bullet,\partial)\simeq \mathsf{NF},
+\]
+并给出标准充分条件（收缩同伦 + 投影）：
+\[
+\partial h+h\partial=\mathrm{id}-\pi,
+\]
+从而把“无高阶障碍 + 唯一规范形 + 可追溯修复”连成一条严格链。\cite{AxiomSemanticsWorkflowTex18}
+
+\subsection{增益五：将 \textsf{GRL} 路径积分与“修复/最小增广”耦合：作用量显式包含障碍能量与复杂度惩罚}
+\label{subsec:tex20-ch5-gain5}
+
+Vol3 已给出“双层 path integral + minimal-action”的主线。\cite{GaoZhengAppVol3}
+本笔记进一步将“上同调障碍”作为作用量主项之一，将“最小增广/最小规范场”作为复杂度惩罚项（见 \eqref{eq:tex20-ch4-action}）：
+路径积分不再仅偏好小 action，而偏好“能把障碍压成边界且证书/规则最短”的路径，
+从而使“遇到障碍就需要引入新函子”的叙事与同一套能量语言同构对齐。
+
+\subsection{增益六：把“新增语义函子由变分法生成”写成明确的生成律}
+\label{subsec:tex20-ch5-gain6}
+
+Vol3 未给出“新增函子如何选”的可执行律。\cite{GaoZhengAppVol3}
+本笔记将其补齐为：参数化候选 $F_\theta$，最小化
+\[
+\mathcal{S}(\theta)=\bigl\|\Pi_k(\mathcal{O}_k(\theta))\bigr\|^2
+\;+\;
+\lambda\,\mathrm{Comp}(F_\theta)
+\;+\;
+\mu\,\mathrm{Stab}(F_\theta),
+\]
+得到 $\theta^\ast$ 对应的最小增广函子（见第\ref{subsec:tex20-ch2-variational-selection}小节与 \eqref{eq:tex20-ch4-variational-augment}）。
+  \cite{BV1981}
+增益在于：变分法“生成与表达”从叙述变成可实现、可证书化的选择机制。
+
+\subsection{增益七：将 \textsf{MDQ}/微分/积分/\textsf{HACA}-\textsf{PACER} 补成可运行管线：微分生成元—路径积分—近似计算器}
+\label{subsec:tex20-ch5-gain7}
+
+Vol3 已明确 semantic functor 是 meaning 的 \textsf{MDQ}，并给出 \textsf{HACA}/\textsf{PACER} 的定位。\cite{GaoZhengAppVol3}
+本笔记新增的是把它们接入同一条可运行管线（见第\ref{subsec:tex20-ch4-differential-quantum}--\ref{subsec:tex20-ch4-haca-pacer}小节）：
+\begin{enumerate}
+  \item 每个 $F_\alpha$ 对应一个最小语义步进 $q_\alpha$（微分动力量子）；
+  \item \textsf{GRL} path integral 在这些步进张成的路径空间上做全局加权选择；
+  \item \textsf{PACER} 作为路径积分的可计算近似（保留高权重路径束），并在“障碍不降”时触发变分增广。
+\end{enumerate}
+增益在于：“何时增广、增广什么”获得可落地的触发条件与生成律。
+
+\subsection{增益八：澄清“任意输入都可转化”的严格前提：全域覆盖或动态增广}
+\label{subsec:tex20-ch5-gain8}
+
+若不补齐前提，读者容易误以为“只要有语义规范场就必然全域可规范”。本笔记明确区分两种口径（见第\ref{subsec:tex20-ch3-global-admissibility}小节）：
+\begin{enumerate}
+  \item \textbf{静态全域覆盖：} $\mathcal{F}_\ast$ 自身覆盖全域可接受域；
+  \item \textbf{动态全域覆盖：} 运行中遇到 $\bot$/障碍时动态增广直到覆盖。
+\end{enumerate}
+增益在于：后续使用“任意输入”时不会在严格性上留下漏洞。
+
+\subsection{回写建议：在 Vol3 中的自然插入点}
+\label{subsec:tex20-ch5-writeback}
+
+若将本笔记的“增益”回写入 Vol3，最自然的插入点是：Def.\ semantic gauge field 之后增加一个小节，
+标题可直接取
+\begin{quote}
+  \textit{Semantic gauge fields as minimal normalizing families and expression cohomology repair}.
+\end{quote}
+并按 \emph{Definition/Proposition} 顺序落入四件事：
+\[
+\text{最小性}\;\Rightarrow\;\text{表达复形}\;\Rightarrow\;\text{contracting homotopy}\;\Rightarrow\;\text{变分增广生成律},
+\]
+即可与 Vol3 原有结构同构对齐。\cite{GaoZhengAppVol3}
+
+\renewcommand{\refname}{\texorpdfstring{参考文献}{References}}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+\section{附录A：可被引用的证书接口（语义规范场—同伦修复—路径积分）}
+\label{app:tex20-certificate-interfaces}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本附录的定位与引用方式]
+本附录将正文中的关键“定义--命题--等价链”压缩为若干条可直接引用的\emph{证书接口}（Certificate Interfaces）。
+每条证书均按“输入--输出--保证--引用点”的格式陈述，便于在其他章节或其他卷中作为外部证书调用。
+\end{remark}
+
+\subsection{证书索引（接口清单）}
+\label{subsec:tex20-appA-index}
+\begin{itemize}
+  \item \textbf{A1（\texttt{cert:tex20-appA-semantic-functor-interface}）} 语义函子接口：判定+规范化（partial normalizer）。
+  \item \textbf{A2（\texttt{cert:tex20-appA-semantic-gauge-field-interface}）} 语义规范场接口：标准最小分离族/生成族。
+  \item \textbf{A3（\texttt{cert:tex20-appA-expression-complex-interface}）} 表达复形接口：由语义函子族诱导边缘算子与障碍类。
+  \item \textbf{A4（\texttt{cert:tex20-appA-minimal-repairable-interface}）} 最小可修复性接口：目标阶上同调可修复与最小性。
+  \item \textbf{A5（\texttt{cert:tex20-appA-homotopy-tower-repair-interface}）} 同伦塔增广修复接口：把障碍类变为上边界。
+  \item \textbf{A6（\texttt{cert:tex20-appA-contracting-homotopy-interface}）} 收缩同伦接口：$H^{k\ge 1}=0$ 与唯一规范代表元投影。
+  \item \textbf{A7（\texttt{cert:tex20-appA-character-integral-normalization-interface}）} 字符级积分规范化接口：标准化、无歧义、可解释、无高阶障碍。
+  \item \textbf{A8（\texttt{cert:tex20-appA-mdq-differential-interface}）} 微分动力量子接口：最小语义步进生成协变微分。
+  \item \textbf{A9（\texttt{cert:tex20-appA-grl-path-integral-interface}）} \textsf{GRL} 路径积分接口：作用量加权与规范化输出。
+  \item \textbf{A10（\texttt{cert:tex20-appA-variational-augmentation-interface}）} 变分增广接口：由最小作用量生成新增语义函子。
+  \item \textbf{A11（\texttt{cert:tex20-appA-haca-pacer-interface}）} \textsf{HACA}/\textsf{PACER} 运行接口：路径积分近似器与触发增广条件。
+  \item \textbf{A12（\texttt{cert:tex20-appA-endtoend-callgraph}）} 端到端调用链接口：从任意输入到规范形与语义输出的证书化调用图。
+\end{itemize}
+
+\subsection{基础接口：语义函子与语义规范场}
+\label{subsec:tex20-appA-base}
+
+\begin{Certificate}[A1：语义函子接口（判定+规范化 / partial normalizer）]
+\label{cert:tex20-appA-semantic-functor-interface}
+\begin{description}
+  \item[输入] 集合对 $(\mathsf{WP},\mathsf{NF})$ 与失败符号 $\bot$；以及下述两种数据之一：
+  \begin{enumerate}
+    \item 语义函子 $F:\mathsf{WP}\to \mathsf{NF}\sqcup\{\bot\}$；
+    \item 二元数据 $(\chi,\mathrm{nf})$，其中
+    $\chi:\mathsf{WP}\to\{\mathrm{true},\mathrm{false}\}$，
+    $\mathrm{nf}:\chi^{-1}(\mathrm{true})\to\mathsf{NF}$。
+  \end{enumerate}
+  \item[输出] 与输入等价的另一种描述；并诱导：
+  \[
+  \mathsf{WP}_F:=\{x\in\mathsf{WP}\mid F(x)\neq\bot\},
+  \qquad
+  x\sim_F y\ :\Longleftrightarrow\ F(x)=F(y)\neq\bot.
+  \]
+  \item[保证] 两种数据描述完全等价；$\mathsf{WP}_F$ 给出“可接受域”，$\sim_F$ 给出“规范形等价口径”，可作为基础表达同伦类（$0$ 阶同类口径）的最小接口。
+  \item[引用点] 命题 \ref{prop:tex20-partial-normalizer-iff}，并与第\ref{subsec:tex20-semantic-functor-as-partial-normalizer}
+    小节口径一致。
+\end{description}
+\end{Certificate}
+
+\begin{Certificate}[A2：语义规范场接口（标准最小分离族/生成族）]
+\label{cert:tex20-appA-semantic-gauge-field-interface}
+\begin{description}
+  \item[输入] 语义函子族 $\mathcal{F}=\{F_i\}_{i\in I}$（每个 $F_i:\mathsf{WP}\to\mathsf{NF}_i\sqcup\{\bot\}$）；
+  一条语义等价关系 $\sim_{\mathrm{sem}}$；以及“标准性”所依赖的可引用规则集（语义操作/重写/证书集）。
+  \item[输出] 坐标化映射
+  \[
+  \iota_{\mathcal{F}}:\mathsf{WP}\to \prod_{i\in I}\bigl(\mathsf{NF}_i\sqcup\{\bot\}\bigr),
+  \qquad
+  x\mapsto (F_i(x))_{i\in I},
+  \]
+  以及两种等价的“标准最小集”口径：
+  \begin{enumerate}
+    \item 标准最小\emph{分离族}：标准性 + 分离性 + 最小性；
+    \item 标准最小\emph{生成族}：在选定闭包规则下的完备性 + 最小性。
+  \end{enumerate}
+  \item[保证] 在分离族口径下，若 $\forall i,\ F_i(x)=F_i(y)$ 则 $x\sim_{\mathrm{sem}} y$；并且删去任一 $F_j$ 将破坏该刻画能力。
+  在生成族口径下，$\mathcal{F}$ 的闭包可生成全部认可的语义判定/规范化函子，且无冗余生成元。
+  \item[引用点] 第\ref{subsec:tex20-semantic-gauge-field}小节与第\ref{subsubsec:tex20-separating-family}、\ref{subsubsec:tex20-generating-family}小节。
+\end{description}
+\end{Certificate}
+
+\subsection{复形接口：边缘算子、障碍类与最小可修复性}
+\label{subsec:tex20-appA-complex}
+
+\begin{Certificate}[A3：表达复形接口（边缘算子与障碍类）]
+\label{cert:tex20-appA-expression-complex-interface}
+\begin{description}
+  \item[输入] 一组语义函子族 $\mathcal{F}$；以及表达态生成的 $0$-链空间
+  $C^0:=\mathbb{Z}\langle \mathsf{WP}\rangle$（或等价的自由模口径）。
+  \item[输出] 对每个 $F\in\mathcal{F}$ 的残差边缘算子
+  \[
+  \partial_F([x]):=
+  \begin{cases}
+    [x]-[F(x)], & F(x)\neq\bot,\\
+    [\mathrm{fail}_F(x)], & F(x)=\bot,
+  \end{cases}
+  \]
+  以及合成边缘算子（微分）
+  \[
+  \partial_{\mathcal{F}}:=\sum_{F\in\mathcal{F}}\partial_F,
+  \]
+  从而得到表达复形 $(C^\bullet,\partial_{\mathcal{F}})$ 与上同调群 $H^k(C^\bullet,\partial_{\mathcal{F}})$。
+  \item[保证] “表达上同调障碍”可被识别为 $k\ge 1$ 的非平凡类 $[\mathcal{O}_k]\neq 0\in H^k(C^\bullet,\partial_{\mathcal{F}})$；
+  它等价于“仅靠当前函子族的边缘算子无法把该阶残差解释为上边界（coboundary）”。
+  \item[引用点] 第\ref{subsec:tex20-ch2-expression-complex}小节与第\ref{subsec:tex20-ch3-complex-and-obstruction}小节。
+\end{description}
+\end{Certificate}
+
+\begin{Certificate}[A4：最小可修复性接口（目标阶障碍可修复与最小性）]
+\label{cert:tex20-appA-minimal-repairable-interface}
+\begin{description}
+  \item[输入] 目标阶 $k\ge 1$；语义函子族 $\mathcal{F}_\ast$；以及由其诱导的表达复形 $(C^\bullet,\partial_{\mathcal{F}_\ast})$。
+  \item[输出] 两个可检验判据：
+  \begin{enumerate}
+    \item（$k$ 阶可修复）$H^{\le k}(C^\bullet,\partial_{\mathcal{F}_\ast})$ 在选定口径下消失或可控（成为上边界）；
+    \item（最小性）对任意 $F\in\mathcal{F}_\ast$，去除 $F$ 后的系统出现不可控的非平凡障碍类。
+  \end{enumerate}
+  \item[保证] 在标准性约束下，$\mathcal{F}_\ast$ 可被视为“可修复表达上同调的最小表达同伦类（同伦代数）生成元集合”的接口化实现。
+  \item[引用点] 第\ref{subsec:tex20-ch2-minimal-repairable-field}小节（两条定义）与备注链路。
+\end{description}
+\end{Certificate}
+
+\begin{Certificate}[A5：同伦塔增广修复接口（把障碍类变为上边界）]
+\label{cert:tex20-appA-homotopy-tower-repair-interface}
+\begin{description}
+  \item[输入] 当前系统 $(C^\bullet,\partial_{\mathcal{F}})$；一条障碍类 $[\mathcal{O}_k]\neq 0$（$k\ge 1$）；
+  以及允许增广的候选语义函子空间（可由变分法参数化）。
+  \item[输出] 一次“增广修复”操作：选取少量新增语义函子 $F_{\mathrm{new}}$，
+  令 $\mathcal{F}^{+}:=\mathcal{F}\cup\{F_{\mathrm{new}}\}$，并以 $\partial_{\mathcal{F}^{+}}$ 替换 $\partial_{\mathcal{F}}$。
+  \item[保证] 存在（或可通过变分选择律构造）新增函子使得
+  \[
+  \mathcal{O}_k=\partial_{\mathcal{F}^{+}}(\eta_{k-1})
+  \]
+  对某个 $\eta_{k-1}$ 成立，从而 $[\mathcal{O}_k]$ 在增广系统中变为上边界；与此同时，
+  增广可能引入更高阶残差，需由更高阶同伦数据（同伦塔上层）继续吸收，直至在目标阶内填平。
+  \item[引用点] 第\ref{subsec:tex20-ch2-homotopy-tower-repair}小节的标准步骤。
+\end{description}
+\end{Certificate}
+
+\subsection{规范化接口：收缩同伦、字符级积分与可解释输出}
+\label{subsec:tex20-appA-normalization}
+
+\begin{Certificate}[A6：收缩同伦接口（高阶上同调消失与唯一规范代表元）]
+\label{cert:tex20-appA-contracting-homotopy-interface}
+\begin{description}
+  \item[输入] 表达复形 $(C^\bullet,\partial_{\mathcal{F}_\ast})$；线性算子 $h:C^\bullet\to C^{\bullet-1}$ 与投影 $\pi:C^0\to C^0$。
+  \item[输出] 收缩同伦条件
+  \[
+  \partial_{\mathcal{F}_\ast}h+h\partial_{\mathcal{F}_\ast}=\mathrm{id}-\pi,
+  \qquad \pi^2=\pi,
+  \tag{A6.1}
+  \label{eq:tex20-appA-contraction}
+  \]
+  及其结论：对任意 $k\ge 1$，$H^k(C^\bullet,\partial_{\mathcal{F}_\ast})=0$；且对任意 $x\in C^0$，
+  \[
+  x-\pi(x)=\partial_{\mathcal{F}_\ast}(h(x)).
+  \]
+  \item[保证] $\pi(x)$ 在 $H^0$ 意义下给出 $x$ 的唯一规范代表元；$h(x)$ 给出“差为上边界”的见证，从而为可审计解释链提供同伦证书。
+  \item[引用点] 定义 \eqref{eq:tex20-ch3-contraction} 与命题 \ref{prop:tex20-ch3-acyclic}。
+\end{description}
+\end{Certificate}
+
+\begin{Certificate}[A7：字符级积分规范化接口（标准化、无歧义、可解释、无高阶障碍）]
+\label{cert:tex20-appA-character-integral-normalization-interface}
+\begin{description}
+  \item[输入] 语义规范场 $\mathcal{F}_\ast$；注入 $\omega:\Sigma^\ast\to\mathsf{WP}$；
+  字符级积分算子 $T_{\mathcal{F}_\ast}$（并行输运口径）；
+  以及收缩同伦数据 $(h,\pi)$ 与规范形评估函子 $\mathcal{E}:\mathsf{NF}\to\mathsf{Sem}$。
+  \item[输出] 对任意输入 $s\in\Sigma^\ast$ 的规范代表元
+  \[
+  \mathrm{nf}(s):=\pi\bigl([\omega(s)]\bigr)\in\mathsf{NF},
+  \]
+  以及单值语义输出 $\mathcal{E}(\mathrm{nf}(s))$。
+  \item[保证] 若 $\mathcal{F}_\ast$ 对 $\Sigma^\ast$ 全域可接受（静态或动态口径），则对任意输入：
+  \begin{enumerate}
+    \item 规范代表元存在且在约定口径下唯一（无歧义）；
+    \item 所有由字符级积分产生的歧义/冲突残差皆为上边界，故 $k\ge 1$ 的表达上同调障碍消失；
+    \item $\mathcal{E}(\mathrm{nf}(s))$ 为单值语义输出；并可由输运调用序列与 $h$ 的见证给出可审计解释链。
+  \end{enumerate}
+  \item[引用点] 命题 \ref{prop:tex20-ch3-main}（其证明同时调用命题 \ref{prop:tex20-ch3-acyclic}）。
+\end{description}
+\end{Certificate}
+
+\subsection{动力学与实现接口：微分动力量子、路径积分、PACER 近似与变分增广}
+\label{subsec:tex20-appA-dynamics}
+
+\begin{Certificate}[A8：微分动力量子接口（最小语义步进生成协变微分）]
+\label{cert:tex20-appA-mdq-differential-interface}
+\begin{description}
+  \item[输入] 语义函子族 $\mathcal{F}_\ast=\{F_\alpha\}_{\alpha\in I}$；以及对每个 $F_\alpha$ 的量子步进算子 $q_\alpha$。
+  \item[输出] 增量（微分动力量子）$\delta_\alpha([x]):=[q_\alpha(x)]-[x]$；
+  以及允许依赖状态的权重 $a_\alpha(x)$ 下的协变微分
+  \[
+  D_{\mathcal{F}_\ast}([x]) := \sum_{\alpha\in I} a_\alpha(x)\,\delta_\alpha([x]).
+  \tag{A8.1}
+  \label{eq:tex20-appA-covariant-diff}
+  \]
+  \item[保证] 式 \eqref{eq:tex20-appA-covariant-diff} 给出“微分由微分动力量子生成”的接口化表达；
+  且当 $\partial_{\mathcal{F}_\ast}$ 出现障碍类 $[\mathcal{O}_k]\neq 0$ 时，等价于“仅靠当前可调用的量子步进族无法在该阶闭合/解释残差”，从而触发增广与同伦塔修复。
+  \item[引用点] 第\ref{subsec:tex20-ch4-differential-quantum}小节与式 \eqref{eq:tex20-ch4-covariant-diff}。
+\end{description}
+\end{Certificate}
+
+\begin{Certificate}[A9：\textsf{GRL} 路径积分接口（作用量加权与规范化输出）]
+\label{cert:tex20-appA-grl-path-integral-interface}
+\begin{description}
+  \item[输入] 由量子步进序列生成的候选路径
+  $\pi:\ x_0\to x_1\to\cdots\to x_T$（其中 $x_0=\omega(s)$）；
+  障碍/残差能量测度 $\|\mathcal{O}(x_t)\|^2$；
+  复杂度惩罚 $\mathrm{Comp}$；
+  奖励函数 $r$ 与权重 $\lambda,\beta\ge 0$。
+  \item[输出] 作用量
+  \[
+  \mathcal{S}(\pi):=\sum_{t=0}^{T-1}\Bigl(\|\mathcal{O}(x_t)\|^2+\lambda\,\mathrm{Comp}(q_{\alpha_t})-\beta\,r(x_t,
+    q_{\alpha_t})\Bigr),
+  \tag{A9.1}
+  \label{eq:tex20-appA-action}
+  \]
+  以及终点规范形权重（路径积分）
+  \[
+  P(n\mid s)\ \propto\ \sum_{\pi:\ x_T\mapsto n}\exp\bigl(-\mathcal{S}(\pi)\bigr).
+  \tag{A9.2}
+  \label{eq:tex20-appA-path-integral}
+  \]
+  \item[保证] 由 \eqref{eq:tex20-appA-path-integral} 得到两种等价的规范化输出口径：
+  \[
+  \mathrm{nf}(s)=\arg\max_{n\in\mathsf{NF}}P(n\mid s),
+  \qquad\text{或（若可加）}\qquad
+  \mathrm{nf}(s)=\mathbb{E}[n\mid s].
+  \]
+  该接口把“积分”解释为在量子步进张成的路径空间上的 \textsf{GRL} 路径积分，从而把“规范化输出”提升为最优/期望口径。
+  \item[引用点] 第\ref{subsec:tex20-ch4-grl-path-integral}小节与式 \eqref{eq:tex20-ch4-action}、\eqref{eq:tex20-ch4-path-integral}
+    。
+\end{description}
+\end{Certificate}
+
+\begin{Certificate}[A10：变分增广接口（最小作用量生成新增语义函子）]
+\label{cert:tex20-appA-variational-augmentation-interface}
+\begin{description}
+  \item[输入] 新增语义函子族的参数化 $F_\theta$；目标阶 $k$ 的障碍代表元 $\mathcal{O}_k(\pi;\theta)$；
+  投影 $\Pi_k$；以及复杂度/稳定性惩罚 $\mathrm{Comp},\mathrm{Stab}$ 与权重 $\lambda,\mu\ge 0$。
+  \item[输出] 变分选择律
+  \[
+  \theta^\ast := \arg\min_{\theta}
+  \Bigl(
+  \mathbb{E}_{\pi\sim \textsf{PACER}}\bigl\|\Pi_k(\mathcal{O}_k(\pi;\theta))\bigr\|^2
+  +\lambda\,\mathrm{Comp}(F_\theta)+\mu\,\mathrm{Stab}(F_\theta)
+  \Bigr),
+  \tag{A10.1}
+  \label{eq:tex20-appA-variational-augment}
+  \]
+  并用 $F_{\theta^\ast}$（或其生成的小批次）增广 $\mathcal{F}_\ast$。
+  \item[保证] 该接口把“需要引入的语义函子由变分法生成和表达”落实为可计算的生成律：
+  在保证标准性与稳定性的前提下，以最小复杂度代价最大化压制目标阶障碍，使其在增广系统中可被同伦塔吸收为上边界。
+  \item[引用点] 第\ref{subsec:tex20-ch4-augmentation}小节与式 \eqref{eq:tex20-ch4-variational-augment}。
+\end{description}
+\end{Certificate}
+
+\begin{Certificate}[A11：\textsf{HACA}/\textsf{PACER} 运行接口（路径积分近似器与触发增广条件）]
+\label{cert:tex20-appA-haca-pacer-interface}
+\begin{description}
+  \item[输入] 分层表达态 $x=(x^{(1)},\dots,x^{(5)})$（\textsf{HACA} 五层口径）；量子步进族 $\{q_\alpha\}$；
+  路径粒子集 $\{\pi^{(m)}\}_{m=1}^M$ 与权重 $w^{(m)}\propto \exp(-\mathcal{S}(\pi^{(m)}))$。
+  \item[输出] 一条可运行的近似器流程：
+  \begin{enumerate}
+    \item 生成候选步进并推进分层态；
+    \item 计算障碍能量与奖励，更新权重；
+    \item 重采样以保留高权重路径束；
+    \item 若出现“障碍能量不降/障碍类稳定非零”，触发证书化诊断并调用证书 \ref{cert:tex20-appA-variational-augmentation-interface} 执行增广。
+  \end{enumerate}
+  \item[保证] \textsf{PACER} 可视为对路径积分 \eqref{eq:tex20-appA-path-integral} 的可计算近似：
+  用有限路径束逼近高权重路径的贡献；并在触发条件成立时，引入最小增广以恢复可修复性，从而维持“任意输入 \(\Rightarrow\) 可规范化”的运行口径。
+  \item[引用点] 第\ref{subsec:tex20-ch4-haca-pacer}小节（含触发增广的解释）。
+\end{description}
+\end{Certificate}
+
+\begin{Certificate}[A12：端到端调用链接口（从任意输入到规范形与语义输出）]
+\label{cert:tex20-appA-endtoend-callgraph}
+\begin{description}
+  \item[输入] 任意输入 $s\in\Sigma^\ast$；注入 $\omega$；一份初始语义函子族 $\mathcal{F}_0$；
+  以及目标语义输出口径（评估函子 $\mathcal{E}$ 与可审计证书链要求）。
+  \item[输出] 一条证书化调用图（可作为实现/证明模板）：
+  \begin{enumerate}
+    \item 用证书 \ref{cert:tex20-appA-semantic-functor-interface} 固化每个语义函子的“判定+规范化”接口；
+    \item 用证书 \ref{cert:tex20-appA-semantic-gauge-field-interface} 约束并抽取满足标准性与最小性的语义规范场候选 $\mathcal{F}_\ast$；
+    \item 用证书 \ref{cert:tex20-appA-expression-complex-interface} 构造 $(C^\bullet,\partial_{\mathcal{F}_\ast})$ 并诊断障碍类；
+    \item 若出现 $[\mathcal{O}_k]\neq 0$，用证书 \ref{cert:tex20-appA-homotopy-tower-repair-interface} 给出增广修复步骤，
+    并在实现中以证书 \ref{cert:tex20-appA-variational-augmentation-interface} 生成最小增广；
+    \item 一旦获得收缩同伦数据，用证书 \ref{cert:tex20-appA-contracting-homotopy-interface} 得到“唯一规范代表元 + 高阶上同调消失”；
+    \item 最终用证书 \ref{cert:tex20-appA-character-integral-normalization-interface} 输出 $\mathrm{nf}(s)$ 与 $\mathcal{E}
+      (\mathrm{nf}(s))$，
+    并以输运/步进序列与 $h$ 的见证形成可审计证书链。
+  \end{enumerate}
+  \item[保证] 在“全域可接受（静态或动态）+ 收缩同伦 + 评估函子”三条件满足时，端到端输出满足：
+  标准化、无歧义、可解释、无高阶上同调障碍（对应命题 \ref{prop:tex20-ch3-main} 的调用口径）。
+  \item[引用点] 证书 A1--A11 的组合调用；亦可直接以命题 \ref{prop:tex20-ch3-main} 作为总调用证书。
+\end{description}
+\end{Certificate}
+
+\begin{thebibliography}{99}
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+
+\bibitem{EdgeOperatorTowerTex17}
+\GFramework 工作笔记：
+\emph{边缘算子不封闭、同伦塔与变分生成的形式系统}
+（\code{NoteBook/notebook1/tex17_pub/gframework_edge_operator_homotopy_closure_variational_tower_formal_system.tex}）。
+
+\bibitem{AxiomSemanticsWorkflowTex18}
+\GFramework 工作笔记：
+\emph{性质代数与同伦代数的封闭证书、障碍类与拓扑修复}
+（\code{NoteBook/notebook1/tex18_pub/gframework_homotopy_algebra_axiom_semantics_workflow_formal_system.tex}）。
+
+\bibitem{BV1981}
+I.\ A.\ Batalin and G.\ A.\ Vilkovisky,
+\emph{Gauge algebra and quantization},
+Physics Letters B, 1981.
+\\ \url{https://doi.org/10.1016/0370-2693(81)90205-7}
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

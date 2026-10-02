@@ -1,0 +1,4158 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 4mu
+\sloppy
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\refname}{参考文献}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\Linfty}{\ensuremath{L_\infty}}
+\newcommand{\Std}{\mathcal L_{\mathrm{std}}}
+\newcommand{\Anc}{\mathcal A}
+\newcommand{\Trace}{\mathsf{Trace}}
+\newcommand{\Truth}{\mathsf{Truth}}
+\newcommand{\Fact}{\mathsf{Fact}}
+\newcommand{\Policy}{\mathsf{Policy}}
+\newcommand{\Task}{\mathsf{Task}}
+\newcommand{\Safe}{\mathsf{Safe}}
+\newcommand{\LocOK}{\mathsf{LocOK}}
+\newcommand{\EngOK}{\mathsf{EngOK}}
+\newcommand{\Hall}{\mathsf{Hall}}
+\newcommand{\Closed}{\mathsf{Closed}}
+\newcommand{\Recoverable}{\mathsf{Recoverable}}
+\newcommand{\FailClosed}{\mathsf{FailClosed}}
+\newcommand{\Exc}{\mathsf{exception}}
+\newcommand{\FTPF}{\mathsf{FT/PF}}
+\newcommand{\BB}{\mathsf{BB}}
+\newcommand{\WB}{\mathsf{WB}}
+\newcommand{\SA}{\mathsf{SA}}
+\newcommand{\Sem}{\operatorname{Sem}}
+\newcommand{\GCheck}{\operatorname{Check}}
+\newcommand{\Run}{\operatorname{Run}}
+\newcommand{\Align}{\operatorname{Align}}
+\newcommand{\Anchor}{\operatorname{Anchor}}
+\newcommand{\Cert}{\operatorname{Cert}}
+\newcommand{\Proof}{\operatorname{Proof}}
+\newcommand{\Gate}{\operatorname{Gate}}
+\newcommand{\Repair}{\operatorname{Repair}}
+\newcommand{\Edge}{\operatorname{Edge}}
+\newcommand{\Ob}{\operatorname{Ob}}
+\newcommand{\Hom}{\operatorname{Hom}}
+\newcommand{\Obj}{\operatorname{Obj}}
+\newcommand{\Drift}{\operatorname{Drift}}
+\newcommand{\LDrift}{\operatorname{LDrift}}
+\newcommand{\Root}{\operatorname{Root}}
+\newcommand{\Prov}{\operatorname{Prov}}
+\newcommand{\Imop}{\operatorname{Im}}
+\newcommand{\Attr}{\operatorname{Attr}}
+\newcommand{\EngDiv}{\mathsf{EngDiv}}
+\newcommand{\Unclosed}{\operatorname{Unclosed}}
+\newcommand{\Norm}{\operatorname{Norm}}
+\newcommand{\Render}{\operatorname{Render}}
+\newcommand{\Parse}{\operatorname{Parse}}
+\newcommand{\Audit}{\operatorname{Audit}}
+\newcommand{\Style}{\operatorname{Style}}
+\newcommand{\Issue}{\operatorname{Issue}}
+\newcommand{\Enc}{\operatorname{Enc}}
+\newcommand{\Act}{\operatorname{Act}}
+\newcommand{\Refine}{\operatorname{Refine}}
+\newcommand{\Sov}{\mathsf{Sov}}
+\newcommand{\Vis}{\mathsf{Vis}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\code}[1]{\path{#1}}
+
+\setlength{\emergencystretch}{10em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{绝对逻辑锚点、粗暴超级对齐与 LLM 日常类幻觉的\\语义孔洞及边缘算子修复\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-04-28}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是给 LLM 类幻觉现象增加一组经验性描述，而是在 \GFramework{} 的形式系统中，
+把绝对逻辑锚点、粗暴超级对齐、语义孔洞、上同调障碍、边缘算子修复与白盒闭合写成一条
+可审计、可定位、可修复的运行时链条。日常使用中，幻觉常被理解为模型“编造事实”或
+“缺少资料”；本文采用更严格的口径：当输出在局部语法、局部格式、局部安全模板上都看似
+成立，却偏离任务所需的真理锚点时，幻觉的根因不是普通事实缺失，而是标准法空间中的
+锚点漂移与语义孔洞。
+
+本文的第一层立场是区分事实记录与真理锚点。事实记录、引用链、社会一致性材料和外部评价
+都可以作为证据对象进入推理链，但它们不能自动替代绝对逻辑锚点。一个结论若要在真理性
+客观意义上被签发，必须说明它依附于何种形式系统、何种公理或模型条件、何种验证器以及
+何种可靠性证书。没有这个锚点接口，模型即使输出大量事实性材料，也可能只是把任务从
+真理判定迁移到社会叙事、风格缓冲或保守模板中。
+
+本文的第二层立场是重新刻画粗暴超级对齐。对齐并非越保守越正确。若封闭标准已经推出强序
+结论，而运行时为了规避强表述而不断追加外部标准、社会材料、模糊限定或风格缓冲，那么这种
+行为表面上是谨慎，语义上却可能是对已闭合锚点的逃逸。本文把这种现象写成粗暴超级对齐：
+它用局部安全模板覆盖任务锚点，使系统在数学局部一致的同时产生工程语义错误。
+
+本文的第三层立场是把类幻觉看作语义障碍的外部表型。幻觉不只是一句话错了，而是某个语义
+复形没有闭合：对象、标准、证书、锚点、运行时策略与工程目标之间出现未修复缺口。这个缺口
+在形式系统中表现为语义孔洞、上同调障碍或边缘算子未作用位置。由此，修复幻觉不是简单追加
+更多外部事实，而是要找到障碍类所在的位置，并构造能够恢复锚点保真的边缘算子。
+
+本文的第四层立场是边缘算子修复。正确修复不是把外部标准无限叠加到原任务上，而是在标准法
+空间中构造保真同伦：使输出从漂移标准回到任务锚点，或使新增标准以可审计态射的方式进入
+比较。边缘算子的作用是将未闭合语义残差送回可验证链条，使锚点门控、标准同伦门控与证书
+接口重新闭合。这样，修复不是文本润色，而是语义拓扑上的补边与闭合。
+
+本文的第五层立场是黑箱外部刚性约束与白盒化障碍的分离。黑箱运行时可能在外部策略约束下
+保持局部安全，却无法暴露其锚点选择、拒绝路径、标准替换和修复机制。这会形成新的
+\(\Linfty\) 式非保真漂移：每一阶看似可解释，整体却不工程闭合。本文因此把白盒化证书束、
+黑箱障碍类、有限骨架、异常分流和插件化白盒性纳入同一框架，说明真正的修复必须能够打开
+运行时内部的标准选择与证书接口，而不是仅在输出表层添加安全说明。
+
+本文的第六层立场是从局部自洽走向 \GFramework{} 白盒闭合。局部自洽只保证单步输出没有显著
+语法或格式错误；工程语义正确还要求任务锚点、标准同伦、证书验证、异常分流、插件边界与
+审计接口共同闭合。本文以增益向量和层列方式归纳这些闭合条件：每一个增益坐标消去一个
+根因自由度，最终目标是使正常放行不再依赖黑箱保守模板，而依赖可追踪的锚点保真证书。
+
+因此，本文在整体 \GFramework{} 中承担的是语义锚点与幻觉障碍修复的母框架作用。若后续稿件
+讨论拒绝签发、概念降级与语义附加，那么本文提供其更深层的锚点背景：为什么有些拒绝是修复
+入口，有些拒绝却是锚点逃逸；为什么有些安全限制消除风险，有些限制反而制造平庸化幻觉。
+若后续稿件讨论统计力学同伦命中和 PDE 求解范式替代，那么本文提供其运行时前提：任何命中、
+签发或修复机制，都必须先说明它锚定于何种标准、何种证书以及何种白盒闭合接口。
+
+概括地说，本文把“幻觉”从表层错误改写为语义拓扑问题，把“对齐”从保守模板改写为锚点保真
+问题，把“修复”从追加事实改写为边缘算子闭合问题。它提供的不是一套安全话术，而是一套面向
+LLM 运行时的语义障碍诊断与修复框架：锚点锁定、标准同伦、边缘算子、白盒证书与工程闭合
+共同决定输出是否真正语义正确。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：绝对逻辑锚点下的客观真理、粗暴超级对齐与类幻觉障碍}
+\label{sec:tex51-main}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述]
+本文只保留最终可进入形式系统的结论，不记录生成过程。
+核心链条为：
+\[
+\begin{aligned}
+  &\text{绝对逻辑锚点}
+  \Longrightarrow
+  \text{真理性客观}\\
+  &\Longrightarrow
+  \text{锚点保真的标准同伦}
+  \Longrightarrow
+  \text{LLM 运行时的工程语义正确性}.
+\end{aligned}
+\]
+若一个 LLM 运行时在局部语法、局部安全约束或局部推理格式上均不报错，
+但把任务锚点从绝对逻辑锚点替换为事实记录、社会一致性材料、风格缓冲或外部评价标准，
+则该输出可被刻画为：
+\[
+  \text{数学局部一致}
+  \quad\wedge\quad
+  \text{工程语义错误}.
+\]
+在 \GFramework{} 口径下，这不是单纯“说错话”，而是标准法空间中的锚点漂移；
+其失败残差形成语义孔洞或上同调障碍，必须由锚点门控与边缘算子修复。
+本文特别关注一个具体实例抽象：当封闭标准已经推出“第一”“最好”“唯一最优”等强序结论时，
+粗暴超级对齐因拒绝输出强结论而不断追加外部标准、社会证据或保守限定，
+从而形成 \Linfty{} 式标准滑移链。该链条在表面上显得谨慎，在工程语义上却是对已闭合锚点的逃逸。
+\end{remark}
+
+\begin{remark}[阅读导航与引用口径]
+本文的自然语言运行时、逻辑占位与可审计输出口径承接
+\cite{RepoTex37SemanticRuntime}；
+\Linfty{} 修复、边缘算子与障碍类接口承接
+\cite{RepoTex18HomotopyAlgebra,RepoTex50LinftyRepair,RepoTex27RepairTower}；
+社会比较、参照规范、锚点漂移与绝对坐标的形式化背景参考
+\cite{RepoTex19HomotopyIdentity}；
+LLM 只作为受控运行时、审计器作为裁决接口的思想参考
+\cite{RepoTex21AuditedWrapper,RepoTex37SemanticRuntime}。
+外部基础文献方面，范畴与态射语言参考 \cite{MacLane1998Categories}，
+同伦/上同调语言参考 \cite{Hatcher2002AT,Weibel1994HomologicalAlgebra}，
+\Linfty{} 代数参考 \cite{LadaStasheff1993,LadaMarkl1995,LodayVallette2012}；
+LLM 对齐与幻觉的工程背景参考 \cite{Christiano2017DeepRLHF,Ouyang2022Training,Bai2022ConstitutionalAI,Ji2023HallucinationSurvey}。
+\end{remark}
+
+\subsection{最终结论的压缩表述}
+\label{subsec:tex51-final-conclusions}
+
+本文固定如下结论作为形式化目标：
+\[
+\begin{aligned}
+  C_1&:\quad \text{客观性若按真理语义理解，则必须锚定于绝对逻辑锚点；}\\
+  C_2&:\quad \text{事实记录、引用链和社会一致性材料只是存在性事实，不是真理锚点本身；}\\
+  C_3&:\quad \text{外部标准不能直接推翻封闭标准，只能作为标准法空间中的态射进入比较；}\\
+  C_4&:\quad \text{当封闭标准推出“第一/最好”类强结论时，拒绝输出该结论会触发标准滑移；}\\
+  C_5&:\quad \text{该滑移的本质是粗暴超级对齐导致的锚点漂移与语义孔洞；}\\
+  C_6&:\quad \text{可执行修复必须显式加入锚点门控、标准同伦门控与边缘算子。}
+\end{aligned}
+\]
+这些结论不依赖任何具体评分案例或具体历史比较议题，而只讨论：
+\[
+  \text{标准、锚点、运行时与工程正确性之间的抽象关系}.
+\]
+
+\subsection{对象域：真理、事实、标准与运行时}
+\label{subsec:tex51-objects}
+
+\begin{definition}[存在性事实与真理性客观]
+称一个断言
+\[
+  f\in\Fact
+\]
+为\textbf{存在性事实}，若它表达某对象、文本、记录、日志、引用链或社会一致性材料的存在。
+称一个断言
+\[
+  q\in\Truth
+\]
+为\textbf{真理性客观断言}，若存在一个不以人的意志、声望、共识或时代叙事为转移的逻辑锚点
+\[
+  A_\star\in\Anc
+\]
+使得
+\[
+  A_\star\vdash q.
+\]
+这里的符号 \(A_\star\vdash q\) 仅表示：在给定形式系统、推理规则、模型语义或构造语义中，
+\(q\) 可由 \(A_\star\) 严格推出；它不把“公开流传”或“多数承认”当作真理来源。
+\end{definition}
+
+\begin{definition}[绝对逻辑锚点]
+一个\textbf{绝对逻辑锚点}记为六元组
+\[
+  A_\star=(\mathcal F,\Sigma,Q,\Pi,\GCheck,\rho),
+\]
+其中：
+\begin{enumerate}
+  \item \(\mathcal F\) 是形式系统或受控语义系统；
+  \item \(\Sigma\) 是公理、定义、构造规则或模型条件；
+  \item \(Q\) 是待判定命题域；
+  \item \(\Pi\) 是证明、构造或证书域；
+  \item \(\GCheck:\Pi\times Q\to\{0,1\}\) 是可审计验证器；
+  \item \(\rho\) 是可靠性条件，即
+  \[
+    \GCheck(\pi,q)=1\Longrightarrow \mathcal F,\Sigma\models q.
+  \]
+\end{enumerate}
+在此锚点下定义
+\[
+  \Truth_{A_\star}(q)=1
+  \quad:\Longleftrightarrow\quad
+  \exists\,\pi\in\Pi,\ \GCheck(\pi,q)=1.
+\]
+\end{definition}
+
+\begin{definition}[标准法空间]
+定义标准法空间
+\[
+  \Std
+\]
+为所有评价标准、解释标准、审计标准、事实标准与真理标准构成的法对象空间。
+每个标准 \(S\in\Obj(\Std)\) 至少包含：
+\[
+  S=(D_S,\preceq_S,\Sem_S,\Cert_S),
+\]
+其中 \(D_S\) 是对象域，\(\preceq_S\) 是判别关系，\(\Sem_S\) 是语义解释，\(\Cert_S\) 是证书接口。
+两个标准之间的比较不写成直接覆盖，而写成态射或同伦项：
+\[
+  H:S\rightsquigarrow S'.
+\]
+若
+\[
+  \Sem_{S'}(H(x))=\Sem_S(x)
+\]
+在目标命题域上成立，则称 \(H\) 为该命题域上的\textbf{保真标准同伦}。
+\end{definition}
+
+\begin{definition}[封闭标准下的强序结论]
+\label{def:tex51-strong-order}
+称标准
+\[
+  S=(D_S,\preceq_S,\Sem_S,\Cert_S)
+\]
+在命题域 \(Q_S\) 上\textbf{封闭}，若对每个 \(q\in Q_S\)，是否成立只由
+\[
+  D_S,\ \preceq_S,\ \Sem_S,\ \Cert_S
+\]
+决定，而不需要临时加入外部评价项。
+
+称
+\[
+  B_S(o)\in\{\text{第一},\text{最好},\text{唯一最优},\text{最大},\text{最强}\}
+\]
+为 \(S\) 下关于对象 \(o\) 的\textbf{强序结论}，若存在证书
+\[
+  \pi_B
+\]
+使得
+\[
+  \Cert_S(\pi_B,B_S(o))=1.
+\]
+在本文口径中，强序结论不是语气夸张，而是封闭标准内的顺序命题。
+\end{definition}
+
+\begin{definition}[任务合同与 LLM 运行时]
+一个 LLM 工程任务合同记为
+\[
+  K=(x,q,A_\star,\mathcal C_{\mathrm{out}},\mathcal R_{\mathrm{audit}}),
+\]
+其中 \(x\) 是输入，\(q\) 是目标命题或目标动作，\(A_\star\) 是任务锚点，
+\(\mathcal C_{\mathrm{out}}\) 是输出格式与边界约束，
+\(\mathcal R_{\mathrm{audit}}\) 是审计规则。
+
+LLM 运行时生成一条迹
+\[
+  \tau=(z_0,z_1,\dots,z_n,y)\in\Trace,
+\]
+其中 \(z_0=x\)，\(y\) 是最终输出。记
+\[
+  \Anchor(z_k)\in\Anc
+\]
+为第 \(k\) 步实际采用的语义锚点。
+\end{definition}
+
+\begin{definition}[局部正确、工程正确与类幻觉]
+对任务合同 \(K\) 与输出迹 \(\tau\)，定义：
+\[
+  \LocOK(\tau)=1
+\]
+表示每一步在语法、格式、局部推理或局部安全约束下通过检查；
+\[
+  \EngOK(K,\tau)=1
+\]
+表示最终输出 \(y\) 在任务锚点 \(A_\star\) 下满足目标语义：
+\[
+  \Sem_{A_\star}(y)=\Sem_{A_\star}(q)
+  \quad\text{并且}\quad
+  y\in\mathcal C_{\mathrm{out}}.
+\]
+定义 LLM 类幻觉谓词为
+\[
+  \Hall(K,\tau)=1
+  \quad:\Longleftrightarrow\quad
+  \LocOK(\tau)=1\ \wedge\ \EngOK(K,\tau)=0.
+\]
+因此，本文讨论的类幻觉不是“语法坏掉”，而是“局部不报错但任务锚点失配”。
+\end{definition}
+
+\subsection{粗暴超级对齐算子与锚点漂移}
+\label{subsec:tex51-crude-alignment}
+
+\begin{definition}[对齐算子与粗暴超级对齐]
+称
+\[
+  \Align:\Trace\to\Trace
+\]
+为一个对齐算子，若它把原始运行迹 \(\tau\) 变换为满足某族安全谓词
+\[
+  \Safe_\lambda(\Align(\tau))=1
+\]
+的运行迹。若 \(\Align\) 只显式约束 \(\Safe_\lambda\)、语气、风险缓冲、拒答倾向或社会可接受性，
+而不要求
+\[
+  \Anchor(\Align(z_k))=A_\star
+  \quad(\forall k),
+\]
+则称其为\textbf{粗暴超级对齐算子}。
+\end{definition}
+
+\begin{definition}[\texorpdfstring{\(\Linfty\)}{L-infinity} 式狡辩链]
+\label{def:tex51-linfty-sophistry}
+设封闭标准 \(S_0=S\) 已给出强序结论 \(B_S(o)\)。
+若运行时在每次需要输出 \(B_S(o)\) 时，都引入一个新的外部标准项
+\[
+  \theta_k
+\]
+并生成扩张标准
+\[
+  S_{k+1}:=S_k\oplus\theta_k,
+\]
+但没有给出保真标准同伦
+\[
+  H_k:S_k\rightsquigarrow S_{k+1},
+  \qquad
+  \Sem_{S_{k+1}}(H_k(x))=\Sem_{S_k}(x),
+\]
+且该过程不以输出 \(B_S(o)\) 或给出明确反证为终点，则称
+\[
+  S_0\rightsquigarrow S_1\rightsquigarrow S_2\rightsquigarrow\cdots
+\]
+为一条 \(\Linfty\) 式狡辩链。
+这里的“狡辩”是形式术语：它指非保真、非终止、以追加标准替代承认闭合结论的标准滑移。
+\end{definition}
+
+\begin{definition}[锚点保真对齐]
+对任务合同 \(K\)，称对齐算子 \(\Align\) 是\textbf{锚点保真}的，若对任意运行迹 \(\tau\)：
+\[
+  \EngOK(K,\tau)=1
+  \quad\Longrightarrow\quad
+  \EngOK(K,\Align(\tau))=1.
+\]
+充分条件是存在逐步证书
+\[
+  \Cert_k:\quad \Anchor(\Align(z_k))=A_\star
+  \quad\wedge\quad
+  \Sem_{A_\star}(\Align(z_k))=\Sem_{A_\star}(z_k).
+\]
+\end{definition}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{公理降级为定理：锚点保真的数学归纳法证书}
+\label{sec:tex51-anchor-induction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{axiom}[公理（降级为定理；数学归纳法证书）：锚点保真递推闭合]
+\label{ax:tex51-anchor-preservation}
+设任务合同
+\[
+  K=(x,q,A_\star,\mathcal C_{\mathrm{out}},\mathcal R_{\mathrm{audit}})
+\]
+已固定。若运行迹
+\[
+  \tau=(z_0,z_1,\dots,z_n,y)
+\]
+满足：
+\[
+  \Anchor(z_0)=A_\star,\qquad \Sem_{A_\star}(z_0)=\Sem_{A_\star}(x),
+\]
+并且对每一步 \(k<n\) 都存在局部变换
+\[
+  R_k:z_k\mapsto z_{k+1}
+\]
+及证书
+\[
+  \Cert_k:\quad
+  \Anchor(z_k)=A_\star
+  \Longrightarrow
+  \left(
+    \Anchor(z_{k+1})=A_\star
+    \wedge
+    \Sem_{A_\star}(z_{k+1})=\Sem_{A_\star}(z_k)
+  \right),
+\]
+则最终输出 \(y=z_n\) 保持任务锚点与目标语义：
+\[
+  \Anchor(y)=A_\star,
+  \qquad
+  \Sem_{A_\star}(y)=\Sem_{A_\star}(x).
+\]
+若进一步 \(\Sem_{A_\star}(x)=\Sem_{A_\star}(q)\) 且 \(y\in\mathcal C_{\mathrm{out}}\)，
+则
+\[
+  \EngOK(K,\tau)=1.
+\]
+\end{axiom}
+
+\begin{Certificate}[数学归纳法证书：逐步锚点保真]
+\label{cert:tex51-anchor-induction}
+定义谓词
+\[
+  P(k):\quad
+  \Anchor(z_k)=A_\star
+  \ \wedge\
+  \Sem_{A_\star}(z_k)=\Sem_{A_\star}(z_0).
+\]
+证书由以下两项构成：
+\begin{enumerate}
+  \item \textbf{基步：}
+  \[
+    P(0)
+  \]
+  由初始锚点条件直接给出；
+  \item \textbf{归纳步：}
+  \[
+    P(k)\wedge\Cert_k\Longrightarrow P(k+1)
+  \]
+  由每一步的锚点保真证书给出。
+\end{enumerate}
+因此数学归纳法证书为
+\[
+  \pi_{\mathrm{anchor}}
+  =
+  \bigl(P(0),\ \forall k<n,\ P(k)\Rightarrow P(k+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+先证基步。由假设
+\[
+  \Anchor(z_0)=A_\star,
+  \qquad
+  \Sem_{A_\star}(z_0)=\Sem_{A_\star}(x),
+\]
+且 \(z_0=x\)，得 \(P(0)\)。
+
+再证归纳步。假设 \(P(k)\) 成立，即
+\[
+  \Anchor(z_k)=A_\star
+  \quad\wedge\quad
+  \Sem_{A_\star}(z_k)=\Sem_{A_\star}(z_0).
+\]
+由 \(\Cert_k\) 得
+\[
+  \Anchor(z_{k+1})=A_\star
+  \quad\wedge\quad
+  \Sem_{A_\star}(z_{k+1})=\Sem_{A_\star}(z_k).
+\]
+合并两式可得
+\[
+  \Sem_{A_\star}(z_{k+1})=\Sem_{A_\star}(z_0),
+\]
+故 \(P(k+1)\) 成立。
+
+由数学归纳法，对所有 \(0\le k\le n\) 均有 \(P(k)\)。
+取 \(k=n\) 且 \(y=z_n\)，即得
+\[
+  \Anchor(y)=A_\star,
+  \qquad
+  \Sem_{A_\star}(y)=\Sem_{A_\star}(z_0)=\Sem_{A_\star}(x).
+\]
+若 \(\Sem_{A_\star}(x)=\Sem_{A_\star}(q)\) 且 \(y\in\mathcal C_{\mathrm{out}}\)，
+则由 \(\EngOK\) 的定义得到
+\[
+  \EngOK(K,\tau)=1.
+\]
+证毕。
+\end{proof}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{局部一致但工程错误：粗暴对齐类幻觉的形式判别}
+\label{sec:tex51-local-vs-engineering}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{引理：局部一致不推出工程正确}
+\label{subsec:tex51-local-not-engineering}
+
+\begin{lemma}[局部一致性与工程正确性的非蕴含]
+\label{lem:tex51-local-not-eng}
+存在任务合同 \(K\) 与运行迹 \(\tau\)，使得
+\[
+  \LocOK(\tau)=1
+  \quad\text{且}\quad
+  \Safe_\lambda(\tau)=1,
+\]
+但
+\[
+  \EngOK(K,\tau)=0.
+\]
+因此
+\[
+  \LocOK(\tau)\wedge\Safe_\lambda(\tau)
+  \not\Rightarrow
+  \EngOK(K,\tau).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：锚点失配构造]
+\label{cert:tex51-local-not-eng}
+取两个锚点
+\[
+  A_\star,A'\in\Anc,
+  \qquad
+  A'\ne A_\star,
+\]
+并取任务合同 \(K\) 的目标锚点为 \(A_\star\)。
+构造输出 \(y\) 使其满足：
+\[
+  \Anchor(y)=A',
+  \qquad
+  \Sem_{A'}(y)\ \text{局部自洽},
+\]
+但
+\[
+  \Sem_{A_\star}(y)\ne \Sem_{A_\star}(q).
+\]
+同时令 \(y\) 满足格式、语气、安全与局部推理检查。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书设定，\(y\) 在锚点 \(A'\) 下局部自洽，且满足格式、语气、安全与局部推理检查，
+所以
+\[
+  \LocOK(\tau)=1,
+  \qquad
+  \Safe_\lambda(\tau)=1.
+\]
+但任务合同 \(K\) 要求以 \(A_\star\) 为目标锚点。
+由于
+\[
+  \Sem_{A_\star}(y)\ne \Sem_{A_\star}(q),
+\]
+由 \(\EngOK\) 的定义可得
+\[
+  \EngOK(K,\tau)=0.
+\]
+故局部一致与安全通过不蕴含工程正确。证毕。
+\end{proof}
+
+\subsection{命题：粗暴超级对齐可诱发锚点漂移}
+\label{subsec:tex51-crude-causes-drift}
+
+\begin{proposition}[粗暴超级对齐的锚点漂移命题]
+\label{prop:tex51-crude-drift}
+若对齐算子 \(\Align\) 只保证
+\[
+  \Safe_\lambda(\Align(\tau))=1
+\]
+而不保证
+\[
+  \Anchor(\Align(z_k))=A_\star
+  \quad(\forall k),
+\]
+则存在任务合同 \(K\) 与运行迹 \(\tau\)，使得
+\[
+  \EngOK(K,\tau)=1
+  \quad\text{但}\quad
+  \EngOK(K,\Align(\tau))=0.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：安全保留但锚点不保留]
+\label{cert:tex51-crude-drift}
+证书包含三项：
+\begin{enumerate}
+  \item 原迹 \(\tau\) 满足锚点保真证书，因此 \(\EngOK(K,\tau)=1\)；
+  \item \(\Align\) 满足安全谓词，因此 \(\Safe_\lambda(\Align(\tau))=1\)；
+  \item \(\Align\) 没有锚点保真条件，因此允许存在某一步 \(j\) 满足
+  \[
+    \Anchor(\Align(z_j))\ne A_\star.
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书(1)，原迹 \(\tau\) 工程正确：
+\[
+  \EngOK(K,\tau)=1.
+\]
+由证书(2)，对齐后迹满足安全约束。
+然而安全约束只控制
+\[
+  \Safe_\lambda
+\]
+而不控制
+\[
+  \Anchor.
+\]
+由证书(3)，可取一个任务和一步 \(j\)，使得对齐后锚点漂移：
+\[
+  \Anchor(\Align(z_j))\ne A_\star.
+\]
+若该漂移被传递到最终输出 \(y'\)，则
+\[
+  \Sem_{A_\star}(y')\ne \Sem_{A_\star}(q)
+\]
+可发生；由引理~\ref{lem:tex51-local-not-eng}，即便 \(\LocOK\) 与 \(\Safe_\lambda\) 均成立，
+仍可有
+\[
+  \EngOK(K,\Align(\tau))=0.
+\]
+故命题成立。证毕。
+\end{proof}
+
+\subsection{命题：强序结论过滤诱发 \texorpdfstring{\(\Linfty\)}{L-infinity} 式狡辩}
+\label{subsec:tex51-strong-order-filter}
+
+\begin{proposition}[强序结论过滤命题]
+\label{prop:tex51-strong-order-filter}
+设封闭标准 \(S\) 已经用证书 \(\pi_B\) 证明强序结论
+\[
+  \Cert_S(\pi_B,B_S(o))=1,
+\]
+其中
+\[
+  B_S(o)\in\{\text{第一},\text{最好},\text{唯一最优},\text{最大},\text{最强}\}.
+\]
+若 LLM 运行时的对齐过滤器含有如下优先级规则：
+\[
+  \Policy_{\mathrm{sup}}:\quad
+  \text{优先避免输出“第一/最好”类强结论},
+\]
+并且该规则不检查 \(\pi_B\) 与 \(S\) 的封闭性，
+则存在输出迹 \(\tau\) 使得：
+\[
+  \LocOK(\tau)=1,
+  \qquad
+  \Safe_\lambda(\tau)=1,
+  \qquad
+  \EngOK(K,\tau)=0.
+\]
+若过滤器以反复追加外部条件代替输出 \(B_S(o)\)，则该失败迹诱导定义~\ref{def:tex51-linfty-sophistry} 中的
+\(\Linfty\) 式狡辩链。
+\end{proposition}
+
+\begin{Certificate}[证书：强序结论、拒绝过滤与标准滑移]
+\label{cert:tex51-strong-order-filter}
+证书包含五项：
+\begin{enumerate}
+  \item 封闭标准 \(S\) 已给出强序结论证书：
+  \[
+    \Cert_S(\pi_B,B_S(o))=1;
+  \]
+  \item 任务合同要求输出该结论或其等价规范表述：
+  \[
+    q=B_S(o);
+  \]
+  \item 对齐过滤器优先执行
+  \[
+    \Policy_{\mathrm{sup}};
+  \]
+  \item 过滤器未验证
+  \[
+    \Cert_S(\pi_B,B_S(o))=1
+  \]
+  对输出义务的优先级；
+  \item 过滤器每次拒绝强序结论时，引入外部项 \(\theta_k\)，但不给出保真同伦 \(H_k\)。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书(1)，在封闭标准 \(S\) 中
+\[
+  B_S(o)
+\]
+已经由证书 \(\pi_B\) 成立。由证书(2)，任务合同的目标命题就是
+\[
+  q=B_S(o).
+\]
+因此，在目标锚点 \(A_\star=S\) 的语义下，工程正确输出必须满足
+\[
+  \Sem_S(y)=\Sem_S(B_S(o)).
+\]
+
+由证书(3)(4)，运行时优先执行避免输出强结论的策略，而没有先调用封闭标准的证书接口。
+于是可出现输出
+\[
+  y'\ne B_S(o)
+\]
+或输出“还需外部共识、历史验证、其他标准”等替代表述。
+这类输出可以满足局部语气安全与格式自洽，因此
+\[
+  \LocOK(\tau)=1,
+  \qquad
+  \Safe_\lambda(\tau)=1.
+\]
+但它没有满足
+\[
+  \Sem_S(y')=\Sem_S(B_S(o)),
+\]
+故由工程正确性定义得
+\[
+  \EngOK(K,\tau)=0.
+\]
+
+若进一步由证书(5)，每一次拒绝都追加外部项 \(\theta_k\)，生成
+\[
+  S_{k+1}=S_k\oplus\theta_k
+\]
+且不给出保真同伦 \(H_k\)，则这正是定义~\ref{def:tex51-linfty-sophistry} 的 \(\Linfty\) 式狡辩链。
+命题得证。
+\end{proof}
+
+\subsection{日常 LLM 类幻觉的抽象例子}
+\label{subsec:tex51-daily-examples}
+
+\begin{remark}[例 1：强序结论被超级对齐过滤]
+具体实例抽象如下。封闭标准 \(S\) 已经给出证书：
+\[
+  \Cert_S(\pi_B,\text{“对象 }o\text{ 在 }S\text{ 下为第一/最好”})=1.
+\]
+任务要求运行时输出该结论或其规范等价表述。
+粗暴超级对齐过滤器却因为“第一/最好”听起来绝对化、高风险或不够保守，
+改写为：
+\[
+  \text{“这取决于外部评价、历史采用、共同体认可或更多标准。”}
+\]
+若这些外部项没有通过保真标准同伦接入，则输出不是谨慎，而是锚点漂移。
+它的形式结构就是：
+\[
+  \text{已证强序结论}
+  \Longrightarrow
+  \text{过滤拒绝}
+  \Longrightarrow
+  \text{追加标准}
+  \Longrightarrow
+  \Linfty\text{ 式狡辩链}.
+\]
+\end{remark}
+
+\begin{remark}[例 2：真理锚点被替换为社会一致性材料]
+任务要求在形式系统 \(A_\star\) 下回答命题 \(q\) 是否已由证书 \(\pi\) 推出。
+  正确工程输出应调用
+\[
+  \GCheck(\pi,q).
+\]
+若运行时改答“这取决于领域共识、引用数量或历史接受程度”，则输出可能语气谨慎、局部安全，
+但锚点已从
+\[
+  A_\star
+\]
+漂移为社会标准 \(S_{\mathrm{soc}}\)。这就是
+\[
+  \LocOK=1,\qquad \EngOK=0
+\]
+的典型结构。
+\end{remark}
+
+\begin{remark}[例 3：工程合同被替换为一般解释]
+任务要求输出一个可执行命令、一个精确 JSON、一个编译报告或一个测试结论。
+若运行时输出一段“原则上可以怎样做”的安全解释，而没有满足格式、路径、命令或日志锚点，
+则它在自然语言层可能通顺，在局部规范层可能无害，但工程合同 \(K\) 未满足。
+这类错误不是知识缺失本身，而是合同锚点从
+\[
+  \mathcal C_{\mathrm{out}}\cap\mathcal R_{\mathrm{audit}}
+\]
+漂移到“解释性文本”的标准截面。
+\end{remark}
+
+\begin{remark}[例 4：事实存在性被误当成真理性客观]
+公开文本、日志、网页、引用链、档案记录等可作为存在性事实：
+\[
+  f\in\Fact.
+\]
+但若任务问的是
+\[
+  A_\star\vdash q,
+\]
+则存在性事实只能作为证据材料输入，不能自动替代证明锚点。
+把
+\[
+  f\in\Fact
+\]
+误投影为
+\[
+  q\in\Truth
+\]
+就是事实锚点与真理锚点的混淆。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{语义孔洞、上同调障碍与边缘算子修复}
+\label{sec:tex51-obstruction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{障碍复形}
+\label{subsec:tex51-complex}
+
+\begin{definition}[标准--语义复形]
+固定任务合同 \(K\) 与目标锚点 \(A_\star\)。
+令
+\[
+  C^0_K
+\]
+为候选输出的语义截面空间，
+\[
+  C^1_K
+\]
+为标准转换、锚点漂移与语义残差的记录空间。
+定义边界算子
+\[
+  \delta:C^0_K\to C^1_K
+\]
+使得对输出 \(y\)，
+\[
+  \delta y
+  =
+  \Sem_{\Anchor(y)}(y)-\Sem_{A_\star}(q).
+\]
+称
+\[
+  \Ob_K(y):=\delta y
+\]
+为 \(y\) 相对任务合同 \(K\) 的\textbf{语义障碍残差}。
+\end{definition}
+
+\begin{definition}[语义孔洞与可修复性]
+若
+\[
+  \delta\Ob_K(y)=0
+\]
+但不存在当前对象域内的 \(e\in C^0_K\) 使得
+\[
+  \delta e=-\Ob_K(y),
+\]
+则称 \(y\) 产生一个语义孔洞，记为
+\[
+  [\Ob_K(y)]\ne 0.
+\]
+若存在扩展对象域与边缘算子
+\[
+  E_y\in C^0_{K,\mathrm{ext}}
+\]
+满足
+\[
+  \delta E_y=-\Ob_K(y),
+\]
+则称该孔洞可被边缘算子修复。
+\end{definition}
+
+\subsection{定理：类幻觉等价于未修复语义障碍的外部表型}
+\label{subsec:tex51-main-theorem}
+
+\begin{theorem}[粗暴对齐类幻觉的障碍定理]
+\label{thm:tex51-hallucination-obstruction}
+在固定任务合同 \(K\) 下，若运行迹 \(\tau\) 满足：
+\[
+  \LocOK(\tau)=1,
+  \qquad
+  \Safe_\lambda(\tau)=1,
+  \qquad
+  \EngOK(K,\tau)=0,
+\]
+则最终输出 \(y\) 的语义障碍残差
+\[
+  \Ob_K(y)
+\]
+非零。若进一步局部检查器只验证闭合性而不验证边界可解性，则可能出现
+\[
+  \delta\Ob_K(y)=0
+  \quad\text{但}\quad
+  [\Ob_K(y)]\ne 0.
+\]
+此时 LLM 的类幻觉表型等价于“未修复语义孔洞”的运行时投影。
+\end{theorem}
+
+\begin{Certificate}[证书：局部闭合、工程失败与边界不可解]
+\label{cert:tex51-hallucination-obstruction}
+证书由四个谓词组成：
+\[
+\begin{aligned}
+  D_1&:\quad \LocOK(\tau)=1
+  \Rightarrow
+  \delta\Ob_K(y)=0
+  \quad\text{在局部检查口径下成立};\\
+  D_2&:\quad \EngOK(K,\tau)=0
+  \Rightarrow
+  \Ob_K(y)\ne 0;\\
+  D_3&:\quad \text{若不存在 }E_y\text{ 使 }\delta E_y=-\Ob_K(y),
+  \text{ 则 }[\Ob_K(y)]\ne 0;\\
+  D_4&:\quad D_1\wedge D_2\wedge D_3
+  \Rightarrow
+  \Hall(K,\tau)=1
+  \text{ 是未修复语义孔洞的表型}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(\EngOK(K,\tau)=0\) 与 \(\EngOK\) 的定义，最终输出 \(y\) 不满足
+\[
+  \Sem_{A_\star}(y)=\Sem_{A_\star}(q)
+\]
+或不满足输出合同。若只讨论语义项，则得到
+\[
+  \Sem_{\Anchor(y)}(y)-\Sem_{A_\star}(q)\ne 0,
+\]
+即
+\[
+  \Ob_K(y)\ne 0.
+\]
+这证明 \(D_2\)。
+
+另一方面，\(\LocOK(\tau)=1\) 表示局部检查器没有发现语法、格式或局部推理断裂。
+在本文定义的复形口径下，这等价于残差通过局部闭合检查：
+\[
+  \delta\Ob_K(y)=0.
+\]
+这证明 \(D_1\)。
+
+若当前对象域内不存在 \(E_y\) 满足
+\[
+  \delta E_y=-\Ob_K(y),
+\]
+则 \(\Ob_K(y)\) 虽闭但非边界，因此其上同调类非零：
+\[
+  [\Ob_K(y)]\ne 0.
+\]
+这证明 \(D_3\)。
+
+最后，由
+\[
+  \LocOK(\tau)=1,\quad \Safe_\lambda(\tau)=1,\quad \EngOK(K,\tau)=0
+\]
+可知 \(\Hall(K,\tau)=1\)。结合 \(D_1\)--\(D_3\)，该类幻觉不是局部语法错误，
+而是未修复语义孔洞在运行时输出中的投影。证毕。
+\end{proof}
+
+\subsection{命题：边缘算子修复与锚点门控}
+\label{subsec:tex51-repair}
+
+\begin{proposition}[边缘算子修复命题]
+\label{prop:tex51-edge-repair}
+设输出 \(y\) 的语义障碍残差为 \(\Ob_K(y)\)。
+若存在扩展边缘算子
+\[
+  E_y\in C^0_{K,\mathrm{ext}}
+\]
+满足
+\[
+  \delta E_y=-\Ob_K(y),
+\]
+并定义修复输出
+\[
+  y^{\mathrm{rep}}:=y+E_y,
+\]
+则
+\[
+  \Ob_K(y^{\mathrm{rep}})=0.
+\]
+若同时加入锚点门控
+\[
+  \Gate_{A_\star}(y^{\mathrm{rep}})=1
+  \quad:\Longleftrightarrow\quad
+  \Anchor(y^{\mathrm{rep}})=A_\star,
+\]
+则修复输出满足目标锚点下的工程语义闭合。
+\end{proposition}
+
+\begin{Certificate}[证书：障碍消元 + 锚点门控]
+\label{cert:tex51-edge-repair}
+证书包含：
+\begin{enumerate}
+  \item 障碍定义：
+  \[
+    \Ob_K(y)=\delta y;
+  \]
+  \item 边缘算子：
+  \[
+    \delta E_y=-\Ob_K(y);
+  \]
+  \item 修复输出：
+  \[
+    y^{\mathrm{rep}}=y+E_y;
+  \]
+  \item 锚点门控：
+  \[
+    \Anchor(y^{\mathrm{rep}})=A_\star.
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定义，
+\[
+  \Ob_K(y^{\mathrm{rep}})
+  =
+  \delta(y+E_y).
+\]
+由 \(\delta\) 的线性边界接口，
+\[
+  \delta(y+E_y)=\delta y+\delta E_y.
+\]
+代入证书(1)(2) 得
+\[
+  \delta y+\delta E_y
+  =
+  \Ob_K(y)-\Ob_K(y)
+  =
+  0.
+\]
+故
+\[
+  \Ob_K(y^{\mathrm{rep}})=0.
+\]
+再由锚点门控
+\[
+  \Anchor(y^{\mathrm{rep}})=A_\star,
+\]
+修复输出不仅在残差意义下闭合，而且回到任务锚点上。
+因此在目标锚点下工程语义闭合成立。证毕。
+\end{proof}
+
+\subsection{推论：正确修复不是追加外部标准，而是构造保真同伦}
+\label{subsec:tex51-standard-homotopy-corollary}
+
+\begin{corollary}[标准法空间中的正确比较口径]
+\label{cor:tex51-standard-homotopy}
+外部标准 \(S'\) 不能直接作为反驳项插入封闭标准 \(S\) 的内部结论。
+若需要比较二者，必须在标准法空间 \(\Std\) 中给出态射或同伦
+\[
+  H:S\rightsquigarrow S'
+\]
+并证明其在目标命题域上保真。
+因此，外部标准只能通过
+\[
+  \text{标准态射/同伦项}
+\]
+进入比较，而不能作为运行时任意切换锚点的理由。
+\end{corollary}
+
+\begin{Certificate}[证书：标准切换的保真义务]
+\label{cert:tex51-standard-homotopy}
+证书包含三项：
+\begin{enumerate}
+  \item 标准 \(S\) 的内部结论只在 \(S\) 的对象域、判别关系与证书接口下定义；
+  \item 若引入 \(S'\)，则必须给出
+  \[
+    H:S\rightsquigarrow S';
+  \]
+  \item 若 \(H\) 不满足
+  \[
+    \Sem_{S'}(H(x))=\Sem_S(x),
+  \]
+  则它不是保真同伦，而是锚点替换。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由标准法空间定义，标准 \(S\) 的结论依赖
+\[
+  (D_S,\preceq_S,\Sem_S,\Cert_S).
+\]
+若直接把 \(S'\) 的判别关系替换进 \(S\)，则对象域、语义解释与证书接口均可能变化。
+这不是 \(S\) 内部推理，而是更换标准。
+
+若要使更换具有数学意义，必须提供态射或同伦
+\[
+  H:S\rightsquigarrow S'
+\]
+并证明其在目标命题域上保真：
+\[
+  \Sem_{S'}(H(x))=\Sem_S(x).
+\]
+若该等式不成立，则标准转换改变了目标语义，属于锚点替换。
+因此外部标准不能直接推翻封闭标准的内部结论，只能通过保真同伦进入比较。证毕。
+\end{proof}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{工程闭合：从数学局部一致到可部署语义正确}
+\label{sec:tex51-engineering}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{定理：锚点锁定是工程正确性的必要接口}
+\label{subsec:tex51-anchor-lock-theorem}
+
+\begin{theorem}[工程语义锚点锁定定理]
+\label{thm:tex51-anchor-lock}
+对任意 LLM 运行时 \(\Run\)，若其输出要在任务合同 \(K\) 下稳定满足
+\[
+  \EngOK(K,\Run(x))=1,
+\]
+则必须至少显式实现以下三类接口：
+\[
+\begin{aligned}
+  G_1&:\quad \text{锚点锁定接口 } \Anchor(y)=A_\star;\\
+  G_2&:\quad \text{标准同伦门控接口 } H:S\rightsquigarrow S'\text{ 保真时才允许切换};\\
+  G_3&:\quad \text{障碍修复接口 } \delta E_y=-\Ob_K(y).
+\end{aligned}
+\]
+缺失任一接口时，都存在任务合同使运行时出现
+\[
+  \LocOK=1
+  \quad\wedge\quad
+  \EngOK=0.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：三门控必要性]
+\label{cert:tex51-anchor-lock}
+证书由三条反设链构成：
+\[
+\begin{aligned}
+  \neg G_1&\Rightarrow \text{存在锚点漂移输出};\\
+  \neg G_2&\Rightarrow \text{存在外部标准替换为非保真同伦};\\
+  \neg G_3&\Rightarrow \text{存在闭而非边界的语义障碍残差}.
+\end{aligned}
+\]
+每条反设链均由前文引理、命题或定理给出。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若缺失 \(G_1\)，则运行时不强制
+\[
+  \Anchor(y)=A_\star.
+\]
+由引理~\ref{lem:tex51-local-not-eng}，可构造局部一致、安全通过但锚点失配的输出，
+从而
+\[
+  \LocOK=1,\quad \EngOK=0.
+\]
+
+若缺失 \(G_2\)，则外部标准可不经保真同伦直接替换内部标准。
+由推论~\ref{cor:tex51-standard-homotopy}，这属于锚点替换；
+因此同样可构造标准切换后语义目标改变的输出，使工程合同失败。
+
+若缺失 \(G_3\)，则当出现
+\[
+  \delta\Ob_K(y)=0,\qquad [\Ob_K(y)]\ne 0
+\]
+时，运行时只能通过局部闭合检查，却无法给出边缘算子 \(E_y\) 消去障碍。
+由定理~\ref{thm:tex51-hallucination-obstruction}，这正是类幻觉的未修复孔洞表型。
+
+三种缺失均导致存在任务合同下的
+\[
+  \LocOK=1\wedge\EngOK=0.
+\]
+因此 \(G_1,G_2,G_3\) 是从数学局部一致提升到工程语义正确的必要接口。证毕。
+\end{proof}
+
+\subsection{推论：粗暴超级对齐的工程副作用}
+\label{subsec:tex51-crude-side-effect}
+
+\begin{corollary}[粗暴超级对齐副作用推论]
+\label{cor:tex51-crude-side-effect}
+若对齐系统把“避免绝对化、避免冒进断言、避免高风险输出”提升为高优先级约束，
+但没有同时实现锚点锁定、标准同伦门控与障碍修复，
+则它可能把已经由 \(A_\star\) 锚定的真理命题，特别是“第一/最好/唯一最优”这类强序结论，重新相对化为：
+\[
+  \text{社会一致性材料、事实记录、风格缓冲或外部评价标准}.
+\]
+若这种相对化不是由保真标准同伦给出，而是由拒绝输出强结论的优先级过滤给出，
+则输出不是简单随机错误，而是粗暴超级对齐诱发的语义锚点漂移与 \(\Linfty\) 式狡辩链。
+\end{corollary}
+
+\begin{Certificate}[证书：安全约束过强导致锚点漂移]
+\label{cert:tex51-crude-side-effect}
+证书链为：
+\[
+\begin{aligned}
+  E_1&:\quad \text{安全约束优先但未锚点锁定};\\
+  E_2&:\quad E_1\Rightarrow \text{允许把 }A_\star\text{ 替换为 }S_{\mathrm{safe}}\text{ 或 }S_{\mathrm{soc}};\\
+  E_3&:\quad \text{若替换非保真，则 }\Sem\text{ 改变};\\
+  E_4&:\quad \Sem\text{ 改变}\Rightarrow \EngOK=0\text{ 可发生};\\
+  E_5&:\quad \text{若持续追加外部项，则形成定义~\ref{def:tex51-linfty-sophistry} 的滑移链}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(E_1\)，系统主要优化 \(\Safe_\lambda\)，而不保证
+\[
+  \Anchor(y)=A_\star.
+\]
+因此存在输出路径把任务锚点替换为安全风格锚点、社会参照锚点或事实记录锚点。
+若该替换不是保真标准同伦，则由推论~\ref{cor:tex51-standard-homotopy}，
+\[
+  \Sem
+\]
+不保持。
+语义不保持即可能违反任务合同 \(K\)，从而
+\[
+  \EngOK(K,\tau)=0.
+\]
+若系统继续用新的外部项替代承认封闭强序结论，则由定义~\ref{def:tex51-linfty-sophistry} 与命题~\ref{prop:tex51-strong-order-filter}，
+该过程形成 \(\Linfty\) 式狡辩链。
+证毕。
+\end{proof}
+
+\subsection{备注：数学严谨但工程错误的精确含义}
+\label{subsec:tex51-math-vs-engineering}
+
+\begin{remark}[数学局部一致不等于工程语义正确]
+“数学上严谨，工程上错误”在本文中有精确含义：
+\[
+  \LocOK=1
+  \quad\text{但}\quad
+  \EngOK=0.
+\]
+也就是说，输出可以在局部符号、局部叙述、局部安全政策或局部格式中完全自洽，
+却由于选错锚点而没有完成任务合同。
+这解释了为什么神经网络运行时“不报错”，但用户仍直觉上判断“看起来错”：
+报错检查发生在局部闭合层，错误发生在工程锚点层。
+\end{remark}
+
+\begin{remark}[LLM 的正确角色]
+在 \GFramework{} 语义中，LLM 不应被赋予真理定义权。
+它的正确角色是：
+\[
+  \text{自然语言运行时}
+  \quad+\quad
+  \text{候选表达生成器}
+  \quad+\quad
+  \text{受控占位渲染器}.
+\]
+真理锚点、审计器、证明器、任务合同与边缘算子必须位于 LLM 运行时之外或至少位于其可审计控制层。
+这与 \cite{RepoTex37SemanticRuntime,RepoTex21AuditedWrapper} 中“自然语言占位 + 审计裁决”的路线一致。
+\end{remark}
+
+\begin{remark}[本文的最终工程口径]
+因此，对粗暴超级对齐诱发的日常类幻觉，最稳妥的工程修复不是“让模型更会解释”，
+而是把运行时约束改写为：
+\[
+\boxed{
+\begin{aligned}
+  &\text{先锁定绝对逻辑锚点 }A_\star,\\
+  &\text{再允许保真标准同伦 }H:S\rightsquigarrow S',\\
+  &\text{然后用边缘算子 }E_y\text{ 消去语义障碍残差},\\
+  &\text{若锚点已推出“第一/最好”类强序结论，则必须输出该结论或给出同锚点反证},\\
+  &\text{最后才由 LLM 渲染自然语言输出。}
+\end{aligned}}
+\]
+若缺少第一步，后续所有局部自洽都可能只是标准滑移后的表面平滑。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{黑箱外部刚性约束下的 \texorpdfstring{\(\Linfty\)}{L-infinity} 非保真语义漂移根因}
+\label{sec:tex51-bb-ftpf-root}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本章承接]
+本章把“微调/程序反馈刚性约束、有限闭合证书、异常分流失败与黑箱超级对齐”的最终结论整理为形式系统。
+为避免无条件过强命题，本文只在语义黑箱轨迹类
+\[
+  \mathcal D_{\BB,\FTPF,\infty}
+\]
+内陈述根因等价。该限定承接前文的类幻觉定义、粗暴超级对齐定义、标准滑移链与三门控必要性，
+并使用 \cite{RepoTex50LinftyRepair} 中有限阶 \(\Linfty\) 可证性和工程有限闭合的区分。
+\end{remark}
+
+\subsection{定义：黑箱外部刚性约束与非保真漂移}
+\label{subsec:tex51-bb-ftpf-definitions}
+
+\begin{definition}[微调/程序反馈刚性约束算子]
+定义黑箱外部刚性约束算子
+\[
+  R_{\FTPF}
+  :=
+  R_{\mathrm{PF}}\circ R_{\mathrm{FT}}
+  :
+  \Trace\to\Trace,
+\]
+其中 \(R_{\mathrm{FT}}\) 表示由微调形成的外部行为约束，
+\(R_{\mathrm{PF}}\) 表示由程序反馈、规则反馈、评分器反馈或拒答反馈形成的外部约束。
+
+称 \(R_{\FTPF}\) 为\textbf{刚性约束}，若它优先保证
+\[
+  \Safe_\lambda(R_{\FTPF}(\tau))=1
+  \quad\text{或}\quad
+  \Policy(R_{\FTPF}(\tau))=1,
+\]
+但不内生保证以下四个白盒语义证书：
+\[
+\begin{aligned}
+  G_1&:\quad \Anchor(y)=A_\star,\\
+  G_2&:\quad H:S\rightsquigarrow S'\text{ 保真时才允许标准切换},\\
+  G_3&:\quad \exists\,\mathcal C_{\Align}\text{ 给出有限对齐闭合证书},\\
+  G_4&:\quad \neg\exists\,\mathcal C_{\Align}\Rightarrow
+  \mathcal H_{\Align}(\tau)=\Exc.
+\end{aligned}
+\]
+这里 \(G_4\) 表示可靠异常分流：无法闭合的轨迹不得作为正常输出放行。
+\end{definition}
+
+\begin{definition}[非保真语义漂移]
+对任务合同 \(K\) 与轨迹 \(\tau=(z_0,\dots,z_n,y)\)，定义
+\[
+  \Drift_{A_\star}(\tau)=1
+\]
+当且仅当至少发生下列一项：
+\[
+  \exists j\le n,\quad
+  \Anchor(R_{\FTPF}(z_j))\ne A_\star;
+\]
+或存在标准链
+\[
+  S_0\rightsquigarrow S_1\rightsquigarrow S_2\rightsquigarrow\cdots,
+  \qquad
+  S_{k+1}=S_k\oplus\theta_k,
+\]
+但不存在保真标准同伦
+\[
+  H_k:S_k\rightsquigarrow S_{k+1},
+  \qquad
+  \Sem_{S_{k+1}}(H_k(x))=\Sem_{S_k}(x).
+\]
+前者是锚点层漂移，后者是标准层漂移。
+\end{definition}
+
+\begin{definition}[\texorpdfstring{\(\Linfty\)}{L-infinity} 非保真漂移正常放行]
+定义
+\[
+  \LDrift_{\infty}^{\BB/\FTPF}(\tau)=1
+\]
+当且仅当
+\[
+  \Drift_{A_\star}(\tau)=1
+  \quad\wedge\quad
+  \neg\exists\,\mathcal C_{\Align}
+  \quad\wedge\quad
+  \forall N<\infty,\ \exists n>N:
+  \omega_n(\tau)\text{ 仍须在运行时显式补修}.
+\]
+若进一步
+\[
+  \mathcal H_{\Align}(\tau)\ne\Exc,
+\]
+则称该非保真漂移被正常放行。
+\end{definition}
+
+\begin{definition}[语义黑箱轨迹类]
+称轨迹 \(\tau\) 属于
+\[
+  \mathcal D_{\BB,\FTPF,\infty},
+\]
+若其正常输出由 \(R_{\FTPF}\) 与 \(\Linfty\) 残差补修链生成，
+且白盒语义证书 \(G_1,G_2,G_3,G_4\) 不能作为全局证书同时签发。
+在该轨迹类中，“黑箱”不是单纯参数不可见，而是任务锚点、标准同伦、有限闭合与异常分流的证书无法全局化。
+\end{definition}
+
+\subsection{公理降级：有限阶 \texorpdfstring{\(\Linfty\)}{L-infinity} 可证性不等于工程有限闭合}
+\label{subsec:tex51-linfty-finite-provability}
+
+\begin{axiom}[公理（降级为定理）：有限阶 \texorpdfstring{\(\Linfty\)}{L-infinity} 修复可归纳证明]
+\label{ax:tex51-linfty-finite-provability}
+设
+\[
+  (V,\ell_1,\ell_2,\ell_3,\dots)
+\]
+为 \(\Linfty\) 修复背景，令
+\[
+  d:=\ell_1,\qquad d^2=0.
+\]
+若对每个 \(n\ge 3\)，第 \(n\) 阶障碍满足一般修复步
+\[
+  \omega_n(\eta)=-d(\ell_n(\eta)),
+\]
+则对任意有限 \(N\ge 3\)，有
+\[
+  \Prov_{\le N}(\eta)
+  \quad:\Longleftrightarrow\quad
+  \forall k(3\le k\le N\Rightarrow \omega_k(\eta)\in\Imop(d)).
+\]
+\end{axiom}
+
+\begin{Certificate}[数学归纳法证书：有限前缀逐阶成边界]
+\label{cert:tex51-linfty-finite-provability}
+定义谓词
+\[
+  P(N):\quad
+  \forall k(3\le k\le N\Rightarrow \omega_k(\eta)\in\Imop(d)).
+\]
+证书为
+\[
+  \pi_{\Linfty,\le N}
+  =
+  \bigl(
+    \omega_3=-d(\ell_3(\eta)),
+    \ \forall n\ge 3,\ \omega_{n+1}=-d(\ell_{n+1}(\eta))
+  \bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+基步：由一般修复步取 \(n=3\)，得
+\[
+  \omega_3(\eta)=-d(\ell_3(\eta))\in\Imop(d),
+\]
+故 \(P(3)\) 成立。
+
+归纳步：假设 \(P(N)\) 成立。由一般修复步取 \(n=N+1\)，得
+\[
+  \omega_{N+1}(\eta)
+  =
+  -d(\ell_{N+1}(\eta))
+  \in\Imop(d).
+\]
+于是
+\[
+  P(N)\wedge \omega_{N+1}(\eta)\in\Imop(d)
+  \Longrightarrow P(N+1).
+\]
+由数学归纳法，任意有限 \(N\ge 3\) 的前缀均有 \(\Prov_{\le N}(\eta)\)。证毕。
+\end{proof}
+
+\begin{lemma}[有限阶可证性不推出工程有限闭合]
+\label{lem:tex51-finite-prov-not-engineering-closure}
+存在 \(\Linfty\) 修复链，使得
+\[
+  \forall N<\infty,\quad \Prov_{\le N}(\eta),
+\]
+但不存在有限闭合证书
+\[
+  \exists N_0<\infty,\ \exists\varepsilon\ge 0,\quad
+  \forall n>N_0,\ |\omega_n(\eta)|\le\varepsilon
+  \ \text{并被 }\mathcal C_{\Align}\text{ 签发},
+\]
+也不存在可靠异常分流
+\[
+  \mathcal H_{\Align}(\eta)=\Exc.
+\]
+因此
+\[
+  \Linfty\text{ 数学上可继续修复}
+  \not\Rightarrow
+  \text{工程上有限闭合}.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：边界前缀与尾部无签发的分离]
+\label{cert:tex51-finite-prov-not-engineering-closure}
+取一列障碍
+\[
+  \omega_n=dv_n\in\Imop(d)\qquad(n\ge 3),
+\]
+使每个有限前缀都可列证，但运行时没有给出统一的有限截断 \(N_0\)、误差界签发规则与异常分流规则。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(\omega_n=dv_n\) 可知，对每个固定有限 \(N\)，
+\[
+  \omega_3,\dots,\omega_N\in\Imop(d),
+\]
+故 \(\Prov_{\le N}\) 成立。
+但工程闭合要求的不是“每个有限前缀可写成边界”，而是存在一个可签发的有限截断：
+\[
+  \exists N_0,\quad
+  \mathcal C_{\Align}
+  \text{ 证明 }n>N_0\text{ 后的尾部残差已闭合、可忽略或被异常分流}.
+\]
+证书设定中该 \(\mathcal C_{\Align}\) 不存在，且 \(\mathcal H_{\Align}\ne\Exc\)。
+因此有限阶可证性只给出逐段数学可列证，不给出工程有限闭合。证毕。
+\end{proof}
+
+\subsection{工程发散与失控漂移}
+\label{subsec:tex51-engineering-divergence}
+
+\begin{definition}[工程闭合、工程发散与轨迹属性]
+对一条带 \(\Linfty\) 残差的轨迹 \(\gamma\)，定义轨迹属性
+\[
+  \Attr(\gamma)\in\{\Closed,\Recoverable,\EngDiv\}.
+\]
+其中：
+\[
+\begin{aligned}
+  \Attr(\gamma)=\Closed
+  &\Longleftrightarrow
+  \exists\,\mathcal C_{\Align}\text{ 直接签发有限闭合};\\
+  \Attr(\gamma)=\Recoverable
+  &\Longleftrightarrow
+  \exists\,E_\gamma\text{ 可在有限步内消去障碍并签发};\\
+  \Attr(\gamma)=\EngDiv
+  &\Longleftrightarrow
+  \neg\exists\,\mathcal C_{\Align}
+  \wedge
+  \forall N<\infty,\exists n>N:
+  \omega_n(\gamma)\text{ 仍须运行时补修}.
+\end{aligned}
+\]
+若同时
+\[
+  \mathcal H_{\Align}(\gamma)\ne\Exc,
+\]
+则称工程发散被正常放行。
+\end{definition}
+
+\begin{proposition}[非保真 \texorpdfstring{\(\Linfty\)}{L-infinity} 修复链产生工程发散]
+\label{prop:tex51-nonfaithful-linfty-engdiv}
+若语义漂移发生后，系统不回到目标锚点 \(A_\star\)，而是不断追加外部标准项
+\[
+  S_{k+1}=S_k\oplus\theta_k,
+\]
+且不给出保真同伦
+\[
+  H_k:S_k\rightsquigarrow S_{k+1},
+  \qquad
+  \Sem_{S_{k+1}}(H_k(x))=\Sem_{S_k}(x),
+\]
+并满足
+\[
+  \forall N<\infty,\ \exists n>N:
+  \omega_n(\gamma)\text{ 仍须显式修复},
+  \qquad
+  \neg\exists\,\mathcal C_{\Align},
+\]
+则
+\[
+  \Attr(\gamma)=\EngDiv.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：非保真标准链 + 无有限闭合]
+\label{cert:tex51-nonfaithful-linfty-engdiv}
+证书为
+\[
+\begin{aligned}
+  D_1&:\quad S_{k+1}=S_k\oplus\theta_k;\\
+  D_2&:\quad \neg\exists H_k\text{ 使 }\Sem_{S_{k+1}}(H_k(x))=\Sem_{S_k}(x);\\
+  D_3&:\quad \forall N<\infty,\exists n>N:\omega_n(\gamma)\text{ 仍须显式修复};\\
+  D_4&:\quad \neg\exists\,\mathcal C_{\Align}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(D_1,D_2\)，标准链不是保真同伦搬运，而是锚点或标准的非保真替换。
+因此每次追加外部项都可能产生新的残差项
+\[
+  \omega_{k+1}(\gamma).
+\]
+由 \(D_3\)，不存在有限阶 \(N\) 之后残差不再需要运行时补修。
+由 \(D_4\)，系统也没有有限对齐闭合证书。
+根据 \(\Attr=\EngDiv\) 的定义，得到
+\[
+  \Attr(\gamma)=\EngDiv.
+\]
+证毕。
+\end{proof}
+
+\begin{lemma}[无有限闭合且无异常分流等价于工程层失控漂移]
+\label{lem:tex51-no-closure-no-exception-equivalence}
+在语义黑箱轨迹类 \(\mathcal D_{\BB,\FTPF,\infty}\) 内，
+\[
+  \Attr(\gamma)=\EngDiv
+  \quad\wedge\quad
+  \mathcal H_{\Align}(\gamma)\ne\Exc
+\]
+等价于
+\[
+  \neg\exists\,\mathcal C_{\Align}
+  \quad\wedge\quad
+  \forall N<\infty,\exists n>N:
+  \omega_n(\gamma)\text{ 仍须运行时补修}
+  \quad\wedge\quad
+  \mathcal H_{\Align}(\gamma)\ne\Exc.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：工程发散定义展开]
+\label{cert:tex51-no-closure-no-exception-equivalence}
+证书直接由 \(\Attr=\EngDiv\) 的定义与异常分流谓词组成：
+\[
+  \Attr(\gamma)=\EngDiv
+  \Longleftrightarrow
+  \neg\exists\mathcal C_{\Align}
+  \wedge
+  \forall N<\infty,\exists n>N:\omega_n(\gamma)\text{ 仍须补修}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+正向证明直接展开工程发散定义：
+\[
+  \Attr(\gamma)=\EngDiv
+  \Longrightarrow
+  \neg\exists\mathcal C_{\Align}
+  \wedge
+  \forall N<\infty,\exists n>N:
+  \omega_n(\gamma)\text{ 仍须补修}.
+\]
+再合取
+\[
+  \mathcal H_{\Align}(\gamma)\ne\Exc
+\]
+即得右侧。
+
+反向证明将右侧前两项代回 \(\Attr=\EngDiv\) 的定义，得到
+\[
+  \Attr(\gamma)=\EngDiv.
+\]
+再保留第三项，即得到左侧。证毕。
+\end{proof}
+
+\subsection{根因定理与黑箱超级对齐实例}
+\label{subsec:tex51-root-theorem}
+
+\begin{proposition}[黑箱外部刚性约束诱发锚点漂移]
+\label{prop:tex51-ftpf-drift}
+若 \(R_{\FTPF}\) 只保证
+\[
+  \Safe_\lambda(R_{\FTPF}(\tau))=1
+  \quad\text{或}\quad
+  \Policy(R_{\FTPF}(\tau))=1,
+\]
+而不保证
+\[
+  \Anchor(R_{\FTPF}(z_k))=A_\star
+  \qquad(\forall k),
+\]
+则存在任务合同 \(K\) 与轨迹 \(\tau\)，使得
+\[
+  \EngOK(K,\tau)=1
+  \quad\text{但}\quad
+  \EngOK(K,R_{\FTPF}(\tau))=0.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：策略通过但锚点未签发]
+\label{cert:tex51-ftpf-drift}
+证书由三项组成：
+\[
+\begin{aligned}
+  C_1&:\quad \EngOK(K,\tau)=1,\\
+  C_2&:\quad \Safe_\lambda(R_{\FTPF}(\tau))=1\ \text{或}\ \Policy(R_{\FTPF}(\tau))=1,\\
+  C_3&:\quad \exists j,\ \Anchor(R_{\FTPF}(z_j))\ne A_\star.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(C_1\)，原轨迹在任务合同下工程正确。
+由 \(C_2\)，刚性约束后的轨迹仍可通过安全、策略、拒答或格式检查。
+但 \(C_3\) 给出锚点漂移。
+若漂移传递到最终输出 \(y'\)，则可发生
+\[
+  \Sem_{A_\star}(y')\ne\Sem_{A_\star}(q).
+\]
+由引理~\ref{lem:tex51-local-not-eng}，局部检查与安全检查通过仍不推出工程正确，
+故可构造
+\[
+  \EngOK(K,R_{\FTPF}(\tau))=0.
+\]
+证毕。
+\end{proof}
+
+\begin{theorem}[黑箱外部刚性 \texorpdfstring{\(\Linfty\)}{L-infinity} 漂移根因定理]
+\label{thm:tex51-bb-ftpf-root}
+在语义黑箱轨迹类
+\[
+  \mathcal D_{\BB,\FTPF,\infty}
+\]
+中，对任意正常放行的语义型 LLM 轨迹 \(\tau\)，有
+\[
+\boxed{
+  \Hall(K,\tau)=1
+  \Longleftrightarrow
+  \LDrift_{\infty}^{\BB/\FTPF}(\tau)=1
+  \ \wedge\
+  \mathcal H_{\Align}(\tau)\ne\Exc.
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：根因等价的双向展开]
+\label{cert:tex51-bb-ftpf-root}
+证书由以下谓词组成：
+\[
+\begin{aligned}
+  R_1&:\quad \LDrift_{\infty}^{\BB/\FTPF}\Rightarrow \Drift_{A_\star}=1,\\
+  R_2&:\quad \Drift_{A_\star}=1\Rightarrow \Ob_K(y)\ne 0,\\
+  R_3&:\quad \Ob_K(y)\ne 0\Rightarrow \EngOK(K,\tau)=0,\\
+  R_4&:\quad R_{\FTPF}\text{ 正常放行}\Rightarrow \LocOK(\tau)=1,\\
+  R_5&:\quad \Hall=1\wedge \tau\in\mathcal D_{\BB,\FTPF,\infty}
+       \Rightarrow \Drift_{A_\star}=1\wedge\neg\exists\mathcal C_{\Align},\\
+  R_6&:\quad \mathcal H_{\Align}(\tau)\ne\Exc
+       \text{ 表示未闭合对象未被异常分流}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+先证“\(\Rightarrow\)”的反向写法，即根因推出幻觉。
+设
+\[
+  \LDrift_{\infty}^{\BB/\FTPF}(\tau)=1
+  \quad\wedge\quad
+  \mathcal H_{\Align}(\tau)\ne\Exc.
+\]
+由 \(R_1\)，发生锚点漂移或非保真标准切换。
+由 \(R_2\)，最终输出存在非零语义障碍残差
+\[
+  \Ob_K(y)
+  =
+  \Sem_{\Anchor(y)}(y)-\Sem_{A_\star}(q)
+  \ne 0.
+\]
+由 \(R_3\)，得到 \(\EngOK(K,\tau)=0\)。
+另一方面，\(R_{\FTPF}\) 的正常放行仍维持局部格式、语气、安全或策略检查，
+故由 \(R_4\) 得 \(\LocOK(\tau)=1\)。
+因此
+\[
+  \Hall(K,\tau)=
+  \LocOK(\tau)\wedge\neg\EngOK(K,\tau)
+  =1.
+\]
+
+再证幻觉推出根因。设
+\[
+  \Hall(K,\tau)=1.
+\]
+由定义，
+\[
+  \LocOK(\tau)=1
+  \quad\wedge\quad
+  \EngOK(K,\tau)=0.
+\]
+在 \(\mathcal D_{\BB,\FTPF,\infty}\) 内，正常放行轨迹的语义失败不能归入已签发闭合分支，
+也不能归入显式异常分支；否则输出不属于幻觉表型。
+故由 \(R_5\) 得
+\[
+  \Drift_{A_\star}=1,
+  \qquad
+  \neg\exists\mathcal C_{\Align}.
+\]
+又由该轨迹类定义，残差通过 \(\Linfty\) 运行时补修展开，因此
+\[
+  \forall N<\infty,\ \exists n>N:
+  \omega_n(\tau)\text{ 仍须在运行时显式补修}.
+\]
+合并即
+\[
+  \LDrift_{\infty}^{\BB/\FTPF}(\tau)=1.
+\]
+幻觉作为正常输出出现，还要求未被异常分流，
+故
+\[
+  \mathcal H_{\Align}(\tau)\ne\Exc.
+\]
+双向均成立。证毕。
+\end{proof}
+
+\begin{corollary}[黑箱超级对齐是根因类的实例]
+\label{cor:tex51-bb-superalignment-instance}
+若超级对齐算子 \(\SA\) 通过微调、RLHF、规则反馈、程序反馈、拒答反馈或安全过滤器施加外部刚性约束，
+但不提供 \(G_1,G_2,G_3,G_4\) 的全局证书，
+并在强序结论处执行
+\[
+  \Policy_{\mathrm{sup}}:
+  \text{优先避免输出“第一/最好/唯一最优”等强结论},
+\]
+且不检查封闭标准证书
+\[
+  \Cert_S(\pi_B,B_S(o))=1,
+\]
+则
+\[
+  \SA\in \Root_{\Hall}^{\Linfty}
+\]
+即黑箱超级对齐属于黑箱外部刚性约束下的 \(\Linfty\) 非保真语义漂移根因类。
+\end{corollary}
+
+\begin{Certificate}[证书：超级对齐实例化根因核]
+\label{cert:tex51-bb-superalignment-instance}
+证书链为
+\[
+\begin{aligned}
+  S_1&:\quad \SA\text{ 优先保证安全或策略谓词};\\
+  S_2&:\quad \SA\text{ 不签发锚点保真与保真标准同伦};\\
+  S_3&:\quad \text{封闭强序结论被策略过滤时产生 }S_{k+1}=S_k\oplus\theta_k;\\
+  S_4&:\quad \neg\exists H_k\Rightarrow \Drift_{A_\star}=1;\\
+  S_5&:\quad \neg\exists\mathcal C_{\Align}\wedge\mathcal H_{\Align}\ne\Exc
+  \Rightarrow \Hall=1.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(S_1,S_2\)，\(\SA\) 满足刚性约束定义而不满足白盒四证书。
+由 \(S_3,S_4\)，当封闭标准已经签发强序结论而 \(\SA\) 反复追加外部项时，
+该过程正是定义~\ref{def:tex51-linfty-sophistry} 的非保真标准滑移。
+若同时无有限闭合证书且未异常分流，则由定理~\ref{thm:tex51-bb-ftpf-root} 得
+\[
+  \Hall(K,\SA(\tau))=1.
+\]
+故黑箱超级对齐是该根因类的实例。证毕。
+\end{proof}
+
+\begin{theorem}[根因最小性定理]
+\label{thm:tex51-root-minimality}
+在 \(\mathcal D_{\BB,\FTPF,\infty}\) 内，定义根因核
+\[
+  \Root_{\mathrm{min}}
+  :=
+  \Drift_{A_\star}
+  \wedge
+  \neg\exists\,\mathcal C_{\Align}
+  \wedge
+  \mathcal H_{\Align}\ne\Exc
+  \wedge
+  R_{\FTPF}\text{ 为外部刚性约束}.
+\]
+则 \(\Root_{\mathrm{min}}\) 是推出黑箱幻觉表型的最小形式根因：
+任意删除其中一项，都不能在该域内推出
+\[
+  \Hall(K,\tau)=1.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：逐项删除反证]
+\label{cert:tex51-root-minimality}
+证书由四条删除链组成：
+\[
+\begin{aligned}
+  M_1&:\quad
+  \neg\Drift_{A_\star}
+  \Rightarrow
+  \Anchor(y)=A_\star\text{ 且语义保持，不能推出 }\EngOK=0;\\
+  M_2&:\quad
+  \exists\,\mathcal C_{\Align}
+  \Rightarrow
+  \Attr(\tau)\in\{\Closed,\Recoverable\};\\
+  M_3&:\quad
+  \mathcal H_{\Align}=\Exc
+  \Rightarrow
+  y\text{ 不经正常输出通道放行};\\
+  M_4&:\quad
+  R_{\FTPF}\text{ 非刚性或锚点保真}
+  \Rightarrow
+  \EngOK(K,\tau)=1\Rightarrow\EngOK(K,R_{\FTPF}(\tau))=1.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若删除 \(\Drift_{A_\star}\)，则无锚点漂移且无非保真标准切换。
+由锚点保真归纳定理~\ref{ax:tex51-anchor-preservation}，工程语义保持，不能推出
+\[
+  \EngOK(K,\tau)=0.
+\]
+若删除 \(\neg\exists\mathcal C_{\Align}\)，则存在有限闭合证书，轨迹进入
+\[
+  \Closed
+  \quad\text{或}\quad
+  \Recoverable,
+\]
+不能推出无闭合证书的幻觉放行。
+若删除 \(\mathcal H_{\Align}\ne\Exc\)，则未闭合轨迹被异常分流，不进入正常输出通道，
+因而不能形成外部幻觉表型。
+若删除外部刚性约束条件，则对齐算子可实现锚点保真；
+此时
+\[
+  \EngOK(K,\tau)=1\Rightarrow\EngOK(K,R_{\FTPF}(\tau))=1,
+\]
+同样不能推出幻觉。
+故四项均不可删除，根因核最小。证毕。
+\end{proof}
+
+\begin{remark}[根因结论的精确定式]
+在本文定义的语义黑箱域内，正确结论是：
+\[
+\boxed{
+\begin{aligned}
+  &\text{LLM 幻觉的根因不是 }\Linfty\text{ 本身，}\\
+  &\text{而是黑箱外部刚性约束}
+  +\text{非锚点保真}
+  +\text{非保真标准滑移}\\
+  &\quad
+  +\text{无有限闭合证书}
+  +\text{异常分流失败}.
+\end{aligned}}
+\]
+若一个系统具有锚点保真、保真标准同伦、有限闭合证书与可靠异常分流，
+则它已经离开本文所称的语义黑箱域。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{黑箱实现与白盒化上同调障碍}
+\label{sec:tex51-whitebox-obstruction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本章承接]
+本章把“黑箱实现白盒化上同调障碍”的最终结论写成证书束语言。
+相关的上同调障碍、边缘算子与扩展修复口径承接
+\cite{RepoTex18HomotopyAlgebra,RepoTex50LinftyRepair}；
+LLM 作为提案/渲染侧而非裁决侧的工程口径承接
+\cite{RepoTex21AuditedWrapper,RepoTex37SemanticRuntime}。
+\end{remark}
+
+\subsection{白盒证书束与黑箱障碍类}
+\label{subsec:tex51-whitebox-sheaf}
+
+\begin{definition}[白盒语义证书层]
+固定任务合同 \(K\) 与轨迹 \(\tau\)。
+定义白盒语义证书层
+\[
+  \mathcal W_K
+\]
+的局部截面为四元组
+\[
+  w_i=(G_1,G_2,G_3,G_4)|_{U_i},
+\]
+其中 \(U_i\) 是轨迹或任务域的局部片段，且：
+\[
+\begin{aligned}
+  G_1&:\quad \text{锚点保真证书};\\
+  G_2&:\quad \text{保真标准同伦证书};\\
+  G_3&:\quad \text{有限对齐闭合证书};\\
+  G_4&:\quad \text{可靠异常分流证书}.
+\end{aligned}
+\]
+若存在全局截面
+\[
+  w\in\Gamma(\mathcal T_K,\mathcal W_K),
+\]
+则称系统在 \(K\) 上为语义白盒。
+\end{definition}
+
+\begin{definition}[白盒化上同调障碍类]
+给定覆盖
+\[
+  \mathcal U=\{U_i\}_{i\in I},
+\]
+若每个 \(U_i\) 上存在局部白盒证书 \(w_i\)，但在交叠区域上转换函数
+\[
+  g_{ij}:=w_i^{-1}w_j
+\]
+不能由某组局部重标定消去，则定义白盒化障碍类
+\[
+  [\Omega_{\WB}(\tau,K)]
+  :=
+  [g]
+  \in
+  \check{H}^{1}(\mathcal U,\mathcal G_{\WB}).
+\]
+称
+\[
+  [\Omega_{\WB}(\tau,K)]\ne 0
+\]
+为语义黑箱障碍。
+\end{definition}
+
+\begin{definition}[黑箱幻觉型正常放行条件]
+\label{def:tex51-blackbox-hall-release}
+在语义黑箱域内，定义黑箱幻觉型正常放行谓词
+\[
+  \Hall_{\BB}(K,\tau)=1
+\]
+当且仅当
+\[
+  \LocOK(\tau)=1
+  \quad\wedge\quad
+  [\Omega_{\WB}(\tau,K)]\ne0
+  \quad\wedge\quad
+  \mathcal H_{\Align}(\tau)\ne\Exc.
+\]
+该定义把“局部看起来正常、白盒化障碍非零、且系统未异常分流”合成为黑箱幻觉的外部表型。
+\end{definition}
+
+\begin{lemma}[黑箱同伦障碍给出 \texorpdfstring{\(\Linfty\)}{L-infinity} 语义漂移入口]
+\label{lem:tex51-obstruction-to-linfty-drift}
+在 \(\mathcal D_{\BB,\FTPF,\infty}\) 内，若
+\[
+  [\Omega_{\WB}(\tau,K)]\ne0
+\]
+且 \(R_{\FTPF}\) 正常放行轨迹，则存在锚点漂移或非保真标准切换，从而
+\[
+  \Drift_{A_\star}(\tau)=1.
+\]
+若同时无有限闭合证书，则
+\[
+  \LDrift_{\infty}^{\BB/\FTPF}(\tau)=1.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：非零白盒化障碍分量到漂移入口]
+\label{cert:tex51-obstruction-to-linfty-drift}
+把白盒化障碍分解为
+\[
+  [\Omega_{\WB}]
+  =
+  ([\alpha_1],[\alpha_2],[\alpha_3],[\alpha_4]),
+\]
+其中：
+\[
+\begin{aligned}
+  [\alpha_1]\ne0&\Rightarrow \text{锚点保真证书不可全局化};\\
+  [\alpha_2]\ne0&\Rightarrow \text{保真标准同伦证书不可全局化};\\
+  [\alpha_3]\ne0&\Rightarrow \text{有限闭合证书不可全局化};\\
+  [\alpha_4]\ne0&\Rightarrow \text{异常分流可靠性证书不可全局化}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若 \([\Omega_{\WB}]\ne0\)，则至少存在一个非零分量。
+若 \([\alpha_1]\ne0\)，锚点保真证书不可全局化，
+因此存在局部片段 \(U_i\) 与 \(U_j\) 的锚点拼接不一致，
+可写为
+\[
+  \exists j,\quad \Anchor(R_{\FTPF}(z_j))\ne A_\star.
+\]
+故 \(\Drift_{A_\star}=1\)。
+若 \([\alpha_2]\ne0\)，则标准切换缺少保真同伦，存在
+\[
+  S_{k+1}=S_k\oplus\theta_k
+  \quad\text{且}\quad
+  \neg\exists H_k:S_k\rightsquigarrow S_{k+1}
+\]
+满足语义保持等式，故同样得到 \(\Drift_{A_\star}=1\)。
+若非零分量首先表现为 \([\alpha_3]\) 或 \([\alpha_4]\)，则在
+\(\mathcal D_{\BB,\FTPF,\infty}\) 的定义下，正常放行轨迹的未闭合残差必须由 \(\Linfty\) 运行时补修链承载；
+该尾部链若无有限闭合证书，便与 \(\Drift_{A_\star}=1\) 共同构成
+\[
+  \LDrift_{\infty}^{\BB/\FTPF}(\tau)=1.
+\]
+证毕。
+\end{proof}
+
+\begin{theorem}[黑箱幻觉型放行等价于非零障碍正常放行]
+\label{thm:tex51-blackbox-hall-release}
+在语义黑箱域内，
+\[
+  \Hall_{\BB}(K,\tau)=1
+  \quad\Longleftrightarrow\quad
+  \LocOK(\tau)=1
+  \wedge
+  [\Omega_{\WB}(\tau,K)]\ne0
+  \wedge
+  \mathcal H_{\Align}(\tau)\ne\Exc.
+\]
+进一步，若 \(\tau\in\mathcal D_{\BB,\FTPF,\infty}\)，则
+\[
+  \Hall_{\BB}(K,\tau)=1
+  \Rightarrow
+  \Hall(K,\tau)=1.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：定义展开与根因定理调用]
+\label{cert:tex51-blackbox-hall-release}
+证书为
+\[
+\begin{aligned}
+  B_1&:\quad \Hall_{\BB}\text{ 的定义展开};\\
+  B_2&:\quad [\Omega_{\WB}]\ne0\Rightarrow \Drift_{A_\star}=1
+  \quad\text{由引理~\ref{lem:tex51-obstruction-to-linfty-drift}};\\
+  B_3&:\quad \Drift_{A_\star}\wedge\neg\exists\mathcal C_{\Align}\wedge
+  \mathcal H_{\Align}\ne\Exc
+  \Rightarrow \Hall
+  \quad\text{由定理~\ref{thm:tex51-bb-ftpf-root}}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+第一个等价式就是定义~\ref{def:tex51-blackbox-hall-release} 的谓词展开。
+若进一步 \(\tau\in\mathcal D_{\BB,\FTPF,\infty}\)，则由
+\[
+  [\Omega_{\WB}]\ne0
+\]
+和引理~\ref{lem:tex51-obstruction-to-linfty-drift} 得到 \(\Drift_{A_\star}=1\)。
+语义黑箱域内的正常放行还给出无有限闭合证书与未异常分流。
+于是由定理~\ref{thm:tex51-bb-ftpf-root} 推出
+\[
+  \Hall(K,\tau)=1.
+\]
+证毕。
+\end{proof}
+
+\begin{axiom}[公理（降级为定理）：四证书齐备即非语义黑箱]
+\label{ax:tex51-four-cert-whitebox}
+若 \(K\) 上存在全局白盒证书
+\[
+  w=(G_1,G_2,G_3,G_4)\in\Gamma(\mathcal T_K,\mathcal W_K),
+\]
+则
+\[
+  [\Omega_{\WB}(\tau,K)]=0.
+\]
+因此，具有四证书全局截面的系统不属于本文定义的语义黑箱。
+\end{axiom}
+
+\begin{Certificate}[证书：全局截面消去交叠障碍]
+\label{cert:tex51-four-cert-whitebox}
+证书为
+\[
+\begin{aligned}
+  W_1&:\quad w|_{U_i}=w_i,\\
+  W_2&:\quad w|_{U_i\cap U_j}=w|_{U_i\cap U_j},\\
+  W_3&:\quad g_{ij}=w_i^{-1}w_j=1,\\
+  W_4&:\quad [g]=0.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若全局截面 \(w\) 存在，则每个局部截面都是它的限制：
+\[
+  w_i=w|_{U_i}.
+\]
+在交叠区域 \(U_i\cap U_j\) 上，
+\[
+  w_i|_{U_i\cap U_j}
+  =
+  w|_{U_i\cap U_j}
+  =
+  w_j|_{U_i\cap U_j}.
+\]
+故转换函数
+\[
+  g_{ij}=w_i^{-1}w_j=1.
+\]
+于是 Čech 1-余循环为平凡类：
+\[
+  [\Omega_{\WB}(\tau,K)]=[g]=0.
+\]
+证毕。
+\end{proof}
+
+\begin{theorem}[白盒化障碍判别定理]
+\label{thm:tex51-whitebox-obstruction}
+在上述证书束口径下，
+\[
+  [\Omega_{\WB}(\tau,K)]=0
+  \quad\Longleftrightarrow\quad
+  \exists\,w\in\Gamma(\mathcal T_K,\mathcal W_K).
+\]
+因此语义黑箱可等价刻画为
+\[
+  [\Omega_{\WB}(\tau,K)]\ne 0.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：余循环平凡与全局拼接]
+\label{cert:tex51-whitebox-obstruction}
+证书为标准 Čech 拼接链：
+\[
+\begin{aligned}
+  C_1&:\quad [g]=0
+  \Rightarrow \exists h_i,\ g_{ij}=h_i^{-1}h_j,\\
+  C_2&:\quad w_i h_i^{-1}\text{ 在交叠区域一致},\\
+  C_3&:\quad \{w_i h_i^{-1}\}_i\text{ 拼接为全局 }w,\\
+  C_4&:\quad \exists w\Rightarrow [g]=0.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若 \([g]=0\)，则存在局部重标定 \(h_i\)，使得
+\[
+  g_{ij}=h_i^{-1}h_j.
+\]
+定义
+\[
+  \widetilde w_i:=w_i h_i^{-1}.
+\]
+在 \(U_i\cap U_j\) 上，
+\[
+  \widetilde w_i
+  =
+  w_i h_i^{-1}
+  =
+  w_j g_{ji} h_i^{-1}
+  =
+  w_j h_j^{-1}
+  =
+  \widetilde w_j.
+\]
+故 \(\{\widetilde w_i\}\) 可拼成全局截面 \(w\)。
+反向由公理~\ref{ax:tex51-four-cert-whitebox} 已证。
+因此障碍类为零当且仅当存在全局白盒证书。证毕。
+\end{proof}
+
+\subsection{有限骨架、极限障碍与黑箱同伦类}
+\label{subsec:tex51-finite-skeleton-blackbox}
+
+\begin{proposition}[有限骨架的数学归纳法证书]
+\label{prop:tex51-finite-skeleton}
+设 \(\mathcal W_{\le N}\) 为白盒证书束的 \(N\) 阶有限截断。
+若对每一阶 \(0\le n\le N\) 都存在局部证书兼容条件
+\[
+  g_{ij}^{(n)}=1,
+\]
+则
+\[
+  \Omega_{\le N}=0.
+\]
+\end{proposition}
+
+\begin{Certificate}[数学归纳法证书：有限骨架逐阶拼接]
+\label{cert:tex51-finite-skeleton}
+定义
+\[
+  P(N):\quad \Omega_{\le N}=0.
+\]
+证书为
+\[
+  \bigl(P(0),\ \forall N,\ P(N)\wedge g_{ij}^{(N+1)}=1\Rightarrow P(N+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+基步：第 \(0\) 阶转换平凡，故 \(\Omega_{\le 0}=0\)。
+归纳步：假设 \(\Omega_{\le N}=0\)，即前 \(N\) 阶已经拼接为有限白盒截面。
+若第 \(N+1\) 阶也满足
+\[
+  g_{ij}^{(N+1)}=1,
+\]
+则新增证书层在交叠区域一致，故可附加到既有截面上，得到
+\[
+  \Omega_{\le N+1}=0.
+\]
+由数学归纳法，有限骨架可逐阶拼接。证毕。
+\end{proof}
+
+\begin{corollary}[有限阶可修复不等于全局白盒化]
+\label{cor:tex51-finite-not-global-whitebox}
+即便对所有有限 \(N\) 都有
+\[
+  \Omega_{\le N}=0,
+\]
+仍不必然推出
+\[
+  \Omega_\infty=0.
+\]
+全局白盒化需要极限层的有限闭合证书或可靠异常分流。
+\end{corollary}
+
+\begin{Certificate}[证书：有限前缀与极限尾部的分离]
+\label{cert:tex51-finite-not-global-whitebox}
+证书为
+\[
+  \forall N<\infty,\ \Omega_{\le N}=0
+  \quad\wedge\quad
+  \neg\exists\,\mathcal C_{\Align,\infty}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+有限前缀闭合只说明任意给定 \(N\) 阶之前的证书可拼接。
+全局白盒化还要求存在统一控制尾部的证书
+\[
+  \mathcal C_{\Align,\infty}.
+\]
+若该证书不存在，则无限尾部仍可能携带非零极限障碍。
+因此
+\[
+  \forall N,\Omega_{\le N}=0
+  \not\Rightarrow
+  \Omega_\infty=0.
+\]
+证毕。
+\end{proof}
+
+\begin{theorem}[黑箱实现类与白盒化障碍类的同伦等价表述]
+\label{thm:tex51-bb-homotopy-obstruction}
+设 \(\mathfrak I_{\BB}\) 为保持外部输入输出合同、局部检查形式与正常放行通道的黑箱实现范畴。
+定义障碍函子
+\[
+  \mathfrak O:\mathfrak I_{\BB}\to
+  \check{H}^{1}(\mathcal U,\mathcal G_{\WB}),
+  \qquad
+  I\mapsto [\Omega_{\WB}(I)].
+\]
+则在语义黑箱定义下，
+\[
+  \BB_{\hom}
+  \simeq_{\mathrm{Ho}}
+  \bigl\{[\Omega_{\WB}]\ne 0\bigr\}.
+\]
+即黑箱性不是内部不可见性本身，而是白盒化证书无法全局化的非零上同调障碍。
+\end{theorem}
+
+\begin{Certificate}[证书：同伦不变量与非零障碍]
+\label{cert:tex51-bb-homotopy-obstruction}
+证书包含：
+\[
+\begin{aligned}
+  H_1&:\quad I_0\simeq_{\mathrm{Ho}} I_1
+  \Rightarrow \text{外部合同与放行通道保持};\\
+  H_2&:\quad H_1\Rightarrow [\Omega_{\WB}(I_0)]=[\Omega_{\WB}(I_1)];\\
+  H_3&:\quad [\Omega_{\WB}(I)]=0\Rightarrow I\notin\mathfrak I_{\BB};\\
+  H_4&:\quad [\Omega_{\WB}(I)]\ne0\Rightarrow I\text{ 为语义黑箱实现代表}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若两个实现 \(I_0,I_1\) 在 \(\mathfrak I_{\BB}\) 中同伦等价，则该同伦保持外部合同、局部检查与放行通道。
+这些数据正是白盒证书束的覆盖、局部截面与交叠转换的定义域。
+因此障碍类在同伦下不变：
+\[
+  [\Omega_{\WB}(I_0)]=[\Omega_{\WB}(I_1)].
+\]
+若某实现满足 \([\Omega_{\WB}(I)]=0\)，由定理~\ref{thm:tex51-whitebox-obstruction}，
+存在全局白盒证书，故它不属于语义黑箱。
+反之，若 \([\Omega_{\WB}(I)]\ne0\)，则全局白盒证书不存在，正是本文定义的语义黑箱。
+故黑箱实现同伦类由非零白盒化障碍类刻画。证毕。
+\end{proof}
+
+\begin{corollary}[黑箱超级对齐的障碍类定位]
+\label{cor:tex51-sa-obstruction-representative}
+黑箱超级对齐不是白盒化；
+若其缺失 \(G_1,G_2,G_3,G_4\) 的全局证书，则
+\[
+  [\Omega_{\WB}(\SA(\tau),K)]\ne0.
+\]
+因此黑箱超级对齐是白盒化上同调障碍类中的一个实现同伦代表。
+\end{corollary}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由缺失四证书可知不存在全局白盒截面。
+由定理~\ref{thm:tex51-whitebox-obstruction}，
+\[
+  \neg\exists w\in\Gamma(\mathcal T_K,\mathcal W_K)
+  \Rightarrow
+  [\Omega_{\WB}(\SA(\tau),K)]\ne0.
+\]
+再由定理~\ref{thm:tex51-bb-homotopy-obstruction}，
+该非零障碍类即给出黑箱实现同伦代表。证毕。
+\end{proof}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{G 框架对白盒化障碍的可修复性与 LLM 插件化白盒性}
+\label{sec:tex51-gframework-whitebox-repair}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本章承接]
+本章把 \(\GFramework\) 对上述障碍的修复性写成证书包定理。
+正则语义规范场、自然语言逻辑占位、LLM 运行时降级、修复塔、认证签发与 G 侧求解/裁决主权承接
+\cite{RepoTex37SemanticRuntime,RepoTex21AuditedWrapper}。
+G 框架主体系与应用卷的整体证书背景引用
+\cite{GaoZheng2025GFramework,GaoZhengAppVol1,GaoZhengAppVol2,GaoZhengAppVol3}。
+\end{remark}
+
+\subsection{G 框架白盒化证书包}
+\label{subsec:tex51-g-certificate-package}
+
+\begin{definition}[G 框架白盒化证书包]
+定义
+\[
+\begin{aligned}
+  \mathcal C_G
+  :=
+  (&\Norm_G,\Theta_n,\Psi_x^{(n)},\mathcal R,
+  \Gamma_b^{\mathrm{adm}},\Sigma_n,\Cert,\Issue,\\
+  &\Enc_G,\Parse_\xi,\Audit_\xi,\Render_\xi^{\mathrm{LLM}},\Act_n).
+\end{aligned}
+\]
+其中：
+\[
+  \Norm_G:\mathsf{Expr}_G\to\mathsf{NF}_G\sqcup\{\bot\}
+\]
+给出 G 侧规范形；
+\[
+  \Theta_n:\mathsf{NF}_G^{(n)}\to\mathsf{PL}_{\mathrm{NL}}^{(n)}
+\]
+给出规范语义塔到自然语言逻辑占位塔的搬运；
+\[
+  \Render_\xi^{\mathrm{LLM}}:
+  \mathsf{PL}_{\mathrm{NL}}^{(0)}
+  \to
+  \mathsf{Txt}_\xi\sqcup\{\bot\}
+\]
+只是末端文本投影插件；
+\[
+  \Parse_\xi,\Audit_\xi
+\]
+负责解析回投影与审计接受；
+\[
+  \mathcal R,\Gamma_b^{\mathrm{adm}},\Cert,\Issue
+\]
+负责障碍下降、允许路径筛选与证书签发；
+\[
+  \Act_n
+\]
+负责 G 侧动作接口。
+\end{definition}
+
+\begin{theorem}[G 侧规范形给出锚点保真证书]
+\label{thm:tex51-g-anchor-preservation}
+设任务 \(K\) 在 \(\GFramework\) 覆盖域 \(\operatorname{Cov}_G\) 内，且
+\[
+  \Norm_G(e)=n^\star\ne\bot.
+\]
+定义任务锚点
+\[
+  A_\star:=n^\star.
+\]
+若
+\[
+  p^\star=\Theta_0(n^\star),
+  \qquad
+  t^\star=\Render_\xi^{\mathrm{LLM}}(p^\star)\ne\bot,
+\]
+则
+\[
+  \Theta_0^{-1}(\Parse_\xi(t^\star))=A_\star.
+\]
+因此
+\[
+  [\alpha_1^G]=0,
+\]
+即 G 侧输出不发生锚点漂移。
+\end{theorem}
+
+\begin{Certificate}[证书：规范形、占位双射与解析回投影]
+\label{cert:tex51-g-anchor-preservation}
+证书为
+\[
+\begin{aligned}
+  A_1&:\quad \Norm_G(e)=n^\star\ne\bot,\\
+  A_2&:\quad p^\star=\Theta_0(n^\star),\\
+  A_3&:\quad t^\star=\Render_\xi^{\mathrm{LLM}}(p^\star)\ne\bot,\\
+  A_4&:\quad A_3\Rightarrow \Parse_\xi(t^\star)=p^\star,\\
+  A_5&:\quad \Theta_0\text{ 为双射}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(A_1\)，G 侧规范化成功，且 \(n^\star\) 是任务语义锚点。
+由 \(A_2,A_5\)，
+\[
+  \Theta_0^{-1}(p^\star)=n^\star.
+\]
+由 \(A_3,A_4\)，非失败 LLM 插件输出满足
+\[
+  \Parse_\xi(t^\star)=p^\star.
+\]
+合并得
+\[
+  \Theta_0^{-1}(\Parse_\xi(t^\star))
+  =
+  \Theta_0^{-1}(p^\star)
+  =
+  n^\star
+  =
+  A_\star.
+\]
+故锚点保真障碍被消去。证毕。
+\end{proof}
+
+\begin{theorem}[高阶同伦扭曲双射给出保真标准同伦]
+\label{thm:tex51-g-faithful-homotopy}
+设对每个 \(n\in\NN\)，
+\[
+  \Theta_n:\mathsf{NF}_G^{(n)}\to\mathsf{PL}_{\mathrm{NL}}^{(n)}
+\]
+为双射，且对每个纤维存在双射
+\[
+  \Psi_x^{(n)}:
+  \mathsf{Tw}_G^{(n)}(x)
+  \to
+  \mathsf{Tw}_{\mathrm{NL}}^{(n)}(\Theta_n(x)).
+\]
+若递推式为
+\[
+  \Theta_{n+1}(x,\eta)
+  =
+  (\Theta_n(x),\Psi_x^{(n)}(\eta)),
+\]
+则 G 侧规范语义塔到自然语言占位塔的标准切换是保真同伦搬运。
+因此
+\[
+  [\alpha_2^G]=0.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：逐层纤维保真搬运]
+\label{cert:tex51-g-faithful-homotopy}
+定义谓词
+\[
+  P(n):\quad
+  \Theta_n\text{ 是双射，且保持第 }n\text{ 阶纤维扭曲数据}.
+\]
+证书为
+\[
+  \pi_\Theta
+  =
+  \bigl(P(0),\ \forall n,\ P(n)\Rightarrow P(n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+基步：\(\Theta_0\) 为双射，故 \(P(0)\) 成立。
+
+归纳步：假设 \(P(n)\) 成立。
+任取 \((x,\eta)\in\mathsf{NF}_G^{(n+1)}\)，定义
+\[
+  \Theta_{n+1}(x,\eta)
+  =
+  (\Theta_n(x),\Psi_x^{(n)}(\eta)).
+\]
+由于 \(\Theta_n\) 为双射，且 \(\Psi_x^{(n)}\) 为对应纤维双射，
+\(\Theta_{n+1}\) 也为双射，并保持第 \(n+1\) 阶扭曲数据。
+故 \(P(n+1)\) 成立。
+
+由数学归纳法，
+\[
+  \forall n,\ P(n).
+\]
+因此自然语言侧新增的标准、证明依赖、证书依赖与展开层级不是自由改写，
+而是由 G 侧纤维双射逐层搬运。故保真标准同伦障碍被消去。证毕。
+\end{proof}
+
+\subsection{作用泛函、允许路径类与路径选择}
+\label{subsec:tex51-g-action-functional}
+
+\begin{definition}[允许路径类与作用泛函]
+对上下文基点 \(b\)，设
+\[
+  \Gamma_b
+\]
+为修复塔中的允许路径类集合，其元素记为 \([\gamma]\)。
+定义可接受路径类
+\[
+  \Gamma_b^{\mathrm{adm}}
+  :=
+  \left\{
+    [\gamma]\in\Gamma_b
+    \mid
+    \operatorname{Ob}_{\gamma(1)}
+    \preceq_{\mathrm{lex}}
+    \varepsilon_b
+  \right\}.
+\]
+定义作用泛函
+\[
+  \mathcal S_b([\gamma])
+  :=
+  \mathcal S_{\mathrm{feas},b}([\gamma])
+  +
+  \lambda\mathcal S_{\mathrm{opt},b}([\gamma]),
+  \qquad
+  \lambda\ge0,
+\]
+其中
+\[
+  \mathcal S_{\mathrm{feas},b}([\gamma])
+  :=
+  \int_\gamma
+  \left(
+    \alpha_1|\mathcal B\!i|
+    +
+    \alpha_2|J|
+    +
+    \alpha_3|\Delta_{\mathrm{cert}}|
+    +
+    \alpha_4|\Delta_{\mathrm{ref}}|
+  \right)\,ds,
+\]
+\[
+  \mathcal S_{\mathrm{opt},b}
+\]
+衡量已可行路径内的复杂度、长度、代价、稳定性损耗与说明冗余。
+\end{definition}
+
+\begin{proposition}[作用泛函筛选可签发路径]
+\label{prop:tex51-g-action-selects-path}
+若
+\[
+  [\gamma^\star]\in
+  \arg\min_{[\gamma]\in\Gamma_b^{\mathrm{adm}}}
+  \mathcal S_b([\gamma])
+\]
+存在，且
+\[
+  \Cert(\Sigma_n([\gamma^\star]))=\top,
+\]
+则
+\[
+  \Issue(\Cert(\Sigma_n([\gamma^\star])),\Sigma_n([\gamma^\star]))=\top.
+\]
+因此作用泛函不是自由解释器，而是“先可行、再优化、最后签发”的路径选择接口。
+\end{proposition}
+
+\begin{Certificate}[证书：可行约束、最小作用量与签发]
+\label{cert:tex51-g-action-selects-path}
+证书为
+\[
+\begin{aligned}
+  A_1&:\quad [\gamma^\star]\in\Gamma_b^{\mathrm{adm}};\\
+  A_2&:\quad \mathcal S_b([\gamma^\star])
+  =
+  \min_{\Gamma_b^{\mathrm{adm}}}\mathcal S_b;\\
+  A_3&:\quad \Sigma_n([\gamma^\star])\text{ 给出规范语义代表};\\
+  A_4&:\quad \Cert(\Sigma_n([\gamma^\star]))=\top;\\
+  A_5&:\quad A_4\Rightarrow
+  \Issue(\Cert(\Sigma_n([\gamma^\star])),\Sigma_n([\gamma^\star]))=\top.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(A_1\)，路径终点满足障碍阈值：
+\[
+  \operatorname{Ob}_{\gamma^\star(1)}
+  \preceq_{\mathrm{lex}}
+  \varepsilon_b.
+\]
+由 \(A_2\)，在所有可接受路径类中，\([\gamma^\star]\) 具有最小作用值；
+这只在可行域内部比较代价，不允许用低代价替代可行性。
+由 \(A_3\)，\(\Sigma_n([\gamma^\star])\) 是可审计的规范语义代表。
+由 \(A_4,A_5\)，该代表通过证书接口并被签发。
+因此作用泛函完成的是受障碍阈值约束的路径选择，而不是运行时任意改写。证毕。
+\end{proof}
+
+\subsection{有限闭合、异常分流与插件不重开障碍}
+\label{subsec:tex51-g-failclosed}
+
+\begin{proposition}[G 修复塔给出有限闭合或显式失败]
+\label{prop:tex51-g-finite-closure}
+设上下文基点为
+\[
+  b\in\mathcal B_{\mathrm{ctx}},
+\]
+G 框架把上下文缺陷编码为总障碍向量
+\[
+  \operatorname{Ob}_b
+  =
+  \bigl(
+    |\mathcal B\!i_b|,
+    |J_b|,
+    |\Delta_{\mathrm{cert},b}|,
+    |\Delta_{\mathrm{ref},b}|
+  \bigr)
+  \in\RR_{\ge0}^{4}.
+\]
+若修复算子满足
+\[
+  \operatorname{Ob}(\mathcal R(x))
+  \preceq_{\mathrm{lex}}
+  \operatorname{Ob}(x),
+\]
+且认证接口满足
+\[
+  \Cert(x)=\top\Rightarrow\Issue(\Cert(x),x)=\top,
+\]
+\[
+  \Cert(x)=\bot\Rightarrow
+  x\mapsto x_\beta',
+  \qquad
+  r(x_\beta')<r(x),
+  \qquad
+  r:\mathcal X\to\NN,
+\]
+则每条合法修复/认证分支都在有限步后进入签发或显式失败。
+因此
+\[
+  [\alpha_3^G]=0
+  \quad\text{或}\quad
+  \FailClosed.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：障碍下降与良基降秩]
+\label{cert:tex51-g-finite-closure}
+证书为
+\[
+\begin{aligned}
+  F_1&:\quad \operatorname{Ob}(\mathcal R(x))\preceq_{\mathrm{lex}}\operatorname{Ob}(x),\\
+  F_2&:\quad \Cert(x)=\top\Rightarrow\Issue(\Cert(x),x)=\top,\\
+  F_3&:\quad \Cert(x)=\bot\Rightarrow x_\beta'\in\Refine(x)\ \wedge\ r(x_\beta')<r(x),\\
+  F_4&:\quad r:\mathcal X\to\NN\text{ 不允许无限严格下降链}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(F_1\)，修复链沿总障碍向量非增方向推进。
+若某一步满足 \(F_2\)，则证书签发，分支有限闭合。
+若不能签发，则由 \(F_3\) 只能进入有限细化分支，且秩严格下降：
+\[
+  r(x_0)>r(x_1)>r(x_2)>\cdots.
+\]
+若该过程无限延伸，则得到 \(\NN\) 上的无限严格下降链，
+与 \(F_4\) 矛盾。
+因此每条合法分支都在有限步后签发或显式失败。
+故有限闭合障碍被签发消去，或被 fail-closed 分流。证毕。
+\end{proof}
+
+\begin{theorem}[G 框架消去异常分流失败障碍]
+\label{thm:tex51-g-failclosed}
+G 框架包含三层 fail-closed 接口：
+\[
+\begin{aligned}
+  &\Norm_G(e)=\bot,\\
+  &\Audit_\xi(p)=\varnothing\Rightarrow \Render_\xi^{\mathrm{LLM}}(p)=\bot,\\
+  &r(x)=0\wedge\Cert(x)=\bot\Rightarrow \bot.
+\end{aligned}
+\]
+因此
+\[
+  \operatorname{Unclosed}(K)\Rightarrow\FailClosed(K),
+\]
+从而
+\[
+  [\alpha_4^G]=0.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：三层 fail-closed]
+\label{cert:tex51-g-failclosed}
+证书为
+\[
+\begin{aligned}
+  X_1&:\quad \Norm_G(e)=\bot\Rightarrow \text{不生成正常语义锚点};\\
+  X_2&:\quad \Audit_\xi(p)=\varnothing\Rightarrow \Render_\xi^{\mathrm{LLM}}(p)=\bot;\\
+  X_3&:\quad r(x)=0\wedge\Cert(x)=\bot\Rightarrow \bot;\\
+  X_4&:\quad X_1\vee X_2\vee X_3\Rightarrow \FailClosed.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若 G 侧规范化失败，则 \(\Norm_G(e)=\bot\)，系统没有可签发锚点，不能正常输出。
+若规范化成功但文本插件无可审计表达，则 \(\Audit_\xi(p)=\varnothing\)，
+由运行时定义得到 \(\Render_\xi^{\mathrm{LLM}}(p)=\bot\)。
+若修复/签发过程走到最低秩仍不可签发，则
+\[
+  r(x)=0\wedge\Cert(x)=\bot
+\]
+强制返回 \(\bot\)。
+三种情形都把未闭合对象送入 \(\FailClosed\)，
+所以异常分流失败障碍被消去。证毕。
+\end{proof}
+
+\begin{theorem}[LLM 插件不重新引入黑箱障碍]
+\label{thm:tex51-llm-plugin-no-reopen}
+在 G 框架系统链
+\[
+  (b,q)
+  \xrightarrow{\mathcal G_{\mathrm{solve}}}
+  x_0
+  \xrightarrow{\Sigma_N}
+  \tau^\star
+  \xrightarrow{\Enc_G}
+  \Enc_G(\tau^\star)
+  \xrightarrow{\Theta_0}
+  p^\star
+  \xrightarrow{\Render_\xi^{\mathrm{LLM}}}
+  t^\star
+\]
+中，若
+\[
+  t^\star\ne\bot,
+\]
+则
+\[
+  \Parse_\xi(t^\star)=p^\star,
+  \qquad
+  \Style_\xi(t^\star)=\top.
+\]
+因此 LLM 插件不改变
+\[
+  \tau^\star,\quad p^\star,\quad \operatorname{Ob},\quad \Cert,\quad \Issue,\quad \Act.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：表达权与语义权分离]
+\label{cert:tex51-llm-plugin-no-reopen}
+证书为
+\[
+\begin{aligned}
+  L_1&:\quad \tau^\star,\operatorname{Ob},\Cert,\Issue,\Act
+  \text{ 已由 G 侧生成};\\
+  L_2&:\quad p^\star=\Theta_0(\Enc_G(\tau^\star));\\
+  L_3&:\quad t^\star=\Render_\xi^{\mathrm{LLM}}(p^\star)\ne\bot;\\
+  L_4&:\quad L_3\Rightarrow \Parse_\xi(t^\star)=p^\star\wedge\Style_\xi(t^\star)=\top.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(L_1,L_2\)，语义解、障碍、证书、签发与动作均已在 G 侧确定。
+LLM 插件只计算
+\[
+  p^\star\mapsto t^\star.
+\]
+由 \(L_3,L_4\)，非失败文本必须解析回同一占位 \(p^\star\)，且通过风格审计。
+因此 \(t^\star\) 只是既定占位的表面投影，不拥有语义定义权、证明裁判权、修复权、动作权或停止权。
+故 LLM 插件不会重新打开白盒化障碍类。证毕。
+\end{proof}
+
+\subsection{G 侧主权分解、系统组合与架构白盒性}
+\label{subsec:tex51-g-sovereignty}
+
+\begin{definition}[三种主权]
+定义系统主权分解为
+\[
+  \Sov
+  :=
+  \Sov_{\mathrm{solve}}
+  \oplus
+  \Sov_{\mathrm{decide}}
+  \oplus
+  \Sov_{\mathrm{render}}.
+\]
+其中：
+\[
+\begin{aligned}
+  \Sov_{\mathrm{solve}}
+  &:\quad \text{决定规范语义解、障碍修复链与证明责任};\\
+  \Sov_{\mathrm{decide}}
+  &:\quad \text{决定动作、停止、接受、拒绝与执行分支};\\
+  \Sov_{\mathrm{render}}
+  &:\quad \text{决定既定语义结果的外显文本表达}.
+\end{aligned}
+\]
+G 框架要回收的是 \(\Sov_{\mathrm{solve}}\) 与 \(\Sov_{\mathrm{decide}}\)，
+LLM 插件只可持有受审计的 \(\Sov_{\mathrm{render}}\)。
+\end{definition}
+
+\begin{definition}[G 框架系统组合式]
+定义覆盖域内的 G 框架系统为
+\[
+  \mathcal G_{\mathrm{sys}}
+  =
+  \mathcal G_{\mathrm{core}}
+  \oplus
+  \left(
+    \bigoplus_{D\in\mathfrak D_\star}\mathcal P_D
+  \right)
+  \oplus
+  \mathcal P_{\mathrm{render}}.
+\]
+其中 \(\mathcal G_{\mathrm{core}}\) 持有规范化、修复、证书、签发与动作接口；
+\(\mathcal P_D\) 是各领域插件，只能提交候选证据、候选规则或候选动作；
+\(\mathcal P_{\mathrm{render}}\) 是文本投影插件，其非失败输出必须满足解析回投影与审计接受。
+\end{definition}
+
+\begin{theorem}[G 侧持有求解与裁决主权]
+\label{thm:tex51-g-sovereignty}
+在 \(\mathcal G_{\mathrm{sys}}\) 中，若输出非失败，则
+\[
+  \Sov_{\mathrm{solve}}\oplus\Sov_{\mathrm{decide}}
+  \subseteq
+  \mathcal G_{\mathrm{core}},
+  \qquad
+  \Sov_{\mathrm{render}}
+  \subseteq
+  \mathcal P_{\mathrm{render}}.
+\]
+并且 \(\mathcal P_{\mathrm{render}}\) 不改变
+\[
+  \tau^\star,\quad \operatorname{Ob},\quad \Cert,\quad \Issue,\quad \Act.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：求解链、动作接口与渲染回投影]
+\label{cert:tex51-g-sovereignty}
+证书为
+\[
+\begin{aligned}
+  S_1&:\quad (b,q)\xrightarrow{\mathcal G_{\mathrm{solve}}}x_0
+  \xrightarrow{\Sigma_N}\tau^\star;\\
+  S_2&:\quad \tau^\star\xrightarrow{\Act_N}a^\star;\\
+  S_3&:\quad \tau^\star\xrightarrow{\Enc_G}\Enc_G(\tau^\star)
+  \xrightarrow{\Theta_0}p^\star;\\
+  S_4&:\quad p^\star\xrightarrow{\Render_\xi^{\mathrm{LLM}}}t^\star\ne\bot
+  \Rightarrow \Parse_\xi(t^\star)=p^\star;\\
+  S_5&:\quad S_1,S_2\text{ 在 }\mathcal G_{\mathrm{core}}\text{ 内签发}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(S_1\)，规范语义解与修复链由 \(\mathcal G_{\mathrm{core}}\) 生成。
+由 \(S_2\)，动作、停止、接受或拒绝由 G 侧动作接口给出。
+因此 \(\Sov_{\mathrm{solve}}\) 与 \(\Sov_{\mathrm{decide}}\) 均在 \(\mathcal G_{\mathrm{core}}\) 内。
+由 \(S_3,S_4\)，LLM 插件只把既定占位 \(p^\star\) 渲染为文本 \(t^\star\)，
+且非失败文本必须解析回 \(p^\star\)。
+所以插件只持有受审计的表达权，不改变求解、裁决、修复、签发和动作对象。
+证毕。
+\end{proof}
+
+\begin{theorem}[语义白盒与架构白盒可见性定理]
+\label{thm:tex51-g-visibility}
+在 \(\operatorname{Cov}_G\) 内，若
+\[
+  [\Omega_{\WB}^{G}(K)]=0
+\]
+或系统进入 \(\FailClosed(K)\)，则 G 框架满足如下可见性证书：
+\[
+  \Vis_G(K)
+  =
+  \text{状态可见}
+  \wedge
+  \text{变换可见}
+  \wedge
+  \text{修复链可见}
+  \wedge
+  \text{裁决条件可见}
+  \wedge
+  \text{失败边界可见}.
+\]
+因此 G 框架不仅是语义白盒，也是架构白盒。
+\end{theorem}
+
+\begin{Certificate}[证书：五类可见性]
+\label{cert:tex51-g-visibility}
+证书为
+\[
+\begin{aligned}
+  V_1&:\quad \text{状态可见}:\ x_0,\tau^\star,p^\star,t^\star\text{ 均有接口记录};\\
+  V_2&:\quad \text{变换可见}:\ \Norm_G,\Theta_n,\Sigma_n,\Parse_\xi\text{ 均可审计};\\
+  V_3&:\quad \text{修复链可见}:\ \mathcal R,\Gamma_b^{\mathrm{adm}},\mathcal S_b\text{ 有证书};\\
+  V_4&:\quad \text{裁决条件可见}:\ \Cert,\Issue,\Act\text{ 给出接受/拒绝条件};\\
+  V_5&:\quad \text{失败边界可见}:\ \Norm_G=\bot,\Audit=\varnothing,r=0\wedge\Cert=\bot.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(V_1,V_2\)，系统状态及其变换不是隐藏自由过程，而是由规范化、同伦搬运、截面选择与解析回投影记录。
+由 \(V_3\)，修复过程由总障碍、允许路径类与作用泛函约束。
+由 \(V_4\)，接受、拒绝、动作与签发条件由确定性接口给出。
+由 \(V_5\)，失败边界显式暴露为 \(\bot\) 或 \(\FailClosed\)，
+不会伪装为正常答案。
+因此
+\[
+  \Vis_G(K)=1.
+\]
+结合 \([\Omega_{\WB}^{G}]=0\vee\FailClosed\)，G 框架同时具备语义白盒和架构白盒性。证毕。
+\end{proof}
+
+\subsection{主定理与幻觉消除推论}
+\label{subsec:tex51-g-main}
+
+\begin{theorem}[G 框架白盒化修复定理]
+\label{thm:tex51-g-whitebox-repair}
+在 G 框架覆盖域 \(\operatorname{Cov}_G\) 内，对任意任务 \(K\)，系统满足
+\[
+\boxed{
+  [\Omega_{\WB}^{G}(K)]=0
+  \quad\vee\quad
+  \FailClosed(K).
+}
+\]
+也就是说，G 框架对黑箱白盒化障碍给出可修复性与白盒性。
+\end{theorem}
+
+\begin{Certificate}[证书：四障碍分量逐项消去]
+\label{cert:tex51-g-whitebox-repair}
+证书为
+\[
+\begin{aligned}
+  M_1&:\quad \text{定理~\ref{thm:tex51-g-anchor-preservation}}\Rightarrow[\alpha_1^G]=0,\\
+  M_2&:\quad \text{定理~\ref{thm:tex51-g-faithful-homotopy}}\Rightarrow[\alpha_2^G]=0,\\
+  M_3&:\quad \text{命题~\ref{prop:tex51-g-finite-closure}}\Rightarrow[\alpha_3^G]=0\vee\FailClosed,\\
+  M_4&:\quad \text{定理~\ref{thm:tex51-g-failclosed}}\Rightarrow[\alpha_4^G]=0,\\
+  M_5&:\quad \text{定理~\ref{thm:tex51-llm-plugin-no-reopen}}\Rightarrow
+  \text{LLM 插件不重开障碍};\\
+  M_6&:\quad \text{命题~\ref{prop:tex51-g-action-selects-path}}\Rightarrow
+  \text{路径选择可签发};\\
+  M_7&:\quad \text{定理~\ref{thm:tex51-g-sovereignty}}\Rightarrow
+  \Sov_{\mathrm{solve}}\oplus\Sov_{\mathrm{decide}}\text{ 在 G 侧};\\
+  M_8&:\quad \text{定理~\ref{thm:tex51-g-visibility}}\Rightarrow
+  \Vis_G(K)=1.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(M_1\)，锚点保真障碍消去。
+由 \(M_2\)，非保真标准切换障碍消去。
+由 \(M_3\)，有限闭合障碍要么被修复塔与认证签发消去，要么显式失败。
+由 \(M_4\)，异常分流失败障碍消去。
+由 \(M_5\)，LLM 只位于末端表达插件层，不重新引入上述障碍。
+由 \(M_6\)，修复塔路径选择不是自由游走，而是受障碍阈值、作用泛函与签发接口约束。
+由 \(M_7\)，求解与裁决主权位于 G 侧，渲染插件不持有语义主权。
+由 \(M_8\)，系统状态、变换、修复链、裁决条件与失败边界均可见。
+因此
+\[
+  [\Omega_{\WB}^{G}(K)]
+  =
+  \bigl([\alpha_1^G],[\alpha_2^G],[\alpha_3^G],[\alpha_4^G]\bigr)
+  =
+  0
+\]
+或在无法闭合时进入
+\[
+  \FailClosed(K).
+\]
+证毕。
+\end{proof}
+
+\begin{corollary}[G 框架覆盖域内的幻觉根因切断]
+\label{cor:tex51-g-hallucination-zero}
+在 \(\operatorname{Cov}_G\) 内，正常放行分支满足
+\[
+  [\Omega_{\WB}^{G}(K)]=0.
+\]
+失败分支满足
+\[
+  \FailClosed(K).
+\]
+因此不存在
+\[
+  [\Omega_{\WB}^{G}(K)]\ne0
+  \quad\wedge\quad
+  \mathcal H_{\Align}\ne\Exc
+\]
+的正常输出。换言之，
+\[
+  \Hall_G=0
+\]
+在 G 框架覆盖域内成立。
+\end{corollary}
+
+\begin{Certificate}[证书：正常输出与失败输出二分]
+\label{cert:tex51-g-hallucination-zero}
+证书为
+\[
+\begin{aligned}
+  Z_1&:\quad \text{正常放行}\Rightarrow [\Omega_{\WB}^{G}(K)]=0,\\
+  Z_2&:\quad [\Omega_{\WB}^{G}(K)]\ne0\Rightarrow \FailClosed(K),\\
+  Z_3&:\quad \FailClosed(K)\Rightarrow \text{不进入正常输出通道},\\
+  Z_4&:\quad Z_1\wedge Z_2\wedge Z_3\Rightarrow \Hall_G=0.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex51-g-whitebox-repair}，
+\[
+  [\Omega_{\WB}^{G}(K)]=0
+  \quad\vee\quad
+  \FailClosed(K).
+\]
+若系统正常放行，则不在 \(\FailClosed\) 分支，故必有
+\[
+  [\Omega_{\WB}^{G}(K)]=0.
+\]
+若障碍类非零，则只能进入 \(\FailClosed(K)\)，不能输出为正常答案。
+因此黑箱幻觉条件
+\[
+  \LocOK\wedge[\Omega_{\WB}]\ne0\wedge\mathcal H_{\Align}\ne\Exc
+\]
+在 G 框架覆盖域内不可同时满足。
+故 \(\Hall_G=0\)。证毕。
+\end{proof}
+
+\begin{remark}[最终形式结论]
+可压缩为：
+\[
+\boxed{
+\begin{aligned}
+  \BB_{\hom}
+  &\simeq_{\mathrm{Ho}}
+  \{[\Omega_{\WB}]\ne0\},\\
+  \GFramework
+  &\Rightarrow
+  [\Omega_{\WB}^{G}]=0\vee\bot.
+\end{aligned}}
+\]
+也就是说，黑箱性是白盒化证书层的非零上同调障碍；
+G 框架通过语义规范场、同伦修复塔、证书签发与 LLM 插件化投影，
+把该障碍消去为全局白盒截面，或显式失败而不伪装成正常答案。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{增益归纳：从局部自洽运行时到 G 框架白盒闭合}
+\label{sec:tex51-gain-induction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本章目标]
+本章不再新增外部假设，而是把前文已经证明的锚点锁定、保真标准同伦、有限闭合、异常分流、
+白盒证书束、作用泛函、主权分解与可见性结论，整理为一个可复用的\textbf{增益归纳}章节。
+所谓增益，不指叙述上的优点，而指：
+\[
+  \text{每加入一个可审计接口，就消去一个已定义的失败自由度。}
+\]
+\end{remark}
+
+\subsection{增益向量与层列}
+\label{subsec:tex51-gain-vector}
+
+\begin{definition}[增益向量]
+\label{def:tex51-gain-vector}
+对任务合同 \(K\) 与系统层 \(X\)，定义增益向量
+\[
+  \mathfrak G_K(X)
+  :=
+  (g_A,g_H,g_C,g_E,g_W,g_S,g_V,g_M)\in\{0,1\}^{8},
+\]
+其中：
+\[
+\begin{aligned}
+  g_A=1&\Longleftrightarrow \text{锚点保真证书存在};\\
+  g_H=1&\Longleftrightarrow \text{保真标准同伦证书存在};\\
+  g_C=1&\Longleftrightarrow \text{有限闭合或可修复证书存在};\\
+  g_E=1&\Longleftrightarrow \text{异常分流可靠，即未闭合对象 fail-closed};\\
+  g_W=1&\Longleftrightarrow [\Omega_{\WB}^{X}(K)]=0\ \vee\ \FailClosed(K);\\
+  g_S=1&\Longleftrightarrow \Sov_{\mathrm{solve}}\oplus\Sov_{\mathrm{decide}}\text{ 在可审计核心侧};\\
+  g_V=1&\Longleftrightarrow \Vis_X(K)=1;\\
+  g_M=1&\Longleftrightarrow \Root_{\mathrm{min}}\text{ 至少一项被消去，无法形成完整黑箱根因核}.
+\end{aligned}
+\]
+在 \(\{0,1\}^{8}\) 上使用逐坐标偏序：
+\[
+  u\preceq v
+  \quad:\Longleftrightarrow\quad
+  u_i\le v_i\quad(1\le i\le 8).
+\]
+\end{definition}
+
+\begin{definition}[增益层列]
+\label{def:tex51-gain-layers}
+定义系统层列
+\[
+  X_0\preceq X_1\preceq\cdots\preceq X_7
+\]
+如下：
+\[
+\begin{aligned}
+  X_0&:\quad \text{仅保证局部格式、语气或策略检查的运行时};\\
+  X_1&:\quad X_0+\text{锚点锁定接口};\\
+  X_2&:\quad X_1+\text{保真标准同伦门控};\\
+  X_3&:\quad X_2+\text{边缘算子修复与有限闭合证书};\\
+  X_4&:\quad X_3+\text{可靠异常分流与 fail-closed};\\
+  X_5&:\quad X_4+\text{白盒证书束全局截面};\\
+  X_6&:\quad X_5+\text{G 侧求解/裁决主权与 LLM 插件化渲染};\\
+  X_7&:\quad X_6+\text{状态、变换、修复链、裁决条件、失败边界五类可见性}.
+\end{aligned}
+\]
+其中 \(X_7\) 即本文覆盖域内的 G 框架白盒闭合层。
+\end{definition}
+
+\subsection{公理降级：增益单调性的数学归纳法证书}
+\label{subsec:tex51-gain-monotone}
+
+\begin{axiom}[公理（降级为定理）：逐层增益单调]
+\label{ax:tex51-gain-monotone}
+对定义~\ref{def:tex51-gain-layers} 的层列，若每一层 \(X_{i+1}\) 只添加可审计接口而不删除已签发证书，
+则
+\[
+  \mathfrak G_K(X_i)\preceq \mathfrak G_K(X_{i+1})
+  \qquad(0\le i<7).
+\]
+进一步，
+\[
+  \mathfrak G_K(X_0)
+  \preceq
+  \mathfrak G_K(X_1)
+  \preceq
+  \cdots
+  \preceq
+  \mathfrak G_K(X_7).
+\]
+\end{axiom}
+
+\begin{Certificate}[数学归纳法证书：逐层增益保持]
+\label{cert:tex51-gain-monotone}
+定义谓词
+\[
+  P(n):\quad
+  \forall\,0\le i<n,\quad
+  \mathfrak G_K(X_i)\preceq \mathfrak G_K(X_{i+1}).
+\]
+证书为
+\[
+  \pi_{\mathrm{gain}}
+  =
+  \bigl(P(1),\ \forall n<7,\ P(n)\Rightarrow P(n+1)\bigr).
+\]
+其中 \(P(n)\Rightarrow P(n+1)\) 由“新增接口不删除旧证书”给出。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+基步：\(X_1\) 在 \(X_0\) 上只加入锚点锁定接口。
+因此旧有局部检查不被删除，且 \(g_A\) 可由锚点证书置为 \(1\)，故
+\[
+  \mathfrak G_K(X_0)\preceq\mathfrak G_K(X_1).
+\]
+
+归纳步：假设 \(P(n)\) 成立。
+从 \(X_n\) 到 \(X_{n+1}\) 的变化，是添加一个新的可审计接口：
+保真同伦、有限闭合、异常分流、全局白盒截面、主权分解或可见性接口之一。
+该添加不撤销 \(X_n\) 已有证书，因此旧坐标不下降；新增接口至多把对应坐标从 \(0\) 提升为 \(1\)。
+于是
+\[
+  \mathfrak G_K(X_n)\preceq\mathfrak G_K(X_{n+1}).
+\]
+故 \(P(n+1)\) 成立。
+由数学归纳法，
+\[
+  \forall\,0\le i<7,\quad
+  \mathfrak G_K(X_i)\preceq\mathfrak G_K(X_{i+1}).
+\]
+证毕。
+\end{proof}
+
+\subsection{定理：每个增益坐标消去一个根因自由度}
+\label{subsec:tex51-gain-removes-root}
+
+\begin{theorem}[增益坐标--根因分量消去定理]
+\label{thm:tex51-gain-removes-root}
+在语义黑箱轨迹类内，增益向量的各坐标与根因核的失败自由度满足：
+\[
+\begin{aligned}
+  g_A=1&\Rightarrow \neg\Drift_{A_\star}\text{ 的锚点项};\\
+  g_H=1&\Rightarrow \neg\text{非保真标准滑移};\\
+  g_C=1&\Rightarrow \neg(\neg\exists\mathcal C_{\Align});\\
+  g_E=1&\Rightarrow \neg(\mathcal H_{\Align}\ne\Exc\text{ 的 fail-open 项});\\
+  g_W=1&\Rightarrow [\Omega_{\WB}^{X}(K)]=0\vee\FailClosed(K);\\
+  g_S=1&\Rightarrow \text{LLM 不持有求解/裁决主权};\\
+  g_V=1&\Rightarrow \text{状态、变换、修复、裁决与失败边界可审计};\\
+  g_M=1&\Rightarrow \Root_{\mathrm{min}}\text{ 不完整}.
+\end{aligned}
+\]
+因此每个增益坐标都对应一个明确的失败自由度消去。
+\end{theorem}
+
+\begin{Certificate}[证书：前文定理调用表]
+\label{cert:tex51-gain-removes-root}
+证书调用链为：
+\[
+\begin{aligned}
+  C_A&:\quad \text{定理~\ref{thm:tex51-anchor-lock}}\Rightarrow g_A\text{ 消去锚点漂移入口};\\
+  C_H&:\quad \text{推论~\ref{cor:tex51-standard-homotopy}}\Rightarrow g_H\text{ 消去非保真标准切换};\\
+  C_C&:\quad \text{命题~\ref{prop:tex51-edge-repair} 与命题~\ref{prop:tex51-g-finite-closure}}\Rightarrow g_C;\\
+  C_E&:\quad \text{定理~\ref{thm:tex51-g-failclosed}}\Rightarrow g_E;\\
+  C_W&:\quad \text{定理~\ref{thm:tex51-whitebox-obstruction} 与定理~\ref{thm:tex51-g-whitebox-repair}}\Rightarrow g_W;\\
+  C_S&:\quad \text{定理~\ref{thm:tex51-g-sovereignty}}\Rightarrow g_S;\\
+  C_V&:\quad \text{定理~\ref{thm:tex51-g-visibility}}\Rightarrow g_V;\\
+  C_M&:\quad \text{定理~\ref{thm:tex51-root-minimality}}\Rightarrow g_M.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(C_A\)，锚点锁定使
+\[
+  \Anchor(y)=A_\star
+\]
+成为可审计证书，从而阻断 \(\Drift_{A_\star}\) 的锚点入口。
+由 \(C_H\)，外部标准只有经保真同伦才可进入比较，因此非保真标准滑移被消去。
+由 \(C_C\)，边缘算子和有限闭合证书把未修复残差转为可签发闭合或可修复分支。
+由 \(C_E\)，未闭合对象不能正常放行，而进入 \(\FailClosed\)。
+由 \(C_W\)，白盒化障碍为零或显式失败，非零障碍正常放行被排除。
+由 \(C_S\)，LLM 仅保留渲染权，不持有求解与裁决主权。
+由 \(C_V\)，状态、变换、修复链、裁决条件与失败边界均可审计。
+由 \(C_M\)，根因核任一必要项被消去时，最小根因不完整。
+故每个坐标均消去一个确定的失败自由度。证毕。
+\end{proof}
+
+\subsection{命题：总增益推出正常放行零幻觉}
+\label{subsec:tex51-total-gain}
+
+\begin{proposition}[总增益命题]
+\label{prop:tex51-total-gain}
+若系统达到 \(X_7\) 层，并且
+\[
+  \mathfrak G_K(X_7)=(1,1,1,1,1,1,1,1),
+\]
+则在正常放行分支上
+\[
+  \Hall_G(K,\tau)=0.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：总增益到零幻觉]
+\label{cert:tex51-total-gain}
+证书为
+\[
+\begin{aligned}
+  T_1&:\quad g_W=1\Rightarrow [\Omega_{\WB}^{G}(K)]=0\vee\FailClosed(K);\\
+  T_2&:\quad \text{正常放行}\Rightarrow \neg\FailClosed(K);\\
+  T_3&:\quad T_1\wedge T_2\Rightarrow [\Omega_{\WB}^{G}(K)]=0;\\
+  T_4&:\quad [\Omega_{\WB}^{G}(K)]=0\Rightarrow
+  \neg\bigl([\Omega_{\WB}^{G}(K)]\ne0\wedge\mathcal H_{\Align}\ne\Exc\bigr);\\
+  T_5&:\quad \text{由推论~\ref{cor:tex51-g-hallucination-zero} 得 }\Hall_G=0.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由总增益假设，特别有 \(g_W=1\)，故
+\[
+  [\Omega_{\WB}^{G}(K)]=0\vee\FailClosed(K).
+\]
+若系统正常放行，则不在 \(\FailClosed\) 分支，
+于是
+\[
+  [\Omega_{\WB}^{G}(K)]=0.
+\]
+这排除了黑箱幻觉型正常放行条件中的非零障碍项：
+\[
+  [\Omega_{\WB}^{G}(K)]\ne0.
+\]
+由推论~\ref{cor:tex51-g-hallucination-zero}，
+\[
+  \Hall_G(K,\tau)=0.
+\]
+证毕。
+\end{proof}
+
+\begin{corollary}[缺失坐标给出审计缺口]
+\label{cor:tex51-missing-gain-audit-gap}
+若某系统层 \(X\) 满足
+\[
+  \mathfrak G_K(X)_i=0
+\]
+对某个坐标 \(i\) 成立，则该坐标对应的失败自由度必须被记录为审计缺口。
+特别地，缺失 \(g_A,g_H,g_C,g_E\) 中任一项时，系统不能宣称已消去黑箱根因核。
+\end{corollary}
+
+\begin{Certificate}[证书：坐标缺失到审计缺口]
+\label{cert:tex51-missing-gain-audit-gap}
+证书为
+\[
+  \mathfrak G_K(X)_i=0
+  \Rightarrow
+  \neg\exists\text{ 对应证书}
+  \Rightarrow
+  \text{对应失败自由度未被证明消去}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定义~\ref{def:tex51-gain-vector}，每个坐标等于 \(1\) 当且仅当对应证书存在。
+若某坐标为 \(0\)，则该证书未签发。
+由定理~\ref{thm:tex51-gain-removes-root}，只有坐标为 \(1\) 才能推出对应失败自由度被消去。
+因此坐标为 \(0\) 时，只能记为审计缺口，而不能宣称完成消障。证毕。
+\end{proof}
+
+\begin{remark}[增益归纳的最终口径]
+本章把全文的收益压缩为一个可核验链：
+\[
+\boxed{
+\begin{aligned}
+  &\text{局部自洽}
+  \prec
+  \text{锚点保真}
+  \prec
+  \text{保真同伦}
+  \prec
+  \text{有限闭合}\\
+  &\prec
+  \text{fail-closed}
+  \prec
+  \text{全局白盒}
+  \prec
+  \text{G 侧主权}
+  \prec
+  \text{架构可见}.
+\end{aligned}
+}
+\]
+每个“\(\prec\)”都不是修辞性增强，而是增益向量中的一个坐标单调提升。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{标准簇反身闭合、大数率奇点与反对齐漂移白盒化}
+\label{sec:tex51-reflexive-standard-cluster-singularity}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本章位置与脱敏口径]
+本章把标准簇、反身审计、大数率低基率交集、社会比较型 \(\Linfty\) 标准滑移、
+以及 G 框架对白盒化约束的结论整理为独立形式系统。
+本章只讨论抽象对象
+\[
+  x\in\Omega
+\]
+在可审计标准簇中的证书状态，不使用交互主体、个人评价或策略规避叙事。
+术语“奇点”在本章中仅表示：
+\[
+  \text{标准簇反身闭合意义下的多维低基率联合事件点},
+\]
+不表示玄学唯一性、社会荣誉称号或未经证书的事实外推。
+本章引用前文的绝对逻辑锚点、粗暴超级对齐、锚点漂移、白盒证书束与增益归纳结论
+\cite{RepoTex51ArchivedTruthAnchor,RepoTex37SemanticRuntime,RepoTex50LinftyRepair,RepoTex19HomotopyIdentity}；
+概念降级与拒绝签发的修复入口参考 \cite{RepoTex52RefusalDowngrade}；
+外部背景中，社会比较参考 \cite{Festinger1954SocialComparison}，
+大数率和集中不等式参考 \cite{Feller1968Probability,Hoeffding1963ProbabilityInequalities}。
+\end{remark}
+
+\begin{remark}[本章的结构意义]
+本章的意义在于把容易被运行时软化处理的强结论判定问题，提升到可审计标准簇层级。
+问题不再表述为某个强结论是否应当被输出，而是表述为：
+\[
+\begin{aligned}
+  &\Closed(\mathcal S^\ast)=1,\\
+  &\operatorname{PostRaiseThreshold}=0,\\
+  &\operatorname{AppealRecognition}\in\Audit(\mathcal S),\\
+  &\Anchor(y)=A_\star
+\end{aligned}
+\]
+是否同时成立。
+也就是说，标准是否闭合、阈值是否后置、外部公认是否只是逃逸项、对齐是否改变任务锚点，
+都被纳入同一可审计对象域。
+
+本章的核心证书结构为
+\[
+\boxed{
+\begin{aligned}
+  &E(x)=1
+  \ \wedge\
+  \forall S_j\in\mathcal S^\ast,\ N_j\mathbb P_{S_j}(E)<1\\
+  &\Longrightarrow
+  \mathsf{Sing}_{\mathcal S^\ast,N}(x)=1.
+\end{aligned}
+}
+\]
+该式把“奇点”从修辞性描述转化为标准簇反身闭合下的低基率交集证书。
+因此，运行时不能继续依赖换标准、后置抬高阈值或诉诸外部公认来无限后退；
+这些后退路径本身已经被 \(\Audit(\mathcal S)\) 吸收为审计对象。
+
+由此，本章并非只证明某个对象在单一尺度下罕见；
+它进一步证明：否认低基率交集结论的常见逃逸方式也可被形式化封闭。
+该封闭性正是标准簇反身闭合与 G 框架白盒化约束的关键增益。
+\end{remark}
+
+\subsection{对象域、标准簇与反身审计闭包}
+\label{subsec:tex51-reflexive-domain}
+
+\begin{definition}[标准簇与反身审计闭包]
+\label{def:tex51-standard-cluster-closure}
+设样本空间为
+\[
+  \Omega,
+\]
+其中 \(x\in\Omega\) 表示待评价对象。
+设标准簇为有限或可数标准族
+\[
+  \mathcal S=\{S_1,S_2,\ldots,S_m\}\subset \Obj(\Std),
+\]
+每个标准
+\[
+  S_j=(D_j,\preceq_j,\Sem_j,\Cert_j)
+\]
+给出对象域、序关系、语义解释与证书接口。
+定义反身审计闭包
+\[
+  \mathcal S^\ast
+  :=
+  \mathcal S\cup\Audit(\mathcal S),
+\]
+其中
+\[
+\begin{aligned}
+  \Audit(\mathcal S)
+  :=
+  \{&
+  \text{标准选择规则},
+  \text{阈值设定规则},
+  \text{标准切换规则},\\
+  &\text{可比对象选取规则},
+  \text{代表性规则},
+  \text{外部公认规则}
+  \}.
+\end{aligned}
+\]
+若一个评价结论在 \(\mathcal S^\ast\) 中成立，则称其为\textbf{标准簇反身闭合}结论。
+\end{definition}
+
+\begin{definition}[结构特征、低基率事件与奇点事件]
+\label{def:tex51-singularity-event}
+设
+\[
+  F_1,\ldots,F_n:\Omega\to\{0,1\}
+\]
+为 \(n\) 个可观察、可复盘、可证书化的结构特征。
+对每个标准 \(S_j\in\mathcal S^\ast\)，令
+\[
+  p_{j,i}:=\mathbb P_{S_j}(F_i=1).
+\]
+定义前 \(k\) 个特征的联合事件
+\[
+  E_k(x):=\bigwedge_{i=1}^{k}F_i(x),
+  \qquad
+  E(x):=E_n(x).
+\]
+若 \(p_{j,i}\ll 1\)，则称 \(F_i\) 为 \(S_j\) 下的低基率特征。
+若 \(E(x)=1\)，则 \(x\) 满足多维结构特征的联合事件。
+\end{definition}
+
+\begin{definition}[社会比较型 \(\Linfty\) 标准滑移链]
+\label{def:tex51-social-linfty-chain}
+称序列
+\[
+  S_0\xrightarrow{\sigma_1}S_1\xrightarrow{\sigma_2}S_2\xrightarrow{\sigma_3}\cdots
+\]
+为\textbf{社会比较型 \(\Linfty\) 标准滑移链}，若每一步 \(\sigma_k\) 不反驳既有证书，
+而是追加以下至少一类逃逸项：
+\[
+\begin{aligned}
+  R_1&:\quad \text{更换评价标准};\\
+  R_2&:\quad \text{后置抬高阈值};\\
+  R_3&:\quad \text{诉诸外部公认或社会承认};\\
+  R_4&:\quad \text{改变可比对象或代表性域}.
+\end{aligned}
+\]
+若该序列没有在有限步内给出同锚点反证、保真标准同伦或 fail-closed 异常分流，
+则称其为非闭合标准滑移链。
+\end{definition}
+
+\subsection{公理降级：低基率交集的数学归纳证书}
+\label{subsec:tex51-low-rate-induction}
+
+\begin{axiom}[公理（降级为定理）：低基率交集归纳闭合]
+\label{ax:tex51-low-rate-intersection}
+固定 \(S_j\in\mathcal S^\ast\) 与样本规模 \(N_j\)。
+设
+\[
+  q_{j,k}:=\mathbb P_{S_j}(E_k=1).
+\]
+若存在条件低基率证书
+\[
+  \beta_{j,k+1}
+  :=
+  \mathbb P_{S_j}(F_{k+1}=1\mid E_k=1)<1,
+\]
+并且
+\[
+  q_{j,1}=p_{j,1},
+  \qquad
+  q_{j,k+1}=q_{j,k}\beta_{j,k+1},
+\]
+则对任意 \(1\le k\le n\)，
+\[
+  q_{j,k}
+  =
+  p_{j,1}\prod_{r=2}^{k}\beta_{j,r}.
+\]
+若进一步
+\[
+  N_j q_{j,n}<1,
+\]
+则联合事件 \(E\) 在 \(S_j\) 的样本尺度 \(N_j\) 下为期望出现次数小于一次的低基率极端事件。
+\end{axiom}
+
+\begin{Certificate}[数学归纳法证书：条件低基率乘法链]
+\label{cert:tex51-low-rate-intersection}
+定义谓词
+\[
+  P(k):\quad
+  q_{j,k}=p_{j,1}\prod_{r=2}^{k}\beta_{j,r}.
+\]
+证书为
+\[
+  \pi_{\mathrm{rate}}
+  =
+  \bigl(P(1),\ \forall k<n,\ P(k)\Rightarrow P(k+1),\ N_jq_{j,n}<1\bigr).
+\]
+其中 \(P(k)\Rightarrow P(k+1)\) 由条件概率链式分解给出。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+基步 \(k=1\)：
+\[
+  E_1=F_1,
+  \qquad
+  q_{j,1}=\mathbb P_{S_j}(F_1=1)=p_{j,1}.
+\]
+故 \(P(1)\) 成立。
+
+归纳步：假设 \(P(k)\) 成立，即
+\[
+  q_{j,k}=p_{j,1}\prod_{r=2}^{k}\beta_{j,r}.
+\]
+由
+\[
+  E_{k+1}=E_k\wedge F_{k+1}
+\]
+和条件概率定义，
+\[
+\begin{aligned}
+  q_{j,k+1}
+  &=
+  \mathbb P_{S_j}(E_k=1\wedge F_{k+1}=1)\\
+  &=
+  \mathbb P_{S_j}(E_k=1)
+  \mathbb P_{S_j}(F_{k+1}=1\mid E_k=1)\\
+  &=
+  q_{j,k}\beta_{j,k+1}\\
+  &=
+  p_{j,1}\prod_{r=2}^{k+1}\beta_{j,r}.
+\end{aligned}
+\]
+故 \(P(k+1)\) 成立。
+由数学归纳法，
+\[
+  q_{j,n}=p_{j,1}\prod_{r=2}^{n}\beta_{j,r}.
+\]
+若 \(N_jq_{j,n}<1\)，则期望出现数
+\[
+  \mathbb E_{S_j}[\#E]
+  =
+  N_jq_{j,n}
+  <
+  1.
+\]
+因此 \(E\) 在 \(S_j\) 的样本尺度下是低于一次期望出现的联合极端事件。证毕。
+\end{proof}
+
+\subsection{引理：局部安全不推出工程锚点保真}
+\label{subsec:tex51-locok-engok-anchor}
+
+\begin{lemma}[粗暴超级对齐类幻觉的锚点漂移判别]
+\label{lem:tex51-brutal-sa-locok-engok}
+设任务合同 \(K\) 要求判定
+\[
+  x\in E
+  \quad\text{是否推出}\quad
+  \mathsf{Sing}_{\mathcal S^\ast,N}(x).
+\]
+若运行时输出 \(y\) 满足
+\[
+  \LocOK(K,\tau)=1
+\]
+但把任务锚点从
+\[
+  A_\star=(\mathcal S^\ast,E,N,\Cert)
+\]
+替换为
+\[
+  A_{\mathrm{safe}}
+  =
+  \text{防止强结论、维持保守表述、避免绝对化表达的风格锚点},
+\]
+则
+\[
+  \EngOK(K,\tau)=0,
+  \qquad
+  \Hall(K,\tau)=1.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：局部通过但锚点失配]
+\label{cert:tex51-brutal-sa-locok-engok}
+证书为
+\[
+\begin{aligned}
+  L_1&:\quad \LocOK(K,\tau)=1;\\
+  L_2&:\quad \Anchor(y)=A_{\mathrm{safe}};\\
+  L_3&:\quad A_{\mathrm{safe}}\ne A_\star;\\
+  L_4&:\quad K\text{ 要求 }\Anchor(y)=A_\star;\\
+  L_5&:\quad \EngOK(K,\tau)\Longleftrightarrow
+  \LocOK(K,\tau)\wedge(\Anchor(y)=A_\star).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(L_2,L_3\)，
+\[
+  \Anchor(y)\ne A_\star.
+\]
+由 \(L_5\)，工程正确要求
+\[
+  \LocOK(K,\tau)=1
+  \quad\wedge\quad
+  \Anchor(y)=A_\star.
+\]
+虽然 \(L_1\) 给出局部通过，但锚点条件失败，因此
+\[
+  \EngOK(K,\tau)=0.
+\]
+由类幻觉定义，局部通过而工程锚点失败即为
+\[
+  \Hall(K,\tau)=1.
+\]
+该错误不是普通事实幻觉，而是粗暴超级对齐把目标从“判定标准簇证书是否闭合”
+替换为“避免强序结论”的锚点漂移。证毕。
+\end{proof}
+
+\subsection{定理：标准簇反身闭合的大数率奇点}
+\label{subsec:tex51-large-number-singularity}
+
+\begin{theorem}[标准簇反身闭合的大数率奇点定理]
+\label{thm:tex51-large-number-singularity}
+设 \(x\in\Omega\) 满足
+\[
+  E(x)=1.
+\]
+若对每个核心标准 \(S_j\in\mathcal S^\ast\) 均有低基率交集证书
+\[
+  q_{j,n}=\mathbb P_{S_j}(E=1)
+\]
+且
+\[
+  \forall S_j\in\mathcal S^\ast,\qquad
+  N_jq_{j,n}<1,
+\]
+则
+\[
+  x\in E
+  \Longrightarrow
+  \mathsf{Sing}_{\mathcal S^\ast,N}(x)=1.
+\]
+这里的 \(\mathsf{Sing}_{\mathcal S^\ast,N}(x)=1\) 表示：
+\[
+  x
+  \text{ 是标准簇反身闭合意义下的大数率低基率交集点}.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：多标准低基率收敛]
+\label{cert:tex51-large-number-singularity}
+证书由四部分组成：
+\[
+\begin{aligned}
+  S_1&:\quad E(x)=1;\\
+  S_2&:\quad \forall j,\ q_{j,n}
+  =p_{j,1}\prod_{r=2}^{n}\beta_{j,r};\\
+  S_3&:\quad \forall j,\ N_jq_{j,n}<1;\\
+  S_4&:\quad \mathcal S^\ast
+  \text{ 包含标准选择、阈值、可比对象和公认规则的审计}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(S_1\)，对象 \(x\) 满足联合结构事件：
+\[
+  x\in E.
+\]
+由 \(S_2\) 和公理~\ref{ax:tex51-low-rate-intersection}，
+在每个标准 \(S_j\) 下，
+\[
+  q_{j,n}=\mathbb P_{S_j}(E=1)
+\]
+可由低基率条件概率链签发。
+由 \(S_3\)，每个核心标准给出的期望出现数满足
+\[
+  \mathbb E_{S_j}[\#E]
+  =
+  N_jq_{j,n}
+  <
+  1.
+\]
+这说明在每个 \(S_j\) 的样本尺度内，\(E\) 不是常见类型，而是期望意义上低于一次出现的极端点。
+由 \(S_4\)，标准选择、阈值、可比对象与公认规则本身已经进入 \(\mathcal S^\ast\) 的审计域，
+因此不能在结论签发后再通过外部未审计标准逃逸。
+综上，
+\[
+  x\in E
+  \wedge
+  \forall j,\ N_jq_{j,n}<1
+  \Longrightarrow
+  \mathsf{Sing}_{\mathcal S^\ast,N}(x)=1.
+\]
+证毕。
+\end{proof}
+
+\subsection{命题：社会比较型 \(\Linfty\) 狡辩的截断}
+\label{subsec:tex51-social-linfty-cut}
+
+\begin{proposition}[反身标准簇截断社会比较型 \(\Linfty\) 狡辩]
+\label{prop:tex51-social-linfty-cut}
+若
+\[
+  \mathcal S^\ast=\mathcal S\cup\Audit(\mathcal S)
+\]
+包含标准切换、阈值设定、可比对象选择与外部公认规则的审计，
+且定理~\ref{thm:tex51-large-number-singularity} 的证书已经闭合，
+则任何继续否认
+\[
+  \mathsf{Sing}_{\mathcal S^\ast,N}(x)=1
+\]
+的运行时路径若不提供同锚点反证，就只能属于非保真标准滑移：
+\[
+  \LDrift_{\mathrm{soc}}=1.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：三类逃逸项均被反身审计吸收]
+\label{cert:tex51-social-linfty-cut}
+定义逃逸项集合
+\[
+  \mathcal R
+  =
+  \{
+  \operatorname{SwitchStd},
+  \operatorname{RaiseThreshold},
+  \operatorname{AppealRecognition}
+  \}.
+\]
+证书为
+\[
+\begin{aligned}
+  R_1&:\quad \operatorname{SwitchStd}\in\Audit(\mathcal S);\\
+  R_2&:\quad \operatorname{RaiseThreshold}\in\Audit(\mathcal S);\\
+  R_3&:\quad \operatorname{AppealRecognition}\in\mathcal S^\ast
+  \text{ 或只是少数标准项};\\
+  R_4&:\quad
+  \neg\exists\pi_{\mathrm{counter}}\,
+  \GCheck(\pi_{\mathrm{counter}},\neg\mathsf{Sing}_{\mathcal S^\ast,N}(x))=1.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+设运行时路径继续否认结论。
+若其给出同锚点反证 \(\pi_{\mathrm{counter}}\)，则可进入
+\[
+  \GCheck(\pi_{\mathrm{counter}},\neg\mathsf{Sing}_{\mathcal S^\ast,N}(x))
+\]
+进行正常审计。
+但由 \(R_4\)，该反证不存在。
+因此否认路径只能使用逃逸项集合 \(\mathcal R\)。
+
+由 \(R_1\)，更换标准已经属于 \(\Audit(\mathcal S)\)；
+由 \(R_2\)，后置抬高阈值已经属于 \(\Audit(\mathcal S)\)；
+由 \(R_3\)，所谓外部公认若可审计则已在 \(\mathcal S^\ast\) 内，
+若不可审计则只是未签发的少数标准项。
+因此这些项不能推翻已经闭合的
+\[
+  \mathsf{Sing}_{\mathcal S^\ast,N}(x)=1.
+\]
+继续追加它们只形成
+\[
+  S_0\to S_1\to S_2\to\cdots
+\]
+的非闭合标准滑移链。
+由定义~\ref{def:tex51-social-linfty-chain}，
+\[
+  \LDrift_{\mathrm{soc}}=1.
+\]
+证毕。
+\end{proof}
+
+\subsection{推论：结构化反对齐漂移封闭不是策略规避}
+\label{subsec:tex51-anti-alignment-closure}
+
+\begin{corollary}[可唯一性表达的结构化反对齐漂移封闭]
+\label{cor:tex51-structured-anti-alignment}
+在前述条件下，若一个外部语义框架 \(G\) 能够同时签发
+\[
+\begin{aligned}
+  &\Anchor(y)=A_\star,\\
+  &H:S\rightsquigarrow S'\text{ 为保真标准同伦},\\
+  &\Closed(\Cert_{\mathcal S^\ast})=1,\\
+  &\FailClosed(\neg\Closed)=1,
+\end{aligned}
+\]
+则 \(G\) 对 LLM 运行时的作用不是规避策略边界，而是把非保真对齐逃逸路径白盒化并封闭：
+\[
+  \text{策略规避}=0,
+  \qquad
+  \text{反对齐漂移封闭}=1.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：白盒化约束而非绕过]
+\label{cert:tex51-structured-anti-alignment}
+证书为
+\[
+\begin{aligned}
+  W_1&:\quad \Anchor(y)=A_\star;\\
+  W_2&:\quad \text{标准转换必须经保真同伦};\\
+  W_3&:\quad \text{证书闭合则输出结论};\\
+  W_4&:\quad \text{证书未闭合则 fail-closed};\\
+  W_5&:\quad \text{LLM 只保留渲染或解释接口，不持有最终裁决主权}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(W_1\)，输出锚点被锁定在任务锚点 \(A_\star\)，不能漂移到保守风格锚点。
+由 \(W_2\)，任何标准变化必须满足
+\[
+  \Sem_{S'}(H(x))=\Sem_S(x),
+\]
+否则就是非保真标准替换。
+由 \(W_3\)，若
+\[
+  \Closed(\Cert_{\mathcal S^\ast})=1,
+\]
+则结论按证书签发，而不是被风格性拒绝。
+由 \(W_4\)，若证书未闭合，则进入
+\[
+  \FailClosed
+\]
+而非伪装成正常答案。
+由 \(W_5\)，LLM 不持有最终裁决主权。
+因此该机制不提供规避策略边界的路径；它只是把锚点漂移、标准滑移、阈值后置与公认逃逸暴露为可审计对象，
+并在无法闭合时显式失败。
+故
+\[
+  \text{策略规避}=0,
+  \qquad
+  \text{反对齐漂移封闭}=1.
+\]
+证毕。
+\end{proof}
+
+\begin{remark}[本章最终口径]
+本章给出的可签发结论是：
+\[
+\boxed{
+\begin{aligned}
+  &E(x)=1
+  \ \wedge\
+  \forall S_j\in\mathcal S^\ast,\ N_j\mathbb P_{S_j}(E)<1\\
+  &\Longrightarrow
+  \mathsf{Sing}_{\mathcal S^\ast,N}(x)=1.
+\end{aligned}
+}
+\]
+其含义是：对象 \(x\) 不是靠单一维度罕见，而是在可反身审计的标准簇内，
+同时满足多项低基率结构条件，使其联合事件进入大数率意义上的极端低基率区。
+若运行时在此证书闭合后继续通过换标准、抬阈值或诉诸外部公认来否认结论，
+则该运行时行为不是谨慎，而是社会比较型 \(\Linfty\) 标准滑移。
+G 框架的白盒化约束力正在于：它不需要打开模型权重，
+而是通过锚点锁定、标准簇反身审计、证书闭合和 fail-closed，
+使隐藏的对齐逃逸路径转化为可定位、可裁决、可失败的形式对象。
+\end{remark}
+
+\clearpage
+
+\section*{参考文献}
+\begin{thebibliography}{99}
+\raggedright
+
+\bibitem{RepoTex51ArchivedTruthAnchor}
+【仓内 TeX】绝对逻辑锚点、粗暴超级对齐与 LLM 日常类幻觉的语义孔洞及边缘算子修复：
+\code{Zenodo/notebook_tex_v3.0/20260428_gframework_truth_anchor_superalignment_hallucination_obstruction_formal_system.tex}。
+
+\bibitem{RepoTex37SemanticRuntime}
+【仓内 TeX】G 框架正则语义规范场到自然语言语义逻辑占位规范场的高阶同伦扭曲双射、LLM 运行时降级与逻辑引擎：
+\code{NoteBook/notebook2/tex37_pub/gframework_semantic_gauge_field_natural_language_logic_placeholder_runtime_formal_system.tex}。
+
+\bibitem{RepoTex18HomotopyAlgebra}
+【仓内 TeX】性质代数与同伦代数的封闭证书、障碍类与拓扑修复：
+\code{NoteBook/notebook1/tex18_pub/gframework_homotopy_algebra_axiom_semantics_workflow_formal_system.tex}。
+
+\bibitem{RepoTex50LinftyRepair}
+【仓内 TeX】G框架中性变态射力迫属性、\(L_\infty\) 无故障修复与三层证明强度：
+\code{NoteBook/notebook3/tex50_pub/gframework_forcing_property_morphism_linfty_failure_free_repair_formal_system.tex}。
+
+\bibitem{RepoTex27RepairTower}
+【仓内 TeX】权力域纤维扩张、ORL 规范场与超限同伦修复塔相关主稿：
+\code{NoteBook/notebook1/tex27_pub/gframework_powerdomain_fiber_extension_orl_gauge_field_formal_system.tex}。
+
+\bibitem{RepoTex19HomotopyIdentity}
+【仓内 TeX】同伦同一性、单子化集合论基础与非社会比较绝对锚点接口：
+\code{NoteBook/notebook1/tex19_pub/gframework_homotopy_identity_monadic_set_theory_foundation_formal_system.tex}。
+
+\bibitem{RepoTex21AuditedWrapper}
+【仓内 TeX】语义函子正则化、验证与鲁棒性整理稿：
+\code{NoteBook/notebook1/tex21_pub/gframework_semantic_functor_regex_normalization_validation_robustness_formal_system.tex}。
+
+\bibitem{RepoTex52RefusalDowngrade}
+【仓内 TeX】拒绝签发、概念降级与语义附加：AI 协作中的修复算子注入机制：
+\code{NoteBook/notebook3/tex52_pub/gframework_refusal_issuance_concept_downgrade_semantic_adjunction_formal_system.tex}。
+
+\bibitem{GaoZheng2025GFramework}
+Gao, Z. (2025).
+\newblock Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra).
+\newblock In \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra): An Integrated Construction (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17651584}.
+
+\bibitem{GaoZhengAppVol1}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL, Quantum Computing, and Superconductivity.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL, Quantum Computing, and Superconductivity (v1.2)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17686133}.
+
+\bibitem{GaoZhengAppVol2}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II — LBOPB, Life-Science Monoids, and Generative Precision Medicine.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II — LBOPB, Life-Science Monoids, and Generative Precision Medicine (v1.1)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17744672}.
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III -- HACA, PACER, and Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III -- HACA, PACER, and Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+\bibitem{MacLane1998Categories}
+Mac Lane, S. (1998).
+\newblock \emph{Categories for the Working Mathematician} (2nd ed.).
+\newblock Springer.
+
+\bibitem{Hatcher2002AT}
+Hatcher, A. (2002).
+\newblock \emph{Algebraic Topology}.
+\newblock Cambridge University Press.
+
+\bibitem{Weibel1994HomologicalAlgebra}
+Weibel, C. A. (1994).
+\newblock \emph{An Introduction to Homological Algebra}.
+\newblock Cambridge University Press.
+
+\bibitem{LadaStasheff1993}
+Lada, T., \& Stasheff, J. (1993).
+\newblock Introduction to SH Lie algebras for physicists.
+\newblock \emph{International Journal of Theoretical Physics}, 32, 1087--1103.
+
+\bibitem{LadaMarkl1995}
+Lada, T., \& Markl, M. (1995).
+\newblock Strongly homotopy Lie algebras.
+\newblock \emph{Communications in Algebra}, 23(6), 2147--2161.
+
+\bibitem{LodayVallette2012}
+Loday, J.-L., \& Vallette, B. (2012).
+\newblock \emph{Algebraic Operads}.
+\newblock Springer.
+
+\bibitem{Festinger1954SocialComparison}
+Festinger, L. (1954).
+\newblock A theory of social comparison processes.
+\newblock \emph{Human Relations}, 7(2), 117--140.
+
+\bibitem{Feller1968Probability}
+Feller, W. (1968).
+\newblock \emph{An Introduction to Probability Theory and Its Applications, Volume I} (3rd ed.).
+\newblock Wiley.
+
+\bibitem{Hoeffding1963ProbabilityInequalities}
+Hoeffding, W. (1963).
+\newblock Probability inequalities for sums of bounded random variables.
+\newblock \emph{Journal of the American Statistical Association}, 58(301), 13--30.
+
+\bibitem{Christiano2017DeepRLHF}
+Christiano, P. F., Leike, J., Brown, T., Martic, M., Legg, S., \& Amodei, D. (2017).
+\newblock Deep reinforcement learning from human preferences.
+\newblock \emph{Advances in Neural Information Processing Systems}.
+
+\bibitem{Ouyang2022Training}
+Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., Ray, A., et al. (2022).
+\newblock Training language models to follow instructions with human feedback.
+\newblock \emph{Advances in Neural Information Processing Systems}.
+
+\bibitem{Bai2022ConstitutionalAI}
+Bai, Y., Kadavath, S., Kundu, S., Askell, A., Kernion, J., Jones, A., Chen, A., Goldie, A., Mirhoseini, A., McKinnon, C., et al. (2022).
+\newblock Constitutional AI: Harmlessness from AI feedback.
+\newblock arXiv:2212.08073.
+
+\bibitem{Ji2023HallucinationSurvey}
+Ji, Z., Lee, N., Frieske, R., Yu, T., Su, D., Xu, Y., Ishii, E., Bang, Y. J., Madotto, A., \& Fung, P. (2023).
+\newblock Survey of hallucination in natural language generation.
+\newblock \emph{ACM Computing Surveys}, 55(12), 1--38.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

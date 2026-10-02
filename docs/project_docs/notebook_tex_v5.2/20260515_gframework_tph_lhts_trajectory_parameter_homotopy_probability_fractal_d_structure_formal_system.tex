@@ -1,0 +1,8054 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 4mu
+\sloppy
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\refname}{参考文献}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\LHTS}{\ensuremath{\mathsf{LHTS}}}
+\newcommand{\TPH}{\ensuremath{\mathsf{TPH}}}
+\newcommand{\TPHLHTS}{\ensuremath{\mathsf{TPH\mbox{-}LHTS}}}
+\newcommand{\FreqHit}{\ensuremath{\mathsf{FreqHit}}}
+\newcommand{\PDE}{\ensuremath{\mathsf{PDE}}}
+\newcommand{\DefEq}{\coloneqq}
+\newcommand{\Prob}{\mathbb P}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Fil}{\mathcal F}
+\newcommand{\Path}{\mathcal P}
+\newcommand{\repo}[1]{\path{#1}}
+\DeclareMathOperator{\Cost}{Cost}
+\DeclareMathOperator{\JacGap}{JacGap}
+\DeclareMathOperator{\Law}{Law}
+\DeclareMathOperator{\Span}{span}
+\DeclareMathOperator{\Sel}{Sel}
+\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\dist}{dist}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\Update}{Update}
+\DeclareMathOperator{\Rollout}{Rollout}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Leak}{Leak}
+\DeclareMathOperator{\Repeat}{Repeat}
+\DeclareMathOperator{\Enum}{Enum}
+\DeclareMathOperator{\Risk}{Risk}
+\DeclareMathOperator{\Move}{Move}
+\DeclareMathOperator{\Credit}{Credit}
+\DeclareMathOperator{\Upd}{Upd}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\setlength{\emergencystretch}{10em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{TPH-LHTS 轨迹函数参数同伦选择：\\概率路径同伦类、广义分形轨迹族与 D 结构递归决策路径\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-05-15}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是只为“轨迹函数参数同伦 + 选择泛函”补一个局部评分公式，而是在
+\GFramework{} 的同伦命中谱系中，把 \(\LHTS\)、\(\TPH\)、随机过程、频域命中、
+微观隧穿、广义分形轨迹族、JacGap 与仓库 D 结构压合为一条可定义、可比较、
+可选择、可递归更新并可给出下降证书的形式链条。早期的核心问题是：给定一族
+参数化轨迹函数 \(\Gamma_\theta\)，如何选择参数同伦路径 \(H:s\mapsto\theta(s)\)，
+使下一条轨迹函数以更高命中收益、更低轨迹成本和更小雅可比间隙被生成。本文保留
+这一问题，但不再把它作为终点；本文把它提升为 \(\TPHLHTS\) 的外层决策层，并进一步
+嵌入仓库 D 结构的 Decision--Depth 语义中。
+
+本文的第一层立场是命中范式的升维。既有 \(\PDE\) 替代范式已经把求解中心从
+“显式求解方程”迁移到“命中低残差集合” \cite{RepoTex55PDEParadigm}。在该范式下，
+轨迹函数 \(\Gamma\) 诱导随机变量过程，命中泛函
+\[
+\mathcal J_{T,L}(\Gamma)
+=
+\Prob(\tau_{\varepsilon,L}^{\Gamma}\le T)
+\]
+衡量有限时间内命中低残差集合的概率。本文进一步追问：当许多轨迹函数均可行时，
+系统应如何选择生成轨迹函数的参数同伦路径；当许多参数同伦路径均可行时，系统又应
+如何把这种选择上升为可递归、可证明、可回填的决策路径。因此，本文的对象从
+\(\Gamma\) 升维到 \(H\)，再升维到高阶候选路径对象
+\[
+\left(
+[\mathbb P_\Gamma^\beta]_{\mathrm{prob}},
+[\mathcal T_\infty]_{\mathrm{frac}},
+\Gamma
+\right).
+\]
+
+本文的第二层立场是 \(\LHTS\) 与 \(\TPH\) 的分工重写。\(\LHTS\) 不再被描述为一个
+孤立的评分跳跃算法，而被定位为嵌入具体问题空间后的定制运动内核：它负责格点化
+同伦扭曲、延迟信用回填、命中评分与可执行运动算子。与此相对，\(\TPH\) 被定义为
+作用在 \(\LHTS\) 数据接口外层的轨迹函数参数同伦控制器：它负责生成多随机过程
+轨迹函数枚举族，计算 JacGap 下降评分，选出最快下降轨迹，再将结果回填到下一轮
+\(\LHTS\) 更新。由此，本文把“能怎么动”与“往哪里动、为什么这样动、如何证明下降”
+分离开来，使 \(\LHTS\) 成为运动内核，使 \(\TPH\) 成为动力加速与确定性收敛控制层
+\cite{RepoTex56LHTS}。
+
+本文的第三层立场是随机过程的必要性。这里的随机过程不是外加的不确定性装饰，
+而是由频域命中的可测事件结构所强制。频域命中不是单点状态事件 \(z_t\in B\)，
+而是路径事件
+\[
+\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}.
+\]
+它涉及谱窗、相位、幅值、模态耦合、非线性混频与统计力学路径权重。要给这些事件
+赋概率，必须构造路径概率空间 \((\Omega_T,\mathscr F_T,\mathbb P_\Gamma^\beta)\)；
+而轨迹函数 \(\Gamma\) 正是生成该路径测度的控制接口。确定性不在单条样本路径上，
+而在轨迹函数选择、命中泛函比较、D 逻辑性度量和递归更新轨道上。本文由此把
+“随机样本路径”与“确定性选择算子”严格分层。
+
+本文的第四层立场是广义分形轨迹族的构造。以 \(\LHTS\) 作为零阶分布律核之后，
+\(\TPH\) 对轨迹函数参数同伦进行递归选择，得到
+\[
+\mathcal T_{k+1}=\mathfrak F(\mathcal T_k),
+\qquad
+\mathcal T_\infty=\bigcup_{k\ge0}\mathcal T_k.
+\]
+这不是几何图形意义上的分形，而是在轨迹函数空间中由同一生成--筛选--回填机制
+反复产生的递归自相似选择结构。它的作用也不是装饰性的复杂化，而是逐阶扩张
+轨迹函数张成空间，使该空间逼近或覆盖 \(-\nabla\Phi(D_t)\)，其中
+\[
+\Phi(D_t)=\frac12\|\JacGap(D_t)\|^2.
+\]
+因此，广义分形轨迹族承担的是 JacGap 梯度下降方向覆盖证书的职责。
+
+本文的第五层立场是 D 结构嵌入。仓库中的 D 结构定义已经把环境/历史空间、
+基准拟合器、逻辑性度量、路径偏好、最大元选择与递归深度组织为
+Decision 与 Depth 的双重语义 \cite{RepoTex3DStructure}。本文把 \(\TPHLHTS\)
+的候选对象写成
+\[
+\gamma_D
+=
+\left(
+[\mathbb P_\Gamma^\beta]_{\mathrm{prob}},
+[\mathcal T_\infty]_{\mathrm{frac}},
+\Gamma
+\right),
+\]
+再以频域命中概率、期望 JacGap 下降、成本、方差与梯度覆盖距离构成
+\(\mathcal L_D(\gamma;w)\)。于是选择泛函不再只是局部经验评分，而成为 D-Decision；
+递归回填不再只是工程迭代，而成为 D-Depth；JacGap 不再只是残差指标，而成为路径
+选择与递归收敛的证书型势函数。
+
+本文的第六层立场是 \(\PDE\) 替代范式的进一步闭合。本文并不重新证明
+\(\PDE\) 理论本身，也不把低残差命中误写成无条件的原方程精确解；本文继承
+“低残差命中 + 保真性证书”的层级区分，并把求解链条继续延伸为
+\[
+\begin{gathered}
+\PDE\text{ 残差命中}
+\to
+\text{轨迹函数参数同伦}
+\to
+\text{概率路径同伦类}
+\\
+\to
+\text{广义分形轨迹族同伦类}
+\to
+D\text{ 结构递归决策路径}.
+\end{gathered}
+\]
+因此，本文在整体 \(\GFramework{}\) 中承担的是决策层闭合作用：它把已有的命中范式
+从“选择轨迹函数”推进到“选择 D 结构中的递归下降路径”。
+
+本文的写作体例、证书槽与谓词因果链组织方式参考 \cite{RepoTex37SemanticGauge}；
+统计力学参数格、PDE 策略簇与 \(\LHTS\) 证书层参考
+\cite{RepoTex53StrategyCluster,RepoTex56LHTS}；
+同伦命中、命中指数、高阶正交残差、JacGap 与 \(\PDE\) 替代范式的定义口径参考
+\cite{RepoTex55PDEParadigm}；D 结构的路径评分、偏好关系、选择函数与递归深度语义参考
+\cite{RepoTex3DStructure}。外部基础方面，本文使用标准概率论、数值优化、变分/梯度流、
+频域分析、随机逼近与大偏差语言，可参考
+\cite{Billingsley1995Probability,NocedalWright2006Optimization,AmbrosioGigliSavare2008GradientFlows,Evans2010PDE,OppenheimSchafer2010DSP,Mallat2009Wavelet,KushnerYin2003StochasticApproximation,Borkar2008StochasticApproximation,Touchette2009LargeDeviations,FreidlinWentzell2012RandomPerturbations}。
+
+概括地说，本文的主命题是：\(\TPHLHTS\) 不是普通随机搜索，也不是单独的同伦命中
+评分算法，而是以概率路径空间同伦类和广义分形轨迹族同伦类为候选路径对象，以
+JacGap 为证书型势函数，以选择泛函为 Decision，以递归回填为 Depth 的 D 结构
+收敛系统。它提供的不是一个局部算法名，而是一条从轨迹函数参数同伦到确定性
+递归决策路径的形式主干。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：轨迹函数参数同伦与选择泛函}
+\label{sec:tex57-trajectory-parameter-homotopy}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心闭合层]
+本文新增的闭合层为
+\[
+\boxed{
+\begin{gathered}
+\text{轨迹函数参数同伦}
++
+\text{选择泛函}\\
+\Longrightarrow
+\text{在轨迹函数族中选择最优同伦扭曲路径的外层算子。}
+\end{gathered}
+}
+\]
+其严格含义是：轨迹函数 \(\Gamma\) 仍然负责生成命中随机过程；参数同伦路径
+\(H:[0,1]\to\Theta\) 则负责在轨迹函数族内部移动；选择泛函 \(\mathfrak S(H)\)
+负责比较不同参数同伦路径的净命中收益。
+\end{remark}
+
+\subsection{对象域：轨迹函数族、参数化映射与命中随机过程}
+\label{subsec:tex57-objects}
+
+\begin{definition}[离散状态、低残差命中集合与分布律]
+\label{def:tex57-state-hit-law}
+令 \(\Xi_L\) 为第 \(L\) 阶离散状态空间，令
+\[
+  E_L:\Xi_L\to\RR_{\ge0}
+\]
+为残差能量。给定阈值 \(\varepsilon>0\)，定义低残差命中集合
+\[
+  S_{\varepsilon,L}
+  \DefEq
+  \{x\in\Xi_L:E_L(x)\le\varepsilon\}.
+\]
+令 \(\Lambda_L\) 为第 \(L\) 阶统计力学分布参数空间。每个
+\[
+  \lambda\in\Lambda_L
+\]
+对应一个分布律
+\[
+  \pi_{\lambda,L}
+  \quad\text{on}\quad
+  \Xi_L.
+\]
+\end{definition}
+
+\begin{definition}[同伦扭曲轨迹函数类]
+\label{def:tex57-trajectory-class}
+固定时间预算 \(T\in\NN\)。令
+\[
+  \mathfrak G_{T,L}
+  \DefEq
+  \left\{
+  \Gamma=(\Gamma_1,\ldots,\Gamma_T):
+  \Gamma_t:\Fil_{t-1}\to\Lambda_L
+  \right\}
+\]
+为第 \(L\) 阶同伦扭曲轨迹函数类，其中
+\[
+  \Fil_{t-1}
+  =
+  \sigma(X_1,\ldots,X_{t-1})
+\]
+表示前 \(t-1\) 次采样生成的过滤信息。对 \(\Gamma\in\mathfrak G_{T,L}\)，定义
+\[
+  \lambda_t^\Gamma
+  =
+  \Gamma_t(\Fil_{t-1}).
+\]
+\end{definition}
+
+\begin{definition}[轨迹函数参数化]
+\label{def:tex57-parameterization}
+给定参数空间 \(\Theta\) 以及参数化映射
+\[
+  \Psi:\Theta\to\mathfrak G_{T,L},
+  \qquad
+  \theta\mapsto\Gamma_\theta.
+\]
+由此定义
+\[
+  \lambda_t^\theta
+  \DefEq
+  \Gamma_{\theta,t}(\Fil_{t-1}).
+\]
+参数 \(\theta\) 因而不是普通超参数，而是轨迹函数生成参数。
+\end{definition}
+
+\begin{definition}[参数化轨迹诱导的命中随机过程]
+\label{def:tex57-parameterized-hit-process}
+给定 \(\theta\in\Theta\)，定义随机变量簇
+\[
+  X_t^\theta\mid\Fil_{t-1}
+  \sim
+  \pi_{\lambda_t^\theta,L},
+  \qquad
+  t=1,\ldots,T.
+\]
+命中指示变量定义为
+\[
+  Y_t^\theta
+  =
+  \mathbf 1_{S_{\varepsilon,L}}(X_t^\theta).
+\]
+首次命中时间为
+\[
+  \tau_{\varepsilon,L}^{\theta}
+  =
+  \inf\{t\ge1:Y_t^\theta=1\}.
+\]
+有限时间命中泛函为
+\[
+  \mathcal J_{T,L}(\Gamma_\theta)
+  =
+  \Prob_\theta(\tau_{\varepsilon,L}^{\theta}\le T).
+\]
+生存概率与命中指数分别定义为
+\[
+  Q_{T,L}(\Gamma_\theta)
+  =
+  1-\mathcal J_{T,L}(\Gamma_\theta)
+  =
+  \Prob_\theta(\tau_{\varepsilon,L}^{\theta}>T),
+\]
+\[
+  \mathcal C_{T,L}(\Gamma_\theta)
+  =
+  -\log Q_{T,L}(\Gamma_\theta),
+  \qquad
+  0<Q_{T,L}(\Gamma_\theta)\le1.
+\]
+\end{definition}
+
+\begin{remark}[基础谓词链]
+定义~\ref{def:tex57-parameterization} 与
+\ref{def:tex57-parameterized-hit-process} 给出基础链条：
+\[
+\boxed{
+\theta
+\Longrightarrow
+\Gamma_\theta
+\Longrightarrow
+(\lambda_t^\theta)_{t=1}^{T}
+\Longrightarrow
+(X_t^\theta)_{t=1}^{T}
+\Longrightarrow
+(Y_t^\theta)_{t=1}^{T}
+\Longrightarrow
+\mathcal J_{T,L}(\Gamma_\theta).
+}
+\]
+这说明参数层不是命中过程之外的装饰层，而是轨迹函数、分布律轨迹和命中随机过程的生成层。
+\end{remark}
+
+\subsection{轨迹函数参数同伦与选择泛函}
+\label{subsec:tex57-homotopy-selection-functional}
+
+\begin{definition}[轨迹函数参数同伦]
+\label{def:tex57-parameter-homotopy}
+给定两个轨迹参数
+\[
+  \theta_0,\theta_1\in\Theta,
+\]
+称连续映射
+\[
+  H:[0,1]\to\Theta,
+  \qquad
+  s\mapsto\theta(s),
+\]
+为从 \(\theta_0\) 到 \(\theta_1\) 的轨迹函数参数同伦，若
+\[
+  \theta(0)=\theta_0,
+  \qquad
+  \theta(1)=\theta_1.
+\]
+它诱导轨迹函数同伦
+\[
+  \Gamma_s
+  \DefEq
+  \Psi(\theta(s))
+  =
+  \Gamma_{\theta(s)}.
+\]
+\end{definition}
+
+\begin{definition}[工程离散参数同伦]
+\label{def:tex57-discrete-homotopy}
+工程离散版本由有限序列
+\[
+  \theta_0,\theta_1,\ldots,\theta_M
+\]
+给出，其中每一步
+\[
+  \theta_{m-1}\to\theta_m
+\]
+代表一次参数同伦扭曲。对应的分段路径记为 \(H_M\)，并满足
+\[
+  H_M(m/M)=\theta_m,
+  \qquad
+  m=0,\ldots,M.
+\]
+\end{definition}
+
+\begin{definition}[轨迹参数同伦的成本与雅可比间隙]
+\label{def:tex57-cost-jacgap}
+令
+\[
+  c:T\Theta\to\RR_{\ge0}
+\]
+为参数跃迁成本、计算成本或轨迹复杂度成本密度。定义
+\[
+  \Cost(H)
+  =
+  \int_0^1 c(\theta(s),\dot\theta(s))\,ds.
+\]
+令
+\[
+  \mathfrak G:T\Theta\to\RR_{\ge0}
+\]
+为实际参数同伦方向与理想高阶正交命中方向之间的雅可比间隙密度。定义
+\[
+  \JacGap(H)
+  =
+  \int_0^1
+  \mathfrak G(\theta(s),\dot\theta(s))\,ds.
+\]
+\end{definition}
+
+\begin{definition}[选择泛函]
+\label{def:tex57-selection-functional}
+对可行参数同伦 \(H:s\mapsto\theta(s)\)，定义命中指数增益
+\[
+  \Delta\mathcal C_{T,L}(H)
+  \DefEq
+  \mathcal C_{T,L}(\Gamma_{\theta(1)})
+  -
+  \mathcal C_{T,L}(\Gamma_{\theta(0)}).
+\]
+定义选择泛函
+\[
+  \boxed{
+  \mathfrak S(H)
+  \DefEq
+  \Delta\mathcal C_{T,L}(H)
+  -
+  \Cost(H)
+  -
+  \JacGap(H).
+  }
+\]
+因此选择泛函的严格语义是：选择命中指数增益最大、轨迹成本最小、雅可比间隙最小的
+参数同伦路径。
+\end{definition}
+
+\begin{remark}[同伦移动的位置]
+轨迹函数参数同伦不是直接在状态空间 \(\Xi_L\) 中移动，而是在生成命中随机过程的轨迹函数空间中移动：
+\[
+\boxed{
+H
+\Longrightarrow
+\theta(s)
+\Longrightarrow
+\Gamma_{\theta(s)}
+\Longrightarrow
+\mathcal J_{T,L}(\Gamma_{\theta(s)}).
+}
+\]
+状态空间中的随机变量变化是该轨迹函数移动的下游结果。
+\end{remark}
+
+\subsection{公理降级为定理：离散参数同伦链全定义}
+\label{subsec:tex57-axiom-downgrade}
+
+\begin{axiom}[公理（降级为定理）：有限离散参数同伦链闭合]
+\label{ax:tex57-discrete-chain}
+若参数空间 \(\Theta\) 对有限参数扭曲算子族
+\[
+  \mathscr H_m:\Theta\to\Theta,
+  \qquad
+  m=1,\ldots,M,
+\]
+封闭，且初始参数 \(\theta_0\in\Theta\)，则递推链
+\[
+  \theta_m=\mathscr H_m(\theta_{m-1}),
+  \qquad
+  m=1,\ldots,M,
+\]
+在所有有限步上全定义，并诱导有限轨迹函数链
+\[
+  \Gamma_{\theta_0},\Gamma_{\theta_1},\ldots,\Gamma_{\theta_M}.
+\]
+\end{axiom}
+
+\begin{Certificate}[数学归纳法证书：参数同伦链闭合]
+\label{cert:tex57-discrete-chain}
+定义谓词
+\[
+  P(m):\quad
+  \theta_m\in\Theta
+  \ \wedge\
+  \Gamma_{\theta_m}=\Psi(\theta_m)\in\mathfrak G_{T,L}.
+\]
+证书为
+\[
+  \pi_{\mathrm{ind}}
+  =
+  \left(
+  P(0),\
+  \forall m<M,\ P(m)\Rightarrow P(m+1)
+  \right).
+\]
+其中归纳步使用
+\[
+  \theta_{m+1}=\mathscr H_{m+1}(\theta_m),
+  \qquad
+  \mathscr H_{m+1}:\Theta\to\Theta,
+  \qquad
+  \Psi:\Theta\to\mathfrak G_{T,L}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+基步：由假设 \(\theta_0\in\Theta\)，以及
+\[
+  \Psi:\Theta\to\mathfrak G_{T,L},
+\]
+得到
+\[
+  \Gamma_{\theta_0}=\Psi(\theta_0)\in\mathfrak G_{T,L}.
+\]
+故 \(P(0)\) 成立。
+
+归纳步：假设 \(P(m)\) 成立，即
+\[
+  \theta_m\in\Theta,
+  \qquad
+  \Gamma_{\theta_m}\in\mathfrak G_{T,L}.
+\]
+由封闭性
+\[
+  \mathscr H_{m+1}:\Theta\to\Theta
+\]
+可得
+\[
+  \theta_{m+1}=\mathscr H_{m+1}(\theta_m)\in\Theta.
+\]
+再由参数化映射
+\[
+  \Psi:\Theta\to\mathfrak G_{T,L}
+\]
+得到
+\[
+  \Gamma_{\theta_{m+1}}=\Psi(\theta_{m+1})\in\mathfrak G_{T,L}.
+\]
+故 \(P(m+1)\) 成立。
+
+由数学归纳法，\(P(m)\) 对所有 \(m=0,\ldots,M\) 成立。于是有限离散参数同伦链及其
+诱导轨迹函数链全定义。
+\end{proof}
+
+\subsection{定理：轨迹函数参数同伦诱导命中泛函同伦}
+\label{subsec:tex57-induced-functional-homotopy}
+
+\begin{theorem}[轨迹函数参数同伦诱导命中泛函同伦]
+\label{thm:tex57-induced-functional-homotopy}
+若
+\[
+  H:[0,1]\to\Theta,
+  \qquad
+  s\mapsto\theta(s),
+\]
+是轨迹函数参数同伦，则它诱导映射
+\[
+  [0,1]\to\RR,
+  \qquad
+  s\mapsto
+  \mathcal J_{T,L}(\Gamma_{\theta(s)}),
+\]
+以及在 \(0<Q_{T,L}(\Gamma_{\theta(s)})\le1\) 时诱导命中指数路径
+\[
+  s\mapsto
+  \mathcal C_{T,L}(\Gamma_{\theta(s)}).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：参数同伦到命中泛函的组合链]
+\label{cert:tex57-induced-functional-homotopy}
+证书为
+\[
+  H
+  \Longrightarrow
+  \theta(s)
+  \Longrightarrow
+  \Gamma_{\theta(s)}
+  \Longrightarrow
+  X_t^{\theta(s)}
+  \Longrightarrow
+  Y_t^{\theta(s)}
+  \Longrightarrow
+  \mathcal J_{T,L}(\Gamma_{\theta(s)})
+  \Longrightarrow
+  \mathcal C_{T,L}(\Gamma_{\theta(s)}).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由参数同伦定义，
+\[
+  s\in[0,1]
+  \Longrightarrow
+  \theta(s)\in\Theta.
+\]
+由轨迹函数参数化定义，
+\[
+  \theta(s)\in\Theta
+  \Longrightarrow
+  \Gamma_{\theta(s)}=\Psi(\theta(s))\in\mathfrak G_{T,L}.
+\]
+由轨迹函数定义，
+\[
+  \Gamma_{\theta(s),t}(\Fil_{t-1})
+  =
+  \lambda_t^{\theta(s)}.
+\]
+由分布律定义，
+\[
+  X_t^{\theta(s)}
+  \mid
+  \Fil_{t-1}
+  \sim
+  \pi_{\lambda_t^{\theta(s)},L}.
+\]
+由命中指示变量定义，
+\[
+  Y_t^{\theta(s)}
+  =
+  \mathbf 1_{S_{\varepsilon,L}}
+  (X_t^{\theta(s)}).
+\]
+由首次命中时间定义，
+\[
+  \tau_{\varepsilon,L}^{\theta(s)}
+  =
+  \inf\{t\ge1:Y_t^{\theta(s)}=1\}.
+\]
+由命中泛函定义，
+\[
+  \mathcal J_{T,L}(\Gamma_{\theta(s)})
+  =
+  \Prob_{\theta(s)}
+  (
+  \tau_{\varepsilon,L}^{\theta(s)}
+  \le T
+  ).
+\]
+因此 \(s\mapsto\mathcal J_{T,L}(\Gamma_{\theta(s)})\) 全定义。若
+\[
+  0<Q_{T,L}(\Gamma_{\theta(s)})\le1,
+\]
+则
+\[
+  \mathcal C_{T,L}(\Gamma_{\theta(s)})
+  =
+  -\log Q_{T,L}(\Gamma_{\theta(s)})
+\]
+也全定义。定理得证。
+\end{proof}
+
+\subsection{引理：命中指数增益与生存概率压缩等价}
+\label{subsec:tex57-index-survival-lemma}
+
+\begin{lemma}[命中指数增益等价于生存概率乘法压缩]
+\label{lem:tex57-index-survival}
+令 \(H:s\mapsto\theta(s)\) 为可行参数同伦，并设
+\[
+  Q_0=Q_{T,L}(\Gamma_{\theta(0)}),
+  \qquad
+  Q_1=Q_{T,L}(\Gamma_{\theta(1)}),
+  \qquad
+  0<Q_0,Q_1\le1.
+\]
+则
+\[
+  \Delta\mathcal C_{T,L}(H)
+  =
+  \mathcal C_{T,L}(\Gamma_{\theta(1)})
+  -
+  \mathcal C_{T,L}(\Gamma_{\theta(0)})
+  =
+  \log\frac{Q_0}{Q_1}.
+\]
+因此
+\[
+  \Delta\mathcal C_{T,L}(H)>0
+  \Longleftrightarrow
+  Q_1<Q_0.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：对数生存概率变换]
+\label{cert:tex57-index-survival}
+证书为
+\[
+  \mathcal C_{T,L}(\Gamma)=-\log Q_{T,L}(\Gamma),
+  \qquad
+  \Delta\mathcal C_{T,L}(H)
+  =
+  -\log Q_1+\log Q_0.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由命中指数定义，
+\[
+  \mathcal C_{T,L}(\Gamma_{\theta(1)})
+  =
+  -\log Q_1,
+  \qquad
+  \mathcal C_{T,L}(\Gamma_{\theta(0)})
+  =
+  -\log Q_0.
+\]
+两式相减得
+\[
+  \Delta\mathcal C_{T,L}(H)
+  =
+  -\log Q_1+\log Q_0
+  =
+  \log\frac{Q_0}{Q_1}.
+\]
+由于 \(\log\) 严格递增，
+\[
+  \log\frac{Q_0}{Q_1}>0
+  \Longleftrightarrow
+  \frac{Q_0}{Q_1}>1
+  \Longleftrightarrow
+  Q_1<Q_0.
+\]
+引理得证。
+\end{proof}
+
+\subsection{定理：选择泛函给出参数同伦路径选择准则}
+\label{subsec:tex57-selection-theorem}
+
+\begin{definition}[可行参数同伦类]
+\label{def:tex57-feasible-homotopy-class}
+固定初始参数 \(\theta_0\)。定义可行参数同伦类
+\[
+  \mathcal H(\theta_0)
+  =
+  \{H:[0,1]\to\Theta:
+  H(0)=\theta_0,\ H\text{ 满足约束、成本和稳定性条件}\}.
+\]
+若只考虑离散工程路径，则把 \(H\) 替换为有限序列
+\[
+  H_M=(\theta_0,\theta_1,\ldots,\theta_M).
+\]
+\end{definition}
+
+\begin{theorem}[选择泛函给出轨迹函数参数同伦的选择准则]
+\label{thm:tex57-selection-criterion}
+若
+\[
+  H^\star
+  \in
+  \argmax_{H\in\mathcal H(\theta_0)}
+  \mathfrak S(H),
+\]
+则 \(H^\star\) 是在可行参数同伦类 \(\mathcal H(\theta_0)\) 中，关于
+“命中指数增益、轨迹成本、雅可比间隙”的最优参数同伦选择。
+\end{theorem}
+
+\begin{Certificate}[证书：净命中收益最大化]
+\label{cert:tex57-selection-criterion}
+证书为
+\[
+  \mathfrak S(H)
+  =
+  \Delta\mathcal C_{T,L}(H)
+  -
+  \Cost(H)
+  -
+  \JacGap(H),
+\]
+以及最优性谓词
+\[
+  H^\star\in\argmax_{H\in\mathcal H(\theta_0)}\mathfrak S(H).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+对任意
+\[
+  H\in\mathcal H(\theta_0),
+\]
+由选择泛函定义有
+\[
+  \mathfrak S(H)
+  =
+  \Delta\mathcal C_{T,L}(H)
+  -
+  \Cost(H)
+  -
+  \JacGap(H).
+\]
+若
+\[
+  H^\star
+  \in
+  \argmax_{H\in\mathcal H(\theta_0)}
+  \mathfrak S(H),
+\]
+则对任意 \(H\in\mathcal H(\theta_0)\)，有
+\[
+  \mathfrak S(H^\star)\ge\mathfrak S(H).
+\]
+展开即
+\[
+\begin{aligned}
+&\Delta\mathcal C_{T,L}(H^\star)
+-
+\Cost(H^\star)
+-
+\JacGap(H^\star)\\
+&\qquad\ge
+\Delta\mathcal C_{T,L}(H)
+-
+\Cost(H)
+-
+\JacGap(H).
+\end{aligned}
+\]
+所以 \(H^\star\) 在可行类中最大化净命中收益。定理得证。
+\end{proof}
+
+\subsection{命题：选择轨迹函数转化为选择参数同伦路径}
+\label{subsec:tex57-proposition-reduction}
+
+\begin{proposition}[从轨迹函数选择到参数同伦路径选择]
+\label{prop:tex57-trajectory-to-homotopy-selection}
+若轨迹函数类由参数化映射
+\[
+  \Psi:\Theta\to\mathfrak G_{T,L}
+\]
+给出，则原问题
+\[
+  \Gamma^\star
+  \in
+  \argmax_{\Gamma\in\mathfrak G_{T,L}}
+  \mathcal J_{T,L}(\Gamma)
+\]
+在参数化子族 \(\Psi(\Theta)\) 上转化为
+\[
+  \theta^\star
+  \in
+  \argmax_{\theta\in\Theta}
+  \mathcal J_{T,L}(\Gamma_\theta).
+\]
+若进一步以可行参数同伦类 \(\mathcal H(\theta_0)\) 生成下一参数，则转化为
+\[
+  H^\star
+  \in
+  \argmax_{H\in\mathcal H(\theta_0)}
+  \mathfrak S(H).
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：三层选择降维链]
+\label{cert:tex57-trajectory-to-homotopy-selection}
+证书链为
+\[
+\boxed{
+\text{选算法}
+\Longrightarrow
+\text{选轨迹函数}
+\Longrightarrow
+\text{选轨迹参数}
+\Longrightarrow
+\text{选参数同伦路径}.
+}
+\]
+形式化写作是
+\[
+  \Gamma
+  =
+  \Psi(\theta),
+  \qquad
+  \theta(1)=H(1),
+  \qquad
+  \Gamma_{\theta(1)}
+  =
+  \Psi(H(1)).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+第一步：若只在全部轨迹函数类中选择，则目标是
+\[
+  \max_{\Gamma\in\mathfrak G_{T,L}}
+  \mathcal J_{T,L}(\Gamma).
+\]
+第二步：若轨迹函数受到参数化约束
+\[
+  \Gamma=\Psi(\theta)=\Gamma_\theta,
+\]
+则可行集合从 \(\mathfrak G_{T,L}\) 收缩为 \(\Psi(\Theta)\)，问题变为
+\[
+  \max_{\theta\in\Theta}
+  \mathcal J_{T,L}(\Gamma_\theta).
+\]
+第三步：若下一参数不直接孤立选择，而是由从 \(\theta_0\) 出发的参数同伦路径
+\[
+  H\in\mathcal H(\theta_0)
+\]
+生成，则终点参数为
+\[
+  \theta(1)=H(1),
+\]
+对应轨迹函数为
+\[
+  \Gamma_{\theta(1)}.
+\]
+此时仅最大化终点命中泛函会忽略路径成本与雅可比间隙；由定义
+\[
+  \mathfrak S(H)
+  =
+  \Delta\mathcal C_{T,L}(H)
+  -
+  \Cost(H)
+  -
+  \JacGap(H)
+\]
+得到外层路径选择问题
+\[
+  \max_{H\in\mathcal H(\theta_0)}
+  \mathfrak S(H).
+\]
+命题得证。
+\end{proof}
+
+\subsection{推论：在 PDE 同伦命中替代范式中的作用}
+\label{subsec:tex57-pde-corollary}
+
+\begin{corollary}[PDE 同伦命中链条的外层选择升级]
+\label{cor:tex57-pde-upgrade}
+在高阶 \PDE{} 同伦命中范式中，基础链条
+\[
+  \PDE
+  \Longrightarrow
+  E_L
+  \Longrightarrow
+  S_{\varepsilon,L}
+  \Longrightarrow
+  \Gamma
+  \Longrightarrow
+  \mathcal J_{T,L}(\Gamma)
+\]
+加入轨迹函数参数同伦与选择泛函后升级为
+\[
+\boxed{
+\PDE
+\Longrightarrow
+E_L
+\Longrightarrow
+S_{\varepsilon,L}
+\Longrightarrow
+\Theta
+\Longrightarrow
+H
+\Longrightarrow
+\Gamma_{\theta(1)}
+\Longrightarrow
+\mathcal J_{T,L}.
+}
+\]
+求解层目标相应升级为
+\[
+\boxed{
+\max_{H\in\mathcal H(\theta_0)}
+\left[
+\Delta\mathcal C_{T,L}(H)
+-
+\Cost(H)
+-
+\JacGap(H)
+\right].
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：PDE 残差命中到参数同伦路径选择]
+\label{cert:tex57-pde-upgrade}
+证书链为
+\[
+\begin{aligned}
+&\PDE
+\Longrightarrow
+E_L
+\Longrightarrow
+S_{\varepsilon,L}\\
+&\Longrightarrow
+\pi_{\lambda,L}
+\Longrightarrow
+\Gamma_\theta
+\Longrightarrow
+X_t^\theta
+\Longrightarrow
+Y_t^\theta\\
+&\Longrightarrow
+\tau_{\varepsilon,L}^{\theta}
+\Longrightarrow
+\mathcal J_{T,L}(\Gamma_\theta)
+\Longrightarrow
+\mathcal C_{T,L}(\Gamma_\theta)\\
+&\Longrightarrow
+H
+\Longrightarrow
+\mathfrak S(H).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \PDE{} 残差化定义，方程求解对象转化为残差能量
+\[
+  E_L.
+\]
+由低残差阈值定义，得到命中集合
+\[
+  S_{\varepsilon,L}
+  =
+  \{x:E_L(x)\le\varepsilon\}.
+\]
+由统计力学分布律定义，每个参数 \(\lambda\in\Lambda_L\) 诱导分布
+\[
+  \pi_{\lambda,L}.
+\]
+由轨迹函数参数化，\(\theta\in\Theta\) 生成轨迹函数
+\[
+  \Gamma_\theta,
+\]
+进而生成
+\[
+  X_t^\theta\mid\Fil_{t-1}\sim\pi_{\lambda_t^\theta,L},
+  \qquad
+  Y_t^\theta=\mathbf 1_{S_{\varepsilon,L}}(X_t^\theta).
+\]
+由首次命中时间与命中泛函定义，得到
+\[
+  \mathcal J_{T,L}(\Gamma_\theta)
+  =
+  \Prob_\theta(\tau_{\varepsilon,L}^{\theta}\le T),
+  \qquad
+  \mathcal C_{T,L}(\Gamma_\theta)
+  =
+  -\log Q_{T,L}(\Gamma_\theta).
+\]
+由参数同伦定义，\(H\) 选择终点 \(\theta(1)\) 及其整条生成路径。由选择泛函定义，
+\[
+  \mathfrak S(H)
+  =
+  \Delta\mathcal C_{T,L}(H)
+  -
+  \Cost(H)
+  -
+  \JacGap(H).
+\]
+因此 \PDE{} 同伦命中求解层从
+\[
+  \max_\Gamma\mathcal J_{T,L}(\Gamma)
+\]
+升级为
+\[
+  \max_H\mathfrak S(H).
+\]
+推论得证。
+\end{proof}
+
+\subsection{总定理与最终口径}
+\label{subsec:tex57-total-theorem}
+
+\begin{theorem}[轨迹函数参数同伦选择闭合定理]
+\label{thm:tex57-total-closure}
+设以下对象全定义：
+\[
+  \Xi_L,\ E_L,\ S_{\varepsilon,L},\ \Lambda_L,\ \pi_{\lambda,L},\
+  \mathfrak G_{T,L},\ \Theta,\ \Psi,\ \mathcal H(\theta_0).
+\]
+若对任意 \(H\in\mathcal H(\theta_0)\)，命中指数、成本与雅可比间隙均全定义，则选择泛函
+\[
+  \mathfrak S(H)
+  =
+  \Delta\mathcal C_{T,L}(H)
+  -
+  \Cost(H)
+  -
+  \JacGap(H)
+\]
+把轨迹函数选择问题闭合为参数同伦路径选择问题。若存在最大化元
+\[
+  H^\star\in\argmax_{H\in\mathcal H(\theta_0)}\mathfrak S(H),
+\]
+则 \(H^\star\) 是该可行类中净命中收益最优的轨迹生成路径。
+\end{theorem}
+
+\begin{Certificate}[总证书：对象全定义与谓词合成]
+\label{cert:tex57-total-closure}
+总证书为
+\[
+\begin{aligned}
+&\mathsf{ResidualEnergy}(E_L)
+\wedge
+\mathsf{HitSet}(S_{\varepsilon,L})
+\wedge
+\mathsf{DistributionLaw}(\pi_{\lambda,L})\\
+&\wedge\
+\mathsf{TrajectoryClass}(\mathfrak G_{T,L})
+\wedge
+\mathsf{Parameterization}(\Psi)
+\wedge
+\mathsf{ParameterHomotopy}(H)\\
+&\wedge\
+\mathsf{HittingFunctional}(\mathcal J_{T,L})
+\wedge
+\mathsf{HittingIndex}(\mathcal C_{T,L})
+\wedge
+\mathsf{Cost}(\Cost)
+\wedge
+\mathsf{JacobianGap}(\JacGap)\\
+&\Longrightarrow
+\mathsf{SelectionFunctional}(\mathfrak S)
+\Longrightarrow
+\mathsf{OptimalHomotopyPath}(H^\star).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由残差能量和命中集合定义，
+\[
+  E_L
+  \Longrightarrow
+  S_{\varepsilon,L}.
+\]
+由分布律与轨迹函数定义，
+\[
+  \Gamma_\theta
+  \Longrightarrow
+  \lambda_t^\theta
+  \Longrightarrow
+  X_t^\theta
+  \Longrightarrow
+  Y_t^\theta
+  \Longrightarrow
+  \tau_{\varepsilon,L}^{\theta}.
+\]
+由命中泛函和命中指数定义，
+\[
+  \tau_{\varepsilon,L}^{\theta}
+  \Longrightarrow
+  \mathcal J_{T,L}(\Gamma_\theta)
+  \Longrightarrow
+  \mathcal C_{T,L}(\Gamma_\theta).
+\]
+由参数同伦定义，
+\[
+  H
+  \Longrightarrow
+  \theta(0),\theta(1)
+  \Longrightarrow
+  \Gamma_{\theta(0)},\Gamma_{\theta(1)}.
+\]
+因此命中指数增益
+\[
+  \Delta\mathcal C_{T,L}(H)
+\]
+全定义。由成本和雅可比间隙定义，
+\[
+  \Cost(H),
+  \qquad
+  \JacGap(H)
+\]
+全定义。于是选择泛函
+\[
+  \mathfrak S(H)
+  =
+  \Delta\mathcal C_{T,L}(H)
+  -
+  \Cost(H)
+  -
+  \JacGap(H)
+\]
+全定义。若 \(H^\star\) 是该泛函在 \(\mathcal H(\theta_0)\) 上的最大化元，
+则由最大化元定义，对任意 \(H\in\mathcal H(\theta_0)\) 有
+\[
+  \mathfrak S(H^\star)\ge\mathfrak S(H).
+\]
+所以 \(H^\star\) 是净命中收益最优的轨迹生成路径。定理得证。
+\end{proof}
+
+\begin{remark}[最终严格表述]
+“轨迹函数参数同伦与选择泛函”可压缩为：
+\[
+\boxed{
+\begin{gathered}
+\text{轨迹函数参数同伦 }H:[0,1]\to\Theta
+\text{ 生成一族同伦扭曲轨迹函数 }
+\Gamma_{\theta(s)};\\
+\text{选择泛函 }\mathfrak S(H)
+\text{ 以命中指数增益为收益，}\\
+\text{以轨迹成本与雅可比间隙为惩罚，}\\
+\text{从可行同伦类中选择最优参数同伦路径。}
+\end{gathered}
+}
+\]
+最核心公式是
+\[
+\boxed{
+H^\star
+\in
+\argmax_{H\in\mathcal H(\theta_0)}
+\left\{
+\mathcal C_{T,L}(\Gamma_{\theta(1)})
+-
+\mathcal C_{T,L}(\Gamma_{\theta(0)})
+-
+\Cost(H)
+-
+\JacGap(H)
+\right\}.
+}
+\]
+它连接的正是
+\[
+\boxed{
+\text{轨迹函数}
+\Longrightarrow
+\text{命中泛函}
+\Longrightarrow
+\text{轨迹选择}
+\Longrightarrow
+\text{高阶正交与雅可比间隙下降}.
+}
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：LHTS 零阶分布律核与广义分形式轨迹函数族}
+\label{sec:tex57-lhts-fractal-jacgap-cover}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述]
+本章把 \LHTS{} 的角色严格写成：
+\[
+\boxed{
+\begin{gathered}
+\LHTS{}\text{ 不是终点，而是零阶分布律核；}\\
+\text{在它之上递归构造轨迹函数参数同伦选择核，}\\
+\text{由此生成广义分形式轨迹函数族，直到其张成空间覆盖 }\nabla\JacGap.
+\end{gathered}
+}
+\]
+对应的对象链条是
+\[
+\boxed{
+\LHTS{}
+\Longrightarrow
+\mu_0
+\Longrightarrow
+\mathcal T_0
+\Longrightarrow
+\mathcal T_1
+\Longrightarrow
+\cdots
+\Longrightarrow
+\mathcal T_k
+\Longrightarrow
+\mathcal V_k
+\supseteq
+\text{JacGap 梯度下降方向}.
+}
+\]
+这里的“广义分形”不是欧氏空间中的几何分形，而是轨迹函数空间中的递归自相似选择结构。
+这一用法借用迭代生成与自相似构造的基本思想
+\cite{Hutchinson1981Fractals,Barnsley1988Fractals}，但其对象是参数同伦路径、选择泛函和
+轨迹函数族，而不是几何子集。
+\end{remark}
+
+\subsection{LHTS 零阶分布律与轨迹函数推前}
+\label{subsec:tex57-lhts-zero-law}
+
+\begin{definition}[LHTS 零阶动作集合]
+\label{def:tex57-lhts-action-set}
+令 \(\LHTS{}\) 的零阶格点动作集合为
+\[
+  \mathcal A_0
+  \DefEq
+  \{a=(i,\alpha,K): i\in I,\ \alpha>0,\ K\in\NN\}.
+\]
+其中 \(i\) 是格点方向，\(\alpha\) 是单步同伦尺度，\(K\) 是跳跃阶数。
+每个
+\[
+  a=(i,\alpha,K)\in\mathcal A_0
+\]
+对应一个参数空间上的同伦扭曲算子
+\[
+  \mathscr H_a
+  =
+  H_{i,K\alpha}:\Theta\to\Theta.
+\]
+\end{definition}
+
+\begin{definition}[持久化分值诱导的零阶分布律]
+\label{def:tex57-lhts-zero-law}
+\(\LHTS{}\) 在时刻 \(t\) 维护动作分值
+\[
+  S_a(t),
+  \qquad
+  a\in\mathcal A_0.
+\]
+给定温度参数 \(\rho>0\)，定义选择概率
+\[
+  p_a(t)
+  =
+  \frac{\exp(\rho S_a(t))}
+  {\sum_{b\in\mathcal A_0}\exp(\rho S_b(t))}.
+\]
+由此得到作用在同伦扭曲算子集合上的零阶分布律
+\[
+  \boxed{
+  \mu_0(t)
+  =
+  \sum_{a\in\mathcal A_0}
+  p_a(t)\,\delta_{\mathscr H_a}.
+  }
+\]
+这说明 \(\LHTS{}\) 以持久化分值 \(S_a(t)\) 诱导格点同伦扭曲分布律。
+\end{definition}
+
+\begin{definition}[从零阶分布律到参数与轨迹函数的推前]
+\label{def:tex57-pushforward-zero-law}
+固定当前参数 \(\theta\in\Theta\)。定义动作到参数的映射
+\[
+  \mathcal P_\theta:\mathcal A_0\to\Theta,
+  \qquad
+  \mathcal P_\theta(a)=\mathscr H_a(\theta).
+\]
+零阶参数分布律定义为推前测度
+\[
+  \mu_0^\theta(t)
+  \DefEq
+  (\mathcal P_\theta)_\#\mu_0(t).
+\]
+再由轨迹函数参数化
+\[
+  \Psi:\Theta\to\mathfrak G_{T,L},
+  \qquad
+  \theta'\mapsto\Gamma_{\theta'},
+\]
+得到零阶轨迹函数分布律
+\[
+  \nu_0^\theta(t)
+  \DefEq
+  \Psi_\#\mu_0^\theta(t).
+\]
+其支撑定义为零阶轨迹函数族
+\[
+  \mathcal T_0(\theta,t)
+  \DefEq
+  \supp\nu_0^\theta(t)
+  =
+  \{\Gamma_{\mathscr H_a(\theta)}:a\in\supp\mu_0(t)\}.
+\]
+\end{definition}
+
+\begin{theorem}[LHTS 可作为参数同伦轨迹函数选择的零阶核]
+\label{thm:tex57-lhts-zero-kernel}
+给定当前参数 \(\theta_t\in\Theta\)。若 \(\LHTS{}\) 给出分值 \(S_a(t)\)、
+选择概率 \(p_a(t)\) 与零阶分布律 \(\mu_0(t)\)，则 \(\mu_0(t)\) 经由
+\[
+  \mathscr H_a:\Theta\to\Theta,
+  \qquad
+  \Psi:\Theta\to\mathfrak G_{T,L}
+\]
+诱导零阶轨迹函数族 \(\mathcal T_0(\theta_t,t)\)，并且其中每个轨迹函数都诱导命中泛函
+\[
+  \mathcal J_{T,L}(\Gamma_{\mathscr H_a(\theta_t)}).
+\]
+因此 \(\LHTS{}\) 是轨迹函数参数同伦选择的零阶分布律核。
+\end{theorem}
+
+\begin{Certificate}[证书：LHTS 到命中泛函的零阶推前链]
+\label{cert:tex57-lhts-zero-kernel}
+证书为
+\[
+\begin{aligned}
+&\LHTS{}
+\Longrightarrow
+S_a(t)
+\Longrightarrow
+p_a(t)
+\Longrightarrow
+\mu_0(t)\\
+&\Longrightarrow
+\mathscr H_a
+\Longrightarrow
+\theta'_t=\mathscr H_a(\theta_t)
+\Longrightarrow
+\Gamma_{\theta'_t}
+\Longrightarrow
+\mathcal J_{T,L}(\Gamma_{\theta'_t}).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 \(\LHTS{}\) 分值定义，时刻 \(t\) 有
+\[
+  S_a(t),
+  \qquad
+  a\in\mathcal A_0.
+\]
+由 softmax 选择概率定义，
+\[
+  S_a(t)
+  \Longrightarrow
+  p_a(t)
+  =
+  \frac{\exp(\rho S_a(t))}
+  {\sum_{b\in\mathcal A_0}\exp(\rho S_b(t))}.
+\]
+由零阶分布律定义，
+\[
+  p_a(t)
+  \Longrightarrow
+  \mu_0(t)
+  =
+  \sum_{a\in\mathcal A_0}p_a(t)\delta_{\mathscr H_a}.
+\]
+若当前参数为 \(\theta_t\)，每个动作 \(a\) 生成候选参数
+\[
+  \theta'_t
+  =
+  \mathscr H_a(\theta_t)
+  =
+  H_{i,K\alpha}(\theta_t).
+\]
+由轨迹函数参数化，
+\[
+  \theta'_t
+  \Longrightarrow
+  \Gamma_{\theta'_t}=\Psi(\theta'_t).
+\]
+由命中随机过程定义，
+\[
+  \Gamma_{\theta'_t}
+  \Longrightarrow
+  \lambda_s^{\theta'_t}
+  =
+  \Gamma_{\theta'_t,s}(\Fil_{s-1})
+  \Longrightarrow
+  X_s^{\theta'_t}\mid\Fil_{s-1}
+  \sim
+  \pi_{\lambda_s^{\theta'_t},L}.
+\]
+由命中指示与命中泛函定义，
+\[
+  Y_s^{\theta'_t}
+  =
+  \mathbf 1_{S_{\varepsilon,L}}(X_s^{\theta'_t})
+  \Longrightarrow
+  \mathcal J_{T,L}(\Gamma_{\theta'_t})
+  =
+  \Prob_{\theta'_t}
+  (\exists s\le T:\,Y_s^{\theta'_t}=1).
+\]
+故 \(\LHTS{}\) 的格点分布律经推前后给出零阶轨迹函数选择核。定理得证。
+\end{proof}
+
+\subsection{递归参数同伦选择与广义分形轨迹族}
+\label{subsec:tex57-recursive-fractal-family}
+
+\begin{definition}[以轨迹函数族为起点的可行参数同伦族]
+\label{def:tex57-homotopy-family-from-trajectory-set}
+令 \(\mathcal T_k\subseteq\mathfrak G_{T,L}\) 为第 \(k\) 阶轨迹函数族，并设
+\[
+  \Theta(\mathcal T_k)
+  =
+  \{\theta\in\Theta:\Gamma_\theta\in\mathcal T_k\}
+\]
+为其参数原像。定义以 \(\mathcal T_k\) 为起点的可行参数同伦族
+\[
+  \mathcal H(\mathcal T_k)
+  =
+  \bigcup_{\theta\in\Theta(\mathcal T_k)}
+  \mathcal H(\theta),
+\]
+其中
+\[
+  \mathcal H(\theta)
+  =
+  \{H:[0,1]\to\Theta:H(0)=\theta,\ H\text{ 满足可行性约束}\}.
+\]
+\end{definition}
+
+\begin{definition}[选择算子与递归生成算子]
+\label{def:tex57-selection-recursion-operator}
+给定第 \(k\) 阶选择泛函 \(\mathfrak S_k\)，定义选择算子
+\[
+  \Sel_{\mathfrak S_k}(\mathcal H(\mathcal T_k))
+  \subseteq
+  \mathcal H(\mathcal T_k)
+\]
+为最优或近似最优的参数同伦路径集合。严格最优版本为
+\[
+  \Sel_{\mathfrak S_k}(\mathcal H(\mathcal T_k))
+  =
+  \argmax_{H\in\mathcal H(\mathcal T_k)}
+  \mathfrak S_k(H).
+\]
+定义递归生成算子
+\[
+  \mathfrak F_k(\mathcal T_k)
+  =
+  \left\{
+  \Gamma_{H(1)}:
+  H\in
+  \Sel_{\mathfrak S_k}(\mathcal H(\mathcal T_k))
+  \right\}.
+\]
+\end{definition}
+
+\begin{definition}[广义分形式轨迹函数族]
+\label{def:tex57-generalized-fractal-family}
+由 \(\LHTS{}\) 零阶核启动，定义
+\[
+  \mathcal T_0=\supp\nu_0^\theta(t).
+\]
+递归定义
+\[
+  \boxed{
+  \mathcal T_{k+1}
+  =
+  \mathfrak F_k(\mathcal T_k)
+  =
+  \left\{
+  \Gamma_{H(1)}:
+  H\in
+  \Sel_{\mathfrak S_k}(\mathcal H(\mathcal T_k))
+  \right\}.
+  }
+\]
+递归链条为
+\[
+  \mathcal T_0
+  \to
+  \mathcal T_1
+  \to
+  \mathcal T_2
+  \to
+  \cdots
+  \to
+  \mathcal T_k.
+\]
+这称为轨迹函数空间中的广义分形式递归选择族。
+\end{definition}
+
+\begin{axiom}[公理（降级为定理）：递归轨迹函数族全定义]
+\label{ax:tex57-recursive-family-well-defined}
+若 \(\mathcal T_0\subseteq\mathfrak G_{T,L}\) 全定义，且对每个 \(k\) 都有
+\[
+  \mathfrak F_k:
+  \mathcal P(\mathfrak G_{T,L})
+  \to
+  \mathcal P(\mathfrak G_{T,L})
+\]
+全定义，则递归链
+\[
+  \mathcal T_{k+1}=\mathfrak F_k(\mathcal T_k)
+\]
+在所有有限阶 \(k\) 上全定义，并且
+\[
+  \mathcal T_k\subseteq\mathfrak G_{T,L}.
+\]
+\end{axiom}
+
+\begin{Certificate}[数学归纳法证书：递归族闭合]
+\label{cert:tex57-recursive-family-well-defined}
+定义谓词
+\[
+  P(k):\quad
+  \mathcal T_k\subseteq\mathfrak G_{T,L}
+  \text{ 且 }\mathcal T_k\text{ 全定义}.
+\]
+证书为
+\[
+  \pi_{\mathrm{rec}}
+  =
+  \left(
+  P(0),\
+  \forall k,\ P(k)\Rightarrow P(k+1)
+  \right),
+\]
+其中归纳步由
+\[
+  \mathcal T_{k+1}=\mathfrak F_k(\mathcal T_k),
+  \qquad
+  \mathfrak F_k:
+  \mathcal P(\mathfrak G_{T,L})
+  \to
+  \mathcal P(\mathfrak G_{T,L})
+\]
+给出。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+基步：由定义
+\[
+  \mathcal T_0=\supp\nu_0^\theta(t),
+\]
+且 \(\nu_0^\theta(t)\) 是 \(\Psi:\Theta\to\mathfrak G_{T,L}\) 的推前测度，故
+\[
+  \mathcal T_0\subseteq\mathfrak G_{T,L}.
+\]
+所以 \(P(0)\) 成立。
+
+归纳步：假设 \(P(k)\) 成立，即
+\[
+  \mathcal T_k\subseteq\mathfrak G_{T,L}.
+\]
+由假设
+\[
+  \mathfrak F_k:
+  \mathcal P(\mathfrak G_{T,L})
+  \to
+  \mathcal P(\mathfrak G_{T,L})
+\]
+全定义，得到
+\[
+  \mathcal T_{k+1}
+  =
+  \mathfrak F_k(\mathcal T_k)
+  \subseteq
+  \mathfrak G_{T,L}.
+\]
+故 \(P(k+1)\) 成立。由数学归纳法，所有有限阶 \(\mathcal T_k\) 全定义并属于
+\(\mathfrak G_{T,L}\)。
+\end{proof}
+
+\begin{proposition}[递归参数同伦选择生成广义分形轨迹函数族]
+\label{prop:tex57-recursive-selection-fractal}
+由
+\[
+  \mathcal T_0=\supp\nu_0^\theta(t),
+  \qquad
+  \mathcal T_{k+1}=\mathfrak F_k(\mathcal T_k)
+\]
+定义的族 \(\{\mathcal T_k\}_{k\ge0}\)，是由同一结构模式
+\[
+  \text{分布律选择}
+  \to
+  \text{参数同伦}
+  \to
+  \text{轨迹函数生成}
+  \to
+  \text{选择泛函筛选}
+\]
+递归生成的轨迹函数族。因此它构成轨迹函数空间中的广义分形式递归选择结构。
+\end{proposition}
+
+\begin{Certificate}[证书：递归生成算子分解]
+\label{cert:tex57-recursive-selection-fractal}
+证书为
+\[
+\boxed{
+\mathcal T_{k+1}
+=
+\mathfrak F_k(\mathcal T_k),
+\qquad
+\mathfrak F_k
+=
+\Sel_{\mathfrak S_k}
+\circ
+\Hom_{\Theta}
+\circ
+\Law_{\LHTS}.
+}
+\]
+这里 \(\Law_{\LHTS}\) 表示 \(\LHTS{}\) 分布律更新，\(\Hom_\Theta\) 表示参数同伦生成，
+\(\Sel_{\mathfrak S_k}\) 表示选择泛函筛选。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+第 \(0\) 阶由 \(\LHTS{}\) 零阶分布律给出：
+\[
+  \LHTS{}
+  \Longrightarrow
+  \mu_0
+  \Longrightarrow
+  \nu_0^\theta
+  \Longrightarrow
+  \mathcal T_0.
+\]
+假设第 \(k\) 阶轨迹函数族 \(\mathcal T_k\) 已构造。对任意
+\[
+  \Gamma_\theta\in\mathcal T_k,
+\]
+构造以 \(\theta\) 为起点的参数同伦族
+\[
+  \mathcal H(\theta)
+  =
+  \{H:[0,1]\to\Theta:H(0)=\theta\}.
+\]
+对每条 \(H\in\mathcal H(\theta)\)，选择泛函给出评分
+\[
+  \mathfrak S_k(H)
+  =
+  \Delta\mathcal C_{T,L}(H)
+  -
+  \Cost(H)
+  -
+  \JacGap(H).
+\]
+选择最优或近似最优路径
+\[
+  H_k^\star
+  \in
+  \Sel_{\mathfrak S_k}(\mathcal H(\mathcal T_k)).
+\]
+该路径终点生成下一阶轨迹函数
+\[
+  \Gamma_{H_k^\star(1)}.
+\]
+因此
+\[
+  \mathcal T_{k+1}
+  =
+  \{
+  \Gamma_{H(1)}:
+  H\in\Sel_{\mathfrak S_k}(\mathcal H(\mathcal T_k))
+  \}.
+\]
+每一阶均重复同一结构模式，故该族是轨迹函数空间中的广义分形式递归选择结构。
+命题得证。
+\end{proof}
+
+\subsection{同伦词张成空间与单调扩张}
+\label{subsec:tex57-span-monotonicity}
+
+\begin{definition}[参数同伦词与切向生成方向]
+\label{def:tex57-homotopy-word-direction}
+令
+\[
+  \mathcal W_0=\mathcal A_0
+\]
+为零阶 \(\LHTS{}\) 原子动作词集合。递归定义
+\[
+  \mathcal W_{k+1}
+  =
+  \mathcal W_k
+  \cup
+  \{wa:w\in\mathcal W_k,\ a\in\mathcal A_0\}.
+\]
+因此 \(\mathcal W_k\) 包含长度不超过 \(k+1\) 的参数同伦词。
+每个词 \(w\in\mathcal W_k\) 对应一条局部参数同伦曲线
+\[
+  H_w(s;\theta),
+  \qquad
+  H_w(0;\theta)=\theta.
+\]
+定义其切向生成方向为
+\[
+  v_w(\theta)
+  =
+  \frac{d}{ds}\bigg|_{s=0}
+  H_w(s;\theta)
+  \in T_\theta\Theta.
+\]
+\end{definition}
+
+\begin{definition}[第 \(k\) 阶轨迹函数切向张成空间]
+\label{def:tex57-span-space}
+定义第 \(k\) 阶可实现切向张成空间为
+\[
+  \boxed{
+  \mathcal V_k(\theta)
+  =
+  \Span
+  \{v_w(\theta):w\in\mathcal W_k\}
+  \subseteq
+  T_\theta\Theta.
+  }
+\]
+它记录由零阶 \(\LHTS{}\) 动作经过 \(k\) 层递归参数同伦组合后，可在参数空间中张成的
+一阶方向集合。
+\end{definition}
+
+\begin{lemma}[参数同伦阶数增加使张成空间单调扩张]
+\label{lem:tex57-span-monotone}
+对任意 \(\theta\in\Theta\)，有
+\[
+  \boxed{
+  \mathcal V_0(\theta)
+  \subseteq
+  \mathcal V_1(\theta)
+  \subseteq
+  \mathcal V_2(\theta)
+  \subseteq
+  \cdots.
+  }
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：词集合包含推出张成空间包含]
+\label{cert:tex57-span-monotone}
+证书链为
+\[
+  \mathcal W_k\subseteq\mathcal W_{k+1}
+  \Longrightarrow
+  \{v_w(\theta):w\in\mathcal W_k\}
+  \subseteq
+  \{v_w(\theta):w\in\mathcal W_{k+1}\}
+  \Longrightarrow
+  \mathcal V_k(\theta)\subseteq\mathcal V_{k+1}(\theta).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由递归定义，
+\[
+  \mathcal W_{k+1}
+  =
+  \mathcal W_k
+  \cup
+  \{wa:w\in\mathcal W_k,\ a\in\mathcal A_0\}.
+\]
+因此
+\[
+  \mathcal W_k\subseteq\mathcal W_{k+1}.
+\]
+于是方向集合满足
+\[
+  \{v_w(\theta):w\in\mathcal W_k\}
+  \subseteq
+  \{v_w(\theta):w\in\mathcal W_{k+1}\}.
+\]
+对两边取线性张成，得到
+\[
+  \Span\{v_w(\theta):w\in\mathcal W_k\}
+  \subseteq
+  \Span\{v_w(\theta):w\in\mathcal W_{k+1}\}.
+\]
+即
+\[
+  \mathcal V_k(\theta)\subseteq\mathcal V_{k+1}(\theta).
+\]
+引理得证。
+\end{proof}
+
+\subsection{JacGap 梯度覆盖与退化为梯度下降}
+\label{subsec:tex57-jacgap-gradient-cover}
+
+\begin{definition}[JacGap 势函数与覆盖误差]
+\label{def:tex57-jacgap-cover-error}
+定义参数层 JacGap 势函数
+\[
+  \Phi(\theta)
+  \DefEq
+  \JacGap(\Gamma_\theta).
+\]
+设 \(\Theta\) 上有内积，从而可定义梯度
+\[
+  \nabla_\theta\Phi(\theta).
+\]
+令
+\[
+  P_{\mathcal V_k(\theta)}
+\]
+为到 \(\mathcal V_k(\theta)\) 的正交投影。若
+\(\nabla_\theta\Phi(\theta)\neq0\)，定义覆盖误差
+\[
+  \epsilon_k(\theta)
+  =
+  \frac{
+  \left\|
+  (I-P_{\mathcal V_k(\theta)})
+  \nabla_\theta\Phi(\theta)
+  \right\|
+  }{
+  \|\nabla_\theta\Phi(\theta)\|
+  }.
+\]
+若 \(\nabla_\theta\Phi(\theta)=0\)，定义 \(\epsilon_k(\theta)=0\)。
+\end{definition}
+
+\begin{theorem}[覆盖误差控制可执行 JacGap 下降方向]
+\label{thm:tex57-jacgap-cover-descent}
+若
+\[
+  \nabla_\theta\Phi(\theta)\neq0,
+  \qquad
+  \epsilon_k(\theta)\le\varepsilon,
+  \qquad
+  0\le\varepsilon<1,
+\]
+则投影方向
+\[
+  d_k(\theta)
+  =
+  -P_{\mathcal V_k(\theta)}
+  \nabla_\theta\Phi(\theta)
+  \in
+  \mathcal V_k(\theta)
+\]
+是 JacGap 的严格下降方向，并满足
+\[
+  D\Phi(\theta)[d_k(\theta)]
+  \le
+  -(1-\varepsilon^2)
+  \|\nabla_\theta\Phi(\theta)\|^2.
+\]
+若
+\[
+  \epsilon_k(\theta)=0,
+\]
+则
+\[
+  -\nabla_\theta\Phi(\theta)\in\mathcal V_k(\theta),
+\]
+即第 \(k\) 阶轨迹函数张成空间完全覆盖 JacGap 梯度下降方向。
+\end{theorem}
+
+\begin{Certificate}[证书：正交投影分解与下降不等式]
+\label{cert:tex57-jacgap-cover-descent}
+证书为
+\[
+  \nabla\Phi
+  =
+  P_{\mathcal V_k}\nabla\Phi
+  +
+  (I-P_{\mathcal V_k})\nabla\Phi,
+\]
+\[
+  \|(I-P_{\mathcal V_k})\nabla\Phi\|
+  \le
+  \varepsilon\|\nabla\Phi\|,
+\]
+以及
+\[
+  D\Phi[-P_{\mathcal V_k}\nabla\Phi]
+  =
+  -\|P_{\mathcal V_k}\nabla\Phi\|^2.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由正交投影分解，
+\[
+  \nabla_\theta\Phi
+  =
+  P_{\mathcal V_k}\nabla_\theta\Phi
+  +
+  (I-P_{\mathcal V_k})\nabla_\theta\Phi,
+\]
+且两项正交。因此
+\[
+  \|\nabla_\theta\Phi\|^2
+  =
+  \|P_{\mathcal V_k}\nabla_\theta\Phi\|^2
+  +
+  \|(I-P_{\mathcal V_k})\nabla_\theta\Phi\|^2.
+\]
+由覆盖误差假设，
+\[
+  \|(I-P_{\mathcal V_k})\nabla_\theta\Phi\|^2
+  \le
+  \varepsilon^2\|\nabla_\theta\Phi\|^2.
+\]
+故
+\[
+  \|P_{\mathcal V_k}\nabla_\theta\Phi\|^2
+  \ge
+  (1-\varepsilon^2)\|\nabla_\theta\Phi\|^2.
+\]
+令
+\[
+  d_k=-P_{\mathcal V_k}\nabla_\theta\Phi.
+\]
+由于 \(P_{\mathcal V_k}\nabla_\theta\Phi\in\mathcal V_k\)，所以
+\[
+  d_k\in\mathcal V_k.
+\]
+方向导数为
+\[
+  D\Phi(\theta)[d_k]
+  =
+  \langle\nabla_\theta\Phi,d_k\rangle
+  =
+  -\langle\nabla_\theta\Phi,P_{\mathcal V_k}\nabla_\theta\Phi\rangle.
+\]
+利用正交投影性质，
+\[
+  \langle\nabla_\theta\Phi,P_{\mathcal V_k}\nabla_\theta\Phi\rangle
+  =
+  \|P_{\mathcal V_k}\nabla_\theta\Phi\|^2.
+\]
+因此
+\[
+  D\Phi(\theta)[d_k]
+  =
+  -\|P_{\mathcal V_k}\nabla_\theta\Phi\|^2
+  \le
+  -(1-\varepsilon^2)\|\nabla_\theta\Phi\|^2<0.
+\]
+所以 \(d_k\) 是严格下降方向。
+
+若 \(\epsilon_k(\theta)=0\)，则
+\[
+  (I-P_{\mathcal V_k})\nabla_\theta\Phi=0.
+\]
+故
+\[
+  \nabla_\theta\Phi=P_{\mathcal V_k}\nabla_\theta\Phi\in\mathcal V_k,
+\]
+从而
+\[
+  -\nabla_\theta\Phi\in\mathcal V_k.
+\]
+定理得证。
+\end{proof}
+
+\begin{proposition}[完全覆盖时分形选择可退化为 JacGap 梯度下降]
+\label{prop:tex57-fractal-selection-gradient-descent}
+若在 \(\theta\) 处存在有限阶 \(k\) 使
+\[
+  \epsilon_k(\theta)=0,
+\]
+并且第 \(k\) 阶选择算子允许选择任意
+\[
+  d\in\mathcal V_k(\theta)
+\]
+诱导的小步参数同伦
+\[
+  H_{\eta,d}(s)=\theta+s\eta d,
+  \qquad
+  0\le s\le1,
+\]
+则 \(\LHTS{}\) 启动的广义分形式选择机制可以执行 JacGap 梯度下降步
+\[
+  \theta^+
+  =
+  \theta-\eta\nabla_\theta\Phi(\theta)
+\]
+的同伦路径版本。
+\end{proposition}
+
+\begin{Certificate}[证书：完全覆盖到可执行梯度步]
+\label{cert:tex57-fractal-selection-gradient-descent}
+证书链为
+\[
+  \epsilon_k(\theta)=0
+  \Longrightarrow
+  -\nabla_\theta\Phi(\theta)\in\mathcal V_k(\theta)
+  \Longrightarrow
+  \exists H_{\eta,d},\ d=-\nabla_\theta\Phi(\theta)
+  \Longrightarrow
+  H_{\eta,d}(1)=\theta-\eta\nabla_\theta\Phi(\theta).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex57-jacgap-cover-descent} 的完全覆盖结论，
+\[
+  \epsilon_k(\theta)=0
+  \Longrightarrow
+  -\nabla_\theta\Phi(\theta)\in\mathcal V_k(\theta).
+\]
+令
+\[
+  d=-\nabla_\theta\Phi(\theta).
+\]
+由选择算子的可执行性假设，存在小步参数同伦
+\[
+  H_{\eta,d}(s)=\theta+s\eta d.
+\]
+代入 \(d\)，得到终点
+\[
+  H_{\eta,d}(1)
+  =
+  \theta+\eta d
+  =
+  \theta-\eta\nabla_\theta\Phi(\theta).
+\]
+这正是 JacGap 梯度下降步。命题得证。
+\end{proof}
+
+\begin{corollary}[主命题：LHTS 分形选择覆盖 JacGap 梯度下降]
+\label{cor:tex57-main-compressed-proposition}
+以 \(\LHTS{}\) 为零阶分布律核，递归构造参数同伦轨迹函数族
+\[
+  \mathcal T_0,\mathcal T_1,\ldots,\mathcal T_k,
+\]
+并令其切向张成空间为 \(\mathcal V_k(\theta)\)。则：
+\[
+\boxed{
+\begin{gathered}
+\text{随着参数同伦阶数 }k\text{ 增大，}
+\mathcal V_k(\theta)\text{ 单调扩张；}\\
+\text{若 }
+\dist(-\nabla_\theta\Phi(\theta),\mathcal V_k(\theta))
+\le
+\varepsilon\|\nabla_\theta\Phi(\theta)\|,
+\text{ 则可执行投影 JacGap 下降；}\\
+\text{若 }\varepsilon=0,
+\text{ 则 }
+-\nabla_\theta\Phi(\theta)\in\mathcal V_k(\theta),
+\text{ 并退化为可执行 JacGap 梯度下降。}
+\end{gathered}
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：零阶核、递归族、单调张成与覆盖]
+\label{cert:tex57-main-compressed-proposition}
+证书为
+\[
+\begin{aligned}
+&\LHTS{}\Rightarrow\mu_0\Rightarrow\mathcal T_0
+\Rightarrow
+\mathcal T_1
+\Rightarrow\cdots\Rightarrow\mathcal T_k,\\
+&\mathcal W_k\subseteq\mathcal W_{k+1}
+\Rightarrow
+\mathcal V_k\subseteq\mathcal V_{k+1},\\
+&\epsilon_k(\theta)\le\varepsilon
+\Rightarrow
+D\Phi[-P_{\mathcal V_k}\nabla\Phi]
+\le
+-(1-\varepsilon^2)\|\nabla\Phi\|^2,\\
+&\epsilon_k(\theta)=0
+\Rightarrow
+-\nabla\Phi\in\mathcal V_k.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+第一，由定理~\ref{thm:tex57-lhts-zero-kernel}，
+\[
+  \LHTS{}\Rightarrow\mu_0\Rightarrow\mathcal T_0.
+\]
+第二，由公理~\ref{ax:tex57-recursive-family-well-defined} 的降级定理，
+\[
+  \mathcal T_{k+1}=\mathfrak F_k(\mathcal T_k)
+\]
+在所有有限阶全定义。第三，由引理~\ref{lem:tex57-span-monotone}，
+\[
+  \mathcal V_k(\theta)\subseteq\mathcal V_{k+1}(\theta),
+\]
+故可实现切向张成空间随阶数单调扩张。第四，由定理
+\ref{thm:tex57-jacgap-cover-descent}，当覆盖误差不超过 \(\varepsilon<1\) 时，
+投影负梯度是严格 JacGap 下降方向；当 \(\varepsilon=0\) 时，完整负梯度属于
+\(\mathcal V_k(\theta)\)。第五，由命题
+\ref{prop:tex57-fractal-selection-gradient-descent}，完全覆盖时该方向可由第 \(k\)
+阶参数同伦选择机制执行。推论得证。
+\end{proof}
+
+\begin{remark}[最终口径]
+本章最终表述为
+\[
+\boxed{
+\begin{gathered}
+\LHTS{}
+\text{ 从“评分--跳跃--接受”算法，}\\
+\text{提升为由零阶分布律启动的轨迹函数参数同伦分形生成、选择与覆盖框架。}
+\end{gathered}
+}
+\]
+原始 \(\LHTS{}\) 选择格点方向；提升后的机制选择轨迹函数参数同伦；递归提升后，
+它选择轨迹函数参数同伦族；当这些族的切向张成空间覆盖 JacGap 梯度下降方向时，
+该分形选择机制就成为可执行的 JacGap 梯度下降覆盖机制。
+\end{remark}
+
+\section{形式逻辑：TPH-LHTS 轨迹函数参数同伦控制的确定性收敛闭环}
+\label{sec:tph-lhts-deterministic-loop}
+
+\begin{remark}[核心正规型]
+承接 LHTS 的格点同伦扭曲评分机制与 PDE--JacGap 命中范式
+\cite{RepoTex56LHTS,RepoTex55PDEParadigm}，
+轨迹函数参数同伦选择机制不再停留在一次格点跳跃层面，而形成
+\[
+\boxed{
+\TPHLHTS
+\DefEq
+\text{轨迹函数参数同伦选择控制的 LHTS 确定性收敛闭环}.
+}
+\]
+其中
+\[
+\boxed{
+\TPH
+\DefEq
+\text{Trajectory-Parameter Homotopy},
+\qquad
+\text{轨迹函数参数同伦函数}.
+}
+\]
+其谓词因果链为
+\[
+\boxed{
+D_t^{\LHTS}
+\xRightarrow{\TPH}
+\{\Gamma_t^{(r)}\}_{r\in R_t}
+\xRightarrow{\JacGap\text{ 下降评分}}
+\Gamma_t^\star
+\xRightarrow{\Update}
+D_{t+1}^{\LHTS}
+\xRightarrow{\mathrm{rec}}
+\text{确定性收敛控制}.
+}
+\]
+这里 \(D_t^{\LHTS}\) 是当前 LHTS 数据状态，
+\(\Gamma_t^{(r)}\) 是第 \(r\) 个候选随机过程的轨迹函数表达，
+\(\Gamma_t^\star\) 是由选择泛函选出的 JacGap 势函数下降最快的轨迹函数。
+因此本节的逻辑对象不是单条随机样本路径，而是
+\[
+\boxed{
+\begin{gathered}
+\text{随机过程候选}
++\text{轨迹函数表达}
++\text{JacGap 下降选择}
+\\
++\text{LHTS 回填更新}
++\text{递归确定性收敛控制}.
+\end{gathered}
+}
+\]
+\end{remark}
+
+\subsection{LHTS 数据对象与 JacGap 势函数}
+\label{subsec:lhts-data-potential}
+
+\begin{definition}[LHTS 数据对象]
+令第 \(t\) 步的 LHTS 数据对象为
+\[
+\boxed{
+D_t
+\DefEq
+\left(
+z_t,\mathbf G_t,\mathbf J_t^\partial,\mathbf S_t,q_t,
+\mathcal H_t,\mathcal C_t
+\right)
+\in \mathcal D.
+}
+\]
+其中 \(z_t\) 是当前工程状态；
+\(\mathbf G_t=\mathbf G(z_t)\in\RR_{\ge0}^{D}\) 是 \(D\) 维残差向量；
+\(\mathbf J_t^\partial=\mathbf J_D^\partial(z_t;\alpha)\in\RR^{D\times n}\)
+是分量化 JacGap 矩阵；
+\(\mathbf S_t\in\RR^{D\times n}\) 是持久化分值张量；
+\(q_t\in\RR_{\ge0}^{D}\) 是残差压力向量；
+\(\mathcal H_t=\{H_{i,\alpha}\}\) 是格点同伦扭曲算子族；
+\(\mathcal C_t\) 是运行证书、日志证书、统计证书与工程全局证书的合取。
+\end{definition}
+
+\begin{definition}[JacGap 势函数]
+定义当前 JacGap 势函数为
+\[
+\boxed{
+\Phi(D_t)
+\DefEq
+\frac12\|\mathbf G_t\|_{q_t}^{2}
+\DefEq
+\frac12\sum_{d=1}^{D}q_{t,d}G_{t,d}^{2}.
+}
+\]
+目标是在闭环递归中构造
+\[
+D_t\longmapsto D_{t+1}
+\]
+使得 \(\Phi(D_{t+1})\le \Phi(D_t)\)，并在覆盖条件成立时得到
+\(\JacGap(D_t)\to0\) 或等价的驻点收敛结论。
+\end{definition}
+
+\begin{proposition}[LHTS 数据到轨迹函数层的谓词提升]
+若 \(D_t\in\mathcal D\) 给出格点同伦扭曲算子族 \(\mathcal H_t\)，且
+\(\Psi_t:\Theta_t\to\mathfrak G_t\) 是当前轨迹函数参数化映射，则
+\[
+D_t
+\Longrightarrow
+(\Theta_t,\mathcal H_t,\Psi_t)
+\Longrightarrow
+\{\Gamma_t^{(r)}\}_{r\in R_t}
+\Longrightarrow
+\{\mathfrak X_{\Gamma_t^{(r)}}\}_{r\in R_t}.
+\]
+因此 LHTS 的选择对象从格点参数提升为随机过程分布律的轨迹函数表达。
+\end{proposition}
+
+\begin{Certificate}[谓词因果链证书]
+\[
+\boxed{
+D_t
+\Rightarrow
+\mathcal H_t
+\Rightarrow
+H_r
+\Rightarrow
+\theta_t^{(r)}
+\Rightarrow
+\Gamma_t^{(r)}
+\Rightarrow
+\lambda_{t,s}^{(r)}
+\Rightarrow
+X_{t,s}^{(r)}
+\Rightarrow
+\Phi\text{ 下降试验}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由定义，\(D_t\) 的分量 \(\mathcal H_t\) 给出可执行的格点同伦扭曲算子。
+任取可行同伦词 \(r\in R_t\)，由算子复合得到 \(H_r\)。
+若当前轨迹参数为 \(\theta_t\)，则
+\[
+\theta_t^{(r)}=H_r(\theta_t).
+\]
+由参数化映射 \(\Psi_t\) 得
+\[
+\Gamma_t^{(r)}=\Psi_t(\theta_t^{(r)}).
+\]
+每个 \(\Gamma_t^{(r)}\) 再诱导条件分布律轨迹与随机变量簇。
+所以 \(D_t\) 确定候选轨迹函数族，而候选轨迹函数族确定可比较的
+JacGap 下降试验对象。命题得证。
+\end{proof}
+
+\subsection{TPH 函数与多随机过程格点枚举}
+\label{subsec:tph-enumeration}
+
+\begin{definition}[轨迹函数参数同伦函数]
+定义轨迹函数参数同伦函数为
+\[
+\boxed{
+\TPH:
+D_t
+\longmapsto
+\left(
+\Theta_t,\ R_t,\ \{\Gamma_t^{(r)}\}_{r\in R_t}
+\right).
+}
+\]
+其中 \(\Theta_t\) 是当前轨迹函数参数空间，
+\(R_t\) 是当前可枚举或可截断枚举的多随机过程格点索引集合，
+\(\Gamma_t^{(r)}\) 是第 \(r\) 个候选随机过程的轨迹函数表达。
+\end{definition}
+
+\begin{definition}[候选随机过程的轨迹函数表达]
+每个候选随机过程写作
+\[
+\mathfrak X_{\Gamma_t^{(r)}}
+\DefEq
+\{X_{t,s}^{(r)}\}_{s=1}^{T_r},
+\]
+并满足
+\[
+X_{t,s}^{(r)}
+\mid
+\Fil_{t,s-1}
+\sim
+\pi_{\lambda_{t,s}^{(r)}},
+\qquad
+\lambda_{t,s}^{(r)}
+\DefEq
+\Gamma_{t,s}^{(r)}(\Fil_{t,s-1}).
+\]
+因此
+\[
+\boxed{
+\Gamma_t^{(r)}
+\Longrightarrow
+\text{分布律轨迹}
+\Longrightarrow
+\text{随机变量簇}
+\Longrightarrow
+\text{JacGap 下降试验}
+\Longrightarrow
+\text{选择评分}.
+}
+\]
+\end{definition}
+
+\begin{definition}[多随机过程格点枚举]
+第 \(t\) 步的多随机过程格点枚举为
+\[
+\boxed{
+\mathcal E_t
+\DefEq
+\{\Gamma_t^{(r)}:r\in R_t\}.
+}
+\]
+索引 \(r\) 可以是组合词
+\[
+r=(i_1,\alpha_1,K_1;\ldots;i_m,\alpha_m,K_m),
+\]
+对应参数同伦复合
+\[
+H_r
+\DefEq
+H_{i_m,K_m\alpha_m}
+\circ\cdots\circ
+H_{i_1,K_1\alpha_1}.
+\]
+于是
+\[
+\theta_t^{(r)}=H_r(\theta_t),
+\qquad
+\Gamma_t^{(r)}=\Psi_t(\theta_t^{(r)}).
+\]
+这说明枚举对象不是单点样本，而是
+\[
+\boxed{
+\text{参数同伦词}
+\Longrightarrow
+\text{轨迹函数}
+\Longrightarrow
+\text{随机过程分布律}.
+}
+\]
+\end{definition}
+
+\begin{lemma}[枚举保持样本随机性并提升决策确定性]
+在给定 \(D_t\)、确定性枚举规则与确定性参数化映射 \(\Psi_t\) 后，
+\(\mathcal E_t\) 是确定的轨迹函数集合；但对每个
+\(\Gamma_t^{(r)}\)，其样本路径
+\(\{X_{t,s}^{(r)}\}_{s=1}^{T_r}\) 仍是由
+\(\pi_{\lambda_{t,s}^{(r)}}\) 控制的随机对象。
+\end{lemma}
+
+\begin{Certificate}[谓词分层证书]
+\[
+\boxed{
+\underbrace{D_t\Rightarrow R_t\Rightarrow\mathcal E_t}_{\text{确定性枚举层}}
+\qquad
+\text{且}
+\qquad
+\underbrace{\Gamma_t^{(r)}\Rightarrow
+X_{t,s}^{(r)}\sim\pi_{\lambda_{t,s}^{(r)}}}_{\text{随机样本层}}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+确定性枚举规则把 \(D_t\) 映射到 \(R_t\)，并由 \(R_t\) 和 \(\Psi_t\)
+映射到 \(\mathcal E_t\)。这些映射均不依赖样本实现，因此
+\(\mathcal E_t\) 确定。另一方面，\(\Gamma_t^{(r)}\) 只给出
+条件分布律参数 \(\lambda_{t,s}^{(r)}\)，而
+\[
+X_{t,s}^{(r)}\mid\Fil_{t,s-1}\sim\pi_{\lambda_{t,s}^{(r)}}
+\]
+仍由概率核抽样产生。故随机性保留在样本路径层，确定性提升到候选
+轨迹函数与选择规则层。引理得证。
+\end{proof}
+
+\subsection{JacGap 最快下降选择泛函与闭环更新}
+\label{subsec:jacgap-fastest-selection}
+
+\begin{definition}[Rollout 预测与 JacGap 下降量]
+候选轨迹函数执行后的预测或经验更新状态定义为
+\[
+\widehat D_{t+1}^{(r)}
+\DefEq
+\Rollout(D_t,\Gamma_t^{(r)}).
+\]
+对应预测势函数记作
+\[
+\widehat\Phi_{t+1}^{(r)}
+\DefEq
+\widehat\Phi(\widehat D_{t+1}^{(r)}),
+\]
+JacGap 预测下降量为
+\[
+\Delta_t^{(r)}
+\DefEq
+\Phi(D_t)-\widehat\Phi_{t+1}^{(r)}.
+\]
+\end{definition}
+
+\begin{definition}[单位成本下降率与完整选择泛函]
+令 \(\varepsilon_c>0\) 防止零成本除法，定义单位成本下降率
+\[
+\rho_t^{(r)}
+\DefEq
+\frac{\Delta_t^{(r)}}{\Cost(\Gamma_t^{(r)})+\varepsilon_c}.
+\]
+定义完整选择泛函
+\[
+\boxed{
+\mathfrak S_t(r)
+\DefEq
+\rho_t^{(r)}
+-\lambda_{\mathrm v}\Var_t(r)
+-\lambda_{\mathrm l}\Leak_t(r)
+-\lambda_{\mathrm r}\Repeat_t(r).
+}
+\]
+其中 \(\Var_t(r)\) 惩罚样本方差，
+\(\Leak_t(r)\) 惩罚对已用方向空间的泄漏，
+\(\Repeat_t(r)\) 惩罚前序轨迹方向重复。
+\end{definition}
+
+\begin{definition}[JacGap 最快下降选择规则]
+选择规则为
+\[
+\boxed{
+r_t^\star
+\DefEq
+\argmax_{r\in R_t}\mathfrak S_t(r),
+\qquad
+\Gamma_t^\star
+\DefEq
+\Gamma_t^{(r_t^\star)}.
+}
+\]
+在存在并列最大元时，使用预先固定的字典序或证书序消解规则，
+使 \(r_t^\star\) 成为确定性对象。
+\end{definition}
+
+\begin{definition}[TPH-LHTS 闭环算子]
+定义闭环算子
+\[
+\boxed{
+\mathcal R
+\DefEq
+\Update_{\LHTS}
+\circ
+\Sel_{\JacGap}
+\circ
+\Enum_{\mathsf{multi\mbox{-}proc}}
+\circ
+\TPH.
+}
+\]
+于是
+\[
+\boxed{
+D_{t+1}=\mathcal R(D_t)
+=
+\Update_{\LHTS}\!\left(D_t,\Gamma_t^{(r_t^\star)}\right).
+}
+\]
+展开后的递归链条为
+\[
+\boxed{
+D_t
+\Longrightarrow
+\TPH(D_t)
+\Longrightarrow
+\mathcal E_t
+\Longrightarrow
+\Gamma_t^\star
+\Longrightarrow
+D_{t+1}.
+}
+\]
+\end{definition}
+
+\subsection{公理降级：闭环递归全定义定理}
+\label{subsec:axiom-downgrade-recursion}
+
+\begin{theorem}[公理降级：有限候选闭环递归全定义定理]
+设初始数据 \(D_0\in\mathcal D\)。若对每个 \(t\in\NN\) 满足：
+\[
+\begin{aligned}
+&\mathrm{A1}(t):\quad
+\TPH(D_t)\text{ 给出非空有限候选集合 }R_t,\\
+&\mathrm{A2}(t):\quad
+\mathfrak S_t:R_t\to\RR\text{ 全定义},\\
+&\mathrm{A3}(t):\quad
+\argmax_{r\in R_t}\mathfrak S_t(r)\text{ 具有确定性并列消解规则},\\
+&\mathrm{A4}(t):\quad
+\Update_{\LHTS}(D_t,\Gamma_t^{(r_t^\star)})\in\mathcal D,
+\end{aligned}
+\]
+则递归
+\[
+D_{t+1}
+\DefEq
+\Update_{\LHTS}(D_t,\Gamma_t^{(r_t^\star)})
+\]
+对所有 \(t\in\NN\) 全定义。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书]
+定义谓词
+\[
+\mathcal P(t):
+\quad
+D_t\in\mathcal D
+\ \text{且}\
+D_0\mapsto D_1\mapsto\cdots\mapsto D_t
+\text{ 全定义}.
+\]
+证书链为
+\[
+\boxed{
+\mathcal P(t)
+\Rightarrow
+\TPH(D_t)
+\Rightarrow
+R_t
+\Rightarrow
+r_t^\star
+\Rightarrow
+\Gamma_t^\star
+\Rightarrow
+D_{t+1}\in\mathcal D
+\Rightarrow
+\mathcal P(t+1).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+基步：由 \(D_0\in\mathcal D\)，\(\mathcal P(0)\) 成立。
+
+归纳步：假设 \(\mathcal P(t)\) 成立，则 \(D_t\in\mathcal D\)。
+由 \(\mathrm{A1}(t)\)，\(\TPH(D_t)\) 给出非空有限 \(R_t\)。
+由 \(\mathrm{A2}(t)\)，\(\mathfrak S_t\) 在 \(R_t\) 上全定义。
+由于有限集合上的实值函数存在最大元，再由
+\(\mathrm{A3}(t)\) 的并列消解规则，得到唯一确定的
+\[
+r_t^\star=\argmax_{r\in R_t}\mathfrak S_t(r).
+\]
+由定义 \(\Gamma_t^\star=\Gamma_t^{(r_t^\star)}\)。
+由 \(\mathrm{A4}(t)\)，
+\[
+D_{t+1}=\Update_{\LHTS}(D_t,\Gamma_t^\star)\in\mathcal D.
+\]
+故 \(\mathcal P(t+1)\) 成立。由数学归纳法，递归对所有
+\(t\in\NN\) 全定义。定理得证。
+\end{proof}
+
+\subsection{引理：预测下降裕度推出真实 JacGap 非增}
+\label{subsec:prediction-margin-lemma}
+
+\begin{lemma}[预测误差有界下的真实下降]
+令真实更新为
+\[
+D_{t+1}^{(r)}
+\DefEq
+\Update_{\LHTS}(D_t,\Gamma_t^{(r)}),
+\]
+并定义预测误差
+\[
+e_t(r)
+\DefEq
+\left|
+\Phi(D_{t+1}^{(r)})
+-
+\widehat\Phi(\widehat D_{t+1}^{(r)})
+\right|.
+\]
+若被选轨迹函数满足预测下降裕度
+\[
+\Delta_t^{(r_t^\star)}
+\ge
+e_t(r_t^\star)+m_t,
+\qquad
+m_t\ge0,
+\]
+则
+\[
+\boxed{
+\Phi(D_{t+1})\le \Phi(D_t)-m_t.
+}
+\]
+特别地，当 \(m_t=0\) 时，\(\Phi(D_{t+1})\le\Phi(D_t)\)。
+\end{lemma}
+
+\begin{Certificate}[谓词因果链证书]
+\[
+\boxed{
+\Delta_t^{(r_t^\star)}
+\ge e_t(r_t^\star)+m_t
+\Rightarrow
+\widehat\Phi_{t+1}^{(r_t^\star)}
+\le
+\Phi(D_t)-e_t(r_t^\star)-m_t
+\Rightarrow
+\Phi(D_{t+1})\le\Phi(D_t)-m_t.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 \(\Delta_t^{(r)}=\Phi(D_t)-\widehat\Phi_{t+1}^{(r)}\) 与假设得
+\[
+\widehat\Phi_{t+1}^{(r_t^\star)}
+\le
+\Phi(D_t)-e_t(r_t^\star)-m_t.
+\]
+由预测误差定义，
+\[
+\Phi(D_{t+1})
+=
+\Phi(D_{t+1}^{(r_t^\star)})
+\le
+\widehat\Phi_{t+1}^{(r_t^\star)}
++
+e_t(r_t^\star).
+\]
+合并两式得到
+\[
+\Phi(D_{t+1})
+\le
+\Phi(D_t)-m_t.
+\]
+引理得证。
+\end{proof}
+
+\subsection{定理：TPH-LHTS 是 LHTS 的确定性收敛控制器}
+\label{subsec:tph-lhts-convergence-controller}
+
+\begin{theorem}[TPH-LHTS 确定性收敛控制定理]
+设 \(\TPHLHTS\) 闭环满足以下条件：
+\[
+\boxed{
+\begin{aligned}
+&\mathrm{C1}:\ R_t\text{ 有限或由确定性规则截断为有限非空集合};\\
+&\mathrm{C2}:\ \mathfrak S_t\text{ 具有确定性并列消解规则};\\
+&\mathrm{C3}:\ \widehat\Phi\text{ 对真实 }\Phi\text{ 的预测误差可控且趋于 }0;\\
+&\mathrm{C4}:\ \Gamma_t^\star\text{ 产生非正 JacGap 漂移};\\
+&\mathrm{C5}:\ \text{递归轨迹函数张成空间逐步覆盖 }-\nabla\Phi;\\
+&\mathrm{C6}:\ \Phi\ge0\text{，且在可行域上光滑或分段光滑}.
+\end{aligned}
+}
+\]
+则闭环
+\[
+D_{t+1}=\mathcal R(D_t)
+\]
+构成控制 LHTS 的确定性收敛机制：\(\{\Phi(D_t)\}\) 非增且收敛。
+若进一步满足 JacGap 势函数误差界
+\[
+\nabla\Phi(D)=0
+\Longrightarrow
+\JacGap(D)=0,
+\]
+并且在非驻点处覆盖条件持续给出可选下降方向，则
+\[
+\boxed{
+\JacGap(D_t)\to0.
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[确定性收敛证书]
+\[
+\boxed{
+\begin{gathered}
+D_t
+\Rightarrow
+\TPH(D_t)
+\Rightarrow
+\{\Gamma_t^{(r)}\}_{r\in R_t}
+\Rightarrow
+\{\widehat\Phi(\widehat D_{t+1}^{(r)})\}_{r\in R_t}
+\Rightarrow
+r_t^\star
+\\
+\Rightarrow
+\Gamma_t^\star
+\Rightarrow
+D_{t+1}
+\Rightarrow
+\Phi(D_{t+1})\le\Phi(D_t)
+\Rightarrow
+\Phi(D_t)\downarrow\Phi_\infty\ge0.
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 C1 与 C2，闭环选择
+\[
+r_t^\star=\argmax_{r\in R_t}\mathfrak S_t(r)
+\]
+是确定的。由定义，
+\[
+\Gamma_t^\star=\Gamma_t^{(r_t^\star)},
+\qquad
+D_{t+1}=\Update_{\LHTS}(D_t,\Gamma_t^\star).
+\]
+由 C4，
+\[
+\Phi(D_{t+1})\le\Phi(D_t).
+\]
+因此 \(\{\Phi(D_t)\}\) 是非增序列。由 C6，\(\Phi(D_t)\ge0\)，
+所以存在极限
+\[
+\Phi(D_t)\downarrow\Phi_\infty\ge0.
+\]
+
+再考虑非驻点情形。由 C5，递归轨迹函数张成空间
+\[
+\mathcal V_t
+\DefEq
+\Span\{\delta\Gamma_s^\star:0\le s\le t\}
+\]
+逐步覆盖 JacGap 梯度下降方向，即
+\[
+\dist\!\left(-\nabla\Phi(D_t),\mathcal V_t\right)\to0.
+\]
+若 \(\nabla\Phi(D_t)\ne0\)，则在充分覆盖后存在候选轨迹方向
+\(\delta\Gamma_t^{(r)}\) 满足
+\[
+D\Phi(D_t)[\delta\Gamma_t^{(r)}]<0.
+\]
+选择泛函最大化下降收益并惩罚方差、泄漏、重复与成本，因此被选方向不会劣于
+同一候选类中满足约束的下降方向。由 C3，经验预测误差不改变充分大的下降裕度；
+由前一引理，真实更新保持非增并在有裕度时严格下降。
+
+于是系统只能停在无法继续给出负方向导数的极限点上，即
+\[
+\nabla\Phi(D_\infty)=0.
+\]
+若再满足
+\[
+\nabla\Phi(D)=0\Longrightarrow\JacGap(D)=0,
+\]
+则
+\[
+\JacGap(D_t)\to0.
+\]
+定理得证。
+\end{proof}
+
+\subsection{定理：覆盖梯度方向时的投影梯度下降强版本}
+\label{subsec:projected-gradient-strong-version}
+
+\begin{theorem}[投影梯度下降下降量定理]
+设 \(\Phi\) 是 \(L\)-光滑函数，且第 \(t\) 步候选轨迹函数张成空间为
+\[
+\mathcal V_t\subseteq T_{D_t}\mathcal D.
+\]
+令 \(P_t=P_{\mathcal V_t}\) 为到 \(\mathcal V_t\) 的正交投影。
+若 \(\TPH\) 枚举能选择
+\[
+v_t=-P_t\nabla\Phi(D_t),
+\]
+并执行步长
+\[
+0<\alpha_t\le\frac1L,
+\qquad
+D_{t+1}=D_t+\alpha_t v_t,
+\]
+则
+\[
+\boxed{
+\Phi(D_{t+1})
+\le
+\Phi(D_t)
+-
+\frac{\alpha_t}{2}
+\|P_t\nabla\Phi(D_t)\|^2.
+}
+\]
+若进一步存在 \(\varepsilon_t\in[0,1)\) 使
+\[
+\|P_t\nabla\Phi(D_t)\|
+\ge
+(1-\varepsilon_t)\|\nabla\Phi(D_t)\|,
+\]
+则
+\[
+\boxed{
+\Phi(D_{t+1})
+\le
+\Phi(D_t)
+-
+\frac{\alpha_t}{2}
+(1-\varepsilon_t)^2
+\|\nabla\Phi(D_t)\|^2.
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[光滑下降证书]
+\[
+\boxed{
+L\text{-smooth}
+\Rightarrow
+\Phi(D_t+\alpha_t v_t)
+\le
+\Phi(D_t)
+\alpha_t\langle\nabla\Phi(D_t),v_t\rangle
+\frac L2\alpha_t^2\|v_t\|^2
+\Rightarrow
+\text{投影下降量}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 \(L\)-光滑下降引理 \cite{NocedalWright2006Optimization}，
+\[
+\Phi(D_{t+1})
+\le
+\Phi(D_t)
++
+\alpha_t
+\langle
+\nabla\Phi(D_t),v_t
+\rangle
++
+\frac L2\alpha_t^2\|v_t\|^2.
+\]
+代入 \(v_t=-P_t\nabla\Phi(D_t)\)。由于 \(P_t\) 为正交投影，
+\[
+\langle\nabla\Phi(D_t),v_t\rangle
+=
+-\|P_t\nabla\Phi(D_t)\|^2,
+\qquad
+\|v_t\|^2=\|P_t\nabla\Phi(D_t)\|^2.
+\]
+因此
+\[
+\Phi(D_{t+1})
+\le
+\Phi(D_t)
+-
+\alpha_t
+\left(
+1-\frac{L\alpha_t}{2}
+\right)
+\|P_t\nabla\Phi(D_t)\|^2.
+\]
+当 \(0<\alpha_t\le1/L\) 时，
+\[
+1-\frac{L\alpha_t}{2}\ge\frac12,
+\]
+故
+\[
+\Phi(D_{t+1})
+\le
+\Phi(D_t)
+-
+\frac{\alpha_t}{2}
+\|P_t\nabla\Phi(D_t)\|^2.
+\]
+若覆盖条件
+\[
+\|P_t\nabla\Phi(D_t)\|
+\ge
+(1-\varepsilon_t)\|\nabla\Phi(D_t)\|
+\]
+成立，代入上式即得第二个不等式。定理得证。
+\end{proof}
+
+\begin{corollary}[梯度覆盖推出 JacGap 下降控制]
+若存在 \(\bar\varepsilon<1\) 与 \(\underline\alpha>0\)，使得充分大 \(t\) 上
+\[
+\varepsilon_t\le\bar\varepsilon,
+\qquad
+\alpha_t\ge\underline\alpha,
+\]
+且 \(\Phi\) 有下界，则
+\[
+\sum_{t=0}^{\infty}\|\nabla\Phi(D_t)\|^2<\infty,
+\qquad
+\|\nabla\Phi(D_t)\|\to0.
+\]
+若再有误差界
+\[
+\|\JacGap(D)\|
+\le c\,\|\nabla\Phi(D)\|,
+\]
+则
+\[
+\JacGap(D_t)\to0.
+\]
+\end{corollary}
+
+\begin{Certificate}[级数收敛证书]
+\[
+\boxed{
+\begin{gathered}
+\Phi(D_{t+1})
+\le
+\Phi(D_t)
+-c_0\|\nabla\Phi(D_t)\|^2
+\\
+\Rightarrow
+\sum_t\|\nabla\Phi(D_t)\|^2<\infty
+\Rightarrow
+\|\nabla\Phi(D_t)\|\to0
+\\
+\Rightarrow
+\JacGap(D_t)\to0.
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由投影梯度下降定理，在充分大 \(t\) 上
+\[
+\Phi(D_{t+1})
+\le
+\Phi(D_t)-c_0\|\nabla\Phi(D_t)\|^2,
+\]
+其中
+\[
+c_0
+\DefEq
+\frac{\underline\alpha}{2}(1-\bar\varepsilon)^2>0.
+\]
+对 \(t\) 求和并利用 \(\Phi\) 有下界，得到
+\[
+c_0\sum_{t=0}^{\infty}\|\nabla\Phi(D_t)\|^2
+\le
+\Phi(D_0)-\inf_D\Phi(D)<\infty.
+\]
+故 \(\|\nabla\Phi(D_t)\|\to0\)。若
+\(\|\JacGap(D)\|\le c\|\nabla\Phi(D)\|\)，则
+\(\JacGap(D_t)\to0\)。推论得证。
+\end{proof}
+
+\subsection{命题：随机过程候选与确定性选择极限}
+\label{subsec:stochastic-deterministic-limit}
+
+\begin{proposition}[经验选择收敛到确定性选择]
+固定 \(t\)，设 \(R_t\) 有限，并设真实选择泛函 \(\mathfrak S_t\) 有唯一最大元
+\(r_t^\star\)，且存在间隔
+\[
+\gamma_t
+\DefEq
+\mathfrak S_t(r_t^\star)
+-
+\max_{r\ne r_t^\star}\mathfrak S_t(r)
+>0.
+\]
+若经验选择泛函 \(\widehat{\mathfrak S}_{t,N}\) 满足一致收敛
+\[
+\max_{r\in R_t}
+\left|
+\widehat{\mathfrak S}_{t,N}(r)-\mathfrak S_t(r)
+\right|
+\longrightarrow0,
+\]
+则存在 \(N_t\)，使得当 \(N\ge N_t\) 时
+\[
+\argmax_{r\in R_t}\widehat{\mathfrak S}_{t,N}(r)
+=
+r_t^\star.
+\]
+\end{proposition}
+
+\begin{Certificate}[随机到确定性证书]
+\[
+\boxed{
+\sup_r|\widehat{\mathfrak S}_{t,N}(r)-\mathfrak S_t(r)|
+<\gamma_t/2
+\Rightarrow
+\widehat{\mathfrak S}_{t,N}(r_t^\star)
+>
+\widehat{\mathfrak S}_{t,N}(r),\ \forall r\ne r_t^\star
+\Rightarrow
+\widehat r_{t,N}=r_t^\star.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由一致收敛，存在 \(N_t\)，使得 \(N\ge N_t\) 时
+\[
+\max_{r\in R_t}
+\left|
+\widehat{\mathfrak S}_{t,N}(r)-\mathfrak S_t(r)
+\right|
+<\frac{\gamma_t}{2}.
+\]
+对任意 \(r\ne r_t^\star\)，有
+\[
+\begin{aligned}
+\widehat{\mathfrak S}_{t,N}(r_t^\star)
+&>
+\mathfrak S_t(r_t^\star)-\frac{\gamma_t}{2}\\
+&\ge
+\mathfrak S_t(r)+\frac{\gamma_t}{2}\\
+&>
+\widehat{\mathfrak S}_{t,N}(r).
+\end{aligned}
+\]
+故经验最大元等于真实最大元。命题得证。
+有限候选集上的一致收敛可由经典概率测度与随机逼近框架处理
+\cite{Billingsley1995Probability,KushnerYin2003StochasticApproximation,Borkar2008StochasticApproximation}。
+\end{proof}
+
+\begin{remark}[随机过程与确定性收敛的关系]
+需要区分两层对象：
+\[
+\boxed{
+\text{随机的是样本路径；确定的是经验泛函极限、选择泛函与递归更新。}
+}
+\]
+也就是说，\(X_{t,s}^{(r)}\) 是随机变量，
+\(\Gamma_t^{(r)}\) 是轨迹函数，
+\(\Prob_{\Gamma_t^{(r)}}\) 是分布律，
+\[
+\mathcal J_T(\Gamma_t^{(r)}),
+\qquad
+\Phi(D_t;\Gamma_t^{(r)}),
+\qquad
+\mathfrak S_t(r)
+\]
+是可估计、可比较、可递归更新的泛函对象。
+因此确定性收敛不是说每条样本路径确定，而是说在样本数、截断阶数与格点密度
+足够时，选择泛函诱导的 LHTS 更新轨道确定地下降。
+\end{remark}
+
+\subsection{最终推论与理论增益}
+\label{subsec:tph-lhts-final-corollary}
+
+\begin{corollary}[TPH-LHTS 主命题]
+轨迹函数参数同伦函数 \(\TPH\) 以当前 LHTS 数据 \(D_t\) 为输入，
+生成多随机过程的轨迹函数格点枚举族
+\(\{\Gamma_t^{(r)}\}_{r\in R_t}\)；
+每个 \(\Gamma_t^{(r)}\) 表示一个可执行随机过程分布律轨迹；
+选择泛函 \(\mathfrak S_t\) 选择使 JacGap 势函数 \(\Phi\) 下降最快的
+\(\Gamma_t^\star\)；
+再将 \(\Gamma_t^\star\) 回填至 LHTS 数据更新与下一轮 \(\TPH\) 输入。
+因此
+\[
+\boxed{
+D_{t+1}
+=
+\left(
+\Update_{\LHTS}
+\circ
+\Sel_{\JacGap}
+\circ
+\Enum_{\mathsf{multi\mbox{-}proc}}
+\circ
+\TPH
+\right)(D_t).
+}
+\]
+当轨迹函数张成空间逐阶覆盖 \(-\nabla\JacGap\)，且经验估计一致时，
+\(\TPHLHTS\) 控制 LHTS 产生确定性 JacGap 下降收敛。
+\end{corollary}
+
+\begin{Certificate}[主命题压缩证书]
+\[
+\boxed{
+D_t
+\Rightarrow
+\TPH(D_t)
+\Rightarrow
+\mathcal E_t
+\Rightarrow
+\Sel_{\JacGap}(\mathcal E_t)
+\Rightarrow
+\Gamma_t^\star
+\Rightarrow
+\Update_{\LHTS}(D_t,\Gamma_t^\star)
+\Rightarrow
+D_{t+1}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 \(\TPH\) 定义得到 \(\mathcal E_t\)。
+由选择泛函定义得到 \(r_t^\star\) 与 \(\Gamma_t^\star\)。
+由闭环算子定义得到
+\[
+D_{t+1}
+=
+\Update_{\LHTS}(D_t,\Gamma_t^\star).
+\]
+由确定性收敛控制定理与投影梯度下降强版本，在覆盖、光滑性、误差控制与
+确定性并列消解条件下，\(\Phi(D_t)\) 递归下降并收敛到 JacGap 驻点。
+若误差界把驻点等价为零 JacGap，则 \(\JacGap(D_t)\to0\)。
+推论得证。
+\end{proof}
+
+\begin{remark}[理论增益]
+本节完成了一个层级提升：
+\[
+\boxed{
+\text{LHTS 原始层：选择格点参数}
+\quad\Longrightarrow\quad
+\text{TPH-LHTS 层：选择随机过程的轨迹函数表达}
+}
+\]
+并进一步提升为
+\[
+\boxed{
+\text{递归控制层：选择能最快降低 JacGap 的轨迹函数，并回填控制 LHTS}.
+}
+\]
+所以最终结构不是随机搜索，而是由
+\[
+\boxed{
+\begin{gathered}
+\text{随机过程候选}
++\text{轨迹函数表达}
++\text{JacGap 下降选择}
+\\
++\text{LHTS 回填更新}
++\text{递归确定性收敛控制}
+\end{gathered}
+}
+\]
+构成的广义分形式确定性收敛系统。
+\end{remark}
+
+\section{形式逻辑：LHTS 嵌入运动内核与 TPH 外层动力控制器}
+\label{sec:lhts-kernel-tph-controller}
+
+\begin{remark}[层级正规型]
+在前述闭环中，LHTS 与 TPH 的关系不是并列关系，而是内核与控制器的层级关系。
+参考 LHTS 延迟信用格点同伦扭曲评分机制与 TPH-LHTS 闭环定义
+\cite{RepoTex56LHTS,RepoTex55PDEParadigm}，可写成
+\[
+\boxed{
+\begin{gathered}
+\LHTS
+\DefEq
+\text{嵌入到具体问题空间中的定制运动内核},
+\\
+\TPH
+\DefEq
+\text{作用于运动内核外层的通用动力加速与确定性收敛控制器}.
+\end{gathered}
+}
+\]
+因此层级关系是
+\[
+\boxed{
+\TPH\curvearrowright\LHTS_{\Omega}.
+}
+\]
+换言之，\(\LHTS_\Omega\) 回答“在具体问题空间内能怎么动”，
+\(\TPH\) 回答“往哪里动、为什么这样动、如何保证收敛”。
+\end{remark}
+
+\subsection{嵌入问题空间与 LHTS 定制运动内核}
+\label{subsec:embedded-problem-lhts-kernel}
+
+\begin{definition}[问题空间嵌入]
+令具体问题空间为 \(\Omega\)。设
+\[
+\iota_\Omega:\Omega\longrightarrow\mathcal L_\Omega
+\]
+为问题嵌入映射，其中 \(\mathcal L_\Omega\) 是该问题的格点--同伦扭曲可操作空间。
+映射 \(\iota_\Omega\) 把原始状态、约束、残差、可行动作与局部几何信息编码成
+LHTS 可执行的运动坐标。
+\end{definition}
+
+\begin{definition}[LHTS 作为嵌入定制运动内核]
+定义问题 \(\Omega\) 上的 LHTS 内核为
+\[
+\boxed{
+\LHTS_\Omega
+\DefEq
+(\mathcal D_\Omega,\mathcal A_\Omega,\mathbf S_\Omega,
+\Move_\Omega,\Credit_\Omega).
+}
+\]
+其中 \(\mathcal D_\Omega\) 是当前 LHTS 数据状态空间；
+\(\mathcal A_\Omega\) 是由 \(\iota_\Omega\) 诱导的问题定制格点运动算子族；
+\(\mathbf S_\Omega\) 是格点方向持久化分值；
+\[
+\Move_\Omega:
+\mathcal D_\Omega\times\mathcal A_\Omega
+\longrightarrow
+\mathcal D_\Omega
+\]
+是运动更新核；
+\(\Credit_\Omega\) 是延迟信用、命中回填与方向评分更新机制。
+其核心语义为
+\[
+\boxed{
+D_t^\Omega
+\xmapsto{\ a_t^\Omega\in\mathcal A_\Omega\ }
+D_{t+1}^\Omega
+=
+\Move_\Omega(D_t^\Omega,a_t^\Omega).
+}
+\]
+因此 \(\LHTS_\Omega\) 是嵌入到具体 \(\Omega\) 中的运动执行内核。
+\end{definition}
+
+\begin{proposition}[LHTS 的定制性]
+若两个问题空间 \(\Omega\) 与 \(\Omega'\) 的嵌入不同，并诱导不同的可行动作族
+\[
+\mathcal A_\Omega\ne\mathcal A_{\Omega'},
+\]
+则相应 LHTS 内核一般不同：
+\[
+\LHTS_\Omega\ne\LHTS_{\Omega'}.
+\]
+因此 LHTS 的通用性体现在结构模板上，而不是体现在动作集合的完全同一上。
+\end{proposition}
+
+\begin{Certificate}[谓词因果链证书]
+\[
+\boxed{
+\Omega
+\Rightarrow
+\iota_\Omega
+\Rightarrow
+\mathcal L_\Omega
+\Rightarrow
+\mathcal A_\Omega
+\Rightarrow
+\Move_\Omega,\Credit_\Omega
+\Rightarrow
+\LHTS_\Omega.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由问题空间嵌入定义，\(\iota_\Omega\) 决定可操作空间
+\(\mathcal L_\Omega\)。可操作空间决定当前可执行格点运动算子族
+\(\mathcal A_\Omega\)。LHTS 内核的第二个分量正是
+\(\mathcal A_\Omega\)，并且运动更新核
+\(\Move_\Omega\) 与信用回填机制 \(\Credit_\Omega\) 均以
+\(\mathcal A_\Omega\) 为作用域。
+
+若问题改变为 \(\Omega'\)，且
+\(\mathcal A_\Omega\ne\mathcal A_{\Omega'}\)，则五元组
+\[
+(\mathcal D_\Omega,\mathcal A_\Omega,\mathbf S_\Omega,\Move_\Omega,\Credit_\Omega)
+\]
+与
+\[
+(\mathcal D_{\Omega'},\mathcal A_{\Omega'},\mathbf S_{\Omega'},
+\Move_{\Omega'},\Credit_{\Omega'})
+\]
+至少在动作族分量上不同。因此
+\(\LHTS_\Omega\ne\LHTS_{\Omega'}\) 一般成立。命题得证。
+\end{proof}
+
+\subsection{TPH 通用动力控制接口}
+\label{subsec:tph-universal-control-interface}
+
+\begin{definition}[TPH 接口数据]
+对任意嵌入问题 \(\Omega\)，定义 TPH 所需接口为
+\[
+\boxed{
+\mathcal I_t^\Omega
+\DefEq
+\left(
+D_t^\Omega,\ \Phi_\Omega,\ \{\Gamma_{t,\Omega}^{(r)}\}_{r\in R_{t,\Omega}}
+\right).
+}
+\]
+其中
+\[
+\Phi_\Omega(D)
+\DefEq
+\frac12\|\JacGap_\Omega(D)\|^2
+\]
+是 JacGap 势函数；
+\(\Gamma_{t,\Omega}^{(r)}\) 是第 \(r\) 个候选随机过程的轨迹函数表达；
+\(R_{t,\Omega}\) 是可枚举或可截断枚举的候选索引集合。
+\end{definition}
+
+\begin{definition}[TPH 外层动力控制器]
+定义 TPH 控制器为接口层算子
+\[
+\boxed{
+\TPH:
+\mathcal I_t^\Omega
+\longmapsto
+\left(
+\mathfrak S_{t,\Omega},\
+r_{t,\Omega}^\star,\
+\Gamma_{t,\Omega}^\star
+\right).
+}
+\]
+选择泛函取如下正规型：
+\[
+\boxed{
+\mathfrak S_{t,\Omega}(r)
+\DefEq
+\Phi_\Omega(D_t^\Omega)
+-
+\Phi_\Omega\!\left(
+\Rollout_\Omega(D_t^\Omega,\Gamma_{t,\Omega}^{(r)})
+\right)
+-
+\Cost_{t,\Omega}(r)
+-
+\Risk_{t,\Omega}(r).
+}
+\]
+选择规则为
+\[
+\boxed{
+r_{t,\Omega}^\star
+\DefEq
+\argmax_{r\in R_{t,\Omega}}
+\mathfrak S_{t,\Omega}(r),
+\qquad
+\Gamma_{t,\Omega}^\star
+\DefEq
+\Gamma_{t,\Omega}^{(r_{t,\Omega}^\star)}.
+}
+\]
+再将被选轨迹函数回填至 LHTS：
+\[
+\boxed{
+D_{t+1}^\Omega
+=
+\Update_{\LHTS_\Omega}
+\left(D_t^\Omega,\Gamma_{t,\Omega}^\star\right).
+}
+\]
+\end{definition}
+
+\begin{lemma}[TPH 的接口通用性]
+若两个问题 \(\Omega,\Omega'\) 都能提供同型接口
+\[
+\mathcal I_t^\Omega
+=
+\left(D_t^\Omega,\Phi_\Omega,\{\Gamma_{t,\Omega}^{(r)}\}_{r\in R_{t,\Omega}}\right),
+\]
+\[
+\mathcal I_t^{\Omega'}
+=
+\left(D_t^{\Omega'},\Phi_{\Omega'},
+\{\Gamma_{t,\Omega'}^{(r)}\}_{r\in R_{t,\Omega'}}\right),
+\]
+且候选评分均可写为“势函数下降减成本减风险”的形式，则 TPH 选择规则在接口层同构。
+\end{lemma}
+
+\begin{Certificate}[接口同构证书]
+\[
+\boxed{
+\mathcal I_t^\Omega
+\Rightarrow
+\mathfrak S_{t,\Omega}
+\Rightarrow
+r_{t,\Omega}^\star
+\Rightarrow
+\Gamma_{t,\Omega}^\star
+\Rightarrow
+D_{t+1}^\Omega,
+}
+\]
+\[
+\boxed{
+\mathcal I_t^{\Omega'}
+\Rightarrow
+\mathfrak S_{t,\Omega'}
+\Rightarrow
+r_{t,\Omega'}^\star
+\Rightarrow
+\Gamma_{t,\Omega'}^\star
+\Rightarrow
+D_{t+1}^{\Omega'}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+TPH 不直接读取 \(\Omega\) 的原始坐标，而读取接口数据
+\(\mathcal I_t^\Omega\)。在 \(\Omega\) 上，其选择为
+\[
+r_{t,\Omega}^\star
+=
+\argmax_{r\in R_{t,\Omega}}\mathfrak S_{t,\Omega}(r).
+\]
+在 \(\Omega'\) 上，其选择为
+\[
+r_{t,\Omega'}^\star
+=
+\argmax_{r\in R_{t,\Omega'}}\mathfrak S_{t,\Omega'}(r).
+\]
+两式具有同一谓词结构：输入候选轨迹函数族，计算势函数下降、成本与风险，
+取确定性最大元，再回填更新。差异只存在于接口实例的下标 \(\Omega\) 或
+\(\Omega'\)，而不改变选择规则的形式。因此 TPH 在接口层同构。引理得证。
+\end{proof}
+
+\subsection{公理降级：内核--控制器闭环全定义定理}
+\label{subsec:kernel-controller-well-defined}
+
+\begin{theorem}[公理降级：内核--控制器闭环全定义定理]
+设 \(D_0^\Omega\in\mathcal D_\Omega\)。若对每个 \(t\in\NN\) 满足：
+\[
+\begin{aligned}
+&\mathrm{K1}(t):\quad
+\iota_\Omega\text{ 诱导非空可行动作族 }\mathcal A_\Omega;\\
+&\mathrm{K2}(t):\quad
+\Move_\Omega\text{ 与 }\Credit_\Omega\text{ 在当前状态上全定义};\\
+&\mathrm{K3}(t):\quad
+\TPH\text{ 可由 }D_t^\Omega\text{ 生成非空有限候选 }R_{t,\Omega};\\
+&\mathrm{K4}(t):\quad
+\mathfrak S_{t,\Omega}:R_{t,\Omega}\to\RR\text{ 全定义};\\
+&\mathrm{K5}(t):\quad
+\argmax_{r\in R_{t,\Omega}}\mathfrak S_{t,\Omega}(r)
+\text{ 有确定性并列消解};\\
+&\mathrm{K6}(t):\quad
+\Update_{\LHTS_\Omega}(D_t^\Omega,\Gamma_{t,\Omega}^\star)
+\in\mathcal D_\Omega,
+\end{aligned}
+\]
+则闭环递归
+\[
+D_{t+1}^\Omega
+\DefEq
+\Update_{\LHTS_\Omega}(D_t^\Omega,\Gamma_{t,\Omega}^\star)
+\]
+对所有 \(t\in\NN\) 全定义。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书]
+令谓词
+\[
+\mathcal Q(t):
+\quad
+D_t^\Omega\in\mathcal D_\Omega
+\text{ 且 }
+D_0^\Omega\mapsto\cdots\mapsto D_t^\Omega
+\text{ 全定义}.
+\]
+证书链为
+\[
+\boxed{
+\mathcal Q(t)
+\Rightarrow
+\mathcal I_t^\Omega
+\Rightarrow
+R_{t,\Omega}
+\Rightarrow
+r_{t,\Omega}^\star
+\Rightarrow
+\Gamma_{t,\Omega}^\star
+\Rightarrow
+D_{t+1}^\Omega\in\mathcal D_\Omega
+\Rightarrow
+\mathcal Q(t+1).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+基步：由 \(D_0^\Omega\in\mathcal D_\Omega\)，\(\mathcal Q(0)\) 成立。
+
+归纳步：假设 \(\mathcal Q(t)\) 成立，则 \(D_t^\Omega\in\mathcal D_\Omega\)。
+由 K1 与 K2，LHTS 内核在当前状态上具备可执行运动与信用回填。
+由 K3，TPH 生成非空有限候选集合 \(R_{t,\Omega}\)。
+由 K4，\(\mathfrak S_{t,\Omega}\) 在 \(R_{t,\Omega}\) 上全定义。
+有限集合上的实值函数存在最大元；由 K5 的并列消解，得到确定的
+\[
+r_{t,\Omega}^\star
+=
+\argmax_{r\in R_{t,\Omega}}\mathfrak S_{t,\Omega}(r).
+\]
+于是
+\[
+\Gamma_{t,\Omega}^\star
+=
+\Gamma_{t,\Omega}^{(r_{t,\Omega}^\star)}.
+\]
+由 K6，
+\[
+D_{t+1}^\Omega
+=
+\Update_{\LHTS_\Omega}(D_t^\Omega,\Gamma_{t,\Omega}^\star)
+\in\mathcal D_\Omega.
+\]
+故 \(\mathcal Q(t+1)\) 成立。由数学归纳法，闭环递归对所有
+\(t\in\NN\) 全定义。定理得证。
+\end{proof}
+
+\subsection{层级分离与动力加速}
+\label{subsec:hierarchy-separation-acceleration}
+
+\begin{theorem}[LHTS 与 TPH 的层级分离定理]
+若 \(\LHTS_\Omega\) 依赖具体问题空间嵌入
+\[
+\iota_\Omega:\Omega\to\mathcal L_\Omega,
+\]
+而 \(\TPH\) 只依赖接口数据
+\[
+(D_t^\Omega,\Phi_\Omega,\{\Gamma_{t,\Omega}^{(r)}\}_{r\in R_{t,\Omega}}),
+\]
+则
+\[
+\boxed{
+\begin{gathered}
+\LHTS_\Omega
+\text{ 是嵌入定制运动内核},
+\\
+\TPH
+\text{ 是通用外层动力控制器}.
+\end{gathered}
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[谓词因果链证书]
+\[
+\boxed{
+\Omega
+\Rightarrow
+\mathcal A_\Omega
+\Rightarrow
+\LHTS_\Omega,
+\qquad
+D_t^\Omega
+\Rightarrow
+\{\Gamma_{t,\Omega}^{(r)}\}_{r\in R_{t,\Omega}}
+\Rightarrow
+\mathfrak S_{t,\Omega}
+\Rightarrow
+\Gamma_{t,\Omega}^\star
+\Rightarrow
+D_{t+1}^\Omega.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+LHTS 的动作集合为 \(\mathcal A_\Omega\)，该集合由具体嵌入
+\(\iota_\Omega:\Omega\to\mathcal L_\Omega\) 决定。若问题空间改变为
+\(\Omega'\)，则一般有
+\[
+\mathcal A_\Omega\ne\mathcal A_{\Omega'},
+\]
+从而
+\[
+\LHTS_\Omega\ne\LHTS_{\Omega'}.
+\]
+所以 LHTS 不是完全通用的外层逻辑，而是面向具体嵌入的运动执行内核。
+
+另一方面，TPH 的输入为接口数据
+\[
+D_t^\Omega,\quad
+\Phi_\Omega,\quad
+\{\Gamma_{t,\Omega}^{(r)}\}_{r\in R_{t,\Omega}}.
+\]
+只要不同问题空间均提供同型接口，TPH 的选择规则始终保持
+\[
+r_t^\star=\argmax_r\mathfrak S_t(r)
+\]
+这一形式。因此 TPH 的通用性高于具体运动内核，承担外层动力控制职责。
+定理得证。
+\end{proof}
+
+\begin{theorem}[TPH 对 LHTS 构成动力加速]
+设 TPH 每步选择满足
+\[
+\mathfrak S_{t,\Omega}(r_{t,\Omega}^\star)
+\ge
+\mathfrak S_{t,\Omega}(r),
+\qquad
+\forall r\in R_{t,\Omega},
+\]
+且选择泛函主项为 JacGap 势函数下降量
+\[
+\Delta\Phi_{t,\Omega}(r)
+\DefEq
+\Phi_\Omega(D_t^\Omega)
+-
+\Phi_\Omega\!\left(
+\Rollout_\Omega(D_t^\Omega,\Gamma_{t,\Omega}^{(r)})
+\right).
+\]
+则 TPH 将 LHTS 的运动从局部格点评分驱动提升为 JacGap 势函数下降驱动，
+因而对 \(\LHTS_\Omega\) 构成动力加速。
+\end{theorem}
+
+\begin{Certificate}[动力加速证书]
+\[
+\boxed{
+\begin{gathered}
+\text{原始 LHTS：}\quad
+D_{t+1}^\Omega=\Move_\Omega(D_t^\Omega,a_t^\Omega),
+\\
+\text{TPH 控制：}\quad
+r_{t,\Omega}^\star
+=
+\argmax_{r\in R_{t,\Omega}}\mathfrak S_{t,\Omega}(r),
+\\
+\Gamma_{t,\Omega}^{(r)}
+\Rightarrow
+(a_{t,1}^{(r)},\ldots,a_{t,m}^{(r)})
+\Rightarrow
+\Delta\Phi_{t,\Omega}(r).
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+原始 LHTS 主要依据持久化分值 \(\mathbf S_\Omega\) 选择局部格点动作
+\[
+a_t^\Omega\in\mathcal A_\Omega,
+\qquad
+D_{t+1}^\Omega=\Move_\Omega(D_t^\Omega,a_t^\Omega).
+\]
+这是嵌入式运动执行。TPH 不替代 \(\Move_\Omega\)，而是在外层生成候选轨迹函数族
+\[
+\{\Gamma_{t,\Omega}^{(r)}\}_{r\in R_{t,\Omega}}.
+\]
+每个轨迹函数对应一组可能的 LHTS 运动序列
+\[
+\Gamma_{t,\Omega}^{(r)}
+\Longrightarrow
+(a_{t,1}^{(r)},\ldots,a_{t,m}^{(r)}).
+\]
+TPH 对每个候选计算势函数下降主项 \(\Delta\Phi_{t,\Omega}(r)\)，并以
+\[
+r_{t,\Omega}^\star
+=
+\argmax_{r\in R_{t,\Omega}}\mathfrak S_{t,\Omega}(r)
+\]
+选出成本与风险约束下的最快下降轨迹函数。若成本与风险固定或已归一化，
+该规则等价于选择单位成本下 JacGap 下降最快的轨迹函数。由此，
+运动选择准则从局部分值驱动升级为势函数下降驱动，这正是动力加速。
+定理得证。
+\end{proof}
+
+\subsection{确定性收敛控制}
+\label{subsec:tph-controls-lhts-convergence}
+
+\begin{lemma}[下降接受条件推出势函数非增]
+若被选轨迹函数满足下降接受条件
+\[
+\Phi_\Omega\!\left(
+\Update_{\LHTS_\Omega}(D_t^\Omega,\Gamma_{t,\Omega}^\star)
+\right)
+\le
+\Phi_\Omega(D_t^\Omega),
+\]
+则闭环更新
+\[
+D_{t+1}^\Omega
+=
+\Update_{\LHTS_\Omega}(D_t^\Omega,\Gamma_{t,\Omega}^\star)
+\]
+满足
+\[
+\Phi_\Omega(D_{t+1}^\Omega)\le\Phi_\Omega(D_t^\Omega).
+\]
+\end{lemma}
+
+\begin{Certificate}[接受条件证书]
+\[
+\boxed{
+\Gamma_{t,\Omega}^\star
+\Rightarrow
+D_{t+1}^\Omega
+=
+\Update_{\LHTS_\Omega}(D_t^\Omega,\Gamma_{t,\Omega}^\star)
+\Rightarrow
+\Phi_\Omega(D_{t+1}^\Omega)\le\Phi_\Omega(D_t^\Omega).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+将闭环更新定义代入下降接受条件即可得到
+\[
+\Phi_\Omega(D_{t+1}^\Omega)
+=
+\Phi_\Omega\!\left(
+\Update_{\LHTS_\Omega}(D_t^\Omega,\Gamma_{t,\Omega}^\star)
+\right)
+\le
+\Phi_\Omega(D_t^\Omega).
+\]
+引理得证。
+\end{proof}
+
+\begin{theorem}[TPH 对 LHTS 构成确定性收敛控制]
+若满足：
+\[
+\begin{aligned}
+&\mathrm{C1}:\ R_{t,\Omega}\text{ 可枚举或可截断枚举};\\
+&\mathrm{C2}:\ \mathfrak S_{t,\Omega}\text{ 有确定性并列消解规则};\\
+&\mathrm{C3}:\ \Gamma_{t,\Omega}^\star\text{ 每步满足下降接受条件};\\
+&\mathrm{C4}:\ \text{轨迹函数张成空间逐阶覆盖 }-\nabla\Phi_\Omega;\\
+&\mathrm{C5}:\ \Phi_\Omega(D)\ge0;\\
+&\mathrm{C6}:\ \Phi_\Omega\text{ 在可行域上光滑或分段光滑},
+\end{aligned}
+\]
+则 TPH 控制下的 LHTS 产生确定性收敛：\(\Phi_\Omega(D_t^\Omega)\) 非增并收敛。
+若进一步满足误差界
+\[
+\nabla\Phi_\Omega(D)=0
+\Longrightarrow
+\JacGap_\Omega(D)=0,
+\]
+则
+\[
+\boxed{
+\JacGap_\Omega(D_t^\Omega)\to0.
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[收敛控制证书]
+\[
+\boxed{
+\begin{gathered}
+D_t^\Omega
+\Rightarrow
+\TPH(D_t^\Omega)
+\Rightarrow
+\{\Gamma_{t,\Omega}^{(r)}\}_{r\in R_{t,\Omega}}
+\Rightarrow
+r_{t,\Omega}^\star
+\\
+\Rightarrow
+\Gamma_{t,\Omega}^\star
+\Rightarrow
+D_{t+1}^\Omega
+\Rightarrow
+\Phi_\Omega(D_{t+1}^\Omega)
+\le
+\Phi_\Omega(D_t^\Omega).
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 C1，候选轨迹函数集合可比较。由 C2，
+\[
+r_{t,\Omega}^\star
+=
+\argmax_{r\in R_{t,\Omega}}\mathfrak S_{t,\Omega}(r)
+\]
+是确定性选择。于是
+\[
+\Gamma_{t,\Omega}^\star
+=
+\Gamma_{t,\Omega}^{(r_{t,\Omega}^\star)}
+\]
+也是确定性轨迹函数表达。由 C3 与前一引理，
+\[
+\Phi_\Omega(D_{t+1}^\Omega)\le\Phi_\Omega(D_t^\Omega).
+\]
+由 C5，\(\Phi_\Omega(D_t^\Omega)\ge0\)。所以
+\[
+\{\Phi_\Omega(D_t^\Omega)\}_{t\ge0}
+\]
+单调非增且下有界，从而存在极限
+\[
+\Phi_\Omega(D_t^\Omega)\downarrow\Phi_{\Omega,\infty}\ge0.
+\]
+
+由 C4，轨迹函数张成空间逐阶覆盖 \(-\nabla\Phi_\Omega\)。因此只要
+\(\nabla\Phi_\Omega(D_t^\Omega)\ne0\)，就存在候选轨迹函数方向
+\(\delta\Gamma_{t,\Omega}^{(r)}\) 使
+\[
+D\Phi_\Omega(D_t^\Omega)[\delta\Gamma_{t,\Omega}^{(r)}]<0.
+\]
+TPH 选择最快下降方向，所以系统不会在非驻点处因缺少被选下降方向而停滞。
+因此极限点满足
+\[
+\nabla\Phi_\Omega(D_\infty^\Omega)=0.
+\]
+若误差界
+\[
+\nabla\Phi_\Omega(D)=0\Rightarrow\JacGap_\Omega(D)=0
+\]
+成立，则得到
+\[
+\JacGap_\Omega(D_t^\Omega)\to0.
+\]
+定理得证。光滑下降与投影覆盖的标准下降估计可由数值优化框架支持
+\cite{NocedalWright2006Optimization}；带经验估计的递归版本可由随机逼近观点解释
+\cite{KushnerYin2003StochasticApproximation,Borkar2008StochasticApproximation}。
+\end{proof}
+
+\subsection{推论：准确分工与三层架构}
+\label{subsec:division-three-layer-architecture}
+
+\begin{corollary}[LHTS 与 TPH 的准确分工]
+\[
+\boxed{
+\LHTS_\Omega
+=
+\text{嵌入定制运动内核},
+\qquad
+\TPH
+=
+\text{通用动力加速与确定性收敛控制器}.
+}
+\]
+因此 \(\LHTS_\Omega\) 负责格点运动、同伦扭曲执行、延迟信用回填与问题空间内
+可行动作生成；\(\TPH\) 负责轨迹函数参数同伦生成、多随机过程格点枚举、
+JacGap 下降评分、最快下降轨迹选择、递归回填控制与确定性收敛证明。
+二者关系为
+\[
+\boxed{
+\TPH\text{ 不替代 }\LHTS_\Omega;
+\qquad
+\TPH\text{ 控制、加速并证明 }\LHTS_\Omega.
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[分工证书]
+\[
+\boxed{
+\begin{gathered}
+\LHTS_\Omega:
+(D_t^\Omega,a_t^\Omega)\mapsto D_{t+1}^\Omega,
+\\
+\TPH:
+D_t^\Omega
+\mapsto
+\Gamma_{t,\Omega}^\star
+=
+\argmax_{\Gamma_{t,\Omega}^{(r)}}
+\mathfrak S_{t,\Omega}(r).
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 \(\LHTS_\Omega\) 定义，运动执行由 \(\Move_\Omega\) 与
+\(\Credit_\Omega\) 完成。由 \(\TPH\) 定义，轨迹函数选择由
+\(\mathfrak S_{t,\Omega}\) 的最大化完成。前者作用于嵌入问题的可行动作域，
+后者作用于接口层的候选轨迹函数域。两者作用域不同、职责不同，并由
+\[
+\Update_{\LHTS_\Omega}(D_t^\Omega,\Gamma_{t,\Omega}^\star)
+\]
+连接。因此分工成立。推论得证。
+\end{proof}
+
+\begin{corollary}[体系升级后的三层架构]
+完整架构可写为三层：
+\[
+\boxed{
+\Omega\to\mathcal L_\Omega
+\quad
+\text{问题嵌入层};
+}
+\]
+\[
+\boxed{
+D_t^\Omega
+\xmapsto{\ a_t^\Omega\ }
+D_{t+1}^\Omega
+\quad
+\text{LHTS 运动内核层};
+}
+\]
+\[
+\boxed{
+D_t^\Omega
+\mapsto
+\{\Gamma_{t,\Omega}^{(r)}\}_{r\in R_{t,\Omega}}
+\mapsto
+\Gamma_{t,\Omega}^\star
+\mapsto
+D_{t+1}^\Omega
+\quad
+\text{TPH 通用控制层}.
+}
+\]
+因此整体闭环为
+\[
+\boxed{
+\Omega
+\to
+\mathcal L_\Omega
+\to
+\LHTS_\Omega
+\to
+\TPH(\LHTS_\Omega)
+\to
+\text{JacGap 确定性下降}.
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[三层架构证书]
+\[
+\boxed{
+\Omega
+\Rightarrow
+\iota_\Omega
+\Rightarrow
+\LHTS_\Omega
+\Rightarrow
+\mathcal I_t^\Omega
+\Rightarrow
+\TPH
+\Rightarrow
+\Gamma_{t,\Omega}^\star
+\Rightarrow
+D_{t+1}^\Omega.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由问题嵌入层，
+\[
+\Omega
+\xrightarrow{\ \iota_\Omega\ }
+\mathcal L_\Omega.
+\]
+由 LHTS 运动内核层，
+\[
+\mathcal L_\Omega
+\Longrightarrow
+\mathcal A_\Omega
+\Longrightarrow
+(\Move_\Omega,\Credit_\Omega).
+\]
+由 TPH 通用控制层，
+\[
+D_t^\Omega
+\Longrightarrow
+\mathfrak S_{t,\Omega}
+\Longrightarrow
+\Gamma_{t,\Omega}^\star
+\Longrightarrow
+D_{t+1}^\Omega.
+\]
+三层依次组合即得到完整闭环。推论得证。
+\end{proof}
+
+\begin{remark}[理论增益]
+该分层把 LHTS 从单一算法定位为可嵌入的运动内核，同时把 TPH 定位为可外接到
+不同 LHTS 实例上的通用收敛控制层。于是体系从单一算法结构升级为
+\[
+\boxed{
+\text{内核--控制器架构}.
+}
+\]
+其中 LHTS 承担“问题空间内如何运动”的工程职责，TPH 承担“如何选择运动方向并证明
+收敛”的数学职责。最终得到
+\[
+\boxed{
+\begin{gathered}
+\text{定制运动内核}
++
+\text{通用同伦动力控制器}
+\\
+\Longrightarrow
+\text{可迁移的 JacGap 下降收敛架构}.
+\end{gathered}
+}
+\]
+\end{remark}
+
+\section{形式逻辑：频域命中强制的概率空间与随机过程轨迹表达}
+\label{sec:frequency-hit-probability-space}
+
+\begin{remark}[核心正规型]
+在 TPH/LHTS 架构中，基于随机过程的概率空间构造不是外加随机性，
+而是由频域命中的可测事件结构所强制。频域分析中的谱窗、相位、
+幅值与模态耦合通常依赖窗口化路径而非孤立状态
+\cite{OppenheimSchafer2010DSP,Mallat2009Wavelet}；而命中概率本身只有在
+概率空间上才有定义 \cite{Billingsley1995Probability}。因此本节的压缩链条为
+\[
+\boxed{
+\begin{gathered}
+\text{频域命中}
+\Rightarrow
+\text{谱窗、相位、幅值、模态耦合的可测化}
+\\
+\Rightarrow
+(\Omega_{\Gamma,T},\mathscr F_{\Gamma,T},\Prob_{\Gamma,T})
+\Rightarrow
+\mathcal J_{\omega,\varepsilon,T}(\Gamma)
+\Rightarrow
+\mathfrak S_\omega(\Gamma)
+\\
+\Rightarrow
+\TPHLHTS\text{ 确定性收敛控制}.
+\end{gathered}
+}
+\]
+这里 \(\Omega_{\Gamma,T}\) 是由轨迹函数 \(\Gamma\) 在有限时域 \(T\) 上诱导的
+样本路径空间；它不同于前文具体问题空间 \(\Omega\)。
+\end{remark}
+
+\subsection{频域命中事件与可测结构}
+\label{subsec:frequency-hit-event}
+
+\begin{definition}[频域观测算子与命中区域]
+令状态空间为可测空间
+\[
+(\mathcal Z,\mathscr B_{\mathcal Z}),
+\]
+并令系统状态为 \(z_t\in\mathcal Z\)。设频域观测算子为
+\[
+\mathcal F_\omega:
+(\mathcal Z,\mathscr B_{\mathcal Z})
+\longrightarrow
+(\mathcal Y_\omega,\mathscr B_{\omega}),
+\]
+其中 \(\mathcal Y_\omega\) 表示频率、相位、幅值、谱窗与模态耦合等特征空间。
+给定目标频域命中区域
+\[
+B_{\omega,\varepsilon}\in\mathscr B_{\omega}.
+\]
+\end{definition}
+
+\begin{definition}[频域命中事件、首次命中时间与命中泛函]
+对轨迹过程 \(Z_0^\Gamma,\ldots,Z_T^\Gamma\)，定义频域命中事件
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}
+\DefEq
+\left\{
+\exists\,0\le t\le T:
+\mathcal F_\omega(Z_t^\Gamma)\in B_{\omega,\varepsilon}
+\right\}.
+\]
+定义首次命中时间
+\[
+\tau_{\omega,\varepsilon}^{\Gamma}
+\DefEq
+\inf
+\left\{
+t\ge0:
+\mathcal F_\omega(Z_t^\Gamma)\in B_{\omega,\varepsilon}
+\right\}.
+\]
+若概率空间
+\[
+(\Omega_{\Gamma,T},\mathscr F_{\Gamma,T},\Prob_{\Gamma,T})
+\]
+已经构造，则频域命中泛函定义为
+\[
+\boxed{
+\mathcal J_{\omega,\varepsilon,T}(\Gamma)
+\DefEq
+\Prob_{\Gamma,T}
+\left(
+\tau_{\omega,\varepsilon}^{\Gamma}\le T
+\right)
+=
+\Prob_{\Gamma,T}(E_{\omega,\varepsilon,T}^{\Gamma}).
+}
+\]
+因此
+\[
+\boxed{
+\mathcal J_{\omega,\varepsilon,T}
+\text{ 只有在 }
+(\Omega_{\Gamma,T},\mathscr F_{\Gamma,T},\Prob_{\Gamma,T})
+\text{ 已定义时才有数学意义}.
+}
+\]
+\end{definition}
+
+\begin{lemma}[有限时域频域命中事件可测]
+若 \(\mathcal F_\omega\) 可测，且每个 \(Z_t^\Gamma\) 是
+\((\Omega_{\Gamma,T},\mathscr F_{\Gamma,T})\) 上的可测随机变量，则
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}\in\mathscr F_{\Gamma,T}.
+\]
+\end{lemma}
+
+\begin{Certificate}[可测化证书]
+\[
+\boxed{
+Z_t^\Gamma\text{ 可测}
+\Rightarrow
+\mathcal F_\omega(Z_t^\Gamma)\text{ 可测}
+\Rightarrow
+\{\mathcal F_\omega(Z_t^\Gamma)\in B_{\omega,\varepsilon}\}\in\mathscr F_{\Gamma,T}
+\Rightarrow
+E_{\omega,\varepsilon,T}^{\Gamma}\in\mathscr F_{\Gamma,T}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 \(Z_t^\Gamma\) 可测与 \(\mathcal F_\omega\) 可测，复合映射
+\[
+\mathcal F_\omega\circ Z_t^\Gamma
+\]
+可测。因此
+\[
+\left\{
+\mathcal F_\omega(Z_t^\Gamma)\in B_{\omega,\varepsilon}
+\right\}
+=
+(\mathcal F_\omega\circ Z_t^\Gamma)^{-1}(B_{\omega,\varepsilon})
+\in\mathscr F_{\Gamma,T}.
+\]
+由于 \(T<\infty\)，频域命中事件是有限并：
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}
+=
+\bigcup_{t=0}^{T}
+\left\{
+\mathcal F_\omega(Z_t^\Gamma)\in B_{\omega,\varepsilon}
+\right\}.
+\]
+\(\sigma\)-代数对有限并封闭，故
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}\in\mathscr F_{\Gamma,T}.
+\]
+引理得证。
+\end{proof}
+
+\begin{proposition}[频域命中是路径事件]
+一般情形下，频域命中事件不能由单点状态 \(z_t\) 完整表达，而必须由路径
+\[
+(z_0,z_1,\ldots,z_T)
+\]
+表达。
+\end{proposition}
+
+\begin{Certificate}[路径依赖证书]
+\[
+\boxed{
+E_{\omega,\varepsilon,T}^{\Gamma}
+=
+\{\exists\,t\le T:\mathcal F_\omega(Z_t^\Gamma)\in B_{\omega,\varepsilon}\}
+\Rightarrow
+E_{\omega,\varepsilon,T}^{\Gamma}
+=
+F_\omega(Z_0^\Gamma,\ldots,Z_T^\Gamma).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+定义中含有存在量词 \(\exists\,0\le t\le T\)，故事件依赖整段有限路径。
+此外，相位漂移、幅值累积、谱泄漏、非线性混频、模态耦合与窗口化命中
+通常通过一段观测窗口计算，而非单一状态点计算。因此一般不能写成
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}=f(z_t)
+\]
+的单点事件，而应写成路径事件
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}
+=
+F_\omega(z_0,z_1,\ldots,z_T).
+\]
+命题得证。
+\end{proof}
+
+\subsection{TPH/LHTS 非线性扭曲诱导随机过程}
+\label{subsec:nonlinear-twist-induced-process}
+
+\begin{definition}[LHTS 非线性扭曲算子族]
+令 LHTS 的非线性扭曲算子族为
+\[
+\mathcal A_{\LHTS}^{\mathrm{nl}}
+\DefEq
+\{T_a^{\mathrm{nl}}:a\in A\}.
+\]
+其中
+\[
+T_a^{\mathrm{nl}}:\mathcal Z\to\mathcal Z
+\]
+是嵌入到具体问题空间中的非线性运动算子，并假设每个
+\(T_a^{\mathrm{nl}}\) 关于状态变量可测。
+\end{definition}
+
+\begin{definition}[轨迹函数诱导的动作分布与状态递推]
+在 TPH 控制下，轨迹函数
+\[
+\Gamma_t:\Fil_{t-1}^{\Gamma}\to\Lambda
+\]
+根据历史信息生成分布律参数
+\[
+\lambda_t^\Gamma
+\DefEq
+\Gamma_t(\Fil_{t-1}^{\Gamma}).
+\]
+动作随机变量满足
+\[
+A_t^\Gamma\mid\Fil_{t-1}^{\Gamma}
+\sim
+\pi_{\lambda_t^\Gamma}.
+\]
+状态递推为
+\[
+\boxed{
+Z_{t+1}^{\Gamma}
+=
+T_{A_t^\Gamma}^{\mathrm{nl}}(Z_t^\Gamma).
+}
+\]
+于是存在谓词链
+\[
+\boxed{
+\Gamma
+\Longrightarrow
+(\lambda_t^\Gamma)_t
+\Longrightarrow
+(A_t^\Gamma)_t
+\Longrightarrow
+(Z_t^\Gamma)_t
+\Longrightarrow
+(\mathcal F_\omega(Z_t^\Gamma))_t
+\Longrightarrow
+E_{\omega,\varepsilon,T}^{\Gamma}.
+}
+\]
+\end{definition}
+
+\begin{lemma}[非线性扭曲诱导随机过程]
+若 \(\pi_{\lambda_t^\Gamma}\) 是动作空间上的概率核，且
+\(A_t^\Gamma\mid\Fil_{t-1}^{\Gamma}\sim\pi_{\lambda_t^\Gamma}\)，则递推
+\[
+Z_{t+1}^{\Gamma}
+=
+T_{A_t^\Gamma}^{\mathrm{nl}}(Z_t^\Gamma)
+\]
+诱导有限时域随机过程
+\[
+\{Z_t^\Gamma\}_{t=0}^{T}.
+\]
+\end{lemma}
+
+\begin{Certificate}[诱导过程证书]
+\[
+\boxed{
+\Gamma_t
+\Rightarrow
+\lambda_t^\Gamma
+\Rightarrow
+\pi_{\lambda_t^\Gamma}
+\Rightarrow
+A_t^\Gamma
+\Rightarrow
+T_{A_t^\Gamma}^{\mathrm{nl}}(Z_t^\Gamma)
+\Rightarrow
+Z_{t+1}^{\Gamma}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由轨迹函数定义，\(\lambda_t^\Gamma\) 是关于历史
+\(\Fil_{t-1}^{\Gamma}\) 的可测分布律参数。由动作概率核定义，
+\[
+A_t^\Gamma\mid\Fil_{t-1}^{\Gamma}\sim\pi_{\lambda_t^\Gamma}.
+\]
+因此 \(A_t^\Gamma\) 是随机变量。由于
+\[
+Z_{t+1}^{\Gamma}
+=
+T_{A_t^\Gamma}^{\mathrm{nl}}(Z_t^\Gamma),
+\]
+而 \(T_a^{\mathrm{nl}}\) 可测，故 \(Z_{t+1}^{\Gamma}\) 是由随机动作与当前
+状态共同决定的随机变量。对 \(t=0,\ldots,T-1\) 递推，得到有限时域随机过程
+\(\{Z_t^\Gamma\}_{t=0}^{T}\)。引理得证。
+\end{proof}
+
+\subsection{公理降级：有限路径概率空间构造定理}
+\label{subsec:finite-path-probability-space}
+
+\begin{theorem}[公理降级：有限路径概率空间构造定理]
+设 \(T<\infty\)，并满足：
+\[
+\begin{aligned}
+&\mathrm{P1}:\quad
+(\mathcal Z,\mathscr B_{\mathcal Z})\text{ 与 }(A,\mathscr B_A)
+\text{ 是可测空间};\\
+&\mathrm{P2}:\quad
+z_0\in\mathcal Z\text{ 给定，或初始分布 }\eta_0\text{ 给定};\\
+&\mathrm{P3}:\quad
+\pi_\lambda(\cdot)\text{ 是 }A\text{ 上的概率核};\\
+&\mathrm{P4}:\quad
+\Gamma_t\text{ 对历史 }\Fil_{t-1}^{\Gamma}\text{ 可测};\\
+&\mathrm{P5}:\quad
+(z,a)\mapsto T_a^{\mathrm{nl}}(z)\text{ 可测};\\
+&\mathrm{P6}:\quad
+\mathcal F_\omega\text{ 可测且 }B_{\omega,\varepsilon}\in\mathscr B_\omega.
+\end{aligned}
+\]
+则对任意轨迹函数 \(\Gamma\)，存在有限路径概率空间
+\[
+\boxed{
+(\Omega_{\Gamma,T},\mathscr F_{\Gamma,T},\Prob_{\Gamma,T})
+}
+\]
+使得随机过程
+\[
+(Z_0^\Gamma,A_0^\Gamma,Z_1^\Gamma,\ldots,A_{T-1}^\Gamma,Z_T^\Gamma)
+\]
+与频域命中事件 \(E_{\omega,\varepsilon,T}^{\Gamma}\) 均全定义。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书]
+令
+\[
+H_t^\Gamma
+\DefEq
+(Z_0^\Gamma,A_0^\Gamma,\ldots,A_{t-1}^\Gamma,Z_t^\Gamma)
+\]
+为历史路径，并定义谓词
+\[
+\mathcal P(t):
+\quad
+H_t^\Gamma
+\text{ 在可测路径空间上具有概率律 }\mu_t^\Gamma.
+\]
+证书链为
+\[
+\boxed{
+\mathcal P(t)
+\Rightarrow
+\Gamma_t(H_t^\Gamma)
+\Rightarrow
+\pi_{\lambda_t^\Gamma}
+\Rightarrow
+A_t^\Gamma
+\Rightarrow
+Z_{t+1}^\Gamma
+\Rightarrow
+\mu_{t+1}^\Gamma
+\Rightarrow
+\mathcal P(t+1).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+基步：若 \(z_0\) 给定，则令 \(\mu_0^\Gamma=\delta_{z_0}\)；
+若初始分布 \(\eta_0\) 给定，则令 \(\mu_0^\Gamma=\eta_0\)。
+因此 \(\mathcal P(0)\) 成立。
+
+归纳步：假设 \(\mathcal P(t)\) 成立，即 \(H_t^\Gamma\) 具有概率律
+\(\mu_t^\Gamma\)。由 P4，
+\[
+\lambda_t^\Gamma=\Gamma_t(H_t^\Gamma)
+\]
+是历史可测函数。由 P3，\(\pi_{\lambda_t^\Gamma}\) 给出动作条件分布。
+定义从历史到下一步动作--状态的转移核
+\[
+Q_t^\Gamma(da,dz'\mid H_t^\Gamma)
+\DefEq
+\pi_{\lambda_t^\Gamma}(da)\,
+\delta_{T_a^{\mathrm{nl}}(Z_t^\Gamma)}(dz').
+\]
+由 P5，该核可测。令
+\[
+\mu_{t+1}^\Gamma(dH_t,da,dz')
+\DefEq
+\mu_t^\Gamma(dH_t)\,
+Q_t^\Gamma(da,dz'\mid H_t).
+\]
+则 \(H_{t+1}^\Gamma=(H_t^\Gamma,A_t^\Gamma,Z_{t+1}^\Gamma)\)
+具有概率律 \(\mu_{t+1}^\Gamma\)，故 \(\mathcal P(t+1)\) 成立。
+
+由数学归纳法，\(\mu_T^\Gamma\) 存在。令
+\[
+\Omega_{\Gamma,T}
+\DefEq
+\mathcal Z\times(A\times\mathcal Z)^T,
+\qquad
+\mathscr F_{\Gamma,T}
+\DefEq
+\mathscr B_{\mathcal Z}\otimes(\mathscr B_A\otimes\mathscr B_{\mathcal Z})^T,
+\qquad
+\Prob_{\Gamma,T}
+\DefEq
+\mu_T^\Gamma.
+\]
+再由 P6 与频域命中事件可测引理，
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}\in\mathscr F_{\Gamma,T}.
+\]
+故有限路径概率空间与频域命中事件均全定义。定理得证。
+\end{proof}
+
+\subsection{频域命中强制概率空间构造}
+\label{subsec:frequency-hit-forces-probability-space}
+
+\begin{theorem}[频域命中强制概率空间构造]
+若目标为频域命中事件
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}
+=
+\left\{
+\exists\,t\le T:
+\mathcal F_\omega(Z_t^\Gamma)\in B_{\omega,\varepsilon}
+\right\},
+\]
+且状态演化由 TPH/LHTS 非线性扭曲过程给出
+\[
+Z_{t+1}^{\Gamma}
+=
+T_{A_t^\Gamma}^{\mathrm{nl}}(Z_t^\Gamma),
+\qquad
+A_t^\Gamma\mid\Fil_{t-1}^{\Gamma}\sim\pi_{\lambda_t^\Gamma},
+\]
+则必须构造概率空间
+\[
+(\Omega_{\Gamma,T},\mathscr F_{\Gamma,T},\Prob_{\Gamma,T})
+\]
+才能定义频域命中泛函
+\[
+\mathcal J_{\omega,\varepsilon,T}(\Gamma)
+=
+\Prob_{\Gamma,T}(E_{\omega,\varepsilon,T}^{\Gamma}).
+\]
+\end{theorem}
+
+\begin{Certificate}[强制构造证书]
+\[
+\boxed{
+\text{非线性扭曲}
+\Rightarrow
+\text{样本路径族}
+\Rightarrow
+\text{频域观测路径}
+\Rightarrow
+\text{频域命中事件}
+\Rightarrow
+\text{命中概率}
+\Rightarrow
+\text{选择泛函}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 TPH/LHTS 递推，
+\[
+Z_{t+1}^{\Gamma}=T_{A_t^\Gamma}^{\mathrm{nl}}(Z_t^\Gamma).
+\]
+若
+\[
+A_t^\Gamma\mid\Fil_{t-1}^{\Gamma}\sim\pi_{\lambda_t^\Gamma},
+\]
+则 \((Z_t^\Gamma)_{t=0}^{T}\) 是样本路径族，而不是单条确定路径。
+因此必须存在样本空间 \(\Omega_{\Gamma,T}\) 来承载路径实现。
+
+为了判断频域命中，需要使
+\[
+\xi\mapsto \mathcal F_\omega(Z_t^\Gamma(\xi))
+\]
+可测，因此必须给出 \(\sigma\)-代数 \(\mathscr F_{\Gamma,T}\)。
+为了给频域命中事件赋值，必须给出概率测度
+\(\Prob_{\Gamma,T}\)。由前一构造定理，这三者可在有限时域上递推构造。
+
+若没有
+\[
+(\Omega_{\Gamma,T},\mathscr F_{\Gamma,T},\Prob_{\Gamma,T}),
+\]
+则表达式
+\[
+\Prob_{\Gamma,T}(\tau_{\omega,\varepsilon}^{\Gamma}\le T)
+\]
+没有定义域、可测事件与概率测度。因此频域命中泛函无法构造。
+故频域命中的基本特征强制概率空间构造。定理得证。
+\end{proof}
+
+\subsection{频域命中决定随机过程轨迹表达}
+\label{subsec:frequency-hit-path-process-expression}
+
+\begin{theorem}[频域命中决定随机过程表达]
+频域命中不能仅由单点状态 \(z_t\) 表达，而必须由轨迹过程
+\[
+(Z_0^\Gamma,Z_1^\Gamma,\ldots,Z_T^\Gamma)
+\]
+表达；在 TPH/LHTS 中，该轨迹过程由轨迹函数 \(\Gamma\) 的分布律表达生成。
+\end{theorem}
+
+\begin{Certificate}[轨迹表达证书]
+\[
+\boxed{
+\Gamma
+\Rightarrow
+\{Z_t^\Gamma\}_{t=0}^{T}
+\Rightarrow
+\{\mathcal F_\omega(Z_t^\Gamma)\}_{t=0}^{T}
+\Rightarrow
+E_{\omega,\varepsilon,T}^{\Gamma}
+\Rightarrow
+\mathcal J_{\omega,\varepsilon,T}(\Gamma).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+频域命中事件为
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}
+=
+\left\{
+\exists\,t\le T:
+\mathcal F_\omega(Z_t^\Gamma)\in B_{\omega,\varepsilon}
+\right\}.
+\]
+该事件显式依赖 \(Z_0^\Gamma,\ldots,Z_T^\Gamma\)。相位漂移、幅值累积、
+谱泄漏、非线性混频、模态耦合与窗口化命中也通常依赖一段轨迹。
+因此频域命中不是单点状态命中，而是路径事件。
+
+在 TPH/LHTS 中，轨迹函数 \(\Gamma\) 通过
+\[
+\Gamma_t
+\Rightarrow
+\lambda_t^\Gamma
+\Rightarrow
+A_t^\Gamma
+\Rightarrow
+Z_{t+1}^\Gamma
+\]
+生成随机过程。因此频域命中决定系统必须使用随机过程的轨迹函数表达。
+定理得证。
+\end{proof}
+
+\subsection{TPH 选择泛函作为频域概率空间上的 JacGap 控制}
+\label{subsec:tph-selection-on-frequency-probability-space}
+
+\begin{definition}[频域命中--JacGap 选择泛函]
+令 JacGap 势函数为
+\[
+\Phi(D)
+\DefEq
+\frac12\|\JacGap(D)\|^2.
+\]
+在由 \(\Gamma\) 诱导的概率空间上，定义频域命中--JacGap 选择泛函为
+\[
+\boxed{
+\mathfrak S_\omega(\Gamma)
+\DefEq
+\alpha\,\mathcal J_{\omega,\varepsilon,T}(\Gamma)
+-
+\beta\,\E_{\Gamma,T}[\Phi(D_T^\Gamma)]
+-
+\gamma\,\Cost(\Gamma)
+-
+\delta\,\Var_{\Gamma,T}(\Phi(D_T^\Gamma)).
+}
+\]
+其中 \(\alpha,\beta,\gamma,\delta\ge0\) 是权重；
+\(\mathcal J_{\omega,\varepsilon,T}(\Gamma)\) 负责频域命中；
+\(\E_{\Gamma,T}[\Phi(D_T^\Gamma)]\) 负责 JacGap 下降；
+\(\Cost(\Gamma)\) 负责计算成本；
+\(\Var_{\Gamma,T}(\Phi(D_T^\Gamma))\) 负责随机波动惩罚。
+选择规则为
+\[
+\boxed{
+\Gamma^\star
+\DefEq
+\argmax_{\Gamma\in\mathfrak G_{\mathrm{ad}}}
+\mathfrak S_\omega(\Gamma).
+}
+\]
+\end{definition}
+
+\begin{theorem}[TPH 选择泛函是频域概率空间上的 JacGap 下降控制]
+若每个可行轨迹函数 \(\Gamma\in\mathfrak G_{\mathrm{ad}}\) 都诱导概率空间
+\[
+(\Omega_{\Gamma,T},\mathscr F_{\Gamma,T},\Prob_{\Gamma,T}),
+\]
+并且 \(\mathfrak S_\omega(\Gamma)\) 全定义，则 TPH 不是选择单个样本路径，
+而是在频域命中概率空间上选择能兼顾命中概率、JacGap 下降、成本与方差控制的
+轨迹函数。
+\end{theorem}
+
+\begin{Certificate}[选择泛函证书]
+\[
+\boxed{
+\Gamma
+\Rightarrow
+\Prob_{\Gamma,T}
+\Rightarrow
+\mathcal J_{\omega,\varepsilon,T}(\Gamma),
+\E_{\Gamma,T}[\Phi(D_T^\Gamma)],
+\Var_{\Gamma,T}(\Phi)
+\Rightarrow
+\mathfrak S_\omega(\Gamma)
+\Rightarrow
+\Gamma^\star.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由概率空间构造定理，每个 \(\Gamma\) 诱导路径律 \(\Prob_{\Gamma,T}\)。
+因此
+\[
+\mathcal J_{\omega,\varepsilon,T}(\Gamma)
+=
+\Prob_{\Gamma,T}(E_{\omega,\varepsilon,T}^{\Gamma})
+\]
+全定义。若 \(\Phi(D_T^\Gamma)\) 可积且二阶矩有限，则
+\[
+\E_{\Gamma,T}[\Phi(D_T^\Gamma)],
+\qquad
+\Var_{\Gamma,T}(\Phi(D_T^\Gamma))
+\]
+全定义。成本项 \(\Cost(\Gamma)\) 是轨迹函数层面的确定性复杂度度量。
+因此 \(\mathfrak S_\omega(\Gamma)\) 是可比较的实值泛函。
+
+最大化
+\[
+\Gamma^\star
+=
+\argmax_{\Gamma\in\mathfrak G_{\mathrm{ad}}}
+\mathfrak S_\omega(\Gamma)
+\]
+选择的是轨迹函数，而不是某条随机样本路径。轨迹函数对应分布律和随机过程族，
+所以 TPH 在频域概率空间上完成 JacGap 下降控制。定理得证。
+\end{proof}
+
+\subsection{随机性与确定性收敛的兼容性}
+\label{subsec:randomness-deterministic-frequency-control}
+
+\begin{proposition}[样本路径随机与轨迹函数选择确定并不矛盾]
+在 TPH/LHTS 中，动作抽样
+\[
+A_t^\Gamma\mid\Fil_{t-1}^{\Gamma}\sim\pi_{\lambda_t^\Gamma}
+\]
+与状态递推
+\[
+Z_{t+1}^\Gamma=T_{A_t^\Gamma}^{\mathrm{nl}}(Z_t^\Gamma)
+\]
+产生随机样本路径；但选择泛函 \(\mathfrak S_\omega(\Gamma)\) 是轨迹函数层面的
+确定性比较对象。
+\end{proposition}
+
+\begin{Certificate}[两层结构证书]
+\[
+\boxed{
+\begin{gathered}
+\text{样本路径层：}\quad
+A_t^\Gamma,\ Z_t^\Gamma\text{ 随机},
+\\
+\text{轨迹函数层：}\quad
+\Gamma\mapsto\mathfrak S_\omega(\Gamma)\text{ 可比较},
+\\
+\text{控制层：}\quad
+\Gamma^\star=\argmax_{\Gamma}\mathfrak S_\omega(\Gamma)\text{ 确定}.
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+动作 \(A_t^\Gamma\) 由条件分布抽样产生，所以样本路径随机。
+但是一旦轨迹函数 \(\Gamma\) 给定，其诱导的路径律 \(\Prob_{\Gamma,T}\)、
+命中概率 \(\mathcal J_{\omega,\varepsilon,T}(\Gamma)\)、期望势函数
+\(\E_{\Gamma,T}[\Phi(D_T^\Gamma)]\) 与方差惩罚均是该分布律上的泛函。
+这些泛函在轨迹函数集合上可比较。若使用确定性并列消解规则，则
+\[
+\Gamma^\star=\argmax_{\Gamma}\mathfrak S_\omega(\Gamma)
+\]
+是确定性选择。因此样本路径层随机与轨迹函数选择层确定并不矛盾。
+命题得证。
+\end{proof}
+
+\begin{corollary}[频域命中到 TPH-LHTS 确定性控制]
+频域命中要求随机过程概率空间；TPH 通过选择泛函把随机过程候选提升为
+确定性轨迹函数选择；LHTS 再执行嵌入运动。其闭环为
+\[
+\boxed{
+\begin{gathered}
+\text{频域命中}
+\Rightarrow
+(\Omega_{\Gamma,T},\mathscr F_{\Gamma,T},\Prob_{\Gamma,T})
+\Rightarrow
+\{Z_t^\Gamma\}_{t=0}^{T}
+\\
+\Rightarrow
+\mathfrak S_\omega(\Gamma)
+\Rightarrow
+\Gamma^\star
+\Rightarrow
+\Update_{\LHTS}(D_t,\Gamma^\star)
+\Rightarrow
+\text{JacGap 下降证书}.
+\end{gathered}
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[闭环证书]
+\[
+\boxed{
+\FreqHit
+\Rightarrow
+E_{\omega,\varepsilon,T}^{\Gamma}\in\mathscr F_{\Gamma,T}
+\Rightarrow
+\Prob_{\Gamma,T}(E_{\omega,\varepsilon,T}^{\Gamma})
+\Rightarrow
+\mathfrak S_\omega(\Gamma)
+\Rightarrow
+\Gamma^\star
+\Rightarrow
+D_{t+1}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由频域命中事件可测引理，
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}\in\mathscr F_{\Gamma,T}.
+\]
+由概率空间构造定理，\(\Prob_{\Gamma,T}\) 存在。因此命中概率
+\[
+\Prob_{\Gamma,T}(E_{\omega,\varepsilon,T}^{\Gamma})
+\]
+全定义。该命中概率进入选择泛函 \(\mathfrak S_\omega\)，由 TPH 选择
+\(\Gamma^\star\)。最后 LHTS 执行
+\[
+D_{t+1}=\Update_{\LHTS}(D_t,\Gamma^\star).
+\]
+因此从频域命中到确定性控制的闭环成立。推论得证。
+\end{proof}
+
+\subsection{非线性扭曲与频域命中的适配性}
+\label{subsec:nonlinear-twist-frequency-fit}
+
+\begin{proposition}[非线性扭曲天然适合频域命中]
+TPH/LHTS 中的非线性扭曲算子 \(T_a^{\mathrm{nl}}\) 通常改变相位、振幅、
+频率局部结构、模态耦合与谱能量分布，因此频域目标自然表现为
+\[
+\mathcal F_\omega(Z_t^\Gamma)\in B_{\omega,\varepsilon}
+\]
+的频域命中，而不只是 \(Z_t^\Gamma\in B\) 的状态空间命中。
+\end{proposition}
+
+\begin{Certificate}[非线性频域证书]
+\[
+\boxed{
+T_a^{\mathrm{nl}}
+\Rightarrow
+\mathcal F_\omega(T_a^{\mathrm{nl}}(z))
+\ne
+L_a\mathcal F_\omega(z)\text{ 一般成立}
+\Rightarrow
+\text{频域路径命中}
+\Rightarrow
+\text{轨迹函数概率空间}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+若 \(T_a^{\mathrm{nl}}\) 是一般非线性扭曲，则在频域中通常不等价于某个固定线性
+算子 \(L_a\) 对频域观测的简单作用：
+\[
+\mathcal F_\omega(T_a^{\mathrm{nl}}(z))
+\ne
+L_a\mathcal F_\omega(z).
+\]
+非线性扭曲可能改变相位、振幅、局部频率结构、模态耦合与谱能量分布。
+因此命中目标应写为频域观测命中
+\[
+\mathcal F_\omega(Z_t^\Gamma)\in B_{\omega,\varepsilon},
+\]
+并且其判定依赖轨迹窗口。由此需要由轨迹函数族诱导随机过程概率空间。
+命题得证。
+\end{proof}
+
+\begin{corollary}[最终正规表述]
+在 TPH/LHTS 架构中，基于随机过程的概率空间构造由频域命中的基本特征决定。
+频域命中不是单点状态命中，而是相位、幅值、谱窗、模态耦合与非线性混频等
+路径特征的可测事件。TPH 与 LHTS 的非线性扭曲生成随机过程样本路径，
+轨迹函数 \(\Gamma\) 给出这些随机过程的分布律表达。因此必须构造
+\[
+(\Omega_{\Gamma,T},\mathscr F_{\Gamma,T},\Prob_{\Gamma,T}),
+\]
+才能定义
+\[
+\Prob_{\Gamma,T}(\tau_{\omega,\varepsilon}^{\Gamma}\le T),
+\]
+进而定义 JacGap 下降选择泛函。
+\end{corollary}
+
+\begin{Certificate}[最终压缩证书]
+\[
+\boxed{
+\begin{gathered}
+\mathsf{FreqHit}
+\Rightarrow
+E_{\omega,\varepsilon,T}^{\Gamma}\in\mathscr F_{\Gamma,T}
+\Rightarrow
+(\Omega_{\Gamma,T},\mathscr F_{\Gamma,T},\Prob_{\Gamma,T})
+\\
+\Rightarrow
+\mathcal J_{\omega,\varepsilon,T}(\Gamma)
+\Rightarrow
+\mathfrak S_\omega(\Gamma)
+\Rightarrow
+\TPHLHTS\text{ 确定性收敛控制}.
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+第一，频域命中事件由频域观测路径定义。第二，可测事件必须属于某个
+\(\sigma\)-代数。第三，命中概率必须由概率测度赋值。第四，轨迹函数 \(\Gamma\)
+通过动作核与非线性扭曲递推生成该概率空间上的随机过程。第五，TPH 选择泛函
+\(\mathfrak S_\omega\) 在轨迹函数层比较命中概率、JacGap 期望下降、成本与方差。
+因此频域命中决定概率空间，概率空间承载随机过程，随机过程由轨迹函数表达，
+TPH 选择轨迹函数，LHTS 执行嵌入运动，JacGap 下降给出确定性收敛证书。
+推论得证。
+\end{proof}
+
+\begin{remark}[理论增益]
+本节说明：TPH/LHTS 使用随机过程不是因为系统缺少确定性，而是因为频域命中本身
+就是路径事件、谱窗事件、相位事件与非线性混频事件。这些对象必须被可测化，
+必须拥有概率空间，并必须通过随机过程表达。随后 TPH 再把随机过程候选提升为
+\[
+\boxed{
+\text{可比较、可选择、可回填、可递归收敛的轨迹函数族}.
+}
+\]
+因此最终关系为
+\[
+\boxed{
+\begin{gathered}
+\text{频域命中决定概率空间；概率空间承载随机过程；}
+\\
+\text{随机过程由轨迹函数表达；TPH 选择轨迹函数；}
+\\
+\text{LHTS 执行嵌入运动；JacGap 下降给出确定性收敛证书。}
+\end{gathered}
+}
+\]
+\end{remark}
+
+\section{形式逻辑：随机过程轨迹函数作为频域微观隧穿命中控制的等价接口}
+\label{sec:trajectory-function-equivalent-interface}
+
+\begin{remark}[严格限定]
+在上一节中，频域命中已经强制出概率空间与随机过程轨迹表达。
+本节进一步给出“唯一适格对象”的严格限定：
+\[
+\boxed{
+\begin{gathered}
+\text{在非退化命中概率、统计力学路径权重、频域谱窗命中三者同时成立的意义下，}
+\\
+\text{唯一自然且可控的接口对象是随机过程的轨迹函数。}
+\end{gathered}
+}
+\]
+这里的唯一性不是排除确定性轨迹，而是说：确定性轨迹只能作为 Dirac 概率测度下的
+退化随机过程出现。换言之，
+\[
+\boxed{
+\text{随机过程的轨迹函数是微观隧穿命中控制与频域计算/谱分析之间的等价接口。}
+}
+\]
+统计力学路径权重、稀有事件与频域谱窗命中可分别由 Gibbs 型路径测度、
+大偏差观点与频域分析框架支撑
+\cite{Touchette2009LargeDeviations,FreidlinWentzell2012RandomPerturbations,OppenheimSchafer2010DSP,Mallat2009Wavelet}。
+\end{remark}
+
+\subsection{路径空间与轨迹函数概率空间化}
+\label{subsec:path-space-trajectory-probabilization}
+
+\begin{definition}[有限路径空间与轨迹函数]
+令有限时域路径空间为
+\[
+\mathcal P_T
+\DefEq
+\mathcal Z^{T+1},
+\qquad
+\mathscr B(\mathcal P_T)
+\DefEq
+\mathscr B_{\mathcal Z}^{\otimes(T+1)}.
+\]
+轨迹函数为
+\[
+\Gamma
+\DefEq
+(\Gamma_0,\ldots,\Gamma_{T-1}),
+\]
+其中
+\[
+\Gamma_t:\Fil_t\to\Lambda,
+\qquad
+\lambda_t^\Gamma
+\DefEq
+\Gamma_t(\Fil_t).
+\]
+每个参数 \(\lambda_t^\Gamma\) 决定状态转移核
+\[
+K_{\lambda_t^\Gamma}(z_t,dz_{t+1}).
+\]
+\end{definition}
+
+\begin{theorem}[公理降级：轨迹函数路径测度构造定理]
+设初始分布 \(\rho_0\) 给定，并假设每个
+\[
+K_{\lambda_t^\Gamma}(z_t,\cdot)
+\]
+是 \((\mathcal Z,\mathscr B_{\mathcal Z})\) 上的概率核，且
+\(\Gamma_t\) 对历史 \(\Fil_t\) 可测。则轨迹函数 \(\Gamma\) 在
+\((\mathcal P_T,\mathscr B(\mathcal P_T))\) 上诱导路径测度
+\[
+\boxed{
+\Prob_\Gamma(dz_{0:T})
+\DefEq
+\rho_0(dz_0)
+\prod_{t=0}^{T-1}
+K_{\Gamma_t(\Fil_t)}(z_t,dz_{t+1}).
+}
+\]
+因此，\(\Gamma\) 是生成随机过程路径测度的轨迹函数。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书]
+令谓词
+\[
+\mathcal P(t):
+\quad
+\text{历史路径 }z_{0:t}\text{ 在 }\mathcal Z^{t+1}\text{ 上具有概率律 }\mu_t^\Gamma.
+\]
+证书链为
+\[
+\boxed{
+\Gamma
+\Rightarrow
+\lambda_t^\Gamma
+\Rightarrow
+K_{\lambda_t^\Gamma}
+\Rightarrow
+\mu_{t+1}^\Gamma
+\Rightarrow
+z_{0:t+1}
+\Rightarrow
+\mathcal P(t+1).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+基步：令 \(\mu_0^\Gamma=\rho_0\)，则 \(z_0\) 的概率律已定义，
+\(\mathcal P(0)\) 成立。
+
+归纳步：假设 \(\mathcal P(t)\) 成立，即 \(z_{0:t}\) 在
+\(\mathcal Z^{t+1}\) 上具有概率律 \(\mu_t^\Gamma\)。由轨迹函数可测性，
+\[
+\lambda_t^\Gamma=\Gamma_t(\Fil_t)
+\]
+是历史可测参数。由概率核定义，
+\[
+K_{\lambda_t^\Gamma}(z_t,dz_{t+1})
+\]
+给出下一状态的条件分布。定义
+\[
+\mu_{t+1}^\Gamma(dz_{0:t+1})
+\DefEq
+\mu_t^\Gamma(dz_{0:t})\,
+K_{\Gamma_t(\Fil_t)}(z_t,dz_{t+1}).
+\]
+则 \(z_{0:t+1}\) 具有概率律 \(\mu_{t+1}^\Gamma\)，所以
+\(\mathcal P(t+1)\) 成立。
+
+由数学归纳法，\(\mu_T^\Gamma\) 存在。将递推式展开，得到
+\[
+\Prob_\Gamma(dz_{0:T})
+=
+\rho_0(dz_0)
+\prod_{t=0}^{T-1}
+K_{\Gamma_t(\Fil_t)}(z_t,dz_{t+1}).
+\]
+因此 \(\Gamma\) 与 \(\Prob_\Gamma\) 在路径分布律意义下对应。
+定理得证。
+\end{proof}
+
+\begin{proposition}[轨迹函数不是普通函数]
+轨迹函数 \(\Gamma\) 的语义不是单纯输出一个状态点，而是生成路径测度：
+\[
+\boxed{
+\Gamma
+\Longrightarrow
+\Prob_\Gamma
+\Longrightarrow
+(Z_0^\Gamma,\ldots,Z_T^\Gamma)
+\Longrightarrow
+E_{\omega,\varepsilon,T}^{\Gamma}.
+}
+\]
+\end{proposition}
+
+\begin{Certificate}[概率空间化证书]
+\[
+\boxed{
+\Gamma
+\Rightarrow
+\lambda_t^\Gamma
+\Rightarrow
+K_{\lambda_t^\Gamma}
+\Rightarrow
+\Prob_\Gamma
+\Rightarrow
+z_{0:T}
+\Rightarrow
+\mathscr F_T(z_{0:T})
+\Rightarrow
+E_{\omega,\varepsilon,T}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由轨迹函数路径测度构造定理，\(\Gamma\) 诱导路径测度 \(\Prob_\Gamma\)。
+路径测度给出随机过程路径 \(Z_{0:T}^\Gamma\) 的分布律。
+若频域谱窗映射 \(\mathscr F_T\) 可测，则频域命中事件
+\[
+E_{\omega,\varepsilon,T}^{\Gamma}
+=
+\{z_{0:T}:\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}\}
+\]
+成为该路径概率空间上的可测事件。因此 \(\Gamma\) 是路径概率测度的控制接口。
+命题得证。
+\end{proof}
+
+\subsection{频域计算与路径对象}
+\label{subsec:frequency-computation-path-object}
+
+\begin{definition}[谱窗频域变换]
+定义有限窗口频域变换
+\[
+\mathscr F_T:\mathcal P_T\to\mathcal Y_\omega.
+\]
+抽象地，可将其写为
+\[
+\mathscr F_T(z_{0:T})
+\DefEq
+\left(
+\sum_{t=0}^{T}
+w_t\,z_t\,e^{-i\omega_j t}
+\right)_{\omega_j\in\Omega_\omega},
+\]
+其中 \(w_t\) 是谱窗，\(\omega_j\) 是频率格点。
+频域命中区域为
+\[
+B_{\omega,\varepsilon}\subseteq\mathcal Y_\omega.
+\]
+\end{definition}
+
+\begin{theorem}[频域计算要求路径对象]
+频域谱窗命中事件具有形式
+\[
+\boxed{
+E_{\omega,\varepsilon,T}
+\DefEq
+\left\{
+z_{0:T}\in\mathcal P_T:
+\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}
+\right\}.
+}
+\]
+因此频域命中不是一般的单点命中 \(z_t\in B\)，而是路径命中
+\[
+\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}.
+\]
+\end{theorem}
+
+\begin{Certificate}[频域路径证书]
+\[
+\boxed{
+z_{0:T}
+\Rightarrow
+\mathscr F_T(z_{0:T})
+\Rightarrow
+B_{\omega,\varepsilon}
+\Rightarrow
+E_{\omega,\varepsilon,T}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+谱窗频域变换 \(\mathscr F_T\) 的输入是整段路径
+\[
+z_{0:T}=(z_0,z_1,\ldots,z_T).
+\]
+在典型谱窗表达中，每个频率分量包含求和项
+\[
+\sum_{t=0}^{T}w_tz_te^{-i\omega_jt},
+\]
+故依赖 \(0,\ldots,T\) 的全部状态。命中事件由
+\[
+\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}
+\]
+定义，所以它是 \(\mathcal P_T\) 上的路径事件。
+若该路径事件还要带有命中概率，则必须使用
+\[
+(\mathcal P_T,\mathscr B(\mathcal P_T),\Prob_\Gamma).
+\]
+定理得证。
+\end{proof}
+
+\subsection{统计力学路径权重与微观隧穿命中}
+\label{subsec:statistical-path-weight-tunneling}
+
+\begin{definition}[统计力学路径权重]
+令 \(\nu\) 为 \((\mathcal P_T,\mathscr B(\mathcal P_T))\) 上的参考测度，
+令路径作用量为
+\[
+\mathcal A_\Gamma:\mathcal P_T\to\RR\cup\{+\infty\}.
+\]
+给定 \(\beta>0\)，配分函数定义为
+\[
+Z_\Gamma(\beta)
+\DefEq
+\int_{\mathcal P_T}
+\exp\!\left(-\beta\mathcal A_\Gamma(z_{0:T})\right)\,
+\nu(dz_{0:T}).
+\]
+若 \(0<Z_\Gamma(\beta)<\infty\)，定义 Gibbs 型路径测度
+\[
+\boxed{
+\Prob_\Gamma^\beta(dz_{0:T})
+\DefEq
+\frac{1}{Z_\Gamma(\beta)}
+\exp\!\left(-\beta\mathcal A_\Gamma(z_{0:T})\right)\,
+\nu(dz_{0:T}).
+}
+\]
+\end{definition}
+
+\begin{definition}[频域微观隧穿命中泛函]
+频域微观隧穿命中泛函定义为
+\[
+\boxed{
+\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma)
+\DefEq
+\Prob_\Gamma^\beta(E_{\omega,\varepsilon,T}).
+}
+\]
+即
+\[
+\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma)
+=
+\frac{
+\int_{E_{\omega,\varepsilon,T}}
+\exp\!\left(-\beta\mathcal A_\Gamma(z_{0:T})\right)\nu(dz_{0:T})
+}{
+\int_{\mathcal P_T}
+\exp\!\left(-\beta\mathcal A_\Gamma(z_{0:T})\right)\nu(dz_{0:T})
+}.
+\]
+\end{definition}
+
+\begin{lemma}[路径权重归一化引理]
+若 \(0<Z_\Gamma(\beta)<\infty\)，则 \(\Prob_\Gamma^\beta\) 是
+\((\mathcal P_T,\mathscr B(\mathcal P_T))\) 上的概率测度。
+\end{lemma}
+
+\begin{Certificate}[归一化证书]
+\[
+\boxed{
+0<Z_\Gamma(\beta)<\infty
+\Rightarrow
+\Prob_\Gamma^\beta(\mathcal P_T)=1
+\Rightarrow
+\Prob_\Gamma^\beta\text{ 是概率测度}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由定义，
+\[
+\Prob_\Gamma^\beta(\mathcal P_T)
+=
+\frac{1}{Z_\Gamma(\beta)}
+\int_{\mathcal P_T}
+\exp\!\left(-\beta\mathcal A_\Gamma(z_{0:T})\right)\nu(dz_{0:T})
+=1.
+\]
+非负性由指数权重非负给出，可列可加性由参考测度 \(\nu\) 的可列可加性和密度
+\[
+\frac{1}{Z_\Gamma(\beta)}
+\exp(-\beta\mathcal A_\Gamma)
+\]
+的非负可测性给出。因此 \(\Prob_\Gamma^\beta\) 是概率测度。引理得证。
+\end{proof}
+
+\begin{theorem}[微观隧穿命中控制要求概率路径测度]
+若微观隧穿命中被理解为低概率路径在统计权重下穿过势垒并命中频域目标区域，
+则必须使用概率路径测度 \(\Prob_\Gamma^\beta\) 才能定义
+\[
+\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma)
+=
+\Prob_\Gamma^\beta(E_{\omega,\varepsilon,T}).
+\]
+\end{theorem}
+
+\begin{Certificate}[隧穿命中证书]
+\[
+\boxed{
+\text{势垒}
+\Rightarrow
+\text{稀有命中}
+\Rightarrow
+\text{路径权重}
+\Rightarrow
+\Prob_\Gamma^\beta
+\Rightarrow
+\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+微观隧穿命中不是单条确定路径的几何跨越，而是路径集合在统计权重下的命中。
+若没有概率路径测度 \(\Prob_\Gamma^\beta\)，则表达式
+\[
+\Prob_\Gamma^\beta(E_{\omega,\varepsilon,T})
+\]
+不可定义；若没有轨迹函数 \(\Gamma\)，则路径测度无法被控制性参数化。
+由统计力学路径权重定义与路径权重归一化引理，\(\Prob_\Gamma^\beta\) 给出
+命中事件的概率赋值。故微观隧穿命中控制要求随机过程轨迹函数。
+定理得证。
+\end{proof}
+
+\subsection{等价接口定理}
+\label{subsec:equivalent-interface-theorem}
+
+\begin{theorem}[随机过程轨迹函数等价表示频域微观隧穿命中控制]
+在如下三项同时成立时：
+\[
+\begin{aligned}
+&\mathrm{C1}:\quad
+\text{目标是频域谱窗命中 }E_{\omega,\varepsilon,T};\\
+&\mathrm{C2}:\quad
+\text{命中以统计力学路径权重 }\Prob_\Gamma^\beta\text{ 定义};\\
+&\mathrm{C3}:\quad
+\text{控制对象是可调路径分布律}.
+\end{aligned}
+\]
+随机过程轨迹函数 \(\Gamma\) 与频域微观隧穿命中控制在路径分布律等价类意义下等价：
+\[
+\boxed{
+\Gamma
+\Longleftrightarrow
+\Prob_\Gamma^\beta
+\Longleftrightarrow
+\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma)
+\Longleftrightarrow
+\text{频域微观隧穿命中控制}.
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[等价接口证书]
+\[
+\boxed{
+\Gamma
+\Longleftrightarrow
+\Prob_\Gamma^\beta
+\Longleftrightarrow
+\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma)
+\Longleftrightarrow
+\text{频域微观隧穿命中控制}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+正向：由轨迹函数路径测度构造定理，
+\[
+\Gamma\Rightarrow\Prob_\Gamma.
+\]
+由统计力学路径权重构造，
+\[
+\Prob_\Gamma\Rightarrow\Prob_\Gamma^\beta.
+\]
+由频域谱窗映射 \(\mathscr F_T\) 与命中区域 \(B_{\omega,\varepsilon}\)，得到
+\[
+E_{\omega,\varepsilon,T}
+=
+\{z_{0:T}:\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}\}.
+\]
+由路径测度，
+\[
+\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma)
+=
+\Prob_\Gamma^\beta(E_{\omega,\varepsilon,T}).
+\]
+因此
+\[
+\Gamma\Rightarrow\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma).
+\]
+
+反向：若目标是控制
+\[
+\mathcal J_{\omega,\varepsilon,T}^{\beta},
+\]
+则必须改变命中事件 \(E_{\omega,\varepsilon,T}\) 在路径空间上的概率质量。
+由于命中区域与频域映射固定，控制只能通过改变路径测度
+\(\Prob_\Gamma^\beta\) 实现。按 C3，可执行的路径分布律控制接口正是
+\(\Gamma\)。因此
+\[
+\mathcal J_{\omega,\varepsilon,T}^{\beta}
+\Rightarrow
+\Prob_\Gamma^\beta
+\Rightarrow
+\Gamma
+\]
+在路径分布律等价类意义下成立。定理得证。
+\end{proof}
+
+\begin{proposition}[唯一适格接口的限定形式]
+若要求同时表达非退化命中概率
+\[
+0<\Prob(E_{\omega,\varepsilon,T})<1,
+\]
+统计力学路径权重 \(\Prob_\Gamma^\beta\)，以及频域谱窗命中事件
+\[
+\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon},
+\]
+则任何适格控制对象都必须决定一个可调路径概率测度。轨迹函数
+\(\Gamma\) 是该可调路径概率测度的自然控制接口；任意等价接口至多与
+\(\Gamma\) 在诱导路径律意义下等价。
+\end{proposition}
+
+\begin{Certificate}[唯一性限定证书]
+\[
+\boxed{
+\begin{gathered}
+\text{非退化命中概率}
++
+\text{路径权重}
++
+\text{频域谱窗命中}
+\Rightarrow
+\text{可调路径测度}
+\\
+\Rightarrow
+\Gamma\text{ 或与 }\Gamma\text{ 路径律等价的接口}.
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+非退化命中概率要求事件概率不是 \(0\) 或 \(1\) 的退化判定，而是路径集合上的概率质量。
+统计力学路径权重要求该概率质量由配分函数归一化的路径测度给出。
+频域谱窗命中要求事件定义在路径空间 \(\mathcal P_T\) 上。三者合取后，控制对象
+必须能够调节 \(\mathcal P_T\) 上的路径概率测度。轨迹函数 \(\Gamma\) 通过
+\[
+\Gamma\mapsto\Prob_\Gamma^\beta
+\]
+直接给出这种调节。若另一个接口 \(U\) 完成同样功能，则它必须诱导同一类路径律
+\(\Prob_U^\beta\)。在所有命中泛函与选择泛函只依赖路径律的意义下，
+\[
+\Prob_U^\beta=\Prob_\Gamma^\beta
+\]
+即为等价。因此唯一性应理解为路径分布律等价类意义下的唯一适格接口。
+命题得证。
+\end{proof}
+
+\subsection{确定性轨迹作为 Dirac 退化特例}
+\label{subsec:deterministic-dirac-degenerate}
+
+\begin{corollary}[确定性轨迹的 Dirac 退化]
+普通确定性轨迹
+\[
+z_{0:T}^{\mathrm{det}}
+\]
+可以嵌入为 Dirac 路径测度
+\[
+\Prob^{\mathrm{det}}
+\DefEq
+\delta_{z_{0:T}^{\mathrm{det}}}.
+\]
+因此
+\[
+\Prob^{\mathrm{det}}(E_{\omega,\varepsilon,T})
+\in\{0,1\}.
+\]
+确定性轨迹是随机过程轨迹函数框架的退化特例，而不能承担非退化频域微观隧穿
+命中控制的完整角色。
+\end{corollary}
+
+\begin{Certificate}[Dirac 退化证书]
+\[
+\boxed{
+z_{0:T}^{\mathrm{det}}
+\Rightarrow
+\delta_{z_{0:T}^{\mathrm{det}}}
+\Rightarrow
+\Prob^{\mathrm{det}}(E_{\omega,\varepsilon,T})\in\{0,1\}
+\Rightarrow
+\text{退化随机过程}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+Dirac 测度定义为
+\[
+\delta_{z_{0:T}^{\mathrm{det}}}(E)
+=
+\begin{cases}
+1, & z_{0:T}^{\mathrm{det}}\in E,\\
+0, & z_{0:T}^{\mathrm{det}}\notin E.
+\end{cases}
+\]
+取 \(E=E_{\omega,\varepsilon,T}\)，即得
+\[
+\Prob^{\mathrm{det}}(E_{\omega,\varepsilon,T})\in\{0,1\}.
+\]
+所以确定性轨迹可以被纳入概率框架，但只能表达退化命中概率，无法表达
+\[
+0<\Prob(E_{\omega,\varepsilon,T})<1
+\]
+的稀有路径权重、谱窗命中概率、路径集选择与配分函数调节。
+推论得证。
+\end{proof}
+
+\subsection{TPH/LHTS 位置与 JacGap 选择泛函}
+\label{subsec:tph-lhts-position-jacgap-functional}
+
+\begin{corollary}[TPH 与 LHTS 的准确位置]
+在频域微观隧穿命中控制中，LHTS 负责嵌入定制运动内核：
+\[
+Z_{t+1}
+=
+T_{A_t}^{\mathrm{nl}}(Z_t).
+\]
+TPH 负责轨迹函数参数同伦控制：
+\[
+\Gamma
+\mapsto
+\Prob_\Gamma^\beta
+\mapsto
+\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma)
+\mapsto
+\Gamma^\star.
+\]
+完整链条为
+\[
+\boxed{
+\begin{gathered}
+\LHTS
+\Rightarrow
+\text{非线性扭曲运动候选}
+\Rightarrow
+\TPH
+\Rightarrow
+\text{随机过程轨迹函数}
+\\
+\Rightarrow
+\text{统计力学路径测度}
+\Rightarrow
+\text{频域谱窗命中}
+\Rightarrow
+\text{JacGap 下降选择}.
+\end{gathered}
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[TPH/LHTS 位置证书]
+\[
+\boxed{
+D_t
+\xRightarrow{\TPH}
+\{\Gamma_t^{(r)}\}_{r\in R_t}
+\Rightarrow
+\{\Prob_{\Gamma_t^{(r)}}^\beta\}_{r\in R_t}
+\Rightarrow
+\{\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma_t^{(r)})\}_{r\in R_t}
+\Rightarrow
+\Gamma_t^\star
+\xRightarrow{\LHTS}
+D_{t+1}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+LHTS 给出非线性扭曲运动核，产生可执行运动候选。TPH 在这些候选之上生成
+轨迹函数族 \(\{\Gamma_t^{(r)}\}_{r\in R_t}\)。每个轨迹函数诱导统计力学路径测度
+\(\Prob_{\Gamma_t^{(r)}}^\beta\)，进而定义频域谱窗命中泛函
+\(\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma_t^{(r)})\)。TPH 选择最优
+\(\Gamma_t^\star\)，LHTS 执行回填更新 \(D_{t+1}\)。推论得证。
+\end{proof}
+
+\begin{definition}[频域微观隧穿 JacGap 选择泛函]
+令 JacGap 势函数为
+\[
+\Phi(D)
+\DefEq
+\frac12\|\JacGap(D)\|^2.
+\]
+定义选择泛函
+\[
+\boxed{
+\mathfrak S_\beta(\Gamma)
+\DefEq
+\alpha\,\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma)
+-
+\eta\,\E_{\Prob_\Gamma^\beta}[\Phi(D_T)]
+-
+\gamma\,\Cost(\Gamma)
+-
+\delta\,\Var_{\Prob_\Gamma^\beta}(\Phi(D_T)).
+}
+\]
+选择规则为
+\[
+\boxed{
+\Gamma^\star
+\DefEq
+\argmax_{\Gamma}
+\mathfrak S_\beta(\Gamma).
+}
+\]
+\end{definition}
+
+\begin{proposition}[主目标特化]
+若主目标是最快降低 JacGap，则可取
+\[
+\boxed{
+\Gamma^\star
+\in
+\argmin_{\Gamma}
+\E_{\Prob_\Gamma^\beta}[\Phi(D_T)].
+}
+\]
+若主目标是频域命中，则可取
+\[
+\boxed{
+\Gamma^\star
+\in
+\argmax_{\Gamma}
+\Prob_\Gamma^\beta
+\left(
+\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}
+\right).
+}
+\]
+二者合并为
+\[
+\boxed{
+\Gamma^\star
+\in
+\argmax_{\Gamma}
+\left[
+\Prob_\Gamma^\beta
+\left(
+\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}
+\right)
+-
+\eta\,\E_{\Prob_\Gamma^\beta}[\Phi(D_T)]
+\right].
+}
+\]
+\end{proposition}
+
+\begin{Certificate}[选择目标证书]
+\[
+\boxed{
+\text{频域命中概率}
++
+\text{JacGap 期望下降}
++
+\text{成本/方差惩罚}
+\Rightarrow
+\mathfrak S_\beta(\Gamma)
+\Rightarrow
+\Gamma^\star.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+选择泛函 \(\mathfrak S_\beta\) 同时包含命中收益、JacGap 势函数期望惩罚、
+成本惩罚和方差惩罚。若只保留 JacGap 主项并最大化负期望势函数，则等价于
+最小化 \(\E_{\Prob_\Gamma^\beta}[\Phi(D_T)]\)。若只保留频域命中主项，
+则等价于最大化
+\[
+\Prob_\Gamma^\beta(\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}).
+\]
+若同时保留两者，则得到合并目标。命题得证。
+\end{proof}
+
+\subsection{最终严格表述}
+\label{subsec:final-strict-interface-statement}
+
+\begin{corollary}[最终严格表述]
+只有随机过程的轨迹函数，才能在非退化概率意义下同时承载路径空间、
+统计力学权重、微观隧穿稀有命中、频域谱窗命中以及 JacGap 下降控制。
+因此，在 TPH/LHTS 架构中，随机过程轨迹函数与基于概率和统计力学的
+微观隧穿命中控制型频域计算构成等价接口：
+\[
+\boxed{
+\Gamma
+\Longleftrightarrow
+\Prob_\Gamma^\beta(dz_{0:T})
+\Longleftrightarrow
+\Prob_\Gamma^\beta
+\left(
+\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}
+\right)
+\Longleftrightarrow
+\text{频域微观隧穿命中控制}.
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[最终压缩证书]
+\[
+\boxed{
+\begin{gathered}
+D_t
+\xRightarrow{\TPH}
+\{\Gamma_t^{(r)}\}_{r\in R_t}
+\Rightarrow
+\{\Prob_{\Gamma_t^{(r)}}^\beta\}_{r\in R_t}
+\\
+\Rightarrow
+\{\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma_t^{(r)})\}_{r\in R_t}
+\Rightarrow
+\Gamma_t^\star
+\xRightarrow{\LHTS}
+D_{t+1}.
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由轨迹函数路径测度构造，\(\Gamma_t^{(r)}\) 诱导路径测度。
+由统计力学权重，路径测度升级为 \(\Prob_{\Gamma_t^{(r)}}^\beta\)。
+由频域谱窗命中，得到命中泛函
+\(\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma_t^{(r)})\)。
+由 TPH 选择泛函，得到 \(\Gamma_t^\star\)。由 LHTS 嵌入运动内核，
+\(\Gamma_t^\star\) 回填并更新 \(D_{t+1}\)。推论得证。
+\end{proof}
+
+\begin{remark}[理论增益]
+本节把“随机过程”从辅助工具提升为必要结构。不是因为系统不确定，所以引入
+随机过程；而是因为频域微观隧穿命中本身就是路径概率事件。路径概率事件必须有
+\[
+\boxed{
+\text{路径空间}
++
+\text{概率测度}
++
+\text{谱分析映射}
++
+\text{命中事件}
++
+\text{选择泛函}.
+}
+\]
+五者同时存在时，唯一自然的统一表达就是随机过程的轨迹函数。因此 TPH/LHTS
+的底层逻辑闭合为
+\[
+\boxed{
+\begin{gathered}
+\text{轨迹函数}
+\Longleftrightarrow
+\text{概率路径测度的控制接口}
+\Longleftrightarrow
+\text{统计力学微观隧穿的命中接口}
+\\
+\Longleftrightarrow
+\text{频域谱分析的计算接口}
+\Longleftrightarrow
+\text{JacGap 下降的选择接口}.
+\end{gathered}
+}
+\]
+\end{remark}
+
+\section{形式逻辑：概率路径同伦类与广义分形轨迹同伦类上的 D-结构}
+\label{sec:d-structure-prob-fractal-homotopy}
+
+\begin{remark}[核心正规型]
+前文已经分别构造了概率路径空间、广义分形轨迹族、TPH 选择控制与 LHTS
+嵌入运动内核。本节将这些对象合并为一个 \(D\)-结构：
+\[
+\boxed{
+\begin{gathered}
+\text{TPH-LHTS 架构等价于构造一个 }D\text{-结构，}
+\\
+\text{其对象层由概率路径空间同伦类和广义分形轨迹族同伦类组成}.
+\end{gathered}
+}
+\]
+在该结构中，选择泛函选出一条递归决策路径
+\[
+\boxed{
+D_0\to D_1\to D_2\to\cdots\to D_\infty,
+\qquad
+\Phi(D_t)\downarrow\Phi_\infty,
+}
+\]
+并在误差界成立时得到
+\[
+\boxed{
+\JacGap(D_t)\to0.
+}
+\]
+这里的 \(D\)-结构不是额外假设的新算法，而是对
+TPH、LHTS、概率路径测度、频域命中与 JacGap 缺陷势函数的统一记账结构。
+其概率测度层参考路径概率与统计力学权重
+\cite{Billingsley1995Probability,Touchette2009LargeDeviations}，
+其分形轨迹族层参考递归自相似结构
+\cite{Hutchinson1981Fractals,Barnsley1988Fractals}，
+其下降控制层参考前文 TPH-LHTS 与 PDE--JacGap 范式
+\cite{RepoTex56LHTS,RepoTex55PDEParadigm}。
+\end{remark}
+
+\subsection{概率路径空间同伦类}
+\label{subsec:probability-path-homotopy-class}
+
+\begin{definition}[概率路径空间对象]
+对轨迹函数 \(\Gamma\)，令其统计力学权重下的路径概率对象为
+\[
+\mathbb P_\Gamma^\beta
+\DefEq
+(\Omega_T,\mathscr F_T,\Prob_\Gamma^\beta),
+\qquad
+\Omega_T=\mathcal Z^{T+1},
+\]
+其中
+\[
+\Prob_\Gamma^\beta(dz_{0:T})
+=
+\frac{1}{Z_\Gamma(\beta)}
+e^{-\beta\mathcal A_\Gamma(z_{0:T})}
+\nu(dz_{0:T}).
+\]
+定义概率路径可观测向量
+\[
+\mathcal O_{\mathrm{prob}}(\Gamma)
+\DefEq
+\left(
+\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma),
+\E_{\Prob_\Gamma^\beta}[\Phi(D_T)],
+\Var_{\Prob_\Gamma^\beta}(\Phi(D_T)),
+\Cost(\Gamma)
+\right).
+\]
+\end{definition}
+
+\begin{definition}[概率空间同伦等价]
+称
+\[
+\mathbb P_{\Gamma_0}^\beta
+\sim_{\mathrm{prob}}
+\mathbb P_{\Gamma_1}^\beta
+\]
+当且仅当存在可行轨迹函数同伦
+\[
+\Gamma_s,\qquad s\in[0,1],
+\qquad
+\Gamma_0=\Gamma_{s=0},\quad
+\Gamma_1=\Gamma_{s=1},
+\]
+使得每个 \(\Gamma_s\) 均诱导全定义路径测度
+\(\Prob_{\Gamma_s}^{\beta}\)，并且
+\[
+s\longmapsto \mathcal O_{\mathrm{prob}}(\Gamma_s)
+\]
+在可行指标域内连续。概率空间同伦类定义为
+\[
+\boxed{
+[\mathbb P_\Gamma^\beta]_{\mathrm{prob}}
+\DefEq
+\left\{
+\mathbb P_{\Gamma'}^\beta:
+\mathbb P_{\Gamma'}^\beta\sim_{\mathrm{prob}}\mathbb P_\Gamma^\beta
+\right\}.
+}
+\]
+\end{definition}
+
+\begin{proposition}[概率同伦类的承载语义]
+概率空间同伦类 \([\mathbb P_\Gamma^\beta]_{\mathrm{prob}}\) 承载微观隧穿命中、
+频域谱窗命中、路径权重、命中概率与 JacGap 期望下降的可行连续变形。
+\end{proposition}
+
+\begin{Certificate}[概率同伦证书]
+\[
+\boxed{
+\Gamma_s
+\Rightarrow
+\Prob_{\Gamma_s}^{\beta}
+\Rightarrow
+\mathcal O_{\mathrm{prob}}(\Gamma_s)
+\Rightarrow
+[\mathbb P_\Gamma^\beta]_{\mathrm{prob}}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由轨迹函数路径测度构造，\(\Gamma_s\) 对每个 \(s\) 诱导
+\(\Prob_{\Gamma_s}^{\beta}\)。由概率路径可观测向量定义，
+\(\mathcal O_{\mathrm{prob}}(\Gamma_s)\) 同时记录频域命中概率、
+JacGap 期望、方差与成本。若该向量沿 \(s\) 连续并保持在可行指标域内，
+则从 \(\Gamma_0\) 到 \(\Gamma_1\) 的变形不离开同一个概率路径可行分支。
+因此等价类正是这些概率路径对象的同伦类。命题得证。
+\end{proof}
+
+\subsection{广义分形轨迹族同伦类}
+\label{subsec:fractal-trajectory-homotopy-class}
+
+\begin{definition}[广义分形轨迹族]
+令第 \(k\) 阶轨迹函数族为 \(\mathcal T_k\)，并由 TPH-LHTS 递归生成
+\[
+\mathcal T_{k+1}
+\DefEq
+\mathfrak F(\mathcal T_k),
+\qquad
+\mathfrak F
+\DefEq
+\Sel_{\JacGap}
+\circ
+\Enum_{\mathsf{multi\mbox{-}proc}}
+\circ
+\TPH.
+\]
+定义广义分形轨迹族为
+\[
+\boxed{
+\mathcal T_\infty
+\DefEq
+\bigcup_{k\ge0}\mathcal T_k.
+}
+\]
+令第 \(k\) 阶轨迹张成空间为
+\[
+\mathcal V_k(\mathcal T)
+\DefEq
+\Span\{\delta\Gamma:\Gamma\in\mathcal T_j,\ 0\le j\le k\}.
+\]
+\end{definition}
+
+\begin{definition}[广义分形同伦等价]
+对两个递归轨迹族 \(\mathcal T_\infty\) 与 \(\mathcal T_\infty'\)，定义覆盖函数
+\[
+\chi_k(D;\mathcal T)
+\DefEq
+\dist\!\left(
+-\nabla\Phi(D),\mathcal V_k(\mathcal T)
+\right).
+\]
+称
+\[
+\mathcal T_\infty\sim_{\mathrm{frac}}\mathcal T_\infty'
+\]
+当且仅当存在常数 \(c_1,c_2>0\) 与 \(k_0\)，使得对所有 \(k\ge k_0\) 与可行
+状态 \(D\)，有
+\[
+c_1\,\chi_k(D;\mathcal T)
+\le
+\chi_k(D;\mathcal T')
+\le
+c_2\,\chi_k(D;\mathcal T).
+\]
+广义分形轨迹族同伦类定义为
+\[
+\boxed{
+[\mathcal T_\infty]_{\mathrm{frac}}
+\DefEq
+\left\{
+\mathcal T_\infty':
+\mathcal T_\infty'\sim_{\mathrm{frac}}\mathcal T_\infty
+\right\}.
+}
+\]
+\end{definition}
+
+\begin{lemma}[分形同伦类保持梯度覆盖阶]
+若
+\[
+\mathcal T_\infty\sim_{\mathrm{frac}}\mathcal T_\infty',
+\]
+则二者在 JacGap 梯度方向上的覆盖距离具有同阶下降。因此
+\[
+\chi_k(D;\mathcal T)\to0
+\quad\Longleftrightarrow\quad
+\chi_k(D;\mathcal T')\to0.
+\]
+\end{lemma}
+
+\begin{Certificate}[梯度覆盖同阶证书]
+\[
+\boxed{
+c_1\chi_k(D;\mathcal T)
+\le
+\chi_k(D;\mathcal T')
+\le
+c_2\chi_k(D;\mathcal T)
+\Rightarrow
+\chi_k(D;\mathcal T)\to0
+\Longleftrightarrow
+\chi_k(D;\mathcal T')\to0.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+若 \(\chi_k(D;\mathcal T)\to0\)，则由上界
+\[
+\chi_k(D;\mathcal T')\le c_2\chi_k(D;\mathcal T)
+\]
+得到 \(\chi_k(D;\mathcal T')\to0\)。反向由下界等价地写为
+\[
+\chi_k(D;\mathcal T)
+\le
+c_1^{-1}\chi_k(D;\mathcal T')
+\]
+得到。因此二者保持同阶梯度覆盖。引理得证。
+\end{proof}
+
+\subsection{以同伦类为对象层的 D-结构}
+\label{subsec:d-structure-definition}
+
+\begin{definition}[TPH-LHTS 的 \(D\)-结构]
+定义
+\[
+\boxed{
+\mathbb D
+\DefEq
+\left(
+\mathcal D,\
+[\mathbb P_\Gamma^\beta]_{\mathrm{prob}},\
+[\mathcal T_\infty]_{\mathrm{frac}},\
+\partial_D,\
+\Phi,\
+\Sel,\
+\Upd
+\right).
+}
+\]
+其中 \(\mathcal D\) 是 LHTS 数据状态空间；
+\([\mathbb P_\Gamma^\beta]_{\mathrm{prob}}\) 是概率路径空间同伦类；
+\([\mathcal T_\infty]_{\mathrm{frac}}\) 是广义分形轨迹族同伦类；
+\(\partial_D\) 是缺陷算子；
+\[
+\Phi(D)\DefEq\frac12\|\JacGap(D)\|^2
+\]
+是 JacGap 势函数；
+\(\Sel\) 是由频域命中概率、统计力学路径权重、JacGap 下降、成本与方差共同
+诱导的选择算子；
+\(\Upd\) 是 LHTS 更新算子。
+\end{definition}
+
+\begin{definition}[D-结构闭环]
+给定状态 \(D_t\)，令候选纤维为
+\[
+\mathcal E(D_t)
+\DefEq
+\{\Gamma_t^{(r)}:r\in R_t\}.
+\]
+定义选择评分
+\[
+\mathfrak S_t(r)
+\DefEq
+\mathfrak S
+\left(
+D_t,\
+\mathbb P_{\Gamma_t^{(r)}}^\beta,\
+\mathcal T_t
+\right).
+\]
+闭环更新为
+\[
+\boxed{
+D_{t+1}
+=
+\Upd
+\left(
+D_t,
+\Sel
+\left(
+[\mathbb P_{\Gamma_t^{(r)}}^\beta]_{\mathrm{prob}},
+[\mathcal T_t]_{\mathrm{frac}}
+\right)
+\right).
+}
+\]
+压缩记号为
+\[
+\boxed{
+D_{t+1}=\mathcal R(D_t),
+\qquad
+\mathcal R\DefEq \Upd\circ\Sel\circ\TPH.
+}
+\]
+\end{definition}
+
+\subsection{公理降级：D-结构递归全定义定理}
+\label{subsec:d-structure-well-defined}
+
+\begin{theorem}[公理降级：D-结构递归全定义定理]
+设 \(D_0\in\mathcal D\)。若对每个 \(t\in\NN\) 满足：
+\[
+\begin{aligned}
+&\mathrm{D1}(t):\quad \TPH(D_t)\text{ 生成非空有限候选纤维 }\mathcal E(D_t);\\
+&\mathrm{D2}(t):\quad \Gamma\in\mathcal E(D_t)\text{ 均诱导概率同伦类 }
+[\mathbb P_\Gamma^\beta]_{\mathrm{prob}};\\
+&\mathrm{D3}(t):\quad \mathcal T_t\text{ 诱导分形同伦类 }[\mathcal T_t]_{\mathrm{frac}};\\
+&\mathrm{D4}(t):\quad \mathfrak S_t:\mathcal E(D_t)\to\RR\text{ 全定义};\\
+&\mathrm{D5}(t):\quad \Sel\text{ 具有确定性并列消解规则};\\
+&\mathrm{D6}(t):\quad \Upd(D_t,\Gamma_t^\star)\in\mathcal D,
+\end{aligned}
+\]
+则 \(D\)-结构闭环
+\[
+D_{t+1}\DefEq \Upd(D_t,\Gamma_t^\star)
+\]
+对所有 \(t\in\NN\) 全定义。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书]
+令谓词
+\[
+\mathcal P_D(t):
+\quad
+D_t\in\mathcal D
+\text{ 且 }
+D_0\mapsto\cdots\mapsto D_t
+\text{ 全定义}.
+\]
+证书链为
+\[
+\boxed{
+\mathcal P_D(t)
+\Rightarrow
+\mathcal E(D_t)
+\Rightarrow
+[\mathbb P_{\Gamma_t^{(r)}}^\beta]_{\mathrm{prob}},
+[\mathcal T_t]_{\mathrm{frac}}
+\Rightarrow
+\Gamma_t^\star
+\Rightarrow
+D_{t+1}\in\mathcal D
+\Rightarrow
+\mathcal P_D(t+1).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+基步：由 \(D_0\in\mathcal D\)，\(\mathcal P_D(0)\) 成立。
+
+归纳步：假设 \(\mathcal P_D(t)\) 成立，则 \(D_t\in\mathcal D\)。
+由 D1，\(\TPH(D_t)\) 生成非空有限候选纤维 \(\mathcal E(D_t)\)。
+由 D2 与 D3，每个候选轨迹函数具有概率路径同伦类，当前递归轨迹族具有
+分形同伦类。由 D4，评分泛函在候选纤维上全定义。由于候选纤维有限，
+实值函数存在最大元；由 D5，最大元由确定性并列消解规则唯一确定：
+\[
+\Gamma_t^\star
+=
+\Sel(D_t)
+=
+\argmax_{\Gamma\in\mathcal E(D_t)}
+\mathfrak S_t(\Gamma).
+\]
+由 D6，
+\[
+D_{t+1}=\Upd(D_t,\Gamma_t^\star)\in\mathcal D.
+\]
+故 \(\mathcal P_D(t+1)\) 成立。由数学归纳法，闭环递归对所有
+\(t\in\NN\) 全定义。定理得证。
+\end{proof}
+
+\subsection{TPH-LHTS 与 D-结构等价}
+\label{subsec:tph-lhts-equivalent-d-structure}
+
+\begin{theorem}[TPH-LHTS 等价于上述 \(D\)-结构]
+TPH-LHTS 闭环等价于构造
+\[
+\mathbb D
+=
+\left(
+\mathcal D,
+[\mathbb P_\Gamma^\beta]_{\mathrm{prob}},
+[\mathcal T_\infty]_{\mathrm{frac}},
+\partial_D,
+\Phi,
+\Sel,
+\Upd
+\right),
+\]
+并在该结构中执行
+\[
+D_{t+1}=(\Upd\circ\Sel\circ\TPH)(D_t).
+\]
+\end{theorem}
+
+\begin{Certificate}[结构等价证书]
+\[
+\boxed{
+\begin{gathered}
+\LHTS\Rightarrow D_t,
+\qquad
+\TPH(D_t)\Rightarrow\{\Gamma_t^{(r)}\}_{r\in R_t},
+\\
+\Gamma_t^{(r)}\Rightarrow\mathbb P_{\Gamma_t^{(r)}}^\beta,
+\qquad
+\{\Gamma_t^{(r)}\}_{r\in R_t}\Rightarrow
+\mathcal T_{t+1}=\mathfrak F(\mathcal T_t),
+\\
+\Sel\Rightarrow\Gamma_t^\star,
+\qquad
+\Gamma_t^\star\Rightarrow D_{t+1}.
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 LHTS 给出当前数据状态 \(D_t\in\mathcal D\)。由 TPH 输入 \(D_t\)，生成
+多随机过程轨迹函数枚举族
+\[
+\TPH(D_t)=\{\Gamma_t^{(r)}\}_{r\in R_t}.
+\]
+每个轨迹函数诱导统计力学路径测度
+\[
+\Gamma_t^{(r)}\Rightarrow \mathbb P_{\Gamma_t^{(r)}}^\beta,
+\]
+因而诱导概率空间同伦类。另一方面，TPH-LHTS 递归生成轨迹函数族
+\[
+\mathcal T_{t+1}=\mathfrak F(\mathcal T_t),
+\]
+因而诱导广义分形轨迹族同伦类。选择泛函在
+\[
+\left(D_t,\mathbb P_{\Gamma_t^{(r)}}^\beta,\mathcal T_t\right)
+\]
+上计算评分，得到
+\[
+r_t^\star=\argmax_{r\in R_t}\mathfrak S_t(r),
+\qquad
+\Gamma_t^\star=\Gamma_t^{(r_t^\star)}.
+\]
+最后由 LHTS 更新
+\[
+D_{t+1}=\Upd(D_t,\Gamma_t^\star).
+\]
+这些分量正好组成 \(\mathbb D\)，并且闭环正是
+\[
+D_{t+1}=(\Upd\circ\Sel\circ\TPH)(D_t).
+\]
+定理得证。
+\end{proof}
+
+\subsection{选择泛函与递归决策路径}
+\label{subsec:selection-recursive-decision-path}
+
+\begin{theorem}[选择泛函等价于在 \(D\)-结构中选择递归决策路径]
+在 \(D\)-结构中，若每个候选纤维 \(\mathcal E(D_t)\) 非空有限，且选择泛函
+具有确定性并列消解规则，则 \(\Sel\) 不只是选择单步动作，而是选择一条闭环
+决策路径
+\[
+\boxed{
+\pi_{\Sel}
+\DefEq
+(D_0,D_1,D_2,\ldots).
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[决策路径证书]
+\[
+\boxed{
+\Sel:
+D_t
+\Rightarrow
+\Gamma_t^\star
+\Rightarrow
+D_{t+1}
+\Rightarrow
+(D_0,D_1,D_2,\ldots).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+在状态 \(D_t\) 上，候选纤维为
+\[
+\mathcal E(D_t)=\{\Gamma_t^{(r)}:r\in R_t\}.
+\]
+选择泛函为
+\[
+\mathfrak S_t:\mathcal E(D_t)\to\RR.
+\]
+非空有限性保证最大元存在；确定性并列消解保证选择唯一：
+\[
+\Gamma_t^\star
+=
+\argmax_{\Gamma\in\mathcal E(D_t)}
+\mathfrak S_t(\Gamma).
+\]
+更新算子给出
+\[
+D_{t+1}=\Upd(D_t,\Gamma_t^\star).
+\]
+从 \(D_0\) 开始递归，即得到
+\[
+D_0\to D_1\to D_2\to\cdots.
+\]
+因此 \(\Sel\) 在 \(D\)-结构中选择的是一条闭环决策路径。定理得证。
+\end{proof}
+
+\subsection{递归收敛定理}
+\label{subsec:d-structure-recursive-convergence}
+
+\begin{theorem}[D-结构决策路径递归收敛定理]
+设 \(D\)-结构闭环满足：
+\[
+\begin{aligned}
+&\mathrm{C1}:\quad \mathcal E(D_t)\text{ 可枚举或可截断为有限非空集合};\\
+&\mathrm{C2}:\quad \Sel\text{ 有确定性并列消解规则};\\
+&\mathrm{C3}:\quad \Gamma_t^\star\text{ 满足 JacGap 下降接受条件};\\
+&\mathrm{C4}:\quad [\mathcal T_\infty]_{\mathrm{frac}}\text{ 逐阶覆盖 }-\nabla\Phi;\\
+&\mathrm{C5}:\quad \Phi(D)\ge0;\\
+&\mathrm{C6}:\quad \text{频域命中概率与经验估计一致收敛}.
+\end{aligned}
+\]
+则由 \(\Sel\) 选出的决策路径满足
+\[
+\boxed{
+\Phi(D_{t+1})\le\Phi(D_t),
+\qquad
+\Phi(D_t)\downarrow\Phi_\infty\ge0.
+}
+\]
+若进一步有误差界
+\[
+\nabla\Phi(D)=0\Rightarrow \JacGap(D)=0,
+\]
+则
+\[
+\boxed{
+\JacGap(D_t)\to0.
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[递归收敛证书]
+\[
+\boxed{
+D_t
+\Rightarrow
+\mathcal E(D_t)
+\Rightarrow
+\Gamma_t^\star
+\Rightarrow
+D_{t+1}
+\Rightarrow
+\Phi(D_{t+1})\le\Phi(D_t)
+\Rightarrow
+\Phi(D_t)\downarrow\Phi_\infty.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 C1，候选轨迹函数可比较。由 C2，存在确定选择
+\[
+\Gamma_t^\star
+=
+\argmax_{\Gamma\in\mathcal E(D_t)}
+\mathfrak S_t(\Gamma).
+\]
+由 C3，执行该轨迹函数后
+\[
+\Phi(D_{t+1})\le\Phi(D_t).
+\]
+由 C5，\(\Phi(D_t)\ge0\)。因此
+\[
+\{\Phi(D_t)\}_{t\ge0}
+\]
+是非增且下有界序列，所以存在极限
+\[
+\Phi(D_t)\downarrow\Phi_\infty\ge0.
+\]
+由 C4，广义分形轨迹族同伦类保持对 \(-\nabla\Phi\) 的逐阶覆盖，即
+\[
+\dist\!\left(-\nabla\Phi(D_t),\Span(\mathcal T_t)\right)\to0.
+\]
+因此只要 \(\nabla\Phi(D_t)\ne0\)，候选轨迹族中就存在下降方向。由选择泛函最大化
+下降收益，并由 C6 保证经验估计不偏离真实频域命中概率与 JacGap 下降评分，
+系统不会在非驻点处停滞。故极限点满足
+\[
+\nabla\Phi(D_\infty)=0.
+\]
+若误差界
+\[
+\nabla\Phi(D)=0\Rightarrow\JacGap(D)=0
+\]
+成立，则
+\[
+\JacGap(D_t)\to0.
+\]
+定理得证。
+\end{proof}
+
+\subsection{最终正规表达}
+\label{subsec:d-structure-final-statement}
+
+\begin{corollary}[TPH-LHTS 的 \(D\)-结构正规表达]
+TPH-LHTS 架构等价于构造一个 \(D\)-结构，其对象层由概率路径空间同伦类
+\([\mathbb P_\Gamma^\beta]_{\mathrm{prob}}\) 与广义分形轨迹族同伦类
+\([\mathcal T_\infty]_{\mathrm{frac}}\) 组成；其缺陷由 \(\partial_D\) 与
+\(\JacGap\) 表示；其势函数由
+\[
+\Phi(D)=\frac12\|\JacGap(D)\|^2
+\]
+给出；其选择算子由频域命中概率、统计力学路径权重、JacGap 下降、成本与方差
+共同决定。该选择算子每步选取最优轨迹函数，并通过 LHTS 更新形成递归闭环：
+\[
+\boxed{
+\mathbb D
+=
+\left(
+\mathcal D,
+[\mathbb P_\Gamma^\beta]_{\mathrm{prob}},
+[\mathcal T_\infty]_{\mathrm{frac}},
+\partial_D,
+\Phi,
+\Sel,
+\Upd
+\right).
+}
+\]
+\[
+\boxed{
+D_{t+1}=(\Upd\circ\Sel\circ\TPH)(D_t).
+}
+\]
+在梯度覆盖、下降接受、估计一致与下界条件成立时，该闭环选择出一条递归收敛的
+决策路径。
+\end{corollary}
+
+\begin{Certificate}[最终压缩证书]
+\[
+\boxed{
+\begin{gathered}
+\mathbb D
+\Rightarrow
+\mathcal E(D_t)
+\Rightarrow
+\Gamma_t^\star
+\Rightarrow
+D_{t+1},
+\\
+\Phi(D_{t+1})\le\Phi(D_t),
+\qquad
+\Phi(D_t)\downarrow\Phi_\infty,
+\qquad
+\JacGap(D_t)\to0\text{ 在误差界下成立}.
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 \(D\)-结构定义，\(\TPH\) 从 \(D_t\) 生成候选纤维，\(\Sel\) 在概率路径空间
+同伦类与广义分形轨迹族同伦类上评价候选并选取 \(\Gamma_t^\star\)，
+\(\Upd\) 将其回填为 \(D_{t+1}\)。由递归收敛定理，\(\Phi(D_t)\) 非增且收敛；
+由误差界，JacGap 收敛到零。推论得证。
+\end{proof}
+
+\begin{remark}[理论增益]
+本节把前文对象统一起来：概率空间不再只是随机过程的承载域；广义分形不再只是
+递归轨迹族；TPH 不再只是外层控制器；LHTS 不再只是定制运动内核。它们合并成
+\[
+\boxed{
+\begin{gathered}
+\text{一个以概率路径空间同伦类和广义分形轨迹族同伦类为对象层、}
+\\
+\text{以 JacGap 为缺陷势函数、以选择泛函为边缘算子、}
+\\
+\text{以递归路径为收敛证书的 }D\text{-结构}.
+\end{gathered}
+}
+\]
+因此 TPH-LHTS 的本质可写为
+\[
+\boxed{
+\text{在 }D\text{-结构中选择一条 JacGap 递归下降的决策路径}.
+}
+\]
+\end{remark}
+
+\section{形式逻辑：仓库 D 结构定义下的 TPH-LHTS 高阶候选路径嵌入}
+\label{sec:repo-d-structure-tph-lhts-embedding}
+
+\begin{remark}[仓库 D 结构接口]
+仓库中 D 结构的基础定义可概括为：环境/历史空间 \((E,H)\) 经基准拟合器
+\[
+\mathsf{Fit}_D:(E,H)\to w
+\]
+给出权重向量 \(w\)，逻辑性度量算子
+\[
+\mathcal L_D(\gamma;w)=\sum_i w_i d_i(\gamma)
+\]
+在候选路径集合 \(\Gamma(E,H)\) 上诱导严格偏好关系
+\[
+\gamma_1\succ_D\gamma_2
+\Longleftrightarrow
+\mathcal L_D(\gamma_1;w)>\mathcal L_D(\gamma_2;w).
+\]
+同一稿件还把 \(D\) 的双重语义固定为 Decision 与 Depth：Decision 对应路径偏好、
+最大元集合与选择函数；Depth 对应递归更新塔、排名函数与序数深度
+\cite{RepoTex3DStructure}。因此，只要 TPH-LHTS 给出候选路径集合、路径评分、
+选择算子、递归更新与下降排名函数，它就可以作为仓库 D 结构定义的自然扩张实例。
+\end{remark}
+
+\subsection{仓库 D 结构的最小接口}
+\label{subsec:repo-d-minimal-interface}
+
+\begin{definition}[仓库 D 结构接口]
+定义仓库 D 结构的最小接口为
+\[
+\mathfrak D_{\mathrm{repo}}
+\DefEq
+(E,H,\Gamma(E,H),\mathsf{Fit}_D,\mathcal L_D,\succ_D,\mathrm{Dec}_D,\mathsf{Upd}_D,\rho).
+\]
+其中 \((E,H)\) 是环境/历史数据；\(\Gamma(E,H)\) 是候选路径集合；
+\(\mathsf{Fit}_D:(E,H)\to w\) 给出权重；
+\(\mathcal L_D(\gamma;w)\) 是逻辑性度量；
+\(\succ_D\) 是由 \(\mathcal L_D\) 诱导的严格偏好；
+\(\mathrm{Dec}_D\) 是最大元集合；
+\(\mathsf{Upd}_D\) 是递归更新算子；
+\(\rho\) 是良基排名函数。
+\end{definition}
+
+\begin{definition}[D-Decision 与 D-Depth 接口]
+D-Decision 定义为
+\[
+\mathrm{Dec}_D(E,H,w)
+\DefEq
+\left\{
+\gamma\in\Gamma(E,H):
+\nexists\gamma'\in\Gamma(E,H)\text{ 使 }\gamma'\succ_D\gamma
+\right\}.
+\]
+若最大元集合不是单点，给定选择函数
+\[
+\mathsf{Ch}:\mathcal P(\Gamma(E,H))\setminus\{\varnothing\}\to\Gamma(E,H),
+\]
+定义单值决策
+\[
+\mathrm{Dec}_D^{\mathsf{Ch}}(E,H,w)
+\DefEq
+\mathsf{Ch}\bigl(\mathrm{Dec}_D(E,H,w)\bigr).
+\]
+D-Depth 由递归更新
+\[
+D_{n+1}
+\DefEq
+\mathsf{Upd}_D(D_n,\gamma_n),
+\qquad
+\gamma_n\in\mathrm{Dec}_D(E_n,H_n,w_n),
+\]
+以及良基排名下降
+\[
+\rho(D_{n+1})<\rho(D_n)
+\]
+给出。
+\end{definition}
+
+\begin{lemma}[D 结构最小接口的路径对象自由性]
+仓库 D 结构只要求候选对象 \(\gamma\) 属于某个可评分候选集合，并能被
+\(\mathcal L_D(\gamma;w)\) 比较；它不要求 \(\gamma\) 必须是单点状态、普通曲线
+或单层动作序列。
+\end{lemma}
+
+\begin{Certificate}[接口自由性证书]
+\[
+\boxed{
+\gamma\in\Gamma(E,H)
+\Rightarrow
+d_i(\gamma)\text{ 全定义}
+\Rightarrow
+\mathcal L_D(\gamma;w)\text{ 全定义}
+\Rightarrow
+\succ_D\text{ 全定义}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+仓库 D 结构中，路径偏好关系由
+\[
+\mathcal L_D(\gamma;w)=\sum_iw_id_i(\gamma)
+\]
+诱导。因此 D 结构对 \(\gamma\) 的最低要求是：\(\gamma\) 属于候选集合，
+每个维度投影 \(d_i(\gamma)\) 可计算，并且逻辑性度量可比较。
+该定义没有限制 \(\gamma\) 的内部类型。只要复合对象能够给出同样的
+维度投影，就可以作为 D 结构的候选路径对象。引理得证。
+\end{proof}
+
+\subsection{TPH-LHTS 高阶候选路径对象}
+\label{subsec:tph-lhts-high-order-path-object}
+
+\begin{definition}[TPH-LHTS 高阶路径对象]
+令当前 LHTS 数据状态为 \(D_t\)，TPH 生成候选轨迹函数族
+\[
+\TPH(D_t)=\{\Gamma_t^{(r)}\}_{r\in R_t}.
+\]
+每个轨迹函数诱导统计力学路径概率空间
+\[
+\mathbb P_{\Gamma_t^{(r)}}^\beta
+=
+(\Omega_T,\mathscr F_T,\Prob_{\Gamma_t^{(r)}}^\beta).
+\]
+同时，递归参数同伦选择生成广义分形轨迹族
+\[
+\mathcal T_{t+1}=\mathfrak F(\mathcal T_t),
+\qquad
+\mathcal T_\infty=\bigcup_{k\ge0}\mathcal T_k.
+\]
+定义 TPH-LHTS 的高阶候选路径对象为
+\[
+\boxed{
+\gamma_t^{(r)}
+\DefEq
+\left(
+[\mathbb P_{\Gamma_t^{(r)}}^\beta]_{\mathrm{prob}},
+[\mathcal T_t^{(r)}]_{\mathrm{frac}},
+\Gamma_t^{(r)}
+\right).
+}
+\]
+相应候选路径集合为
+\[
+\boxed{
+\Gamma_{\TPHLHTS}(D_t)
+\DefEq
+\{\gamma_t^{(r)}:r\in R_t\}.
+}
+\]
+\end{definition}
+
+\begin{proposition}[高阶对象满足 D 结构候选路径接口]
+若 \(\gamma_t^{(r)}\) 的概率同伦类、分形同伦类与轨迹函数分量均全定义，并且
+所有评分维度 \(d_i(\gamma_t^{(r)})\) 可计算，则
+\[
+\gamma_t^{(r)}\in\Gamma_{\TPHLHTS}(D_t)
+\]
+可作为仓库 D 结构中的候选路径对象。
+\end{proposition}
+
+\begin{Certificate}[嵌入接口证书]
+\[
+\boxed{
+\Gamma_t^{(r)}
+\Rightarrow
+[\mathbb P_{\Gamma_t^{(r)}}^\beta]_{\mathrm{prob}},
+[\mathcal T_t^{(r)}]_{\mathrm{frac}}
+\Rightarrow
+\gamma_t^{(r)}
+\Rightarrow
+d_i(\gamma_t^{(r)})
+\Rightarrow
+\mathcal L_D(\gamma_t^{(r)};w_t).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由前文构造，\(\Gamma_t^{(r)}\) 诱导概率路径空间同伦类，并进入递归轨迹族的
+广义分形同伦类。将这两个同伦类与轨迹函数本身合并，得到
+\(\gamma_t^{(r)}\)。若每个评分维度 \(d_i(\gamma_t^{(r)})\) 都可计算，
+则
+\[
+\mathcal L_D(\gamma_t^{(r)};w_t)=\sum_iw_{t,i}d_i(\gamma_t^{(r)})
+\]
+全定义。因此该复合对象满足仓库 D 结构的候选路径最小接口。命题得证。
+\end{proof}
+
+\subsection{TPH-LHTS 的 D 逻辑性度量与偏好关系}
+\label{subsec:tph-lhts-d-logical-metric}
+
+\begin{definition}[TPH-LHTS 的 D 逻辑性度量]
+令
+\[
+\Phi(D_t)=\frac12\|\JacGap(D_t)\|^2.
+\]
+定义五个评分维度：
+\[
+\begin{aligned}
+d_1(\gamma_t^{(r)})
+&\DefEq
+\mathcal J_{\omega,\varepsilon,T}^{\beta}(\Gamma_t^{(r)}),\\
+d_2(\gamma_t^{(r)})
+&\DefEq
+-\E_{\Prob_{\Gamma_t^{(r)}}^\beta}
+\left[\Phi(D_{t+1}^{(r)})\right],\\
+d_3(\gamma_t^{(r)})
+&\DefEq
+-\Cost(\Gamma_t^{(r)}),\\
+d_4(\gamma_t^{(r)})
+&\DefEq
+-\Var_{\Prob_{\Gamma_t^{(r)}}^\beta}(\Phi),\\
+d_5(\gamma_t^{(r)})
+&\DefEq
+-\dist\!\left(
+-\nabla\Phi(D_t),
+\Span(\mathcal T_t^{(r)})
+\right).
+\end{aligned}
+\]
+于是
+\[
+\boxed{
+\mathcal L_D(\gamma_t^{(r)};w_t)
+\DefEq
+\sum_{i=1}^{5}w_{t,i}\,d_i(\gamma_t^{(r)}).
+}
+\]
+该度量合并了频域命中、JacGap 下降、计算成本、随机方差与广义分形梯度覆盖。
+\end{definition}
+
+\begin{definition}[TPH-LHTS 的 D 路径偏好关系]
+对任意 \(\gamma_t^{(r_1)},\gamma_t^{(r_2)}\in\Gamma_{\TPHLHTS}(D_t)\)，定义
+\[
+\boxed{
+\gamma_t^{(r_1)}\succ_D\gamma_t^{(r_2)}
+\Longleftrightarrow
+\mathcal L_D(\gamma_t^{(r_1)};w_t)>
+\mathcal L_D(\gamma_t^{(r_2)};w_t).
+}
+\]
+因此概率空间同伦类与广义分形同伦类不是装饰对象，而是进入
+\(\succ_D\) 的可排序、可剪枝、可选择、可递归更新的候选路径对象。
+\end{definition}
+
+\begin{lemma}[JacGap 偏好可吸收到 D 逻辑性度量]
+若 JacGap 证书偏好由某个实值评分
+\[
+F(\JacGap,\gamma)
+\]
+诱导，且 \(F\) 可作为 \(\mathcal L_D\) 的一个维度投影或严格单调变换，则
+TPH-LHTS 的 JacGap 下降偏好可嵌入 D 偏好关系 \(\succ_D\)。
+\end{lemma}
+
+\begin{Certificate}[偏好吸收证书]
+\[
+\boxed{
+F(\JacGap,\gamma)
+\Rightarrow
+d_i(\gamma)
+\Rightarrow
+\mathcal L_D(\gamma;w)
+\Rightarrow
+\succ_D
+\quad
+\text{且}
+\quad
+\succ_{\JacGap}\equiv\succ_D\text{ 在该维度上等价}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+仓库 D 结构与 JacGap 证书体系均通过实值评分函数在同一候选路径集合上比较路径。
+若 \(F(\JacGap,\gamma)\) 被取为某个 \(d_i(\gamma)\)，则它直接进入
+\(\mathcal L_D\)。若它与某个 \(d_i\) 之间相差严格单调变换，则偏好顺序不变。
+因此 JacGap 下降偏好可以作为 D 逻辑性度量的一个维度被吸收。引理得证。
+\end{proof}
+
+\subsection{D-Decision、D-Depth 与递归决策路径}
+\label{subsec:d-decision-depth-recursive-path}
+
+\begin{definition}[TPH-LHTS 的 D-Decision]
+定义集合值决策
+\[
+\mathrm{Dec}_D(D_t)
+\DefEq
+\argmax_{\gamma_t^{(r)}\in\Gamma_{\TPHLHTS}(D_t)}
+\mathcal L_D(\gamma_t^{(r)};w_t).
+\]
+若需要单值决策，则取选择函数
+\[
+\boxed{
+\gamma_t^\star
+\DefEq
+\mathsf{Ch}\bigl(\mathrm{Dec}_D(D_t)\bigr).
+}
+\]
+\end{definition}
+
+\begin{definition}[TPH-LHTS 的 D-Depth 更新]
+定义递归更新
+\[
+\boxed{
+D_{t+1}
+\DefEq
+\mathsf{Upd}_D(D_t,\gamma_t^\star).
+}
+\]
+由此形成决策路径
+\[
+\boxed{
+D_0\to D_1\to D_2\to\cdots\to D_t\to D_{t+1}\to\cdots.
+}
+\]
+\end{definition}
+
+\begin{definition}[下降排名函数]
+定义排名函数
+\[
+\boxed{
+\rho(D_t)
+\DefEq
+\Phi(D_t)
++
+\lambda_\rho
+\dist\!\left(
+-\nabla\Phi(D_t),
+\Span(\mathcal T_t)
+\right),
+\qquad
+\lambda_\rho\ge0.
+}
+\]
+若每步选择满足
+\[
+\rho(D_{t+1})<\rho(D_t),
+\]
+则该更新塔具有 D-Depth 意义下的良基递归深度。
+\end{definition}
+
+\subsection{公理降级：仓库 D 结构嵌入全定义定理}
+\label{subsec:repo-d-embedding-well-defined}
+
+\begin{theorem}[公理降级：TPH-LHTS 嵌入仓库 D 结构全定义定理]
+设 \(D_0\in\mathcal D\)。若对每个 \(t\in\NN\) 满足：
+\[
+\begin{aligned}
+&\mathrm{R1}(t):\quad \Gamma_{\TPHLHTS}(D_t)\text{ 非空有限};\\
+&\mathrm{R2}(t):\quad \mathsf{Fit}_D(D_t)\text{ 给出权重 }w_t;\\
+&\mathrm{R3}(t):\quad d_i(\gamma_t^{(r)})\text{ 对所有候选和维度全定义};\\
+&\mathrm{R4}(t):\quad \mathcal L_D(\gamma_t^{(r)};w_t)\text{ 全定义};\\
+&\mathrm{R5}(t):\quad \mathsf{Ch}\text{ 在非空最大元集合上全定义};\\
+&\mathrm{R6}(t):\quad \mathsf{Upd}_D(D_t,\gamma_t^\star)\in\mathcal D,
+\end{aligned}
+\]
+则 TPH-LHTS 在仓库 D 结构定义下的递归路径
+\[
+D_{t+1}=\mathsf{Upd}_D(D_t,\gamma_t^\star)
+\]
+对所有 \(t\in\NN\) 全定义。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书]
+令谓词
+\[
+\mathcal P_{\mathrm{repo}}(t):
+\quad
+D_t\in\mathcal D
+\text{ 且 }
+D_0\mapsto\cdots\mapsto D_t
+\text{ 全定义}.
+\]
+证书链为
+\[
+\boxed{
+\mathcal P_{\mathrm{repo}}(t)
+\Rightarrow
+\Gamma_{\TPHLHTS}(D_t)
+\Rightarrow
+\mathcal L_D(\cdot;w_t)
+\Rightarrow
+\mathrm{Dec}_D(D_t)
+\Rightarrow
+\gamma_t^\star
+\Rightarrow
+D_{t+1}
+\Rightarrow
+\mathcal P_{\mathrm{repo}}(t+1).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+基步：由 \(D_0\in\mathcal D\)，\(\mathcal P_{\mathrm{repo}}(0)\) 成立。
+
+归纳步：假设 \(\mathcal P_{\mathrm{repo}}(t)\) 成立。由 R1，
+\(\Gamma_{\TPHLHTS}(D_t)\) 非空有限。由 R2 得权重 \(w_t\)。由 R3 与 R4，
+所有候选的逻辑性度量全定义。非空有限集合上的实值评分存在最大元集合
+\[
+\mathrm{Dec}_D(D_t).
+\]
+由 R5，选择函数给出单值决策
+\[
+\gamma_t^\star=\mathsf{Ch}(\mathrm{Dec}_D(D_t)).
+\]
+由 R6，
+\[
+D_{t+1}=\mathsf{Upd}_D(D_t,\gamma_t^\star)\in\mathcal D.
+\]
+故 \(\mathcal P_{\mathrm{repo}}(t+1)\) 成立。由数学归纳法，递归路径全定义。
+定理得证。
+\end{proof}
+
+\subsection{嵌入等价与收敛证书}
+\label{subsec:embedding-equivalence-convergence-certificate}
+
+\begin{theorem}[TPH-LHTS 构造等价于仓库 D 结构的高阶候选路径实例]
+在仓库 D 结构定义下，TPH-LHTS 等价于把候选路径对象 \(\gamma\) 提升为
+\[
+\boxed{
+\gamma
+=
+\left(
+[\mathbb P_\Gamma^\beta]_{\mathrm{prob}},
+[\mathcal T_\infty]_{\mathrm{frac}},
+\Gamma
+\right),
+}
+\]
+再以 \(\mathcal L_D\) 诱导路径偏好关系，以 \(\mathsf{Ch}\) 选出最大元，
+并以 \(\mathsf{Upd}_D\) 递归生成决策路径。
+\end{theorem}
+
+\begin{Certificate}[嵌入等价证书]
+\[
+\boxed{
+\begin{gathered}
+\text{概率空间同伦类}
++
+\text{广义分形同伦类}
+\Rightarrow
+\text{高阶候选路径对象},
+\\
+\text{JacGap 下降选择泛函}
+\Rightarrow
+\text{D-Decision},
+\\
+\text{递归回填更新}
+\Rightarrow
+\text{D-Depth},
+\\
+\text{下降排名函数}
+\Rightarrow
+\text{递归收敛证书}.
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由高阶候选路径对象定义，\(\gamma\) 由概率路径空间同伦类、广义分形轨迹族
+同伦类与轨迹函数共同组成。由 D 结构最小接口的路径对象自由性，只要
+该复合对象可由 \(d_i\) 评分，它就可进入仓库 D 候选路径集合。由
+TPH-LHTS 的 D 逻辑性度量定义，\(\mathcal L_D(\gamma;w)\) 全定义，并诱导
+\(\succ_D\)。由 D-Decision，最大元集合给出候选最优路径；由选择函数
+\(\mathsf{Ch}\)，集合值最大元被提升为单值路径 \(\gamma_t^\star\)。
+由 D-Depth 更新，
+\[
+D_{t+1}=\mathsf{Upd}_D(D_t,\gamma_t^\star).
+\]
+若排名函数 \(\rho\) 每步严格下降，则该递归路径具有 D-Depth 的收敛证书。
+故 TPH-LHTS 构造是仓库 D 结构的高阶候选路径实例。定理得证。
+\end{proof}
+
+\begin{theorem}[仓库 D 结构嵌入下的递归收敛定理]
+若存在排名函数
+\[
+\rho(D_t)
+=
+\Phi(D_t)
++
+\lambda_\rho
+\dist\!\left(
+-\nabla\Phi(D_t),
+\Span(\mathcal T_t)
+\right)
+\]
+满足
+\[
+\rho(D_{t+1})<\rho(D_t),
+\qquad
+\rho(D_t)\ge0,
+\]
+则由 D-Decision 与 D-Depth 生成的路径
+\[
+D_0\to D_1\to D_2\to\cdots
+\]
+是递归收敛决策路径。若取 \(\lambda_\rho=0\)，则得到
+\[
+\Phi(D_t)\downarrow\Phi_\infty.
+\]
+若进一步有误差界
+\[
+\nabla\Phi(D)=0\Rightarrow\JacGap(D)=0,
+\]
+则
+\[
+\JacGap(D_t)\to0.
+\]
+\end{theorem}
+
+\begin{Certificate}[排名函数收敛证书]
+\[
+\boxed{
+\gamma_t^\star\in\mathrm{Dec}_D(D_t)
+\Rightarrow
+D_{t+1}=\mathsf{Upd}_D(D_t,\gamma_t^\star)
+\Rightarrow
+\rho(D_{t+1})<\rho(D_t)
+\Rightarrow
+\text{递归收敛}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由假设，
+\[
+\rho(D_{t+1})<\rho(D_t),
+\qquad
+\rho(D_t)\ge0.
+\]
+因此 \(\{\rho(D_t)\}\) 是严格下降且下有界的良基排名序列；在 D-Depth 语义下，
+它给出更新塔的递归深度证书。若 \(\lambda_\rho=0\)，则
+\[
+\rho(D_t)=\Phi(D_t),
+\]
+所以
+\[
+\Phi(D_{t+1})<\Phi(D_t)
+\]
+直到到达不能继续下降的极限层；放宽为非增接受时得到
+\[
+\Phi(D_t)\downarrow\Phi_\infty.
+\]
+若极限点满足驻点条件，且误差界
+\[
+\nabla\Phi(D)=0\Rightarrow\JacGap(D)=0
+\]
+成立，则 \(\JacGap(D_t)\to0\)。定理得证。
+\end{proof}
+
+\subsection{最终嵌入表达}
+\label{subsec:repo-d-final-embedding-statement}
+
+\begin{corollary}[TPH-LHTS 的仓库 D 结构嵌入正规式]
+TPH-LHTS 架构在仓库 D 结构定义下，等价于
+\[
+\boxed{
+\mathbb D_{\TPHLHTS}
+\DefEq
+\left(
+\mathcal D,
+\Gamma_{\TPHLHTS},
+\mathcal L_D,
+\succ_D,
+\mathsf{Ch},
+\mathsf{Upd}_D,
+\rho
+\right),
+}
+\]
+其中
+\[
+\boxed{
+\Gamma_{\TPHLHTS}
+\DefEq
+\left\{
+\left(
+[\mathbb P_{\Gamma^{(r)}}^\beta]_{\mathrm{prob}},
+[\mathcal T_\infty^{(r)}]_{\mathrm{frac}},
+\Gamma^{(r)}
+\right):
+r\in R
+\right\}.
+}
+\]
+选择路径为
+\[
+\boxed{
+\gamma_t^\star
+=
+\mathsf{Ch}
+\left(
+\argmax_{\gamma_t^{(r)}\in\Gamma_{\TPHLHTS}(D_t)}
+\mathcal L_D(\gamma_t^{(r)};w_t)
+\right),
+}
+\]
+递归更新为
+\[
+\boxed{
+D_{t+1}=\mathsf{Upd}_D(D_t,\gamma_t^\star).
+}
+\]
+收敛证书为
+\[
+\boxed{
+\rho(D_{t+1})<\rho(D_t),
+\qquad
+\rho(D)\ge0.
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[最终嵌入证书]
+\[
+\boxed{
+\begin{gathered}
+([\mathbb P_\Gamma^\beta],[\mathcal T_\infty],\Gamma)
+\Rightarrow
+\mathcal L_D
+\Rightarrow
+\succ_D
+\Rightarrow
+\mathrm{Dec}_D
+\Rightarrow
+\gamma_t^\star,
+\\
+\gamma_t^\star
+\Rightarrow
+\mathsf{Upd}_D
+\Rightarrow
+D_{t+1}
+\Rightarrow
+\rho(D_{t+1})<\rho(D_t).
+\end{gathered}
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由前述嵌入等价定理，TPH-LHTS 的复合候选对象满足仓库 D 候选路径接口。
+由逻辑性度量定义，它诱导 \(\succ_D\)。由 D-Decision 与选择函数，得到
+\(\gamma_t^\star\)。由 D-Depth 更新，得到 \(D_{t+1}\)。若排名函数下降，
+则得到递归收敛证书。推论得证。
+\end{proof}
+
+\begin{remark}[理论增益]
+准确地说，TPH-LHTS 不是仅与 D 结构“类比”，而是按仓库 D 结构定义可直接嵌入：
+\[
+\boxed{
+\text{概率空间同伦类}
++
+\text{广义分形同伦类}
+\Rightarrow
+\text{高阶候选路径对象};
+}
+\]
+\[
+\boxed{
+\text{JacGap 下降选择泛函}
+\Rightarrow
+\text{D-Decision};
+\qquad
+\text{递归回填更新}
+\Rightarrow
+\text{D-Depth};
+}
+\]
+\[
+\boxed{
+\text{下降排名函数}
+\Rightarrow
+\text{递归收敛证书}.
+}
+\]
+所以最终判断是：TPH-LHTS 是一个以概率路径空间同伦类和广义分形轨迹族同伦类为
+候选路径对象层的 D 结构，并且它通过选择算子选出一条 JacGap 递归下降的决策路径。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：本次同伦的 D 结构决策路径升级总增益}
+\label{sec:total-gain-d-decision-path-upgrade}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本节定位]
+前文已经分别构造了轨迹函数参数同伦、\(\LHTS\) 零阶核、\(\TPH\) 外层控制器、
+频域命中概率空间、随机过程轨迹函数、广义分形轨迹族以及仓库 D 结构嵌入。
+本节把这些对象压合为一个总增益命题：本次同伦的核心增益，是把
+“同伦命中 \(\PDE\) 替代范式”从轨迹函数层提升到 D 结构决策路径层。
+
+这一定位继承两条仓内链条：其一，\(\PDE\) 替代范式把求解中心从显式求解方程
+迁移到命中低残差集合 \cite{RepoTex55PDEParadigm}；其二，仓库 D 结构把
+路径评分、偏好关系、最大元选择与递归深度统一为 Decision 与 Depth
+\cite{RepoTex3DStructure}。本节的任务是证明：\(\TPHLHTS\) 正好把二者接成
+一个以 JacGap 递归下降为证书的 D 结构收敛系统。
+\end{remark}
+
+\subsection{总增益对象与升级链条}
+\label{subsec:total-gain-objects-chain}
+
+\begin{definition}[原始轨迹函数层]
+称
+\[
+\PDE
+\to
+E_L
+\to
+S_{\varepsilon,L}
+\to
+\Gamma
+\to
+\mathcal J(\Gamma)
+\]
+为原始轨迹函数层。它把 \(\PDE\) 残差目标转化为低残差命中集合
+\(S_{\varepsilon,L}\)，再由轨迹函数 \(\Gamma\) 诱导命中泛函
+\(\mathcal J(\Gamma)\)。
+\end{definition}
+
+\begin{definition}[D 结构决策路径层]
+称
+\[
+\begin{gathered}
+\PDE
+\to
+E_L
+\to
+S_{\varepsilon,L}
+\to
+\LHTS_\Omega
+\to
+\TPH
+\to
+\gamma_D
+\to
+\mathcal L_D
+\\
+\to
+\gamma^\star
+\to
+D_{t+1}
+\to
+\Phi(D_t)\downarrow
+\end{gathered}
+\]
+为 D 结构决策路径层，其中
+\[
+\boxed{
+\gamma_D
+\DefEq
+\left(
+[\mathbb P_\Gamma^\beta]_{\mathrm{prob}},
+[\mathcal T_\infty]_{\mathrm{frac}},
+\Gamma
+\right)
+}
+\]
+是高阶候选路径对象，
+\[
+\Phi(D)=\frac12\|\JacGap(D)\|^2
+\]
+是 JacGap 势函数，\(\mathcal L_D\) 是 D 结构逻辑性度量。
+\end{definition}
+
+\begin{definition}[本次同伦总增益]
+定义本次同伦的总增益为从原始轨迹函数层到 D 结构决策路径层的结构提升：
+\[
+\boxed{
+\mathcal G_{\mathrm{tot}}
+\DefEq
+\left[
+\Gamma\to \mathcal J(\Gamma)
+\right]
+\Longrightarrow
+\left[
+\gamma_D\to \mathcal L_D\to \gamma^\star\to D_{t+1}
+\right].
+}
+\]
+换言之，它不是增加一个局部评分项，而是把命中算法提升为
+“高阶候选路径对象、D-Decision、D-Depth 与下降排名函数”组成的闭环。
+\end{definition}
+
+\begin{proposition}[总增益正规式]
+本次同伦的总增益可写为链式正规式
+\[
+\boxed{
+\begin{gathered}
+\text{轨迹函数}
+\Rightarrow
+\text{轨迹函数参数同伦}
+\Rightarrow
+\TPH\text{ 控制器}
+\\
+\Rightarrow
+\text{概率空间同伦类}
+\Rightarrow
+\text{广义分形同伦类}
+\\
+\Rightarrow
+D\text{ 结构候选路径}
+\Rightarrow
+D\text{-Decision}
+\Rightarrow
+D\text{-Depth}.
+\end{gathered}
+}
+\]
+\end{proposition}
+
+\begin{Certificate}[总增益证书]
+\[
+\boxed{
+\Gamma
+\Rightarrow
+H
+\Rightarrow
+\TPH(D_t)
+\Rightarrow
+([\mathbb P_\Gamma^\beta],[\mathcal T_\infty],\Gamma)
+\Rightarrow
+\mathcal L_D
+\Rightarrow
+\gamma^\star
+\Rightarrow
+D_{t+1}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由轨迹函数参数化，\(\Gamma\) 可以由参数同伦 \(H\) 生成。由 \(\TPH\) 定义，
+当前数据 \(D_t\) 被映射为候选轨迹函数族。每个轨迹函数诱导概率路径空间同伦类，
+递归选择诱导广义分形轨迹族同伦类，因此得到高阶候选路径对象
+\(\gamma_D\)。由仓库 D 结构定义，凡可评分候选路径对象均可进入
+\(\mathcal L_D\) 并诱导 \(\succ_D\)。由 D-Decision 选择最大元
+\(\gamma^\star\)，由 D-Depth 更新得到 \(D_{t+1}\)。命题得证。
+\end{proof}
+
+\subsection{公理降级：总增益链条闭包定理}
+\label{subsec:total-gain-axiom-downgrade}
+
+\begin{theorem}[公理降级：本次同伦总增益链条闭包定理]
+设初始层给出 \(\PDE\) 残差目标、低残差命中集合与轨迹函数命中泛函；设
+\(\LHTS_\Omega\) 给出嵌入定制运动内核，\(\TPH\) 给出候选轨迹函数枚举，
+每个候选轨迹函数诱导概率路径空间同伦类与广义分形轨迹族同伦类。若
+D 逻辑性度量 \(\mathcal L_D\)、选择函数 \(\mathsf{Ch}\) 与更新算子
+\(\mathsf{Upd}_D\) 全定义，则本次同伦从原始轨迹函数层闭包到 D 结构决策路径层。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书]
+令谓词
+\[
+\mathcal P_{\mathrm{gain}}(t):
+\quad
+D_t\text{ 已进入 D 结构决策路径层，且 }
+\gamma_t^\star,D_{t+1}\text{ 全定义}.
+\]
+证书链为
+\[
+\boxed{
+\mathcal P_{\mathrm{gain}}(t)
+\Rightarrow
+\TPH(D_t)
+\Rightarrow
+\{\Gamma_t^{(r)}\}_{r\in R_t}
+\Rightarrow
+\{\gamma_t^{(r)}\}_{r\in R_t}
+\Rightarrow
+\mathcal L_D
+\Rightarrow
+\gamma_t^\star
+\Rightarrow
+D_{t+1}
+\Rightarrow
+\mathcal P_{\mathrm{gain}}(t+1).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+基步：\(D_0\) 由 \(\PDE\) 残差命中任务、\(\LHTS_\Omega\) 运动内核与
+\(\TPH\) 输入接口共同给出。由候选轨迹函数、概率路径空间同伦类和广义分形
+轨迹族同伦类的定义，\(\gamma_0^{(r)}\) 全定义。由 \(\mathcal L_D\) 与
+\(\mathsf{Ch}\) 全定义，\(\gamma_0^\star\) 全定义。由 \(\mathsf{Upd}_D\)
+全定义，\(D_1\) 全定义。因此 \(\mathcal P_{\mathrm{gain}}(0)\) 成立。
+
+归纳步：假设 \(\mathcal P_{\mathrm{gain}}(t)\) 成立。则 \(D_t\) 已是
+D 结构中的当前数据状态。由 \(\TPH(D_t)\)，得到候选族
+\(\{\Gamma_t^{(r)}\}_{r\in R_t}\)。由概率路径空间化与广义分形递归构造，
+得到
+\[
+\gamma_t^{(r)}
+=
+\left(
+[\mathbb P_{\Gamma_t^{(r)}}^\beta]_{\mathrm{prob}},
+[\mathcal T_t^{(r)}]_{\mathrm{frac}},
+\Gamma_t^{(r)}
+\right).
+\]
+由 \(\mathcal L_D\) 全定义，所有候选可比较。由 \(\mathsf{Ch}\) 选出
+\(\gamma_t^\star\)。由 \(\mathsf{Upd}_D\) 更新得到 \(D_{t+1}\)，故
+\(\mathcal P_{\mathrm{gain}}(t+1)\) 成立。由数学归纳法，总增益链条闭包。
+\end{proof}
+
+\subsection{LHTS 与 TPH 的层级增益}
+\label{subsec:lhts-tph-layer-gain}
+
+\begin{theorem}[\(\LHTS\) 的嵌入定制运动内核定理]
+本次同伦把 \(\LHTS\) 从孤立算法对象提升为嵌入具体问题空间后的定制运动内核：
+\[
+\boxed{
+\LHTS_\Omega
+=
+\text{嵌入定制运动内核}.
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[运动内核证书]
+\[
+\boxed{
+\Omega
+\Rightarrow
+\mathcal L_\Omega
+\Rightarrow
+\mathcal A_\Omega
+\Rightarrow
+\Move_\Omega,\Credit_\Omega
+\Rightarrow
+D_t^\Omega\mapsto D_{t+1}^\Omega.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+\(\LHTS\) 的运动由具体问题空间中的格点、同伦扭曲、延迟信用回填与命中评分
+共同决定 \cite{RepoTex56LHTS}。因此当问题空间为 \(\Omega\) 时，运动算子族
+\(\mathcal A_\Omega\)、状态空间 \(\mathcal D_\Omega\) 与信用更新机制均依赖
+该嵌入。于是 \(\LHTS_\Omega\) 的职责是提供“如何在具体问题空间里运动”的
+可执行内核，而不是最终决策偏好层。定理得证。
+\end{proof}
+
+\begin{theorem}[\(\TPH\) 的通用动力加速与确定性收敛控制器定理]
+本次同伦把 \(\TPH\) 定义为作用于 \(\LHTS\) 数据接口外层的通用动力加速与
+确定性收敛控制器：
+\[
+\boxed{
+\TPH
+=
+\text{轨迹函数参数同伦控制器}
+=
+\text{通用动力加速与收敛控制层}.
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[TPH 控制证书]
+\[
+\boxed{
+D_t^{\LHTS}
+\Rightarrow
+\TPH(D_t)
+\Rightarrow
+\{\Gamma_t^{(r)}\}_{r\in R_t}
+\Rightarrow
+\mathfrak S_t(r)
+\Rightarrow
+r_t^\star
+\Rightarrow
+\Gamma_t^\star
+\Rightarrow
+D_{t+1}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+\(\TPH\) 输入当前 \(\LHTS\) 数据 \(D_t\)，输出多随机过程轨迹函数枚举族。
+每个候选 \(\Gamma_t^{(r)}\) 诱导路径测度、频域命中概率与预测更新后的
+JacGap 势函数。选择泛函选取使 JacGap 下降收益最大的候选，再回填
+\(\LHTS\) 更新：
+\[
+D_{t+1}
+=
+\mathsf{Upd}_{\LHTS}(D_t,\Gamma_t^\star).
+\]
+因此 \(\TPH\) 不替代 \(\LHTS\)，而是在 \(\LHTS\) 的运动内核外层执行
+运动选择、动力加速与收敛控制。定理得证。
+\end{proof}
+
+\begin{corollary}[内核--控制器分工]
+\[
+\boxed{
+\LHTS
+=
+\text{运动生成与执行};
+\qquad
+\TPH
+=
+\text{运动选择、加速与收敛证明}.
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[分工证书]
+\[
+\boxed{
+\LHTS_\Omega:
+(D_t,a_t)\mapsto D_{t+1},
+\qquad
+\TPH:
+D_t\mapsto\gamma_t^\star.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 \(\LHTS\) 运动内核定理，\(\LHTS_\Omega\) 提供可执行动作与回填。
+由 \(\TPH\) 控制定理，\(\TPH\) 在候选轨迹函数层选择最优路径。
+二者接口相接但职责不同，推论得证。
+\end{proof}
+
+\subsection{随机过程、频域命中与广义分形的增益}
+\label{subsec:random-frequency-fractal-gain}
+
+\begin{lemma}[随机性与确定性选择分离引理]
+在 \(\TPHLHTS\) 中，随机的是样本路径层，确定的是轨迹函数选择层。
+\end{lemma}
+
+\begin{Certificate}[分离证书]
+\[
+\boxed{
+X_t(\omega)\text{ 随机}
+\Rightarrow
+\mathbb P_\Gamma^\beta\text{ 可测}
+\Rightarrow
+\mathcal J(\Gamma),\mathcal L_D(\gamma;w)\text{ 可比较}
+\Rightarrow
+\gamma^\star\text{ 确定}.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+样本变量 \(X_t(\omega)\) 依赖路径样本，因此处于随机层。轨迹函数 \(\Gamma\)
+诱导路径测度 \(\mathbb P_\Gamma^\beta\)，从而使命中概率、期望 JacGap、
+方差和成本成为可估计、可比较的泛函对象。若候选集合有限或可截断有限，且
+选择函数具有确定性并列消解规则，则 \(\gamma^\star\) 是确定的。引理得证。
+\end{proof}
+
+\begin{theorem}[频域微观隧穿命中接口定理]
+随机过程轨迹函数是频域微观隧穿命中控制与 JacGap 下降之间的统一接口：
+\[
+\boxed{
+\Gamma
+\Longleftrightarrow
+\mathbb P_\Gamma^\beta(dz_{0:T})
+\Longleftrightarrow
+\Prob_\Gamma^\beta
+\bigl(
+\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}
+\bigr)
+\Longleftrightarrow
+\text{频域微观隧穿命中控制}.
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[频域命中接口证书]
+\[
+\boxed{
+\Gamma
+\Rightarrow
+\mathbb P_\Gamma^\beta
+\Rightarrow
+E_{\omega,\varepsilon,T}
+\Rightarrow
+\mathcal J_{\omega,\varepsilon,T}(\Gamma)
+\Rightarrow
+\mathcal L_D(\gamma;w).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+频域命中不是单点事件，而是路径事件
+\[
+E_{\omega,\varepsilon,T}
+=
+\{z_{0:T}:\mathscr F_T(z_{0:T})\in B_{\omega,\varepsilon}\}.
+\]
+要给该事件赋概率，必须使用路径概率测度 \(\mathbb P_\Gamma^\beta\)。
+而 \(\Gamma\) 是该测度的控制接口。命中概率
+\(\mathcal J_{\omega,\varepsilon,T}(\Gamma)\) 进入 D 逻辑性度量的命中维度，
+JacGap 期望进入下降维度。因此轨迹函数同时承载频域微观隧穿命中与 JacGap
+下降选择。定理得证。
+\end{proof}
+
+\begin{theorem}[参数同伦递归的广义分形增益定理]
+轨迹函数参数同伦选择递归
+\[
+\mathcal T_{k+1}=\mathfrak F(\mathcal T_k)
+\]
+把候选轨迹从单层枚举提升为广义分形轨迹族，并单调扩张梯度覆盖空间：
+\[
+\Span(\mathcal T_k)\subseteq\Span(\mathcal T_{k+1}).
+\]
+\end{theorem}
+
+\begin{Certificate}[广义分形递归证书]
+\[
+\boxed{
+\mathcal T_0
+\Rightarrow
+\Hom_\Theta(\mathcal T_k)
+\Rightarrow
+\Sel_{\mathfrak S}
+\Rightarrow
+\mathcal T_{k+1}
+\Rightarrow
+\Span(\mathcal T_k)\subseteq\Span(\mathcal T_{k+1}).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+第 \(k+1\) 层由第 \(k\) 层轨迹函数族经参数同伦生成、选择泛函筛选与
+\(\LHTS\) 分布律更新得到。若第 \(k+1\) 层保留第 \(k\) 层已生成的候选方向
+并加入新方向，则允许的同伦词长度与候选方向集合不减少。因此
+\[
+\Span(\mathcal T_k)\subseteq\Span(\mathcal T_{k+1}).
+\]
+当该张成空间逐阶逼近 \(-\nabla\Phi(D_t)\) 时，广义分形轨迹族提供 JacGap
+梯度下降覆盖证书。定理得证。
+\end{proof}
+
+\subsection{JacGap 证书化与 D-Decision 升级}
+\label{subsec:jacgap-certification-d-decision-upgrade}
+
+\begin{theorem}[JacGap 从残差指标到 D 路径评分的证书化定理]
+本次同伦把 JacGap 从待下降残差指标提升为 D 结构中的证书型路径评分：
+\[
+\boxed{
+\JacGap
+\Rightarrow
+\Phi(D)
+\Rightarrow
+d_i(\gamma)
+\Rightarrow
+\mathcal L_D(\gamma;w)
+\Rightarrow
+D\text{-Decision}.
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[JacGap 证书化链]
+\[
+\boxed{
+\JacGap(D)
+\Rightarrow
+\Phi(D)=\frac12\|\JacGap(D)\|^2
+\Rightarrow
+\E_{\mathbb P_\Gamma^\beta}[\Phi(D_T)]
+\Rightarrow
+\mathcal L_D
+\Rightarrow
+\gamma^\star.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+仓库 D 结构允许通过实值评分函数比较候选路径 \cite{RepoTex3DStructure}。
+在 \(\TPHLHTS\) 中，JacGap 势函数 \(\Phi(D)\) 既可作为更新后的期望损失，
+也可进入下降排名函数。因此它不是只在更新之后被观察的残差，而是参与
+候选路径排序的评分维度。由 \(\mathcal L_D\) 汇总后，它诱导 D-Decision 的
+最大元选择。定理得证。
+\end{proof}
+
+\begin{proposition}[选择泛函到 D-Decision 的升维]
+若原选择泛函为
+\[
+\mathfrak S(H)
+=
+\Delta\mathcal C(H)-\Cost(H)-\JacGap(H),
+\]
+则本次同伦将其提升为
+\[
+\boxed{
+\mathcal L_D(\gamma;w)
+=
+\sum_{i=1}^{5}w_i d_i(\gamma),
+}
+\]
+其中 \(d_i\) 分别代表频域命中、JacGap 下降、成本、方差与梯度覆盖。
+\end{proposition}
+
+\begin{Certificate}[升维证书]
+\[
+\boxed{
+\mathfrak S(H)
+\Rightarrow
+\mathfrak S(\Gamma)
+\Rightarrow
+\mathcal L_D(\gamma;w)
+\Rightarrow
+\mathrm{Dec}_D(D_t).
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+原选择泛函只比较参数同伦路径 \(H\) 的净命中收益。将 \(H\) 生成的轨迹函数
+\(\Gamma\) 概率空间化，并加入广义分形梯度覆盖维度后，候选对象从 \(H\)
+升维为 \(\gamma=([\mathbb P_\Gamma^\beta],[\mathcal T_\infty],\Gamma)\)。
+评分函数相应从单一路径收益升维为 D 逻辑性度量 \(\mathcal L_D\)。
+因此选择结果从局部最优同伦路径升维为 D-Decision 的候选最大元。命题得证。
+\end{proof}
+
+\subsection{PDE 替代范式的 D 结构化闭合}
+\label{subsec:pde-paradigm-d-closure}
+
+\begin{theorem}[\(\PDE\) 替代范式的 D 结构化命中决策定理]
+本次同伦把“同伦命中 \(\PDE\) 替代范式”闭合为 D 结构化命中决策范式：
+\[
+\boxed{
+\begin{gathered}
+\PDE\text{ 残差命中}
+\to
+\text{轨迹函数参数同伦}
+\to
+\text{概率空间同伦类}
+\\
+\to
+\text{广义分形同伦类}
+\to
+D\text{ 结构决策路径}.
+\end{gathered}
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[PDE 闭合证书]
+\[
+\boxed{
+\PDE
+\Rightarrow
+E_L
+\Rightarrow
+S_{\varepsilon,L}
+\Rightarrow
+\Gamma
+\Rightarrow
+\gamma_D
+\Rightarrow
+\mathcal L_D
+\Rightarrow
+D_0\to D_1\to\cdots.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+\(\PDE\) 替代范式首先把显式方程求解转化为低残差集合命中
+\cite{RepoTex55PDEParadigm}。轨迹函数参数同伦进一步说明如何生成和筛选
+命中轨迹。频域命中与微观隧穿要求轨迹函数诱导概率路径空间。递归同伦选择
+生成广义分形轨迹族并提供梯度覆盖。最后，仓库 D 结构接口把高阶候选路径对象
+评分、排序、选择并更新为递归决策路径。因此 \(\PDE\) 替代范式被闭合为
+D 结构化命中决策范式。定理得证。
+\end{proof}
+
+\subsection{整体增益等级与最终总评}
+\label{subsec:total-gain-rank-final-statement}
+
+\begin{definition}[结构增益等级函数]
+定义结构增益等级
+\[
+\operatorname{Rank}_{\mathrm{gain}}\in\{0,1,2,3,4,5\}
+\]
+如下：
+\[
+\begin{array}{c|l}
+0 & \text{解释性讨论}\\
+1 & \text{定义补全}\\
+2 & \text{算法补全}\\
+3 & \text{收敛补全}\\
+4 & \text{结构闭合}\\
+5 & \text{体系级同构重构}
+\end{array}
+\]
+若一个增益同时给出候选对象、评分、偏好、选择、更新与下降证书，则称其达到
+结构闭合等级 \(4\)。若进一步给出所有经验估计误差界、同构唯一性与全局收敛
+充分必要条件，则称其达到体系级同构重构等级 \(5\)。
+\end{definition}
+
+\begin{proposition}[本次同伦的结构增益等级]
+本次同伦至少达到结构闭合等级：
+\[
+\boxed{
+\operatorname{Rank}_{\mathrm{gain}}(\TPHLHTS)\ge4.
+}
+\]
+在经验估计一致性、梯度覆盖误差界、D 评分同构唯一性与全局 JacGap 收敛条件
+同时补齐时，它提升到体系级同构重构等级：
+\[
+\boxed{
+\operatorname{Rank}_{\mathrm{gain}}(\TPHLHTS)=5.
+}
+\]
+\end{proposition}
+
+\begin{Certificate}[等级判断证书]
+\[
+\boxed{
+\text{候选对象}
++\text{评分}
++\text{偏好}
++\text{选择}
++\text{更新}
++\text{下降证书}
+\Rightarrow
+\operatorname{Rank}_{\mathrm{gain}}\ge4.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+本次同伦已经给出高阶候选路径对象 \(\gamma_D\)、D 逻辑性度量
+\(\mathcal L_D\)、偏好关系 \(\succ_D\)、选择函数 \(\mathsf{Ch}\)、更新算子
+\(\mathsf{Upd}_D\) 与下降排名函数 \(\rho\)。按结构增益等级定义，这达到
+结构闭合等级。若进一步把估计一致性、误差界、同构唯一性和全局收敛条件补成
+充分必要系统，则候选对象层、选择层、更新层与收敛层形成体系级同构重构。
+命题得证。
+\end{proof}
+
+\begin{corollary}[最终总增益表述]
+本次同伦把 \(\TPHLHTS\) 从统计力学同伦命中算法提升为如下 D 结构收敛系统：
+\[
+\boxed{
+\begin{gathered}
+\text{以概率空间同伦类与广义分形同伦类为候选对象，}
+\\
+\text{以 JacGap 为证书，以选择泛函为 Decision，}
+\\
+\text{以递归更新为 Depth，以排名函数下降为收敛证书。}
+\end{gathered}
+}
+\]
+其压缩更新式为
+\[
+\boxed{
+D_{t+1}
+=
+\mathsf{Upd}_D
+\left(
+D_t,
+\mathsf{Ch}
+\left(
+\argmax_{\gamma\in\Gamma_D(D_t)}
+\mathcal L_D(\gamma;w_t)
+\right)
+\right).
+}
+\]
+若
+\[
+\rho(D)
+=
+\frac12\|\JacGap(D)\|^2,
+\qquad
+\rho(D_{t+1})<\rho(D_t),
+\]
+则得到 JacGap 递归下降路径。
+\end{corollary}
+
+\begin{Certificate}[最终总评证书]
+\[
+\boxed{
+\LHTS,\TPH,\text{随机过程},\FreqHit,
+\text{微观隧穿},\mathcal T_\infty,\JacGap,D
+\Rightarrow
+\mathbb D_{\TPHLHTS}
+\Rightarrow
+D_0\to D_1\to\cdots.
+}
+\]
+\end{Certificate}
+
+\begin{proof}
+由前述各定理，\(\LHTS\) 提供嵌入运动内核，\(\TPH\) 提供外层选择控制，
+随机过程和频域命中提供概率路径空间，微观隧穿给出统计力学路径权重，
+\(\mathcal T_\infty\) 给出广义分形梯度覆盖，JacGap 给出证书型势函数，
+D 结构给出 Decision 与 Depth。它们共同定义
+\[
+\mathbb D_{\TPHLHTS}
+=
+\left(
+\mathcal D,
+\Gamma_D,
+\mathcal L_D,
+\succ_D,
+\mathsf{Ch},
+\mathsf{Upd}_D,
+\rho
+\right).
+\]
+由选择和更新规则，得到递归决策路径。若排名函数取 JacGap 势函数且严格下降，
+则该路径是 JacGap 递归下降路径。推论得证。
+\end{proof}
+
+\begin{remark}[总增益结论]
+本次同伦的最大增益不是新增一个命名，也不是把 \(\LHTS\) 改写为轨迹函数选择
+算法，而是完成了
+\[
+\boxed{
+\text{同伦命中算法}
+\Longrightarrow
+D\text{ 结构递归决策路径}
+}
+\]
+的结构升级。其最终一句话表述为：
+\[
+\boxed{
+\begin{gathered}
+\TPHLHTS
+\text{ 是以概率空间与广义分形为同伦类对象、}
+\\
+\text{以 JacGap 为证书、以选择泛函为 Decision、}
+\\
+\text{以递归更新为 Depth 的 }D\text{ 结构收敛系统}.
+\end{gathered}
+}
+\]
+\end{remark}
+
+\begin{thebibliography}{99}
+\raggedright
+
+\bibitem{RepoTex3DStructure}
+Gao Zheng.
+\newblock \emph{Jacobi Gap 与 D 结构语义等价的形式系统}.
+\newblock 仓内稿件：
+\repo{NoteBook/notebook1/tex3_pub/jacobi_gap_D_structure_equivalence.tex};
+Zenodo: \url{https://doi.org/10.5281/zenodo.17651584}, 2026.
+
+\bibitem{RepoTex37SemanticGauge}
+Gao Zheng.
+\newblock \emph{G 框架正则语义规范场到自然语言语义逻辑占位规范场的高阶同伦扭曲双射、LLM 运行时降级与逻辑引擎（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\repo{NoteBook/notebook2/tex37_pub/gframework_semantic_gauge_field_natural_language_logic_placeholder_runtime_formal_system.tex}, 2026.
+
+\bibitem{RepoTex53StrategyCluster}
+Gao Zheng.
+\newblock \emph{统计力学参数格点、同伦扭曲命中与 PDE 策略簇：从时域求解到频域簇命中的近似量子软件层算法（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\repo{NoteBook/notebook3/tex53_pub/gframework_statistical_lattice_homotopy_tunnel_pde_strategy_cluster_formal_system.tex}, 2026.
+
+\bibitem{RepoTex55PDEParadigm}
+Gao Zheng.
+\newblock \emph{基于高阶正交确定性收敛的统计力学同伦命中：PDE 求解范式替代（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\repo{NoteBook/notebook3/tex55_pub/gframework_homotopy_hitting_pde_paradigm_replacement_formal_system.tex}, 2026.
+
+\bibitem{RepoTex56LHTS}
+Gao Zheng.
+\newblock \emph{LHTS：延迟信用分配的格点同伦扭曲评分与命中证书体系（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\repo{NoteBook/notebook3/tex56_pub/gframework_lhts_delayed_credit_lattice_homotopy_twist_scoring_formal_system.tex}, 2026.
+
+\bibitem{Hutchinson1981Fractals}
+John E. Hutchinson.
+\newblock Fractals and self similarity.
+\newblock \emph{Indiana University Mathematics Journal}, 30(5):713--747, 1981.
+
+\bibitem{Barnsley1988Fractals}
+Michael F. Barnsley.
+\newblock \emph{Fractals Everywhere}.
+\newblock Academic Press, 1988.
+
+\bibitem{Billingsley1995Probability}
+Patrick Billingsley.
+\newblock \emph{Probability and Measure}.
+\newblock Wiley, third edition, 1995.
+
+\bibitem{OppenheimSchafer2010DSP}
+Alan V. Oppenheim and Ronald W. Schafer.
+\newblock \emph{Discrete-Time Signal Processing}.
+\newblock Pearson, third edition, 2010.
+
+\bibitem{Mallat2009Wavelet}
+St\'ephane Mallat.
+\newblock \emph{A Wavelet Tour of Signal Processing: The Sparse Way}.
+\newblock Academic Press, third edition, 2009.
+
+\bibitem{Touchette2009LargeDeviations}
+Hugo Touchette.
+\newblock The large deviation approach to statistical mechanics.
+\newblock \emph{Physics Reports}, 478(1--3):1--69, 2009.
+
+\bibitem{FreidlinWentzell2012RandomPerturbations}
+Mark I. Freidlin and Alexander D. Wentzell.
+\newblock \emph{Random Perturbations of Dynamical Systems}.
+\newblock Springer, third edition, 2012.
+
+\bibitem{KushnerYin2003StochasticApproximation}
+Harold J. Kushner and G. George Yin.
+\newblock \emph{Stochastic Approximation and Recursive Algorithms and Applications}.
+\newblock Springer, second edition, 2003.
+
+\bibitem{Borkar2008StochasticApproximation}
+Vivek S. Borkar.
+\newblock \emph{Stochastic Approximation: A Dynamical Systems Viewpoint}.
+\newblock Cambridge University Press, 2008.
+
+\bibitem{NocedalWright2006Optimization}
+Jorge Nocedal and Stephen J. Wright.
+\newblock \emph{Numerical Optimization}.
+\newblock Springer, second edition, 2006.
+
+\bibitem{AmbrosioGigliSavare2008GradientFlows}
+Luigi Ambrosio, Nicola Gigli, and Giuseppe Savar\'e.
+\newblock \emph{Gradient Flows in Metric Spaces and in the Space of Probability Measures}.
+\newblock Birkh\"auser, second edition, 2008.
+
+\bibitem{Evans2010PDE}
+Lawrence C. Evans.
+\newblock \emph{Partial Differential Equations}.
+\newblock American Mathematical Society, second edition, 2010.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

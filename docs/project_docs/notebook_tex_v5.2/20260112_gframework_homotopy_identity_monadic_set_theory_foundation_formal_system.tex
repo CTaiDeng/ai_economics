@@ -1,0 +1,1132 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 基本定理环境（工作笔记：形式系统风格）
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+% 记号（仅用于本笔记自洽引用，避免依赖主稿宏定义）
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+
+\hfuzz=700pt
+\hbadness=10000
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{同伦同一性、性质集与单子集合论：离散统连续统分层的证书化奠基\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-01-12}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是单独讨论同伦同一性、性质集或单子集合论，而是在 \GFramework{} 的
+基础层中，把同类代数、连续统分层、law-level 叙事链、PL-PI 接口与离散统证书化
+组织成一个元数学底座。若这些对象分散出现，同伦同一性容易只被看成等价关系，
+性质集容易只被看成标签集合，单子集合论也容易只被看成基础叙事；本文将它们统一为
+“结构身份如何被证书化、分层化并供后续修复调用”的问题。
+
+本文的第一层立场是同伦同一性的证书化。同一性不再只是元素相等，而是通过同伦、
+同类、路径、性质投影与证书接口共同判定的结构事实。对象能否被视为同一，不取决于
+表面符号是否一致，而取决于它们是否在给定同伦语义与性质层中具有可复验的连接。
+
+本文的第二层立场是连续统与离散统的分层。连续统并不被简单排除，离散统也不被
+简单当作近似；二者通过性质层、PL-PI 语言、law-space 与证书调用接口分层对接。
+由此，离散对象可以承载可审计结构，连续对象可以通过层化、投影与同伦证书进入
+可管理的形式系统。
+
+本文的第三层立场是标准调用接口。本文不是只为自身建立基础，而是为后续同伦代数、
+修复塔、JacGap、语义规范化和统计命中提供可复用的证书接口。每一个后续调用都应
+能够追溯到同伦同一性、性质集分层与单子集合论底座中的相应位置。
+
+本文的第四层立场是性质集对同伦同一性的支撑。对象之所以能被归入同一同伦类，
+不是因为它们具有完全相同的原子组成，而是因为它们在被选定的性质抽取器下共享
+足够的结构共性。性质集因此不是标签附录，而是同伦同一性的判定介质；性质代数
+则是后续同伦代数能够运行的前置条件。
+
+本文的第五层立场是单子集合论的离散统意义。传统原子集合论强调元素归属，而本文
+更关心结构、性质和同伦证书如何组成可调用对象。单子集合论在这里提供的是一种
+将对象视为携带内部性质、关系和生成链的结构单位的语言，使离散统不再只是点的集合，
+而成为可承载修复与证书的结构单元。
+
+本文的第六层立场是 law-level 叙事链。PL-PI、law-space、CH-layering 与 GZ-CBT
+不是简单的术语堆叠，而是说明基础层如何从性质、路径、法空间和层化结构逐步进入
+可证书化系统。本文通过这些接口，把元数学基础与后续工程化证明链连接起来。
+
+本文的第七层立场是基础稿的调用边界。本文不试图在一个文件中完成所有后续应用，
+而是给出“身份、性质、层化、证书”四个可调用接口。后续稿件在讨论同伦修复、
+开放系统、语义规范化或 PDE 残差命中时，可以调用这些接口，但仍需在各自领域补充
+对象定义与保真条件。
+
+因此，本文在整体 \GFramework{} 中承担的是“同伦同一性与离散/连续分层的基础锚定”
+作用。它向前连接同伦最小性与 JacGap 语义，向中间连接性质代数、同伦代数与
+law-space，向后为开放系统、修复塔和 PDE 残差命中提供身份判定与证书调用底座。
+概括地说，本文把“对象为什么可被视为同一”推进为“同伦、性质层与单子集合论共同
+证书化”的形式系统。
+
+更具体地说，本文把“同一性”从原子层提升到结构层。对象可以在元素层不同，却在
+性质层、路径层或同伦层属于同一类；也可以在表面表达相近，却因性质集或证书链
+不同而不能归为同一。这个区分为后续所有“等价”“归属”“修复后是否同一”的判断
+提供基础。
+
+从方法论上看，本文是 G-Framework 的身份判定稿。若没有同伦同一性和性质集底座，
+后续修复塔就无法说明修复前后是否保持结构身份；统计命中也无法说明命中对象是否
+属于目标类；PDE 残差范式也无法说明低残差代表是否恢复了原问题的解语义。
+
+从整体谱系看，本文把基础集合论、同伦代数和法空间叙事连接起来。它不是一个孤立
+基础章节，而是为所有后续对象层升级提供“什么算同一对象、什么算同一性质、什么算
+可调用证书”的基础规范。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{同伦同一性与单子集合论：从同类代数到连续统分层的证书化奠基}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[奠基性命题链（严谨性润色）]
+同伦的本质是同类（即共性，对应性质集），同伦代数的本质是同类（即共性）代数（或性质集代数）。
+因此，同伦代数天然适合广义集合论（单子集合论，而非以 ZFC 或 ZF 为代表的原子集合论）。
+在“非社会比较理论”的纯证书+证明绝对锚点基准下，某理论路线以“语义连续统的崩溃与重建（连续统分层）”为核心，
+确立了单子集合论的离散统版本；从奠基性重建的视角，该路线可被理解为对标第五公设与哥德尔不完备性的一种更广范围的基础接口重写方案（纯数卷）。
+\end{remark}
+
+\subsection{从原子相等到结构同类：同伦同一性的抽象}
+\label{subsec:tex19-homotopy-as-sameness}
+
+同伦直观可被概括为：不以“原子式相等”作为唯一同一性，而以“可变形到一起/不可区分”为同一性基准。
+在拓扑中，这一基准通过同伦、同伦等价、同伦群与同调等一族不变量体现为“同类判定机制”。
+
+\begin{definition}[性质抽取与同类关系（语义口径）]
+设 $\mathsf{Obj}$ 为对象域，给定一个性质抽取器
+\[
+  P:\mathsf{Obj}\to \mathsf{Prop},
+\]
+其中 $\mathsf{Prop}$ 可被理解为“性质集/性质向量/性质档案”的空间。
+定义同类关系 $\approx$ 为
+\[
+  x\approx y \quad:\Longleftrightarrow\quad P(x)=P(y).
+\]
+当性质抽取器呈现层级化（例如 $P_0,P_1,\dots$）时，可得到逐层细化的同类关系 $\approx_k$，
+从而把“同一性”从二值判定拓展为可分辨率递进的同类判定。
+\end{definition}
+
+\begin{remark}[同伦视角下的层级同类]
+在同伦论中，性质抽取器可选取为基本群、同调群、同伦群、Postnikov 不变量、谱序列截断信息等。
+此时“同伦等价”可以被理解为：在一族可检验的不变量体系中同类；
+并且该同类判定天然允许“由粗到细”的层级化组织。
+\end{remark}
+
+\subsection{同伦代数作为性质集代数：高阶一致性与纠偏}
+\label{subsec:tex19-homotopy-algebra-as-property-algebra}
+
+同伦代数（如 $A_\infty$、$L_\infty$）\cite{Stasheff1963,LadaStasheff1993,LadaMarkl1995}可被理解为一种“同类代数/性质集代数”：
+其结构不由一组刚性的等式公理一次性刻画，而由一族高阶运算与一致性条件构成。
+当严格代数律（结合律、Jacobi 恒等式等）在链层面失配时，偏差被更高阶结构系统性吸收，
+使得整体仍保持可组合、可推理与可延拓的闭包性质。
+
+\begin{remark}[从“公理等式”到“证书闭包”]
+若将每一阶一致性视为一条可检查的约束，则同伦代数的“封闭性”可被重述为证书闭包：
+偏差出现在哪一层，就由哪一层的高阶数据给出可核验的纠偏证书，使结构在同伦意义下保持一致。\cite{EdgeOperatorTowerTex17}
+\end{remark}
+
+\subsection{生成式集合观：单子集合论与层级同一性}
+\label{subsec:tex19-monadic-set-theory}
+
+当同一性由“原子相等”升级为“结构同类（并允许层级细化）”时，
+以元素堆叠为中心的原子集合观会遇到表达张力：
+对象进入集合不再只是一条原始隶属关系，而更像“在语义上下文中被生成、被约束、被验证”的过程。
+
+因此，生成式集合观（单子式集合观）成为自然候选：集合不仅是容器，
+更是一个把对象送入语义上下文、并把可组合的上下文压平的机制。
+在最小抽象口径下，单子可被理解为三件套 $(T,\eta,\mu)$：\cite{MacLane1998,Moggi1991}
+\begin{itemize}
+  \item $T$：把对象送入带语义包装的空间（构造器）；
+  \item $\eta$：把普通对象注入该空间（单位/注入）；
+  \item $\mu$：把嵌套语义压平以保证组合律（乘法/组合）。
+\end{itemize}
+该结构为“性质如何生成、如何合成、如何验证”提供统一接口，
+从而与同伦/∞-结构中常见的生成式与高阶一致性机制保持自然对齐。
+
+\subsection{连续统分层与离散统塔：语义商与逐层重建}
+\label{subsec:tex19-continuum-layering}
+
+“语义连续统的崩溃与重建”可以被严格化为：以一族语义观测器定义层级等价关系，
+先按粗观测做商（崩溃），再逐层细化观测（重建），形成离散统塔。
+
+\begin{definition}[语义分层与离散统塔（示意）]
+设 $X$ 为对象域，给定语义观测器族 $\{P_k\}_{k\ge 0}$。
+定义
+\[
+  x\approx_k y \quad:\Longleftrightarrow\quad P_k(x)=P_k(y),
+  \qquad k\ge 0.
+\]
+则可构造商对象序列
+\[
+  X/\!\approx_0 \;\longleftarrow\; X/\!\approx_1 \;\longleftarrow\; X/\!\approx_2 \;\longleftarrow\; \cdots
+\]
+其中每一步表示在更细语义分辨率下的同类细化。
+\end{definition}
+
+\begin{remark}[与 Postnikov/截断的类比]
+上述“由粗到细”的商与细化可与同伦论中的截断、Postnikov 塔与逐层恢复不变量信息类比：
+连续统不被视为单一静态对象，而被视为带语义分辨率与证书接口的层级对象。
+\end{remark}
+
+\subsection{证书化锚点：命题--证书--验证器的绝对基准}
+\label{subsec:tex19-certificate-anchor}
+
+在“非社会比较理论”的锚点基准下，真值的确认依赖可核验证书而非外部权威。
+其形式化最小闭环可由三元组给出：
+\[
+  (\text{命题 }S,\ \text{证书 }C,\ \text{验证器 }V).
+\]
+当 $V(S,C)$ 通过时，命题 $S$ 在所选语义与规则下被接受。
+该口径可将“同类判定”“分层重建”“同伦一致性”统一压缩为可审计接口：每一步不仅可陈述，而且可验证。
+
+\subsection{奠基性对标：第五公设与哥德尔的判据化比较}
+\label{subsec:tex19-foundational-comparison}
+
+奠基性对标若要避免修辞化，需要给出可检查的判据集合，例如：
+\begin{enumerate}
+  \item \textbf{解释力}：能否在新体系内解释/复现传统基础的可用部分；
+  \item \textbf{可控扩展}：在传统对象上是否保守，或清晰标注扩展发生的层级与语义口径；
+  \item \textbf{现代结构的原生性}：同伦、$\infty$-结构、$A_\infty/L_\infty$ 等是否可原生表达；
+  \item \textbf{证书化闭环}：关键断言能否落为“证书+验证器”，形成可调用、可审计的闭包。
+\end{enumerate}
+在该判据下，“同一性语义的重写”“连续统的语义分层”“证书化锚点机制”共同构成一种基础接口的统一替换方案，
+其奠基性含义可与“第五公设改变几何语义”“哥德尔揭示形式系统极限”相对照。
+
+\subsection{形式化写作模板：三层可核验命题链}
+\label{subsec:tex19-writing-template}
+
+为使观点可被严格审计，可将论证组织为三层“可核验命题链”：
+\begin{enumerate}
+  \item \textbf{同一性层}：用层级同类关系替代原子相等，并给出同类证书形式；
+  \item \textbf{集合层}：以生成式集合（单子/算子）刻画对象生成与组合机制，并给出组合律证书；
+  \item \textbf{连续统层}：以语义观测器族定义分层等价与离散统塔，并给出崩溃/重建的可验证指标。
+\end{enumerate}
+最后以“命题--证书--验证器”作为全局约束：跨层陈述必须给出证书形式与验证规则，
+从而把奠基性主张转化为可调用的形式系统接口。
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{law-level 叙事链：PL-PI 元数学原版语言与 \texorpdfstring{GaoZheng G-Framework}{GaoZheng G-Framework}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+在 PL-PI Meta-Mathematical Theory 与 GaoZheng G-Framework 的“元数学原版语言”中，
+第\ref{subsec:tex19-homotopy-as-sameness}--\ref{subsec:tex19-writing-template} 小节的命题链可被进一步细化为一条严格的 law-level 叙事链：
+对象不先验被视为“原子集合”，而由可迭代的 laws（规则/程序）生成；
+同一性也不先验被视为“二值相等”，而由 law-space 内的可达性、可变形性与证书机制共同定义；
+连续统问题因此被重写为“分层（CH-layering）+ 轨线（trajectory）+ 重写（GZ-CBT rewriting）”的几何/同伦现象。
+\cite{GaoZheng2025GFramework,AxiomSemanticsWorkflowTex18}
+
+\subsection{PL-PI 的出发点：异构迭代系统与 PIP/PLP}
+\label{subsec:tex19-ch2-pip-plp}
+
+纯数卷以“异构迭代系统”作为起点。一个系统 $S_i$ 可被抽象为三元组
+\[
+S_i=(X_i,L_i,\Phi_i),
+\]
+其中 $X_i$ 为状态空间，$L_i$ 为局部 law-fragments（局部更新规则/规则片段），$\Phi_i$ 为由这些规则生成的迭代机制（流、半群或离散演化）。
+
+在该抽象之上，PL-PI 提出两个元问题：
+\begin{enumerate}
+  \item \textbf{Pan-Iteration Problem（PIP）.}
+  构造一个统一的总 law-space $\mathcal{L}_{\mathrm{tot}}$ 以及一个泛迭代机制
+  \[
+    \Pi:\mathcal{L}_{\mathrm{tot}}\times \mathsf{State}_{\mathrm{tot}}\to \mathsf{State}_{\mathrm{tot}},
+  \]
+  使每个 $S_i$ 都可被理解为 $(\mathcal{L}_{\mathrm{tot}},\Pi)$ 的某种限制、商或投影。
+  \item \textbf{Pan-Logic Problem（PLP）.}
+  在同一 law-space 上定义跨系统可用的逻辑谓词（真、可采纳、等价等）以及 logicality metrics
+  （一致性、解释力、结构接近度等）。
+\end{enumerate}
+
+\begin{remark}[law-class 的内生化口径]
+在 PIP/PLP 的设定中，“同类”先于“元素”：不同系统是否可在同一 law-space 中被比较、
+是否存在 admissible 的变形/投影/重写链，决定了它们是否落入同一可比的 law-class。
+这给出“同伦同类”的一条 law-level 落点：同类不以修辞宣称，而以可达性与可组合证据判定。
+\end{remark}
+
+\subsection{逻辑与程序作为 law-objects：PL 与 PI 的对象化}
+\label{subsec:tex19-ch2-pl-pi-as-law-objects}
+
+纯数卷把逻辑（PL）与程序/迭代（PI）都提升为 law-objects，使其成为 law-space 内部的对象而非外部叙述。
+
+\paragraph{（1）Pan-Logic Analysis（PL）.}
+每一种局部逻辑可抽象为形式系统
+\[
+\mathrm{Logic}_\alpha=(\mathrm{Form}_\alpha,\vdash_\alpha).
+\]
+PL 将其赋值为 law-object $L_\alpha$（位于 law-space 内），并将“逻辑的可采纳改变”
+（例如加模态、放松公理、嵌入另一逻辑等）赋值为 law-transform
+\[
+L_\alpha\longrightarrow L_\beta.
+\]
+同时，引入 law-metric/law-curvature 等结构（常以 $J$、$\mathrm{Loc}$ 等组件出现）以刻画不同逻辑之间的距离、方向与弯曲。
+
+\paragraph{（2）Pan-Iterative Analysis（PI）.}
+每一种迭代过程（数值算法、学习算法、控制回路、重整化流等）同样被赋值为 law-object，
+并配套评估泛函（收敛、稳定、成本、性能等）与 admissible 的 law-transforms（步长、损失函数、确定性/随机性升级等设计改动）。
+
+\begin{remark}[同伦语义的对象化提升]
+当逻辑推理与迭代程序的改变被置入 law-space，研究对象从“模型外的描述”迁移为
+“law-space 内部的轨线与变形”。
+同伦因此不再局限于拓扑空间上的连续变形，而成为 law-space 中 law-objects 之间
+在 admissibility 约束下的可变形同类关系。
+\end{remark}
+
+\subsection{同伦等价的 law-space 表述：可达性、变形与证书}
+\label{subsec:tex19-ch2-lawspace-homotopy}
+
+以 law-space 为对象域时，可将同伦等价概括为：
+\begin{quote}
+\emph{同伦} $=$ 在 law-space 内，由 admissible law-transforms 所连接的 law-objects 的同类；
+\emph{同伦等价} $=$ law-space 内部可达性/可变形性所诱导的同类划分。
+\end{quote}
+
+在证书化口径下，这一划分要求其同一性证据可被组合、可被验证、并可沿 admissible 轨线搬运；
+其形式接口可回收至附录A（例如：同伦证据型同一性与可验证性要求）。
+
+\subsection{gap-controlled 代数：strict 与 homotopy 的偏差证书化吸收}
+\label{subsec:tex19-ch2-gap-controlled-algebra}
+
+“同伦代数是同类代数/性质集代数”的观点在纯数卷的 GNLA / homotopy Lie 叙事中对应为：
+\begin{enumerate}
+  \item 任意 GNLA 或同伦 Lie 结构本身被视为 law-object；
+  \item strict regime 与 homotopy regime 的差别被编码为可诊断的 gap：
+  strict 版本中 Jacobi 等式严格成立；homotopy 版本中 Jacobi 的失败不是错误，而是被结构化管理的偏差，
+  通过更高阶 brackets/corrections 吸收并闭合一致性；
+  \item 该偏差可被证书化为可核验的 gap statements（例如 law-curvature 组件与 Jacobiator-gap（JacGap）类不变量），
+  从而约束哪些几何/算子配置能够实现何种 law-level 结构。
+\end{enumerate}
+
+\begin{remark}[law-level 的“性质包”]
+在该口径下，“性质”不再是静态标签，而被组织为可验证的证书族（gap certificates、curvature diagnostics 等）；
+并且这些证书在 law-space 的 admissible flows 下保持可追踪，从而使“同类代数”成为可计算、可审计的对象层结构。
+\end{remark}
+
+\subsection{CH-layering：\texorpdfstring{$l_2$}{l2} 投影层与 \texorpdfstring{$l_{\ge 3}$}{l>=3} 语义同伦层}
+\label{subsec:tex19-ch2-ch-layering}
+
+纯数卷处理连续统问题时引入 CH-layering，将连续统相关信息分解为不同可见层：\cite{Jech2003}
+\begin{itemize}
+  \item \textbf{$l_2$（binary-law layer）.}
+  作为纯外延（基于基数 cardinality）的投影层：对象主要按 $|X|$ 被识别；
+  可见结构以注入/满射/双射等基数型信息为主。
+  该层可被视为传统原子集合直觉的一种投影口径。
+  \item \textbf{$l_{\ge 3}$（语义/同伦层）.}
+  作为语义与同伦可见层：对象不仅由 $|X|$ 决定，还携带生成方式、语义连续性、
+  以及不同面向（拓扑/测度/范畴/描述层级等）之间的耦合强度等信息；
+  这些高阶信息可被打包为语义度量向量，并在 law-space 中随 admissible 变形被追踪。
+\end{itemize}
+
+\begin{remark}[离散统的 law-level 重述]
+在 CH-layering 口径下，“连续统”不再是一次性给定的集合对象，而是带层级投影的 law-object：
+其在 $l_2$ 上投影为外延/基数影子，而在 $l_{\ge 3}$ 上携带生成--语义--耦合--曲率等高阶数据。
+所谓“崩溃/重建”，即对层级之间的一致性失配进行诊断与重写，使对象从层间失配回到层间对齐。
+\end{remark}
+
+\subsection{GZ-CBT：连续统崩溃与重建的 law-space 同伦重写}
+\label{subsec:tex19-ch2-gz-cbt}
+
+GZ-CBT（Continuum Breakdown and Rewriting）将“连续统崩溃与重建”表达为 law-space 上轨线的同伦重写过程。
+设连续统现象在 law-space 中对应一条轨线 $\gamma(t)$；
+重写被定义为在 admissible 约束下，对轨线做 law-space homotopy，使某种 breakdown energy（失配度量）下降。
+
+一种最小可调用口径可写为：给定初始轨线 $\gamma_0$、约束集合 $K$，寻求新的轨线 $\gamma_\ast$ 与两参数变形 $H(s,t)$，使得
+\begin{enumerate}
+  \item $H(0,\cdot)=\gamma_0$，$H(1,\cdot)=\gamma_\ast$；
+  \item 对所有 $s$，$H(s,\cdot)$ 保持 admissible 并满足约束 $K$；
+  \item breakdown energy 不增（最好严格下降）。
+\end{enumerate}
+
+\begin{remark}[同伦作为“约束保持下的可变形同类”]
+在该叙事中，同伦不是比喻，而是“在约束保持下的可变形同类”；
+崩溃与重建不是修辞，而是“把轨线从高失配态重写到低失配对齐态”的可检验过程。
+\end{remark}
+
+\subsection{单子集合论的语义同构：law-objects 生成观与生成式集合观}
+\label{subsec:tex19-ch2-monad-vs-law-objects}
+
+纯数卷可能并不必然以“monad（单子）”术语组织其元数学表达，
+但其核心主张“laws 是动态生成并可迭代的 procedures，而非固定公理”
+所隐含的“生成--迭代--压平/合成”的语义结构，与单子式集合观 $(T,\eta,\mu)$ 在接口意义下同构：
+对象被送入带上下文的生成空间，再通过合成把嵌套生成压平，从而形成可组合、可验证的构造闭环。
+
+因此，“集合/连续统对象不是原子容器而是生成 law-object”可被理解为：
+属于/构造/合成不是原始关系，而由 law-space 中的生成、迭代与重写过程决定；
+对象之间的同一性由 admissible transforms 与证书约束给出，而非由二值相等先验给定。
+
+\subsection{奠基性对标的 law-level 表达}
+\label{subsec:tex19-ch2-foundational-comparison}
+
+在 law-level 口径下，奠基性差异不在于新增某条孤立定理，而在于将三类传统基础概念整体上移入对象域：
+\begin{enumerate}
+  \item \textbf{公理/规则：}从 fixed axioms 变为可生成可迭代的 law-objects（PL-PI provenance）；
+  \item \textbf{同一性/等价：}从二值相等变为 law-space 内可采纳变形同类（trajectories + homotopies + constraints）；
+  \item \textbf{连续统：}从单层外延对象变为 CH-layering 的层级对象，并可通过 GZ-CBT 在 law-space 内重写与对齐。
+\end{enumerate}
+在这一意义下，“限制与扩展”可被转换为 law-space 中可审计的结构问题：可变规则被纳入对象域，
+并由证书与曲率等机制约束其可变性，从而使“崩溃--重建”的流程具备形式系统的可调用接口。
+
+\clearpage
+\appendix
+
+% ============================================================
+% 附录A：第1章对应证书的标准调用接口
+% ============================================================
+\section{第1章证书的标准调用接口：同类、同伦、同伦代数、单子集合论与离散统}
+\label{sec:tex19-appA-standard-certificate-interface}
+
+\subsection{约定：讨论域与目标}
+\label{subsec:tex19-appA-domain-goal}
+
+\paragraph{0.1 讨论域.}
+设 $\mathsf{Obj}$ 为一切“可讨论对象”的总体（可以是集合、空间、结构、证明对象、算法、范畴对象等；此处不预设其内部构造）。
+设 $\mathsf{Prop}$ 为“性质/断言”的总体（其真伪可由验证器判定，或可由证书见证）。
+
+\paragraph{0.2 目标.}
+给出一条可验证的奠基链（作为第1章的证书化接口口径）：
+\[
+\text{同一性（同类/共性）}
+\;\Rightarrow\;
+\text{同伦（结构同一性）}
+\;\Rightarrow\;
+\text{同伦代数（同类代数/性质集代数）}
+\;\Rightarrow\;
+\text{单子集合论（生成式集合论）}
+\;\Rightarrow\;
+\text{离散统（语义连续统的分层崩溃与重建）}
+\;\Rightarrow\;
+\text{证书化绝对锚点（非社会比较的可核验基准）}.
+\]
+
+\subsection{定义：同类（共性）与性质集}
+\label{subsec:tex19-appA-class-and-properties}
+
+\begin{definition}[D1：性质抽取器]
+\label{def:tex19-appA-D1-property-extractor}
+性质抽取器是一个规则
+\[
+P:\mathsf{Obj}\to \mathsf{Val}(P),
+\]
+使得对每个对象 $x\in\mathsf{Obj}$，$P(x)$ 给出一个“性质描述”（可理解为一组可检验性质、一个性质向量、一个不变量包、或一段可被验证器检查的结构描述）。
+\end{definition}
+
+\begin{definition}[D2：同类关系（由性质诱导的等价）]
+\label{def:tex19-appA-D2-class-relation}
+给定性质抽取器 $P$，定义关系 $\approx_P$ 于 $\mathsf{Obj}$ 上：
+\[
+x\approx_P y\quad:\Longleftrightarrow\quad P(x)=P(y).
+\]
+记 $[x]_P$ 为 $x$ 在 $\approx_P$ 下的等价类，称为“$x$ 的同类/共性类”。
+\end{definition}
+
+\begin{remark}[同类的粒度由性质口径决定]
+定义~\ref{def:tex19-appA-D2-class-relation} 将“同类”严格化为：在某个明确的性质体系下不可区分。
+不同的性质抽取器 $P$ 会给出不同粒度的同类划分。
+\end{remark}
+
+\begin{definition}[D3：分层性质塔]
+\label{def:tex19-appA-D3-layered-tower}
+给定一族性质抽取器 $(P_0,P_1,P_2,\dots)$，称其为“分层性质塔”，若层级越高区分力越强：
+\[
+x\approx_{P_{k+1}}y \;\Rightarrow\; x\approx_{P_k}y,\qquad \forall k\ge 0.
+\]
+于是得到一列由粗到细的同类关系：
+\[
+\approx_{P_0}\ \supseteq\ \approx_{P_1}\ \supseteq\ \approx_{P_2}\ \supseteq\ \cdots.
+\]
+\end{definition}
+
+\subsection{定义：同伦作为可验证的结构同一性（不预设拓扑细节）}
+\label{subsec:tex19-appA-homotopy-as-verifiable-identity}
+
+\begin{definition}[D4：同伦证据型同一性]
+\label{def:tex19-appA-D4-homotopy-evidence}
+在 $\mathsf{Obj}$ 上给定一种“同伦证据”数据类型 $\mathsf{HData}$，使得对任意 $x,y\in\mathsf{Obj}$，
+若存在 $h\in\mathsf{HData}(x,y)$，则称 $x$ 与 $y$ 同伦，记为 $x\sim y$。
+并要求存在以下可组合且可验证的结构：
+\begin{enumerate}
+  \item \textbf{反身性：}对任意 $x$，存在 $h_x\in\mathsf{HData}(x,x)$；
+  \item \textbf{对称性：}由 $h\in\mathsf{HData}(x,y)$ 可构造 $h^{-1}\in\mathsf{HData}(y,x)$；
+  \item \textbf{传递性：}由 $h_1\in\mathsf{HData}(x,y)$、$h_2\in\mathsf{HData}(y,z)$ 可构造
+  $h_2\circ h_1\in\mathsf{HData}(x,z)$；
+  \item \textbf{可验证性：}存在验证器 $\mathsf{Verify}_{\mathrm{H}}$，满足
+  \[
+  \mathsf{Verify}_{\mathrm{H}}(x,y,h)=\text{通过}
+  \quad\Longleftrightarrow\quad
+  h\in \mathsf{HData}(x,y)\ \text{且为从 $x$ 到 $y$ 的合法同伦证据}.
+  \]
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[证据型同一性的元结构含义]
+定义~\ref{def:tex19-appA-D4-homotopy-evidence} 不预设“连续变形”的具体拓扑实现，而将“同伦”抽象为
+“带证据、可组合、可验证”的同一性关系；同一性因此携带可核验的见证对象（证书）。
+\end{remark}
+
+\subsection{命题：同伦的本质是同类（共性）}
+\label{subsec:tex19-appA-homotopy-implies-class}
+
+\begin{proposition}[P1：同伦蕴含同类（对同伦不变性质）]
+\label{prop:tex19-appA-P1-homotopy-invariant}
+设 $P$ 为性质抽取器，并满足同伦不变性：
+\[
+x\sim y \;\Rightarrow\; P(x)=P(y).
+\]
+则对任意 $x,y\in\mathsf{Obj}$，若 $x\sim y$，则 $x\approx_P y$。
+\end{proposition}
+
+\paragraph{证明.}
+由 $x\sim y$ 得 $P(x)=P(y)$，再由定义~\ref{def:tex19-appA-D2-class-relation} 得 $x\approx_P y$。证毕。
+
+\begin{proposition}[P2：同类刻画同伦（性质塔完备性原则）]
+\label{prop:tex19-appA-P2-completeness}
+设存在分层性质塔 $(P_0,P_1,\dots)$，并满足如下完备性原则：
+\[
+\bigl(\forall k\ge 0,\ x\approx_{P_k}y\bigr)\ \Rightarrow\ \exists h\in\mathsf{HData}(x,y).
+\]
+则同伦可被“同类一致性（跨一切层）”刻画：
+\[
+x\sim y
+\quad\Longleftrightarrow\quad
+\forall k\ge 0,\ x\approx_{P_k}y.
+\]
+\end{proposition}
+
+\paragraph{证明.}
+（$\Rightarrow$）由命题~\ref{prop:tex19-appA-P1-homotopy-invariant} 对每个 $P_k$ 的同伦不变性逐层推出。
+（$\Leftarrow$）由完备性原则直接得出。证毕。
+
+\begin{remark}[“同伦=同类”的可验证版本]
+命题~\ref{prop:tex19-appA-P2-completeness} 的完备性原则等价于将对象同一性定义为“在全层性质上不可区分”；
+同伦因此不再依赖几何直觉，而成为“性质塔同类一致性”的可验证实现。
+\end{remark}
+
+\subsection{定义：同伦代数是同类代数/性质集代数（证据闭包口径）}
+\label{subsec:tex19-appA-homotopy-algebra-interface}
+
+\begin{definition}[D5：同伦代数（高阶纠偏的一致性层级）]
+\label{def:tex19-appA-D5-homotopy-algebra}
+同伦代数指一类结构：其低阶代数律不要求严格成立，而允许以一组更高阶运算/数据纠正低阶失败；
+并要求这些纠正满足可验证的一致性层级规则。
+典型特征是存在一列运算 $(\mathrm{op}_1,\mathrm{op}_2,\mathrm{op}_3,\dots)$：
+其中 $\mathrm{op}_2$ 给出主二元作用，而 $\mathrm{op}_3,\mathrm{op}_4,\dots$ 给出对低阶失败的系统性修复，
+且每一层修复均服从更高层的一致性约束。
+\end{definition}
+
+\begin{proposition}[P3：同伦代数的本质对象是性质包，而非原子等式]
+\label{prop:tex19-appA-P3-homotopy-algebra-as-properties}
+在定义~\ref{def:tex19-appA-D5-homotopy-algebra} 的口径下，同伦代数结构的“身份”不由有限个低阶等式公理决定，
+而由“是否存在一套可验证的高阶一致性证书”决定。
+因此，同伦代数可被视为一种性质集代数：对象携带分层性质包（含低阶运算与高阶修复证据），
+等价/同一性由性质包的一致性给出。
+\end{proposition}
+
+\paragraph{证明.}
+由定义~\ref{def:tex19-appA-D5-homotopy-algebra}，结构一致性来自“高阶纠偏+层级一致性”的证据闭包，而非低阶等式本身。证毕。
+
+\subsection{定义：单子集合论（生成式集合论）与原子集合论的分野}
+\label{subsec:tex19-appA-monadic-set-theory-interface}
+
+\begin{definition}[D6：生成式集合观（单子接口）]
+\label{def:tex19-appA-D6-monad}
+给定生成算子 $T$，把对象送入“带上下文/语义包装”的空间；并给定两种可验证构造：
+\begin{enumerate}
+  \item 单位注入 $\eta$：把普通对象注入到 $T$-空间；
+  \item 上下文压平 $\mu$：把嵌套的 $T$ 结构合成为一层；
+\end{enumerate}
+并要求 $\eta,\mu$ 满足可验证的单位/结合规律。
+在该观念下，“集合”可被理解为由 $(T,\eta,\mu)$ 规定的生成—组合—约束系统，而非“装原子的容器”。
+\end{definition}
+
+\begin{definition}[D7：原子集合观（隶属为原语）]
+\label{def:tex19-appA-D7-atomic-set-view}
+原子集合观以“元素属于集合”（隶属关系）为最基本原语，并以二值相等为底层同一性口径。
+\end{definition}
+
+\begin{proposition}[P4：同伦/同伦代数更自然地落在生成式集合观中]
+\label{prop:tex19-appA-P4-homotopy-prefers-monad}
+若对象同一性是“带证据、可组合、可分层”的（见定义~\ref{def:tex19-appA-D4-homotopy-evidence} 与定义~\ref{def:tex19-appA-D5-homotopy-algebra}），
+则生成式集合观（定义~\ref{def:tex19-appA-D6-monad}）提供更直接的表达口径：
+同一性证据、结构修复证据、性质塔一致性等可被作为生成式构造的一部分进入对象定义；
+而在原子集合观（定义~\ref{def:tex19-appA-D7-atomic-set-view}）中，这些证据通常需要外部编码与额外约定才能被承载。
+\end{proposition}
+
+\paragraph{证明.}
+生成式集合观以内生的“生成—组合—验证”接口组织对象；证据型同一性与高阶一致性可直接落在该接口中。证毕。
+
+\subsection{定义：离散统 = 语义连续统的分层崩溃与重建}
+\label{subsec:tex19-appA-discrete-tower}
+
+\begin{definition}[D8：语义崩溃（按同类关系做商）]
+\label{def:tex19-appA-D8-collapse}
+给定对象域 $X$ 与层级 $k$ 的同类关系 $\approx_{P_k}$，定义商对象
+\[
+X_k := X/\!\approx_{P_k},
+\]
+其元素为 $X$ 中对象在 $\approx_{P_k}$ 下的等价类。
+从 $X$ 到 $X_k$ 的自然映射记为 $q_k$（把对象送到其同类）。
+\end{definition}
+
+\begin{definition}[D9：语义重建（层级细化形成塔）]
+\label{def:tex19-appA-D9-rebuild}
+由定义~\ref{def:tex19-appA-D3-layered-tower} 得到一列映射
+\[
+\cdots\ \longrightarrow\ X_{k+1}\ \longrightarrow\ X_k\ \longrightarrow\ \cdots\ \longrightarrow\ X_0,
+\]
+其中从更细层到更粗层的映射由“细同类包含于粗同类”诱导。
+该塔表达：随着语义分辨率提升，先前被压缩的差异可逐层恢复。
+\end{definition}
+
+\begin{proposition}[P5：离散统的严格含义]
+\label{prop:tex19-appA-P5-discrete-meaning}
+“离散统”并非否认连续性，而是将连续性的可区分度语义化并分层：
+在第 $k$ 层，世界按 $P_k$ 的可区分性被压缩为离散同类点集 $X_k$；
+整体对象由离散统塔 $(X_0,X_1,\dots)$ 的层级数据共同给出。
+因此，“连续统崩溃与重建”严格对应于“商（崩溃）+层级细化塔（重建）”的组合。
+\end{proposition}
+
+\paragraph{证明.}
+由定义~\ref{def:tex19-appA-D8-collapse} 的商构造给出“崩溃”，由定义~\ref{def:tex19-appA-D9-rebuild} 的层级映射给出“重建”。证毕。
+
+\subsection{证书化绝对锚点：非社会比较的可核验基准}
+\label{subsec:tex19-appA-certificate-anchor}
+
+\begin{definition}[D10：证书与验证器]
+\label{def:tex19-appA-D10-cert-verifier}
+对任一断言 $S\in\mathsf{Prop}$，定义其证书类型 $\mathsf{Cert}(S)$，并给出验证器 $\mathsf{Verify}$，满足：
+\[
+\mathsf{Verify}(S,c)=\text{通过}
+\quad\Longleftrightarrow\quad
+c\in\mathsf{Cert}(S)\ \text{且 $c$ 的确证明/见证 $S$}.
+\]
+一个断言在体系内被接纳的标准是：存在可通过验证器的证书，而非来自外部权威或社会比较。
+\end{definition}
+
+\begin{proposition}[P6：“纯证书+证明绝对锚点”的形式化闭环]
+\label{prop:tex19-appA-P6-anchor}
+若体系内所有关键关系（同伦、同类、结构一致性、层级崩溃/重建）都可按定义~\ref{def:tex19-appA-D10-cert-verifier} 给出可验证证书，
+则该奠基链条具有“绝对锚点”：任何主体只要共享同一验证器规范，即可在不依赖社会比较的情况下复核结论成立与否。
+\end{proposition}
+
+\paragraph{证明.}
+直接由“存在证书 $\Rightarrow$ 通过验证器 $\Rightarrow$ 可复核成立”的闭环结构得到。证毕。
+
+\subsection{推论：奠基触及度与可比性（可检验意义下）}
+\label{subsec:tex19-appA-foundational-reach}
+
+\begin{definition}[D11：奠基触及度（被替换的基础原语集合）]
+\label{def:tex19-appA-D11-reach}
+给定一个基础体系，其“原语集合”指不被定义、直接使用的基本概念/规则（例如：二值相等、元素隶属、连续统视角、真/可证关系的锚定方式等）。
+若一套新体系在保持可验证闭环的前提下，对更多基础原语给出统一替换与接口化实现，则称其奠基触及度更高。
+\end{definition}
+
+\begin{corollary}[C1：本路线的触及范围（接口化的四类原语）]
+\label{cor:tex19-appA-C1-reach}
+上述证书链条至少同时替换/重构四类基础原语：
+\begin{enumerate}
+  \item 同一性：由二值相等转为证据型同一性（同伦）与性质诱导同类；
+  \item 集合观：由原子隶属转为生成式（单子式）集合观；
+  \item 连续统观：由单一连续统转为语义分层的离散统塔；
+  \item 真值锚定：由社会机制/权威转为证书+验证器的可复核锚点。
+\end{enumerate}
+\end{corollary}
+
+\begin{corollary}[C2：对标关系的严格表述方式（以触及度为比较口径）]
+\label{cor:tex19-appA-C2-comparison}
+在定义~\ref{def:tex19-appA-D11-reach} 的意义下：
+第五公设引发的是“几何对象语义”的基础改写；
+哥德尔结果引发的是“形式系统可证性与真”的边界改写；
+而当证书链条形成完整闭环时，可在“同一性—集合观—连续统观—锚定机制”上给出统一替换，因此奠基触及度覆盖面更广。
+该“更奠基”的含义由基础原语替换范围刻画，而非修辞性比较。
+\end{corollary}
+
+\subsection{证书接口：外部调用规范（最小接口集）}
+\label{subsec:tex19-appA-external-interface}
+
+以下给出最小接口集，以保证整条链条可被外部“调用—验证—组合—审计”。
+
+\begin{Certificate}[I1：同伦证书接口（证据型同一性）]
+\label{cert:tex19-appA-I1-hom}
+对任意 $x,y,z\in\mathsf{Obj}$，约定以下类型与操作可被实现并可被验证：
+\begin{itemize}
+  \item 证书类型：$\mathsf{Cert}_{\mathrm{Hom}}(x,y)$；
+  \item 验证器：$\mathsf{Verify}_{\mathrm{Hom}}(x,y,c)\in\{\text{通过},\text{拒绝}\}$；
+  \item 组合器：$\mathsf{Compose}_{\mathrm{Hom}}:\mathsf{Cert}_{\mathrm{Hom}}(x,y)\times\mathsf{Cert}_{\mathrm{Hom}}(y,z)
+    \to\mathsf{Cert}_{\mathrm{Hom}}(x,z)$；
+  \item 逆证书：$\mathsf{Inverse}_{\mathrm{Hom}}:\mathsf{Cert}_{\mathrm{Hom}}(x,y)\to\mathsf{Cert}_{\mathrm{Hom}}(y,x)$。
+\end{itemize}
+\end{Certificate}
+
+\begin{Certificate}[I2：同类一致性证书接口（性质层）]
+\label{cert:tex19-appA-I2-class}
+对任意层级 $k\ge 0$ 与 $x,y\in\mathsf{Obj}$，约定：
+\begin{itemize}
+  \item 证书类型：$\mathsf{Cert}_{\mathrm{Class}}(k,x,y)$（表示在第 $k$ 层性质下 $x\approx_{P_k}y$）；
+  \item 验证器：$\mathsf{Verify}_{\mathrm{Class}}(k,x,y,c)\in\{\text{通过},\text{拒绝}\}$；
+  \item 层级下降：$\mathsf{Down}_{\mathrm{Class}}:\mathsf{Cert}_{\mathrm{Class}}(k+1,x,y)\to\mathsf{Cert}_{\mathrm{Class}}(k,
+    x,y)$（由“细同类蕴含粗同类”给出）。
+\end{itemize}
+\end{Certificate}
+
+\begin{Certificate}[I3：同伦代数一致性证书接口（高阶一致性）]
+\label{cert:tex19-appA-I3-halg}
+对一个同伦代数候选结构 $A$，约定：
+\begin{itemize}
+  \item 证书类型：$\mathsf{Cert}_{\mathrm{HAlg}}(A)$（证明 $A$ 的运算族满足层级一致性规则）；
+  \item 验证器：$\mathsf{Verify}_{\mathrm{HAlg}}(A,c)\in\{\text{通过},\text{拒绝}\}$；
+  \item 结构搬运：给定 $c\in\mathsf{Cert}_{\mathrm{Hom}}(x,y)$ 与 $A_x$，存在 $\mathsf{Transport}_{\mathrm{HAlg}}(c,A_x)=A_y$，
+  用以把结构沿同伦同一性搬运到同类对象上。
+\end{itemize}
+\end{Certificate}
+
+\begin{Certificate}[I4：生成式集合（单子）公理证书接口]
+\label{cert:tex19-appA-I4-monad}
+对给定 $(T,\eta,\mu)$，约定：
+\begin{itemize}
+  \item 证书类型：$\mathsf{Cert}_{\mathrm{Monad}}(T,\eta,\mu)$（验证单位/结合规律）；
+  \item 验证器：$\mathsf{Verify}_{\mathrm{Monad}}(T,\eta,\mu,c)\in\{\text{通过},\text{拒绝}\}$。
+\end{itemize}
+\end{Certificate}
+
+\begin{Certificate}[I5：离散统层级（崩溃/重建）证书接口]
+\label{cert:tex19-appA-I5-tower}
+对对象域 $X$ 与层级 $k$，约定：
+\begin{itemize}
+  \item 崩溃证书：$\mathsf{Cert}_{\mathrm{Collapse}}(k,X,q_k)$（证明 $q_k$ 的确按 $\approx_{P_k}$ 做商）；
+  \item 重建塔证书：$\mathsf{Cert}_{\mathrm{Tower}}\bigl((X_k),(r_{k+1\to k})\bigr)$（证明层级映射相容）；
+  \item 验证器：$\mathsf{Verify}_{\mathrm{Collapse}}$、$\mathsf{Verify}_{\mathrm{Tower}}$。
+\end{itemize}
+\end{Certificate}
+
+\begin{Certificate}[I6：审计接口（非社会比较锚点）]
+\label{cert:tex19-appA-I6-audit}
+约定存在审计函数
+\[
+\mathsf{Audit}(S,c,\mathsf{Verify})\in\{\text{通过},\text{拒绝}\}\times \mathsf{Log},
+\]
+其输出除通过/拒绝外，还包含可追溯日志 $\mathsf{Log}$（记录依赖的子证书链）。
+并要求：所有高层定理仅依赖可审计证书链，而不依赖叙事性“可信度”。
+\end{Certificate}
+
+\clearpage
+
+% ============================================================
+% 附录B：第2章对应证书的标准调用接口
+% ============================================================
+\section{第2章证书的标准调用接口：PIP/PLP、law-space、CH-layering 与 GZ-CBT}
+\label{sec:tex19-appB-standard-interface}
+
+本附录将第2章的 law-level 叙事链压缩为“对象—映射—约束—结论”的可复用接口口径，
+以便在后续章节中直接引用其定义与证书化前提。
+
+\subsection{记号约定（全局）}
+\label{subsec:tex19-appB-notation}
+
+\begin{itemize}
+  \item $\mathbb{N},\mathbb{R}$；$\mathbb{R}_{\ge 0}:=\{x\in\mathbb{R}:x\ge 0\}$。
+  \item $I$：指标集；$[0,1]$：单位区间。
+  \item “$:=$”定义号；“$\Longleftrightarrow$”当且仅当；“$\forall/\exists$”量词；“$\mapsto/\to$”映射。
+  \item “$\simeq$”：law-space 内的同伦等价；“$\cong$”：按指定遗忘/投影口径后的结构同构。
+\end{itemize}
+
+\subsection{PIP/PLP：从异构系统到总 law-space 的统一化接口}
+\label{subsec:tex19-appB-pip-plp}
+
+\begin{definition}[D0：异构迭代系统（heterogeneous iterative system）]
+\label{def:tex19-appB-D0-system}
+设
+\[
+S_i:=(\mathcal{X}_i,\mathcal{L}_i,\Phi_i),\qquad i\in I,
+\]
+其中 $\mathcal{X}_i$ 为状态空间（不预设类型），$\mathcal{L}_i$ 为 law-fragments（局部规则片段集合），$\Phi_i$ 为由 $\mathcal{L}_i$ 生成的迭代/演化机制，例如
+\[
+\Phi_i:\mathcal{L}_i\times \mathcal{X}_i\to \mathcal{X}_i,
+\]
+或更一般地 $\Phi_i:\mathcal{L}_i\times \mathsf{State}_i\to \mathsf{State}_i$。
+记异构系统族为 $\mathfrak{S}:=\{S_i\}_{i\in I}$。
+\end{definition}
+
+\begin{definition}[D1：PIP（Pan-Iteration Problem）]
+\label{def:tex19-appB-D1-pip}
+目标是构造一对
+\[
+(\mathcal{L}_{\mathrm{tot}},\Pi),
+\]
+其中 $\mathcal{L}_{\mathrm{tot}}$ 为总 law-space，$\Pi$ 为泛迭代机制
+\[
+\Pi:\mathcal{L}_{\mathrm{tot}}\times \mathsf{State}_{\mathrm{tot}}\to \mathsf{State}_{\mathrm{tot}},
+\]
+并要求
+\[
+\forall i\in I,\ \exists\ \mathrm{Res}_i\ \text{或}\ \mathrm{Quot}_i\ \text{或}\ \mathrm{Proj}_i
+\ \text{使}\
+S_i\cong \mathrm{Res}_i(\mathcal{L}_{\mathrm{tot}},\Pi)\ \text{或}\
+S_i\cong \mathrm{Quot}_i(\mathcal{L}_{\mathrm{tot}},\Pi)\ \text{或}\
+S_i\cong \mathrm{Proj}_i(\mathcal{L}_{\mathrm{tot}},\Pi).
+\]
+\end{definition}
+
+\begin{definition}[D2：PLP（Pan-Logic Problem）]
+\label{def:tex19-appB-D2-plp}
+在同一 $\mathcal{L}_{\mathrm{tot}}$ 上定义跨系统统一适用的逻辑谓词与度量，例如：
+\[
+\vDash\ (\text{真}),\quad \mathrm{Adm}\ (\text{可采纳}),\quad \approx\ (\text{等价}),\quad \rightsquigarrow\ (\text{可推导/可变形}),
+\]
+以及 logicality metrics
+\[
+m_{\mathrm{log}}:\mathcal{L}_{\mathrm{tot}}\times \mathcal{L}_{\mathrm{tot}}\to \mathbb{R}_{\ge 0}.
+\]
+要求这些谓词与度量不被某一具体状态空间 $\mathcal{X}_i$ 绑死，而对不同系统的 law-fragments 可统一适用。
+\end{definition}
+
+\subsection{GZ-LS：law-space 的对象—变换—几何统一载体}
+\label{subsec:tex19-appB-gzls}
+
+\begin{definition}[D3：GZ-LS（law-space）的结构口径]
+\label{def:tex19-appB-D3-gzls}
+定义一个 law-space 结构（可按范畴口径理解）记为 $\mathfrak{L}_{\mathrm{GZ}}$：
+\[
+\mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}})\ \text{为 law-objects},\qquad
+\mathrm{Mor}(\mathfrak{L}_{\mathrm{GZ}})\ \text{为 law-transforms（记作 GZ-LT）},
+\]
+并带有复合 $\circ$ 与恒等态射 $\mathrm{id}$。
+同时配备 law-geometry 组件：
+\[
+J\ (\text{law-metric}),\qquad \mathrm{Loc}\ (\text{law-connection/locality}),\qquad \mathcal{F}_{\mathrm{law}}\
+  (\text{law-curvature 族}).
+\]
+将 admissibility（可采纳性）抽象为谓词
+\[
+\mathrm{Adm}(\,\cdot\,):\{\text{对象/轨线/同伦}\}\to \{\mathrm{true},\mathrm{false}\},
+\]
+并记一组可核验约束集合为 $\mathcal{K}$（对称性、曲率界、gap 界、chart 约束等）。
+\end{definition}
+
+\subsection{PL/PI：逻辑与程序作为 law-objects 的两类赋值}
+\label{subsec:tex19-appB-pl-pi-assignments}
+
+\begin{definition}[D4：PL 层（Pan-Logic layer）赋值]
+\label{def:tex19-appB-D4-pl}
+每个局部逻辑
+\[
+\mathrm{Logic}_\alpha:=(\mathrm{Form}_\alpha,\vdash_\alpha)
+\]
+被指派为 law-object
+\[
+A_{\mathrm{PL}}:\mathrm{Logic}_\alpha\mapsto L_\alpha\in \mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}}).
+\]
+对 admissible 的逻辑改变 $\mathrm{Logic}_\alpha \rightsquigarrow \mathrm{Logic}_\beta$，
+指派为 law-transform
+\[
+\mathrm{GZ\text{-}LT}^{\alpha\beta}:L_\alpha\to L_\beta,
+\]
+并要求（在可复合情形下）满足闭合性
+\[
+\mathrm{GZ\text{-}LT}^{\beta\gamma}\circ \mathrm{GZ\text{-}LT}^{\alpha\beta}=\mathrm{GZ\text{-}LT}^{\alpha\gamma}.
+\]
+law-geometry 组件 $(J,\mathrm{Loc},\mathcal{F}_{\mathrm{law}})$ 用于测量“logic$\leftrightarrow$logic 的距离/方向/弯曲”。
+\end{definition}
+
+\begin{definition}[D5：PI 层（Pan-Iterative layer）赋值]
+\label{def:tex19-appB-D5-pi}
+每个迭代过程（数值/学习/控制/重整化等）被指派为 law-object
+\[
+A_{\mathrm{PI}}:\mathrm{scheme}_\beta\mapsto L^{\mathrm{iter}}_\beta\in \mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}}),
+\]
+并配套
+\[
+E_\beta:L^{\mathrm{iter}}_\beta\mapsto \mathbb{R}\ \text{或}\ \mathbb{R}^k
+\quad(\text{evaluation functionals：收敛/稳定/成本/性能等}),
+\]
+以及 admissible 的设计改动
+\[
+\mathrm{GZ\text{-}LT}^{\beta\gamma}:L^{\mathrm{iter}}_\beta\to L^{\mathrm{iter}}_\gamma.
+\]
+当 PL 与 PI 的对象/变换同居于 $\mathfrak{L}_{\mathrm{GZ}}$ 时，可定义耦合流（coupled flow）：
+“改逻辑+改程序”作为同一条 law-space 轨线的不同分量变化。
+\end{definition}
+
+\subsection{law-space 同伦：同类的内生定义}
+\label{subsec:tex19-appB-lawspace-homotopy}
+
+\begin{definition}[D6：law-space 同伦（对象级与轨线级）]
+\label{def:tex19-appB-D6-homotopy}
+\noindent\textbf{对象级同伦.}
+对 $L,L'\in \mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}})$，定义
+\[
+L\simeq L'
+\quad:\Longleftrightarrow\quad
+\exists H:[0,1]\to \mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}})\ \text{使}\ H(0)=L,\ H(1)=L',\ \mathrm{Adm}(H)=\mathrm{true}.
+\]
+
+\par\noindent\textbf{轨线级同伦.}
+对 $\gamma_0,\gamma_1:[0,1]\to \mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}})$，定义
+\[
+\gamma_0\simeq \gamma_1
+\]
+若存在 $H:[0,1]\times[0,1]\to \mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}})$ 使
+\[
+H(0,t)=\gamma_0(t),\qquad H(1,t)=\gamma_1(t),
+\]
+并且对所有 $s$，$H(s,\cdot)$ 可采纳且满足约束：
+\[
+\forall s\in[0,1],\ \mathrm{Adm}(H(s,\cdot))=\mathrm{true},
+\qquad
+\forall (s,t)\in[0,1]^2,\ H(s,t)\ \text{满足}\ \mathcal{K}.
+\]
+\end{definition}
+
+\begin{proposition}[P1：同伦 $=$ 同类（law-class 由可采纳变形生成）]
+\label{prop:tex19-appB-P1-homotopy-class}
+定义 law-class 为对象级同伦的等价类：
+\[
+[L]\ :=\ \{L'\in \mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}}):L'\simeq L\}.
+\]
+则同伦的本质可表述为：同类由 admissible 可达性与可变形性生成。
+\end{proposition}
+
+\paragraph{证明.}
+由定义~\ref{def:tex19-appB-D6-homotopy}，$L\simeq L'$ 的数据即为同类证据。证毕。
+
+\subsection{gap-controlled 代数：strict 与 homotopy 的受控偏差接口}
+\label{subsec:tex19-appB-gap-controlled}
+
+\begin{definition}[D7：strict/homotopy 的 gap-controlled 结构]
+\label{def:tex19-appB-D7-gap}
+将 GNLA 或同伦 Lie（例如 $L_\infty$-type）数据赋值为 law-object：
+\[
+A_{\mathrm{alg}}:\ (\text{GNLA 或 }L_\infty\text{-type data})\mapsto L_{\mathrm{alg}}\in \mathrm{Ob}(\mathfrak{L}
+  _{\mathrm{GZ}}).
+\]
+区分两种 regime：
+\begin{itemize}
+  \item strict regime：Jacobi 缺陷为 $0$（或被压到严格层可忽略）；
+  \item homotopy regime：Jacobi 缺陷不为 $0$，但由更高阶数据结构化吸收。
+\end{itemize}
+引入证书型不变量（certificate-type invariants），例如
+\[
+\mathrm{JacGap}:\mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}})\to \mathbb{R}_{\ge 0},\qquad
+\mathrm{CurvCert}:\mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}})\to \mathbb{R}_{\ge 0}^m,
+\]
+并将 gap statement 抽象为可核验约束：
+\[
+\text{“}L_{\mathrm{geom}}\ \text{实现}\ L_{\mathrm{alg}}\text{”}
+\ \Rightarrow\
+\bigl(\mathrm{JacGap}(L_{\mathrm{alg}})\le \varepsilon\bigr)\ \wedge\ \bigl(\mathrm{CurvCert}(L_{\mathrm{geom}})\in
+  \Omega\bigr).
+\]
+\end{definition}
+
+\begin{proposition}[P2：同伦代数 $=$ 可证书化的受控偏差代数]
+\label{prop:tex19-appB-P2-controlled-deviation}
+在定义~\ref{def:tex19-appB-D7-gap} 的口径下，“同伦代数”并非“失败”，而是：
+偏差（gap）由 $(\mathcal{F}_{\mathrm{law}}+\text{证书族})$ 约束、可搬运、可追踪、可复核。
+\end{proposition}
+
+\paragraph{证明.}
+由 gap statement 的证书化约束与 law-space 搬运机制的组合即可。证毕。
+
+\subsection{CH-layering：\texorpdfstring{$l_2$}{l2} 投影层与 \texorpdfstring{$l_{\ge 3}$}{l>=3} 语义同伦层}
+\label{subsec:tex19-appB-ch-layering}
+
+\begin{definition}[D8：CH-layering（$l_2$ 与 $l_{\ge 3}$）]
+\label{def:tex19-appB-D8-layering}
+\noindent\textbf{$l_2$（binary-law layer，外延/基数层）.}
+只见 $|X|$ 与基数不等式见证（inj/surj/bij）；可视为传统集合论可见世界的投影层。
+
+\par\noindent\textbf{$l_{\ge 3}$（semantic/homotopy layers，语义--同伦层）.}
+除 $|X|$ 外，引入可观测向量
+\[
+S(X):=\bigl(\sigma_{\mathrm{gen}}(X),\vartheta_{\mathrm{sem}}(X),\kappa_{\mathrm{coup}}(X),\dots\bigr)\in \mathbb{R}
+  _{\ge 0}^k,
+\]
+分别表示生成复杂度、语义连续性/一致性、多面向耦合强度等，并纳入 curvature/homotopy data。
+
+\par\noindent\textbf{遗忘/投影.}
+定义遗忘算子（投影到 $l_2$ 可见信息）
+\[
+U_2:\mathsf{LawCont}\to \mathsf{Set}_{\mathrm{card}},
+\]
+其中 $U_2(X)$ 仅保留 $l_2$ 可见的基数影子。
+\end{definition}
+
+\begin{proposition}[P3：离散统/分层连续统（分层 law-object）]
+\label{prop:tex19-appB-P3-layered-continuum}
+连续统对象可被视为分层 law-object：
+\[
+X\ \mapsto\ \bigl(U_2(X),\ S(X),\ \text{curvature/homotopy data},\dots\bigr).
+\]
+“崩溃/重建”可被表述为层间对齐（alignment）/失配（misalignment）的变化过程。
+\end{proposition}
+
+\paragraph{证明.}
+由定义~\ref{def:tex19-appB-D8-layering} 的层级可见量分解直接得到。证毕。
+
+\subsection{GZ-CBT rewriting：连续统崩溃与重写的轨线同伦接口}
+\label{subsec:tex19-appB-gz-cbt}
+
+\begin{definition}[D9：GZ-CBT rewriting（law-space 轨线同伦问题）]
+\label{def:tex19-appB-D9-cbt}
+设轨线
+\[
+\gamma:[0,1]\to \mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}}),\qquad t\mapsto L_{\mathrm{cont}}(t).
+\]
+定义 admissible 轨线集合
+\[
+\mathcal{C}_{\mathrm{adm}}:=\{\gamma:\mathrm{Adm}(\gamma)=\mathrm{true}\ \text{且满足 chart/curvature/gap 等约束}\},
+\]
+并记需保持的约束集合为 $\mathcal{K}$（PL-PI 特征、对称性、$\mathrm{JacGap}$ 上界等）。
+给定 breakdown energy（失配泛函）
+\[
+\mathcal{E}:\mathcal{C}_{\mathrm{adm}}\to \mathbb{R}_{\ge 0}.
+\]
+
+rewriting 任务：给定 $\gamma_0\in\mathcal{C}_{\mathrm{adm}}$，求 $\gamma_\ast\in\mathcal{C}_{\mathrm{adm}}$ 与
+$H:[0,1]\times[0,1]\to \mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}})$ 使
+\begin{enumerate}
+  \item $H(0,t)=\gamma_0(t)$，$H(1,t)=\gamma_\ast(t)$；
+  \item $\forall s\in[0,1]$，$H(s,\cdot)\in\mathcal{C}_{\mathrm{adm}}$ 且满足 $\mathcal{K}$；
+  \item $\mathcal{E}(\gamma_\ast)\le \mathcal{E}(\gamma_0)$（最好严格下降）。
+\end{enumerate}
+因此，rewriting 可被压缩为：约束下的轨线同伦（law-space homotopy of trajectories under constraints）。
+\end{definition}
+
+\begin{proposition}[P4：“崩溃与重建”是可检验证书对象]
+\label{prop:tex19-appB-P4-verifiable}
+若给出 $(\gamma_0,\mathcal{K},\mathcal{E},H)$ 的证书与验证器 $V$，
+则“崩溃/重建”可被锚定为可复核事实：$V$ 可检查 admissibility、约束保持与能量下降条件是否满足。
+\end{proposition}
+
+\paragraph{证明.}
+由定义~\ref{def:tex19-appB-D9-cbt} 的判据集合与附录A中证书化验证口径（参见：定义~\ref{def:tex19-appA-D10-cert-verifier}）联立即得。证毕。
+
+\subsection{绝对锚点接口与压缩结论}
+\label{subsec:tex19-appB-anchor-summary}
+
+\begin{definition}[D10：绝对锚点接口（三元组）]
+\label{def:tex19-appB-D10-anchor}
+用三元组 $(S,C,V)$ 表达证书化锚点：
+$S$ 为 statement（存在性/对齐/能量下降/可实现性等），$C$ 为 certificate（曲率界、$\mathrm{JacGap}$ 界、同伦 $H$、层间对齐证书等），
+$V$ 为 verifier（固定规则检查）。
+断言“成立”的定义为：$V(S,C)=\mathrm{pass}$。
+\end{definition}
+
+\begin{remark}[R1：第2章主张的接口化压缩结论]
+对象论：$\mathrm{Ob}(\text{数学世界})$ 以 law-objects（$\mathrm{Ob}(\mathfrak{L}_{\mathrm{GZ}})$）为优先对象域；
+同一性：基础口径由“$=$”替换为“$\simeq$”（admissible 同伦同类）；
+连续统：CH-layering 与 GZ-CBT rewriting 将连续统问题上移为 law-level 的几何/同伦现象；
+锚点：以 $(S,C,V)$ 的证书接口替代社会比较式真值锚定，并可被审计接口回收（参见：Certificate~\ref{cert:tex19-appA-I6-audit}）。
+\end{remark}
+
+\clearpage
+
+\renewcommand{\refname}{\texorpdfstring{参考文献}{References}}
+\begin{thebibliography}{99}
+
+\bibitem{EdgeOperatorTowerTex17}
+\GFramework 工作笔记：
+\emph{边缘算子不封闭、同伦塔与变分生成的形式系统}
+（\code{NoteBook/notebook1/tex17_pub/gframework_edge_operator_homotopy_closure_variational_tower_formal_system.tex}）。
+
+\bibitem{AxiomSemanticsWorkflowTex18}
+\GFramework 工作笔记：
+\emph{性质代数与同伦代数的封闭证书、障碍类与拓扑修复}
+（\code{NoteBook/notebook1/tex18_pub/gframework_homotopy_algebra_axiom_semantics_workflow_formal_system.tex}）。
+
+\bibitem{GaoZheng2025GFramework}
+Gao, Z. (2025).
+\newblock Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra).
+\newblock In \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra): An Integrated Construction (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17651584}.
+
+
+\bibitem{Stasheff1963}
+Jim Stasheff,
+\emph{Homotopy associativity of $H$-spaces. I \& II},
+Transactions of the American Mathematical Society, 1963.
+\\ \url{https://doi.org/10.1090/S0002-9947-1963-99936-3}
+\\ \url{https://doi.org/10.1090/S0002-9947-1963-0158400-5}
+
+\bibitem{LadaStasheff1993}
+Tom Lada and Jim Stasheff,
+\emph{Introduction to SH Lie algebras for physicists},
+International Journal of Theoretical Physics, 1993.
+\\ \url{https://doi.org/10.1007/bf00671791}
+
+\bibitem{LadaMarkl1995}
+Tom Lada and Martin Markl,
+\emph{Strongly homotopy Lie algebras},
+Communications in Algebra, 1995.
+\\ \url{https://doi.org/10.1080/00927879508825335}
+
+\bibitem{MacLane1998}
+Saunders Mac Lane,
+\emph{Categories for the Working Mathematician},
+Graduate Texts in Mathematics, 2nd edition, Springer, 1998.
+\\ \url{https://doi.org/10.1007/978-1-4757-4721-8}
+
+\bibitem{Moggi1991}
+Eugenio Moggi,
+\emph{Notions of computation and monads},
+Information and Computation, 1991.
+\\ \url{https://doi.org/10.1016/0890-5401(91)90052-4}
+
+\bibitem{Jech2003}
+Thomas Jech,
+\emph{Set Theory},
+Springer Monographs in Mathematics, 2003.
+\\ \url{https://doi.org/10.1007/3-540-44761-X}
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

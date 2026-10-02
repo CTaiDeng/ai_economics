@@ -1,0 +1,7655 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\refname}{参考文献}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\Ztwo}{\mathbb{Z}_2}
+\newcommand{\Ftwo}{\mathbb{F}_2}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\Tot}{\operatorname{Tot}}
+\newcommand{\Open}{\operatorname{Open}}
+\newcommand{\OpenGame}{\operatorname{OpenGame}}
+\newcommand{\HetEvol}{\operatorname{HetEvol}}
+\newcommand{\Iso}{\operatorname{Iso}}
+\newcommand{\NonIso}{\operatorname{NonIso}}
+\newcommand{\EffOpen}{\operatorname{EffOpen}}
+\newcommand{\Img}{\operatorname{im}}
+\newcommand{\Ker}{\operatorname{ker}}
+\newcommand{\Ob}{\operatorname{Ob}}
+\newcommand{\id}{\mathrm{id}}
+
+
+\hfuzz=700pt
+\hbadness=10000
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{开放异构系统的宏观拓扑--微观跃迁双层驱动、\\广义博弈与总复形同调\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-04-03}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是孤立地给出一组开放系统、异构演化或同调闭合的术语，而是在
+\GFramework{} 的整体脉络中，把宏观拓扑扇区、微观跃迁纤维、开放系统博弈、
+修复塔、时间分次、奇点失闭合与总复形同调组织成一条可追踪的形式链条。若这些
+对象分散出现，它们容易只表现为若干互相呼应的结构比喻；本文将其压合为一个
+可以定义、可以分解、可以闭合、可以修复、可以与后续命中范式对接的开放异构
+系统形式系统。
+
+本文的第一层立场是对象层级的双层化。开放异构系统并不只是一个带环境项的动力
+系统，而是由宏观基底 \((M,g)\) 与微观纤维族 \(\{\mathcal H_x\}_{x\in M}\)
+共同组成的双层对象。宏观层给出拓扑扇区、几何背景与可标号的离散结构；微观层
+给出连续跃迁、纤维态空间与不可被离散标签穷尽的局部幅度。由此，系统的演化不再
+被压缩为单一轨道，而被写成宏观扇区驱动、微观连续跃迁驱动与跨层耦合驱动共同
+作用的总动力学。
+
+本文的第二层立场是开放系统博弈与异构演化的统一。开放系统博弈描述的是参与者、
+环境、耦合、边界流与策略交互的对象结构；异构系统演化描述的是宏观基底与微观
+纤维之间的轨道过程。本文把二者视为同一耦合动力学对象的两种表述：前者偏向
+博弈接口与可审计开放性，后者偏向纤维化状态、路径与演化流。这一统一承接
+\cite{RepoTex23OpenSystemGame,RepoTex39StatRepair} 的开放系统语言，也为后续
+统计修复、同伦命中与 PDE 残差求解提供前置的动力学母型。
+
+本文的第三层立场是“宏观离散不穷尽微观连续”。宏观扇区可以被离散标号，时间性
+可以首先诱导 \(\Ztwo\) 分次，奇点或障碍也可以在某些层级上表现为离散失闭合；
+但微观跃迁幅、纤维态连续性与跨层耦合项不能被这些离散标签完全替代。本文因此
+避免把同调标签误写成完整动力学本身，而是把同调结构理解为开放异构动力学的
+闭合证书：只有当宏观--微观总复形的微分满足 \(D^2=0\) 时，离散扇区与连续通道
+才共同给出良定义的总同调描述。
+
+本文的第四层立场是失闭合与修复的同调化。开放异构系统的障碍并不总是一个外在
+坏点，它也可以表现为总微分不闭合、扇区对偶缺失、奇点类链元无法孤立化或宏观
+投影无法消去微观耦合。本文将这类现象统一写成失闭合对象，再通过修复塔、时间
+补扇区、对偶补复形与超限构造证书讨论其可修复性。这一写法继承
+\cite{RepoTex38JacobiBianchiRepair,RepoTex29RepairableObstruction} 的障碍修复
+口径，并把修复从局部补丁提升为总复形闭合问题。
+
+本文的第五层立场是时间起源与宇宙演化的结构化表达。本文不把宇宙论语句作为
+经验物理结论直接推出，而是把“时间起源”“奇点存在”“奇点可修复”“起源后开放
+博弈演化”等表述，统一降级为开放异构系统中的结构生成命题。原始未分化总态、
+首次异构分解层、时间对偶补扇区与起源后修复塔，构成的是一个形式系统内的生成
+链条；其经验物理解释需要额外模型桥接，而不是由本文的同调形式本身无条件推出。
+
+本文的第六层立场是奇点的非坏点化。奇点在本文中不首先被理解为一个可以从系统中
+切除的孤立异常，而是一个单扇区或局部链复形内的失闭合位置。若存在含时间扇区的
+对偶补复形，则奇点可以被嵌入更大总系统而修复；若不存在补复形，则该失闭合在
+当前结构内不可修复。于是，奇点的意义从“坏点定位”转为“闭合失败与补扇区需求”
+的判定问题。
+
+本文的第七层立场是为后续 \GFramework{} 主链提供同调底座。后续关于微观隧穿、
+统计力学同伦命中、高阶正交确定性收敛与 PDE 求解范式替代的稿件，需要一个更早
+的结构事实：系统障碍必须先能被表达为开放异构对象的失闭合，命中或修复才有
+可判定的目标集合。本文给出的宏观--微观总复形、开放博弈表示、时间分次、奇点
+补复形与总同调闭合，正是这条主链的前置同调框架。
+
+因此，本文在整体 \GFramework{} 中承担的是“开放异构系统的同调锚定”作用。它
+向前连接开放系统博弈、纤维丛路径语言与修复塔模板，向中间连接宏观拓扑扇区、
+微观跃迁通道与总复形闭合，向后连接奇点修复、时间起源解释、统计修复与同伦命中
+范式。本文所说的开放性不是简单的外部环境依赖，而是从物理非孤立、同调非孤立、
+内部扇区非闭合到有效开放性的多层结构；本文所说的闭合也不是静态封闭，而是在
+总复形层面对宏观离散结构与微观连续通道的相容认证。
+
+概括地说，本文把 \GFramework{} 中“开放系统如何产生可修复障碍”这一问题，从
+叙事性直觉推进为宏观--微观双层对象、开放博弈投影、总复形闭合与时间补扇区修复
+的形式系统。它提供的不是单一模型，而是一条由开放异构对象、双层驱动、总同调、
+奇点失闭合、补复形修复与结构生成解释共同构成的方法论主干。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：开放异构系统的宏观拓扑--微观跃迁双层驱动、广义博弈与总复形同调}
+\label{sec:tex43-ch1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{形式系统写作约定、严格主张与引文定位}
+\label{subsec:tex43-convention}
+
+\begin{remark}[写作约定]
+本章统一采用“形式逻辑 + 证书”体例，并执行如下约定：
+\begin{enumerate}
+  \item \textbf{公理降级：}凡承担基础递推接口职责的强断言，统一写成“公理（降级为定理）”，并附数学归纳法证书；
+  \item \textbf{定理/引理/命题/推论：}每条编号断言都配套“证书 + 证明（基于数学符号推演逻辑的谓词因果链）”；
+  \item \textbf{纠偏方式：}正文只保留可严格成立的最终结论，不再保留讨论过程中的修辞性纠偏语境；
+  \item \textbf{章节编号：}全部依赖 \LaTeX{} 自动生成，不手工输入“第几章/第几节”。
+\end{enumerate}
+\end{remark}
+
+\begin{remark}[严格主张]
+本章可严格建立的结论是：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{在以 }(M,g)\text{ 为宏观基底、以 }\{\mathcal H_x\}_{x\in M}\text{ 为微观纤维的开放异构系统中，}\\
+      &\text{广义博弈描述耦合结构，异构演化描述轨道过程；两者是同一耦合动力学对象的两种投影；}\\
+      &\text{其动力学可分解为宏观拓扑扇区驱动、微观连续跃迁驱动与跨层耦合驱动；}\\
+      &\text{离散扇区标签不能穷尽微观跃迁幅；只有当宏观--微观总复形的微分满足 }D^2=0\text{ 时，}\\
+      &\text{宏观离散结构与微观连续通道才给出良定义的总同调描述。}
+    \end{aligned}
+  }
+\]
+\end{remark}
+
+\begin{remark}[仓内文稿与外部参照]
+本章关于开放系统博弈的对象口径、可审计开放性与扇区/路径语言，直接承接
+\cite{RepoTex23OpenSystemGame,RepoTex39StatRepair}；
+关于纤维丛、路径积分支撑类与同伦扭曲正规形之间的对象对应，直接承接
+\cite{RepoTex36HomotopyTwistBijection}；
+关于修复塔、障碍消除与总微分闭合的写法，直接承接
+\cite{RepoTex38JacobiBianchiRepair,GaoZheng2025GFramework}；
+关于当前 NoteBook 体例与“语义接口 $\to$ 运行时接口”的写作风格，参照
+\cite{RepoTex37SemanticGaugeRuntime,GaoZhengAppVol3}。
+
+外部标准背景方面，纤维丛与联络语言可参照
+\cite{KobayashiNomizu1963Foundations,Husemoller1994FibreBundles}；
+同伦/同调、双复形与总复形语言可参照
+\cite{Hatcher2002AT,Weibel1994HomologicalAlgebra}；
+开放量子系统与环境耦合的标准写法可参照
+\cite{BreuerPetruccione2002OpenQuantumSystems}。
+\end{remark}
+
+\subsection{对象域：开放异构系统、广义博弈与宏观--微观双层对象}
+\label{subsec:tex43-objects}
+
+\begin{definition}[异构开放系统]
+\label{def:tex43-open-heterogeneous-system}
+设
+\[
+  (M,g)
+\]
+是宏观基底，其中 $M$ 为光滑流形，$g$ 为其上的度量。
+对每个 $x\in M$，给定一个可分复 Hilbert 空间
+\[
+  \mathcal H_x .
+\]
+定义总空间
+\[
+  E:=\bigsqcup_{x\in M}\mathcal H_x,
+  \qquad
+  \pi:E\to M.
+\]
+若再引入环境态空间 $\mathcal E$ 与环境耦合算子 $\mathcal J$，使系统截面
+\[
+  \Psi(t)\in \Gamma(E)
+\]
+满足演化方程
+\[
+  \frac{D\Psi}{dt}
+  =
+  \mathcal U(\Psi)
+  +
+  \mathcal J(\Psi,\mathcal E,t),
+\]
+则称 $(E,\pi,\mathcal E,\mathcal J)$ 为一个\textbf{开放异构系统}。
+当
+\[
+  \mathcal J\not\equiv 0
+\]
+时，称该系统为开放的。
+\end{definition}
+
+\begin{definition}[广义博弈结构]
+\label{def:tex43-generalized-game}
+把“博弈”广义定义为“相互影响”。
+设系统分解为若干子系统
+\[
+  \{S_\alpha\}_{\alpha\in A},
+\]
+若存在影响核
+\[
+  I_{\alpha\beta}\neq 0,
+\]
+表示子系统 $S_\beta$ 对 $S_\alpha$ 的状态演化具有非零影响，则称系统具有\textbf{广义博弈结构}。
+对应的耦合影响网络记为
+\[
+  \mathfrak G:=\{I_{\alpha\beta}\}_{\alpha,\beta\in A}.
+\]
+\end{definition}
+
+\begin{definition}[宏观--微观双层分解]
+\label{def:tex43-horizontal-vertical}
+设总空间 $E$ 上给定与度量相容的联络 $\nabla$，并在切丛上取水平--垂直正交分解
+\[
+  TE = HE \oplus VE,
+  \qquad
+  HE\perp VE.
+\]
+其中 $HE$ 表示沿基底 $M$ 的宏观演化方向，$VE$ 表示沿纤维 $\mathcal H_x$ 的微观演化方向。
+若 $P_H,P_V$ 分别表示对应正交投影，则任意演化向量场 $X$ 都可唯一写成
+\[
+  X=P_HX+P_VX=:X_H+X_V.
+\]
+当 $X_H$ 的系数显式依赖纤维变量，或 $X_V$ 的系数显式依赖基底变量时，
+称系统存在\textbf{跨层耦合项}，记其有效贡献为
+\[
+  X_{HV}.
+\]
+在此记号下，总动力学可写成
+\[
+  X = X_H + X_V + X_{HV},
+\]
+其中 $X_{HV}$ 只记录水平--垂直之间的互依赖贡献。
+\end{definition}
+
+\begin{definition}[宏观--微观双复形与截断总微分]
+\label{def:tex43-double-complex}
+设 $F$ 为典型微观纤维。
+定义双分次链群
+\[
+  C_{p,q}:=C_p(M)\otimes C_q(F),
+\]
+其基准总微分为
+\[
+  D_0
+  :=
+  \partial_M\otimes 1
+  +
+  (-1)^p 1\otimes \partial_F .
+\]
+再给定一列耦合修复算子
+\[
+  \{K_r\}_{r\ge 1},
+\]
+并引入形式参数 $\varepsilon$。
+对每个 $n\in\NN$，定义 $n$ 阶截断总微分
+\[
+  D_{\varepsilon}^{[n]}
+  :=
+  D_0+\sum_{r=1}^{n}\varepsilon^r K_r.
+\]
+若对所有 $n\ge 1$ 都满足递推关系
+\[
+  D_0K_n
+  +
+  K_nD_0
+  +
+  \sum_{i=1}^{n-1}K_iK_{n-i}
+  =0,
+\]
+则称 $\{K_r\}_{r\ge 1}$ 为该双复形上的\textbf{可容许修复塔}。
+\end{definition}
+
+\begin{remark}[本章采用的开放性判据]
+本章中的开放性由环境耦合项
+\[
+  \mathcal J\not\equiv 0
+\]
+给出，而不是由混沌性、不可预测性或经验复杂度给出。
+因此本章只使用
+\[
+  \text{开放}
+  \Longrightarrow
+  \text{非孤立}
+\]
+这一条定义性结论，而不把“混沌”当作开放性的充分条件。
+\end{remark}
+
+\subsection{公理（降级为定理）：宏观--微观总复形的逐阶闭合可按修复塔递归构造}
+\label{subsec:tex43-axiom-downgrade}
+
+\begin{theorem}[公理降级：可容许修复塔给出逐阶闭合的截断总微分]
+\label{thm:tex43-repair-tower}
+在定义~\ref{def:tex43-double-complex} 的设定下，若
+\[
+  D_0^2=0
+\]
+且 $\{K_r\}_{r\ge 1}$ 构成可容许修复塔，则对任意 $n\in\NN$，
+\[
+  \bigl(D_{\varepsilon}^{[n]}\bigr)^2
+  \equiv 0
+  \pmod{\varepsilon^{n+1}}.
+\]
+亦即，$D_{\varepsilon}^{[n]}$ 在 $\varepsilon$ 的 $0,\dots,n$ 阶上都满足闭合条件。
+\end{theorem}
+
+\begin{Certificate}[证书：逐阶系数消失的数学归纳法证书]
+\label{cert:tex43-repair-tower}
+定义谓词
+\[
+  P(n):
+  \ \text{“}\bigl(D_{\varepsilon}^{[n]}\bigr)^2
+  \text{ 的 }\varepsilon^0,\varepsilon^1,\dots,\varepsilon^n
+  \text{ 各阶系数全部为零”}.
+\]
+证书登记为
+\[
+  \pi_{\mathrm{ind}}
+  :=
+  \bigl(P(0),\ \forall n\in\NN,\ P(n)\Rightarrow P(n+1)\bigr).
+\]
+其中
+\[
+  \bigl[\bigl(D_{\varepsilon}^{[n+1]}\bigr)^2\bigr]_{\varepsilon^{n+1}}
+  =
+  D_0K_{n+1}
+  +
+  K_{n+1}D_0
+  +
+  \sum_{i=1}^{n}K_iK_{n+1-i}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+\textbf{基步 $P(0)$：}
+由假设
+\[
+  D_0^2=0,
+\]
+知
+\[
+  \bigl(D_{\varepsilon}^{[0]}\bigr)^2
+  =
+  D_0^2
+  =0.
+\]
+故 $P(0)$ 成立。
+
+\textbf{归纳步：}
+设 $P(n)$ 成立。
+因为
+\[
+  D_{\varepsilon}^{[n+1]}
+  =
+  D_0+\sum_{r=1}^{n+1}\varepsilon^rK_r,
+\]
+故
+\[
+  \bigl(D_{\varepsilon}^{[n+1]}\bigr)^2
+  =
+  D_0^2
+  +
+  \sum_{m=1}^{2n+2}
+  \varepsilon^m
+  \left(
+    D_0K_m+K_mD_0+\sum_{i=1}^{m-1}K_iK_{m-i}
+  \right),
+\]
+其中约定 $K_m=0$ 当 $m>n+1$。
+
+由归纳假设，$\varepsilon^0,\dots,\varepsilon^n$ 的系数已经全部为零。
+因此只需检查 $\varepsilon^{n+1}$ 的系数。
+由可容许修复塔的递推关系，
+\[
+  D_0K_{n+1}
+  +
+  K_{n+1}D_0
+  +
+  \sum_{i=1}^{n}K_iK_{n+1-i}
+  =0.
+\]
+故
+\[
+  \bigl[\bigl(D_{\varepsilon}^{[n+1]}\bigr)^2\bigr]_{\varepsilon^{n+1}}
+  =0.
+\]
+于是 $P(n+1)$ 成立。
+
+由数学归纳法，
+\[
+  \forall n\in\NN,\ P(n).
+\]
+因此对任意 $n$ 都有
+\[
+  \bigl(D_{\varepsilon}^{[n]}\bigr)^2
+  \equiv 0
+  \pmod{\varepsilon^{n+1}}.
+\]
+定理成立。证毕。
+\end{proof}
+
+\subsection{定理：开放系统博弈与异构系统演化是同一耦合动力学对象的两种表述}
+\label{subsec:tex43-open-game}
+
+\begin{theorem}[开放系统博弈与异构系统演化的等价表述]
+\label{thm:tex43-open-game-evolution}
+在定义~\ref{def:tex43-open-heterogeneous-system} 与定义~\ref{def:tex43-generalized-game} 的设定下，
+若把“博弈”广义理解为子系统之间的相互影响，则
+\[
+  \OpenGame(E)\simeq \HetEvol(E),
+\]
+这里的 $\simeq$ 表示\textbf{描述等价}：
+广义博弈刻画耦合结构，异构演化刻画同一耦合结构所生成的轨道过程。
+\end{theorem}
+
+\begin{Certificate}[证书：耦合网络与演化向量场互相恢复]
+\label{cert:tex43-open-game-evolution}
+证书登记谓词链：
+\[
+\begin{aligned}
+  T_1 &: \text{系统可写为状态分量 }z=(z_\alpha)_{\alpha\in A},\\
+  T_2 &: I_{\alpha\beta}\neq 0 \Rightarrow \text{存在由 }S_\beta\text{ 作用于 }S_\alpha\text{ 的非零耦合分量 }X_{\alpha\beta},\\
+  T_3 &: X=\sum_{\alpha,\beta}X_{\alpha\beta}\Rightarrow X\ \text{确定总演化轨道},\\
+  T_4 &: \dot z=X(z)\Rightarrow I_{\alpha\beta}:=\dfrac{\partial X_\alpha}{\partial z_\beta}\ \text{给出局部响应核},\\
+  T_5 &: T_2\wedge T_3\wedge T_4\Rightarrow \OpenGame(E)\simeq \HetEvol(E).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $T_1$，总状态可分解为
+\[
+  z=(z_\alpha)_{\alpha\in A}.
+\]
+一旦某个影响核
+\[
+  I_{\alpha\beta}\neq 0,
+\]
+便意味着子系统 $S_\beta$ 对 $S_\alpha$ 的演化具有非零贡献。
+于是可把总演化向量场写成
+\[
+  X=\sum_{\alpha,\beta}X_{\alpha\beta},
+\]
+其中 $X_{\alpha\beta}$ 表示由 $S_\beta$ 诱导到 $S_\alpha$ 的耦合分量，这就是 $T_2$。
+
+由 $T_3$，动力系统
+\[
+  \dot z = X(z)
+\]
+决定了状态轨道，因此“演化”只是对同一耦合对象的动态书写。
+
+反过来，若先给定一个异构耦合动力系统
+\[
+  \dot z = X(z),
+\]
+则对每个分量可定义局部响应核
+\[
+  I_{\alpha\beta}
+  :=
+  \frac{\partial X_\alpha}{\partial z_\beta}.
+\]
+只要该导数不恒为零，就得到从 $S_\beta$ 到 $S_\alpha$ 的影响边。
+这就是 $T_4$。
+
+于是，一方面，
+\[
+  \mathfrak G=\{I_{\alpha\beta}\}
+\]
+可恢复耦合向量场的结构分量；
+另一方面，
+\[
+  X
+\]
+又可恢复局部响应核。
+故耦合结构与耦合轨道只是同一对象的静态投影与动态投影。
+由 $T_2\wedge T_3\wedge T_4$ 得 $T_5$，定理成立。证毕。
+\end{proof}
+
+\subsection{引理：开放性蕴含非孤立，并诱导宏观--微观双层驱动分解}
+\label{subsec:tex43-lemma}
+
+\begin{lemma}[开放性给出非孤立与双层驱动]
+\label{lem:tex43-open-nonisolate}
+在定义~\ref{def:tex43-open-heterogeneous-system} 与定义~\ref{def:tex43-horizontal-vertical} 的设定下，
+若
+\[
+  \mathcal J\not\equiv 0,
+\]
+则
+\[
+  \Open(E)\Rightarrow \NonIso(E).
+\]
+并且任意演化向量场都存在唯一正交分解
+\[
+  X=X_H+X_V,
+\]
+其中 $X_H\in \Gamma(HE)$，$X_V\in \Gamma(VE)$。
+若开放耦合同时作用于基底自由度与纤维自由度，则总动力学可等效记为
+\[
+  X=X_H+X_V+X_{HV},
+\]
+从而表现为宏观驱动、微观驱动与跨层耦合驱动的双层结构。
+\end{lemma}
+
+\begin{Certificate}[证书：外部耦合项与正交投影]
+\label{cert:tex43-open-nonisolate}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: \mathcal J\not\equiv 0 \Rightarrow \text{存在环境到系统的外部交换项},\\
+  L_2 &: L_1 \Rightarrow \text{系统不是孤立系统},\\
+  L_3 &: TE=HE\oplus VE,\ HE\perp VE,\\
+  L_4 &: L_3 \Rightarrow \forall X\in\Gamma(TE),\ \exists!\,(X_H,X_V)\ \text{使}\ X=X_H+X_V,\\
+  L_5 &: L_2\wedge L_4 \Rightarrow \text{开放异构系统具有宏观--微观双层驱动分解}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$，
+\[
+  \mathcal J\not\equiv 0
+\]
+意味着系统演化中存在来自环境的非零外部耦合项。
+因此系统会与外部交换信息、能量、物质或约束。
+故由定义直接得到
+\[
+  \Open(E)\Rightarrow \NonIso(E),
+\]
+即 $L_2$。
+
+再由 $L_3$，对每个 $e\in E$，
+\[
+  T_eE=H_eE\oplus V_eE,
+  \qquad
+  H_eE\perp V_eE.
+\]
+于是任意切向量 $X(e)$ 都存在唯一投影
+\[
+  X_H(e):=P_HX(e),\qquad X_V(e):=P_VX(e),
+\]
+满足
+\[
+  X(e)=X_H(e)+X_V(e).
+\]
+这给出 $L_4$。
+
+若环境耦合既改变量子态纤维的局部跃迁率，又改变宏观基底上的有效漂移，
+则 $X_H$ 与 $X_V$ 的系数会相互依赖。
+把这部分互依赖效应单列，便得到记号
+\[
+  X_{HV}.
+\]
+于是总动力学可等效写为
+\[
+  X=X_H+X_V+X_{HV}.
+\]
+故由 $L_2\wedge L_4$ 得 $L_5$，引理成立。证毕。
+\end{proof}
+
+\subsection{命题：宏观扇区离散可标号，而微观跃迁不可被离散同伦标签完全穷尽}
+\label{subsec:tex43-proposition}
+
+\begin{proposition}[离散拓扑扇区与连续跃迁幅的互补性]
+\label{prop:tex43-sector-vs-transition}
+固定宏观基底中的两个端点 $a,b\in M$。
+设
+\[
+  \mathcal P_{a,b}(M)
+\]
+为从 $a$ 到 $b$ 的路径空间，并假定在所取的宏观粗粒化口径下，其扇区标签集合
+\[
+  \Pi_{a,b}
+\]
+是离散可标号的，且
+\[
+  \mathcal P_{a,b}(M)=\bigsqcup_{[\gamma]\in \Pi_{a,b}}\mathcal P_{[\gamma]}.
+\]
+若微观跃迁幅写成
+\[
+  K(a,b)
+  =
+  \sum_{[\gamma]\in\Pi_{a,b}}
+  \int_{\mathcal P_{[\gamma]}}
+  e^{\frac{i}{\hbar}S[\gamma]}\,\mathcal D\gamma,
+\]
+则离散标签 $[\gamma]$ 只负责给出宏观扇区分解，而不能穷尽每个扇区内部的全部微观跃迁信息。
+换言之，微观跃迁幅不能被离散同伦类标签完全决定。
+\end{proposition}
+
+\begin{Certificate}[证书：扇区分解与扇区内泛函积分]
+\label{cert:tex43-sector-vs-transition}
+证书登记谓词链：
+\[
+\begin{aligned}
+  P_1 &: \mathcal P_{a,b}(M)=\bigsqcup_{[\gamma]\in\Pi_{a,b}}\mathcal P_{[\gamma]},\\
+  P_2 &: [\gamma]\in\Pi_{a,b}\ \text{只记录宏观扇区标签},\\
+  P_3 &: \int_{\mathcal P_{[\gamma]}} e^{\frac{i}{\hbar}S[\gamma]}\,\mathcal D\gamma\ \text{在扇区内部仍对全部路径做泛函积分},\\
+  P_4 &: P_2\wedge P_3\Rightarrow \text{离散标签不能穷尽微观跃迁幅}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $P_1$，
+\[
+  \mathcal P_{a,b}(M)=\bigsqcup_{[\gamma]\in\Pi_{a,b}}\mathcal P_{[\gamma]}
+\]
+给出了路径空间的宏观扇区分解。
+这里每个
+\[
+  [\gamma]\in\Pi_{a,b}
+\]
+只起标签作用，记录路径属于哪一个宏观拓扑扇区，这就是 $P_2$。
+
+但是跃迁幅并不是直接把标签相加，而是对每个扇区内部全部路径进行泛函积分：
+\[
+  \int_{\mathcal P_{[\gamma]}}
+  e^{\frac{i}{\hbar}S[\gamma]}\,\mathcal D\gamma.
+\]
+这说明即便宏观扇区标签已经固定，扇区内部仍保留连续路径族、作用量分布与相位干涉数据，这就是 $P_3$。
+
+因此，同伦类标签只给出
+\[
+  \text{宏观离散分块},
+\]
+却不能直接给出
+\[
+  \text{扇区内部全部微观跃迁幅}.
+\]
+由 $P_2\wedge P_3$ 得 $P_4$，命题成立。证毕。
+\end{proof}
+
+\subsection{推论：总复形闭合时，宏观扇区与微观跃迁共同给出良定义的总同调}
+\label{subsec:tex43-corollary}
+
+\begin{corollary}[总同调的良定义性]
+\label{cor:tex43-total-homology}
+在定义~\ref{def:tex43-double-complex} 的设定下，
+若可容许修复塔对所有阶都成立，并且形式级数
+\[
+  D_\varepsilon
+  :=
+  D_0+\sum_{r\ge 1}\varepsilon^rK_r
+\]
+在某个形式完成或收敛口径下满足
+\[
+  D_\varepsilon^2=0,
+\]
+且允许在该口径下取 $\varepsilon=1$，则总微分
+\[
+  D:=D_{\varepsilon}\big|_{\varepsilon=1}
+\]
+满足
+\[
+  D^2=0.
+\]
+因此总复形
+\[
+  \bigl(\Tot(C_{*,*}),D\bigr)
+\]
+给出良定义的总同调群
+\[
+  H_n^{\mathrm{tot}}(E)
+  :=
+  H_n\bigl(\Tot(C_{*,*}),D\bigr).
+\]
+该总同调同时编码宏观离散扇区与微观连续跃迁通道。
+\end{corollary}
+
+\begin{Certificate}[证书：闭合微分 $\Rightarrow$ 同调商群良定义]
+\label{cert:tex43-total-homology}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: \text{定理~\ref{thm:tex43-repair-tower} 给出各阶截断闭合，且全级数口径下 }D_\varepsilon^2=0,\\
+  C_2 &: \varepsilon=1\ \text{可合法代入}\Rightarrow D^2=0,\\
+  C_3 &: D^2=0 \Rightarrow \Img D_{n+1}\subseteq \Ker D_n,\\
+  C_4 &: C_3 \Rightarrow H_n^{\mathrm{tot}}(E)=\Ker D_n/\Img D_{n+1}\ \text{良定义},\\
+  C_5 &: \text{命题~\ref{prop:tex43-sector-vs-transition} 说明该同调同时承载宏观扇区与微观跃迁信息}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_1$，可容许修复塔在全阶上把总微分闭合为
+\[
+  D_\varepsilon^2=0.
+\]
+再由 $C_2$，当形式完成或收敛口径允许把 $\varepsilon$ 取为 $1$ 时，
+\[
+  D:=D_\varepsilon\big|_{\varepsilon=1}
+\]
+满足
+\[
+  D^2=0.
+\]
+
+于是对每个 $n$，
+\[
+  D_n\circ D_{n+1}=0.
+\]
+从而
+\[
+  \Img D_{n+1}\subseteq \Ker D_n,
+\]
+即 $C_3$。
+因此商群
+\[
+  H_n^{\mathrm{tot}}(E)=\Ker D_n/\Img D_{n+1}
+\]
+良定义，这就是 $C_4$。
+
+另一方面，由命题~\ref{prop:tex43-sector-vs-transition}，
+宏观扇区标签提供离散分块，微观跃迁幅提供扇区内部连续数据。
+而总复形正把这两类数据放在同一双分次链结构中并由 $D$ 耦合起来。
+故 $H_n^{\mathrm{tot}}(E)$ 同时编码宏观离散扇区与微观连续跃迁通道，即 $C_5$。
+推论成立。证毕。
+\end{proof}
+
+\subsection{备注：边界、适用范围与仓内主链对接}
+\label{subsec:tex43-remarks}
+
+\begin{remark}[关于“微观跃迁”的用语]
+本章把“微观跃迁”作为总称使用。
+若讨论对象偏量子系统，可读作隧穿、禁阻跨越或非经典跃迁；
+若讨论对象偏一般开放系统，也可读作亚稳态逃逸、稀有事件通道或细尺度状态翻转。
+本章真正需要的结构只是：
+\[
+  \text{微观层存在连续路径族，且跃迁幅依赖扇区内部全体路径。}
+\]
+\end{remark}
+
+\begin{remark}[关于“总同调”的对象层级]
+本章不主张“离散性”与“连续性”本身直接构成同调群。
+真正进入同调对象的是
+\[
+  (C_{p,q},D),
+\]
+即宏观链群、微观链群与耦合修复微分共同组成的总复形。
+只有当
+\[
+  D^2=0
+\]
+时，闭链与边界之间才满足商群定义所需的包含关系。
+\end{remark}
+
+\begin{remark}[与仓内主链的对接位置]
+若按仓内现有文稿的主链来定位，本章可视为如下四条接口的汇合点：
+\begin{enumerate}
+  \item \cite{RepoTex23OpenSystemGame} 提供“开放系统博弈”的对象语言；
+  \item \cite{RepoTex36HomotopyTwistBijection} 提供“纤维空间 $\leftrightarrow$ 路径支撑类 $\leftrightarrow$ 同伦扭曲正规形”的路径语言；
+  \item \cite{RepoTex38JacobiBianchiRepair} 提供“障碍 $\to$ 修复 $\to$ 闭合”的递推模板；
+  \item \cite{RepoTex39StatRepair} 提供“开放系统修复引擎族”的上下文执行语言。
+\end{enumerate}
+因此，本章最应保留的核心句不是“计数性直接成群”，而是：
+\[
+  \boxed{
+    \text{宏观离散拓扑扇区与微观连续跃迁通道共同决定开放异构系统的总演化。}
+  }
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：时间属性、\texorpdfstring{$\Ztwo$}{Z2} 分次、超限修复塔与总同调封闭}
+\label{sec:tex43-ch2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格主张、引文定位与对象准备}
+\label{subsec:tex43-ch2-convention}
+
+\begin{remark}[严格主张]
+本章在第~\ref{sec:tex43-ch1} 章给出的开放异构系统与宏观--微观双层分解基础上，进一步固定如下结论：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{“有时间属性 / 无时间属性”首先诱导的是 }\Ztwo\text{-分次，而不是同调群本身；}\\
+      &\text{当且仅当分次微分满足 }D^2=0\text{ 时，才得到 }\Ftwo\text{-系数的 }\Ztwo\text{-分次同调群；}\\
+      &\text{宏观基底扇区与微观纤维扇区在联络下给出水平--垂直正交分解；}\\
+      &\text{开放博弈动力不是“正交解耦”本身，而是双扇区演化与剩余耦合修复项的共同作用；}\\
+      &\text{时间属性的严格数学载体是内禀序数滤过与可超限递推的修复塔。}
+    \end{aligned}
+  }
+\]
+\end{remark}
+
+\begin{remark}[仓内文稿与外部参照]
+本章关于开放系统、回合同伦类与非孤立性边界的对象语言，承接
+\cite{RepoTex23OpenSystemGame,RepoTex39StatRepair}；
+关于纤维丛、水平/垂直分解、路径支撑类与同伦扭曲正规形的对象口径，承接
+\cite{RepoTex36HomotopyTwistBijection}；
+关于障碍修复、总微分闭合与终点正规形的递推模板，承接
+\cite{RepoTex38JacobiBianchiRepair,GaoZheng2025GFramework}；
+关于超限递归同伦修复塔与正交修补链的仓内写法，承接
+\cite{RepoTex29RepairableObstruction,RepoTex27PowerdomainFiberExtension}。
+
+外部标准背景方面，双复形/分次同调语言可参照
+\cite{Weibel1994HomologicalAlgebra,Hatcher2002AT}；
+超限递归、序数滤过与极限阶段的一般集合论基础可参照
+\cite{Jech2003SetTheory,Kunen2011SetTheory}；
+若把宏观基底与标准广义相对论直接对接，则度量背景可参照
+\cite{KobayashiNomizu1963Foundations}。
+\end{remark}
+
+\subsection{定义：时间属性、时间性赋值与分次链对象}
+\label{subsec:tex43-ch2-definitions}
+
+\begin{definition}[时间属性]
+\label{def:tex43-time-attribute}
+设 $\mathcal X$ 为一个演化对象。
+若存在一族由序数 $\alpha<\Lambda$ 标号的内禀滤过
+\[
+  F_0\mathcal X
+  \subseteq
+  F_1\mathcal X
+  \subseteq
+  \cdots
+  \subseteq
+  F_\alpha\mathcal X
+  \subseteq
+  \cdots
+  \subseteq
+  \mathcal X,
+\]
+且该滤过属于对象内部演化结构的一部分，而不是外部临时参数化，则称 $\mathcal X$ \textbf{具有时间属性}，记为
+\[
+  \tau(\mathcal X)=1.
+\]
+若不存在这样的内禀序数滤过，只能在外加参数后才出现序结构，则称 $\mathcal X$ \textbf{无内禀时间属性}，记为
+\[
+  \tau(\mathcal X)=0.
+\]
+\end{definition}
+
+\begin{definition}[宏观基底与微观纤维的时间性赋值]
+\label{def:tex43-time-assignment}
+在定义~\ref{def:tex43-open-heterogeneous-system} 的设定下，固定
+\[
+  \tau(M)=1,
+  \qquad
+  \tau(\mathcal H_x)=0
+  \quad (x\in M).
+\]
+在定义~\ref{def:tex43-horizontal-vertical} 的水平--垂直分解下，相应记
+\[
+  \tau(HE)=1,
+  \qquad
+  \tau(VE)=0.
+\]
+亦即：宏观基底/水平扇区携带内禀演化层级，微观纤维/垂直扇区仅作为运动学态空间时不自带内禀时间坐标。
+\end{definition}
+
+\begin{definition}[\texorpdfstring{$\Ztwo$}{Z2} 分次链对象]
+\label{def:tex43-z2-graded-chain}
+设
+\[
+  C_{\tau}^{(1)}
+\]
+为由一切具有时间属性的链元生成的链群，
+\[
+  C_{\tau}^{(0)}
+\]
+为由一切无内禀时间属性的链元生成的链群。
+定义总链对象
+\[
+  C_{\tau}
+  :=
+  C_{\tau}^{(0)}
+  \oplus
+  C_{\tau}^{(1)}.
+\]
+称其为由时间属性诱导的\textbf{\(\Ztwo\)-分次链对象}。
+\end{definition}
+
+\subsection{公理（降级为定理）：序数滤过与超限修复塔保持时间属性分次并在极限层闭合}
+\label{subsec:tex43-ch2-axiom-downgrade}
+
+\begin{theorem}[公理降级：超限修复塔保持 \texorpdfstring{$\Ztwo$}{Z2} 分次并在极限层闭合]
+\label{thm:tex43-time-transfinite}
+设 $C_{\tau}=C_{\tau}^{(0)}\oplus C_{\tau}^{(1)}$ 为定义~\ref{def:tex43-z2-graded-chain} 的分次链对象，
+并设存在一个按序数 $\alpha<\Lambda$ 递增的穷尽滤过
+\[
+  F_0C_{\tau}\subseteq F_1C_{\tau}\subseteq\cdots\subseteq F_\alpha C_{\tau}\subseteq\cdots\subseteq C_{\tau}.
+\]
+记
+\[
+  F_{\le \alpha}C_{\tau}:=\bigcup_{\beta\le \alpha}F_\beta C_{\tau}.
+\]
+再设存在一条按序数标号的奇修复塔
+\[
+  \{D_\alpha\}_{\alpha<\Lambda},
+\]
+满足：
+\begin{enumerate}
+  \item 对每个 $\alpha<\Lambda$ 与每个 $i\in\Ztwo$，
+  \[
+    D_\alpha\bigl(C_{\tau}^{(i)}\bigr)\subseteq C_{\tau}^{(i+1\bmod 2)};
+  \]
+  \item 对每个后继序数 $\alpha+1<\Lambda$，存在奇修复项 $\delta_{\alpha+1}$ 使
+  \[
+    D_{\alpha+1}=D_\alpha+\delta_{\alpha+1},
+  \]
+  且
+  \[
+    D_\alpha^2\bigl(F_{\le \alpha}C_{\tau}\bigr)\subseteq F_{>\alpha}C_{\tau},
+    \qquad
+    D_{\alpha+1}^2\bigl(F_{\le \alpha+1}C_{\tau}\bigr)\subseteq F_{>\alpha+1}C_{\tau};
+  \]
+  \item 对每个极限序数 $\lambda<\Lambda$，
+  \[
+    D_\lambda=\varinjlim_{\beta<\lambda}D_\beta;
+  \]
+  \item 极限层满足
+  \[
+    \bigcap_{\alpha<\Lambda}F_{>\alpha}C_{\tau}=0.
+  \]
+\end{enumerate}
+则对任意 $\alpha<\Lambda$，$D_\alpha$ 都保持时间属性的 \(\Ztwo\)-分次；
+并且在极限层
+\[
+  D_\Lambda^2=0.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：超限归纳证书]
+\label{cert:tex43-time-transfinite}
+定义谓词
+\[
+  P(\alpha):
+  \left\{
+  \begin{aligned}
+    &D_\alpha\bigl(C_{\tau}^{(i)}\bigr)\subseteq C_{\tau}^{(i+1\bmod 2)}
+    \ \text{对任意 }i\in\Ztwo,\\
+    &D_\alpha^2\bigl(F_{\le \alpha}C_{\tau}\bigr)\subseteq F_{>\alpha}C_{\tau}.
+  \end{aligned}
+  \right.
+\]
+证书登记为
+\[
+  \pi_{\mathrm{tr}}
+  :=
+  \bigl(P(0),\ \forall\alpha<\Lambda,\ P(\alpha)\Rightarrow P(\alpha+1),\ \forall\lambda<\Lambda\text{ 极限序数},\
+    (\forall\beta<\lambda,\ P(\beta))\Rightarrow P(\lambda)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（超限归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+\textbf{基步：}
+由条件(1)，$D_0$ 为奇算子，故
+\[
+  D_0\bigl(C_{\tau}^{(i)}\bigr)\subseteq C_{\tau}^{(i+1\bmod 2)}.
+\]
+又由条件(2) 在 $\alpha=0$ 的情形，
+\[
+  D_0^2\bigl(F_{\le 0}C_{\tau}\bigr)\subseteq F_{>0}C_{\tau}.
+\]
+故 $P(0)$ 成立。
+
+\textbf{后继步：}
+设 $P(\alpha)$ 成立。
+由
+\[
+  D_{\alpha+1}=D_\alpha+\delta_{\alpha+1}
+\]
+且 $\delta_{\alpha+1}$ 亦为奇算子，可得
+\[
+  D_{\alpha+1}\bigl(C_{\tau}^{(i)}\bigr)
+  \subseteq
+  C_{\tau}^{(i+1\bmod 2)}.
+\]
+这给出分次保持性。
+
+再由条件(2)，
+\[
+  D_{\alpha+1}^2\bigl(F_{\le \alpha+1}C_{\tau}\bigr)\subseteq F_{>\alpha+1}C_{\tau}.
+\]
+于是 $P(\alpha+1)$ 成立。
+
+\textbf{极限步：}
+设 $\lambda<\Lambda$ 为极限序数，且对任意 $\beta<\lambda$ 都有 $P(\beta)$。
+由条件(3)，
+\[
+  D_\lambda=\varinjlim_{\beta<\lambda}D_\beta.
+\]
+因为每个 $D_\beta$ 都是奇算子，且直极限保持分次结构，
+\[
+  D_\lambda\bigl(C_{\tau}^{(i)}\bigr)\subseteq C_{\tau}^{(i+1\bmod 2)}.
+\]
+另一方面，对任意 $x\in F_{\le \lambda}C_{\tau}$，存在某个 $\beta<\lambda$ 使 $x\in F_{\le \beta}C_{\tau}$。
+由 $P(\beta)$，
+\[
+  D_\beta^2(x)\in F_{>\beta}C_{\tau}\subseteq F_{>\lambda}C_{\tau}.
+\]
+又因 $D_\lambda$ 由前缀相容的直极限给出，故
+\[
+  D_\lambda^2(x)\in F_{>\lambda}C_{\tau}.
+\]
+于是 $P(\lambda)$ 成立。
+
+由超限归纳法，
+\[
+  \forall\alpha<\Lambda,\ P(\alpha).
+\]
+特别地，在极限层 $\Lambda$，
+\[
+  D_\Lambda^2(C_{\tau})\subseteq \bigcap_{\alpha<\Lambda}F_{>\alpha}C_{\tau}.
+\]
+再由条件(4)，
+\[
+  \bigcap_{\alpha<\Lambda}F_{>\alpha}C_{\tau}=0,
+\]
+故
+\[
+  D_\Lambda^2=0.
+\]
+定理成立。证毕。
+\end{proof}
+
+\subsection{引理：时间属性首先给出 \texorpdfstring{$\Ztwo$}{Z2} 分次，而不是同调群}
+\label{subsec:tex43-ch2-lemma}
+
+\begin{lemma}[时间属性诱导的首先是分次结构]
+\label{lem:tex43-z2-grading-first}
+在定义~\ref{def:tex43-z2-graded-chain} 的设定下，
+\[
+  C_{\tau}=C_{\tau}^{(0)}\oplus C_{\tau}^{(1)}
+\]
+是一个自然的 \(\Ztwo\)-分次对象。
+但若未给定奇微分
+\[
+  D:C_{\tau}^{(i)}\to C_{\tau}^{(i+1\bmod 2)}
+\]
+并满足
+\[
+  D^2=0,
+\]
+则不能从时间属性直接推出同调群。
+\end{lemma}
+
+\begin{Certificate}[证书：二值属性只给出二值分级]
+\label{cert:tex43-z2-grading-first}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: \tau(\mathcal X)\in\{0,1\}\cong \Ztwo,\\
+  L_2 &: L_1 \Rightarrow C_{\tau}=C_{\tau}^{(0)}\oplus C_{\tau}^{(1)}\ \text{为}\ \Ztwo\text{-分次对象},\\
+  L_3 &: \text{同调至少要求奇微分 }D\text{ 与闭合条件 }D^2=0,\\
+  L_4 &: L_2\wedge \neg L_3 \Rightarrow \text{只能得到分次，不能直接得到同调群}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定义~\ref{def:tex43-time-attribute}，
+\[
+  \tau(\mathcal X)\in\{0,1\}.
+\]
+而
+\[
+  \{0,1\}\cong \Ztwo,
+\]
+故时间属性的二值划分首先给出
+\[
+  C_{\tau}=C_{\tau}^{(0)}\oplus C_{\tau}^{(1)}
+\]
+这一分次结构，即 $L_2$。
+
+然而“同调”不是单靠分级即可定义的对象。
+若没有奇微分
+\[
+  D:C_{\tau}^{(i)}\to C_{\tau}^{(i+1\bmod 2)}
+\]
+并满足
+\[
+  D^2=0,
+\]
+则无法定义闭链群与边界群之间的商。
+因此由 $L_2\wedge \neg L_3$ 得 $L_4$。
+引理成立。证毕。
+\end{proof}
+
+\subsection{定理：\texorpdfstring{$\Ftwo$}{F2} 系数下的 \texorpdfstring{$\Ztwo$}{Z2} 分次同调群}
+\label{subsec:tex43-ch2-theorem-homology}
+
+\begin{theorem}[\texorpdfstring{$\Ftwo$}{F2} 系数的 \texorpdfstring{$\Ztwo$}{Z2} 分次同调群]
+\label{thm:tex43-f2-z2-homology}
+在引理~\ref{lem:tex43-z2-grading-first} 的 \(\Ztwo\)-分次链对象上，取系数域为
+\[
+  \Ftwo=\{0,1\},
+\]
+并取奇微分
+\[
+  D:C_{\tau}^{(i)}\to C_{\tau}^{(i+1\bmod 2)}
+\]
+满足
+\[
+  D^2=0.
+\]
+则对每个 $i\in\Ztwo$，
+\[
+  H_{\tau}^{(i)}(C_{\tau},D)
+  :=
+  Z_{\tau}^{(i)} / B_{\tau}^{(i)}
+\]
+良定义，其中
+\[
+  Z_{\tau}^{(i)}:=\Ker\!\bigl(D|_{C_{\tau}^{(i)}}\bigr),
+  \qquad
+  B_{\tau}^{(i)}:=\Img\!\bigl(D|_{C_{\tau}^{(i+1)}}\bigr).
+\]
+因此，时间属性的严格同调对象是
+\[
+  \Ftwo\text{-系数的 }\Ztwo\text{-分次同调群},
+\]
+而不是未附微分的二值分类本身。
+\end{theorem}
+
+\begin{Certificate}[证书：闭链、边界与商群良定义]
+\label{cert:tex43-f2-z2-homology}
+证书登记谓词链：
+\[
+\begin{aligned}
+  T_1 &: D:C_{\tau}^{(i)}\to C_{\tau}^{(i+1\bmod 2)}\ \text{为奇微分},\\
+  T_2 &: D^2=0,\\
+  T_3 &: T_2\Rightarrow \Img\!\bigl(D|_{C_{\tau}^{(i+1)}}\bigr)\subseteq \Ker\!\bigl(D|_{C_{\tau}^{(i)}}\bigr),\\
+  T_4 &: T_3\Rightarrow Z_{\tau}^{(i)} / B_{\tau}^{(i)}\ \text{良定义},\\
+  T_5 &: T_1\wedge T_2\wedge T_4\Rightarrow \text{得到 }\Ftwo\text{-系数的 }\Ztwo\text{-分次同调群}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $T_1$，$D$ 把偶分次链元送到奇分次，把奇分次链元送回偶分次。
+再由 $T_2$，
+\[
+  D\circ D=0.
+\]
+故对任意 $x\in C_{\tau}^{(i+1)}$，
+\[
+  D\bigl(D(x)\bigr)=0.
+\]
+于是
+\[
+  D(x)\in \Ker\!\bigl(D|_{C_{\tau}^{(i)}}\bigr),
+\]
+即
+\[
+  \Img\!\bigl(D|_{C_{\tau}^{(i+1)}}\bigr)\subseteq \Ker\!\bigl(D|_{C_{\tau}^{(i)}}\bigr).
+\]
+这就是 $T_3$。
+
+因此商群
+\[
+  H_{\tau}^{(i)}(C_{\tau},D)
+  =
+  \Ker\!\bigl(D|_{C_{\tau}^{(i)}}\bigr)\Big/\Img\!\bigl(D|_{C_{\tau}^{(i+1)}}\bigr)
+\]
+良定义，即 $T_4$。
+由于系数取在 $\Ftwo$ 上，最终得到的是
+\[
+  \Ftwo\text{-系数的 }\Ztwo\text{-分次同调群}.
+\]
+由 $T_1\wedge T_2\wedge T_4$ 得 $T_5$，定理成立。证毕。
+\end{proof}
+
+\subsection{定理：内部微观与外部宏观的正交分解及其时间性对应}
+\label{subsec:tex43-ch2-theorem-orthogonal}
+
+\begin{theorem}[内部微观与外部宏观的正交分解]
+\label{thm:tex43-orthogonal-time}
+在定义~\ref{def:tex43-open-heterogeneous-system} 与定义~\ref{def:tex43-horizontal-vertical} 的设定下，
+总状态空间的演化向量场可唯一写为
+\[
+  X=X_H+X_V+K,
+\]
+其中
+\[
+  X_H\in \Gamma(HE),
+  \qquad
+  X_V\in \Gamma(VE),
+\]
+而 $K$ 记录水平--垂直之间的剩余耦合修复项。
+在此分解下，
+\[
+  HE\rightsquigarrow \text{宏观基底时空扇区},\qquad \tau=1,
+\]
+\[
+  VE\rightsquigarrow \text{微观纤维跃迁扇区},\qquad \tau=0.
+\]
+这种对应是可模型化对应或可函子化嵌入，不额外主张全局一一同构。
+\end{theorem}
+
+\begin{Certificate}[证书：联络分解 + 扇区方程 + 耦合剩余项]
+\label{cert:tex43-orthogonal-time}
+证书登记谓词链：
+\[
+\begin{aligned}
+  O_1 &: TE=HE\oplus VE,\ HE\perp VE,\\
+  O_2 &: O_1 \Rightarrow \forall X\in\Gamma(TE),\ \exists!\,(X_H,X_V)\ \text{使 }X=X_H+X_V,\\
+  O_3 &: \text{环境与跨层耦合保留剩余项 }K,\\
+  O_4 &: HE\ \text{承载宏观基底演化，}VE\ \text{承载微观纤维跃迁},\\
+  O_5 &: O_2\wedge O_3\wedge O_4 \Rightarrow X=X_H+X_V+K\ \text{并给出时间性对应}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $O_1$，
+\[
+  T_eE=H_eE\oplus V_eE
+  \qquad (e\in E),
+\]
+且两部分正交。
+因此任意切向量都存在唯一投影
+\[
+  X_H=P_HX,\qquad X_V=P_VX,
+\]
+从而
+\[
+  X=X_H+X_V.
+\]
+这给出 $O_2$。
+
+若系统完全解耦，则该分解已足够。
+但在开放异构系统中，环境耦合与跨层依赖通常使 $X_H$、$X_V$ 的系数互相依赖，
+故需把此剩余互依赖贡献单列为
+\[
+  K.
+\]
+于是总演化写成
+\[
+  X=X_H+X_V+K,
+\]
+这就是 $O_3$。
+
+再由定义~\ref{def:tex43-time-assignment}，
+\[
+  \tau(HE)=1,\qquad \tau(VE)=0.
+\]
+因此水平扇区对应宏观时空/引力/几何层级，垂直扇区对应微观跃迁/隧穿/局域态翻转层级。
+例如，宏观扇区可由代表方程
+\[
+  G_{\mu\nu}+\Lambda g_{\mu\nu}=8\pi T_{\mu\nu}
+\]
+表征其几何动力学；微观扇区可由跃迁幅
+\[
+  \mathcal A(\psi_i\to\psi_f)
+  =
+  \int_{\Gamma_V}
+  e^{\frac{i}{\hbar}S[\gamma]}\,\mathcal D\gamma
+\]
+表征其路径通道。
+于是由 $O_2\wedge O_3\wedge O_4$ 得 $O_5$，定理成立。证毕。
+\end{proof}
+
+\subsection{命题：正交分解给出双扇区结构，开放博弈动力来自双扇区演化与非零耦合项}
+\label{subsec:tex43-ch2-proposition-decoupling}
+
+\begin{proposition}[正交分解不是开放博弈动力的充分来源]
+\label{prop:tex43-decoupling-not-dynamics}
+在定理~\ref{thm:tex43-orthogonal-time} 的分解
+\[
+  X=X_H+X_V+K
+\]
+下，若
+\[
+  K=0,
+\]
+则系统动力学分裂为两个彼此独立的子系统：
+\[
+  \dot z_H=X_H(z_H),
+  \qquad
+  \dot z_V=X_V(z_V).
+\]
+因此，正交分解本身只给出双扇区结构；开放博弈动力的严格来源是双扇区各自演化与非零耦合项 $K$ 的共同作用。
+\end{proposition}
+
+\begin{Certificate}[证书：耦合项归零即独立演化]
+\label{cert:tex43-decoupling-not-dynamics}
+证书登记谓词链：
+\[
+\begin{aligned}
+  P_1 &: X=X_H+X_V+K,\\
+  P_2 &: K=0 \Rightarrow X=X_H+X_V,\\
+  P_3 &: P_2 \Rightarrow \dot z_H=X_H(z_H),\ \dot z_V=X_V(z_V),\\
+  P_4 &: P_3 \Rightarrow \text{两扇区不交换信息、约束与障碍},\\
+  P_5 &: P_1\wedge P_4 \Rightarrow \text{开放博弈动力必须由非零 }K\text{ 参与给出}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $P_1$，总生成元写为
+\[
+  X=X_H+X_V+K.
+\]
+若
+\[
+  K=0,
+\]
+则
+\[
+  X=X_H+X_V.
+\]
+这意味着水平扇区与垂直扇区之间不存在剩余耦合。
+于是总动力学直接分裂为
+\[
+  \dot z_H=X_H(z_H),
+  \qquad
+  \dot z_V=X_V(z_V),
+\]
+即 $P_3$。
+
+在这种情形下，两扇区各自演化，彼此既不交换约束，也不交换障碍，也不交换可修复缺口。
+故由 $P_3$ 得 $P_4$。
+因此，真正使系统成为开放博弈的，不是正交分解本身，而是
+\[
+  K\neq 0
+\]
+时双扇区之间的相互作用。
+由 $P_1\wedge P_4$ 得 $P_5$，命题成立。证毕。
+\end{proof}
+
+\subsection{定理：内部微观扇区与外部宏观扇区在闭合条件下给出总同调群，并在乘法相容时升级为分次微分同调代数}
+\label{subsec:tex43-ch2-theorem-total}
+
+\begin{theorem}[双扇区的总同调封闭]
+\label{thm:tex43-macro-micro-total}
+设
+\[
+  C_{p,q}:=C_p(HE)\otimes C_q(VE)
+\]
+为宏观水平扇区与微观垂直扇区组成的双复形，并在 \(\Ftwo\) 系数下定义
+\[
+  \partial_H:C_{p,q}\to C_{p-1,q},
+  \qquad
+  \partial_V:C_{p,q}\to C_{p,q-1},
+\]
+以及奇耦合修复算子
+\[
+  K:C_{p,q}\to C_{p-1,q+1}
+\]
+或更一般的奇阶耦合算子。
+记总微分为
+\[
+  D:=\partial_H+\partial_V+K.
+\]
+若满足
+\[
+  \partial_H^2=0,
+  \qquad
+  \partial_V^2=0,
+\]
+以及
+\[
+  \partial_H\partial_V+\partial_V\partial_H
+  +
+  \partial_HK+K\partial_H
+  +
+  \partial_VK+K\partial_V
+  +
+  K^2
+  =0,
+\]
+则
+\[
+  D^2=0.
+\]
+因此总复形
+\[
+  \bigl(\Tot(C_{*,*}),D\bigr)
+\]
+给出良定义的总同调群
+\[
+  H_n^{\mathrm{tot}}:=H_n\bigl(\Tot(C_{*,*}),D\bigr).
+\]
+若进一步给定乘法
+\[
+  \mu:C\otimes C\to C
+\]
+并满足
+\[
+  D\mu(a,b)=\mu(Da,b)+\mu(a,Db)
+\]
+（在 \(\Ftwo\) 系数下无符号项），则该对象进一步升级为 \(\Ftwo\)-系数的 \(\Ztwo\)-分次微分同调代数。
+\end{theorem}
+
+\begin{Certificate}[证书：总微分平方为零与 Leibniz 相容]
+\label{cert:tex43-macro-micro-total}
+证书登记谓词链：
+\[
+\begin{aligned}
+  T'_1 &: \partial_H^2=0,\ \partial_V^2=0,\\
+  T'_2 &: \partial_H\partial_V+\partial_V\partial_H+\partial_HK+K\partial_H+\partial_VK+K\partial_V+K^2=0,\\
+  T'_3 &: T'_1\wedge T'_2 \Rightarrow D^2=0,\\
+  T'_4 &: T'_3 \Rightarrow H_n^{\mathrm{tot}}\ \text{良定义},\\
+  T'_5 &: \mu\ \text{存在且满足 Leibniz 相容} \Rightarrow \text{升级为分次微分同调代数}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+把
+\[
+  D=\partial_H+\partial_V+K
+\]
+平方展开，可得
+\[
+  D^2
+  =
+  \partial_H^2+\partial_V^2+K^2
+  +
+  \partial_H\partial_V+\partial_V\partial_H
+  +
+  \partial_HK+K\partial_H
+  +
+  \partial_VK+K\partial_V.
+\]
+由 $T'_1$，
+\[
+  \partial_H^2=\partial_V^2=0.
+\]
+再由 $T'_2$，剩余混合项之和亦为零。
+故
+\[
+  D^2=0,
+\]
+即 $T'_3$。
+
+于是对每个 $n$，
+\[
+  \Img D_{n+1}\subseteq \Ker D_n,
+\]
+从而
+\[
+  H_n^{\mathrm{tot}}
+  =
+  \Ker D_n/\Img D_{n+1}
+\]
+良定义，这就是 $T'_4$。
+
+若再给定乘法 $\mu$，并满足
+\[
+  D\mu(a,b)=\mu(Da,b)+\mu(a,Db),
+\]
+则微分与乘法相容。
+因此总复形不仅给出同调群，还给出一个分次微分代数对象。
+其同调上的乘法再自然下降到同调层，形成同调代数。
+故由 $T'_5$ 得到最后的升级结论。定理成立。证毕。
+\end{proof}
+
+\subsection{命题：在开放异构混沌类内，混沌系统必为非孤立系统}
+\label{subsec:tex43-ch2-proposition-chaos}
+
+\begin{proposition}[开放异构混沌类中的非孤立性]
+\label{prop:tex43-open-chaos}
+定义开放异构混沌类
+\[
+  \mathfrak C_{\mathrm{open}}
+  :=
+  \left\{
+    (E\to M,X_H,X_V,K,\mathcal E)
+    \ \middle|\
+    \bigl(K\neq 0\ \text{或}\ \mathcal E\neq\varnothing\bigr)
+    \ \text{且系统对初值敏感}
+  \right\}.
+\]
+则对任意
+\[
+  S\in \mathfrak C_{\mathrm{open}},
+\]
+都有
+\[
+  \mathrm{Chaos}_{\mathfrak C_{\mathrm{open}}}(S)
+  \Rightarrow
+  \NonIso(S).
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：类别定义直接包含开放条件]
+\label{cert:tex43-open-chaos}
+证书登记谓词链：
+\[
+\begin{aligned}
+  Q_1 &: S\in\mathfrak C_{\mathrm{open}},\\
+  Q_2 &: Q_1 \Rightarrow \bigl(K\neq 0\ \text{或}\ \mathcal E\neq\varnothing\bigr),\\
+  Q_3 &: Q_2 \Rightarrow S\ \text{与外部环境或外部扇区非平凡耦合},\\
+  Q_4 &: Q_3 \Rightarrow \NonIso(S),\\
+  Q_5 &: Q_1\wedge Q_4 \Rightarrow \mathrm{Chaos}_{\mathfrak C_{\mathrm{open}}}(S)\Rightarrow \NonIso(S).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $Q_1$，$S$ 属于
+\[
+  \mathfrak C_{\mathrm{open}}.
+\]
+按定义，
+\[
+  K\neq 0
+  \quad\text{或}\quad
+  \mathcal E\neq\varnothing.
+\]
+故系统要么具有跨层剩余耦合，要么与外部环境存在显式耦合。
+这意味着系统并非孤立，故 $Q_4$ 成立。
+
+由于命题的前提已把“混沌”限制在开放异构混沌类内部，
+因此“混沌”与“非孤立”之间的蕴含在该类别内是定义性的。
+于是由 $Q_1\wedge Q_4$ 得 $Q_5$。
+命题成立。证毕。
+\end{proof}
+
+\subsection{推论：对整段命题的严格总改写}
+\label{subsec:tex43-ch2-corollary}
+
+\begin{corollary}[严格总改写]
+\label{cor:tex43-time-summary}
+在定义~\ref{def:tex43-open-heterogeneous-system}、定义~\ref{def:tex43-time-attribute}、
+定义~\ref{def:tex43-time-assignment} 与定理~\ref{thm:tex43-macro-micro-total} 的设定下，
+可把整条结论压缩为：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{开放异构系统可形式化为总状态空间 }E\to M,\ \text{其中宏观基底扇区具有时间属性 }(\tau=1),\\
+      &\text{微观运动学纤维扇区无内禀时间属性 }(\tau=0);\\
+      &\text{“有时间 / 无时间”首先诱导 }\Ztwo\text{-分次，而非直接给出同调群；}\\
+      &\text{在 }\Ftwo\text{ 系数与总微分 }D^2=0\text{ 条件下，才得到 }\Ztwo\text{-分次总同调群；}\\
+      &\text{外部宏观基底与内部微观跃迁分别模型化为水平扇区与垂直扇区；}\\
+      &\text{开放博弈动力来自双扇区演化与非零耦合修复项 }K\text{ 的共同作用；}\\
+      &\text{时间属性的严格数学载体则是内禀序数滤过与可超限递推的修复塔。}
+    \end{aligned}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：时间属性分次 + 双扇区分解 + 总微分闭合]
+\label{cert:tex43-time-summary}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: \text{定理~\ref{thm:tex43-time-transfinite} 给出时间属性的序数滤过与超限修复塔闭合},\\
+  C_2 &: \text{定理~\ref{thm:tex43-f2-z2-homology} 给出 }\Ftwo\text{-系数的 }\Ztwo\text{-分次同调群},\\
+  C_3 &: \text{定理~\ref{thm:tex43-orthogonal-time} 给出宏观/微观的正交分解与时间性对应},\\
+  C_4 &: \text{命题~\ref{prop:tex43-decoupling-not-dynamics} 给出开放博弈动力的严格来源},\\
+  C_5 &: \text{定理~\ref{thm:tex43-macro-micro-total} 给出总同调封闭},\\
+  C_6 &: C_1\wedge C_2\wedge C_3\wedge C_4\wedge C_5 \Rightarrow \text{严格总改写成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_1$，时间属性可被严格写成内禀序数滤过与超限修复塔的闭合过程；
+由 $C_2$，时间属性诱导出的同调对象是
+\[
+  \Ftwo\text{-系数的 }\Ztwo\text{-分次同调群};
+\]
+由 $C_3$，宏观与微观分别对应水平与垂直扇区；
+由 $C_4$，开放博弈动力必须包含非零耦合项 $K$；
+由 $C_5$，当总微分闭合时，两扇区共同给出总同调封闭。
+
+因此
+\[
+  C_1\wedge C_2\wedge C_3\wedge C_4\wedge C_5
+\]
+推出 $C_6$，即该严格总改写成立。证毕。
+\end{proof}
+
+\subsection{备注：命名、适用边界与标准几何对接}
+\label{subsec:tex43-ch2-remarks}
+
+\begin{remark}[本章采用的标准命名]
+本章把相关对象统一命名为
+\[
+  \Ftwo\text{-系数的 }\Ztwo\text{-分次同调群}
+\]
+以及在乘法相容时的
+\[
+  \Ftwo\text{-系数的 }\Ztwo\text{-分次微分同调代数}.
+\]
+这两个对象分别对应“只保留微分闭合”与“再附加乘法相容”两种严格层级。
+\end{remark}
+
+\begin{remark}[关于“无时间属性”的精确定义]
+本章中的“无时间属性”不是指“不能写入外部时间参数”，而是指：
+\[
+  \text{对象本体不自带内禀时间坐标。}
+\]
+例如
+\[
+  i\hbar \partial_t\psi = H\psi
+\]
+中的 $t$ 可以作为外加演化参数进入态矢量演化，但这并不改变 $\mathcal H_x$ 作为运动学纤维本体时的时间性赋值
+\[
+  \tau(\mathcal H_x)=0.
+\]
+\end{remark}
+
+\begin{remark}[关于宏观基底的几何约定]
+本稿第~\ref{sec:tex43-ch1} 章沿用 $(M,g)$ 的广义黎曼化记号来书写宏观基底；
+若与标准广义相对论直接对接，则可将其替换为带 Lorentz 度量的时空流形。
+本章真正依赖的只是：
+\[
+  \text{宏观扇区携带内禀层级结构并允许水平链复形建模。}
+\]
+\end{remark}
+
+\begin{remark}[与第~\ref{sec:tex43-ch1} 章的关系]
+第~\ref{sec:tex43-ch1} 章把重点放在“开放异构系统的双层驱动与总复形同调”；
+本章则把同一对象进一步压成“时间属性 $\to$ \(\Ztwo\)-分次 $\to$ \(\Ftwo\)-系数同调”的语言。
+前者强调动力学分层，后者强调分次与闭合条件。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：混沌系统的扇区开放化、有效开放性与内部开放系统博弈}
+\label{sec:tex43-ch3}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格主张、引文定位与章节目标}
+\label{subsec:tex43-ch3-convention}
+
+\begin{remark}[严格主张]
+本章固定如下结论：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{标准动力系统中的“全局混沌”并不蕴含“全局非孤立”；}\\
+      &\text{但任意动力系统只要作非平凡扇区分解，就可被精确改写为等价的多扇区相互影响系统；}\\
+      &\text{若某一扇区的未来不仅由该扇区当前状态决定，还依赖隐藏扇区初值或历史，}\\
+      &\text{则该扇区在严格意义下是一个不可约开放系统；}\\
+      &\text{因此，一个全局上看似孤立的混沌系统，完全可以在内部扇区层面精确呈现为开放系统博弈。}
+    \end{aligned}
+  }
+\]
+\end{remark}
+
+\begin{remark}[仓内文稿与外部参照]
+本章关于开放/封闭系统、回合同伦类、投影、holonomy 与有效开放性的仓内主语言，直接承接
+\cite{RepoTex23OpenSystemGame,RepoTex39StatRepair}；
+关于扇区、纤维、路径支撑类与内部结构分解的对象化口径，承接
+\cite{RepoTex36HomotopyTwistBijection}；
+关于修复塔、障碍与闭合链的结构语义，承接
+\cite{RepoTex38JacobiBianchiRepair,RepoTex29RepairableObstruction,RepoTex27PowerdomainFiberExtension}。
+
+外部标准背景方面，混沌动力系统与封闭 Hamilton 系统中的混沌实例可参照
+\cite{KatokHasselblatt1995,Ott2002Chaos}；
+投影后精确开放方程与记忆项的标准形式可参照
+\cite{Zwanzig2001Nonequilibrium}。
+\end{remark}
+
+\subsection{命题：全局混沌并不推出全局非孤立}
+\label{subsec:tex43-ch3-boundary}
+
+\begin{proposition}[全局混沌不蕴含全局非孤立]
+\label{prop:tex43-chaos-not-global-open}
+在标准动力系统意义下，
+\[
+  \forall X,\qquad \mathsf{Chaos}(X)\Rightarrow \NonIso(X)
+\]
+不是普遍成立的全称命题。
+\end{proposition}
+
+\begin{Certificate}[证书：封闭但混沌的见证系统]
+\label{cert:tex43-chaos-not-global-open}
+证书登记谓词链：
+\[
+\begin{aligned}
+  B_1 &: \text{存在全局上不与外界交换的守恒或封闭 Hamilton 系统},\\
+  B_2 &: \text{存在此类系统的混沌轨道或混沌不变集}\quad\text{（参见 }\cite{KatokHasselblatt1995,Ott2002Chaos}\text{）},\\
+  B_3 &: B_1\wedge B_2 \Rightarrow \exists X,\ \mathsf{Chaos}(X)\wedge \neg\NonIso(X),\\
+  B_4 &: B_3 \Rightarrow \neg\forall X\,(\mathsf{Chaos}(X)\Rightarrow \NonIso(X)).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $B_1$，孤立性描述的是系统是否与外界交换物质、能量、信息或约束；
+由 $B_2$，混沌描述的是系统内部轨道对初值的敏感依赖、拉伸折叠与长期复杂性。
+两者是不同层级的性质。
+
+当存在一个全局封闭但内部动力学已足以产生混沌的系统时，便得到
+\[
+  \exists X,\ \mathsf{Chaos}(X)\wedge \neg\NonIso(X),
+\]
+即 $B_3$。
+这直接否定了
+\[
+  \forall X,\qquad \mathsf{Chaos}(X)\Rightarrow \NonIso(X),
+\]
+从而得 $B_4$。
+命题成立。证毕。
+\end{proof}
+
+\subsection{定义：总系统、扇区分解与有效开放性}
+\label{subsec:tex43-ch3-definitions}
+
+\begin{definition}[总系统与流]
+\label{def:tex43-total-system}
+设 $X$ 为总状态空间，$\mathcal V$ 为其上的演化向量场，并假定 $\mathcal V$ 生成局部流
+\[
+  \Phi_t:X\to X.
+\]
+于是总系统写为
+\[
+  \dot x=\mathcal V(x),
+  \qquad
+  x(t)\in X.
+\]
+\end{definition}
+
+\begin{definition}[非平凡互补扇区分解]
+\label{def:tex43-sector-decomposition}
+设 $P,Q:X\to X$ 为一对互补投影算子，满足
+\[
+  P^2=P,
+  \qquad
+  Q^2=Q,
+  \qquad
+  PQ=QP=0,
+  \qquad
+  P+Q=I.
+\]
+并要求 $P\neq 0,I$，$Q\neq 0,I$，称其为\textbf{非平凡互补扇区分解}。
+对任意 $x\in X$，定义
+\[
+  u:=Px,
+  \qquad
+  v:=Qx,
+\]
+则
+\[
+  x=u+v.
+\]
+其中 $u$ 可解释为宏观/可观测/主扇区，$v$ 可解释为微观/隐藏/辅扇区。
+\end{definition}
+
+\begin{definition}[扇区开放系统博弈的精确表示]
+\label{def:tex43-exact-openization}
+在定义~\ref{def:tex43-sector-decomposition} 的设定下，记
+\[
+  \mathcal A(u,v):=P\mathcal V(u+v),
+  \qquad
+  \mathcal B(v,u):=Q\mathcal V(u+v).
+\]
+若系统被写成
+\[
+  \dot u=\mathcal A(u,v),
+  \qquad
+  \dot v=\mathcal B(v,u),
+\]
+则称其为总系统在扇区分解下的\textbf{精确开放系统博弈表示}。
+\end{definition}
+
+\begin{definition}[扇区的有效开放性]
+\label{def:tex43-effective-openness}
+称 $P$-扇区是\textbf{有效开放}的，若不存在仅定义在 $PX$ 上的自治半群 $\Theta_t$ 使得
+\[
+  P\Phi_t(x)=\Theta_t(Px),
+  \qquad
+  \forall x\in X,\ \forall t\ge 0.
+\]
+若上述自治半群不存在，则记
+\[
+  \EffOpen(P)=1.
+\]
+\end{definition}
+
+\subsection{公理（降级为定理）：有限扇区细化可递归构造精确开放化表示}
+\label{subsec:tex43-ch3-axiom-downgrade}
+
+\begin{theorem}[公理降级：有限扇区细化的递归开放化]
+\label{thm:tex43-finite-sector-refinement}
+设总系统为定义~\ref{def:tex43-total-system} 中的
+\[
+  \dot x=\mathcal V(x).
+\]
+对任意有限族两两正交的投影算子
+\[
+  P_1,\dots,P_n,
+\]
+若满足
+\[
+  P_i^2=P_i,
+  \qquad
+  P_iP_j=0\ (i\neq j),
+  \qquad
+  \sum_{i=1}^{n}P_i=I,
+\]
+并记
+\[
+  x_i:=P_i x,
+\]
+则总系统可递归构造为精确的 $n$ 扇区相互影响系统
+\[
+  \dot x_i
+  =
+  P_i\mathcal V\!\left(\sum_{j=1}^{n}x_j\right),
+  \qquad
+  i=1,\dots,n.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：有限扇区递归细化的数学归纳法证书]
+\label{cert:tex43-finite-sector-refinement}
+定义谓词
+\[
+  P(n):
+  \ \text{“任意满足 } \sum_{i=1}^{n}P_i=I \text{ 的 }n\text{ 扇区分解，都存在精确的 }n\text{ 扇区相互影响表示。”}
+\]
+证书登记为
+\[
+  \pi_{\mathrm{ind}}
+  :=
+  \bigl(P(1),\ \forall n\in\NN,\ P(n)\Rightarrow P(n+1)\bigr).
+\]
+其中从 $n$ 到 $n+1$ 的递推步骤，是把某个剩余扇区再细化为一个新投影 $P_{n+1}$ 与其补投影，再对总方程施加对应投影。
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+\textbf{基步 $P(1)$：}
+当 $n=1$ 时，
+\[
+  P_1=I,
+  \qquad
+  x_1=x.
+\]
+因此
+\[
+  \dot x_1=\mathcal V(x_1),
+\]
+命题成立。
+
+\textbf{归纳步：}
+设 $P(n)$ 成立。
+对一个 $(n+1)$ 扇区分解，记
+\[
+  x=\sum_{i=1}^{n+1}x_i,
+  \qquad
+  x_i=P_i x.
+\]
+由
+\[
+  \dot x=\mathcal V(x)
+\]
+分别左乘 $P_i$，得到
+\[
+  \dot x_i
+  =
+  P_i\mathcal V\!\left(\sum_{j=1}^{n+1}x_j\right),
+  \qquad
+  i=1,\dots,n+1.
+\]
+这说明在把第 $n+1$ 个投影加入原有 $n$ 扇区细化之后，仍可得到精确的扇区相互影响表示。
+故 $P(n)\Rightarrow P(n+1)$。
+
+由数学归纳法，
+\[
+  \forall n\in\NN,\ P(n).
+\]
+因此任意有限扇区细化都可递归构造为精确开放化表示。定理成立。证毕。
+\end{proof}
+
+\subsection{定理：任意非平凡双扇区分解都给出精确开放系统博弈表示}
+\label{subsec:tex43-ch3-theorem-openization}
+
+\begin{theorem}[双扇区的精确开放系统博弈表示]
+\label{thm:tex43-two-sector-openization}
+在定义~\ref{def:tex43-sector-decomposition} 的设定下，
+任意动力系统
+\[
+  \dot x=\mathcal V(x)
+\]
+都可被精确重写为
+\[
+  \dot u=\mathcal A(u,v),
+  \qquad
+  \dot v=\mathcal B(v,u),
+\]
+其中
+\[
+  \mathcal A(u,v):=P\mathcal V(u+v),
+  \qquad
+  \mathcal B(v,u):=Q\mathcal V(u+v).
+\]
+此重写与原系统在轨道层面完全等价。
+\end{theorem}
+
+\begin{Certificate}[证书：互补投影给出代数重写]
+\label{cert:tex43-two-sector-openization}
+证书登记谓词链：
+\[
+\begin{aligned}
+  T_1 &: P+Q=I,\ PQ=0,\\
+  T_2 &: x=u+v,\ u=Px,\ v=Qx,\\
+  T_3 &: \dot x=\dot u+\dot v=\mathcal V(u+v),\\
+  T_4 &: P\ \text{与}\ Q\ \text{分别作用于 }T_3,\\
+  T_5 &: T_1\wedge T_2\wedge T_3\wedge T_4 \Rightarrow \dot u=P\mathcal V(u+v),\ \dot v=Q\mathcal V(u+v).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $T_1$ 与 $T_2$，
+\[
+  x=(P+Q)x=Px+Qx=u+v.
+\]
+因此
+\[
+  \dot x=\dot u+\dot v.
+\]
+再由总方程，
+\[
+  \dot u+\dot v=\mathcal V(u+v).
+\]
+分别左乘 $P$ 与 $Q$，并利用
+\[
+  P^2=P,\quad Q^2=Q,\quad PQ=QP=0,
+\]
+可得
+\[
+  \dot u=P\mathcal V(u+v),
+  \qquad
+  \dot v=Q\mathcal V(u+v).
+\]
+这正是
+\[
+  \dot u=\mathcal A(u,v),
+  \qquad
+  \dot v=\mathcal B(v,u).
+\]
+由于重写过程中未丢失任何分量，故该表示与原系统在轨道层面完全等价。
+定理成立。证毕。
+\end{proof}
+
+\subsection{引理：分解不等于断耦}
+\label{subsec:tex43-ch3-lemma}
+
+\begin{lemma}[正交分解不等于相互作用为零]
+\label{lem:tex43-split-not-decouple}
+在定理~\ref{thm:tex43-two-sector-openization} 的双扇区系统中，
+若
+\[
+  \frac{\partial \mathcal A}{\partial v}\not\equiv 0
+  \qquad\text{或}\qquad
+  \frac{\partial \mathcal B}{\partial u}\not\equiv 0,
+\]
+则两个扇区仍然相互影响。
+因此，
+\[
+  \text{扇区分解}\neq \text{断耦}.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：扇区方程中的交叉依赖]
+\label{cert:tex43-split-not-decouple}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: \dot u=\mathcal A(u,v),\ \dot v=\mathcal B(v,u),\\
+  L_2 &: \frac{\partial \mathcal A}{\partial v}\not\equiv 0\ \text{或}\ \frac{\partial \mathcal B}{\partial u}\not\equiv
+    0,\\
+  L_3 &: L_2 \Rightarrow \text{至少一个扇区的演化显式依赖另一扇区},\\
+  L_4 &: L_1\wedge L_3 \Rightarrow \text{分解后仍存在剩余相互作用}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$，分解后的动力学写成
+\[
+  \dot u=\mathcal A(u,v),
+  \qquad
+  \dot v=\mathcal B(v,u).
+\]
+若
+\[
+  \frac{\partial \mathcal A}{\partial v}\not\equiv 0,
+\]
+则 $u$ 的演化显式依赖 $v$；
+若
+\[
+  \frac{\partial \mathcal B}{\partial u}\not\equiv 0,
+\]
+则 $v$ 的演化显式依赖 $u$。
+任一条件成立，便说明至少有一个扇区把另一个扇区当作环境变量。
+于是由 $L_1\wedge L_3$ 得 $L_4$。
+引理成立。证毕。
+\end{proof}
+
+\subsection{定理：单扇区的精确开放方程}
+\label{subsec:tex43-ch3-theorem-open-equation}
+
+\begin{theorem}[投影扇区的精确开放方程]
+\label{thm:tex43-exact-open-equation}
+在定理~\ref{thm:tex43-two-sector-openization} 的设定下，进一步假定 $\mathcal A,\mathcal B$ 局部 Lipschitz，从而局部解唯一存在。
+则对任意初始隐藏态 $v_0$，存在由 $u$ 的历史决定的泛函
+\[
+  \Psi_t\bigl(v_0;u_{[0,t]}\bigr),
+\]
+使得
+\[
+  v(t)=\Psi_t\bigl(v_0;u_{[0,t]}\bigr).
+\]
+于是 $u$ 扇区满足精确开放方程
+\[
+  \dot u(t)
+  =
+  \mathcal F_t\bigl(u_{[0,t]},v_0\bigr),
+\]
+其中
+\[
+  \mathcal F_t\bigl(u_{[0,t]},v_0\bigr)
+  :=
+  \mathcal A\Bigl(u(t),\Psi_t\bigl(v_0;u_{[0,t]}\bigr)\Bigr).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：隐藏扇区历史函数化]
+\label{cert:tex43-exact-open-equation}
+证书登记谓词链：
+\[
+\begin{aligned}
+  E_1 &: \dot v=\mathcal B(v,u),\\
+  E_2 &: \mathcal A,\mathcal B\ \text{局部 Lipschitz}\Rightarrow \text{给定 }u_{[0,t]}\text{ 与 }v_0\text{ 时 }v(t)\text{ 唯一存在}
+    ,\\
+  E_3 &: E_2 \Rightarrow v(t)=\Psi_t(v_0;u_{[0,t]}),\\
+  E_4 &: \dot u=\mathcal A(u,v)\ \text{中代入 }E_3,\\
+  E_5 &: E_4 \Rightarrow \dot u(t)=\mathcal F_t(u_{[0,t]},v_0).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $E_1$，
+\[
+  \dot v=\mathcal B(v,u)
+\]
+可把 $u$ 视为外加驱动信号。
+由 $E_2$，在给定初值 $v_0$ 与历史轨道 $u_{[0,t]}$ 的条件下，$v$ 方程存在唯一解。
+故存在函数化表示
+\[
+  v(t)=\Psi_t\bigl(v_0;u_{[0,t]}\bigr),
+\]
+即 $E_3$。
+
+再把该式代回
+\[
+  \dot u=\mathcal A(u,v),
+\]
+得到
+\[
+  \dot u(t)
+  =
+  \mathcal A\Bigl(u(t),\Psi_t\bigl(v_0;u_{[0,t]}\bigr)\Bigr).
+\]
+记
+\[
+  \mathcal F_t\bigl(u_{[0,t]},v_0\bigr)
+  :=
+  \mathcal A\Bigl(u(t),\Psi_t\bigl(v_0;u_{[0,t]}\bigr)\Bigr),
+\]
+便得
+\[
+  \dot u(t)=\mathcal F_t\bigl(u_{[0,t]},v_0\bigr).
+\]
+这说明 $u$ 的演化依赖其自身历史与隐藏扇区初值，因此是精确开放方程。
+定理成立。证毕。
+\end{proof}
+
+\subsection{定理：有效开放性的不可约判据}
+\label{subsec:tex43-ch3-theorem-criterion}
+
+\begin{theorem}[不可约有效开放性判据]
+\label{thm:tex43-effective-open-criterion}
+设 $\Phi_t$ 为总系统流，$P$ 为定义~\ref{def:tex43-sector-decomposition} 中的非平凡投影。
+若存在两个总初始态 $x_1,x_2\in X$，满足
+\[
+  Px_1=Px_2,
+\]
+但存在某个 $t>0$ 使得
+\[
+  P\Phi_t(x_1)\neq P\Phi_t(x_2),
+\]
+则 $P$-扇区不存在独立闭合的自治半群描述。
+因此
+\[
+  \EffOpen(P)=1.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：同扇区初值、异未来投影]
+\label{cert:tex43-effective-open-criterion}
+证书登记谓词链：
+\[
+\begin{aligned}
+  R_1 &: Px_1=Px_2,\\
+  R_2 &: \exists t>0,\ P\Phi_t(x_1)\neq P\Phi_t(x_2),\\
+  R_3 &: \text{若存在自治半群 }\Theta_t\text{ 使 }P\Phi_t(x)=\Theta_t(Px),\\
+  R_4 &: R_1\wedge R_3 \Rightarrow P\Phi_t(x_1)=P\Phi_t(x_2)\ \forall t,\\
+  R_5 &: R_2\wedge R_4 \Rightarrow \text{矛盾},\ \text{故 } \EffOpen(P)=1.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+反设存在自治半群 $\Theta_t$，使
+\[
+  P\Phi_t(x)=\Theta_t(Px),
+  \qquad
+  \forall x,\forall t\ge 0.
+\]
+由 $R_1$，
+\[
+  Px_1=Px_2.
+\]
+于是对任意 $t$，
+\[
+  P\Phi_t(x_1)=\Theta_t(Px_1)=\Theta_t(Px_2)=P\Phi_t(x_2).
+\]
+这与 $R_2$
+\[
+  \exists t>0,\qquad P\Phi_t(x_1)\neq P\Phi_t(x_2)
+\]
+矛盾。
+故这样的自治半群不存在。
+因此 $P$-扇区无法由自身当前状态独立闭合描述，必然依赖隐藏扇区。
+即
+\[
+  \EffOpen(P)=1.
+\]
+定理成立。证毕。
+\end{proof}
+
+\subsection{推论：混沌系统在非平凡扇区压缩下通常呈现不可消去的有效开放性}
+\label{subsec:tex43-ch3-corollary}
+
+\begin{corollary}[混沌系统的有效开放化]
+\label{cor:tex43-chaos-effective-open}
+设总系统 $(X,\Phi_t)$ 具有混沌动力学。
+若取一个非平凡投影 $P$，并且存在
+\[
+  x_1\neq x_2,
+  \qquad
+  Px_1=Px_2,
+\]
+同时满足
+\[
+  \exists t>0,\qquad P\Phi_t(x_1)\neq P\Phi_t(x_2),
+\]
+则该 $P$-扇区是一个不可约开放系统，即
+\[
+  \EffOpen(P)=1.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：未来分离条件直接触发有效开放性判据]
+\label{cert:tex43-chaos-effective-open}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: \mathsf{Chaos}(X,\Phi_t),\\
+  C_2 &: \exists x_1\neq x_2,\ Px_1=Px_2,\\
+  C_3 &: \exists t>0,\ P\Phi_t(x_1)\neq P\Phi_t(x_2),\\
+  C_4 &: C_2\wedge C_3 \Rightarrow \text{定理~\ref{thm:tex43-effective-open-criterion} 的前提成立},\\
+  C_5 &: C_4 \Rightarrow \EffOpen(P)=1.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_2$ 与 $C_3$，定理~\ref{thm:tex43-effective-open-criterion} 的前提全部成立。
+因此直接得到
+\[
+  \EffOpen(P)=1.
+\]
+推论成立。证毕。
+\end{proof}
+
+\subsection{定理：全局孤立系统也可在内部扇区层面精确呈现为开放系统博弈}
+\label{subsec:tex43-ch3-theorem-isolated}
+
+\begin{theorem}[全局孤立与内部开放博弈并不矛盾]
+\label{thm:tex43-isolated-internal-open}
+设总系统全局上是孤立的，即不存在系统之外的外部环境交换。
+若该系统存在非平凡互补扇区分解
+\[
+  X=X_P\oplus X_Q
+\]
+并且分解后的相互作用满足
+\[
+  \frac{\partial \mathcal A}{\partial v}\not\equiv 0
+  \qquad\text{或}\qquad
+  \frac{\partial \mathcal B}{\partial u}\not\equiv 0,
+\]
+则该系统在内部扇区层面精确等价于一个开放系统博弈。
+\end{theorem}
+
+\begin{Certificate}[证书：全局无外部环境不排除内部扇区互为环境]
+\label{cert:tex43-isolated-internal-open}
+证书登记谓词链：
+\[
+\begin{aligned}
+  I_1 &: \text{总系统全局孤立}\Rightarrow \neg\exists \text{系统之外的外部环境交换},\\
+  I_2 &: \text{存在非平凡互补扇区分解 }X=X_P\oplus X_Q,\\
+  I_3 &: I_2 \Rightarrow \dot u=\mathcal A(u,v),\ \dot v=\mathcal B(v,u)\ \text{（定理~\ref{thm:tex43-two-sector-openization}）},\\
+  I_4 &: \frac{\partial \mathcal A}{\partial v}\not\equiv 0\ \text{或}\ \frac{\partial \mathcal B}{\partial u}\not\equiv
+    0,\\
+  I_5 &: I_3\wedge I_4 \Rightarrow \text{两个内部扇区彼此互为环境},\\
+  I_6 &: I_1\wedge I_5 \Rightarrow \text{全局孤立与内部开放博弈可同时成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $I_1$，全局孤立仅表示系统之外不存在额外环境。
+它并不意味着系统内部不能再分成多个互相影响的扇区。
+
+由 $I_2$ 与定理~\ref{thm:tex43-two-sector-openization}，总系统可被精确重写为
+\[
+  \dot u=\mathcal A(u,v),
+  \qquad
+  \dot v=\mathcal B(v,u).
+\]
+这给出 $I_3$。
+
+再由 $I_4$ 与引理~\ref{lem:tex43-split-not-decouple}，可知两个扇区之间仍存在不可消去的剩余相互作用。
+故 $u$ 与 $v$ 对彼此而言都是内部环境，这就是 $I_5$。
+
+因此，虽然系统在全局上没有“外部环境”，它在内部扇区层面仍然严格表现为开放系统博弈。
+由 $I_1\wedge I_5$ 得 $I_6$，定理成立。证毕。
+\end{proof}
+
+\subsection{推论：宇宙整体无外环境并不妨碍其内部扇区形成开放系统博弈}
+\label{subsec:tex43-ch3-universe}
+
+\begin{corollary}[宇宙内部开放系统博弈]
+\label{cor:tex43-universe-open-game}
+设宇宙总状态空间为 $X$，取非平凡互补投影
+\[
+  u=Px,
+  \qquad
+  v=Qx,
+\]
+其中 $u$ 表示宏观时空/引力扇区，$v$ 表示微观量子/隐藏扇区。
+若
+\[
+  \frac{\partial \mathcal A}{\partial v}\not\equiv 0
+  \qquad\text{或}\qquad
+  \frac{\partial \mathcal B}{\partial u}\not\equiv 0,
+\]
+则即使宇宙整体没有“外部环境”，其内部扇区仍然形成精确的开放系统博弈，并共同驱动宇宙演化。
+\end{corollary}
+
+\begin{Certificate}[证书：宏观扇区与微观扇区互为内部环境]
+\label{cert:tex43-universe-open-game}
+证书登记谓词链：
+\[
+\begin{aligned}
+  U_1 &: u=Px,\ v=Qx\ \text{给出宇宙内部的非平凡双扇区分解},\\
+  U_2 &: U_1 \Rightarrow \dot u=\mathcal A(u,v),\ \dot v=\mathcal B(v,u),\\
+  U_3 &: \frac{\partial \mathcal A}{\partial v}\not\equiv 0\ \text{或}\ \frac{\partial \mathcal B}{\partial u}\not\equiv
+    0,\\
+  U_4 &: U_2\wedge U_3 \Rightarrow \text{两个扇区彼此互为内部环境},\\
+  U_5 &: U_4 \Rightarrow \text{宇宙内部形成开放系统博弈}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $U_1$，宇宙总状态被分解成宏观与微观两个内部扇区。
+由定理~\ref{thm:tex43-two-sector-openization}，它们满足
+\[
+  \dot u=\mathcal A(u,v),
+  \qquad
+  \dot v=\mathcal B(v,u).
+\]
+若再有 $U_3$，则两个扇区之间存在剩余相互作用。
+因此，对每个单独扇区而言，另一个扇区都充当其内部环境。
+于是宇宙虽然整体上没有额外外部环境，内部仍形成开放系统博弈并驱动演化。
+推论成立。证毕。
+\end{proof}
+
+\subsection{备注：从宇宙演化到宇宙起源的附加假设}
+\label{subsec:tex43-ch3-remarks}
+
+\begin{remark}[本章给出的结论对应宇宙演化，而非自动推出宇宙起源]
+本章严格建立的是：
+\[
+  \text{一旦存在非平凡扇区分解，内部扇区即可形成开放系统博弈并驱动演化。}
+\]
+这足以支撑“宇宙演化”的内部开放博弈图景。
+\end{remark}
+
+\begin{remark}[若要讨论“起源”，还需最初异构分解假设]
+若要把结论进一步上推到“宇宙起源”，则还需要单独加入一个初始异构分解假设，例如：
+\[
+  X_0 \rightsquigarrow X_{\tau}\oplus X_{\bar\tau},
+\]
+其中
+\[
+  X_{\tau}\ \text{为有时间属性扇区},
+  \qquad
+  X_{\bar\tau}\ \text{为无内禀时间属性扇区}.
+\]
+从该层起，再应用本章的扇区开放化定理，才能把“起源”解释为第一次非平凡异构分解，把“演化”解释为分解后扇区之间的持续相互作用与修复。
+\end{remark}
+
+\begin{remark}[与前两章的关系]
+第~\ref{sec:tex43-ch1} 章给出宏观--微观双层驱动与总复形同调；
+第~\ref{sec:tex43-ch2} 章给出时间属性、\(\Ztwo\)-分次与超限修复塔；
+本章则把同一对象从“静态双层分解”推进到“动态扇区开放化”：
+\[
+  \text{分解}
+  \Longrightarrow
+  \text{相互影响}
+  \Longrightarrow
+  \text{有效开放性}
+  \Longrightarrow
+  \text{内部开放系统博弈}.
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：最初异构分解公理、宇宙起源与起源后的开放系统博弈演化}
+\label{sec:tex43-ch4}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格主张、引文定位与章节目标}
+\label{subsec:tex43-ch4-convention}
+
+\begin{remark}[严格主张]
+本章固定如下体系内命题：
+\[
+  \boxed{
+    \text{宇宙起源}
+    :=
+    \text{原始未分化总态在最小层级 }\alpha_\ast\text{ 上发生的第一次非平凡异构分解事件}
+  }
+\]
+并进一步建立：
+\[
+  \boxed{
+    \text{宇宙演化}
+    =
+    \text{该分解后两个异构扇区之间的开放系统博弈过程}
+  }.
+\]
+这里的“时间”首先被理解为结构生成与修复的序数层级属性，而不是先验外加的物理钟表参数。
+\end{remark}
+
+\begin{remark}[仓内文稿与外部参照]
+本章关于时间属性、\(\Ztwo\)-分次、超限修复塔与总同调闭合的写法，直接承接
+\cite{RepoTex29RepairableObstruction,RepoTex27PowerdomainFiberExtension} 以及本稿第~\ref{sec:tex43-ch2} 章；
+关于开放系统博弈、内部扇区互为环境与扇区开放化表示，直接承接
+\cite{RepoTex23OpenSystemGame,RepoTex39StatRepair} 以及本稿第~\ref{sec:tex43-ch3} 章；
+关于宏观/微观双层对象、纤维丛与路径支撑类语言，直接承接
+\cite{RepoTex36HomotopyTwistBijection,RepoTex38JacobiBianchiRepair,GaoZheng2025GFramework,GaoZhengAppVol3}。
+
+外部标准背景方面，序数、良序与超限归纳的集合论基础可参照
+\cite{Jech2003SetTheory,Kunen2011SetTheory}；
+若把有时间属性扇区与标准广义相对论对接，可参照
+\cite{Wald1984GeneralRelativity}；
+若把无内禀时间属性扇区与运动学 Hilbert 空间对接，可参照
+\cite{SakuraiNapolitano2017MQM}。
+\end{remark}
+
+\subsection{定义：原始未分化总态、层级塔与认证分解层}
+\label{subsec:tex43-ch4-definitions}
+
+\begin{definition}[原始未分化总态与层级塔]
+\label{def:tex43-origin-tower}
+设
+\[
+  \{\Omega_\alpha\}_{\alpha<\Lambda}
+\]
+是一列以序数 $\alpha<\Lambda$ 标号的总态对象，并给定层间演化/修复算子
+\[
+  R_{\alpha\to\beta}:\Omega_\alpha\to\Omega_\beta,
+  \qquad
+  \alpha\le \beta<\Lambda,
+\]
+满足
+\[
+  R_{\alpha\to\alpha}=\id,
+  \qquad
+  R_{\beta\to\gamma}\circ R_{\alpha\to\beta}=R_{\alpha\to\gamma}.
+\]
+称其为\textbf{宇宙总态的序数层级塔}。
+
+其中 $\Omega_0$ 称为\textbf{原始未分化总态}，若对该对象不存在经认证的非平凡互补分解：
+\[
+  \Omega_0 \not\cong U\oplus V
+  \qquad
+  \text{对任意 }U,V\neq 0\text{ 且 }U,V\neq \Omega_0.
+\]
+\end{definition}
+
+\begin{definition}[认证的非平凡异构分解]
+\label{def:tex43-certified-split}
+对任意 $\alpha<\Lambda$，称 $\Omega_\alpha$ 发生了\textbf{认证的非平凡异构分解}，若存在两个非零投影算子
+\[
+  P_\tau,\ Q_\tau
+\]
+满足
+\[
+  P_\tau^2=P_\tau,
+  \qquad
+  Q_\tau^2=Q_\tau,
+  \qquad
+  P_\tau Q_\tau=Q_\tau P_\tau=0,
+  \qquad
+  P_\tau+Q_\tau=I,
+\]
+并存在两个非零扇区对象
+\[
+  \Omega_\tau:=P_\tau\Omega_\alpha,
+  \qquad
+  \Omega_{\bar\tau}:=Q_\tau\Omega_\alpha,
+\]
+使
+\[
+  \Omega_\alpha\cong \Omega_\tau\oplus \Omega_{\bar\tau}.
+\]
+记对应认证谓词为
+\[
+  \mathsf{Split}(\Omega_\alpha)=1.
+\]
+\end{definition}
+
+\begin{definition}[认证分解层集合与起源层]
+\label{def:tex43-origin-layer}
+定义认证分解层集合
+\[
+  \mathcal S_{\mathrm{split}}
+  :=
+  \{\alpha<\Lambda\mid \mathsf{Split}(\Omega_\alpha)=1\}.
+\]
+若该集合非空，则称其最小元
+\[
+  \alpha_\ast:=\min \mathcal S_{\mathrm{split}}
+\]
+为\textbf{起源层}，并称
+\[
+  \Omega_{\alpha_\ast}\cong \Omega_\tau\oplus \Omega_{\bar\tau}
+\]
+为\textbf{最初异构分解}。
+\end{definition}
+
+\begin{definition}[时间属性赋值与起源后生成元]
+\label{def:tex43-origin-generator}
+在起源层 $\alpha_\ast$ 上规定二值时间属性函数
+\[
+  \tau(\Omega_\tau)=1,
+  \qquad
+  \tau(\Omega_{\bar\tau})=0.
+\]
+并设起源后总生成元可写成
+\[
+  \mathcal G
+  =
+  \mathcal G_\tau+\mathcal G_{\bar\tau}+\mathcal K,
+\]
+其中
+\[
+  \mathcal G_\tau
+\]
+表示有时间属性扇区的自演化，
+\[
+  \mathcal G_{\bar\tau}
+\]
+表示无时间属性扇区的自演化，而
+\[
+  \mathcal K
+\]
+表示跨扇区的相互作用/修复/耦合项。
+若
+\[
+  \mathcal K\not\equiv 0,
+\]
+则称起源后系统进入\textbf{非平凡内部开放博弈区间}。
+\end{definition}
+
+\subsection{公理（降级为定理）：首次异构分解层的存在唯一性}
+\label{subsec:tex43-ch4-axiom-downgrade}
+
+\begin{theorem}[公理降级：认证分解层一旦非空，则存在唯一最小起源层]
+\label{thm:tex43-origin-existence}
+在定义~\ref{def:tex43-origin-tower}--\ref{def:tex43-origin-layer} 的设定下，
+若
+\[
+  \mathcal S_{\mathrm{split}}\neq \varnothing,
+\]
+则存在唯一序数
+\[
+  \alpha_\ast<\Lambda
+\]
+使得
+\[
+  \alpha_\ast=\min \mathcal S_{\mathrm{split}}.
+\]
+因此，最初异构分解事件在层级塔中具有唯一的最小逻辑位置。
+\end{theorem}
+
+\begin{Certificate}[证书：超限归纳证书]
+\label{cert:tex43-origin-existence}
+定义谓词
+\[
+  P(\beta):
+  \ \text{“若 }\mathcal S_{\mathrm{split}}\cap \beta\neq\varnothing,\ \text{则 }\mathcal S_{\mathrm{split}}\cap
+    \beta\text{ 存在唯一最小元。”}
+\]
+证书登记为
+\[
+  \pi_{\mathrm{tr}}
+  :=
+  \bigl(P(0),\ \forall\beta<\Lambda,\ P(\beta)\Rightarrow P(\beta+1),\ \forall\lambda<\Lambda\text{ 极限序数},\
+    (\forall\beta<\lambda,\ P(\beta))\Rightarrow P(\lambda)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（超限归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+\textbf{基步：}
+对 $\beta=0$，集合
+\[
+  \mathcal S_{\mathrm{split}}\cap 0=\varnothing,
+\]
+故 $P(0)$ 真值空满足。
+
+\textbf{后继步：}
+设 $P(\beta)$ 成立，考察 $\beta+1$。
+若
+\[
+  \mathcal S_{\mathrm{split}}\cap (\beta+1)=\varnothing,
+\]
+则 $P(\beta+1)$ 真值空满足。
+若
+\[
+  \beta\notin \mathcal S_{\mathrm{split}},
+\]
+则
+\[
+  \mathcal S_{\mathrm{split}}\cap(\beta+1)=\mathcal S_{\mathrm{split}}\cap\beta,
+\]
+由归纳假设直接得到唯一最小元。
+若
+\[
+  \beta\in \mathcal S_{\mathrm{split}},
+\]
+则要么 $\mathcal S_{\mathrm{split}}\cap\beta=\varnothing$，此时 $\beta$ 自身就是最小元；
+要么 $\mathcal S_{\mathrm{split}}\cap\beta\neq\varnothing$，由归纳假设存在唯一最小元 $\alpha_\beta<\beta$，于是 $\alpha_\beta$ 仍是
+  $\mathcal S_{\mathrm{split}}\cap(\beta+1)$ 的唯一最小元。
+故 $P(\beta)\Rightarrow P(\beta+1)$。
+
+\textbf{极限步：}
+设 $\lambda<\Lambda$ 为极限序数，且对任意 $\beta<\lambda$ 都有 $P(\beta)$。
+若
+\[
+  \mathcal S_{\mathrm{split}}\cap\lambda\neq\varnothing,
+\]
+任选
+\[
+  \gamma\in \mathcal S_{\mathrm{split}}\cap\lambda.
+\]
+则
+\[
+  \mathcal S_{\mathrm{split}}\cap(\gamma+1)\neq\varnothing.
+\]
+由归纳假设 $P(\gamma+1)$，集合 $\mathcal S_{\mathrm{split}}\cap(\gamma+1)$ 存在唯一最小元，记为 $\alpha_\gamma$。
+由于
+\[
+  \alpha_\gamma\le \gamma<\lambda,
+\]
+且任何 $\lambda$ 以内的认证分解层若比 $\alpha_\gamma$ 更小，就已落在 $\gamma+1$ 内并违反其最小性，
+故 $\alpha_\gamma$ 同时也是 $\mathcal S_{\mathrm{split}}\cap\lambda$ 的唯一最小元。
+于是 $P(\lambda)$ 成立。
+
+由超限归纳法，
+\[
+  \forall\beta<\Lambda,\ P(\beta).
+\]
+再结合
+\[
+  \mathcal S_{\mathrm{split}}\neq\varnothing,
+\]
+取 $\beta=\Lambda$ 的外部穷尽视角，即知 $\mathcal S_{\mathrm{split}}$ 存在唯一最小元 $\alpha_\ast$。
+定理成立。证毕。
+\end{proof}
+
+\subsection{引理：最初异构分解自然诱导 \texorpdfstring{$\Ztwo$}{Z2} 分次}
+\label{subsec:tex43-ch4-lemma}
+
+\begin{lemma}[起源层诱导的时间属性分次]
+\label{lem:tex43-origin-z2}
+在定义~\ref{def:tex43-origin-layer} 与定义~\ref{def:tex43-origin-generator} 的设定下，
+最初异构分解
+\[
+  \Omega_{\alpha_\ast}\cong \Omega_\tau\oplus \Omega_{\bar\tau}
+\]
+自然诱导 \(\Ztwo\)-分次对象
+\[
+  C=C^{(0)}\oplus C^{(1)},
+\]
+其中
+\[
+  C^{(1)}:=C(\Omega_\tau),
+  \qquad
+  C^{(0)}:=C(\Omega_{\bar\tau}).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：二值时间属性赋值]
+\label{cert:tex43-origin-z2}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: \tau(\Omega_\tau)=1,\ \tau(\Omega_{\bar\tau})=0,\\
+  L_2 &: \{0,1\}\cong \Ztwo,\\
+  L_3 &: C^{(1)}:=C(\Omega_\tau),\ C^{(0)}:=C(\Omega_{\bar\tau}),\\
+  L_4 &: L_1\wedge L_2\wedge L_3 \Rightarrow C=C^{(0)}\oplus C^{(1)}\ \text{为}\ \Ztwo\text{-分次对象}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定义~\ref{def:tex43-origin-generator}，
+\[
+  \tau(\Omega_\tau)=1,
+  \qquad
+  \tau(\Omega_{\bar\tau})=0.
+\]
+故起源层的两个扇区恰对应二值分类。
+再由
+\[
+  \{0,1\}\cong \Ztwo,
+\]
+可把这组二值时间属性直接写成 \(\Ztwo\)-分次。
+若定义
+\[
+  C^{(1)}:=C(\Omega_\tau),
+  \qquad
+  C^{(0)}:=C(\Omega_{\bar\tau}),
+\]
+则
+\[
+  C=C^{(0)}\oplus C^{(1)}.
+\]
+故由 $L_1\wedge L_2\wedge L_3$ 得 $L_4$。
+引理成立。证毕。
+\end{proof}
+
+\subsection{定理：宇宙起源定理}
+\label{subsec:tex43-ch4-theorem-origin}
+
+\begin{theorem}[宇宙起源定理]
+\label{thm:tex43-origin}
+在定义~\ref{def:tex43-origin-tower}--\ref{def:tex43-origin-layer} 的设定下，
+若
+\[
+  \mathcal S_{\mathrm{split}}\neq\varnothing,
+\]
+则宇宙起源可严格定义为最小层级
+\[
+  \alpha_\ast
+\]
+处发生的首次非平凡异构分解事件：
+\[
+  \Omega_{\alpha_\ast}
+  \cong
+  \Omega_\tau\oplus \Omega_{\bar\tau},
+  \qquad
+  \tau(\Omega_\tau)=1,
+  \quad
+  \tau(\Omega_{\bar\tau})=0.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：原始未分化态 + 序数层级 + 首次分解]
+\label{cert:tex43-origin}
+证书登记谓词链：
+\[
+\begin{aligned}
+  T_1 &: \Omega_0\ \text{是原始未分化总态},\\
+  T_2 &: \{\Omega_\alpha\}_{\alpha<\Lambda}\ \text{是序数层级塔},\\
+  T_3 &: \mathcal S_{\mathrm{split}}\neq\varnothing \Rightarrow \exists!\,\alpha_\ast=\min\mathcal S_{\mathrm{split}}\
+    \text{（定理~\ref{thm:tex43-origin-existence}）},\\
+  T_4 &: \alpha_\ast\in\mathcal S_{\mathrm{split}} \Rightarrow \Omega_{\alpha_\ast}\cong \Omega_\tau\oplus
+    \Omega_{\bar\tau},\\
+  T_5 &: T_3\wedge T_4 \Rightarrow \text{宇宙起源可定义为首次非平凡异构分解事件}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $T_1$，起点对象 $\Omega_0$ 并未预先携带一个已经完成的非平凡扇区分裂；
+由 $T_2$，总态对象按序数层级可比较。
+若
+\[
+  \mathcal S_{\mathrm{split}}\neq\varnothing,
+\]
+则由定理~\ref{thm:tex43-origin-existence}，
+\[
+  \exists!\,\alpha_\ast=\min\mathcal S_{\mathrm{split}}.
+\]
+又由 $\alpha_\ast\in\mathcal S_{\mathrm{split}}$ 的定义，
+\[
+  \Omega_{\alpha_\ast}\cong \Omega_\tau\oplus \Omega_{\bar\tau}.
+\]
+并且时间属性赋值给出
+\[
+  \tau(\Omega_\tau)=1,
+  \qquad
+  \tau(\Omega_{\bar\tau})=0.
+\]
+因此，宇宙起源并不是任意指定的“某个初始时刻”，而是一个具有最小性证书的结构事件：
+\[
+  \text{首次非平凡异构分解事件}.
+\]
+定理成立。证毕。
+\end{proof}
+
+\subsection{定理：宇宙演化定理}
+\label{subsec:tex43-ch4-theorem-evolution}
+
+\begin{theorem}[宇宙演化定理]
+\label{thm:tex43-origin-evolution}
+在定义~\ref{def:tex43-origin-generator} 的设定下，
+若起源后总生成元满足
+\[
+  \mathcal G
+  =
+  \mathcal G_\tau+\mathcal G_{\bar\tau}+\mathcal K,
+  \qquad
+  \mathcal K\not\equiv 0,
+\]
+并令
+\[
+  u:=P_\tau\Omega,
+  \qquad
+  v:=Q_\tau\Omega,
+\]
+则起源后的宇宙演化可精确表示为两个异构扇区之间的开放系统博弈：
+\[
+  \dot u=\mathcal A(u,v),
+  \qquad
+  \dot v=\mathcal B(v,u),
+\]
+其中
+\[
+  \mathcal A(u,v):=P_\tau\mathcal G(u+v),
+  \qquad
+  \mathcal B(v,u):=Q_\tau\mathcal G(u+v).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：投影分解 + 非零耦合项]
+\label{cert:tex43-origin-evolution}
+证书登记谓词链：
+\[
+\begin{aligned}
+  E_1 &: \Omega=u+v,\ u=P_\tau\Omega,\ v=Q_\tau\Omega,\\
+  E_2 &: \dot\Omega=\mathcal G(\Omega),\\
+  E_3 &: E_1\wedge E_2 \Rightarrow \dot u=P_\tau\mathcal G(u+v),\ \dot v=Q_\tau\mathcal G(u+v),\\
+  E_4 &: \mathcal K\not\equiv 0 \Rightarrow \mathcal A,\mathcal B\ \text{之间存在不可消去的相互影响},\\
+  E_5 &: E_3\wedge E_4 \Rightarrow \text{起源后演化构成内部开放系统博弈}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $E_1$，
+\[
+  \Omega=u+v.
+\]
+再由总生成元方程
+\[
+  \dot\Omega=\mathcal G(\Omega),
+\]
+分别左乘 $P_\tau$ 与 $Q_\tau$，得到
+\[
+  \dot u=P_\tau\mathcal G(u+v),
+  \qquad
+  \dot v=Q_\tau\mathcal G(u+v).
+\]
+记
+\[
+  \mathcal A(u,v):=P_\tau\mathcal G(u+v),
+  \qquad
+  \mathcal B(v,u):=Q_\tau\mathcal G(u+v),
+\]
+便得
+\[
+  \dot u=\mathcal A(u,v),
+  \qquad
+  \dot v=\mathcal B(v,u).
+\]
+
+由于
+\[
+  \mathcal K\not\equiv 0,
+\]
+两个扇区并非彼此绝缘。
+按本稿一贯的广义定义，“博弈”即相互影响。
+因此，起源后的宇宙演化可严格表示为两个异构扇区之间的开放系统博弈过程。
+定理成立。证毕。
+\end{proof}
+
+\subsection{定理：起源后的总同调闭合}
+\label{subsec:tex43-ch4-theorem-homology}
+
+\begin{theorem}[起源后的总同调闭合定理]
+\label{thm:tex43-origin-total-homology}
+在引理~\ref{lem:tex43-origin-z2} 的 \(\Ztwo\)-分次对象
+\[
+  C=C^{(0)}\oplus C^{(1)}
+\]
+上，定义奇微分
+\[
+  D=\partial_\tau+\partial_{\bar\tau}+K,
+\]
+其中
+\[
+  \partial_\tau:C^{(1)}\to C^{(0)},
+  \qquad
+  \partial_{\bar\tau}:C^{(0)}\to C^{(1)},
+\]
+而 $K$ 为跨扇区耦合/修复算子。
+若
+\[
+  D^2=0,
+\]
+则起源后的宇宙演化可赋予封闭的总同调群结构
+\[
+  H^i(C,D):=\Ker\!\bigl(D|_{C^{(i)}}\bigr)\Big/\Img\!\bigl(D|_{C^{(i+1)}}\bigr),
+  \qquad
+  i\in\Ztwo.
+\]
+若进一步给定乘法
+\[
+  \mu:C\otimes C\to C
+\]
+并满足 Leibniz 相容关系，则该对象进一步升格为同调代数。
+\end{theorem}
+
+\begin{Certificate}[证书：闭链群、边界群与乘法相容]
+\label{cert:tex43-origin-total-homology}
+证书登记谓词链：
+\[
+\begin{aligned}
+  H_1 &: D=\partial_\tau+\partial_{\bar\tau}+K\ \text{为奇微分},\\
+  H_2 &: D^2=0,\\
+  H_3 &: H_2 \Rightarrow \Img\!\bigl(D|_{C^{(i+1)}}\bigr)\subseteq \Ker\!\bigl(D|_{C^{(i)}}\bigr),\\
+  H_4 &: H_3 \Rightarrow H^i(C,D)\ \text{良定义},\\
+  H_5 &: \mu\ \text{存在且满足 Leibniz 相容} \Rightarrow \text{升格为同调代数}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $H_1$，
+\[
+  D
+  =
+  \partial_\tau+\partial_{\bar\tau}+K
+\]
+在 \(\Ztwo\)-分次对象上起奇微分作用。
+若
+\[
+  D^2=0,
+\]
+则对任意 $x\in C^{(i+1)}$，
+\[
+  D(Dx)=0.
+\]
+于是
+\[
+  Dx\in \Ker\!\bigl(D|_{C^{(i)}}\bigr),
+\]
+从而
+\[
+  \Img\!\bigl(D|_{C^{(i+1)}}\bigr)\subseteq \Ker\!\bigl(D|_{C^{(i)}}\bigr).
+\]
+因此商群
+\[
+  H^i(C,D)=\Ker\!\bigl(D|_{C^{(i)}}\bigr)\Big/\Img\!\bigl(D|_{C^{(i+1)}}\bigr)
+\]
+良定义。
+
+若另有乘法 $\mu$，并满足 Leibniz 相容条件，则微分与乘法相容，
+其同调上继承乘法结构。
+故对象从同调群进一步升格为同调代数。
+定理成立。证毕。
+\end{proof}
+
+\subsection{命题：与广义相对论和量子力学的模型对应}
+\label{subsec:tex43-ch4-proposition}
+
+\begin{proposition}[起源后双扇区与 GR/QM 的模型对应]
+\label{prop:tex43-origin-physics}
+若把
+\[
+  \Omega_\tau
+\]
+解释为“有时间属性的宏观时空扇区”，把
+\[
+  \Omega_{\bar\tau}
+\]
+解释为“无内禀时间属性的微观运动学扇区”，则可分别与广义相对论与量子力学建立模型对应：
+\[
+  \Omega_\tau \leadsto (M,g)\ \text{或其广义时空基底},
+\]
+\[
+  \Omega_{\bar\tau}\leadsto \mathcal H\ \text{或其纤维化 Hilbert 态空间}.
+\]
+这种对应是结构映射，不额外主张未经条件的字面同一。
+\end{proposition}
+
+\begin{Certificate}[证书：宏观几何方程与微观态空间方程]
+\label{cert:tex43-origin-physics}
+证书登记谓词链：
+\[
+\begin{aligned}
+  P_1 &: \tau(\Omega_\tau)=1 \Rightarrow \Omega_\tau\ \text{适合作为宏观时空/引力扇区的模型对象},\\
+  P_2 &: \tau(\Omega_{\bar\tau})=0 \Rightarrow \Omega_{\bar\tau}\ \text{适合作为微观运动学态空间的模型对象},\\
+  P_3 &: P_1 \Rightarrow \Omega_\tau\ \text{可对应到 }(M,g)\ \text{及其宏观几何关系}\quad\text{（参见 }\cite{Wald1984GeneralRelativity}
+    \text{）},\\
+  P_4 &: P_2 \Rightarrow \Omega_{\bar\tau}\ \text{可对应到 }\mathcal H\ \text{及其量子运动学结构}\quad\text{（参见 }
+    \cite{SakuraiNapolitano2017MQM}\text{）},\\
+  P_5 &: P_3\wedge P_4 \Rightarrow \text{得到 GR/QM 的结构对应，而非字面同一}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $P_1$，
+\[
+  \tau(\Omega_\tau)=1
+\]
+意味着该扇区携带内禀层级结构与可模型化的时间性，
+因此适合作为宏观时空/引力扇区的候选对象。
+例如，它可以映射到一个时空基底 $(M,g)$，并承载如
+\[
+  G_{\mu\nu}+\Lambda g_{\mu\nu}=8\pi T_{\mu\nu}
+\]
+这类宏观几何关系。
+
+由 $P_2$，
+\[
+  \tau(\Omega_{\bar\tau})=0
+\]
+表示该扇区作为运动学态空间本体时不自带内禀时间坐标，
+因此适合作为微观 Hilbert 态空间或其纤维化版本的模型对象。
+例如，可对应到
+\[
+  \mathcal H
+\]
+及其上外加参数化的量子演化关系。
+
+因此，由 $P_3\wedge P_4$ 得 $P_5$：
+这是一种结构对应，而不是未经附加条件的字面同一。
+命题成立。证毕。
+\end{proof}
+
+\subsection{推论：宇宙起源—演化二阶段定理}
+\label{subsec:tex43-ch4-corollary}
+
+\begin{corollary}[宇宙起源—演化二阶段定理]
+\label{cor:tex43-origin-two-stage}
+在定理~\ref{thm:tex43-origin}、定理~\ref{thm:tex43-origin-evolution} 与定理~\ref{thm:tex43-origin-total-homology} 的设定下，
+宇宙可分为两个严格阶段：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{第一阶段：起源阶段}\quad
+      \Omega_0 \rightsquigarrow \Omega_{\alpha_\ast},
+      \ \alpha_\ast=\min\mathcal S_{\mathrm{split}};\\
+      &\text{第二阶段：演化阶段}\quad
+      \Omega_{\alpha_\ast}
+      \rightsquigarrow
+      (\Omega_\tau,\Omega_{\bar\tau};\mathcal K)
+      \rightsquigarrow
+      \text{开放系统博弈驱动的异构演化}.
+    \end{aligned}
+  }
+\]
+若进一步满足
+\[
+  D^2=0,
+\]
+则第二阶段同时具有可认证的总同调结构。
+\end{corollary}
+
+\begin{Certificate}[证书：起源层 + 非零耦合 + 同调闭合]
+\label{cert:tex43-origin-two-stage}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: \text{定理~\ref{thm:tex43-origin} 给出起源层 }\alpha_\ast,\\
+  C_2 &: \text{定理~\ref{thm:tex43-origin-evolution} 给出起源后的内部开放系统博弈},\\
+  C_3 &: \text{定理~\ref{thm:tex43-origin-total-homology} 给出 }D^2=0\text{ 下的同调闭合},\\
+  C_4 &: C_1\wedge C_2\wedge C_3 \Rightarrow \text{宇宙起源—演化二阶段定理成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_1$，宇宙起源被固定为最小层级 $\alpha_\ast$ 上的首次非平凡异构分解；
+由 $C_2$，起源后立即进入由两个异构扇区及其非零耦合项驱动的开放系统博弈；
+由 $C_3$，若总微分闭合，则该演化还带有可认证的同调结构。
+因此
+\[
+  C_1\wedge C_2\wedge C_3
+\]
+推出 $C_4$，即宇宙起源—演化二阶段定理成立。证毕。
+\end{proof}
+
+\subsection{备注：公理输入、内部开放性与进一步混沌增强}
+\label{subsec:tex43-ch4-remarks}
+
+\begin{remark}[本章真正需要的起点输入]
+本章真正需要作为起点接受的，只是如下四件事：
+\[
+  \text{原始未分化总态},
+  \quad
+  \text{序数层级塔},
+  \quad
+  \text{认证分解层集合非空},
+  \quad
+  \mathcal K\not\equiv 0.
+\]
+其余“起源”“演化”“同调闭合”等表述，都是从这些输入推出的结果表达。
+\end{remark}
+
+\begin{remark}[宇宙整体无外部环境并不排斥内部开放性]
+由第~\ref{sec:tex43-ch3} 章的扇区开放化结果可知，
+\[
+  \text{“宇宙整体无外部”}
+  \not\Rightarrow
+  \text{“宇宙内部各扇区闭合”}.
+\]
+本章只是把这一点进一步钉死为：
+\[
+  \text{起源后的有时间属性扇区与无时间属性扇区彼此互为环境。}
+\]
+\end{remark}
+
+\begin{remark}[若进一步加入混沌生成条件]
+若在本章基础上再加入“起源后总生成元在某一区域具有敏感依赖或非平凡轨道分离性质”的附加条件，
+则第~\ref{sec:tex43-ch3} 章关于混沌系统有效开放化的结果可直接并入本章，
+从而得到：
+\[
+  \text{宇宙演化不仅是内部开放系统博弈，还是内部开放博弈下的异构混沌演化。}
+\]
+\end{remark}
+
+\begin{remark}[若把微观隧穿更强地钉到无时间属性扇区]
+若进一步要求无时间属性扇区的有效跃迁不以其本体内禀时间坐标为前提，而以路径族或态间跃迁幅为前提，
+则第~\ref{sec:tex43-ch1} 章与 `tex39` 中关于微观隧穿/跨尺度可行分支命中的写法可直接接入：
+\[
+  \Omega_{\bar\tau}
+  \rightsquigarrow
+  \text{微观路径族与跃迁幅的主承载扇区}.
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：微观离散隐藏扇区、有效非孤立与奇点类混沌的异构演化}
+\label{sec:tex43-ch5}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格主张、继承关系与引用定位}
+\label{subsec:tex43-ch5-convention}
+
+本章在第~\ref{sec:tex43-ch2} 章的“时间属性/无时间属性与序数滤过”、
+第~\ref{sec:tex43-ch3} 章的“有效开放性与扇区开放化”、
+以及第~\ref{sec:tex43-ch4} 章的“最初异构分解与宇宙起源”之上，
+继续把如下结构命题写成形式系统：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{若要把无时间属性扇区写成可认证结构，而非口头命名，}\\
+      &\text{则必须给出不可消去的微观离散层级。}
+    \end{aligned}
+  }
+\]
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{混沌本身并不推出标准意义下的全局非孤立；}\\
+      &\text{能够严格推出的是宏观投影在隐藏微观扇区作用下的有效非孤立。}
+    \end{aligned}
+  }
+\]
+
+\begin{remark}[本章与仓内外文献的对接位置]
+关于序数滤过、可修复障碍、分层修复塔与离散层级的仓内背景，可参见
+\cite{RepoTex29RepairableObstruction}、
+\cite{RepoTex27PowerdomainFiberExtension}、
+\cite{RepoTex38JacobiBianchiRepair}、
+\cite{GaoZheng2025GFramework}；
+关于开放系统博弈与统计修复引擎的仓内背景，可参见
+\cite{RepoTex23OpenSystemGame}、
+\cite{RepoTex39StatRepair}、
+\cite{GaoZhengAppVol3}；
+关于混沌动力学、有效开放性与粗粒化动力的外部背景，可参见
+\cite{KatokHasselblatt1995}、
+\cite{Ott2002Chaos}、
+\cite{Zwanzig2001Nonequilibrium}、
+\cite{BreuerPetruccione2002OpenQuantumSystems}、
+\cite{Jech2003SetTheory}、
+\cite{Kunen2011SetTheory}。
+\end{remark}
+
+\subsection{定义：微观离散隐藏扇区、有效非孤立与奇点类混沌}
+\label{subsec:tex43-ch5-definitions}
+
+\begin{definition}[微观离散隐藏扇区]
+\label{def:tex43-micro-discrete-hidden}
+设总系统满足定义~\ref{def:tex43-total-system} 与定义~\ref{def:tex43-sector-decomposition}，
+即
+\[
+  X=U\oplus V,
+  \qquad
+  \tau(U)=1,
+  \qquad
+  \tau(V)=0.
+\]
+若存在序数 $\Lambda$ 与穷尽性的内禀滤过
+\[
+  F_0V\subseteq F_1V\subseteq \cdots \subseteq F_\alpha V\subseteq\cdots,
+  \qquad
+  V=\varinjlim_{\alpha<\Lambda} F_\alpha V,
+\]
+并满足：
+\[
+  F_\lambda V=\varinjlim_{\beta<\lambda}F_\beta V
+  \qquad
+  (\lambda\text{ 为极限序数}),
+\]
+且在余终意义下存在非平凡后继商
+\[
+  F_{\alpha+1}V/F_\alpha V\neq 0,
+\]
+则称 $V$ 为\emph{微观离散隐藏扇区}。
+\end{definition}
+
+\begin{definition}[有效非孤立]
+\label{def:tex43-effective-nonisolation}
+设 $P:X\to U$、$Q:X\to V$ 是与分解 $X=U\oplus V$ 相容的互补投影。
+若存在两组总初值 $x_1,x_2\in X$ 使得
+\[
+  Px_1=Px_2,
+  \qquad
+  Qx_1\neq Qx_2,
+\]
+并存在 $t>0$ 使
+\[
+  P\Phi_t(x_1)\neq P\Phi_t(x_2),
+\]
+则称宏观投影 $P$ 对应的扇区是\emph{有效非孤立}的，记作
+\[
+  \mathsf{EffNonIso}(P)=1.
+\]
+在第~\ref{sec:tex43-ch3} 章的记号下，这与
+\[
+  \EffOpen(P)=1
+\]
+是同一判据的两种表述。
+\end{definition}
+
+\begin{definition}[奇点类混沌]
+\label{def:tex43-singularity-chaos}
+设总系统 $(X,\Phi_t)$ 具有混沌动力学。
+若存在奇性集合或失闭合集
+\[
+  \Sigma\subset X,
+\]
+使得在 $\Sigma$ 的某个邻域 $\mathcal N(\Sigma)$ 内：
+\[
+  \text{宏观投影 }P\text{ 的自治闭合失效},
+\]
+并且必须引入定义~\ref{def:tex43-micro-discrete-hidden} 的微观离散隐藏扇区 $V$，
+才能恢复总系统的可追踪动力表示，
+则称该系统为\emph{奇点类混沌系统}。
+\end{definition}
+
+\subsection{公理（降级为定理）：微观离散层级的逐层不可消去性}
+\label{subsec:tex43-ch5-axiom-downgrade}
+
+\begin{theorem}[公理降级为定理：微观离散层级的逐层不可消去性]
+\label{thm:tex43-discrete-hidden-induction}
+设 $V$ 是定义~\ref{def:tex43-micro-discrete-hidden} 的序数滤过扇区。
+对每个 $\alpha<\Lambda$ 定义谓词
+\[
+  D(\alpha)
+  \;:\Longleftrightarrow\;
+  \text{层 }F_\alpha V\text{ 的变化在固定宏观当前态下能够改变某个未来宏观投影。}
+\]
+若满足：
+\[
+  D(0),
+\]
+\[
+  \forall \alpha<\Lambda,\quad D(\alpha)\Rightarrow D(\alpha+1),
+\]
+以及对每个极限序数 $\lambda<\Lambda$，
+\[
+  \Big(\forall \beta<\lambda,\ D(\beta)\Big)\Rightarrow D(\lambda),
+\]
+则
+\[
+  \forall \alpha<\Lambda,\qquad D(\alpha)
+\]
+成立。
+特别地，
+\[
+  V=\varinjlim_{\alpha<\Lambda}F_\alpha V
+\]
+的每一层都不可被宏观当前态消去，
+从而 $V$ 构成可认证的微观离散隐藏扇区。
+\end{theorem}
+
+\begin{Certificate}[证书：以超限归纳认证每一层隐藏信息的不可消去性]
+\label{cert:tex43-discrete-hidden-induction}
+证书登记谓词链：
+\[
+\begin{aligned}
+  A_1 &: D(0),\\
+  A_2 &: \forall \alpha<\Lambda,\ D(\alpha)\Rightarrow D(\alpha+1),\\
+  A_3 &: \forall \lambda<\Lambda\ \big(\lambda\text{ 为极限序数}\big),\
+         \Big(\forall \beta<\lambda,\ D(\beta)\Big)\Rightarrow D(\lambda),\\
+  A_4 &: A_1\wedge A_2\wedge A_3 \Rightarrow
+         \forall \alpha<\Lambda,\ D(\alpha)\qquad\text{（超限归纳）},\\
+  A_5 &: A_4 \Rightarrow
+         \text{每一层 }F_\alpha V\text{ 都是不可消去的隐藏层级},\\
+  A_6 &: A_5 \Rightarrow
+         \tau(V)=0\text{ 的结构表述由离散层级得到认证，而非仅由命名给出。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $A_1$，基步 $D(0)$ 成立。
+
+设对某个 $\alpha<\Lambda$ 已有 $D(\alpha)$。
+由 $A_2$，
+\[
+  D(\alpha)\Rightarrow D(\alpha+1),
+\]
+故所有后继层都保持“隐藏信息可改变未来宏观投影”的性质。
+
+再设 $\lambda<\Lambda$ 为极限序数，并假设
+\[
+  \forall \beta<\lambda,\qquad D(\beta).
+\]
+由 $A_3$，
+\[
+  \Big(\forall \beta<\lambda,\ D(\beta)\Big)\Rightarrow D(\lambda).
+\]
+这说明极限层不会丢失此前各层的隐藏可见性。
+
+因此，由超限归纳原理得到
+\[
+  \forall \alpha<\Lambda,\qquad D(\alpha),
+\]
+即 $A_4$ 成立。
+于是每一层 $F_\alpha V$ 都不能被宏观当前态压缩掉，这给出 $A_5$。
+再由定义~\ref{def:tex43-time-attribute} 与本章定义~\ref{def:tex43-micro-discrete-hidden}，
+可知此时 $\tau(V)=0$ 不再是悬空赋值，而是由序数滤过与逐层不可消去性共同认证的结构事实。
+故 $A_6$ 成立，定理得证。
+\end{proof}
+
+\subsection{引理：有时间属性扇区与微观离散隐藏扇区自然形成混合连续--离散动力格式}
+\label{subsec:tex43-ch5-lemma}
+
+\begin{lemma}[混合连续--离散动力格式]
+\label{lem:tex43-hybrid-dynamics}
+设总系统满足
+\[
+  X=U\oplus V,
+  \qquad
+  \tau(U)=1,
+  \qquad
+  V=\varinjlim_{\alpha<\Lambda}F_\alpha V,
+\]
+其中 $V$ 是定义~\ref{def:tex43-micro-discrete-hidden} 的微观离散隐藏扇区。
+若总生成元对两个扇区均有良定义作用，
+则总动力学可写成混合连续--离散形式
+\[
+  \dot u = A(u,v),
+  \qquad
+  v_{\alpha+1}=B_\alpha(v_{\le \alpha},u),
+\]
+在后继层记号下亦可简写为
+\[
+  \dot u = A(u,v),
+  \qquad
+  \Delta_\alpha v = B_\alpha(v,u).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：时间属性给出连续演化，离散层级给出序数递推]
+\label{cert:tex43-hybrid-dynamics}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: \tau(U)=1 \Rightarrow U\text{ 允许沿宏观参数作连续或准连续演化},\\
+  L_2 &: V=\varinjlim_{\alpha<\Lambda}F_\alpha V \Rightarrow V\text{ 允许按后继层作序数递推},\\
+  L_3 &: \text{总生成元对 }U,V\text{ 的投影良定义},\\
+  L_4 &: L_1\wedge L_2\wedge L_3 \Rightarrow
+         \dot u=A(u,v),\ v_{\alpha+1}=B_\alpha(v_{\le\alpha},u),\\
+  L_5 &: L_4 \Rightarrow \text{系统具有混合连续--离散动力格式}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$ 与定义~\ref{def:tex43-time-assignment}，
+宏观扇区 $U$ 以有时间属性的方式参与演化，
+故可写成
+\[
+  \dot u=A(u,v).
+\]
+由 $L_2$，微观扇区 $V$ 不是单一连续参数化对象，
+而是由序数层级塔
+\[
+  F_0V\subseteq F_1V\subseteq \cdots
+\]
+构成。
+因此其自然更新方式是从 $F_\alpha V$ 到 $F_{\alpha+1}V$ 的后继递推，
+故存在
+\[
+  v_{\alpha+1}=B_\alpha(v_{\le \alpha},u).
+\]
+再由 $L_3$，上述两个分量确为同一总生成元在两个扇区上的投影，
+于是得到 $L_4$。
+因此系统必具有
+\[
+  \dot u=A(u,v),
+  \qquad
+  v_{\alpha+1}=B_\alpha(v_{\le \alpha},u)
+\]
+这一混合连续--离散动力格式，即 $L_5$。引理得证。
+\end{proof}
+
+\subsection{命题：非稳态不推出标准意义下的非孤立}
+\label{subsec:tex43-ch5-proposition-nonstationary}
+
+\begin{proposition}[非稳态与标准非孤立是不同层级的性质]
+\label{prop:tex43-nonstationary-not-nonisolated}
+设总系统满足
+\[
+  \dot x = F(x),
+  \qquad
+  x\in X.
+\]
+若
+\[
+  \exists x\in X,\qquad F(x)\neq 0,
+\]
+则该系统是非稳态的；但这并不推出标准意义下的非孤立，即并不推出存在系统外部环境耦合项
+\[
+  J(x,\mathcal E)\neq 0.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：状态变化与外部交换不是同一逻辑对象]
+\label{cert:tex43-nonstationary-not-nonisolated}
+证书登记谓词链：
+\[
+\begin{aligned}
+  N_1 &: \exists x,\ F(x)\neq 0 \Rightarrow \text{系统存在非平凡演化},\\
+  N_2 &: \text{标准非孤立要求存在外部环境耦合 }J(x,\mathcal E)\neq 0,\\
+  N_3 &: N_1 \text{ 只断言“演化存在”},\\
+  N_4 &: N_2 \text{ 断言“外部交换存在”},\\
+  N_5 &: N_3\wedge N_4 \Rightarrow
+         \text{非稳态}\not\Rightarrow \text{标准非孤立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $N_1$，
+\[
+  \exists x,\ F(x)\neq 0
+\]
+只说明系统并非静止，即状态随演化参数发生变化。
+这给出“非稳态”。
+
+但由 $N_2$，标准意义下的非孤立要求的是外部环境项
+\[
+  J(x,\mathcal E)\neq 0,
+\]
+即系统与其外部之间存在交换或耦合。
+
+显然，“系统内部状态在变”与“系统对外部有交换”是两个不同断言。
+故由 $N_3\wedge N_4$ 得
+\[
+  \text{非稳态}\not\Rightarrow \text{标准非孤立}.
+\]
+命题成立。证毕。
+\end{proof}
+
+\subsection{定理：全局孤立系统可在宏观投影上表现为有效非孤立并精确对应开放系统博弈}
+\label{subsec:tex43-ch5-theorem-effective-open}
+
+\begin{theorem}[全局孤立与有效非孤立的兼容定理]
+\label{thm:tex43-discrete-effective-open-game}
+设总系统全局上是孤立的，但存在扇区分解
+\[
+  X=U\oplus V,
+\]
+其中 $V$ 是定义~\ref{def:tex43-micro-discrete-hidden} 的微观离散隐藏扇区。
+若宏观投影 $P$ 满足定义~\ref{def:tex43-effective-nonisolation}，
+则
+\[
+  \mathsf{EffNonIso}(P)=1
+  \qquad\Longleftrightarrow\qquad
+  \EffOpen(P)=1,
+\]
+并且该系统可被精确表示为开放系统博弈
+\[
+  \dot u=A(u,v),
+  \qquad
+  v_{\alpha+1}=B_\alpha(v_{\le\alpha},u).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：全局孤立不排斥宏观投影对隐藏扇区的不可消去依赖]
+\label{cert:tex43-discrete-effective-open-game}
+证书登记谓词链：
+\[
+\begin{aligned}
+  E_1 &: \text{总系统全局孤立},\\
+  E_2 &: X=U\oplus V,\ \ V\text{ 为微观离散隐藏扇区},\\
+  E_3 &: \mathsf{EffNonIso}(P)=1\ \text{（定义~\ref{def:tex43-effective-nonisolation}）},\\
+  E_4 &: E_3 \Rightarrow \EffOpen(P)=1\ \text{（定理~\ref{thm:tex43-effective-open-criterion}）},\\
+  E_5 &: E_2 \Rightarrow \dot u=A(u,v),\ v_{\alpha+1}=B_\alpha(v_{\le\alpha},u)\ \text{（引理~\ref{lem:tex43-hybrid-dynamics}）},\\
+  E_6 &: E_1\wedge E_4\wedge E_5 \Rightarrow \text{全局孤立与开放系统博弈表示可同时成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $E_3$，
+\[
+  Px_1=Px_2,\ Qx_1\neq Qx_2
+  \quad\text{且}\quad
+  \exists t>0,\ P\Phi_t(x_1)\neq P\Phi_t(x_2).
+\]
+这说明宏观未来不能仅由宏观当前态独立决定。
+于是由定理~\ref{thm:tex43-effective-open-criterion}，
+\[
+  \EffOpen(P)=1.
+\]
+故 $E_4$ 成立。
+
+再由 $E_2$ 与引理~\ref{lem:tex43-hybrid-dynamics}，
+总系统可写成
+\[
+  \dot u=A(u,v),
+  \qquad
+  v_{\alpha+1}=B_\alpha(v_{\le\alpha},u).
+\]
+故 $E_5$ 成立。
+
+最后，由 $E_1$ 知系统之外没有更大环境，
+但这并不推出扇区 $U$ 对扇区 $V$ 没有依赖。
+既然 $E_4$ 已给出宏观投影的有效开放性，
+而 $E_5$ 已给出宏观--微观双扇区的精确动力重写，
+则全局孤立与内部开放系统博弈表示完全相容。
+故由 $E_1\wedge E_4\wedge E_5$ 得 $E_6$，定理成立。证毕。
+\end{proof}
+
+\subsection{定理：混沌、微观离散隐藏扇区与不可闭合宏观投影推出有效非孤立}
+\label{subsec:tex43-ch5-theorem-chaos}
+
+\begin{theorem}[混沌扇区的有效非孤立定理]
+\label{thm:tex43-chaos-discrete-effective}
+设总系统 $(X,\Phi_t)$ 具有混沌动力学，且存在非平凡扇区分解
+\[
+  X=U\oplus V,
+\]
+其中 $V$ 是定义~\ref{def:tex43-micro-discrete-hidden} 的微观离散隐藏扇区。
+若存在
+\[
+  x_1,x_2\in X,
+  \qquad
+  Px_1=Px_2,
+  \qquad
+  Qx_1\neq Qx_2,
+\]
+并且存在 $t>0$ 使
+\[
+  P\Phi_t(x_1)\neq P\Phi_t(x_2),
+\]
+则
+\[
+  \mathsf{EffNonIso}(P)=1.
+\]
+换言之，宏观混沌扇区在隐藏微观离散层级作用下必表现为有效非孤立。
+\end{theorem}
+
+\begin{Certificate}[证书：未来分离与隐藏层级共同触发有效非孤立]
+\label{cert:tex43-chaos-discrete-effective}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: \mathsf{Chaos}(X,\Phi_t),\\
+  C_2 &: X=U\oplus V,\ \ V\text{ 为微观离散隐藏扇区},\\
+  C_3 &: \exists x_1,x_2,\ Px_1=Px_2,\ Qx_1\neq Qx_2,\\
+  C_4 &: \exists t>0,\ P\Phi_t(x_1)\neq P\Phi_t(x_2),\\
+  C_5 &: C_3\wedge C_4 \Rightarrow \mathsf{EffNonIso}(P)=1
+         \ \text{（定义~\ref{def:tex43-effective-nonisolation}）},\\
+  C_6 &: C_1\wedge C_2\wedge C_5 \Rightarrow
+         \text{宏观混沌扇区对隐藏离散扇区存在不可消去依赖}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_3$ 与 $C_4$，
+\[
+  Px_1=Px_2,\ Qx_1\neq Qx_2,
+  \qquad
+  P\Phi_t(x_1)\neq P\Phi_t(x_2).
+\]
+因此按定义~\ref{def:tex43-effective-nonisolation}，
+\[
+  \mathsf{EffNonIso}(P)=1.
+\]
+这给出 $C_5$。
+
+再由 $C_1$，总系统具有混沌动力学，
+意味着初值差异在轨道演化中会被持续放大或维持为可分离状态。
+而 $C_2$ 指出这类差异并非悬空噪声，而是来自微观离散隐藏扇区的真实层级结构。
+故 $C_1\wedge C_2\wedge C_5$ 推出：
+宏观混沌扇区的未来不可由其当前宏观状态单独闭合刻画，
+即它必表现为有效非孤立。
+定理成立。证毕。
+\end{proof}
+
+\subsection{命题：开放系统博弈所需的是正交分解与残余耦合，而不是完全解耦}
+\label{subsec:tex43-ch5-proposition-coupling}
+
+\begin{proposition}[正交分解后必须保留残余耦合]
+\label{prop:tex43-residual-coupling}
+设总系统具有分解
+\[
+  X=U\oplus V.
+\]
+若动力学满足完全解耦
+\[
+  \dot u=A(u),
+  \qquad
+  v_{\alpha+1}=B_\alpha(v_{\le\alpha}),
+\]
+则 $U$ 与 $V$ 互不交换信息、约束或修复量，
+从而不再构成开放系统博弈。
+因此，要得到开放系统博弈与异构演化，真正需要的是
+\[
+  \boxed{\text{正交分解}+\text{残余耦合}}
+\]
+而不是完全解耦。
+\end{proposition}
+
+\begin{Certificate}[证书：完全解耦将抹除开放系统博弈]
+\label{cert:tex43-residual-coupling}
+证书登记谓词链：
+\[
+\begin{aligned}
+  R_1 &: \dot u=A(u),\ v_{\alpha+1}=B_\alpha(v_{\le\alpha}),\\
+  R_2 &: R_1 \Rightarrow U\text{ 与 }V\text{ 的未来分别只由各自当前数据决定},\\
+  R_3 &: R_2 \Rightarrow \text{扇区之间不存在不可消去相互作用},\\
+  R_4 &: R_3 \Rightarrow \text{开放系统博弈消失},\\
+  R_5 &: \neg R_4 \Rightarrow \text{必须保留残余耦合项}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $R_1$，宏观扇区 $U$ 的未来仅由 $u$ 决定，
+微观扇区 $V$ 的后继层更新也仅由既有 $v_{\le\alpha}$ 决定。
+因此由 $R_2$，两扇区之间不再交换任何新的影响。
+
+这直接给出 $R_3$：
+扇区之间没有剩余相互作用。
+于是所谓“广义博弈”所要求的相互影响结构被消去，
+即 $R_4$ 成立。
+
+因此，如果我们要保留开放系统博弈与异构演化，
+就不能把分解误写成完全解耦，而必须保留
+\[
+  \dot u=A(u,v),
+  \qquad
+  v_{\alpha+1}=B_\alpha(v_{\le\alpha},u)
+\]
+中的残余耦合。
+故由 $\neg R_4$ 得 $R_5$，命题成立。证毕。
+\end{proof}
+
+\subsection{定理：奇点类混沌导出异构演化动力}
+\label{subsec:tex43-ch5-theorem-singularity}
+
+\begin{theorem}[奇点类混沌的异构演化定理]
+\label{thm:tex43-singularity-chaos-heterogeneous}
+设 $(X,\Phi_t)$ 是定义~\ref{def:tex43-singularity-chaos} 的奇点类混沌系统。
+则在某个奇性邻域 $\mathcal N(\Sigma)$ 内，总系统必可提升为
+\[
+  X=U\oplus V
+\]
+的异构结构，并具有非零残余耦合的混合连续--离散动力：
+\[
+  \dot u=A(u,v),
+  \qquad
+  v_{\alpha+1}=B_\alpha(v_{\le\alpha},u),
+  \qquad
+  \frac{\partial A}{\partial v}\not\equiv 0
+  \ \text{或}\
+  \frac{\partial B_\alpha}{\partial u}\not\equiv 0.
+\]
+若进一步存在总微分
+\[
+  D=\partial_U+\partial_V+K
+\]
+满足
+\[
+  D^2=0,
+\]
+则该异构演化还带有可认证的总同调闭合。
+\end{theorem}
+
+\begin{Certificate}[证书：奇性邻域中的闭合失效迫使微观离散修复扇区进入动力学]
+\label{cert:tex43-singularity-chaos-heterogeneous}
+证书登记谓词链：
+\[
+\begin{aligned}
+  S_1 &: (X,\Phi_t)\text{ 为奇点类混沌系统},\\
+  S_2 &: S_1 \Rightarrow \text{在 }\mathcal N(\Sigma)\text{ 内宏观投影闭合失效},\\
+  S_3 &: S_1 \Rightarrow \text{必须引入微观离散隐藏扇区 }V,\\
+  S_4 &: S_2\wedge S_3 \Rightarrow
+         \dot u=A(u,v),\ v_{\alpha+1}=B_\alpha(v_{\le\alpha},u)\ \text{（引理~\ref{lem:tex43-hybrid-dynamics}）},\\
+  S_5 &: S_4\wedge \text{非闭合性} \Rightarrow
+         \frac{\partial A}{\partial v}\not\equiv 0\ \text{或}\ \frac{\partial B_\alpha}{\partial u}\not\equiv 0,\\
+  S_6 &: D^2=0 \Rightarrow \text{总同调闭合成立（定理~\ref{thm:tex43-origin-total-homology}）}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $S_1$ 与定义~\ref{def:tex43-singularity-chaos}，
+在奇性邻域 $\mathcal N(\Sigma)$ 中，
+宏观投影的自治闭合失效。
+这给出 $S_2$。
+
+同样由 $S_1$，
+若不引入微观离散隐藏扇区，
+则总系统在该邻域内无法保持可追踪动力表示。
+故 $S_3$ 成立。
+
+由 $S_2\wedge S_3$ 与引理~\ref{lem:tex43-hybrid-dynamics}，
+总系统必须写成
+\[
+  \dot u=A(u,v),
+  \qquad
+  v_{\alpha+1}=B_\alpha(v_{\le\alpha},u).
+\]
+这就是 $S_4$。
+
+若此时
+\[
+  \frac{\partial A}{\partial v}\equiv 0
+  \qquad\text{且}\qquad
+  \frac{\partial B_\alpha}{\partial u}\equiv 0,
+\]
+则由命题~\ref{prop:tex43-residual-coupling} 可知系统会退化为完全解耦，
+与奇性邻域中的闭合失效矛盾。
+故 $S_5$ 成立。
+
+最后，若另有
+\[
+  D=\partial_U+\partial_V+K,
+  \qquad
+  D^2=0,
+\]
+则由第~\ref{sec:tex43-ch4} 章的定理~\ref{thm:tex43-origin-total-homology}，
+该异构系统还带有总同调闭合。
+故 $S_6$ 成立，定理得证。
+\end{proof}
+
+\subsection{推论：与宇宙起源和演化链条的兼容强化}
+\label{subsec:tex43-ch5-corollary}
+
+\begin{corollary}[起源后的宏观宇宙扇区可表现为有效非孤立的开放系统博弈]
+\label{cor:tex43-origin-effective-open}
+若第~\ref{sec:tex43-ch4} 章给出的最初异构分解层
+\[
+  X_{\alpha_\ast}\cong U\oplus V,
+  \qquad
+  \tau(U)=1,
+  \qquad
+  \tau(V)=0
+\]
+满足：
+\[
+  V\text{ 是微观离散隐藏扇区},
+  \qquad
+  \mathsf{EffNonIso}(P)=1,
+\]
+则宇宙起源与演化可压缩表述为
+\[
+  \boxed{
+    \text{宇宙起源}=\text{首次异构分解},
+    \qquad
+    \text{宇宙演化}=\text{开放系统博弈驱动的异构演化}.
+  }
+\]
+若后续动力还是奇点类混沌，
+则该演化进一步成为内部开放博弈下的混沌异构演化。
+\end{corollary}
+
+\begin{Certificate}[证书：起源层、有效非孤立与奇点类混沌的拼接]
+\label{cert:tex43-origin-effective-open}
+证书登记谓词链：
+\[
+\begin{aligned}
+  U_1 &: \text{定理~\ref{thm:tex43-origin} 给出首次异构分解层 }\alpha_\ast,\\
+  U_2 &: V\text{ 为微观离散隐藏扇区},\\
+  U_3 &: \mathsf{EffNonIso}(P)=1,\\
+  U_4 &: U_2\wedge U_3 \Rightarrow
+         \text{定理~\ref{thm:tex43-discrete-effective-open-game} 可用},\\
+  U_5 &: U_1\wedge U_4 \Rightarrow
+         \text{宇宙演化可写成开放系统博弈驱动的异构演化},\\
+  U_6 &: \text{若系统为奇点类混沌，则再由定理~\ref{thm:tex43-singularity-chaos-heterogeneous}}
+         \text{ 得混沌异构演化}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $U_1$，宇宙起源已被固定为首次异构分解层 $\alpha_\ast$。
+由 $U_2$ 与 $U_3$，
+定理~\ref{thm:tex43-discrete-effective-open-game} 的前提全部满足，
+故起源后的宏观扇区在隐藏微观扇区作用下表现为有效非孤立，
+并且总系统可精确写成开放系统博弈。
+这给出 $U_4$ 与 $U_5$。
+
+若进一步满足 $U_6$ 的奇点类混沌条件，
+则该内部开放系统博弈不再只是一般异构演化，
+而是混沌异构演化。
+推论成立。证毕。
+\end{proof}
+
+\subsection{备注：标准非孤立、有效非孤立与无时间属性的认证来源}
+\label{subsec:tex43-ch5-remarks}
+
+\begin{remark}[本章稳定得到的是“有效非孤立”而不是“标准全局非孤立”]
+本章真正稳定可守的结论是
+\[
+  \mathsf{EffNonIso}(P)=1
+  \qquad\Longleftrightarrow\qquad
+  \EffOpen(P)=1,
+\]
+即宏观投影对隐藏微观扇区具有不可消去依赖。
+这与“总系统是否与系统之外的外部环境交换”是不同层级的问题。
+\end{remark}
+
+\begin{remark}[无时间属性不能由非稳态直接推出]
+定义~\ref{def:tex43-micro-discrete-hidden} 与定理~\ref{thm:tex43-discrete-hidden-induction}
+说明：
+\[
+  \tau(V)=0
+\]
+的认证来源不是“系统在变化”这一事实本身，
+而是序数滤过、离散修复塔与逐层不可消去的隐藏结构。
+\end{remark}
+
+\begin{remark}[宏观闭合失效是隐藏扇区进入动力学的最直接信号]
+只要存在
+\[
+  Px_1=Px_2,\qquad Qx_1\neq Qx_2,
+\qquad
+  P\Phi_t(x_1)\neq P\Phi_t(x_2),
+\]
+宏观扇区就不能被写成自足自治系统。
+此时最自然的数学动作不是宣布“全局非孤立”，
+而是把隐藏扇区显式提升为动力学的一部分。
+\end{remark}
+
+\begin{remark}[奇点类混沌是把本章与宇宙起源链条继续加强的一种强模型]
+若把奇性邻域中的闭合失效、微观离散隐藏扇区与第~\ref{sec:tex43-ch4} 章的首次异构分解层拼接起来，
+则可得到如下统一描述：
+\[
+  \text{首次异构分解给出起源，}
+  \qquad
+  \text{奇点类混沌与残余耦合给出演化强化。}
+\]
+这使“宇宙起源--宇宙演化”的链条能够在同一形式系统中保持一致。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：物理非孤立、同调非孤立与奇点类混沌链元的分次闭合}
+\label{sec:tex43-ch6}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格主张、继承链与引用定位}
+\label{subsec:tex43-ch6-convention}
+
+本章把“非孤立”明确分成两个逻辑层级：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{第一层是系统与外部环境之间的物理非孤立；}\\
+      &\text{第二层是奇点链元在总复形中无法由单一分次扇区自足闭合的同调非孤立。}
+    \end{aligned}
+  }
+\]
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{因此，混沌并不推出物理非孤立；}\\
+      &\text{能够严格推出的是：某些奇点类混沌链元在分次微分同调代数中同调非孤立。}
+    \end{aligned}
+  }
+\]
+
+\begin{remark}[本章与仓内外文献的对接位置]
+关于开放系统、有效开放性、奇点类混沌与开放系统博弈的仓内背景，可参见
+\cite{RepoTex23OpenSystemGame}、
+\cite{RepoTex39StatRepair}、
+第~\ref{sec:tex43-ch3} 章与第~\ref{sec:tex43-ch5} 章；
+关于总复形、分次微分、同调闭合与链同伦的仓内外背景，可参见
+\cite{RepoTex29RepairableObstruction}、
+\cite{GaoZheng2025GFramework}、
+\cite{Weibel1994HomologicalAlgebra}、
+\cite{Hatcher2002AT}；
+关于开放量子系统与混沌动力学的背景，可参见
+\cite{BreuerPetruccione2002OpenQuantumSystems}、
+\cite{KatokHasselblatt1995}、
+\cite{Ott2002Chaos}。
+\end{remark}
+
+\subsection{定义：两种非孤立与奇点类混沌链元}
+\label{subsec:tex43-ch6-definitions}
+
+\begin{definition}[物理非孤立与同调非孤立]
+\label{def:tex43-two-nonisolation}
+设总系统的动力学写为
+\[
+  \dot x=F(x).
+\]
+定义两种不同的“非孤立”：
+
+\textbf{（i）物理非孤立}。
+若存在系统外环境 $\mathcal E$ 及交换项
+\[
+  J(x,\mathcal E)\not\equiv 0,
+\]
+使得
+\[
+  \dot x=F(x)+J(x,\mathcal E),
+\]
+则称 $X$ 在物理意义上非孤立，记为
+\[
+  \mathsf{NonIso}_{\mathrm{phys}}(X).
+\]
+
+\textbf{（ii）同调非孤立}。
+设
+\[
+  \mathcal C=C^{(0)}\oplus C^{(1)}
+\]
+是一个 $\Ftwo$-系数的 $\Ztwo$-分次链对象，总微分为
+\[
+  D:C^{(i)}\to C^{(i+1\bmod 2)},
+  \qquad
+  D^2=0.
+\]
+若某一扇区中的链元 $s\in C^{(0)}$ 或 $s\in C^{(1)}$ 不能包含在其所属分次中的某个 $D$-闭合子复形内，即不存在子对象
+\[
+  S\subseteq C^{(0)}
+  \quad\text{或}\quad
+  S\subseteq C^{(1)}
+\]
+满足
+\[
+  s\in S,
+  \qquad
+  D(S)\subseteq S,
+  \qquad
+  (D|_S)^2=0,
+\]
+则称 $s$ 在同调意义上非孤立，记为
+\[
+  \mathsf{NonIso}_{\mathrm{hom}}(s).
+\]
+\end{definition}
+
+\begin{definition}[奇点类混沌链元]
+\label{def:tex43-singularity-chaotic-chain}
+设 $(X,\Phi_t)$ 是定义~\ref{def:tex43-singularity-chaos} 的奇点类混沌系统，
+并设
+\[
+  \mathcal C=C^{(0)}\oplus C^{(1)}
+\]
+是与之对应的 $\Ftwo$-系数 $\Ztwo$-分次微分同调代数，
+总微分写为
+\[
+  D=\partial_0+\partial_1+K,
+  \qquad
+  D^2=0.
+\]
+若某链元
+\[
+  s\in C^{(0)}
+\]
+满足：
+\[
+  \text{$s$ 对应奇点相关的局域动力失闭合，}
+\]
+\[
+  \text{$s$ 不能在 }C^{(0)}\text{ 内单独构成闭合子复形，}
+\]
+\[
+  \text{$s$ 的闭合必须借助 }C^{(1)}\text{ 与耦合修复项 }K,
+\]
+则称 $s$ 为\emph{奇点类混沌链元}。
+\end{definition}
+
+\subsection{公理（降级为定理）：奇点扇区局部闭合失败的超限稳定性}
+\label{subsec:tex43-ch6-axiom-downgrade}
+
+\begin{theorem}[公理降级为定理：奇点扇区局部闭合失败的超限稳定性]
+\label{thm:tex43-singular-local-failure}
+设
+\[
+  s\in C^{(0)}
+\]
+是定义~\ref{def:tex43-singularity-chaotic-chain} 的奇点类混沌链元。
+设
+\[
+  S_0\subseteq S_1\subseteq \cdots \subseteq S_\alpha \subseteq \cdots \subseteq C^{(0)}
+\]
+是包含 $s$ 的一族候选局部子对象，并满足
+\[
+  S_\lambda=\varinjlim_{\beta<\lambda}S_\beta
+  \qquad
+  (\lambda\text{ 为极限序数}).
+\]
+对每个 $\alpha$ 定义谓词
+\[
+  H(\alpha)
+  \;:\Longleftrightarrow\;
+  \Big(D(S_\alpha)\not\subseteq S_\alpha\Big)
+  \ \vee\
+  \Big((D|_{S_\alpha})^2\neq 0\Big).
+\]
+若
+\[
+  H(0),
+\]
+\[
+  \forall \alpha,\quad H(\alpha)\Rightarrow H(\alpha+1),
+\]
+并且对任意极限序数 $\lambda$，
+\[
+  \Big(\forall \beta<\lambda,\ H(\beta)\Big)\Rightarrow H(\lambda),
+\]
+则
+\[
+  \forall \alpha,\qquad H(\alpha)
+\]
+成立。
+特别地，$s$ 不可能在任意层级的 $C^{(0)}$-内部候选子对象中自足闭合。
+\end{theorem}
+
+\begin{Certificate}[证书：以超限归纳认证奇点链元在单一分次中的不可闭合性]
+\label{cert:tex43-singular-local-failure}
+证书登记谓词链：
+\[
+\begin{aligned}
+  A_1 &: H(0),\\
+  A_2 &: \forall \alpha,\ H(\alpha)\Rightarrow H(\alpha+1),\\
+  A_3 &: \forall \lambda\ \big(\lambda\text{ 为极限序数}\big),\
+         \Big(\forall \beta<\lambda,\ H(\beta)\Big)\Rightarrow H(\lambda),\\
+  A_4 &: A_1\wedge A_2\wedge A_3 \Rightarrow
+         \forall \alpha,\ H(\alpha)\qquad\text{（超限归纳）},\\
+  A_5 &: A_4 \Rightarrow
+         \text{不存在 }C^{(0)}\text{ 内的层级子对象可使 }s\text{ 自足闭合},\\
+  A_6 &: A_5 \Rightarrow
+         s\text{ 的闭合必须越出 }C^{(0)}\text{ 并借助总复形结构}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $A_1$，基步 $H(0)$ 成立。
+
+设对某个序数 $\alpha$ 已知 $H(\alpha)$。
+由 $A_2$，
+\[
+  H(\alpha)\Rightarrow H(\alpha+1),
+\]
+故任意后继层上的候选子对象仍然不是闭合子复形。
+
+再设 $\lambda$ 为极限序数，并假设
+\[
+  \forall \beta<\lambda,\qquad H(\beta).
+\]
+由 $A_3$，
+\[
+  \Big(\forall \beta<\lambda,\ H(\beta)\Big)\Rightarrow H(\lambda).
+\]
+这说明把此前所有层级取直极限后，局部闭合失败仍不会自动消失。
+
+因此，由超限归纳得到
+\[
+  \forall \alpha,\qquad H(\alpha),
+\]
+即 $A_4$ 成立。
+于是任意层级的候选子对象 $S_\alpha$ 都满足
+\[
+  D(S_\alpha)\not\subseteq S_\alpha
+  \quad\text{或}\quad
+  (D|_{S_\alpha})^2\neq 0.
+\]
+故不存在单一分次 $C^{(0)}$ 内的层级子对象能使 $s$ 自足闭合，这就是 $A_5$。
+再由定义~\ref{def:tex43-two-nonisolation}，$s$ 的闭合必须借助总复形的另一扇区与耦合项，
+故 $A_6$ 成立。定理得证。
+\end{proof}
+
+\subsection{引理：开放系统必然物理非孤立}
+\label{subsec:tex43-ch6-lemma}
+
+\begin{lemma}[开放系统推出物理非孤立]
+\label{lem:tex43-open-phys-noniso}
+若系统 $X$ 是开放系统，则
+\[
+  \mathsf{Open}(X)\Rightarrow \mathsf{NonIso}_{\mathrm{phys}}(X).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：开放性按定义即包含外部交换项]
+\label{cert:tex43-open-phys-noniso}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: \mathsf{Open}(X),\\
+  L_2 &: L_1 \Rightarrow \exists \mathcal E,\ J(x,\mathcal E)\not\equiv 0,\\
+  L_3 &: L_2 \Rightarrow \mathsf{NonIso}_{\mathrm{phys}}(X).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$ 与开放系统的定义，
+总演化可写为
+\[
+  \dot x=F(x)+J(x,\mathcal E),
+  \qquad
+  J(x,\mathcal E)\not\equiv 0.
+\]
+因此系统与外部环境之间存在不可忽略的交换项。
+这正是定义~\ref{def:tex43-two-nonisolation} 中的物理非孤立。
+故由 $L_2$ 得 $L_3$，引理成立。证毕。
+\end{proof}
+
+\subsection{命题：混沌系统不必然物理非孤立}
+\label{subsec:tex43-ch6-proposition}
+
+\begin{proposition}[混沌并不推出物理非孤立]
+\label{prop:tex43-chaos-not-phys-noniso}
+一般地，
+\[
+  \mathsf{Chaos}(X)\not\Rightarrow \mathsf{NonIso}_{\mathrm{phys}}(X).
+\]
+因此，物理上封闭孤立而动力上混沌的系统在逻辑上是允许的。
+\end{proposition}
+
+\begin{Certificate}[证书：轨道复杂性与外部交换性是不同性质]
+\label{cert:tex43-chaos-not-phys-noniso}
+证书登记谓词链：
+\[
+\begin{aligned}
+  P_1 &: \mathsf{Chaos}(X)\Rightarrow \text{轨道对初值敏感且具有复杂内部动力},\\
+  P_2 &: \mathsf{NonIso}_{\mathrm{phys}}(X)\Rightarrow
+         \exists \mathcal E,\ J(x,\mathcal E)\not\equiv 0,\\
+  P_3 &: P_1 \text{ 约束的是 }F\text{ 的内部轨道结构},\\
+  P_4 &: P_2 \text{ 约束的是系统与外部环境的交换结构},\\
+  P_5 &: P_3\wedge P_4 \Rightarrow
+         \mathsf{Chaos}(X)\not\Rightarrow \mathsf{NonIso}_{\mathrm{phys}}(X).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $P_1$，混沌性只要求系统内部轨道满足敏感依赖、非平凡分离或回返等性质。
+这些性质完全可以由
+\[
+  \dot x=F(x)
+\]
+的内部动力复杂性给出。
+
+而由 $P_2$，物理非孤立需要的是额外存在
+\[
+  J(x,\mathcal E)\not\equiv 0,
+\]
+即系统与外部环境之间确有交换。
+
+因此，混沌性与物理非孤立分别属于“内部轨道复杂性”和“外部交换结构”两个不同层级。
+由 $P_3\wedge P_4$ 得 $P_5$，故
+\[
+  \mathsf{Chaos}(X)\not\Rightarrow \mathsf{NonIso}_{\mathrm{phys}}(X).
+\]
+命题成立。证毕。
+\end{proof}
+
+\subsection{定理：奇点类混沌链元的同调非孤立判据}
+\label{subsec:tex43-ch6-theorem-criterion}
+
+\begin{theorem}[奇点类混沌链元的同调非孤立判据]
+\label{thm:tex43-singular-hom-noniso}
+设
+\[
+  \mathcal C=C^{(0)}\oplus C^{(1)}
+\]
+是一个 $\Ftwo$-系数的 $\Ztwo$-分次微分同调代数，
+总微分为
+\[
+  D=\partial_0+\partial_1+K,
+  \qquad
+  D^2=0.
+\]
+取奇点类混沌链元
+\[
+  s\in C^{(0)}.
+\]
+若不存在包含 $s$ 的子对象
+\[
+  S\subseteq C^{(0)}
+\]
+满足
+\[
+  D(S)\subseteq S,
+  \qquad
+  (D|_S)^2=0,
+\]
+则
+\[
+  \mathsf{NonIso}_{\mathrm{hom}}(s)
+\]
+成立。
+\end{theorem}
+
+\begin{Certificate}[证书：无法在单一分次中构成闭合子复形即为同调非孤立]
+\label{cert:tex43-singular-hom-noniso}
+证书登记谓词链：
+\[
+\begin{aligned}
+  T_1 &: s\in C^{(0)},\\
+  T_2 &: D^2=0,\\
+  T_3 &: \nexists S\subseteq C^{(0)}\
+         \big(s\in S,\ D(S)\subseteq S,\ (D|_S)^2=0\big),\\
+  T_4 &: T_3 \Rightarrow s\text{ 不能作为 }C^{(0)}\text{ 内的自足闭合对象存在},\\
+  T_5 &: T_4 \Rightarrow \mathsf{NonIso}_{\mathrm{hom}}(s).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若 $\mathsf{NonIso}_{\mathrm{hom}}(s)$ 不成立，
+则按定义~\ref{def:tex43-two-nonisolation}，
+必存在某个
+\[
+  S\subseteq C^{(0)}
+\]
+使得
+\[
+  s\in S,
+  \qquad
+  D(S)\subseteq S,
+  \qquad
+  (D|_S)^2=0.
+\]
+这说明 $s$ 的边界、修复与同伦提升都可在 $C^{(0)}$ 内完成。
+
+但 $T_3$ 恰好否定了这样一个子对象的存在。
+故假设不成立。
+于是 $s$ 不能作为单一分次中的自足闭合对象存在，必须借助总复形的另一扇区及耦合项 $K$。
+这正是 $\mathsf{NonIso}_{\mathrm{hom}}(s)$ 的定义。
+故由 $T_4$ 得 $T_5$，定理成立。证毕。
+\end{proof}
+
+\subsection{定理：物理孤立与同调非孤立可以同时成立}
+\label{subsec:tex43-ch6-theorem-compatibility}
+
+\begin{theorem}[物理孤立与同调非孤立的兼容定理]
+\label{thm:tex43-phys-iso-hom-noniso}
+可以同时有
+\[
+  \neg \mathsf{NonIso}_{\mathrm{phys}}(X)
+  \qquad\text{且}\qquad
+  \mathsf{NonIso}_{\mathrm{hom}}(s).
+\]
+更具体地，若
+\[
+  J(x,\mathcal E)\equiv 0,
+\]
+从而总系统在物理上孤立，
+而某奇点类混沌链元 $s\in C^{(0)}$ 满足定理~\ref{thm:tex43-singular-hom-noniso} 的前提，
+则该系统仍可在代数上精确写成
+\[
+  D=\partial_0+\partial_1+K,
+  \qquad
+  D^2=0
+\]
+的分次开放系统博弈表示。
+\end{theorem}
+
+\begin{Certificate}[证书：对外部环境封闭并不意味着对总复形内部自足闭合]
+\label{cert:tex43-phys-iso-hom-noniso}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: J(x,\mathcal E)\equiv 0 \Rightarrow \neg \mathsf{NonIso}_{\mathrm{phys}}(X),\\
+  C_2 &: s\in C^{(0)}\ \text{且满足定理~\ref{thm:tex43-singular-hom-noniso} 的前提},\\
+  C_3 &: C_2 \Rightarrow \mathsf{NonIso}_{\mathrm{hom}}(s),\\
+  C_4 &: C_3 \Rightarrow s\text{ 的闭合必须借助 }C^{(1)}\text{ 与 }K,\\
+  C_5 &: C_4 \Rightarrow D=\partial_0+\partial_1+K\text{ 给出分次开放系统博弈表示},\\
+  C_6 &: C_1\wedge C_3 \Rightarrow
+         \neg \mathsf{NonIso}_{\mathrm{phys}}(X)\ \wedge\ \mathsf{NonIso}_{\mathrm{hom}}(s).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_1$，
+\[
+  J(x,\mathcal E)\equiv 0
+\]
+意味着系统与其外部环境之间不存在交换，
+故总系统在物理上孤立。
+
+另一方面，由 $C_2$ 与定理~\ref{thm:tex43-singular-hom-noniso}，
+可得
+\[
+  \mathsf{NonIso}_{\mathrm{hom}}(s).
+\]
+这给出 $C_3$。
+
+由 $C_3$，$s$ 不能在 $C^{(0)}$ 中单独形成闭合子复形，
+故它的边界与修复必须越出 $C^{(0)}$ 并借助 $C^{(1)}$ 及耦合项 $K$。
+这给出 $C_4$。
+
+于是总代数结构必写成
+\[
+  D=\partial_0+\partial_1+K,
+\]
+并由第~\ref{sec:tex43-ch4} 章的总同调闭合结果知
+\[
+  D^2=0.
+\]
+因此 $C_5$ 成立。
+
+最后，由 $C_1\wedge C_3$ 直接得到
+\[
+  \neg \mathsf{NonIso}_{\mathrm{phys}}(X)
+  \qquad\text{且}\qquad
+  \mathsf{NonIso}_{\mathrm{hom}}(s).
+\]
+故物理孤立与同调非孤立完全可以同时成立。定理得证。
+\end{proof}
+
+\subsection{推论：关于奇点类混沌链元非孤立性的严格结果表达}
+\label{subsec:tex43-ch6-corollary}
+
+\begin{corollary}[奇点类混沌链元的严格版结果]
+\label{cor:tex43-strict-hom-noniso}
+若奇点类混沌链元
+\[
+  s\in C^{(0)}
+\]
+被体系内归入无时间属性扇区，
+并且它不能在 $C^{(0)}$ 内单独构成 $D$-闭合子复形，
+而必须借助有时间属性扇区 $C^{(1)}$ 与耦合修复项 $K$ 才能实现
+\[
+  D^2=0,
+\]
+则可严格推出：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{该奇点类混沌链元未必在物理意义上非孤立；}\\
+      &\text{但它在 }\Ftwo\text{-系数的 }\Ztwo\text{-分次微分同调代数的}\\
+      &\text{同伦映射意义上必为非孤立。}
+    \end{aligned}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：无时间属性归类 + 单扇区不可闭合 + 总微分闭合]
+\label{cert:tex43-strict-hom-noniso}
+证书登记谓词链：
+\[
+\begin{aligned}
+  R_1 &: s\in C^{(0)},\\
+  R_2 &: \nexists S\subseteq C^{(0)}\
+         \big(s\in S,\ D(S)\subseteq S,\ (D|_S)^2=0\big),\\
+  R_3 &: D=\partial_0+\partial_1+K,\ D^2=0,\\
+  R_4 &: R_1\wedge R_2 \Rightarrow \mathsf{NonIso}_{\mathrm{hom}}(s)
+         \ \text{（定理~\ref{thm:tex43-singular-hom-noniso}）},\\
+  R_5 &: R_3 \Rightarrow s\text{ 的闭合只能在总复形层面完成},\\
+  R_6 &: R_4\wedge R_5 \Rightarrow
+         s\text{ 在同伦映射意义上非孤立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $R_1\wedge R_2$ 与定理~\ref{thm:tex43-singular-hom-noniso}，
+立即得到
+\[
+  \mathsf{NonIso}_{\mathrm{hom}}(s).
+\]
+这就是 $R_4$。
+
+再由 $R_3$，
+\[
+  D=\partial_0+\partial_1+K,
+  \qquad
+  D^2=0
+\]
+说明 $s$ 的边界与修复并不是在单一扇区内完成的，
+而是在总复形的跨分次耦合中完成的。
+故 $R_5$ 成立。
+
+因此，由 $R_4\wedge R_5$ 可知：
+$s$ 未必是物理非孤立的，
+但它在该 $\Ftwo$-系数 $\Ztwo$-分次微分同调代数的同伦映射意义上必为非孤立。
+推论成立。证毕。
+\end{proof}
+
+\subsection{备注：能稳定保留的内核表述}
+\label{subsec:tex43-ch6-remarks}
+
+\begin{remark}[“混沌推出非孤立”只能在细分语境下成立]
+本章稳定得到的是：
+\[
+  \mathsf{Chaos}(X)\not\Rightarrow \mathsf{NonIso}_{\mathrm{phys}}(X),
+\]
+而不是“混沌一律推出非孤立”。
+若要得到“非孤立”，必须先说明这里指的是物理非孤立、有效非孤立，还是同调非孤立。
+\end{remark}
+
+\begin{remark}[奇点类混沌是重要模型，但不是全部封闭混沌系统的唯一代表]
+本章只说明奇点类混沌链元在当前形式系统中是一个特别强、特别适合接入分次同调代数的模型。
+这并不意味着一切物理上封闭而动力上混沌的系统都必须归入奇点模型。
+\end{remark}
+
+\begin{remark}[最值得保留的一句话]
+本章最稳的压缩表达是：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{您能严格得到的是“同调/同伦意义上的非孤立”，}\\
+      &\text{而不是“物理意义上的非孤立”。}
+    \end{aligned}
+  }
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：奇点不可孤立化、时间对偶补扇区与嵌入修复定理}
+\label{sec:tex43-ch7}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格主张、继承关系与引用定位}
+\label{subsec:tex43-ch7-convention}
+
+本章把前几章中关于“奇点类混沌链元的同调非孤立”进一步推进为一个更强的修复命题：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{奇点不能作为自足对象被孤立处理；}\\
+      &\text{因为奇点扇区自身通常不能构造并闭合一个非平凡的时间对偶扇区；}\\
+      &\text{故其修复必然要求把奇点嵌入到包含时间扇区的更大总复形中。}
+    \end{aligned}
+  }
+\]
+
+\begin{remark}[本章与前文的承接位置]
+关于总复形闭合与跨扇区修复，可参见第~\ref{sec:tex43-ch1} 章与第~\ref{sec:tex43-ch4} 章；
+关于时间/无时间分次与修复塔，可参见第~\ref{sec:tex43-ch2} 章；
+关于有效开放性、奇点类混沌与隐藏扇区进入动力学，可参见第~\ref{sec:tex43-ch5} 章；
+关于物理非孤立与同调非孤立的严格区分，可参见第~\ref{sec:tex43-ch6} 章。
+仓内外背景可继续参考
+\cite{RepoTex29RepairableObstruction}、
+\cite{RepoTex38JacobiBianchiRepair}、
+\cite{RepoTex39StatRepair}、
+\cite{GaoZheng2025GFramework}、
+\cite{Weibel1994HomologicalAlgebra}、
+\cite{Hatcher2002AT}。
+\end{remark}
+
+\subsection{定义：奇点内部对偶分解、外延时间补扇区与嵌入修复}
+\label{subsec:tex43-ch7-definitions}
+
+\begin{definition}[奇点内部对偶分解]
+\label{def:tex43-singular-internal-dual}
+设
+\[
+  \mathcal C=C^{(0)}\oplus C^{(1)},
+  \qquad
+  D=\partial_0+\partial_1+K,
+  \qquad
+  D^2=0,
+\]
+且奇点扇区满足
+\[
+  S\subseteq C^{(0)}.
+\]
+若存在
+\[
+  S=S^{(0)}\oplus S^{(1)},
+  \qquad
+  S^{(1)}\neq 0,
+\]
+并满足
+\[
+  D(S)\subseteq S,
+  \qquad
+  (D|_S)^2=0,
+\]
+则称 $S$ 具有\emph{奇点内部对偶分解}。
+若不存在这样的分解，则称 $S$ \emph{内部对偶不闭合}。
+\end{definition}
+
+\begin{definition}[外延时间对偶补扇区]
+\label{def:tex43-external-time-complement}
+设奇点扇区
+\[
+  S\subseteq C^{(0)}
+\]
+内部对偶不闭合。
+若存在某个子对象
+\[
+  T\subseteq C^{(1)},
+  \qquad
+  T\neq 0,
+\]
+使得对扩张对象
+\[
+  \widetilde{S}:=S\oplus T
+\]
+有
+\[
+  D(\widetilde{S})\subseteq \widetilde{S},
+  \qquad
+  (D|_{\widetilde{S}})^2=0,
+\]
+则称 $T$ 为 $S$ 的\emph{外延时间对偶补扇区}。
+\end{definition}
+
+\begin{definition}[奇点嵌入修复]
+\label{def:tex43-singular-embedding-repair}
+若存在外延时间对偶补扇区 $T$，使奇点扇区 $S$ 的扩张对象
+\[
+  \widetilde{S}=S\oplus T
+\]
+在总微分 $D$ 下成为闭合子复形，
+则称映射
+\[
+  \iota:S\hookrightarrow \widetilde{S}\hookrightarrow \mathcal C
+\]
+是 $S$ 的\emph{嵌入修复}。
+\end{definition}
+
+\subsection{公理（降级为定理）：奇点内部对偶不闭合的超限稳定性}
+\label{subsec:tex43-ch7-axiom-downgrade}
+
+\begin{theorem}[公理降级为定理：奇点内部对偶不闭合的超限稳定性]
+\label{thm:tex43-singular-dual-failure}
+设奇点扇区
+\[
+  S\subseteq C^{(0)}
+\]
+以及一族按序数标号的内部候选对偶分解
+\[
+  S_\alpha=S_\alpha^{(0)}\oplus S_\alpha^{(1)}
+  \qquad
+  (\alpha<\Lambda),
+\]
+其中
+\[
+  S_\alpha^{(0)}\subseteq S,
+  \qquad
+  S_\alpha^{(1)}\subseteq S.
+\]
+定义谓词
+\[
+  Q(\alpha)
+  \;:\Longleftrightarrow\;
+  \Big(S_\alpha^{(1)}=0\Big)
+  \ \vee\
+  \Big(D(S_\alpha)\not\subseteq S_\alpha\Big)
+  \ \vee\
+  \Big((D|_{S_\alpha})^2\neq 0\Big).
+\]
+若满足
+\[
+  Q(0),
+\]
+\[
+  \forall \alpha<\Lambda,\quad Q(\alpha)\Rightarrow Q(\alpha+1),
+\]
+并且对每个极限序数 $\lambda<\Lambda$，
+\[
+  \Big(\forall \beta<\lambda,\ Q(\beta)\Big)\Rightarrow Q(\lambda),
+\]
+则
+\[
+  \forall \alpha<\Lambda,\qquad Q(\alpha)
+\]
+成立。
+因此，奇点扇区 $S$ 不可能仅凭自身在任意层级上形成非平凡且闭合的内部时间对偶分解。
+\end{theorem}
+
+\begin{Certificate}[证书：以超限归纳排除奇点内部自足时间对偶分解]
+\label{cert:tex43-singular-dual-failure}
+证书登记谓词链：
+\[
+\begin{aligned}
+  A_1 &: Q(0),\\
+  A_2 &: \forall \alpha<\Lambda,\ Q(\alpha)\Rightarrow Q(\alpha+1),\\
+  A_3 &: \forall \lambda<\Lambda\ \big(\lambda\text{ 为极限序数}\big),\
+         \Big(\forall \beta<\lambda,\ Q(\beta)\Big)\Rightarrow Q(\lambda),\\
+  A_4 &: A_1\wedge A_2\wedge A_3 \Rightarrow
+         \forall \alpha<\Lambda,\ Q(\alpha)\qquad\text{（超限归纳）},\\
+  A_5 &: A_4 \Rightarrow
+         \text{不存在奇点内部的非平凡闭合对偶分解},\\
+  A_6 &: A_5 \Rightarrow
+         \text{奇点修复不能是“奇点内部自修复”}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $A_1$，基步 $Q(0)$ 成立。
+
+设对某个 $\alpha<\Lambda$ 已有 $Q(\alpha)$。
+由 $A_2$，
+\[
+  Q(\alpha)\Rightarrow Q(\alpha+1),
+\]
+故在任何后继层级上，
+候选内部对偶分解仍然满足“三种失败情形”之一：
+\[
+  S_{\alpha+1}^{(1)}=0,
+  \quad\text{或}\quad
+  D(S_{\alpha+1})\not\subseteq S_{\alpha+1},
+  \quad\text{或}\quad
+  (D|_{S_{\alpha+1}})^2\neq 0.
+\]
+
+再设 $\lambda$ 为极限序数，并假设
+\[
+  \forall \beta<\lambda,\qquad Q(\beta).
+\]
+由 $A_3$，
+\[
+  \Big(\forall \beta<\lambda,\ Q(\beta)\Big)\Rightarrow Q(\lambda).
+\]
+这说明把所有先前层级的内部候选分解并合起来，也不会自动生成一个闭合的时间对偶扇区。
+
+因此，由超限归纳原理得到
+\[
+  \forall \alpha<\Lambda,\qquad Q(\alpha),
+\]
+即 $A_4$ 成立。
+于是不存在任意层级上的内部候选分解
+\[
+  S_\alpha=S_\alpha^{(0)}\oplus S_\alpha^{(1)}
+  \qquad
+  (S_\alpha^{(1)}\neq 0)
+\]
+能够同时满足
+\[
+  D(S_\alpha)\subseteq S_\alpha,
+  \qquad
+  (D|_{S_\alpha})^2=0.
+\]
+故 $A_5$ 成立。
+再由定义~\ref{def:tex43-singular-internal-dual}，
+这正意味着奇点扇区的修复不能在奇点内部独立完成，即 $A_6$ 成立。定理得证。
+\end{proof}
+
+\subsection{命题：奇点内部对偶不闭合推出奇点不可孤立化}
+\label{subsec:tex43-ch7-proposition}
+
+\begin{proposition}[奇点不可孤立化判据]
+\label{prop:tex43-singular-not-isolable}
+若奇点扇区 $S$ 不具备定义~\ref{def:tex43-singular-internal-dual} 的内部对偶分解，
+则 $S$ 不能被孤立地看待。
+\end{proposition}
+
+\begin{Certificate}[证书：可孤立处理等价于奇点内部已自足闭合]
+\label{cert:tex43-singular-not-isolable}
+证书登记谓词链：
+\[
+\begin{aligned}
+  P_1 &: \text{奇点可孤立处理} \Rightarrow
+         \exists S=S^{(0)}\oplus S^{(1)},\ S^{(1)}\neq 0,\\
+  P_2 &: P_1 \Rightarrow D(S)\subseteq S,\ (D|_S)^2=0,\\
+  P_3 &: \neg P_2 \Rightarrow \text{奇点内部不自足闭合},\\
+  P_4 &: P_3 \Rightarrow \text{奇点不可孤立化}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若奇点扇区 $S$ 可以被孤立地看待，
+则其作为一个独立可处理对象，
+应当在自身内部就拥有足以支撑边界、修复与同伦闭合的分次结构。
+这意味着存在
+\[
+  S=S^{(0)}\oplus S^{(1)},
+  \qquad
+  S^{(1)}\neq 0,
+\]
+并满足
+\[
+  D(S)\subseteq S,
+  \qquad
+  (D|_S)^2=0.
+\]
+这给出 $P_1$ 与 $P_2$。
+
+若上述条件不成立，
+则奇点内部无法完成自足闭合，
+即 $P_3$ 成立。
+于是奇点的微分像、障碍消去或同伦提升必然越出 $S$，
+进入更大的总复形。
+因此 $S$ 不能作为一个自足对象被孤立处理，
+即 $P_4$ 成立。命题得证。
+\end{proof}
+
+\subsection{定理：奇点修复必须嵌入含时间扇区的更大总系统}
+\label{subsec:tex43-ch7-theorem}
+
+\begin{theorem}[奇点嵌入修复定理]
+\label{thm:tex43-singular-embedding-repair}
+在当前修复框架下，设奇点扇区
+\[
+  S\subseteq C^{(0)}
+\]
+内部对偶不闭合。
+若要修复 $S$ 的失闭合并恢复
+\[
+  D^2=0,
+\]
+则其必要条件是：存在一个包含时间扇区的更大总系统
+\[
+  \mathcal C=C^{(0)}\oplus C^{(1)}
+\]
+以及某个外延时间对偶补扇区
+\[
+  T\subseteq C^{(1)},
+  \qquad
+  T\neq 0,
+\]
+使得扩张对象
+\[
+  \widetilde{S}=S\oplus T
+\]
+在总微分下成为闭合子复形：
+\[
+  D(\widetilde{S})\subseteq \widetilde{S},
+  \qquad
+  (D|_{\widetilde{S}})^2=0.
+\]
+换言之，奇点修复的必要格式是
+\[
+  \boxed{
+    S
+    \xhookrightarrow{\ \iota\ }
+    \widetilde{S}=S\oplus T
+    \hookrightarrow
+    \mathcal C=C^{(0)}\oplus C^{(1)}.
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：失闭合障碍只能通过外延时间补扇区与跨扇区耦合消去]
+\label{cert:tex43-singular-embedding-repair}
+证书登记谓词链：
+\[
+\begin{aligned}
+  T_1 &: S\subseteq C^{(0)}\ \text{且内部对偶不闭合},\\
+  T_2 &: T_1 \Rightarrow \text{存在奇点内部的失闭合项 }\Ob_S\neq 0,\\
+  T_3 &: \text{若仅在 }S\text{ 内工作，则 }\Ob_S\text{ 无法由内部时间对偶扇区消去},\\
+  T_4 &: \text{要恢复 }D^2=0,\ \text{必须引入 }T\subseteq C^{(1)}\text{ 与耦合项 }K,\\
+  T_5 &: T_4 \Rightarrow
+         \widetilde{S}=S\oplus T\text{ 在 }D\text{ 下可成为闭合子复形},\\
+  T_6 &: T_5 \Rightarrow \iota:S\hookrightarrow \widetilde{S}\hookrightarrow \mathcal C
+         \text{ 构成嵌入修复}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $T_1$ 与定义~\ref{def:tex43-singular-internal-dual}，
+奇点扇区 $S$ 自身无法构造一个非平凡且闭合的时间对偶扇区。
+因此在仅考虑 $S$ 时，
+总会残留某种失闭合项，
+记为
+\[
+  \Ob_S:=(D|_S)^2
+  \quad\text{或其等价的障碍表示},
+\]
+于是 $T_2$ 成立。
+
+再由 $T_3$，
+若继续把修复限制在 $S$ 内部，
+则由于缺乏足够的时间对偶扇区，
+$\Ob_S$ 无法在内部被吸收或抵消。
+因此单扇区修复失败。
+
+要恢复闭合，
+只能把 $S$ 嵌入到更大的总复形
+\[
+  \mathcal C=C^{(0)}\oplus C^{(1)}
+\]
+中，并引入某个非零时间补扇区
+\[
+  T\subseteq C^{(1)}
+\]
+以及跨扇区耦合修复项 $K$。
+这给出 $T_4$。
+
+于是对扩张对象
+\[
+  \widetilde{S}=S\oplus T
+\]
+考虑限制微分，
+若修复成功，则必满足
+\[
+  D(\widetilde{S})\subseteq \widetilde{S},
+  \qquad
+  (D|_{\widetilde{S}})^2=0.
+\]
+故 $T_5$ 成立。
+
+最后，由定义~\ref{def:tex43-singular-embedding-repair}，
+这正意味着存在
+\[
+  \iota:S\hookrightarrow \widetilde{S}\hookrightarrow \mathcal C
+\]
+这一嵌入修复链。
+因此 $T_6$ 成立，定理得证。
+\end{proof}
+
+\subsection{推论：奇点不是孤立坏点，而是失闭合位置}
+\label{subsec:tex43-ch7-corollary}
+
+\begin{corollary}[奇点的严格版结果表达]
+\label{cor:tex43-singular-locus}
+在当前修复框架下，可以把奇点的严格表述压缩为：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{奇点不能作为自足对象被孤立处理；}\\
+      &\text{奇点自身通常不能自足地产生并闭合一个含时间扇区的对偶分解；}\\
+      &\text{因此其修复必然要求把奇点嵌入到包含时间扇区的更大总复形中。}
+    \end{aligned}
+  }
+\]
+等价地说，
+\[
+  \boxed{
+    \text{奇点不是“一个孤立坏点”，而是无时间扇区中的失闭合位置。}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：内部不闭合 + 不可孤立化 + 嵌入修复]
+\label{cert:tex43-singular-locus}
+证书登记谓词链：
+\[
+\begin{aligned}
+  R_1 &: \text{定理~\ref{thm:tex43-singular-dual-failure} 排除奇点内部自足时间对偶分解},\\
+  R_2 &: \text{命题~\ref{prop:tex43-singular-not-isolable} 给出奇点不可孤立化},\\
+  R_3 &: \text{定理~\ref{thm:tex43-singular-embedding-repair} 给出嵌入修复的必要格式},\\
+  R_4 &: R_1\wedge R_2\wedge R_3 \Rightarrow
+         \text{奇点是失闭合位置而非孤立自足对象}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $R_1$，
+奇点扇区内部无法形成非平凡且闭合的时间对偶分解。
+由 $R_2$，
+这直接推出奇点不能被孤立地看待。
+再由 $R_3$，
+一切成功修复都必须采取
+\[
+  S\hookrightarrow \widetilde{S}=S\oplus T\hookrightarrow \mathcal C
+\]
+的嵌入修复格式。
+因此，奇点在当前框架中不应被理解为一个自足坏点，
+而应理解为一个需要外延时间补扇区来恢复闭合的位置。
+故 $R_4$ 成立，推论得证。
+\end{proof}
+
+\subsection{备注：最应保留的硬表达}
+\label{subsec:tex43-ch7-remarks}
+
+\begin{remark}[建议保留的严格措辞]
+“奇点自身含时间扇区”这一句容易造成歧义。
+更严格的说法应是：
+\[
+  \text{奇点自身通常无法完成一个闭合的、含非平凡时间扇区的对偶分解。}
+\]
+\end{remark}
+
+\begin{remark}[本章的核心逻辑链]
+本章真正的因果链是：
+\[
+  \text{奇点可孤立处理}
+  \Rightarrow
+  \text{奇点内部自足闭合},
+\]
+但当前框架通过定理~\ref{thm:tex43-singular-dual-failure} 断言
+\[
+  \text{奇点内部不自足闭合},
+\]
+因此推出
+\[
+  \boxed{\text{奇点不可孤立看待。}}
+\]
+\end{remark}
+
+\begin{remark}[最硬的压缩表述]
+若再压成一句最硬的表达，则应写成：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{在当前修复框架中，奇点不是“对象”，而是“失闭合位置”；}\\
+      &\text{既然是失闭合位置，它就不可能仅凭自身完成修复，}\\
+      &\text{而必然要求一个含时间扇区的对偶补空间。}
+    \end{aligned}
+  }
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：奇点存在性—可修复性双等价定理、时间对偶补复形与超限构造证书}
+\label{sec:tex43-ch8}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格设定、继承关系与引用定位}
+\label{subsec:tex43-ch8-convention}
+
+本章把上一章的“奇点不可孤立化”和“嵌入修复”进一步压成一个双等价强定理：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{奇点的存在性}\iff \text{单扇区失闭合};\\
+      &\text{奇点的可修复性}\iff \text{存在含时间扇区的对偶补复形使 }D^2=0.
+    \end{aligned}
+  }
+\]
+其中“时间扇区”在本章中不再被表述为物理钟表时间，
+而被严格化为：
+\[
+  \boxed{
+    \text{具有内禀序数滤过、能承载修复层级的对偶补复形。}
+  }
+\]
+
+\begin{remark}[本章与前文的承接位置]
+关于总复形闭合、总同调群与跨扇区修复，可参见第~\ref{sec:tex43-ch1} 章与第~\ref{sec:tex43-ch4} 章；
+关于时间属性与超限滤过，可参见第~\ref{sec:tex43-ch2} 章；
+关于奇点类混沌、隐藏离散扇区与外延时间补扇区，可参见第~\ref{sec:tex43-ch5} 章与第~\ref{sec:tex43-ch7} 章。
+仓内外背景继续参考
+\cite{RepoTex29RepairableObstruction}、
+\cite{RepoTex38JacobiBianchiRepair}、
+\cite{RepoTex39StatRepair}、
+\cite{GaoZheng2025GFramework}、
+\cite{Weibel1994HomologicalAlgebra}、
+\cite{Hatcher2002AT}、
+\cite{Jech2003SetTheory}、
+\cite{Kunen2011SetTheory}。
+\end{remark}
+
+\subsection{固定设定与四个基础定义}
+\label{subsec:tex43-ch8-definitions}
+
+\begin{definition}[固定设定：无时间预微分代数与局域奇点候选]
+\label{def:tex43-singularity-fixed-setting}
+令
+\[
+  (\mathcal C_{\bar\tau},m_{\bar\tau},d_{\bar\tau})
+\]
+为一个 $\Ftwo$-系数的 $\Ztwo$-分次预微分代数，其中：
+\[
+  \mathcal C_{\bar\tau}\ \text{表示无时间属性扇区},
+  \qquad
+  m_{\bar\tau}\ \text{表示乘法},
+  \qquad
+  d_{\bar\tau}\ \text{表示奇阶导子}.
+\]
+在本章中不预先假设
+\[
+  d_{\bar\tau}^2=0.
+\]
+给定局域奇点候选子集
+\[
+  S\subseteq \mathcal C_{\bar\tau},
+\]
+记由 $S$ 生成的最小分次子代数为
+\[
+  \langle S\rangle_{\bar\tau}\subseteq \mathcal C_{\bar\tau}.
+\]
+定义该局域扇区的闭合障碍为
+\[
+  \operatorname{Ob}_{\bar\tau}(S)
+  :=
+  d_{\bar\tau}^2\big|_{\langle S\rangle_{\bar\tau}}.
+\]
+\end{definition}
+
+\begin{definition}[单扇区失闭合]
+\label{def:tex43-single-sector-failure}
+称 $S$ 在无时间扇区中发生\emph{单扇区失闭合}，
+若
+\[
+  \operatorname{Ob}_{\bar\tau}(S)\neq 0,
+\]
+即
+\[
+  d_{\bar\tau}^2\big|_{\langle S\rangle_{\bar\tau}}\neq 0.
+\]
+这表示：仅使用 $\mathcal C_{\bar\tau}$ 时，
+\[
+  \langle S\rangle_{\bar\tau}
+\]
+不能成为一个真正的局域微分子代数。
+\end{definition}
+
+\begin{definition}[奇点的存在性]
+\label{def:tex43-singularity-existence}
+称 $S$ 为一个\emph{奇点}或\emph{奇点类失闭合局域}，
+若在固定的无时间扇区候选模型
+\[
+  (\mathcal C_{\bar\tau},d_{\bar\tau})
+\]
+中，
+\[
+  \langle S\rangle_{\bar\tau}
+\]
+不能自足闭合，即不存在以
+\[
+  d_{\bar\tau}\big|_{\langle S\rangle_{\bar\tau}}
+\]
+为局域预微分且满足平方为零的自足局域模型。
+\end{definition}
+
+\begin{definition}[含时间扇区的对偶补复形]
+\label{def:tex43-time-complement-complex}
+称四元组
+\[
+  (\mathcal C_{\tau},d_{\tau},K_{\bar\tau\tau},K_{\tau\bar\tau})
+\]
+为 $S$ 的\emph{含时间扇区的对偶补复形}，
+若满足：
+\[
+  \mathcal C_{\tau}\neq 0,
+\]
+\[
+  F_0\mathcal C_\tau \subseteq F_1\mathcal C_\tau \subseteq \cdots \subseteq F_\alpha\mathcal C_\tau \subseteq \cdots
+\]
+是一族内禀序数滤过，
+故 $\mathcal C_\tau$ 在第~\ref{sec:tex43-ch2} 章的意义下具有时间属性；
+\[
+  d_\tau\ \text{是 }\mathcal C_\tau\text{ 上的奇阶导子，且不预先假设 }d_\tau^2=0;
+\]
+并且存在跨扇区耦合映射
+\[
+  K_{\bar\tau\tau}:\mathcal C_{\bar\tau}\to \mathcal C_\tau,
+  \qquad
+  K_{\tau\bar\tau}:\mathcal C_\tau\to \mathcal C_{\bar\tau},
+\]
+使得在总对象
+\[
+  \widetilde{\mathcal C}
+  :=
+  \mathcal C_{\bar\tau}\oplus \mathcal C_\tau
+\]
+上的总微分
+\[
+  D=
+  \begin{pmatrix}
+    d_{\bar\tau} & K_{\tau\bar\tau}\\
+    K_{\bar\tau\tau} & d_\tau
+  \end{pmatrix}
+\]
+满足
+\[
+  D^2=0.
+\]
+\end{definition}
+
+\begin{definition}[奇点的可修复性]
+\label{def:tex43-singularity-repairability}
+称奇点 $S$ 是\emph{可修复}的，
+若存在某个总复形
+\[
+  (\widetilde{\mathcal C},D)
+  \supseteq
+  \big(\langle S\rangle_{\bar\tau},d_{\bar\tau}\big|_{\langle S\rangle_{\bar\tau}}\big)
+\]
+使得：
+\[
+  D^2=0,
+\]
+\[
+  \operatorname{Ob}_{\bar\tau}(S)
+  \text{ 在总复形中被吸收为总边界或总闭合条件的一部分},
+\]
+并且修复后 $S$ 不再作为孤立单扇区存在，
+而是作为总复形中的局域成分存在。
+\end{definition}
+
+\subsection{引理：总微分平方的四块条件}
+\label{subsec:tex43-ch8-lemma}
+
+\begin{lemma}[总微分平方的分块等价条件]
+\label{lem:tex43-block-conditions}
+在定义~\ref{def:tex43-time-complement-complex} 的设定下，
+令
+\[
+  D=
+  \begin{pmatrix}
+    d_{\bar\tau} & K_{\tau\bar\tau}\\
+    K_{\bar\tau\tau} & d_\tau
+  \end{pmatrix}.
+\]
+则在 $\Ftwo$ 上，
+\[
+  D^2=0
+\]
+当且仅当以下四个块条件同时成立：
+\[
+  d_{\bar\tau}^2 + K_{\tau\bar\tau}K_{\bar\tau\tau}=0,
+  \tag{A}
+\]
+\[
+  d_{\bar\tau}K_{\tau\bar\tau}+K_{\tau\bar\tau}d_\tau=0,
+  \tag{B}
+\]
+\[
+  d_\tau K_{\bar\tau\tau}+K_{\bar\tau\tau}d_{\bar\tau}=0,
+  \tag{C}
+\]
+\[
+  d_\tau^2 + K_{\bar\tau\tau}K_{\tau\bar\tau}=0.
+  \tag{D}
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：矩阵平方逐块展开并在模二下消去符号差异]
+\label{cert:tex43-block-conditions}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: D=
+         \begin{pmatrix}
+           d_{\bar\tau} & K_{\tau\bar\tau}\\
+           K_{\bar\tau\tau} & d_\tau
+         \end{pmatrix},\\
+  L_2 &: L_1 \Rightarrow
+         D^2=
+         \begin{pmatrix}
+           d_{\bar\tau}^2 + K_{\tau\bar\tau}K_{\bar\tau\tau}
+           &
+           d_{\bar\tau}K_{\tau\bar\tau}+K_{\tau\bar\tau}d_\tau\\
+           d_\tau K_{\bar\tau\tau}+K_{\bar\tau\tau}d_{\bar\tau}
+           &
+           d_\tau^2 + K_{\bar\tau\tau}K_{\tau\bar\tau}
+         \end{pmatrix},\\
+  L_3 &: \text{系数域为 }\Ftwo\Rightarrow\text{符号项按模二消去},\\
+  L_4 &: L_2\wedge L_3 \Rightarrow
+         \big(D^2=0 \iff \text{(A)(B)(C)(D) 同时成立}\big).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$，直接作矩阵平方：
+\[
+  D^2=
+  \begin{pmatrix}
+    d_{\bar\tau} & K_{\tau\bar\tau}\\
+    K_{\bar\tau\tau} & d_\tau
+  \end{pmatrix}
+  \begin{pmatrix}
+    d_{\bar\tau} & K_{\tau\bar\tau}\\
+    K_{\bar\tau\tau} & d_\tau
+  \end{pmatrix}.
+\]
+逐块相乘得到
+\[
+  D^2=
+  \begin{pmatrix}
+    d_{\bar\tau}^2 + K_{\tau\bar\tau}K_{\bar\tau\tau}
+    &
+    d_{\bar\tau}K_{\tau\bar\tau}+K_{\tau\bar\tau}d_\tau\\
+    d_\tau K_{\bar\tau\tau}+K_{\bar\tau\tau}d_{\bar\tau}
+    &
+    d_\tau^2 + K_{\bar\tau\tau}K_{\tau\bar\tau}
+  \end{pmatrix}.
+\]
+这就是 $L_2$。
+
+再由 $L_3$，系数域取 $\Ftwo$，
+故所有本来由正负号区分的项在模二意义下合并。
+因此
+\[
+  D^2=0
+\]
+等价于上述四个分块同时为零，
+即 (A)(B)(C)(D) 同时成立。
+故 $L_4$ 成立，引理得证。
+\end{proof}
+
+\subsection{公理（降级为定理）：时间扇区超限构造证书}
+\label{subsec:tex43-ch8-axiom-downgrade}
+
+\begin{theorem}[公理降级为定理：时间扇区的超限构造证书]
+\label{thm:tex43-time-sector-transfinite}
+设奇点障碍模
+\[
+  \mathcal O_S
+  :=
+  \operatorname{im}
+  \Big(
+    d_{\bar\tau}^2\big|_{\langle S\rangle_{\bar\tau}}
+  \Big)
+\]
+具有一个良序生成族
+\[
+  \{o_\alpha\}_{\alpha<\lambda}.
+\]
+若可按超限递归构造时间扇区滤过
+\[
+  F_0\mathcal C_\tau \subseteq F_1\mathcal C_\tau \subseteq \cdots \subseteq F_\mu\mathcal C_\tau \subseteq \cdots
+\]
+使得：
+\[
+  \text{基步可吸收 }o_0,
+\]
+\[
+  \text{每个后继步可吸收 }o_{\beta+1}\text{ 的剩余障碍},
+\]
+\[
+  \text{每个极限步取并集并保持先前吸收关系},
+\]
+且在某个最小序数 $\lambda_\ast\le \lambda$ 处，
+由构造得到的
+\[
+  (\mathcal C_\tau,d_\tau,K_{\bar\tau\tau},K_{\tau\bar\tau})
+\]
+满足引理~\ref{lem:tex43-block-conditions} 的四块条件，
+则 $S$ 存在一个最小修复时间扇区。
+\end{theorem}
+
+\begin{Certificate}[证书：对障碍生成族作超限递归并在最小层达到四块闭合]
+\label{cert:tex43-time-sector-transfinite}
+证书登记谓词链：
+\[
+\begin{aligned}
+  A_1 &: \mathcal O_S=\operatorname{im}\big(d_{\bar\tau}^2|_{\langle S\rangle_{\bar\tau}}\big),\\
+  A_2 &: \{o_\alpha\}_{\alpha<\lambda}\ \text{是 }\mathcal O_S\text{ 的良序生成族},\\
+  A_3 &: \text{基步可为 }o_0\text{ 加入时间生成元 }t_0,\\
+  A_4 &: \forall \beta<\lambda,\ \text{若已吸收到 }\beta\text{，则可在后继步吸收 }o_{\beta+1},\\
+  A_5 &: \forall \mu\le\lambda,\ \mu\text{ 为极限序数}\Rightarrow
+         F_\mu\mathcal C_\tau=\bigcup_{\alpha<\mu}F_\alpha\mathcal C_\tau,\\
+  A_6 &: \exists \lambda_\ast\le\lambda,\ \text{四块条件 (A)(B)(C)(D) 首次同时成立},\\
+  A_7 &: A_1\wedge\cdots\wedge A_6 \Rightarrow
+         \text{存在最小修复时间扇区}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $A_1$ 与 $A_2$，
+奇点的单扇区失闭合障碍被编码为一个按良序排列的生成族
+\[
+  \{o_\alpha\}_{\alpha<\lambda}.
+\]
+
+由 $A_3$，对基步 $\alpha=0$，
+若 $o_0\neq 0$，则可加入新元
+\[
+  t_0\in \mathcal C_\tau
+\]
+使相应耦合链路吸收 $o_0$ 的首个障碍成分。
+
+再由 $A_4$，若已在某个后继层 $\beta$ 前完成先前所有障碍的吸收，
+则可在 $\beta+1$ 层加入新元
+\[
+  t_{\beta+1}
+\]
+以吸收 $o_{\beta+1}$ 的剩余障碍。
+故所有后继层都可递推构造。
+
+由 $A_5$，对每个极限序数 $\mu$，
+取
+\[
+  F_\mu\mathcal C_\tau=\bigcup_{\alpha<\mu}F_\alpha\mathcal C_\tau,
+\]
+从而不会丢失先前各层已完成的吸收链路。
+
+最后，由 $A_6$，
+在某个最小层级 $\lambda_\ast$ 上，
+构造所得的总微分首次满足引理~\ref{lem:tex43-block-conditions} 的四块条件，
+即
+\[
+  D^2=0.
+\]
+因此由超限递归原理，时间扇区不仅存在，而且存在一个最小修复层级。
+故 $A_7$ 成立，定理得证。
+\end{proof}
+
+\subsection{定理：奇点存在性与单扇区失闭合的双向等价}
+\label{subsec:tex43-ch8-theorem-existence}
+
+\begin{theorem}[奇点存在性—单扇区失闭合双等价定理]
+\label{thm:tex43-singularity-existence-iff}
+在定义~\ref{def:tex43-singularity-fixed-setting} 的固定设定下，
+成立双向等价：
+\[
+  \boxed{
+    S\text{ 是奇点}
+    \iff
+    d_{\bar\tau}^2\big|_{\langle S\rangle_{\bar\tau}}\neq 0.
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：局域自足闭合与局域预微分平方为零互相刻画]
+\label{cert:tex43-singularity-existence-iff}
+证书登记谓词链：
+\[
+\begin{aligned}
+  E_1 &: S\text{ 是奇点},\\
+  E_2 &: d_{\bar\tau}^2\big|_{\langle S\rangle_{\bar\tau}}\neq 0,\\
+  E_3 &: \neg E_2 \Rightarrow
+         \big(\langle S\rangle_{\bar\tau},d_{\bar\tau}|_{\langle S\rangle_{\bar\tau}}\big)
+         \text{ 自足闭合},\\
+  E_4 &: E_3 \Rightarrow \neg E_1,\\
+  E_5 &: E_2 \Rightarrow
+         \langle S\rangle_{\bar\tau}\text{ 不能成为局域微分子代数},\\
+  E_6 &: E_5 \Rightarrow E_1.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+先证正向。
+假设 $E_1$ 成立，而 $E_2$ 不成立，即
+\[
+  d_{\bar\tau}^2\big|_{\langle S\rangle_{\bar\tau}}=0.
+\]
+则
+\[
+  \big(\langle S\rangle_{\bar\tau},d_{\bar\tau}|_{\langle S\rangle_{\bar\tau}}\big)
+\]
+本身已是一个局域自足的微分子代数。
+这与“$S$ 不能在单扇区中自足闭合”的奇点定义矛盾。
+故 $E_1\Rightarrow E_2$。
+
+再证反向。
+若 $E_2$ 成立，即
+\[
+  d_{\bar\tau}^2\big|_{\langle S\rangle_{\bar\tau}}\neq 0,
+\]
+则
+\[
+  \langle S\rangle_{\bar\tau}
+\]
+不能成为一个真正的局域微分子代数，
+因为局域预微分平方不为零。
+这正是定义~\ref{def:tex43-singularity-existence} 中奇点的判定条件。
+故 $E_2\Rightarrow E_1$。
+
+综上，
+\[
+  S\text{ 是奇点}
+  \iff
+  d_{\bar\tau}^2\big|_{\langle S\rangle_{\bar\tau}}\neq 0.
+\]
+定理得证。
+\end{proof}
+
+\subsection{定理：奇点可修复性与含时间扇区的对偶补复形的双向等价}
+\label{subsec:tex43-ch8-theorem-repairability}
+
+\begin{theorem}[奇点可修复性—对偶补复形双等价定理]
+\label{thm:tex43-singularity-repairability-iff}
+在固定设定下，成立双向等价：
+\[
+  \boxed{
+    S\text{ 可修复}
+    \iff
+    \exists\,
+    (\mathcal C_\tau,d_\tau,K_{\bar\tau\tau},K_{\tau\bar\tau})
+    \text{ 使 }D^2=0.
+  }
+\]
+其中总微分为
+\[
+  D=
+  \begin{pmatrix}
+    d_{\bar\tau} & K_{\tau\bar\tau}\\
+    K_{\bar\tau\tau} & d_\tau
+  \end{pmatrix},
+\]
+并且
+\[
+  d_{\bar\tau}^2 + K_{\tau\bar\tau}K_{\bar\tau\tau}=0
+\]
+恰好表明：无时间扇区中的失闭合障碍必须经过时间扇区的对偶补链路才能被因子化并消去。
+\end{theorem}
+
+\begin{Certificate}[证书：总复形闭合与时间对偶补链路互相刻画修复]
+\label{cert:tex43-singularity-repairability-iff}
+证书登记谓词链：
+\[
+\begin{aligned}
+  R_1 &: S\text{ 可修复},\\
+  R_2 &: R_1 \Rightarrow \exists (\widetilde{\mathcal C},D)\supseteq
+         \big(\langle S\rangle_{\bar\tau},d_{\bar\tau}|_{\langle S\rangle_{\bar\tau}}\big),\ D^2=0,\\
+  R_3 &: R_2 \Rightarrow \widetilde{\mathcal C}
+         =\mathcal C_{\bar\tau}\oplus \mathcal C_\tau
+         \text{ 且 }\mathcal C_\tau\neq 0,\\
+  R_4 &: R_3 \Rightarrow D=
+         \begin{pmatrix}
+           d_{\bar\tau} & K_{\tau\bar\tau}\\
+           K_{\bar\tau\tau} & d_\tau
+         \end{pmatrix}
+         \text{ 并满足引理~\ref{lem:tex43-block-conditions}},\\
+  R_5 &: \exists (\mathcal C_\tau,d_\tau,K_{\bar\tau\tau},K_{\tau\bar\tau})\ \text{使 }D^2=0
+         \Rightarrow \operatorname{Ob}_{\bar\tau}(S)\text{ 在总复形中被吸收},\\
+  R_6 &: R_5 \Rightarrow S\text{ 可修复}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+先证正向。
+若 $R_1$ 成立，则按定义~\ref{def:tex43-singularity-repairability}，
+存在一个更大的总复形
+\[
+  (\widetilde{\mathcal C},D)
+  \supseteq
+  \big(\langle S\rangle_{\bar\tau},d_{\bar\tau}|_{\langle S\rangle_{\bar\tau}}\big)
+\]
+满足
+\[
+  D^2=0.
+\]
+这给出 $R_2$。
+
+又因为 $S$ 在单扇区中不闭合，
+若修复成立，则总复形中必存在一个非平凡补扇区；
+否则总复形仍会退化回单扇区，无法消去
+\[
+  d_{\bar\tau}^2\big|_{\langle S\rangle_{\bar\tau}}\neq 0.
+\]
+记该补扇区为 $\mathcal C_\tau$，则 $R_3$ 成立。
+
+把总微分按分块写成
+\[
+  D=
+  \begin{pmatrix}
+    d_{\bar\tau} & K_{\tau\bar\tau}\\
+    K_{\bar\tau\tau} & d_\tau
+  \end{pmatrix},
+\]
+再由引理~\ref{lem:tex43-block-conditions}，
+\[
+  D^2=0
+\]
+等价于四块条件 (A)(B)(C)(D) 同时成立。
+故 $R_4$ 成立。
+
+再证反向。
+若存在
+\[
+  (\mathcal C_\tau,d_\tau,K_{\bar\tau\tau},K_{\tau\bar\tau})
+\]
+使
+\[
+  D=
+  \begin{pmatrix}
+    d_{\bar\tau} & K_{\tau\bar\tau}\\
+    K_{\bar\tau\tau} & d_\tau
+  \end{pmatrix}
+  \qquad\text{且}\qquad
+  D^2=0,
+\]
+则总对象
+\[
+  \widetilde{\mathcal C}
+  =
+  \mathcal C_{\bar\tau}\oplus \mathcal C_\tau
+\]
+是一个真正闭合的总复形。
+尤其由第一块条件
+\[
+  d_{\bar\tau}^2 + K_{\tau\bar\tau}K_{\bar\tau\tau}=0
+\]
+可知，
+原来在无时间扇区中孤立存在的失闭合项
+\[
+  d_{\bar\tau}^2
+\]
+已经被跨扇区链路
+\[
+  K_{\tau\bar\tau}K_{\bar\tau\tau}
+\]
+精确吸收。
+因此 $\operatorname{Ob}_{\bar\tau}(S)$ 在总复形中被吸收，
+即 $R_5$ 成立。
+由定义~\ref{def:tex43-singularity-repairability}，这正意味着 $S$ 可修复，
+故 $R_6$ 成立。
+
+综上，
+\[
+  S\text{ 可修复}
+  \iff
+  \exists\,
+  (\mathcal C_\tau,d_\tau,K_{\bar\tau\tau},K_{\tau\bar\tau})
+  \text{ 使 }D^2=0.
+\]
+定理得证。
+\end{proof}
+
+\subsection{命题：可修复奇点必然要求非平凡时间扇区；不可修复奇点等价于无补复形}
+\label{subsec:tex43-ch8-proposition}
+
+\begin{proposition}[可修复性与不可修复性的直接判据]
+\label{prop:tex43-repairable-irrepairable}
+在本章设定下：
+\[
+  S\text{ 是奇点且可修复}
+  \Rightarrow
+  \mathcal C_\tau\neq 0.
+\]
+并且
+\[
+  S\text{ 是不可修复奇点}
+  \iff
+  d_{\bar\tau}^2\big|_{\langle S\rangle_{\bar\tau}}\neq 0
+  \ \wedge\
+  \nexists (\mathcal C_\tau,d_\tau,K_{\bar\tau\tau},K_{\tau\bar\tau})\text{ 使 }D^2=0.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：一旦修复成功则补扇区非零；若无补扇区则障碍保留]
+\label{cert:tex43-repairable-irrepairable}
+证书登记谓词链：
+\[
+\begin{aligned}
+  P_1 &: S\text{ 是奇点且可修复},\\
+  P_2 &: P_1 \Rightarrow \text{由定理~\ref{thm:tex43-singularity-repairability-iff} 存在 } \mathcal C_\tau,\\
+  P_3 &: P_2 \Rightarrow \mathcal C_\tau\neq 0,\\
+  P_4 &: d_{\bar\tau}^2|_{\langle S\rangle_{\bar\tau}}\neq 0,\\
+  P_5 &: \nexists (\mathcal C_\tau,d_\tau,K_{\bar\tau\tau},K_{\tau\bar\tau})\text{ 使 }D^2=0,\\
+  P_6 &: P_4\wedge P_5 \Rightarrow S\text{ 是不可修复奇点}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $P_1$ 与定理~\ref{thm:tex43-singularity-repairability-iff}，
+存在某个时间扇区对偶补复形
+\[
+  (\mathcal C_\tau,d_\tau,K_{\bar\tau\tau},K_{\tau\bar\tau})
+\]
+使总微分闭合。
+若 $\mathcal C_\tau=0$，
+则总对象退化回单扇区，
+无法消去奇点的原始失闭合障碍。
+故必有
+\[
+  \mathcal C_\tau\neq 0.
+\]
+这给出 $P_3$。
+
+另一方面，若 $P_4$ 成立，
+则由定理~\ref{thm:tex43-singularity-existence-iff}，
+$S$ 已是奇点。
+若再加上 $P_5$，
+则没有任何含时间扇区的对偶补复形可使
+\[
+  D^2=0.
+\]
+故按定理~\ref{thm:tex43-singularity-repairability-iff}，
+$S$ 不可修复。
+命题得证。
+\end{proof}
+
+\subsection{推论：强定理的压缩表达}
+\label{subsec:tex43-ch8-corollary}
+
+\begin{corollary}[奇点存在性—可修复性的压缩版结论]
+\label{cor:tex43-singularity-strong}
+在当前修复框架中，可以把强定理压缩表述为：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{奇点的存在性等价于单扇区失闭合；}\\
+      &\text{奇点的可修复性等价于存在含时间扇区的对偶补复形；}\\
+      &\text{因此奇点不能被孤立看待，而必须嵌入更大的含时间总复形中，}\\
+      &\text{并通过跨扇区耦合满足 }D^2=0.
+    \end{aligned}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：存在性等价式 + 可修复性等价式 + 嵌入修复]
+\label{cert:tex43-singularity-strong}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: \text{定理~\ref{thm:tex43-singularity-existence-iff} 给出“奇点存在性}\iff\text{单扇区失闭合”},\\
+  C_2 &: \text{定理~\ref{thm:tex43-singularity-repairability-iff} 给出“奇点可修复性}\iff\text{对偶补复形存在”},\\
+  C_3 &: \text{定理~\ref{thm:tex43-singular-embedding-repair} 给出嵌入修复格式},\\
+  C_4 &: C_1\wedge C_2\wedge C_3 \Rightarrow \text{强定理压缩表达成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_1$，
+奇点的存在性已被严格等价为单扇区失闭合。
+由 $C_2$，
+奇点的可修复性已被严格等价为含时间扇区的对偶补复形存在。
+再由 $C_3$，
+任何成功修复都必须采取嵌入更大总复形的格式。
+因此 $C_1\wedge C_2\wedge C_3$ 推出 $C_4$，
+即本推论的压缩表达成立。证毕。
+\end{proof}
+
+\subsection{备注：最应保留的块公式与语义解释}
+\label{subsec:tex43-ch8-remarks}
+
+\begin{remark}[本章最关键的公式]
+本章最关键的公式是四块条件中的第一块：
+\[
+  d_{\bar\tau}^2 + K_{\tau\bar\tau}K_{\bar\tau\tau}=0,
+\]
+等价地可写成
+\[
+  d_{\bar\tau}^2 = K_{\tau\bar\tau}K_{\bar\tau\tau}.
+\]
+它表示：无时间单扇区中的失闭合障碍，
+必须通过时间扇区的对偶补链路来因子化并消去。
+\end{remark}
+
+\begin{remark}[“时间扇区”的严格含义]
+本章中的“时间扇区”不是先验等同于物理钟表时间，
+而是指：
+\[
+  \text{具有内禀序数滤过、能承载修复层级的对偶补复形。}
+\]
+因此这里的时间首先是一种结构时间，而不是物理测时量。
+\end{remark}
+
+\begin{remark}[最值得保留的一句话]
+若把本章压成一句最硬的表达，则应写成：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{基于当前修复框架，不能孤立地看待奇点；}\\
+      &\text{奇点的存在性等价于单扇区失闭合；}\\
+      &\text{奇点的可修复性等价于存在含时间扇区的对偶补复形。}
+    \end{aligned}
+  }
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：奇点—时间扇区—宇宙起源的宇宙论版本与开放博弈式异构演化}
+\label{sec:tex43-ch9}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格主张、边界说明与引用定位}
+\label{subsec:tex43-ch9-convention}
+
+本章把前一章的双等价强定理推进到宇宙论版本，并严格区分三类命题：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{“奇点的存在}\iff\text{单扇区失闭合”是结构定理；}\\
+      &\text{“奇点的修复}\iff\text{时间扇区生成”是结构定理；}\\
+      &\text{“宇宙起源}\iff\text{第一次对偶补复形生成”是体系内定义等价。}
+    \end{aligned}
+  }
+\]
+因此，本章不会把“宇宙起源”当作经验物理中的无条件普遍定理，
+而只在当前修复框架内把它定义为最小层级的结构事件。
+
+\begin{remark}[本章与前文的承接位置]
+关于单扇区失闭合、时间对偶补复形与双等价强定理，可参见第~\ref{sec:tex43-ch8} 章；
+关于时间属性与内禀序数滤过，可参见第~\ref{sec:tex43-ch2} 章；
+关于最小首次异构分解层与宇宙起源的前一版表达，可参见第~\ref{sec:tex43-ch4} 章；
+关于开放系统博弈与异构演化的动力表达，可参见第~\ref{sec:tex43-ch1} 章、第~\ref{sec:tex43-ch3} 章与第~\ref{sec:tex43-ch5} 章。
+仓内外背景继续参考
+\cite{RepoTex23OpenSystemGame}、
+\cite{RepoTex29RepairableObstruction}、
+\cite{RepoTex38JacobiBianchiRepair}、
+\cite{RepoTex39StatRepair}、
+\cite{GaoZheng2025GFramework}、
+\cite{Weibel1994HomologicalAlgebra}、
+\cite{Hatcher2002AT}、
+\cite{Jech2003SetTheory}、
+\cite{Kunen2011SetTheory}。
+\end{remark}
+
+\subsection{固定设定与三个宇宙论定义}
+\label{subsec:tex43-ch9-definitions}
+
+\begin{definition}[宇宙论固定设定]
+\label{def:tex43-cosmology-fixed}
+以下所有对象都放在 $\Ftwo$-系数的 $\Ztwo$-分次框架中。
+设有一个按序数标号的层级族
+\[
+  \big\{(\mathcal C_{\bar\tau,\alpha},d_{\bar\tau,\alpha})\big\}_{\alpha<\Lambda},
+\]
+其中每个
+\[
+  \mathcal C_{\bar\tau,\alpha}
+  =
+  \mathcal C_{\bar\tau,\alpha}^{(0)}
+  \oplus
+  \mathcal C_{\bar\tau,\alpha}^{(1)}
+\]
+表示第 $\alpha$ 层的无时间单扇区候选模型，
+并且不预设
+\[
+  d_{\bar\tau,\alpha}^2=0.
+\]
+给定奇点候选局域
+\[
+  S_\alpha\subseteq \mathcal C_{\bar\tau,\alpha},
+\]
+记其生成的最小分次子对象为
+\[
+  \langle S_\alpha\rangle_{\bar\tau}.
+\]
+定义对应的单扇区障碍为
+\[
+  \operatorname{Ob}_{\bar\tau,\alpha}(S_\alpha)
+  :=
+  d_{\bar\tau,\alpha}^2\big|_{\langle S_\alpha\rangle_{\bar\tau}}.
+\]
+\end{definition}
+
+\begin{definition}[第 $\alpha$ 层的时间扇区生成]
+\label{def:tex43-time-generation-alpha}
+称在第 $\alpha$ 层发生了\emph{时间扇区生成}，
+若存在非零对象
+\[
+  (\mathcal C_{\tau,\alpha},d_{\tau,\alpha}),
+  \qquad
+  \mathcal C_{\tau,\alpha}\neq 0,
+\]
+并且 $\mathcal C_{\tau,\alpha}$ 具有内禀序数滤过
+\[
+  F_0\mathcal C_{\tau,\alpha}\subseteq F_1\mathcal C_{\tau,\alpha}\subseteq \cdots \subseteq F_\beta\mathcal C_{\tau,
+    \alpha}\subseteq \cdots,
+\]
+同时存在跨扇区耦合映射
+\[
+  K_{\bar\tau\tau,\alpha}:\mathcal C_{\bar\tau,\alpha}\to \mathcal C_{\tau,\alpha},
+  \qquad
+  K_{\tau\bar\tau,\alpha}:\mathcal C_{\tau,\alpha}\to \mathcal C_{\bar\tau,\alpha},
+\]
+使总对象
+\[
+  \widetilde{\mathcal C}_\alpha
+  :=
+  \mathcal C_{\bar\tau,\alpha}\oplus \mathcal C_{\tau,\alpha}
+\]
+上的总微分
+\[
+  D_\alpha=
+  \begin{pmatrix}
+    d_{\bar\tau,\alpha} & K_{\tau\bar\tau,\alpha}\\
+    K_{\bar\tau\tau,\alpha} & d_{\tau,\alpha}
+  \end{pmatrix}
+\]
+满足
+\[
+  D_\alpha^2=0.
+\]
+\end{definition}
+
+\begin{definition}[宇宙起源]
+\label{def:tex43-cosmological-origin}
+定义生成层集合
+\[
+  \mathfrak G_{\mathrm{gen}}
+  :=
+  \left\{
+    \alpha<\Lambda:
+    \exists\,\mathcal C_{\tau,\alpha}\neq 0,\
+    \widetilde{\mathcal C}_\alpha=
+    \mathcal C_{\bar\tau,\alpha}\oplus \mathcal C_{\tau,\alpha},\
+    D_\alpha^2=0
+  \right\}.
+\]
+若 $\mathfrak G_{\mathrm{gen}}\neq \varnothing$，并记
+\[
+  \alpha_\ast:=\min \mathfrak G_{\mathrm{gen}},
+\]
+则称该最小层级事件为\emph{宇宙起源}。
+换言之，
+\[
+  \boxed{
+    \text{宇宙起源}
+    :=
+    \text{第一次非平凡对偶补复形生成事件。}
+  }
+\]
+\end{definition}
+
+\subsection{公理（降级为定理）：最小起源层的存在唯一性}
+\label{subsec:tex43-ch9-axiom-downgrade}
+
+\begin{theorem}[公理降级为定理：最小起源层的存在唯一性]
+\label{thm:tex43-cosmological-origin-layer}
+若生成层集合
+\[
+  \mathfrak G_{\mathrm{gen}}
+\]
+非空，则存在唯一序数
+\[
+  \alpha_\ast=\min \mathfrak G_{\mathrm{gen}}
+\]
+满足：
+\[
+  \alpha_\ast\in \mathfrak G_{\mathrm{gen}},
+  \qquad
+  \forall \beta<\alpha_\ast,\ \beta\notin \mathfrak G_{\mathrm{gen}}.
+\]
+亦即，“第一次对偶补复形生成”在当前层级体系中是一个具有最小性与唯一性的结构事件。
+\end{theorem}
+
+\begin{Certificate}[证书：按序数初段排除更早生成层并认证最小事件]
+\label{cert:tex43-cosmological-origin-layer}
+证书登记谓词链：
+\[
+\begin{aligned}
+  A_1 &: \mathfrak G_{\mathrm{gen}}\neq \varnothing,\\
+  A_2 &: \Lambda\text{ 是序数，故任一非空子集都存在最小元},\\
+  A_3 &: A_1\wedge A_2 \Rightarrow
+         \exists \alpha_\ast=\min \mathfrak G_{\mathrm{gen}},\\
+  A_4 &: \forall \beta<\alpha_\ast,\ \beta\notin \mathfrak G_{\mathrm{gen}}
+         \qquad\text{（序数初段归纳证书）},\\
+  A_5 &: A_3\wedge A_4 \Rightarrow
+         \alpha_\ast\text{ 是唯一的最小起源层}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $A_1$，集合 $\mathfrak G_{\mathrm{gen}}$ 非空。
+由 $A_2$，序数的任意非空子集都存在唯一最小元。
+因此得到
+\[
+  \exists \alpha_\ast=\min \mathfrak G_{\mathrm{gen}},
+\]
+即 $A_3$ 成立。
+
+接着对所有 $\beta<\alpha_\ast$ 作初段归纳。
+若存在某个 $\beta<\alpha_\ast$ 仍属于 $\mathfrak G_{\mathrm{gen}}$，
+则这与 $\alpha_\ast$ 是最小元矛盾。
+故
+\[
+  \forall \beta<\alpha_\ast,\qquad \beta\notin \mathfrak G_{\mathrm{gen}},
+\]
+即 $A_4$ 成立。
+
+于是由 $A_3\wedge A_4$ 得知：
+$\alpha_\ast$ 既存在，又唯一，并且它之前没有任何更早的对偶补复形生成层。
+故 $A_5$ 成立，定理得证。
+\end{proof}
+
+\subsection{引理：时间扇区生成把单扇区障碍因子化为跨扇区链路}
+\label{subsec:tex43-ch9-lemma}
+
+\begin{lemma}[障碍因子化引理]
+\label{lem:tex43-cosmology-factorization}
+若在第 $\alpha$ 层发生时间扇区生成，
+即存在
+\[
+  D_\alpha=
+  \begin{pmatrix}
+    d_{\bar\tau,\alpha} & K_{\tau\bar\tau,\alpha}\\
+    K_{\bar\tau\tau,\alpha} & d_{\tau,\alpha}
+  \end{pmatrix},
+  \qquad
+  D_\alpha^2=0,
+\]
+则由引理~\ref{lem:tex43-block-conditions} 的第一块条件可得
+\[
+  d_{\bar\tau,\alpha}^2
+  =
+  K_{\tau\bar\tau,\alpha}K_{\bar\tau\tau,\alpha}.
+\]
+因此，无时间单扇区中的失闭合障碍被严格因子化为经过时间扇区的对偶补链路。
+\end{lemma}
+
+\begin{Certificate}[证书：四块条件的第一块正是障碍因子化公式]
+\label{cert:tex43-cosmology-factorization}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: D_\alpha^2=0,\\
+  L_2 &: L_1 \Rightarrow
+         d_{\bar\tau,\alpha}^2 + K_{\tau\bar\tau,\alpha}K_{\bar\tau\tau,\alpha}=0
+         \ \text{（引理~\ref{lem:tex43-block-conditions}）},\\
+  L_3 &: \text{在 }\Ftwo\text{ 上，}L_2 \Rightarrow
+         d_{\bar\tau,\alpha}^2
+         =
+         K_{\tau\bar\tau,\alpha}K_{\bar\tau\tau,\alpha},\\
+  L_4 &: L_3 \Rightarrow \text{单扇区障碍经由时间扇区链路被因子化}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$ 与引理~\ref{lem:tex43-block-conditions}，
+总微分平方为零当且仅当四块条件同时成立。
+其中第一块条件为
+\[
+  d_{\bar\tau,\alpha}^2 + K_{\tau\bar\tau,\alpha}K_{\bar\tau\tau,\alpha}=0.
+\]
+在 $\Ftwo$ 上移项与自身相同，因此可改写为
+\[
+  d_{\bar\tau,\alpha}^2
+  =
+  K_{\tau\bar\tau,\alpha}K_{\bar\tau\tau,\alpha}.
+\]
+这说明原先出现在无时间单扇区中的障碍不再是孤立剩余项，
+而被精确表达为穿过时间扇区的双向链路。
+故 $L_4$ 成立，引理得证。
+\end{proof}
+
+\subsection{定理：奇点存在性定理}
+\label{subsec:tex43-ch9-theorem-existence}
+
+\begin{theorem}[奇点存在性定理]
+\label{thm:tex43-cosmology-singularity}
+在固定的无时间单扇区模型
+\[
+  (\mathcal C_{\bar\tau,\alpha},d_{\bar\tau,\alpha})
+\]
+不变的前提下，
+有
+\[
+  \boxed{
+    S_\alpha\text{ 是奇点}
+    \iff
+    d_{\bar\tau,\alpha}^2\big|_{\langle S_\alpha\rangle_{\bar\tau}}\neq 0.
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：奇点与单扇区失闭合完全同义]
+\label{cert:tex43-cosmology-singularity}
+证书登记谓词链：
+\[
+\begin{aligned}
+  E_1 &: S_\alpha\text{ 是奇点},\\
+  E_2 &: d_{\bar\tau,\alpha}^2\big|_{\langle S_\alpha\rangle_{\bar\tau}}\neq 0,\\
+  E_3 &: \neg E_2 \Rightarrow
+         \big(\langle S_\alpha\rangle_{\bar\tau},d_{\bar\tau,\alpha}|_{\langle S_\alpha\rangle_{\bar\tau}}\big)
+         \text{ 自足闭合},\\
+  E_4 &: E_3 \Rightarrow \neg E_1,\\
+  E_5 &: E_2 \Rightarrow \langle S_\alpha\rangle_{\bar\tau}\text{ 非闭合},\\
+  E_6 &: E_5 \Rightarrow E_1.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若 $S_\alpha$ 是奇点而
+\[
+  d_{\bar\tau,\alpha}^2\big|_{\langle S_\alpha\rangle_{\bar\tau}}=0,
+\]
+则
+\[
+  \big(\langle S_\alpha\rangle_{\bar\tau},d_{\bar\tau,\alpha}|_{\langle S_\alpha\rangle_{\bar\tau}}\big)
+\]
+本身已经是局域闭合复形，
+这与奇点“不能在单扇区内自足闭合”的定义矛盾。
+故 $E_1\Rightarrow E_2$。
+
+反过来，若
+\[
+  d_{\bar\tau,\alpha}^2\big|_{\langle S_\alpha\rangle_{\bar\tau}}\neq 0,
+\]
+则 $\langle S_\alpha\rangle_{\bar\tau}$ 不是局域闭合复形，
+因此 $S_\alpha$ 不能在单扇区中自足闭合，
+按定义就是奇点。
+故 $E_2\Rightarrow E_1$。
+双向成立，定理得证。
+\end{proof}
+
+\subsection{定理：奇点修复性定理}
+\label{subsec:tex43-ch9-theorem-repair}
+
+\begin{theorem}[奇点修复性定理]
+\label{thm:tex43-cosmology-repair}
+在固定的无时间单扇区模型不变的前提下，
+有
+\[
+  \boxed{
+    S_\alpha\text{ 可修复}
+    \iff
+    \text{对 }S_\alpha\text{ 发生时间扇区生成。}
+  }
+\]
+更展开地说，
+\[
+  \boxed{
+    S_\alpha\text{ 可修复}
+    \iff
+    \exists\,
+    (\mathcal C_{\tau,\alpha},d_{\tau,\alpha},K_{\bar\tau\tau,\alpha},K_{\tau\bar\tau,\alpha})
+    \text{ 使 }D_\alpha^2=0.
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：修复成功与对偶补复形生成互相刻画]
+\label{cert:tex43-cosmology-repair}
+证书登记谓词链：
+\[
+\begin{aligned}
+  R_1 &: S_\alpha\text{ 可修复},\\
+  R_2 &: R_1 \Rightarrow \exists (\widetilde{\mathcal C}_\alpha,D_\alpha)\supseteq
+         \big(\langle S_\alpha\rangle_{\bar\tau},d_{\bar\tau,\alpha}|_{\langle S_\alpha\rangle_{\bar\tau}}\big),\
+      D_\alpha^2=0,\\
+  R_3 &: \text{由定理~\ref{thm:tex43-cosmology-singularity}，奇点满足单扇区障碍非零},\\
+  R_4 &: R_2\wedge R_3 \Rightarrow \mathcal C_{\tau,\alpha}\neq 0,\\
+  R_5 &: R_4 \Rightarrow \text{时间扇区生成成立},\\
+  R_6 &: \text{若时间扇区生成成立且 }D_\alpha^2=0,\ \text{则单扇区障碍在总复形中被吸收},\\
+  R_7 &: R_6 \Rightarrow S_\alpha\text{ 可修复}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+先证正向。
+若 $R_1$ 成立，则存在更大的总复形
+\[
+  (\widetilde{\mathcal C}_\alpha,D_\alpha)
+  \supseteq
+  \big(\langle S_\alpha\rangle_{\bar\tau},d_{\bar\tau,\alpha}|_{\langle S_\alpha\rangle_{\bar\tau}}\big)
+\]
+满足
+\[
+  D_\alpha^2=0.
+\]
+这给出 $R_2$。
+又由定理~\ref{thm:tex43-cosmology-singularity}，
+奇点必满足
+\[
+  d_{\bar\tau,\alpha}^2\big|_{\langle S_\alpha\rangle_{\bar\tau}}\neq 0.
+\]
+故修复不可能仍然完全停留在 $\mathcal C_{\bar\tau,\alpha}$ 内部；
+否则总闭合会退化为单扇区闭合，与障碍非零矛盾。
+于是必须存在非零补扇区
+\[
+  \mathcal C_{\tau,\alpha}\neq 0.
+\]
+再给该补扇区附上内禀序数滤过与耦合映射，
+就得到时间扇区生成。
+故 $R_5$ 成立。
+
+再证反向。
+若对 $S_\alpha$ 发生了时间扇区生成，
+则存在
+\[
+  \widetilde{\mathcal C}_\alpha
+  =
+  \mathcal C_{\bar\tau,\alpha}\oplus \mathcal C_{\tau,\alpha}
+\]
+以及总微分 $D_\alpha$ 使
+\[
+  D_\alpha^2=0.
+\]
+由引理~\ref{lem:tex43-cosmology-factorization}，
+原来的单扇区障碍被因子化为通过时间扇区的对偶补链路，
+因此 $\operatorname{Ob}_{\bar\tau,\alpha}(S_\alpha)$ 在总复形中被吸收。
+故 $S_\alpha$ 可修复。
+双向成立，定理得证。
+\end{proof}
+
+\subsection{定理：宇宙起源定理}
+\label{subsec:tex43-ch9-theorem-origin}
+
+\begin{theorem}[宇宙起源定理]
+\label{thm:tex43-cosmology-origin}
+在定义~\ref{def:tex43-cosmological-origin} 的语境下，
+有
+\[
+  \boxed{
+    \text{宇宙起源}
+    \iff
+    \text{第一次对偶补复形生成。}
+  }
+\]
+更具体地，
+\[
+  \boxed{
+    \text{宇宙起源}
+    \iff
+    \exists \alpha_\ast=\min\left\{
+      \alpha<\Lambda:
+      \mathcal C_{\tau,\alpha}\neq 0,\
+      \widetilde{\mathcal C}_\alpha=
+      \mathcal C_{\bar\tau,\alpha}\oplus \mathcal C_{\tau,\alpha},\
+      D_\alpha^2=0
+    \right\}.
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：宇宙起源在本体系中被定义为最小生成事件]
+\label{cert:tex43-cosmology-origin}
+证书登记谓词链：
+\[
+\begin{aligned}
+  O_1 &: \text{定义~\ref{def:tex43-cosmological-origin} 固定 } \mathfrak G_{\mathrm{gen}},\\
+  O_2 &: \text{定理~\ref{thm:tex43-cosmological-origin-layer} 给出 }\alpha_\ast=\min\mathfrak G_{\mathrm{gen}},\\
+  O_3 &: O_1\wedge O_2 \Rightarrow
+         \text{宇宙起源}\iff\text{第一次对偶补复形生成}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+这是定义~\ref{def:tex43-cosmological-origin} 的直接展开。
+在本体系中，“宇宙起源”已被定义为
+\[
+  \alpha_\ast=\min\mathfrak G_{\mathrm{gen}}
+\]
+对应的那次最小生成事件。
+因此由 $O_1\wedge O_2$ 可直接得到 $O_3$，
+即“宇宙起源”与“第一次对偶补复形生成”在本体系内是定义等价。
+定理得证。
+\end{proof}
+
+\subsection{定理：宇宙演化定理}
+\label{subsec:tex43-ch9-theorem-evolution}
+
+\begin{theorem}[宇宙演化定理]
+\label{thm:tex43-cosmology-evolution}
+若在 $\alpha_\ast$ 之后，总复形持续存在且耦合不为零，即
+\[
+  \widetilde{\mathcal C}_\alpha=
+  \mathcal C_{\bar\tau,\alpha}\oplus \mathcal C_{\tau,\alpha},
+  \qquad
+  D_\alpha^2=0,
+  \qquad
+  K_\alpha\not\equiv 0
+  \quad
+  (\alpha\ge \alpha_\ast),
+\]
+则宇宙演化可严格表述为：
+\[
+  \boxed{
+    \text{无时间扇区与时间扇区之间的内部开放博弈式异构演化。}
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：双扇区持续存在 + 非零耦合 = 内部开放博弈式异构演化]
+\label{cert:tex43-cosmology-evolution}
+证书登记谓词链：
+\[
+\begin{aligned}
+  U_1 &: \forall \alpha\ge\alpha_\ast,\
+         \widetilde{\mathcal C}_\alpha=
+         \mathcal C_{\bar\tau,\alpha}\oplus \mathcal C_{\tau,\alpha},\\
+  U_2 &: \forall \alpha\ge\alpha_\ast,\ D_\alpha^2=0,\\
+  U_3 &: \forall \alpha\ge\alpha_\ast,\ K_\alpha\not\equiv 0,\\
+  U_4 &: U_1\wedge U_2 \Rightarrow \text{两个扇区持续共同参与总演化},\\
+  U_5 &: U_3 \Rightarrow \text{两个扇区互为环境并发生相互影响},\\
+  U_6 &: U_4\wedge U_5 \Rightarrow
+         \text{宇宙演化是内部开放博弈式异构演化}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $U_1$ 与 $U_2$，
+在每个 $\alpha\ge\alpha_\ast$ 的层级上，
+宇宙都不再是未分化对象，
+而是已经分裂为
+\[
+  \mathcal C_{\bar\tau,\alpha}
+  \oplus
+  \mathcal C_{\tau,\alpha}
+\]
+的总复形，并保持
+\[
+  D_\alpha^2=0.
+\]
+这给出 $U_4$。
+
+再由 $U_3$，
+耦合项并不为零，
+故两个扇区并非彼此绝缘，而是互为环境、互相影响。
+按本稿对广义博弈的定义，
+“博弈”就是相互影响结构。
+故 $U_5$ 成立。
+
+因此由 $U_4\wedge U_5$，
+宇宙从 $\alpha_\ast$ 之后的演化，
+正是无时间扇区与时间扇区之间通过非零耦合项展开的内部开放博弈式异构演化。
+定理得证。
+\end{proof}
+
+\subsection{命题：混沌版附加项}
+\label{subsec:tex43-ch9-proposition}
+
+\begin{proposition}[混沌版附加项]
+\label{prop:tex43-cosmology-chaos-extension}
+若在所有 $\alpha\ge\alpha_\ast$ 的总生成动力中再加入敏感依赖、轨道分离或奇性邻域放大条件，
+则可进一步得到：
+\[
+  \boxed{
+    \text{宇宙演化}
+    =
+    \text{开放博弈驱动的异构混沌演化。}
+  }
+\]
+但这一步需要额外的混沌生成条件，
+不能仅由本章前述定理无条件推出。
+\end{proposition}
+
+\begin{Certificate}[证书：混沌性需要额外动力学条件]
+\label{cert:tex43-cosmology-chaos-extension}
+证书登记谓词链：
+\[
+\begin{aligned}
+  P_1 &: \text{定理~\ref{thm:tex43-cosmology-evolution} 给出开放博弈式异构演化},\\
+  P_2 &: \text{附加条件：存在敏感依赖、轨道分离或奇性邻域放大},\\
+  P_3 &: P_1\wedge P_2 \Rightarrow \text{异构演化进一步升级为异构混沌演化},\\
+  P_4 &: \neg P_2 \Rightarrow \text{不能单凭“修复存在”推出“必然混沌”}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $P_1$，
+我们已经得到宇宙演化具有内部开放博弈式异构结构。
+若进一步满足 $P_2$ 的动力学条件，
+则轨道敏感依赖与邻域放大将在该异构结构上发生，
+从而得到 $P_3$。
+
+反之，若没有 $P_2$，
+则前述定理只保证“修复存在”和“开放博弈式异构演化存在”，
+并不能自动推出混沌。
+故 $P_4$ 成立，命题得证。
+\end{proof}
+
+\subsection{推论：三重等价链与宇宙演化的压缩表达}
+\label{subsec:tex43-ch9-corollary}
+
+\begin{corollary}[三重等价链]
+\label{cor:tex43-cosmology-chain}
+在当前固定语境下，以下链条成立：
+\[
+  \boxed{
+    \text{奇点的存在}
+    \iff
+    \text{单扇区失闭合}
+  }
+\]
+\[
+  \boxed{
+    \text{奇点的修复}
+    \iff
+    \text{时间扇区生成}
+  }
+\]
+\[
+  \boxed{
+    \text{宇宙起源}
+    \iff
+    \text{第一次对偶补复形的生成}
+  }
+\]
+并且从第三条之后自动推出：
+\[
+  \boxed{
+    \text{宇宙演化}
+    =
+    \text{对偶补复形生成后的内部开放博弈式异构演化。}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：三条等价式与一条演化结论的合流]
+\label{cert:tex43-cosmology-chain}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: \text{定理~\ref{thm:tex43-cosmology-singularity} 给出第一条等价式},\\
+  C_2 &: \text{定理~\ref{thm:tex43-cosmology-repair} 给出第二条等价式},\\
+  C_3 &: \text{定理~\ref{thm:tex43-cosmology-origin} 给出第三条定义等价式},\\
+  C_4 &: \text{定理~\ref{thm:tex43-cosmology-evolution} 给出演化结论},\\
+  C_5 &: C_1\wedge C_2\wedge C_3\wedge C_4 \Rightarrow \text{三重等价链成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_1$，奇点的存在性已被严格等价为单扇区失闭合。
+由 $C_2$，奇点的修复性已被严格等价为时间扇区生成。
+由 $C_3$，宇宙起源在本体系内被定义为第一次对偶补复形生成。
+由 $C_4$，从该生成之后，宇宙演化就是内部开放博弈式异构演化。
+因此 $C_1\wedge C_2\wedge C_3\wedge C_4$ 推出 $C_5$，推论得证。
+\end{proof}
+
+\subsection{备注：最应保留的宇宙论定稿表达}
+\label{subsec:tex43-ch9-remarks}
+
+\begin{remark}[时间扇区的严格含义]
+本章中的“时间扇区”并不先验等同于日常物理意义上的钟表时间，
+而是指：
+\[
+  \boxed{
+    \text{具有内禀序数滤过、能承载修复层级的对偶补复形。}
+  }
+\]
+这与第~\ref{sec:tex43-ch2} 章关于“时间属性 = 超限计数/离散编码”的写法保持一致。
+\end{remark}
+
+\begin{remark}[三条命题的逻辑层级必须区分]
+本章中，
+\[
+  \text{“奇点存在性}\iff\text{单扇区失闭合”}
+\]
+与
+\[
+  \text{“奇点修复性}\iff\text{时间扇区生成”}
+\]
+是结构定理；
+而
+\[
+  \text{“宇宙起源}\iff\text{第一次对偶补复形生成”}
+\]
+则是体系内定义等价。
+这一区分必须保留，不能偷换成同一层级的经验物理命题。
+\end{remark}
+
+\begin{remark}[最终定稿句]
+若把本章压缩成一句最终定稿表达，则应写成：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{在当前修复框架中，奇点不是一个可孤立处理的对象，而是无时间单扇区中的失闭合局域；}\\
+      &\text{其存在等价于单扇区失闭合，其修复等价于时间扇区生成；}\\
+      &\text{而宇宙起源则被定义为第一次对偶补复形的生成，宇宙演化则是该生成之后的内部开放博弈式异构演化。}
+    \end{aligned}
+  }
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：基于开放系统博弈的时间起源与宇宙演化解释}
+\label{sec:tex43-ch10}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格主张、边界说明与引用定位}
+\label{subsec:tex43-ch10-convention}
+
+本章把前述“奇点--时间扇区--宇宙起源”链条进一步压缩为一个可直接用于专著正文的解释模型：
+\[
+  \boxed{
+    \text{这是一种基于开放系统博弈的时间起源--宇宙演化解释。}
+  }
+\]
+\[
+  \boxed{
+    \text{时间不是先验背景，而是为修复无时间单扇区的失闭合而生成的对偶补结构。}
+  }
+\]
+\[
+  \boxed{
+    \text{宇宙演化则是时间扇区生成之后，无时间扇区与时间扇区之间持续相互影响的异构演化过程。}
+  }
+\]
+
+\begin{remark}[引用定位与逻辑边界]
+本章直接承接第~\ref{sec:tex43-ch8} 章与第~\ref{sec:tex43-ch9} 章，
+并与第~\ref{sec:tex43-ch1} 章、第~\ref{sec:tex43-ch3} 章、
+第~\ref{sec:tex43-ch4} 章关于开放系统博弈、扇区开放化与宇宙起源的写法保持一致。
+仓内风格与结构来源可参见
+\cite{RepoTex23OpenSystemGame,RepoTex37SemanticGaugeRuntime,RepoTex38JacobiBianchiRepair,RepoTex39StatRepair,
+  GaoZheng2025GFramework}；
+外部基础则依赖于同调代数、代数拓扑与开放系统理论的标准参考
+\cite{Weibel1994HomologicalAlgebra,Hatcher2002AT,BreuerPetruccione2002OpenQuantumSystems}。
+本章的结论应理解为一种\emph{结构生成型解释}，
+而不是已经完成经验检验的物理定律。
+\end{remark}
+
+\subsection{定义链：开放系统博弈、时间起源与宇宙演化}
+\label{subsec:tex43-ch10-definitions}
+
+\begin{definition}[开放系统博弈]
+\label{def:tex43-open-game-time-origin}
+设在某一层级 $\alpha$ 上，总对象为
+\[
+  \widetilde{\mathcal C}_\alpha
+  =
+  \mathcal C_{\bar\tau,\alpha}\oplus \mathcal C_{\tau,\alpha},
+\]
+总微分为
+\[
+  D_\alpha
+  =
+  \begin{pmatrix}
+    d_{\bar\tau,\alpha} & K_{\tau\bar\tau,\alpha}\\
+    K_{\bar\tau\tau,\alpha} & d_{\tau,\alpha}
+  \end{pmatrix},
+  \qquad
+  D_\alpha^2=0.
+\]
+若至少有一个跨扇区耦合不恒为零：
+\[
+  K_{\bar\tau\tau,\alpha}\not\equiv 0
+  \quad\text{或}\quad
+  K_{\tau\bar\tau,\alpha}\not\equiv 0,
+\]
+则称该层级具有\emph{开放系统博弈结构}。
+这里“博弈”取广义定义：
+\[
+  \text{博弈} := \text{相互影响}.
+\]
+\end{definition}
+
+\begin{definition}[时间起源]
+\label{def:tex43-time-origin-explanation}
+设原始候选对象仅含无时间单扇区
+\[
+  (\mathcal C_{\bar\tau,\alpha},d_{\bar\tau,\alpha}),
+\]
+并在某奇点局域 $S_\alpha\subseteq \mathcal C_{\bar\tau,\alpha}$ 上满足
+\[
+  d_{\bar\tau,\alpha}^2\big|_{\langle S_\alpha\rangle_{\bar\tau}}\neq 0.
+\]
+若为恢复总闭合而首次生成一个非零时间扇区
+\[
+  (\mathcal C_{\tau,\alpha},d_{\tau,\alpha}),
+  \qquad
+  \mathcal C_{\tau,\alpha}\neq 0,
+\]
+并且该扇区带有内禀序数滤过
+\[
+  F_0\mathcal C_{\tau,\alpha}\subseteq F_1\mathcal C_{\tau,\alpha}\subseteq\cdots\subseteq F_\beta\mathcal C_{\tau,
+    \alpha}\subseteq\cdots,
+\]
+使得总微分 $D_\alpha$ 满足
+\[
+  D_\alpha^2=0,
+\]
+则称该事件为\emph{时间起源}。
+换言之，
+\[
+  \boxed{
+    \text{时间起源}
+    :=
+    \text{第一次使总结构闭合的时间对偶补扇区生成事件。}
+  }
+\]
+\end{definition}
+
+\begin{definition}[宇宙演化]
+\label{def:tex43-universe-evolution-explanation}
+若在时间起源之后，总对象持续保持
+\[
+  \widetilde{\mathcal C}_\alpha
+  =
+  \mathcal C_{\bar\tau,\alpha}\oplus \mathcal C_{\tau,\alpha},
+  \qquad
+  D_\alpha^2=0,
+\]
+且耦合项不恒为零：
+\[
+  K_{\bar\tau\tau,\alpha}\not\equiv 0,
+  \qquad
+  K_{\tau\bar\tau,\alpha}\not\equiv 0,
+\]
+则称起源之后的持续过程为\emph{宇宙演化}。
+其严格含义是：
+\[
+  \boxed{
+    \text{无时间扇区与时间扇区之间通过耦合修复持续展开的开放系统博弈式异构演化。}
+  }
+\]
+\end{definition}
+
+\subsection{公理（降级为定理）：起源后开放博弈的超限延拓}
+\label{subsec:tex43-ch10-axiom-downgrade}
+
+\begin{theorem}[起源后开放博弈延拓定理]
+\label{thm:tex43-open-game-extension}
+设 $\alpha_\ast$ 为定义~\ref{def:tex43-time-origin-explanation} 中的时间起源层。
+进一步设存在序数区间 $[\alpha_\ast,\Gamma)$，使得以下条件成立：
+\[
+\begin{aligned}
+  E_0 &: \widetilde{\mathcal C}_{\alpha_\ast}
+        =
+        \mathcal C_{\bar\tau,\alpha_\ast}\oplus \mathcal C_{\tau,\alpha_\ast},
+        \quad
+        D_{\alpha_\ast}^2=0,
+        \quad
+        K_{\alpha_\ast}\not\equiv 0;\\
+  E_s &: \forall \beta\in[\alpha_\ast,\Gamma),\
+        \bigl(
+          D_\beta^2=0\wedge K_\beta\not\equiv 0
+        \bigr)
+        \Rightarrow
+        \bigl(
+          D_{\beta+1}^2=0\wedge K_{\beta+1}\not\equiv 0
+        \bigr);\\
+  E_\ell &: \forall \lambda<\Gamma,\ \lambda\text{ 为极限序数},\
+           \Bigl(
+             \forall \beta<\lambda,\
+             D_\beta^2=0\wedge K_\beta\not\equiv 0
+           \Bigr)\\
+         &\hspace{5.2em}\Rightarrow
+           \Bigl(
+             D_\lambda^2=0\wedge K_\lambda\not\equiv 0
+           \Bigr).
+\end{aligned}
+\]
+则对任意 $\beta\in[\alpha_\ast,\Gamma)$，都有
+\[
+  \widetilde{\mathcal C}_\beta
+  =
+  \mathcal C_{\bar\tau,\beta}\oplus \mathcal C_{\tau,\beta},
+  \qquad
+  D_\beta^2=0,
+  \qquad
+  K_\beta\not\equiv 0,
+\]
+因而每一层都具有开放系统博弈式异构演化结构。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：起源后开放博弈的超限延拓]
+\label{cert:tex43-open-game-extension}
+证书登记如下：
+\[
+\begin{aligned}
+  I_0 &: E_0 \Rightarrow \text{基步在 }\alpha_\ast\text{ 层成立};\\
+  I_s &: E_s \Rightarrow
+         \bigl(
+           \beta\text{ 层成立 }\Rightarrow (\beta+1)\text{ 层成立}
+         \bigr);\\
+  I_\ell &: E_\ell \Rightarrow
+         \bigl(
+           \forall \beta<\lambda,\ \beta\text{ 层成立}
+           \Rightarrow
+           \lambda\text{ 层成立}
+         \bigr);\\
+  I_4 &: I_0\wedge I_s\wedge I_\ell
+         \Rightarrow
+         \forall \beta\in[\alpha_\ast,\Gamma),\ \beta\text{ 层成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $I_0$，在 $\alpha_\ast$ 层已有
+\[
+  D_{\alpha_\ast}^2=0,
+  \qquad
+  K_{\alpha_\ast}\not\equiv 0,
+\]
+故开放系统博弈结构在起源层成立。
+
+设对某一后继层 $\beta+1$ 之前的层级均成立。
+若 $\beta$ 层成立，则由 $E_s$ 得
+\[
+  D_{\beta+1}^2=0,
+  \qquad
+  K_{\beta+1}\not\equiv 0.
+\]
+故 $(\beta+1)$ 层也成立，得到 $I_s$。
+
+若 $\lambda$ 为极限序数，且对所有 $\beta<\lambda$ 都有
+\[
+  D_\beta^2=0,
+  \qquad
+  K_\beta\not\equiv 0,
+\]
+则由 $E_\ell$ 直接推出
+\[
+  D_\lambda^2=0,
+  \qquad
+  K_\lambda\not\equiv 0.
+\]
+故极限层也成立，得到 $I_\ell$。
+
+于是 $I_0\wedge I_s\wedge I_\ell$ 推出 $I_4$，这正是超限归纳法。
+因此，对任意 $\beta\in[\alpha_\ast,\Gamma)$，
+时间扇区与无时间扇区的双扇区开放博弈结构都持续存在。
+定理得证。
+\end{proof}
+
+\subsection{引理：非零耦合即给出开放系统博弈判据}
+\label{subsec:tex43-ch10-lemma}
+
+\begin{lemma}[开放系统博弈判据]
+\label{lem:tex43-open-game-criterion}
+在总对象
+\[
+  \widetilde{\mathcal C}_\alpha
+  =
+  \mathcal C_{\bar\tau,\alpha}\oplus \mathcal C_{\tau,\alpha}
+\]
+上，若
+\[
+  D_\alpha^2=0,
+  \qquad
+  K_{\bar\tau\tau,\alpha}\not\equiv 0
+  \ \text{或}\
+  K_{\tau\bar\tau,\alpha}\not\equiv 0,
+\]
+则该层级必具有开放系统博弈结构。
+\end{lemma}
+
+\begin{Certificate}[证书：开放系统博弈等于扇区间非零相互影响]
+\label{cert:tex43-open-game-criterion}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: K_{\bar\tau\tau,\alpha}\not\equiv 0
+         \ \text{或}\
+         K_{\tau\bar\tau,\alpha}\not\equiv 0;\\
+  L_2 &: L_1 \Rightarrow
+         \text{无时间扇区与时间扇区之间存在非零相互影响};\\
+  L_3 &: \text{博弈} := \text{相互影响};\\
+  L_4 &: L_2\wedge L_3 \Rightarrow \text{开放系统博弈结构成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$，至少存在一条跨扇区链路不为零，
+故无时间扇区与时间扇区之间存在不可忽略的影响传递，
+即得 $L_2$。
+再由 $L_3$，本体系中“博弈”的严格含义就是“相互影响”。
+于是 $L_2\wedge L_3$ 推出 $L_4$，
+从而开放系统博弈结构成立，引理得证。
+\end{proof}
+
+\subsection{定理：时间起源解释定理}
+\label{subsec:tex43-ch10-theorem-time-origin}
+
+\begin{theorem}[时间起源解释定理]
+\label{thm:tex43-time-origin-explanation}
+在当前修复框架中，
+若某奇点局域 $S_\alpha$ 满足
+\[
+  d_{\bar\tau,\alpha}^2\big|_{\langle S_\alpha\rangle_{\bar\tau}}\neq 0,
+\]
+并且该局域可修复，
+则“时间”不应被解释为先验背景，
+而应被解释为为修复该失闭合而生成的对偶补结构。
+换言之，
+\[
+  \boxed{
+    \text{时间起源}
+    =
+    \text{无时间单扇区失闭合所触发的第一次时间对偶补扇区生成。}
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：失闭合触发时间对偶补生成]
+\label{cert:tex43-time-origin-explanation}
+证书登记谓词链：
+\[
+\begin{aligned}
+  T_1 &: d_{\bar\tau,\alpha}^2\big|_{\langle S_\alpha\rangle_{\bar\tau}}\neq 0;\\
+  T_2 &: T_1 \Rightarrow S_\alpha\text{ 在无时间单扇区中不自足闭合};\\
+  T_3 &: S_\alpha\text{ 可修复}
+         \Rightarrow
+         \exists\,\mathcal C_{\tau,\alpha}\neq 0,\ D_\alpha^2=0;\\
+  T_4 &: T_2\wedge T_3
+         \Rightarrow
+         \text{时间扇区作为对偶补结构被生成};\\
+  T_5 &: T_4 \Rightarrow \text{时间起源解释成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex43-cosmology-singularity}，
+$T_1$ 与奇点的单扇区失闭合是等价的，
+故 $T_2$ 成立。
+又由定理~\ref{thm:tex43-cosmology-repair}，
+一旦 $S_\alpha$ 可修复，
+就必存在非零时间扇区 $\mathcal C_{\tau,\alpha}$ 与总闭合条件 $D_\alpha^2=0$，
+故 $T_3$ 成立。
+
+于是 $T_2\wedge T_3$ 推出 $T_4$：
+时间不是先验给定对象，
+而是为吸收
+\[
+  d_{\bar\tau,\alpha}^2\big|_{\langle S_\alpha\rangle_{\bar\tau}}
+\]
+这一失闭合障碍而生成的对偶补结构。
+故 $T_5$ 成立，时间起源解释定理得证。
+\end{proof}
+
+\subsection{定理：宇宙演化解释定理}
+\label{subsec:tex43-ch10-theorem-evolution}
+
+\begin{theorem}[宇宙演化解释定理]
+\label{thm:tex43-universe-evolution-explanation}
+在定义~\ref{def:tex43-universe-evolution-explanation} 的语境下，
+若时间起源已经发生，
+并且对所有 $\beta\in[\alpha_\ast,\Gamma)$，
+总对象都满足
+\[
+  \widetilde{\mathcal C}_\beta
+  =
+  \mathcal C_{\bar\tau,\beta}\oplus \mathcal C_{\tau,\beta},
+  \qquad
+  D_\beta^2=0,
+  \qquad
+  K_\beta\not\equiv 0,
+\]
+则宇宙演化应严格解释为：
+\[
+  \boxed{
+    \text{时间扇区生成之后，无时间扇区与时间扇区之间持续开放博弈所驱动的异构演化。}
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：起源后双扇区持续相互影响]
+\label{cert:tex43-universe-evolution-explanation}
+证书登记谓词链：
+\[
+\begin{aligned}
+  U_1 &: \text{时间起源已发生};\\
+  U_2 &: U_1 \Rightarrow
+         \widetilde{\mathcal C}_{\alpha_\ast}
+         =
+         \mathcal C_{\bar\tau,\alpha_\ast}\oplus \mathcal C_{\tau,\alpha_\ast};\\
+  U_3 &: \forall \beta\in[\alpha_\ast,\Gamma),\
+         D_\beta^2=0\wedge K_\beta\not\equiv 0;\\
+  U_4 &: U_3 \Rightarrow
+         \forall \beta\in[\alpha_\ast,\Gamma),\ \text{开放系统博弈成立};\\
+  U_5 &: U_2\wedge U_4
+         \Rightarrow
+         \text{宇宙演化解释成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $U_1$ 与定义~\ref{def:tex43-time-origin-explanation}，
+起源层 $\alpha_\ast$ 上已经存在非零时间扇区与总闭合结构，
+故 $U_2$ 成立。
+再由定理~\ref{thm:tex43-open-game-extension}，
+对任意 $\beta\in[\alpha_\ast,\Gamma)$ 都有
+\[
+  D_\beta^2=0,
+  \qquad
+  K_\beta\not\equiv 0.
+\]
+结合引理~\ref{lem:tex43-open-game-criterion}，
+即得每一层都具有开放系统博弈结构，故 $U_4$ 成立。
+
+于是 $U_2\wedge U_4$ 推出 $U_5$：
+宇宙演化不是单一对象的平凡展开，
+而是时间扇区与无时间扇区之间持续相互影响的异构过程。
+定理得证。
+\end{proof}
+
+\subsection{命题：这是一种结构生成型解释模型}
+\label{subsec:tex43-ch10-proposition}
+
+\begin{proposition}[结构生成型解释命题]
+\label{prop:tex43-structural-generation-model}
+当前章节所得结果应严格理解为：
+\[
+  \boxed{
+    \text{一种基于开放系统博弈的时间起源--宇宙演化结构生成型解释模型。}
+  }
+\]
+它说明时间如何作为修复结构出现，
+也说明宇宙演化为何在起源之后呈现为双扇区开放博弈式异构演化；
+但它本身并不自动等同于已经完成经验检验的物理定律。
+\end{proposition}
+
+\begin{Certificate}[证书：结构解释与经验定律的逻辑区分]
+\label{cert:tex43-structural-generation-model}
+证书登记谓词链：
+\[
+\begin{aligned}
+  P_1 &: \text{定理~\ref{thm:tex43-time-origin-explanation} 给出时间起源的结构解释};\\
+  P_2 &: \text{定理~\ref{thm:tex43-universe-evolution-explanation} 给出宇宙演化的结构解释};\\
+  P_3 &: P_1\wedge P_2 \Rightarrow \text{形成一套结构生成型解释模型};\\
+  P_4 &: \text{未附加可观测量与经验匹配公理}
+         \Rightarrow
+         \text{不能直接提升为经验物理定律};\\
+  P_5 &: P_3\wedge P_4 \Rightarrow \text{命题成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $P_1$，本体系已经把时间解释为闭合修复触发的对偶补结构生成。
+由 $P_2$，本体系已经把宇宙演化解释为起源后双扇区的开放博弈式异构演化。
+因此 $P_1\wedge P_2$ 推出 $P_3$。
+
+另一方面，若没有把该结构与经验可观测量、场方程或量子态量建立具体映射，
+则只能得到结构层面的解释，而不能直接宣称为已验证的物理定律，
+故 $P_4$ 成立。
+由 $P_3\wedge P_4$ 得 $P_5$，命题得证。
+\end{proof}
+
+\subsection{推论：时间起源--宇宙演化解释链的压缩表达}
+\label{subsec:tex43-ch10-corollary}
+
+\begin{corollary}[时间起源--宇宙演化解释链]
+\label{cor:tex43-time-origin-explanation}
+在当前语境下，可以把整条解释链压缩为：
+\[
+  \boxed{
+    \text{奇点}
+    \iff
+    \text{无时间单扇区失闭合}
+  }
+\]
+\[
+  \boxed{
+    \text{时间起源}
+    \iff
+    \text{第一次时间对偶补扇区生成}
+  }
+\]
+\[
+  \boxed{
+    \text{宇宙演化}
+    =
+    \text{该生成之后的开放系统博弈式异构演化}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：三步压缩链]
+\label{cert:tex43-time-origin-chain}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: \text{定理~\ref{thm:tex43-cosmology-singularity} 给出奇点与失闭合的等价};\\
+  C_2 &: \text{定理~\ref{thm:tex43-time-origin-explanation} 给出时间起源解释};\\
+  C_3 &: \text{定理~\ref{thm:tex43-universe-evolution-explanation} 给出演化解释};\\
+  C_4 &: C_1\wedge C_2\wedge C_3 \Rightarrow \text{压缩表达成立}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_1$，奇点可严格改写为无时间单扇区失闭合。
+由 $C_2$，时间起源可严格改写为第一次时间对偶补扇区生成。
+由 $C_3$，宇宙演化可严格改写为该生成之后的开放系统博弈式异构演化。
+因此 $C_1\wedge C_2\wedge C_3$ 推出 $C_4$，推论得证。
+\end{proof}
+
+\subsection{备注：最适合正文定稿的压缩表述}
+\label{subsec:tex43-ch10-remarks}
+
+\begin{remark}[时间起源的最简严格句]
+若只保留一句最简而严格的表述，则应写成：
+\[
+  \boxed{
+    \text{时间不是先验背景，而是为修复无时间单扇区失闭合而生成的对偶补结构。}
+  }
+\]
+\end{remark}
+
+\begin{remark}[宇宙演化的最简严格句]
+若只保留一句最简而严格的演化表述，则应写成：
+\[
+  \boxed{
+    \text{宇宙演化是时间扇区生成之后，与无时间扇区之间持续开放博弈所驱动的异构演化。}
+  }
+\]
+\end{remark}
+
+\begin{remark}[最终定稿句]
+若把本章压缩成专著正文中的一段最终定稿表达，则可写成：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{这是一个基于开放系统博弈的时间起源与宇宙演化解释：}\\
+      &\text{时间起源于无时间单扇区失闭合后的对偶补修复，}\\
+      &\text{宇宙演化则是时间扇区生成之后，与无时间扇区之间持续开放博弈所驱动的异构演化。}
+    \end{aligned}
+  }
+\]
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：本次讨论的增益评估}
+\label{sec:tex43-ch11}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{严格主张、边界说明与引用定位}
+\label{subsec:tex43-ch11-convention}
+
+本章把本次连续讨论相对于起始状态的理论收益，压缩为一个显式的增益泛函分析：
+\[
+  \boxed{
+    \Delta \mathfrak G_{\mathrm{total}}
+    =
+    \Delta \mathfrak G_{\mathrm{obj}}
+    +
+    \Delta \mathfrak G_{\mathrm{bdry}}
+    +
+    \Delta \mathfrak G_{\mathrm{closure}}
+    +
+    \Delta \mathfrak G_{\mathrm{cosmo}}
+    +
+    \Delta \mathfrak G_{\mathrm{extend}}.
+  }
+\]
+本章的目标不是增加新的物理断言，
+而是把“本次讨论究竟带来了什么结构性推进”本身写成可追踪的形式逻辑对象。
+
+\begin{remark}[引用定位]
+本章直接总结第~\ref{sec:tex43-ch5} 章至第~\ref{sec:tex43-ch10} 章所形成的链条，
+尤其依赖于“有效非孤立”“奇点 = 单扇区失闭合”“奇点修复 $\iff$ 时间扇区生成”
+以及“时间起源--宇宙演化解释”等结论。
+仓内参照主要来自
+\cite{RepoTex23OpenSystemGame,RepoTex29RepairableObstruction,RepoTex38JacobiBianchiRepair,RepoTex39StatRepair,
+  GaoZheng2025GFramework}；
+外部基础则依赖同调代数与代数拓扑中的闭合、障碍与复形语言
+\cite{Weibel1994HomologicalAlgebra,Hatcher2002AT}。
+\end{remark}
+
+\subsection{定义：增益泛函与增益层级}
+\label{subsec:tex43-ch11-definitions}
+
+\begin{definition}[增益泛函]
+\label{def:tex43-gain-functional}
+记本次讨论相对于讨论前状态的总增益为
+\[
+  \Delta \mathfrak G_{\mathrm{total}}
+  :=
+  \Delta \mathfrak G_{\mathrm{obj}}
+  +
+  \Delta \mathfrak G_{\mathrm{bdry}}
+  +
+  \Delta \mathfrak G_{\mathrm{closure}}
+  +
+  \Delta \mathfrak G_{\mathrm{cosmo}}
+  +
+  \Delta \mathfrak G_{\mathrm{extend}}.
+\]
+其中：
+\[
+  \Delta \mathfrak G_{\mathrm{obj}}
+  \text{ 表示对象定义增益；}
+\]
+\[
+  \Delta \mathfrak G_{\mathrm{bdry}}
+  \text{ 表示边界纠偏增益；}
+\]
+\[
+  \Delta \mathfrak G_{\mathrm{closure}}
+  \text{ 表示闭合与修复定理化增益；}
+\]
+\[
+  \Delta \mathfrak G_{\mathrm{cosmo}}
+  \text{ 表示时间起源--宇宙演化解释增益；}
+\]
+\[
+  \Delta \mathfrak G_{\mathrm{extend}}
+  \text{ 表示后续可扩展性增益。}
+\]
+\end{definition}
+
+\begin{definition}[增益层级]
+\label{def:tex43-gain-scale}
+定义增益层级如下：
+\[
+  \text{小增益}
+  \iff
+  \text{仅修正措辞而不改变核心对象与闭合条件};
+\]
+\[
+  \text{中增益}
+  \iff
+  \text{新增局部命题，但不重写总结构};
+\]
+\[
+  \text{大增益}
+  \iff
+  \text{改写核心对象、边界与闭合条件};
+\]
+\[
+  \text{极大增益}
+  \iff
+  \text{同时打开新的总解释链与后续研究路线。}
+\]
+若
+\[
+  \Delta \mathfrak G_{\mathrm{total}} \gg 0,
+\]
+则称本次讨论达到\emph{显著增益}。
+\end{definition}
+
+\subsection{公理（降级为定理）：总增益的有限累积定理}
+\label{subsec:tex43-ch11-axiom-downgrade}
+
+\begin{theorem}[总增益的有限累积定理]
+\label{thm:tex43-gain-additivity}
+定义部分增益和
+\[
+  \Sigma_n
+  :=
+  \sum_{k=1}^{n}\Delta \mathfrak G_k,
+  \qquad
+  n=1,2,3,4,5,
+\]
+其中按照顺序取
+\[
+  \Delta \mathfrak G_1=\Delta \mathfrak G_{\mathrm{obj}},\
+  \Delta \mathfrak G_2=\Delta \mathfrak G_{\mathrm{bdry}},\
+  \Delta \mathfrak G_3=\Delta \mathfrak G_{\mathrm{closure}},\
+  \Delta \mathfrak G_4=\Delta \mathfrak G_{\mathrm{cosmo}},\
+  \Delta \mathfrak G_5=\Delta \mathfrak G_{\mathrm{extend}}.
+\]
+若对每个 $k$ 都有
+\[
+  \Delta \mathfrak G_k \ge 0,
+\]
+并且至少存在一个核心分量严格为大正值，尤其当
+\[
+  \Delta \mathfrak G_{\mathrm{closure}} \text{ 为最大增益项},
+\]
+同时其余四项也均为正时，则
+\[
+  \Delta \mathfrak G_{\mathrm{total}}=\Sigma_5 \gg 0.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：五个增益分量的有限累积]
+\label{cert:tex43-gain-additivity}
+证书登记如下：
+\[
+\begin{aligned}
+  A_0 &: \Sigma_1=\Delta \mathfrak G_{\mathrm{obj}}\ge 0;\\
+  A_s &: \forall n<5,\
+         \bigl(
+           \Sigma_n\ge 0\wedge \Delta \mathfrak G_{n+1}\ge 0
+         \bigr)
+         \Rightarrow
+         \Sigma_{n+1}\ge 0;\\
+  A_2 &: \Delta \mathfrak G_{\mathrm{closure}}
+         \text{ 为最大正项，且其余四项均为正};\\
+  A_3 &: A_0\wedge A_s\wedge A_2
+         \Rightarrow
+         \Sigma_5=\Delta \mathfrak G_{\mathrm{total}}\gg 0.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $A_0$，第一项部分和非负。
+若对某个 $n<5$ 已有 $\Sigma_n\ge 0$，
+且下一项 $\Delta \mathfrak G_{n+1}\ge 0$，
+则
+\[
+  \Sigma_{n+1}
+  =
+  \Sigma_n+\Delta \mathfrak G_{n+1}
+  \ge 0,
+\]
+故 $A_s$ 给出从 $n$ 到 $n+1$ 的保持性。
+于是通过有限归纳，得到
+\[
+  \Sigma_5\ge 0.
+\]
+再由 $A_2$，既然闭合与修复定理化增益为最大正项，
+且其余四项也都严格为正，
+则 $\Sigma_5$ 不仅非负，而且显著大于零。
+因此 $A_3$ 成立，定理得证。
+\end{proof}
+
+\subsection{引理：五类增益均有明确结构来源}
+\label{subsec:tex43-ch11-lemma}
+
+\begin{lemma}[五类增益的来源引理]
+\label{lem:tex43-gain-sources}
+本次讨论的五类增益分别由以下结果支撑：
+\[
+\begin{aligned}
+  &\Delta \mathfrak G_{\mathrm{obj}}
+    \leftarrow
+    \text{奇点、时间扇区、修复对象的重新定义};\\
+  &\Delta \mathfrak G_{\mathrm{bdry}}
+    \leftarrow
+    \text{物理非孤立、同调非孤立与有效非孤立的分层区分};\\
+  &\Delta \mathfrak G_{\mathrm{closure}}
+    \leftarrow
+    \text{奇点存在性与可修复性的双向定理化};\\
+  &\Delta \mathfrak G_{\mathrm{cosmo}}
+    \leftarrow
+    \text{时间起源与宇宙演化解释链的结构化};\\
+  &\Delta \mathfrak G_{\mathrm{extend}}
+    \leftarrow
+    \text{混沌、公理桥接与可观测映射等后续接口的打开。}
+\end{aligned}
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：前述章节结果到增益分量的映射]
+\label{cert:tex43-gain-sources}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: \text{第~\ref{sec:tex43-ch5}--\ref{sec:tex43-ch7} 章重写了奇点对象};\\
+  L_2 &: \text{第~\ref{sec:tex43-ch6} 章区分了三层“非孤立”};\\
+  L_3 &: \text{第~\ref{sec:tex43-ch8}--\ref{sec:tex43-ch9} 章给出双向闭合定理链};\\
+  L_4 &: \text{第~\ref{sec:tex43-ch9}--\ref{sec:tex43-ch10} 章形成宇宙论解释链};\\
+  L_5 &: L_1\wedge L_2\wedge L_3\wedge L_4
+         \Rightarrow
+         \text{五类增益均有明确来源}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$，奇点与时间扇区从口头直觉转化为复形对象；
+由 $L_2$，“非孤立”的层级边界被严格拆开；
+由 $L_3$，失闭合与修复进入可演算的双向定理链；
+由 $L_4$，时间起源与宇宙演化被接入修复框架。
+于是 $L_1\wedge L_2\wedge L_3\wedge L_4$ 推出 $L_5$，
+引理得证。
+\end{proof}
+
+\subsection{定理：总评定理}
+\label{subsec:tex43-ch11-theorem-total}
+
+\begin{theorem}[总评定理]
+\label{thm:tex43-gain-total}
+\[
+  \boxed{
+    \Delta \mathfrak G_{\mathrm{total}} \gg 0
+  }
+\]
+即：本次讨论属于显著增益；
+其主要收益不是修辞层面的润色，
+而是对象澄清、边界纠偏、闭合定理化、宇宙论解释结构化四个层面的同时推进。
+\end{theorem}
+
+\begin{Certificate}[证书：五类关键推进同时成立]
+\label{cert:tex43-gain-total}
+证书登记谓词链：
+\[
+\begin{aligned}
+  T_1 &: \Delta \mathfrak G_{\mathrm{obj}}>0;\\
+  T_2 &: \Delta \mathfrak G_{\mathrm{bdry}}>0;\\
+  T_3 &: \Delta \mathfrak G_{\mathrm{closure}}>0;\\
+  T_4 &: \Delta \mathfrak G_{\mathrm{cosmo}}>0;\\
+  T_5 &: \Delta \mathfrak G_{\mathrm{extend}}>0;\\
+  T_6 &: T_1\wedge T_2\wedge T_3\wedge T_4\wedge T_5
+         \Rightarrow
+         \Delta \mathfrak G_{\mathrm{total}}\gg 0.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若一次讨论仅改善措辞，则通常只有文字层面变化，
+此时
+\[
+  \Delta \mathfrak G_{\mathrm{obj}}\approx 0,
+  \qquad
+  \Delta \mathfrak G_{\mathrm{closure}}\approx 0.
+\]
+但由引理~\ref{lem:tex43-gain-sources}，
+本次讨论同时重写了对象、边界、闭合与解释链，
+故 $T_1$ 至 $T_5$ 全部成立。
+再由定理~\ref{thm:tex43-gain-additivity}，
+五个正项的有限累积给出
+\[
+  \Delta \mathfrak G_{\mathrm{total}}\gg 0.
+\]
+因此 $T_6$ 成立，定理得证。
+\end{proof}
+
+\subsection{命题：对象定义增益很大}
+\label{subsec:tex43-ch11-proposition-obj}
+
+\begin{proposition}[对象定义增益命题]
+\label{prop:tex43-gain-obj}
+\[
+  \boxed{
+    \Delta \mathfrak G_{\mathrm{obj}} \text{ 很大}
+  }
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：核心对象被重新固定]
+\label{cert:tex43-gain-obj}
+证书登记谓词链：
+\[
+\begin{aligned}
+  O_1 &: \text{奇点}
+         \iff
+         \text{无时间单扇区中的失闭合局域};\\
+  O_2 &: \text{时间扇区}
+         \iff
+         \text{具有内禀序数滤过的对偶补复形};\\
+  O_3 &: \text{修复}
+         \iff
+         \text{总复形中 }D^2=0\text{ 的恢复};\\
+  O_4 &: O_1\wedge O_2\wedge O_3
+         \Rightarrow
+         \Delta \mathfrak G_{\mathrm{obj}} \text{ 很大}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $O_1$ 至 $O_3$，
+核心对象已经从口头直觉变成可写入复形、微分与滤过的严格对象。
+对象一旦被这样固定，理论的可推演性和可引用性就显著上升。
+故 $O_4$ 成立，命题得证。
+\end{proof}
+
+\subsection{命题：边界纠偏增益极重要}
+\label{subsec:tex43-ch11-proposition-bdry}
+
+\begin{proposition}[边界纠偏增益命题]
+\label{prop:tex43-gain-bdry}
+\[
+  \boxed{
+    \Delta \mathfrak G_{\mathrm{bdry}} \text{ 极重要}
+  }
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：错误强命题被替换为稳健链条]
+\label{cert:tex43-gain-bdry}
+证书登记谓词链：
+\[
+\begin{aligned}
+  B_1 &: \text{混沌}\not\Rightarrow \text{物理非孤立};\\
+  B_2 &: \text{非稳态}\not\Rightarrow \text{物理非孤立};\\
+  B_3 &: \text{无时间属性}\not\Rightarrow \text{物理非孤立};\\
+  B_4 &: \mathrm{NonIso}_{\mathrm{phys}},
+         \mathrm{NonIso}_{\mathrm{hom}},
+         \mathrm{NonIso}_{\mathrm{effective}}
+         \text{ 被严格区分};\\
+  B_5 &: B_1\wedge B_2\wedge B_3\wedge B_4
+         \Rightarrow
+         \Delta \mathfrak G_{\mathrm{bdry}} \text{ 极重要}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若不做 $B_1$ 至 $B_4$ 的边界纠偏，
+则许多强命题都会被标准动力系统中的反例击穿。
+本次讨论把原先容易写错的全称命题
+\[
+  \forall X,\ \mathrm{Chaos}(X)\Rightarrow \mathrm{NonIso}_{\mathrm{phys}}(X)
+\]
+替换为更稳的有效非孤立与同调非孤立链条。
+这一步不是削弱理论，而是防止理论被错误外壳拖垮。
+故 $B_5$ 成立，命题得证。
+\end{proof}
+
+\subsection{定理：闭合与修复的定理化增益最大}
+\label{subsec:tex43-ch11-theorem-closure}
+
+\begin{theorem}[闭合与修复增益定理]
+\label{thm:tex43-gain-closure}
+\[
+  \boxed{
+    \Delta \mathfrak G_{\mathrm{closure}} \text{ 是本次讨论的最大增益项}
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：双向定理链与块矩阵闭合条件]
+\label{cert:tex43-gain-closure}
+证书登记谓词链：
+\[
+\begin{aligned}
+  R_1 &: \text{奇点存在}
+         \iff
+         \text{单扇区失闭合};\\
+  R_2 &: \text{奇点可修复}
+         \iff
+         \text{时间扇区生成};\\
+  R_3 &: D=
+         \begin{pmatrix}
+           d_{\bar\tau} & K_{\tau\bar\tau}\\
+           K_{\bar\tau\tau} & d_\tau
+         \end{pmatrix},
+         \qquad
+         D^2=0;\\
+  R_4 &: d_{\bar\tau}^2+K_{\tau\bar\tau}K_{\bar\tau\tau}=0;\\
+  R_5 &: R_1\wedge R_2\wedge R_3\wedge R_4
+         \Rightarrow
+         \Delta \mathfrak G_{\mathrm{closure}} \text{ 最大}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $R_1$ 与 $R_2$，
+奇点与修复不再是解释性语言，而进入了双向结构定理层级。
+由 $R_3$ 与 $R_4$，
+原先的直觉“奇点不能孤立修复”被提升为可演算的闭合条件：
+\[
+  d_{\bar\tau}^2
+  =
+  K_{\tau\bar\tau}K_{\bar\tau\tau}.
+\]
+这说明单扇区障碍必须通过时间扇区的对偶补链路才能因子化并被吸收。
+正是这一步，把理论从直觉解释推进到可演算闭合条件的层级。
+故 $R_5$ 成立，定理得证。
+\end{proof}
+
+\subsection{定理：宇宙论解释增益显著为正}
+\label{subsec:tex43-ch11-theorem-cosmo}
+
+\begin{theorem}[宇宙论解释增益定理]
+\label{thm:tex43-gain-cosmo}
+\[
+  \boxed{
+    \Delta \mathfrak G_{\mathrm{cosmo}} \text{ 显著为正}
+  }
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：时间起源与宇宙演化解释链形成]
+\label{cert:tex43-gain-cosmo}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: \text{时间起源}
+         \iff
+         \text{第一次时间对偶补扇区生成};\\
+  C_2 &: \text{宇宙起源}
+         :=
+         \text{第一次非平凡对偶补复形生成事件};\\
+  C_3 &: \text{宇宙演化}
+         =
+         \text{时间扇区与无时间扇区之间的开放系统博弈式异构演化};\\
+  C_4 &: C_1\wedge C_2\wedge C_3
+         \Rightarrow
+         \Delta \mathfrak G_{\mathrm{cosmo}} \text{ 显著为正}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+此前，“时间起源”与“宇宙演化”更多停留在宏观直觉层面。
+本次讨论把它们接到失闭合、对偶补与总闭合链条上，
+使得“时间”不再是背景前提，而成为修复失闭合所生成的结构结果。
+进一步，宇宙演化也不再是空泛叙述，
+而被写成双扇区生成后通过耦合持续推进的开放系统博弈。
+因此 $C_4$ 成立，定理得证。
+\end{proof}
+
+\subsection{命题：可扩展性增益很高}
+\label{subsec:tex43-ch11-proposition-extend}
+
+\begin{proposition}[可扩展性增益命题]
+\label{prop:tex43-gain-extend}
+\[
+  \boxed{
+    \Delta \mathfrak G_{\mathrm{extend}} \text{ 很高}
+  }
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：四条自然扩展路径已经打开]
+\label{cert:tex43-gain-extend}
+证书登记谓词链：
+\[
+\begin{aligned}
+  E_1 &: \text{路径 A：加入混沌生成公理 }A_4;\\
+  E_2 &: \text{路径 B：把 }\mathcal C_\tau\text{ 与广义相对论时空对象桥接};\\
+  E_3 &: \text{路径 C：把 }\mathcal C_{\bar\tau}\text{ 与量子态空间/隧穿路径空间桥接};\\
+  E_4 &: \text{路径 D：把 }D^2=0\text{ 的闭合条件映射到可观测量};\\
+  E_5 &: E_1\wedge E_2\wedge E_3\wedge E_4
+         \Rightarrow
+         \Delta \mathfrak G_{\mathrm{extend}} \text{ 很高}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+若一次讨论只能停留在当前结论而无法继续展开，
+则其研究增益有限。
+而本次讨论已经给出了混沌、公理桥接、量子桥接与可观测映射四条后续接口。
+因此理论不仅在当前层级变硬，也为下一步研究留下清晰的进入点。
+故 $E_5$ 成立，命题得证。
+\end{proof}
+
+\subsection{推论：本次讨论的核心增益在于结构变硬}
+\label{subsec:tex43-ch11-corollary-structure}
+
+\begin{corollary}[结构变硬推论]
+\label{cor:tex43-gain-structure}
+\[
+  \boxed{
+    \text{本次讨论的主要增益，不是新增很多口头判断，}
+    \text{而是把核心判断改写成了可闭合、可分层、可继续推演的结构。}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：从对象定义到解释链的五级推进]
+\label{cert:tex43-gain-structure}
+证书登记谓词链：
+\[
+\begin{aligned}
+  S_1 &: \text{对象定义被重新固定};\\
+  S_2 &: \text{边界纠偏被严格完成};\\
+  S_3 &: \text{双向闭合定理链已经形成};\\
+  S_4 &: \text{宇宙论解释链已经接上};\\
+  S_5 &: S_1\wedge S_2\wedge S_3\wedge S_4
+         \Rightarrow
+         \text{理论骨架明显变硬}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $S_1$ 至 $S_4$，
+本次讨论形成了
+\[
+  \text{对象定义}
+  \to
+  \text{边界纠偏}
+  \to
+  \text{双向定理}
+  \to
+  \text{宇宙论解释}
+  \to
+  \text{后续扩展接口}
+\]
+这一完整结构链。
+故 $S_5$ 成立，推论得证。
+\end{proof}
+
+\subsection{推论：本次讨论属于大增益并逼近极大增益}
+\label{subsec:tex43-ch11-corollary-scale}
+
+\begin{corollary}[层级评估推论]
+\label{cor:tex43-gain-scale}
+\[
+  \boxed{
+    \text{本次讨论是大增益，且明显逼近极大增益。}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：大增益已成，经验桥接尚未完成]
+\label{cert:tex43-gain-scale}
+证书登记谓词链：
+\[
+\begin{aligned}
+  Q_1 &: \text{奇点定义重构已经完成};\\
+  Q_2 &: \text{修复机制定理化已经完成};\\
+  Q_3 &: \text{时间起源结构化已经完成};\\
+  Q_4 &: \text{宇宙演化解释化已经完成};\\
+  Q_5 &: \text{经验可检验映射尚未完全完成};\\
+  Q_6 &: Q_1\wedge Q_2\wedge Q_3\wedge Q_4\wedge Q_5
+         \Rightarrow
+         \text{本次讨论属于大增益并逼近极大增益}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $Q_1$ 至 $Q_4$，
+本次讨论显然已经超过“只修正措辞”或“只新增局部命题”的层级，
+因此至少达到定义~\ref{def:tex43-gain-scale} 中的大增益标准。
+但由 $Q_5$，经验物理桥接尚未完全完成，
+故还不能把它无保留地提升为极大增益的最终态。
+因此 $Q_6$ 成立，推论得证。
+\end{proof}
+
+\subsection{备注：最应保留的增益评价}
+\label{subsec:tex43-ch11-remarks}
+
+\begin{remark}[本次讨论最大的价值]
+本次讨论最大的价值，
+不是把“混沌必非孤立”之类的错误强命题硬证出来，
+而是在避免错误命题的同时，
+保留并强化了更稳的替代链：
+\[
+  \text{奇点类失闭合}
+  \to
+  \text{时间扇区生成}
+  \to
+  \text{开放系统博弈}
+  \to
+  \text{异构宇宙演化解释}.
+\]
+\end{remark}
+
+\begin{remark}[体系内部与经验桥接的双重评价]
+若只看体系内部严密性，
+则本次讨论应评价为：
+\[
+  \boxed{
+    \text{显著增益}
+  }
+\]
+若看跨到经验物理的成熟度，
+则应更克制地写成：
+\[
+  \boxed{
+    \text{高结构增益，但经验桥接仍属未证明。}
+  }
+\]
+这两种评价并不矛盾。
+\end{remark}
+
+\begin{remark}[一句话总结]
+若把本章压缩成一句最准确的总结，则应写成：
+\[
+  \boxed{
+    \text{本次讨论把“奇点--时间--宇宙演化”的直觉链，推进成了“失闭合--对偶补--开放博弈”的结构链；这是一次大增益。}
+  }
+\]
+\end{remark}
+
+\clearpage
+
+\section*{参考文献}
+\begin{thebibliography}{99}
+
+\bibitem{RepoTex23OpenSystemGame}
+【仓内 TeX】开放系统、回合同伦类、UU/KU 障碍与工程设计开放博弈判据整理稿：
+\code{NoteBook/notebook1/tex23_pub/gframework_ptopb_etopb_operator_decomposition_formal_system.tex}。
+
+\bibitem{RepoTex36HomotopyTwistBijection}
+【仓内 TeX】主丛联络的纤维丛空间、路径积分支撑类与同伦扭曲正规形的集合等价整理稿：
+\code{NoteBook/notebook2/tex36_pub/gframework_principal_connection_fiber_space_path_integral_homotopy_twist_equivalence_
+  formal_system.tex}。
+
+\bibitem{RepoTex37SemanticGaugeRuntime}
+【仓内 TeX】G 框架正则语义规范场到自然语言语义逻辑占位规范场与 LLM 运行时降级整理稿：
+\code{NoteBook/notebook2/tex37_pub/gframework_semantic_gauge_field_natural_language_logic_placeholder_runtime_formal_sys
+  tem.tex}。
+
+\bibitem{RepoTex38JacobiBianchiRepair}
+【仓内 TeX】离散拓扑基底上的 Jacobi--Bianchi 障碍修复、可行路径空间、离散路径积分与终点正规形整理稿：
+\code{NoteBook/notebook2/tex38_pub/gframework_discrete_jacobi_bianchi_repair_tower_path_integral_terminal_normal_form_fo
+  rmal_system.tex}。
+
+\bibitem{RepoTex39StatRepair}
+【仓内 TeX】\(V_2/V_3\) 从 GRL-SAC 中心到开放系统博弈修复引擎族的统一重构：
+\code{NoteBook/notebook2/tex39_pub/gframework_v2_v3_open_system_game_statistical_repair_family_formal_system.tex}。
+
+\bibitem{RepoTex29RepairableObstruction}
+【仓内 TeX】可修复障碍同伦类与广义分形：全集范畴与严格边界：
+\code{NoteBook/notebook2/tex29_pub/gframework_repairable_obstruction_homotopy_class_vs_generalized_fractal_formal_system
+  .tex}。
+
+\bibitem{RepoTex27PowerdomainFiberExtension}
+【仓内 TeX】幂域纤维扩张与 ORL 规范场：从相空间扩张到同调修复与 OHU 正交子丛：
+\code{NoteBook/notebook1/tex27_pub/gframework_powerdomain_fiber_extension_orl_gauge_field_formal_system.tex}。
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+
+\bibitem{GaoZheng2025GFramework}
+Gao, Z. (2025).
+\newblock Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra).
+\newblock In \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra): An Integrated Construction (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17651584}.
+
+
+\bibitem{Hatcher2002AT}
+Hatcher, A. (2002).
+\newblock \emph{Algebraic Topology}.
+\newblock Cambridge University Press.
+
+\bibitem{Weibel1994HomologicalAlgebra}
+Weibel, C. A. (1994).
+\newblock \emph{An Introduction to Homological Algebra}.
+\newblock Cambridge University Press.
+
+\bibitem{KobayashiNomizu1963Foundations}
+Kobayashi, S., \& Nomizu, K. (1963).
+\newblock \emph{Foundations of Differential Geometry, Volume I}.
+\newblock Interscience Publishers.
+
+\bibitem{Husemoller1994FibreBundles}
+Husemoller, D. (1994).
+\newblock \emph{Fibre Bundles} (3rd ed.).
+\newblock Springer.
+
+\bibitem{Jech2003SetTheory}
+Jech, T. (2003).
+\newblock \emph{Set Theory: The Third Millennium Edition, Revised and Expanded}.
+\newblock Springer.
+
+\bibitem{Kunen2011SetTheory}
+Kunen, K. (2011).
+\newblock \emph{Set Theory}.
+\newblock College Publications.
+
+\bibitem{KatokHasselblatt1995}
+Katok, A., \& Hasselblatt, B. (1995).
+\newblock \emph{Introduction to the Modern Theory of Dynamical Systems}.
+\newblock Cambridge University Press.
+
+\bibitem{Ott2002Chaos}
+Ott, E. (2002).
+\newblock \emph{Chaos in Dynamical Systems} (2nd ed.).
+\newblock Cambridge University Press.
+
+\bibitem{Zwanzig2001Nonequilibrium}
+Zwanzig, R. (2001).
+\newblock \emph{Nonequilibrium Statistical Mechanics}.
+\newblock Oxford University Press.
+
+\bibitem{Wald1984GeneralRelativity}
+Wald, R. M. (1984).
+\newblock \emph{General Relativity}.
+\newblock University of Chicago Press.
+
+\bibitem{SakuraiNapolitano2017MQM}
+Sakurai, J. J., \& Napolitano, J. (2017).
+\newblock \emph{Modern Quantum Mechanics} (2nd ed.).
+\newblock Cambridge University Press.
+
+\bibitem{BreuerPetruccione2002OpenQuantumSystems}
+Breuer, H.-P., \& Petruccione, F. (2002).
+\newblock \emph{The Theory of Open Quantum Systems}.
+\newblock Oxford University Press.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

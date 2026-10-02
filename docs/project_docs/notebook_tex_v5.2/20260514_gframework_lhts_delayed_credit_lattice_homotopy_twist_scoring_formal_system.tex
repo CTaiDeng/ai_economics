@@ -1,0 +1,1204 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 4mu
+\sloppy
+\usepackage{array}
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\refname}{参考文献}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\LHTS}{\ensuremath{\mathsf{LHTS}}}
+\newcommand{\DLHTS}{\ensuremath{\mathsf{D\mbox{-}LHTS}}}
+\newcommand{\OrgLHTS}{\ensuremath{\mathsf{Org\mbox{-}LHTS}}}
+\newcommand{\NCOrgLHTS}{\ensuremath{\mathsf{NC\mbox{-}Org\mbox{-}LHTS}}}
+\newcommand{\PDE}{\ensuremath{\mathsf{PDE}}}
+\newcommand{\Hit}{\ensuremath{\mathsf{Hit}}}
+\newcommand{\Twist}{\ensuremath{\mathsf{Twist}}}
+\newcommand{\Credit}{\ensuremath{\mathsf{Credit}}}
+\newcommand{\Cert}{\ensuremath{\mathsf{Cert}}}
+\newcommand{\State}{\ensuremath{\mathsf{State}}}
+\newcommand{\Score}{\ensuremath{\mathsf{Score}}}
+\newcommand{\Jump}{\ensuremath{\mathsf{Jump}}}
+\newcommand{\Accept}{\ensuremath{\mathsf{Accept}}}
+\newcommand{\EngGlobal}{\ensuremath{\mathsf{EngGlobal}}}
+\newcommand{\Linfty}{\ensuremath{L_\infty}}
+\newcommand{\DefEq}{\coloneqq}
+\newcommand{\Chi}{\mathcal X}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\repo}[1]{\path{#1}}
+\DeclareMathOperator{\Pressure}{Pressure}
+\DeclareMathOperator{\Prune}{Prune}
+\DeclareMathOperator{\Visited}{Visited}
+\DeclareMathOperator{\Veto}{Veto}
+\DeclareMathOperator{\Normalize}{Normalize}
+\DeclareMathOperator{\Endp}{end}
+
+\setlength{\emergencystretch}{10em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{LHTS：延迟信用分配的格点同伦扭曲评分与命中证书体系\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-05-14}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标是把延迟信用分配、格点同伦扭曲、分量雅可比间隙、命中证书、
+工程全局、\(\Linfty\) 闭合、组织同伦与非交换语义枚举，整合为一个连贯的
+\LHTS{} 形式系统。这里的 \LHTS{} 指 Lattice Homotopy Twist Scoring，
+即格点同伦扭曲评分与命中证书体系。它不是孤立的局部搜索技巧，而是
+\GFramework{} 中从统计力学参数格、同伦扭曲命中、PDE 策略簇、障碍修复、
+高阶正交命中和确定性收敛链条中抽出的算法层骨架
+\cite{RepoTex53StrategyCluster,RepoTex55PDEParadigm,GaoZheng2025GFramework}。
+
+本文的第一层立场是把“格点调用”改写为“可证明的同伦扭曲试探”。在普通调度口径中，
+参数 \(sp_i\) 的调用常被看作一个动作选择；在本文中，它首先是一个作用在工程状态
+\(z\) 上的单坐标同伦扭曲 \(H_{i,\alpha}\)。所谓单坐标，不是说系统只有一个真实维度，
+而是说在一次主调用中只把第 \(i\) 个参数格点作为主要扭曲方向，其余主坐标保持冻结。
+这使得当前步的信用来源可以严格落在
+\[
+  \boldsymbol\delta_i^\partial(z;\alpha)
+  =
+  \mathbf G(z)-\mathbf G(H_{i,\alpha}(z))
+\]
+上，而不再把后续多参数交错造成的总变化误记为第 \(i\) 个格点的贡献。由此，
+延迟信用分配获得了最小可证语义：被持久化的不是一个模糊印象，而是某个格点方向在
+某个残差压力场下已经产生过的分量化下降证据。
+
+本文的第二层立场是把“分值”从标量偏好提升为残差维度上的证书张量。若只看
+\(w^\top\mathbf G(z)\) 这样的标量势能，某个格点方向可能在加权总量上下降，却同时损伤
+关键残差维度。本文因此把完整本体设为 \(D\) 维残差向量 \(\mathbf G(z)\)、
+分量雅可比间隙矩阵 \(\mathbf J_D^\partial(z;\alpha)\)、分量下降向量
+\(\boldsymbol\delta_i^\partial(z;\alpha)\) 与持久分值张量 \(\mathbf S_D(t)\)。
+标量分值只允许作为投影使用；真正决定调度的是残差压力
+\(q_D(t)=\Pressure(\mathbf G(z_t))\) 经雅可比转置反拉回后的方向优先级。
+因此 \LHTS{} 不是“哪个格点历史分数高就调用哪个格点”的经验规则，而是
+“当前残差压力由哪些格点方向最能修复”这一问题的形式化回答。
+
+本文的第三层立场是区分跳跃的三种意义。在线性计数频域中，一次 \(K\) 阶宏扭曲可以与
+\(K\) 次同向小步有相同调用计数；但计数相同不自动推出端点相同，也不自动推出路径避障
+同伦，更不自动推出性能更好。本文保留跳跃作为候选生成与频域加速机制，同时要求它通过
+接受准则、避障同伦、统计更优、微观隧穿或工程全局证书取得有效性。这个区分避免把
+“候选空间加速”误写成“无条件求解加速”，也避免把一次宏扭曲的成功经验错误外推为
+拓扑层或能量层的普遍等价。
+
+本文的第四层立场是把全局性分成工程全局与数学全局。单坐标偏微下降只证明当前方向的
+局部修复，不证明整个组合空间中的全局最优；但这并不否定工程全局。若有限工程空间
+\(\mathcal Z_h\) 已经被覆盖、评估或下界排除，则存在严格的工程全局证书。若进一步有
+\(\Linfty\) 残差闭合、连续极限相容、紧性、闭性与保真性，则工程结论可以向数学意义下的
+极限命题提升。这一层级继承了 \(\Linfty\) 无故障修复和 PDE 低残差命中范式中的证明强度区分
+\cite{RepoTex50LinftyRepair,RepoTex55PDEParadigm}。
+
+本文的第五层立场是把 A/B/C 写成系统完整性，而不是外置装饰。A 表示工程组合空间的
+覆盖、枚举、动态规划或下界排除完备性；B 表示连续或 \(\Linfty\) 意义下的几何闭合与
+极限提升；C 表示带非零支持的探索动力，使高分优先、跳跃与组织变换不会摧毁遍历性。
+没有 A/B/C 或其等价证书时，\LHTS{} 仍可给出局部下降和候选改进；但不能把这种局部证据
+提升为全组合修复能力、最优演化路径或数学全局闭合。
+
+本文的第六层立场是把组织同伦并入 \LHTS{}，但只作为结构层主线处理。普通格点参数可以
+控制数值、策略或残差场；组织同伦参数则控制实单、虚单、虚仓、顺序、层级与正规型。
+一旦组织动作写成可枚举的同伦生成元，它就可以和普通参数一样进入分量雅可比间隙、
+压力倒决策、评分张量、跳跃候选与证书记录。进一步地，组织动作通常不可交换，因此
+平坦枚举必须升级为非交换词枚举、多排序正规型和合法后交换重写。此处的 Parikh 计数
+只能给出一阶频率影子，不能替代有序词语义，相关基础可参见
+\cite{Parikh1966ContextFree,BaaderNipkow1998TermRewriting}。
+
+因此，本文在整体 \GFramework{} 中承担的是承上启下的整合角色。它向前承接语义规范场、
+障碍修复、统计力学参数格、同伦扭曲命中和 PDE 策略簇
+\cite{RepoTex37SemanticGauge,RepoTex45ObstructionGlobalSection,RepoTex53StrategyCluster}；
+向中间承接高阶正交、雅可比间隙、命中泛函和确定性收敛
+\cite{RepoTex55PDEParadigm}；向后把这些内容压缩为一套可审计的 LHTS 母体、
+D 结构版本、组织同伦版本和非交换组织版本。本文不进入具体执行层细节，而只给出理论主线：
+残差向量给出压力，单格点扭曲给出偏微下降，延迟信用给出持久评分，跳跃给出候选扩展，
+证书给出有效性边界，A/B/C 给出完整性闭合，组织同伦给出结构层扩展。
+
+概括地说，\LHTS{} 的核心不是“更快地尝试更多动作”，而是把每一次格点扭曲都放回
+残差分量、压力反拉回、证书分层和全局闭合的形式链条中。它把 \GFramework{} 的
+同伦命中思想从“可命中”推进到“可评分”，从“可评分”推进到“可证书化”，再从
+“可证书化”推进到“可组织同伦扩展”的统一系统。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{对象域、引用口径与 LHTS 母体}
+\label{sec:lhts-object-domain}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[阅读导航与引用口径]
+本文的形式系统写作体例继承 \cite{RepoTex37SemanticGauge,RepoTex55PDEParadigm}。
+统计力学参数格、同伦扭曲命中和 PDE 策略簇的背景来自
+\cite{RepoTex53StrategyCluster}；障碍修复与全局截面口径参考
+\cite{RepoTex45ObstructionGlobalSection}；\(\Linfty\) 闭合和证明强度分层参考
+\cite{RepoTex50LinftyRepair}。外部基础方面，数值优化和坐标下降可参见
+\cite{NocedalWright2006Optimization}，退火与随机松弛可参见
+\cite{Kirkpatrick1983Optimization,GemanGeman1984StochasticRelaxation}，
+信用分配与探索机制可参见 \cite{SuttonBarto2018RL}，
+有限样本统计证书可参见 \cite{Hoeffding1963Probability}，
+PDE 与动态博弈背景可参见 \cite{Evans2010PDE,BasarOlsder1999DynamicGames}。
+\end{remark}
+
+\begin{definition}[工程状态与参数格点]
+\label{def:lhts-state}
+令工程状态为
+\[
+  z=(\theta,\sigma,U,\xi)\in\mathcal Z_h,
+\]
+其中
+\[
+  \theta=(sp_1,\ldots,sp_n)\in\Theta_h
+\]
+是有限参数格点，\(\sigma\in\Sigma_h\) 是策略函数簇，\(U\in\mathcal U_h\) 是状态场、
+价值场或残差场近似，\(\xi\in\Xi\) 是开放输入或环境条件。工程空间写成
+\[
+  \mathcal Z_h
+  =
+  \Theta_h\times\Sigma_h\times\mathcal U_h\times\Xi .
+\]
+\end{definition}
+
+\begin{definition}[残差向量与命中集合]
+\label{def:lhts-residual-hit}
+定义 \(D\) 维残差向量
+\[
+  \mathbf G:\mathcal Z_h\to\RR_{\ge0}^{D},
+  \qquad
+  \mathbf G(z)=
+  (G_1(z),\ldots,G_D(z))^\top .
+\]
+每个分量均按“越小越好”定义，可表示目标偏离、风险越界、收益不足、PDE 残差、
+边界残差、博弈最优性残差、成本残差或稳定性残差。给定阈值
+\[
+  \varepsilon_D=(\varepsilon_1,\ldots,\varepsilon_D)\in\RR_{>0}^{D},
+\]
+定义命中集合
+\[
+  \mathcal H_{\varepsilon}
+  =
+  \{z\in\mathcal Z_h:
+  G_d(z)\le \varepsilon_d,\ d=1,\ldots,D\}.
+\]
+命中谓词为
+\[
+  \Hit_{\varepsilon}(z)
+  \Longleftrightarrow
+  z\in\mathcal H_{\varepsilon}.
+\]
+\end{definition}
+
+\begin{definition}[单格点同伦扭曲]
+\label{def:lhts-single-twist}
+对第 \(i\) 个参数格点 \(sp_i\)，给定扭曲强度集合 \(A_i\subset\RR\) 和映射
+\[
+  H_{i,\alpha}:\mathcal Z_h\to\mathcal Z_h,
+  \qquad
+  \alpha\in A_i .
+\]
+称 \(H_{i,\alpha}\) 为单格点同伦扭曲，如果
+\[
+  H_{i,0}=\id,
+  \qquad
+  \pi_jH_{i,\alpha}(z)=\pi_j z
+  \quad (j\ne i)
+\]
+在主参数坐标上成立。这里 \(\pi_j\) 表示取第 \(j\) 个参数格点主坐标。
+\end{definition}
+
+\begin{definition}[LHTS 母体]
+\label{def:lhts-family}
+\LHTS{} 母体由以下对象组成：
+\[
+  \mathfrak L
+  =
+  \left(
+  \mathcal Z_h,
+  \mathbf G,
+  \{H_{i,\alpha}\}_{i,\alpha},
+  \mathbf S_D,
+  q_D,
+  \Jump,
+  \Accept,
+  \Cert
+  \right).
+\]
+其中 \(\mathbf S_D\in\RR^{D\times n}\) 是分量化持久分值张量，
+\[
+  q_D(z)=\Pressure(\mathbf G(z))\in\RR_{\ge0}^{D}
+\]
+是残差压力向量，\(\Jump\) 是跳跃候选机制，\(\Accept\) 是接受准则，
+\(\Cert\) 是命中、统计、避障、工程全局或 \(\Linfty\) 闭合证书族。
+\end{definition}
+
+\begin{remark}[核心主线]
+本文只保留 \LHTS{} 的理论主线：
+\[
+\boxed{
+\begin{gathered}
+\text{残差向量}
+\Rightarrow
+\text{单格点同伦扭曲}
+\Rightarrow
+\text{分量偏微下降}
+\Rightarrow
+\text{延迟信用评分}\\
+\Rightarrow
+\text{压力倒决策}
+\Rightarrow
+\text{跳跃候选}
+\Rightarrow
+\text{证书分层}
+\Rightarrow
+\text{全局性闭合}.
+\end{gathered}
+}
+\]
+这一主线不依赖任何执行层描述；其核心是定义、推论和证书之间的可追踪关系。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{延迟信用分配与单格点偏微下降}
+\label{sec:lhts-delayed-credit}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{单格点调用链}
+\label{subsec:lhts-single-chain}
+
+\begin{theorem}[有限单格点同伦扭曲链存在]
+\label{thm:lhts-finite-chain}
+设 \(\mathcal Z_h\) 为有限或给定步长内封闭的工程状态空间，且每个
+\[
+  H_{i,\alpha}:\mathcal Z_h\to\mathcal Z_h
+\]
+全定义。给定有限调用序列
+\[
+  (i_0,\alpha_0),\ldots,(i_{T-1},\alpha_{T-1}),
+\]
+递推式
+\[
+  z_{t+1}=H_{i_t,\alpha_t}(z_t)
+\]
+在 \(T\) 步内全定义。
+\end{theorem}
+
+\begin{Certificate}[调用链归纳证书]
+\[
+  \mathcal C_{\mathrm{chain}}
+  =
+  \left(
+  \mathcal Z_h,
+  z_0,
+  \{H_{i,\alpha}\}_{i,\alpha},
+  \{(i_t,\alpha_t)\}_{t=0}^{T-1}
+  \right).
+\]
+谓词链为
+\[
+  z_t\in\mathcal Z_h
+  \wedge
+  H_{i_t,\alpha_t}:\mathcal Z_h\to\mathcal Z_h
+  \Longrightarrow
+  z_{t+1}\in\mathcal Z_h .
+\]
+\end{Certificate}
+
+\begin{proof}
+基例 \(t=0\) 由 \(z_0\in\mathcal Z_h\) 给出。若 \(z_t\in\mathcal Z_h\)，
+则由 \(H_{i_t,\alpha_t}\) 全定义可得
+\[
+  z_{t+1}=H_{i_t,\alpha_t}(z_t)\in\mathcal Z_h .
+\]
+由数学归纳法，所有有限步状态均全定义。
+\end{proof}
+
+\subsection{偏微下降与信用来源}
+\label{subsec:lhts-partial-credit}
+
+\begin{definition}[分量偏微下降向量]
+\label{def:lhts-partial-descent}
+对当前状态 \(z_t\) 和单格点扭曲 \(H_{i,\alpha}\)，定义第 \(i\) 个格点方向的
+分量偏微下降向量为
+\[
+  \boxed{
+  \boldsymbol\delta_i^\partial(z_t;\alpha)
+  =
+  \mathbf G(z_t)-\mathbf G(H_{i,\alpha}(z_t))
+  \in\RR^D
+  } .
+\]
+若 \(\delta_{di}^\partial(z_t;\alpha)>0\)，则第 \(d\) 个残差分量下降；
+若 \(\delta_{di}^\partial(z_t;\alpha)<0\)，则第 \(d\) 个残差分量受损。
+\end{definition}
+
+\begin{definition}[标量偏微下降投影]
+给定权重 \(w\in\RR_{\ge0}^{D}\) 且 \(\sum_{d=1}^{D}w_d=1\)，定义标量残差势能
+\[
+  \Gamma_w(z)=w^\top\mathbf G(z).
+\]
+第 \(i\) 个格点方向上的标量偏微下降为
+\[
+  \delta_{i,w}^{\partial}(z_t;\alpha)
+  =
+  \Gamma_w(z_t)-\Gamma_w(H_{i,\alpha}(z_t))
+  =
+  w^\top\boldsymbol\delta_i^\partial(z_t;\alpha).
+\]
+\end{definition}
+
+\begin{theorem}[延迟信用只能登记当前偏微证据]
+\label{thm:lhts-credit-boundary}
+在调用链
+\[
+  z_{t+1}=H_{i_t,\alpha_t}(z_t)
+\]
+中，第 \(i_t\) 个格点在时刻 \(t\) 可直接登记的信用证据是
+\[
+  \boldsymbol\delta_{i_t}^\partial(z_t;\alpha_t),
+\]
+而不是跨越多个后续调用后的总残差变化
+\[
+  \mathbf G(z_t)-\mathbf G(z_{t+k}) .
+\]
+后者只有在补充因果隔离、反事实复现或全路径归因证书时，才可作为第 \(i_t\)
+个格点的延迟信用。
+\end{theorem}
+
+\begin{proof}
+\(\boldsymbol\delta_{i_t}^\partial(z_t;\alpha_t)\) 的两个端点分别是
+\[
+  z_t,
+  \qquad
+  H_{i_t,\alpha_t}(z_t).
+\]
+由单格点扭曲定义，这一步只把第 \(i_t\) 个参数格点作为主扭曲方向。相反，
+\(z_{t+k}\) 一般由
+\[
+  H_{i_{t+k-1},\alpha_{t+k-1}}\circ\cdots\circ H_{i_t,\alpha_t}
+\]
+给出，其中可混入多个不同格点方向。故总残差变化不再是单个格点的直接证据。
+若要把它回记给第 \(i_t\) 个格点，必须另有归因证书排除其他调用的混杂效应。
+\end{proof}
+
+\begin{definition}[分量化持久分值]
+\label{def:lhts-score-tensor}
+维护分量化分值张量
+\[
+  \mathbf S_D(t)=[S_{di}(t)]\in\RR^{D\times n}.
+\]
+给定折扣 \(0\le\lambda\le1\)、正向记分率 \(\eta_d>0\) 和损伤惩罚率
+\(\eta_d^{-}\ge0\)，定义更新
+\[
+  S_{di}(t+1)
+  =
+  \lambda S_{di}(t)
+  +
+  \eta_d[\delta_{di}^{\partial}(t)]_+
+  -
+  \eta_d^{-}[-\delta_{di}^{\partial}(t)]_+ .
+\]
+这里 \([x]_+=\max(x,0)\)。
+\end{definition}
+
+\begin{remark}[成熟度与淘汰参考]
+最小值和均值只作为成熟度参考，而不单独构成淘汰证书。若某格点方向的分量分值长期为低，
+它可以降低调度优先级；但真正排除某一区域仍需要覆盖、下界、关键维度否决或统计证书。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{D 结构雅可比间隙与压力倒决策}
+\label{sec:lhts-d-structure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{分量雅可比间隙}
+\label{subsec:lhts-component-jacobian}
+
+\begin{definition}[分量雅可比间隙向量]
+\label{def:lhts-component-jacobian}
+对 \(\alpha\ne0\)，定义第 \(i\) 个格点方向的分量雅可比间隙向量
+\[
+  \boxed{
+  \mathbf J_i^\partial(z;\alpha)
+  =
+  \frac{\mathbf G(H_{i,\alpha}(z))-\mathbf G(z)}{\alpha}
+  \in\RR^D
+  } .
+\]
+于是
+\[
+  \boldsymbol\delta_i^\partial(z;\alpha)
+  =
+  -\alpha\,\mathbf J_i^\partial(z;\alpha).
+\]
+\end{definition}
+
+\begin{definition}[雅可比间隙矩阵]
+把全部格点方向合并，得到
+\[
+  \boxed{
+  \mathbf J_D^\partial(z;\alpha)
+  =
+  \left[
+  \mathbf J_1^\partial(z;\alpha),
+  \ldots,
+  \mathbf J_n^\partial(z;\alpha)
+  \right]
+  \in\RR^{D\times n}
+  } .
+\]
+第 \(i\) 列表示第 \(i\) 个格点参数对全部残差维度的作用；第 \(d\) 行表示第
+\(d\) 个残差维度由哪些格点方向影响。
+\end{definition}
+
+\begin{theorem}[标量雅可比间隙只是分量间隙的投影]
+\label{thm:lhts-scalar-projection}
+令
+\[
+  \Gamma_w(z)=w^\top\mathbf G(z).
+\]
+则第 \(i\) 个方向的标量雅可比间隙
+\[
+  J_{i,w}^{\partial}(z;\alpha)
+  =
+  \frac{\Gamma_w(H_{i,\alpha}(z))-\Gamma_w(z)}{\alpha}
+\]
+满足
+\[
+  J_{i,w}^{\partial}(z;\alpha)
+  =
+  w^\top\mathbf J_i^\partial(z;\alpha).
+\]
+\end{theorem}
+
+\begin{proof}
+由 \(\Gamma_w\) 的定义，
+\[
+\begin{aligned}
+  J_{i,w}^{\partial}(z;\alpha)
+  &=
+  \frac{
+  w^\top\mathbf G(H_{i,\alpha}(z))
+  -
+  w^\top\mathbf G(z)
+  }{\alpha}  \\
+  &=
+  w^\top
+  \frac{
+  \mathbf G(H_{i,\alpha}(z))-\mathbf G(z)
+  }{\alpha}
+  =
+  w^\top\mathbf J_i^\partial(z;\alpha).
+\end{aligned}
+\]
+\end{proof}
+
+\begin{corollary}[标量下降不排除关键维度损伤]
+即使 \(J_{i,w}^{\partial}<0\)，仍可能存在关键维度 \(d\) 使
+\[
+  J_{di}^{\partial}>0 .
+\]
+因此标量投影下降只说明加权总量下降，不说明所有关键维度均被修复。
+\end{corollary}
+
+\subsection{压力倒决策}
+\label{subsec:lhts-pressure-pullback}
+
+\begin{definition}[残差压力向量]
+定义残差压力
+\[
+  q_D(z)=\Pressure(\mathbf G(z))\in\RR_{\ge0}^{D}.
+\]
+一种归一化写法为
+\[
+  q_d(z)
+  =
+  \frac{\rho_d(G_d(z))}
+  {\sum_{e=1}^{D}\rho_e(G_e(z))},
+  \qquad
+  \rho_d(G_d(z))\ge0 .
+\]
+压力函数 \(\rho_d\) 可纳入残差大小、风险预算、边界违反强度和关键维度权重。
+\end{definition}
+
+\begin{definition}[D 结构倒决策分值]
+\label{def:lhts-d-decision}
+定义格点动作优先级
+\[
+  a_\theta(z)
+  =
+  -\mathbf J_D^\partial(z;\alpha)^\top q_D(z)
+  \in\RR^n .
+\]
+其第 \(i\) 个分量为
+\[
+  a_i(z)
+  =
+  -q_D(z)^\top\mathbf J_i^\partial(z;\alpha)
+  =
+  q_D(z)^\top\boldsymbol\delta_i^\partial(z;\alpha)/\alpha .
+\]
+\end{definition}
+
+\begin{theorem}[压力倒决策等价于雅可比转置反拉回]
+\label{thm:lhts-pullback}
+给定残差压力 \(q_D\) 与分量雅可比间隙矩阵 \(\mathbf J_D^\partial\)，
+\[
+  a_\theta=-(\mathbf J_D^\partial)^\top q_D
+\]
+正是把残差维度压力反拉回参数格点方向的雅可比转置规则。
+\end{theorem}
+
+\begin{Certificate}[压力反拉回证书]
+\[
+  \mathcal C_{\mathrm{pullback}}
+  =
+  (\mathbf G,\mathbf J_D^\partial,q_D,a_\theta).
+\]
+\end{Certificate}
+
+\begin{proof}
+第 \(i\) 个方向的压力响应为
+\[
+  a_i=-\sum_{d=1}^{D}q_dJ_{di}^{\partial}.
+\]
+若 \(J_{di}^{\partial}<0\)，则第 \(i\) 个方向降低第 \(d\) 个残差；且 \(q_d\)
+越大，该降低对 \(a_i\) 的正贡献越大。因此该公式正是从残差压力到参数方向的
+反拉回。
+\end{proof}
+
+\begin{definition}[关键维度否决]
+给定关键维度集合 \(\mathcal D_{\mathrm{crit}}\) 与阈值 \(\tau_d>0\)。若
+\[
+  \exists d\in\mathcal D_{\mathrm{crit}},
+  \qquad
+  \delta_{di}^{\partial}(z;\alpha)<-\tau_d,
+\]
+则记
+\[
+  \Veto_D(i;z,\alpha)=1.
+\]
+被否决的方向不进入当前归一化调度，除非另有避障或统计证书覆盖该损伤。
+\end{definition}
+
+\begin{definition}[压力投影调度概率]
+综合当前倒决策、历史分值与当前偏微下降，定义
+\[
+  \mathscr P_i(t)
+  =
+  \beta_0 a_i(t)
+  +
+  \beta_1 q_D(t)^\top[\mathbf S_{D,i}(t)]_+
+  +
+  \beta_2 q_D(t)^\top[\boldsymbol\delta_i^\partial(t)]_+ ,
+\]
+其中 \(\beta_r\ge0\)。相对化后
+\[
+  \widetilde{\mathscr P}_i(t)
+  =
+  \mathscr P_i(t)-\min_j\mathscr P_j(t),
+\]
+定义调度概率
+\[
+  p_i^D(t)
+  =
+  \frac{(\varepsilon+\widetilde{\mathscr P}_i(t))^\gamma}
+  {\sum_{j:\Veto_D(j)=0}
+  (\varepsilon+\widetilde{\mathscr P}_j(t))^\gamma},
+  \qquad
+  \varepsilon>0,\ \gamma\ge1 .
+\]
+\end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{跳跃、命中证书与全局性闭合}
+\label{sec:lhts-jump-global}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{跳跃的计数频域含义}
+\label{subsec:lhts-count-frequency}
+
+\begin{definition}[线性计数频域]
+令 \(u_i\) 表示一次第 \(i\) 个格点方向的小步调用，令 \(j_i^{(K)}\) 表示一次
+\(K\) 阶宏扭曲候选。定义计数映射
+\[
+  C(u_i)=e_i,
+  \qquad
+  C(j_i^{(K)})=K e_i .
+\]
+若 \(C(j_i^{(K)})=C(u_i^K)\)，则称二者在线性计数频域等价，记为
+\[
+  j_i^{(K)}\equiv_{\mathrm{freq}}u_i^K .
+\]
+\end{definition}
+
+\begin{theorem}[计数频域等价不推出路径等价]
+\label{thm:lhts-count-not-path}
+关系
+\[
+  j_i^{(K)}\equiv_{\mathrm{freq}}u_i^K
+\]
+只说明调用计数相同，不推出端点相同、避障同伦存在或残差势能更低。
+\end{theorem}
+
+\begin{proof}
+计数映射 \(C\) 只记录方向出现次数。它丢弃端点、路径、障碍、残差读数和接受准则。
+因此计数频域等价不能推出路径层或能量层等价。
+\end{proof}
+
+\begin{definition}[跳跃有效性证书族]
+一次跳跃候选 \(j_i^{(K)}\) 的有效性可由以下任一类证书给出：
+\[
+\begin{array}{ll}
+\mathcal C_{\mathrm{acc}} & \text{接受准则证书},\\
+\mathcal C_{\mathrm{hom}} & \text{避障同伦证书},\\
+\mathcal C_{\mathrm{stat}} & \text{统计更优证书},\\
+\mathcal C_{\mathrm{hit}} & \text{命中证书},\\
+\mathcal C_{\mathrm{glob}} & \text{工程全局或 }\Linfty\text{ 闭合证书}.
+\end{array}
+\]
+没有这些证书时，跳跃只保留为候选生成机制。
+\end{definition}
+
+\subsection{工程全局与 \texorpdfstring{\(L_\infty\)}{L-infinity} 闭合}
+\label{subsec:lhts-global-closure}
+
+\begin{definition}[工程全局]
+对工程空间 \(\mathcal Z_h\) 和工程残差势能 \(\mathcal E_h:\mathcal Z_h\to\RR_{\ge0}\)，
+定义
+\[
+  \EngGlobal(z_h^\star)
+  \Longleftrightarrow
+  \forall z_h\in\mathcal Z_h,
+  \qquad
+  \mathcal E_h(z_h^\star)\le\mathcal E_h(z_h).
+\]
+这里的全局仅限于工程定义域 \(\mathcal Z_h\)。
+\end{definition}
+
+\begin{definition}[A/B/C 完整性]
+\label{def:lhts-abc}
+定义三类完整性条件：
+\[
+\begin{aligned}
+\mathsf A
+&=
+\text{工程组合空间的覆盖、评估、动态规划或下界排除完备性},\\
+\mathsf B
+&=
+\text{连续或 }\Linfty\text{ 意义下的几何闭合与极限提升},\\
+\mathsf C
+&=
+\text{带非零支持的探索动力与遍历性保持}.
+\end{aligned}
+\]
+形式上，A 可写成
+\[
+  \forall z_h\in\mathcal Z_h,\qquad
+  \Visited(z_h)\vee \Prune(z_h).
+\]
+C 可写成存在 \(\varepsilon_{\mathrm{expl}}>0\)，使未被关键维度否决的方向满足
+\[
+  p_i^D(t)\ge \varepsilon_{\mathrm{expl}}
+\]
+或存在等价的周期性覆盖机制。
+\end{definition}
+
+\begin{theorem}[A 条件推出工程全局]
+\label{thm:lhts-a-global}
+若 A 成立，且候选 \(z_h^\star\) 满足所有已访问点上
+\[
+  \mathcal E_h(z_h^\star)\le \mathcal E_h(z_h),
+\]
+同时每个未访问块 \(\mathcal C_\ell\) 都有下界
+\[
+  \mathrm{LB}(\mathcal C_\ell)\ge \mathcal E_h(z_h^\star),
+\]
+则 \(z_h^\star\) 是工程全局最优。
+\end{theorem}
+
+\begin{proof}
+任取 \(z_h\in\mathcal Z_h\)。由 A，\(z_h\) 要么已访问，要么属于某个已排除块。
+若已访问，结论由已访问点最优记录给出。若属于 \(\mathcal C_\ell\)，则
+\[
+  \mathcal E_h(z_h)
+  \ge
+  \mathrm{LB}(\mathcal C_\ell)
+  \ge
+  \mathcal E_h(z_h^\star).
+\]
+故对任意 \(z_h\)，均有
+\(\mathcal E_h(z_h^\star)\le\mathcal E_h(z_h)\)。
+\end{proof}
+
+\begin{remark}[数学全局的额外条件]
+工程全局不自动等于连续数学全局。要把工程全局提升为 \(\Linfty\) 或连续极限命题，
+还需残差相容、网格极限、紧性、闭性、稳定性和保真性证书。这正是 B 条件承担的角色。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{LHTS 算法簇的理论分型}
+\label{sec:lhts-family-types}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[LHTS 簇成员]
+凡满足以下结构的同伦命中系统，称为 \LHTS{} 簇成员：
+\[
+  \left(
+  \mathbf G,
+  \mathbf J_D^\partial,
+  \boldsymbol\delta^\partial,
+  \mathbf S_D,
+  q_D,
+  H_{i,\alpha},
+  C,
+  \Cert
+  \right).
+\]
+其中 \(C\) 表示计数频域或覆盖记录，\(\Cert\) 表示证书族。
+\end{definition}
+
+\begin{definition}[主要变体]
+\LHTS{} 的主要理论变体包括：
+\[
+\begin{array}{ll}
+\DLHTS & \text{分量雅可比间隙与压力倒决策版本},\\
+\mathsf{AJ\mbox{-}LHTS} & \text{雅可比压力驱动的退火跳跃版本},\\
+\mathsf{SJ\mbox{-}LHTS} & \text{持久分值张量驱动的评分跳跃版本},\\
+\mathsf{MT\mbox{-}LHTS} & \text{微观隧穿与避障同伦证书版本},\\
+\mathsf{EG\mbox{-}LHTS} & \text{工程全局覆盖与下界排除版本},\\
+\mathsf{L^\infty\mbox{-}LHTS} & \text{\(\Linfty\) 残差闭合与数学全局提升版本}.
+\end{array}
+\]
+\end{definition}
+
+\begin{theorem}[LHTS 簇判定定理]
+\label{thm:lhts-family-criterion}
+若某系统具有残差向量、单格点同伦扭曲、分量偏微下降、持久分值张量、残差压力倒决策、
+跳跃候选和证书分层，则它属于 \LHTS{} 簇。若其中某一结构被替换为等价证书机制，
+则仍属于同一簇。
+\end{theorem}
+
+\begin{Certificate}[LHTS 簇证书]
+\[
+  \mathcal C_{\LHTS}
+  =
+  \left(
+  \mathbf G,
+  H,
+  \mathbf J_D^\partial,
+  \boldsymbol\delta^\partial,
+  \mathbf S_D,
+  q_D,
+  C,
+  \{\mathcal C_r\}_{r\in R}
+  \right).
+\]
+\end{Certificate}
+
+\begin{proof}
+由 \(\mathbf G\) 得到多维残差描述。由 \(H_{i,\alpha}\) 得到单格点同伦扭曲候选。
+由 \(\mathbf J_D^\partial\) 与 \(\boldsymbol\delta^\partial\) 得到每个格点方向对残差维度的作用。
+由 \(\mathbf S_D\) 得到延迟信用的持久记录。由 \(q_D\) 和
+\(-\mathbf J_D^{\partial\top}q_D\) 得到压力倒决策。由跳跃计数得到候选空间扩展。
+由证书族得到接受、命中、避障、统计和全局闭合边界。因此这些结构合成同一个
+\LHTS{} 母体。
+\end{proof}
+
+\begin{remark}[不是单算法而是簇]
+\LHTS{} 的“簇”含义在于：不同工程对象可以更换残差分量、压力函数、候选生成、
+统计证书和全局证书，但只要保持上述谓词链，就仍是同一理论母体下的变体。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{组织同伦与非交换组织 LHTS}
+\label{sec:lhts-org-nc}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{组织同伦并入参数格点层}
+\label{subsec:lhts-org-layer}
+
+\begin{definition}[组织型与正规型]
+令组织型集合为
+\[
+  \Chi=\{\chi_2,\chi_3\},
+  \qquad
+  \chi_2=ro\mbox{-}vp,
+  \qquad
+  \chi_3=vo\mbox{-}ro\mbox{-}vp .
+\]
+给定结构对象 \(\mathfrak D\)，对每个 \(\chi\in\Chi\) 定义正规型算子
+\[
+  N_\chi:\mathfrak D\to \mathrm{NF}_{\chi}(\mathfrak D),
+  \qquad
+  N_\chi\circ N_\chi=N_\chi .
+\]
+组织同伦等价定义为
+\[
+  \mathfrak D_1\sim_\chi\mathfrak D_2
+  \Longleftrightarrow
+  N_\chi(\mathfrak D_1)=N_\chi(\mathfrak D_2).
+\]
+\end{definition}
+
+\begin{theorem}[正规型幂等性给出组织同伦等价]
+\label{thm:lhts-normal-form-equivalence}
+若 \(N_\chi\circ N_\chi=N_\chi\)，且等号是正规型判等关系，则 \(\sim_\chi\)
+是等价关系。
+\end{theorem}
+
+\begin{proof}
+自反性、对称性、传递性分别来自等号的自反性、对称性、传递性。幂等性保证同一对象反复
+正规化不会改变正规型，故等价类稳定。
+\end{proof}
+
+\begin{definition}[组织版本 LHTS]
+\OrgLHTS{} 指把普通参数格点 \(sp_i\) 扩展为
+\[
+  sp_i
+  \quad\text{与}\quad
+  A_{\chi,a}
+\]
+共同参与残差、评分、跳跃和证书记录的 \LHTS{} 版本。这里 \(A_{\chi,a}\) 是组织同伦动作。
+\end{definition}
+
+\begin{proposition}[组织动作可进入 D 结构]
+若组织动作 \(A_{\chi,a}\) 作用后仍可计算残差向量
+\[
+  \mathbf G(A_{\chi,a}(z)),
+\]
+则它拥有分量雅可比间隙
+\[
+  \mathbf J_{\chi,a}^{\partial}(z)
+  =
+  \mathbf G(A_{\chi,a}(z))-\mathbf G(z),
+\]
+并可与普通参数方向一起进入压力倒决策和分值张量。
+\end{proposition}
+
+\begin{proof}
+只需把组织动作视为扩展参数方向。由于残差向量在动作前后均有定义，差分向量全定义；
+于是第~\ref{sec:lhts-d-structure} 节的压力投影、关键维度否决和评分更新可逐项应用。
+\end{proof}
+
+\subsection{非交换组织词枚举}
+\label{subsec:lhts-nc-word}
+
+\begin{definition}[非交换组织词空间]
+对组织型 \(\chi\)，令
+\[
+  \mathcal G_\chi=\{g_{\chi,1},\ldots,g_{\chi,r}\}
+\]
+为原子组织生成元集合。定义非交换组织词空间
+\[
+  \mathcal W_\chi
+  =
+  \mathcal G_\chi^\ast
+  =
+  \bigcup_{k\ge0}\mathcal G_\chi^k .
+\]
+词
+\[
+  w=(a_1,\ldots,a_k)
+\]
+对应组织动作
+\[
+  A_{\chi,w}
+  =
+  g_{\chi,a_k}\circ\cdots\circ g_{\chi,a_1}.
+\]
+一般情况下
+\[
+  g_{\chi,a}\circ g_{\chi,b}
+  \ne
+  g_{\chi,b}\circ g_{\chi,a}.
+\]
+\end{definition}
+
+\begin{theorem}[非交换组织词空间存在]
+若 \(\mathcal G_\chi\) 是有限组织生成元集合，则由有限字长递推生成的
+\[
+  \mathcal G_\chi^\ast
+\]
+是组织动作的非交换词空间。
+\end{theorem}
+
+\begin{Certificate}[非交换词生成证书]
+\[
+  \mathcal C_{\mathrm{word}}
+  =
+  \left(
+  \chi,
+  \mathcal G_\chi,
+  \mathcal G_\chi^0,
+  \ldots,
+  \mathcal G_\chi^k,
+  \mathrm{concat}
+  \right).
+\]
+\end{Certificate}
+
+\begin{proof}
+基例 \(k=0\) 时，\(\mathcal G_\chi^0=\{\varepsilon\}\)，表示空词。若长度 \(k\)
+词已存在，则任取 \(g_{\chi,a}\in\mathcal G_\chi\)，连接得到长度 \(k+1\) 的词。
+连接保留顺序，因此所得空间是非交换词空间。
+\end{proof}
+
+\begin{definition}[NC-Org-LHTS]
+\NCOrgLHTS{} 是把 \OrgLHTS{} 的平坦组织动作枚举升级为
+\[
+  \mathcal W_\chi=\mathcal G_\chi^\ast
+\]
+的版本，并附加多排序正规型、合法后交换重写、词频统计和组织词证书。
+\end{definition}
+
+\begin{theorem}[Parikh 计数只是非交换组织词的频率影子]
+令 \(\Pi(w)\) 记录组织词 \(w\) 中各生成元出现次数。若
+\[
+  \Pi(w_1)=\Pi(w_2),
+\]
+则只能说明 \(w_1,w_2\) 的一阶计数相同，不能推出
+\[
+  A_{\chi,w_1}=A_{\chi,w_2}
+\]
+或二者具有相同残差作用。
+\end{theorem}
+
+\begin{proof}
+\(\Pi\) 丢弃生成元顺序。非交换情形下，顺序本身参与动作含义；因此相同计数可对应不同
+算子组合和不同残差结果。
+\end{proof}
+
+\begin{remark}[组织层的主线定位]
+组织同伦层不是 \LHTS{} 之外的解释层。只要组织动作可正规化、可枚举、可计算残差作用，
+它就是扩展参数格点的一部分。非交换版本进一步说明：组织层不能只看动作出现频率，还要保留
+有序词、正规型和合法后交换证书。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{总定理、证书合成与最终口径}
+\label{sec:lhts-main-theorem}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[LHTS 证书栈]
+\label{def:lhts-cert-stack}
+\LHTS{} 的证书栈定义为
+\[
+  \mathcal C_{\mathrm{stack}}
+  =
+  \left(
+  \mathcal C_{\mathrm{chain}},
+  \mathcal C_{\mathrm{credit}},
+  \mathcal C_{\mathrm{pullback}},
+  \mathcal C_{\mathrm{jump}},
+  \mathcal C_{\mathrm{hit}},
+  \mathcal C_A,
+  \mathcal C_B,
+  \mathcal C_C,
+  \mathcal C_{\mathrm{org}}
+  \right).
+\]
+其中各分量分别负责有限调用、延迟信用、压力倒决策、跳跃有效性、命中判定、工程覆盖、
+\(\Linfty\) 闭合、探索动力和组织同伦。
+\end{definition}
+
+\begin{theorem}[LHTS 主线闭合定理]
+\label{thm:lhts-main-closure}
+若一个系统满足以下条件：
+\[
+\begin{gathered}
+\text{单格点同伦扭曲链全定义},\\
+\text{分量偏微下降可计算并登记为延迟信用},\\
+\text{残差压力可由雅可比转置反拉回到参数方向},\\
+\text{跳跃候选具备接受、避障、统计或命中证书},\\
+\text{A/B/C 或等价证书给出全局性与探索完整性},\\
+\text{组织动作若进入系统则具备正规型与非交换词证书},
+\end{gathered}
+\]
+则该系统构成一个闭合的 \LHTS{} 形式系统。
+\end{theorem}
+
+\begin{proof}
+由第~\ref{thm:lhts-finite-chain} 定理，有限调用链在状态空间内全定义。由
+第~\ref{def:lhts-partial-descent} 定义和第~\ref{thm:lhts-credit-boundary} 定理，
+每一步信用只登记可归因的当前偏微下降。由第~\ref{thm:lhts-scalar-projection}
+定理，标量评分只是 D 结构的投影；由第~\ref{thm:lhts-pullback} 定理，残差压力可以
+反拉回参数方向。由第~\ref{thm:lhts-count-not-path} 定理，跳跃不会被误写成无条件等价，
+而必须由证书族裁决。由第~\ref{thm:lhts-a-global} 定理和 A/B/C 定义，局部下降、
+工程全局、数学极限和探索动力被分层处理。由第~\ref{thm:lhts-normal-form-equivalence}
+定理及非交换词空间构造，组织层可以作为扩展参数格点纳入同一证书体系。
+
+因此谓词链
+\[
+\begin{aligned}
+&\mathsf{FiniteTwistChain}
+\wedge
+\mathsf{PartialCredit}
+\wedge
+\mathsf{DResidual}
+\wedge
+\mathsf{PressurePullback}\\
+&\wedge
+\mathsf{CertifiedJump}
+\wedge
+\mathsf{ABCClosure}
+\wedge
+\mathsf{OrgNormalForm}
+\Longrightarrow
+\mathsf{LHTSClosed}
+\end{aligned}
+\]
+成立。
+\end{proof}
+
+\begin{corollary}[LHTS 与 PDE 命中范式的关系]
+\LHTS{} 可以作为统计力学同伦命中 PDE 范式中的算法层骨架：PDE 或博弈方程在这里提供
+残差语义和保真性条件；\LHTS{} 提供参数格点、残差压力、同伦扭曲、评分、跳跃和证书闭合。
+\end{corollary}
+
+\begin{remark}[最终表述]
+本文的最终口径为：
+\[
+\boxed{
+\begin{gathered}
+\LHTS{}
+=
+\text{以分量残差为对象、以同伦扭曲为候选、以延迟信用为记忆、}\\
+\text{以压力倒决策为调度、以跳跃为候选扩展、以证书栈为边界、}\\
+\text{并允许组织同伦与非交换组织词扩展的格点命中形式系统。}
+\end{gathered}
+}
+\]
+它的核心贡献不是把局部下降说成全局最优，而是给出从局部偏微证据走向工程全局、
+\(\Linfty\) 闭合和组织结构扩展的分层证书路径。
+\end{remark}
+
+\clearpage
+
+\begin{thebibliography}{99}
+\raggedright
+
+\bibitem{RepoTex37SemanticGauge}
+Gao Zheng.
+\newblock \emph{G 框架正则语义规范场到自然语言语义逻辑占位规范场的高阶同伦扭曲双射、LLM 运行时降级与逻辑引擎（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\repo{NoteBook/notebook2/tex37_pub/gframework_semantic_gauge_field_natural_language_logic_placeholder_runtime_formal_system.tex}, 2026.
+
+\bibitem{RepoTex45ObstructionGlobalSection}
+Gao Zheng.
+\newblock \emph{钱学森弹道、钱学森障碍与观测--推断--障碍修复：能力元组、边缘算子与全局截面障碍（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\repo{NoteBook/notebook2/tex45_pub/gframework_observation_inference_obstruction_edge_operator_global_section_formal_system.tex}, 2026.
+
+\bibitem{RepoTex50LinftyRepair}
+Gao Zheng.
+\newblock \emph{G 框架中性变态射力迫属性、\(L_\infty\) 无故障修复与三层证明强度（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\repo{NoteBook/notebook3/tex50_pub/gframework_forcing_property_morphism_linfty_failure_free_repair_formal_system.tex}, 2026.
+
+\bibitem{RepoTex53StrategyCluster}
+Gao Zheng.
+\newblock \emph{统计力学参数格点、同伦扭曲命中与 PDE 策略簇：从时域求解到频域簇命中的近似量子软件层算法（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\repo{NoteBook/notebook3/tex53_pub/gframework_statistical_lattice_homotopy_tunnel_pde_strategy_cluster_formal_system.tex}, 2026.
+
+\bibitem{RepoTex55PDEParadigm}
+Gao Zheng.
+\newblock \emph{基于高阶正交确定性收敛的统计力学同伦命中：PDE 求解范式替代（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\repo{NoteBook/notebook3/tex55_pub/gframework_homotopy_hitting_pde_paradigm_replacement_formal_system.tex}, 2026.
+
+\bibitem{GaoZheng2025GFramework}
+Gao Zheng.
+\newblock \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis}.
+\newblock \emph{(GaoZheng G-Framework) and the Principal-Bundle-Based Generalized}.
+\newblock \emph{Noncommutative Lie Algebra (GaoZheng G-Algebra)}.
+\newblock Zenodo, 2025.
+\newblock \url{https://doi.org/10.5281/zenodo.17651584}.
+
+\bibitem{NocedalWright2006Optimization}
+Jorge Nocedal and Stephen J. Wright.
+\newblock \emph{Numerical Optimization}.
+\newblock Springer, second edition, 2006.
+
+\bibitem{Kirkpatrick1983Optimization}
+Scott Kirkpatrick, C. Daniel Gelatt, and Mario P. Vecchi.
+\newblock Optimization by simulated annealing.
+\newblock \emph{Science}, 220(4598):671--680, 1983.
+
+\bibitem{GemanGeman1984StochasticRelaxation}
+Stuart Geman and Donald Geman.
+\newblock Stochastic relaxation, Gibbs distributions, and the Bayesian restoration of images.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine Intelligence}, 6(6):721--741, 1984.
+
+\bibitem{SuttonBarto2018RL}
+Richard S. Sutton and Andrew G. Barto.
+\newblock \emph{Reinforcement Learning: An Introduction}.
+\newblock MIT Press, second edition, 2018.
+
+\bibitem{Hoeffding1963Probability}
+Wassily Hoeffding.
+\newblock Probability inequalities for sums of bounded random variables.
+\newblock \emph{Journal of the American Statistical Association}, 58(301):13--30, 1963.
+
+\bibitem{Evans2010PDE}
+Lawrence C. Evans.
+\newblock \emph{Partial Differential Equations}.
+\newblock American Mathematical Society, second edition, 2010.
+
+\bibitem{BasarOlsder1999DynamicGames}
+Tamer Başar and Geert Jan Olsder.
+\newblock \emph{Dynamic Noncooperative Game Theory}.
+\newblock SIAM, second edition, 1999.
+
+\bibitem{Parikh1966ContextFree}
+Rohit J. Parikh.
+\newblock On context-free languages.
+\newblock \emph{Journal of the ACM}, 13(4):570--581, 1966.
+
+\bibitem{BaaderNipkow1998TermRewriting}
+Franz Baader and Tobias Nipkow.
+\newblock \emph{Term Rewriting and All That}.
+\newblock Cambridge University Press, 1998.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

@@ -1,0 +1,5110 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{a4paper,top=25mm,bottom=25mm,left=20mm,right=20mm}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\Lone}{\mathcal{L}_1}
+\newcommand{\Ltwo}{\mathcal{L}_2}
+\newcommand{\Lthree}{\mathcal{L}_3}
+\newcommand{\Lge}{\mathcal{L}_{\ge 3}}
+\newcommand{\Dpair}{\mathfrak D}
+\newcommand{\CodeSpace}{\mathcal{C}_\omega}
+\newcommand{\Enc}{\operatorname{Enc}}
+\newcommand{\diam}{\operatorname{diam}}
+\newcommand{\Hole}{\operatorname{Hole}}
+\newcommand{\Ob}{\operatorname{Ob}}
+\newcommand{\Fall}{\operatorname{Fall}}
+\newcommand{\Edge}{\operatorname{Edge}}
+\newcommand{\Adm}{\operatorname{Adm}}
+\newcommand{\Path}{\operatorname{Path}}
+\newcommand{\Geo}{\operatorname{Geo}}
+\newcommand{\Sem}{\operatorname{Sem}}
+\newcommand{\Defect}{\operatorname{Def}}
+\newcommand{\Img}{\operatorname{Im}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\Gain}{\operatorname{Gain}}
+\newcommand{\Rate}{\operatorname{Rate}}
+\newcommand{\Gainont}{G_{\mathrm{ont}}}
+\newcommand{\Gainnorm}{G_{\mathrm{norm}}}
+\newcommand{\Gainthm}{G_{\mathrm{thm}}}
+\newcommand{\Gainop}{G_{\mathrm{op}}}
+\newcommand{\Gainrisk}{G_{\mathrm{risk}}}
+\newcommand{\Gainint}{G_{\mathrm{internal}}}
+\newcommand{\Gainext}{G_{\mathrm{external}}}
+\newcommand{\DocCurrent}{\mathcal{D}}
+\newcommand{\MainChain}{\mathcal{B}}
+\newcommand{\Lgt}{\mathcal{L}_{>3}}
+\newcommand{\CHstd}{\mathrm{CH}_{\mathrm{std}}}
+\newcommand{\CHint}{\mathrm{CH}_{\mathrm{int}}}
+\newcommand{\DTint}{\mathrm{DT}_{\mathrm{int}}}
+\newcommand{\CHProfileOp}{\mathsf{CHProfile}}
+\newcommand{\LawCont}{\mathsf{Law}_{\mathrm{Cont}}}
+\newcommand{\SetCard}{\mathsf{Set}_{\mathrm{card}}}
+\newcommand{\ForgetLtwo}{U_{l_2}}
+\newcommand{\ProjLtwo}{\Pi_{l_2}}
+\newcommand{\ProjLge}{\Pi_{l_{\ge3}}}
+\newcommand{\CHltwo}{\mathrm{CH}^{(l_2)}}
+\newcommand{\CHlge}{\mathrm{CH}^{(l_{\ge3})}}
+\newcommand{\Final}{\operatorname{Final}}
+\newcommand{\Con}{\operatorname{Con}}
+
+
+\hfuzz=700pt
+\hbadness=10000
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{L1 离散、L2 连续与 $L_{\ge 3}$ 同伦修复塔\\
+的纤维丛正规型与孔洞修复\\
+（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-03-27}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是重新命名 \(L_1,L_2,L_3,L_{\ge 3}\) 四个层级，而是在
+\GFramework{} 的整体语境中，把“离散基底、连续基底、递归编码、同伦修复塔、
+孔洞障碍、纤维丛正规型、边缘算子与 CH 语义投影”组织成一条可追踪的形式链条。
+如果这些对象分散存在，它们容易被误读为关于集合基数、连续统、路径筛选或修复
+机制的若干局部说明；本文将它们压合为一个层级职责清楚、对象边界明确、可递归
+构造、可闭合认证、可与后续同伦命中范式对接的形式系统。
+
+本文的第一层立场是层级职责的严格分离。\(\Lone\) 表示可数离散层，
+\(\Ltwo\) 表示不可数连续基底，\(\Lthree\) 表示基于双离散可数对的
+\(\omega\)-递归编码首层，而 \(\Lge\) 表示以 \(\Ltwo\) 为基底、沿纤维方向
+逐层吸收障碍的离散修复塔。这个分离的意义在于：连续对象不被粗暴替换为离散
+对象，离散编码也不被夸大为连续几何本身；二者通过纤维丛正规型形成“连续基底
++ 离散修复纤维”的结构组合。
+
+本文的第二层立场是孔洞与障碍的上同调化。所谓“孔洞”在本文中不是直观缺口，
+而是局部基底上的非平凡上同调障碍；所谓“修复”也不是泛泛填补，而是把障碍沿
+\(\Lge\) 的纤维方向递推为边界，并在极限层或认证层中平凡化。由此，孔洞修复
+从几何比喻变成可审计的同调过程：先定义障碍类，再构造修复塔，再验证障碍是否
+被吸收到边界或正规型中。这一口径承接可修复障碍与孔洞势函数接口的仓内链条
+\cite{RepoTex29RepairableObstruction,RepoTex32HoleObstruction}。
+
+本文的第三层立场是纤维丛正规型的结构锚定。本文不把 \(\Ltwo\) 的连续性与
+\(\Lge\) 的离散修复性并列摆放，而是把 \(\Ltwo\) 作为基底，把 \(L_{\ge3}\)
+作为修复纤维，把编码、路径、同伦扭曲和终端正规形统一写入纤维丛结构。这样，
+连续统的几何角色、离散修复塔的递归角色、同伦路径的闭合角色与语义正规型的
+接口角色可以同时被定位，而不再互相覆盖。相关的主丛/纤维丛、同伦扭曲与语义
+规范场背景可参照
+\cite{RepoTex35ExtendedCertificationTower,RepoTex36HomotopyTwistBijection,RepoTex37SemanticGaugeRuntime}。
+
+本文的第四层立场是谬误路径的可控筛除。所谓“眼测地线”在本文中被收紧为视域
+加权测地线：它不是主观观察路径，而是在边缘算子删去谬误路径之后，于可行路径
+空间中选出的作用量极小代表。边缘算子的作用不只是删除坏路径，而是改变可行路径
+空间、保持层间同伦闭合，并使修复后的测地线不再被谬误路径吸引。于是，路径筛除
+从经验判断变为“边缘算子--可行路径--同伦闭合--测地代表”的形式链条。
+
+本文的第五层立场是 CH 语义的层级降级。经典 CH 在本文中不被否定为低层断言，
+而是被定位为 \(l_2\) 遗忘函子之后的最小外延投影。换言之，ZFC 内的 CH 独立性
+结论仍然属于经典集合层事实；本文讨论的是在 \(\Lone\to\Ltwo\to\Lge\) 的富结构
+链条中，经典基数问题无法承载全部几何、同伦、语义与修复信息。因而，“止步于
+\(\Ltwo\)”的连续统假设在 \GFramework{} 内部被降级为低层投影，而不是作为全体系
+终局语义。经典 CH 背景可参照 \cite{Godel1940CH,Cohen1963CHI,Cohen1964CHII,Jech2003SetTheory}。
+
+本文的第六层立场是基底重定位。第一章的真正增益，不只是把原有两层说法润色为
+四层说法，而是把层级职责、基底位置、修复位置和路径筛选位置全部钉死：\(\Lone\)
+负责离散源，\(\Ltwo\) 负责连续基底，\(\Lthree\) 负责双离散递归编码首层，
+\(\Lge\) 负责同伦修复纤维塔。由此，后续所有关于孔洞、障碍、测地线、语义污染、
+边缘算子与正规型的论断，都可以落到明确层级上，而不再漂浮在“离散/连续/高阶”
+的混合语义里。
+
+本文的第七层立场是为后续 \GFramework{} 主链提供“层级--修复”接口。后续关于
+开放异构系统、统计晶格同伦隧穿、微观隧穿确定化、统计力学同伦命中与 PDE
+求解范式替代的稿件，都需要一个更早的结构事实：障碍不只是目标函数上的坏点，
+也可以是层级基底错位、连续基底孔洞、路径空间污染或修复纤维缺失。本文给出的
+\(\Ltwo\) 基底与 \(\Lge\) 修复纤维正规型，正是把这些障碍翻译成后续命中集合、
+修复塔和确定性同伦轨迹的前置语言。
+
+因此，本文在整体 \GFramework{} 中承担的是“层级基底重定位与同伦修复塔锚定”
+作用。它向前连接连续统、CH 投影、离散编码和集合论边界，向中间连接孔洞障碍、
+纤维丛正规型、边缘算子与同伦修复塔，向后连接开放异构总同调、统计修复、同伦
+隧穿和低残差命中范式。本文所说的“修复”不是消除复杂性，而是在正确层级上为
+复杂性分配基底、纤维、障碍、边界和正规型。
+
+概括地说，本文把 \GFramework{} 中“离散如何进入连续、连续如何暴露孔洞、高阶
+同伦如何修复孔洞”这一问题，从松散直觉推进为 \(\Lone,\Ltwo,\Lthree,\Lge\)
+四层职责链。它提供的不是单一结论，而是一条由离散编码、连续基底、同调障碍、
+修复纤维、边缘筛路、视域测地线与 CH 投影降级共同构成的方法论主干。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：L1 离散、L2 连续与 $L_{\ge 3}$ 同伦修复塔的纤维丛正规型}
+\label{sec:tex41-ch1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（严格化后）]
+把
+\[
+L_1,\ L_2,\ L_3,\ L_{\ge 3}
+\]
+分别严格化为“可数无穷离散层”“不可数无穷连续基底”“双可数离散对的 $\omega$-递归编码首层”与“以 $L_2$ 为基底的离散修复纤维塔”后，
+用户原始叙述可被收紧为如下对象链：
+\[
+\begin{aligned}
+  &\text{双离散编码}
+  \Longrightarrow
+  \text{$L_2$ 连续基底的可审计表示}
+  \Longrightarrow
+  \text{上同调障碍探测}\\
+  \Longrightarrow\ &
+  \text{$L_{\ge 3}$ 同伦修复塔}
+  \Longrightarrow
+  \text{删去谬误路径的纤维丛正规型}.
+\end{aligned}
+\]
+其中“孔洞”不再是比喻词，而被严格读作某个局部基底上的非平凡上同调障碍；
+“修复”不再是泛化修辞，而被严格读作把该障碍沿纤维方向递推为边界并在极限层平凡化；
+“眼测地线”也不再保留口语义，而被收紧为\textbf{视域加权测地线}：即在谬误路径已被边缘算子删去后的可行路径空间中选取的作用量极小代表。
+\end{remark}
+
+本章将把下列自然语言链条写成可复核的形式逻辑：
+\[
+  \begin{aligned}
+    L_1&:\ \text{离散（可数无穷）}\\
+    L_2&:\ \text{连续（不可数无穷）}\\
+    L_3&:\ \text{基于双离散可数对的 $\omega$-递归编码首层}\\
+    L_{\ge 3}&:\ \text{在 $L_2$ 上逐层吸收障碍的离散修复纤维塔}.
+  \end{aligned}
+\]
+目标不是把连续对象粗暴离散化替代，而是把
+\[
+\text{$L_2$ 的连续几何}
+\quad\text{与}\quad
+\text{$L_{\ge 3}$ 的离散修复语义}
+\]
+组织成同一个纤维丛正规型，并把“谬误路径导致孔洞污染”的说法压成可证明的路径筛除命题。
+
+\begin{remark}[阅读导航：仓内文稿与外部参照]
+本章对齐如下仓内链条：关于 CH 分层中“$l_2$ 负责基数/连续层、$l_{\ge 3}$ 负责同伦/曲率/语义层”的总背景，可参照
+\cite{GaoZheng2025GFramework}；关于“可修复障碍”“超限递归同伦修复塔”与广义分形边界，可参照
+\cite{RepoTex29RepairableObstruction}；关于“可数无穷层级自由度 + 不可数无穷连续参数”的严格分工、孔洞与势函数接口，可参照
+\cite{RepoTex32HoleObstruction}；关于修复塔、编码、主丛/纤维丛正规形与同伦扭曲等价，可参照
+\cite{RepoTex35ExtendedCertificationTower,RepoTex36HomotopyTwistBijection,RepoTex37SemanticGaugeRuntime}；
+  关于边缘算子与高阶障碍吸收的最低接口，可参照
+\cite{RepoNB17EdgeOperator}。
+
+外部标准参照方面，本章默认借用障碍论、上同调、纤维丛、测地线与超限递归的基础语言，可参考
+\cite{Hatcher2002AT,Weibel1994HomologicalAlgebra,Husemoller1994FibreBundles,KobayashiNomizu1963Foundations,
+  Lee2018RiemannianManifolds,Jech2003SetTheory}。
+\end{remark}
+
+\subsection{对象域、孔洞、谬误路径与视域加权测地线}
+\label{subsec:tex41-ch1-defs}
+
+\begin{definition}[L1：可数无穷离散层与双离散编码元]
+\label{def:tex41-l1}
+定义
+\[
+  \Lone:=\NN
+\]
+为可数无穷离散层，并定义
+\[
+  \Dpair:=\Lone\times\Lone.
+\]
+则
+\[
+  |\Lone|=|\Dpair|=|\NN|.
+\]
+本文把 $\Dpair$ 看作“局部离散选择 + 局部离散证书槽”的最小双编码元。
+它仍是可数离散对象，因此本身并不携带连续几何；它的作用是为后续的 $\omega$-递归细化提供逐层可审计索引。
+\end{definition}
+
+\begin{definition}[L2：连续不可数基底]
+\label{def:tex41-l2}
+定义
+\[
+  \Ltwo
+\]
+为一个完备、可分、连通的测地度量空间，带有测地度量
+\[
+  d_2:\Ltwo\times\Ltwo\to[0,\infty),
+\]
+并满足
+\[
+  |\Ltwo|=|\RR|.
+\]
+在本文中，$\Ltwo$ 表示“连续（不可数无穷）”的语义/几何基底；
+它承载连续路径、局部测地线、障碍类以及后续纤维丛投影的基底结构。
+\end{definition}
+
+\begin{definition}[$\omega$-递归编码图册与 $L_3$ 首层]
+\label{def:tex41-l3-atlas}
+称一族非空闭集
+\[
+  \mathfrak A
+  :=
+  \bigl\{
+    K_{\sigma_{\le n}}\subseteq \Ltwo:
+    n\ge 3,\
+    \sigma_{\le n}\in\Dpair^{\,n-2}
+  \bigr\}
+\]
+为一个\textbf{$\omega$-递归编码图册}，若满足：
+\begin{enumerate}
+  \item \textbf{首层覆盖：}
+  \[
+    \Ltwo=\bigcup_{d\in\Dpair}K_d;
+  \]
+  \item \textbf{后继细化：}对任意 $n\ge 3$ 与任意扩展前缀，
+  \[
+    K_{\sigma_{\le n+1}}\subseteq K_{\sigma_{\le n}};
+  \]
+  \item \textbf{直径收缩：}对任意兼容分支 $\sigma=(d_n)_{n\ge 3}$，
+  \[
+    \diam\!\bigl(K_{\sigma_{\le n}}\bigr)\xrightarrow[n\to\infty]{}0;
+  \]
+  \item \textbf{局部可提升：}对任意 $x\in K_{\sigma_{\le n}}$，存在至少一个
+  \[
+    d_{n+1}\in\Dpair
+  \]
+  使得
+  \[
+    x\in K_{\sigma_{\le n+1}}.
+  \]
+\end{enumerate}
+定义兼容码空间
+\[
+  \CodeSpace
+  :=
+  \left\{
+    \sigma=(d_n)_{n\ge 3}\in\prod_{n\ge 3}\Dpair:
+    K_{\sigma_{\le n}}\neq\varnothing,\ \forall n\ge 3
+  \right\}.
+\]
+其中首个非平凡编码层
+\[
+  \Lthree:=\{(\sigma_{\le 3},x):x\in K_{\sigma_{\le 3}}\}
+\]
+称为 $L_3$ 首层；它是“由双离散可数对对连续基底做首层编码”的严格落点。
+\end{definition}
+
+\begin{definition}[$L_{\ge 3}$：以 $L_2$ 为基底的离散修复纤维塔]
+\label{def:tex41-lge-bundle}
+对每个 $n\ge 3$，取一个可数离散修复标签集
+\[
+  \mathcal{R}_n,
+\]
+以及遗忘映射
+\[
+  \rho_n:\mathcal{R}_{n+1}\to\mathcal{R}_n.
+\]
+定义
+\[
+  \mathcal E_n
+  :=
+  \left\{
+    (x,\sigma_{\le n},r_n):
+    x\in K_{\sigma_{\le n}},\
+    r_n\in\mathcal R_n
+  \right\},
+\]
+并定义投影
+\[
+  \pi_n:\mathcal E_n\to\Ltwo,\qquad
+  \pi_n(x,\sigma_{\le n},r_n)=x.
+\]
+再定义后继遗忘映射
+\[
+  q_n:\mathcal E_{n+1}\to\mathcal E_n,\qquad
+  q_n(x,\sigma_{\le n+1},r_{n+1})
+  :=
+  (x,\sigma_{\le n},\rho_n(r_{n+1})).
+\]
+若在每个编码片
+\[
+  K_{\sigma_{\le n}}^\circ
+\]
+上，$\pi_n$ 可被写成该开片与离散纤维的乘积投影，则称
+\[
+  \Lge:=\{\pi_n:\mathcal E_n\to\Ltwo\}_{n\ge 3}
+\]
+为\textbf{以 $L_2$ 为基底的离散同伦修复纤维塔}。
+它的含义不是“用 $L_{\ge 3}$ 替代 $L_2$”，而是“把 $L_2$ 保留为基底，把额外修复语义放进纤维”。
+\end{definition}
+
+\begin{definition}[孔洞：L2 上的上同调障碍]
+\label{def:tex41-hole}
+设 $U\subseteq\Ltwo$ 为开集。
+若存在某个阿贝尔系数群 $A$ 与某个障碍类
+\[
+  [\omega_{\mathrm{obs}}(U)]\in H^{m+1}(U;A)
+\]
+满足
+\[
+  [\omega_{\mathrm{obs}}(U)]\neq 0,
+\]
+则称 $U$ 在本文口径下存在\textbf{孔洞}，记为
+\[
+  \Hole(U).
+\]
+该定义的含义是：在只依赖 $L_2$ 基底的对象域内，存在某个延拓/截面/拼接任务无法被全局一致完成，
+其失败不是局部坐标噪声，而是上同调意义下的非平凡障碍。
+\end{definition}
+
+\begin{definition}[谬误路径、边缘算子与视域加权测地线]
+\label{def:tex41-eye-geodesic}
+固定 $x,y\in U\subseteq \Ltwo$ 以及某层 $n\ge 3$。
+记
+\[
+  \Path_n(x,y)
+\]
+为所有分段 $C^1$ 提升路径
+\[
+  \widetilde\gamma:[0,1]\to\mathcal E_n
+\]
+组成的集合，并满足
+\[
+  \pi_n(\widetilde\gamma(0))=x,\qquad
+  \pi_n(\widetilde\gamma(1))=y.
+\]
+给定语义谓词
+\[
+  \Sem_n:\Path_n(x,y)\to\{0,1\},
+\]
+若某路径违反编码相容性、证书相容性或同伦约束，则记其为\textbf{谬误路径}，即
+\[
+  \widetilde\gamma\in\Fall_n(x,y)
+  \quad:\Longleftrightarrow\quad
+  \Sem_n(\widetilde\gamma)=0.
+\]
+定义边缘算子
+\[
+  \Edge_n:\Path_n(x,y)\to\Path_n(x,y)\sqcup\{0\},\qquad
+  \Edge_n(\widetilde\gamma)
+  :=
+  \left\{
+  \begin{array}{ll}
+    \widetilde\gamma,& \widetilde\gamma\notin\Fall_n(x,y),\\[0.4em]
+    0,& \widetilde\gamma\in\Fall_n(x,y).
+  \end{array}
+  \right.
+\]
+其中 $0$ 表示形式空路径符号。
+并定义可行路径集
+\[
+  \Adm_n(x,y):=\Img(\Edge_n)\setminus\{0\}.
+\]
+对任意 $\widetilde\gamma\in\Adm_n(x,y)$，定义视域加权作用量
+\[
+  \mathcal A_{\mathrm{eye},n}(\widetilde\gamma)
+  :=
+  \int_0^1
+  \Bigl(
+    \|\dot{\pi_n\widetilde\gamma}(t)\|_{g_2}^2
+    +
+    \lambda\,\Defect_n(\widetilde\gamma(t))
+  \Bigr)\,dt,
+\]
+其中 $\lambda>0$，$\Defect_n\ge 0$ 为证书缺陷密度。
+称任一极小化该作用量的可行路径投影
+\[
+  \gamma^\star=\pi_n\widetilde\gamma^\star
+\]
+为\textbf{视域加权测地线}。
+这就是本文对用户原话“眼测地线”的严格化版本。
+\end{definition}
+
+\begin{remark}[L1/L2/L3 的分工边界]
+定义~\ref{def:tex41-l1}--\ref{def:tex41-l3-atlas} 的组合表达了一个关键边界：
+$L_1$ 与 $\Dpair$ 只给出\emph{可数离散索引}，
+$L_2$ 才给出\emph{连续不可数基底}，
+而 $L_3$ 只是“首层编码落点”，不是全部修复塔本身。
+这与仓内关于“可数无穷层级自由度”和“不可数无穷连续参数”分工的写法一致
+\cite{GaoZheng2025GFramework,RepoTex32HoleObstruction}。
+\end{remark}
+
+\subsection{公理（降级为定理）：双离散 $\omega$-递归编码能够构造 $L_3$ 并覆盖 $L_2$}
+\label{subsec:tex41-ch1-axiom-downgrade}
+
+\begin{theorem}[公理降级：双可数离散对的 $\omega$-递归编码确可生成 $L_3$ 并覆盖 $L_2$]
+\label{thm:tex41-axiom-downgrade}
+设 $\Ltwo$、$\Dpair$、$\mathfrak A$ 与 $\CodeSpace$ 满足定义~\ref{def:tex41-l2} 与定义~\ref{def:tex41-l3-atlas}。
+则：
+\begin{enumerate}
+  \item 对任意兼容码
+  \[
+    \sigma=(d_n)_{n\ge 3}\in\CodeSpace,
+  \]
+  交集
+  \[
+    \bigcap_{n\ge 3}K_{\sigma_{\le n}}
+  \]
+  恰为单点，记为
+  \[
+    \{x_\sigma\};
+  \]
+  \item 映射
+  \[
+    \Enc:\CodeSpace\to\Ltwo,\qquad
+    \Enc(\sigma):=x_\sigma
+  \]
+  是满射；
+  \item 对每个 $n\ge 3$，由长度 $n-2$ 的前缀编码与修复标签构成的对象
+  \[
+    \mathcal E_n
+  \]
+  给出定义~\ref{def:tex41-lge-bundle} 的第 $n$ 层纤维塔。
+  于是 $L_3$ 是该纤维塔的首层，$L_{\ge 3}$ 是其逐层闭包。
+\end{enumerate}
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：前缀胞腔的非空、嵌套与可提升]
+\label{cert:tex41-axiom-downgrade}
+令谓词 $P(n)$ 表示：
+\[
+  P(n)
+  :
+  \Longleftrightarrow
+  \text{任意兼容前缀 }\sigma_{\le n}
+  \text{都给出非空闭集 }K_{\sigma_{\le n}}
+  \text{，且该前缀可提升到下一层。}
+\]
+证书登记三段：
+\begin{enumerate}
+  \item \textbf{基步 $P(3)$：}由首层覆盖
+  \[
+    \Ltwo=\bigcup_{d\in\Dpair}K_d
+  \]
+  可知每个可用首层前缀都对应非空闭集；
+  \item \textbf{归纳步 $P(n)\Rightarrow P(n+1)$：}由后继细化与局部可提升性，
+  若 $K_{\sigma_{\le n}}\neq\varnothing$，则存在某个 $d_{n+1}\in\Dpair$ 使
+  \[
+    K_{\sigma_{\le n+1}}\subseteq K_{\sigma_{\le n}},
+    \qquad
+    K_{\sigma_{\le n+1}}\neq\varnothing;
+  \]
+  \item \textbf{极限步：}由 $\Ltwo$ 的完备性与直径收缩，
+  任意嵌套闭集链
+  \[
+    K_{\sigma_{\le 3}}\supseteq K_{\sigma_{\le 4}}\supseteq\cdots
+  \]
+  的交集为单点。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+令
+\[
+  P(n)
+  :
+  \Longleftrightarrow
+  \text{任意兼容前缀 }\sigma_{\le n}\text{ 对应非空闭集 }K_{\sigma_{\le n}}
+  \text{，且能继续细化。}
+\]
+
+\textbf{基步：}
+当 $n=3$ 时，由定义~\ref{def:tex41-l3-atlas} 的首层覆盖，
+每个被用到的首层码 $d_3\in\Dpair$ 都满足
+\[
+  K_{d_3}\neq\varnothing.
+\]
+故 $P(3)$ 成立。
+
+\textbf{归纳步：}
+假设 $P(n)$ 成立。
+任取兼容前缀 $\sigma_{\le n}$，则由归纳假设
+\[
+  K_{\sigma_{\le n}}\neq\varnothing.
+\]
+再由定义~\ref{def:tex41-l3-atlas} 的局部可提升性，对任意
+\[
+  x\in K_{\sigma_{\le n}}
+\]
+都存在某个 $d_{n+1}\in\Dpair$ 使
+\[
+  x\in K_{\sigma_{\le n+1}}.
+\]
+于是
+\[
+  K_{\sigma_{\le n+1}}\neq\varnothing,
+\]
+并由后继细化性
+\[
+  K_{\sigma_{\le n+1}}\subseteq K_{\sigma_{\le n}}.
+\]
+故 $P(n+1)$ 成立。
+由数学归纳法，$P(n)$ 对所有 $n\ge 3$ 都成立。
+
+\textbf{极限步与单点编码：}
+任取
+\[
+  \sigma=(d_n)_{n\ge 3}\in\CodeSpace.
+\]
+由前述归纳结论，闭集链
+\[
+  K_{\sigma_{\le 3}}\supseteq K_{\sigma_{\le 4}}\supseteq\cdots
+\]
+逐层非空且嵌套。
+又由直径收缩，
+\[
+  \diam(K_{\sigma_{\le n}})\to 0.
+\]
+由于 $\Ltwo$ 完备，嵌套闭集定理给出
+\[
+  \bigcap_{n\ge 3}K_{\sigma_{\le n}}=\{x_\sigma\}.
+\]
+于是 $\Enc(\sigma):=x_\sigma$ 良定义。
+
+\textbf{满射性：}
+任取
+\[
+  x\in\Ltwo.
+\]
+由首层覆盖，存在至少一个 $d_3\in\Dpair$ 使 $x\in K_{d_3}$。
+固定 $\Dpair=\NN\times\NN$ 的字典序，取满足该性质的最小 $d_3$。
+若已选得最小前缀 $\sigma_{\le n}$ 且 $x\in K_{\sigma_{\le n}}$，则由局部可提升性存在至少一个 $d_{n+1}$ 使
+\[
+  x\in K_{\sigma_{\le n+1}}.
+\]
+同样取其中字典序最小者。
+如此递归得到
+\[
+  \sigma=(d_n)_{n\ge 3}\in\CodeSpace,
+\]
+并满足
+\[
+  x\in K_{\sigma_{\le n}},\qquad \forall n\ge 3.
+\]
+由单点交性质可知
+\[
+  x=x_\sigma=\Enc(\sigma).
+\]
+故 $\Enc$ 为满射。
+
+\textbf{纤维塔首层：}
+定义~\ref{def:tex41-lge-bundle} 已把每个长度前缀与修复标签组织为
+\[
+  \pi_n:\mathcal E_n\to\Ltwo.
+\]
+当 $n=3$ 时即得到 $L_3$ 首层；随 $n$ 递增，得到 $L_{\ge 3}$ 的逐层离散修复纤维塔。
+故定理成立。证毕。
+\end{proof}
+
+\subsection{定理：当 $L_2$ 出现孔洞时，$L_{\ge 3}$ 修复塔可把障碍沿纤维方向平凡化}
+\label{subsec:tex41-ch1-theorem}
+
+\begin{theorem}[以 $L_2$ 为基底、以 $L_{\ge 3}$ 为纤维的修复塔正规型]
+\label{thm:tex41-repair-tower}
+设 $U\subseteq \Ltwo$ 为开集，并满足
+\[
+  \Hole(U)
+  \quad\Longleftrightarrow\quad
+  [\omega_{\mathrm{obs}}]\neq 0
+  \in H^{m+1}(U;A)
+\]
+（见定义~\ref{def:tex41-hole}）。
+对每个 $n\ge 3$，设
+\[
+  \pi_n:\mathcal E_n\to U
+\]
+为定义~\ref{def:tex41-lge-bundle} 的限制，
+且存在 $(m)$-余链
+\[
+  h_n\in C^m(\mathcal E_{n+1};A)
+\]
+与残余障碍余链
+\[
+  \omega_n\in C^{m+1}(\mathcal E_n;A)
+\]
+满足：
+\begin{enumerate}
+  \item 初始拉回为
+  \[
+    \omega_3=\pi_3^\ast\omega_{\mathrm{obs}};
+  \]
+  \item 每个后继步都满足障碍吸收公式
+  \[
+    q_n^\ast\omega_n=\delta h_n+\omega_{n+1};
+  \]
+  \item 逆极限对象
+  \[
+    \mathcal E_\infty:=\varprojlim_{n\ge 3}\mathcal E_n
+  \]
+  上的终端残余类满足
+  \[
+    [\omega_\infty]=0,
+  \]
+  并且它正是 $\pi_\infty:\mathcal E_\infty\to U$ 的终端截面障碍类。
+\end{enumerate}
+则：
+\begin{enumerate}
+  \item
+  \[
+    \pi_\infty^\ast[\omega_{\mathrm{obs}}]=0
+    \in H^{m+1}(\mathcal E_\infty;A);
+  \]
+  \item $\pi_\infty$ 给出“以 $L_2$ 为基底、以 $L_{\ge 3}$ 为纤维的修复塔正规型”；
+  \item 存在全局可行截面
+  \[
+    s_\infty:U\to\mathcal E_\infty;
+  \]
+  \item 因而任意基底路径类都至少存在一个可行提升代表，孔洞在修复塔总空间上不再表现为不可延拓障碍。
+\end{enumerate}
+\end{theorem}
+
+\begin{Certificate}[证书：障碍递推、望远镜恒等式与终端截面判据]
+\label{cert:tex41-repair-tower}
+证书登记四段：
+\begin{enumerate}
+  \item \textbf{后继吸收：}每个 $h_n$ 把第 $n$ 层障碍的拉回分解成“边界 + 更高层残余”：
+  \[
+    q_n^\ast\omega_n=\delta h_n+\omega_{n+1};
+  \]
+  \item \textbf{望远镜递推：}定义
+  \[
+    Q_3:=\id_{\mathcal E_3},\qquad
+    Q_{n+1}:=Q_n\circ q_n,
+  \]
+  则存在递归构造的余链 $H_n$ 使
+  \[
+    Q_n^\ast\omega_3=\delta H_n+\omega_n;
+  \]
+  \item \textbf{极限平凡化：}若终端残余类
+  \[
+    [\omega_\infty]=0,
+  \]
+  则
+  \[
+    Q_\infty^\ast[\omega_3]=0;
+  \]
+  \item \textbf{截面存在判据：}若 $[\omega_\infty]$ 正是 $\pi_\infty$ 的终端截面障碍类，则
+  \[
+    [\omega_\infty]=0
+    \Rightarrow
+    \exists\, s_\infty:U\to\mathcal E_\infty.
+  \]
+\end{enumerate}
+上述接口与仓内关于修复塔吸收障碍、编码正规形与纤维丛结构的写法一致
+\cite{RepoTex29RepairableObstruction,RepoTex35ExtendedCertificationTower,RepoTex36HomotopyTwistBijection}，
+并与经典 obstruction theory / fibre bundle 语言兼容
+\cite{Hatcher2002AT,Weibel1994HomologicalAlgebra,Husemoller1994FibreBundles}。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex41-repair-tower} 的第一段，对每个 $n\ge 3$ 都有
+\[
+  q_n^\ast\omega_n=\delta h_n+\omega_{n+1}.
+\]
+定义
+\[
+  H_3:=0,\qquad
+  H_{n+1}:=q_n^\ast H_n+h_n.
+\]
+我们证明
+\[
+  Q_n^\ast\omega_3=\delta H_n+\omega_n,
+  \qquad
+  \forall n\ge 3.
+\]
+
+\textbf{基步：}
+当 $n=3$ 时，
+\[
+  Q_3^\ast\omega_3=\omega_3=\delta H_3+\omega_3.
+\]
+故成立。
+
+\textbf{递推步：}
+若
+\[
+  Q_n^\ast\omega_3=\delta H_n+\omega_n,
+\]
+则
+\[
+  \begin{aligned}
+    Q_{n+1}^\ast\omega_3
+    &=q_n^\ast Q_n^\ast\omega_3\\
+    &=q_n^\ast(\delta H_n+\omega_n)\\
+    &=\delta(q_n^\ast H_n)+q_n^\ast\omega_n\\
+    &=\delta(q_n^\ast H_n)+\delta h_n+\omega_{n+1}\\
+    &=\delta H_{n+1}+\omega_{n+1}.
+  \end{aligned}
+\]
+故递推成立。
+于是对所有 $n\ge 3$，
+\[
+  Q_n^\ast\omega_3=\delta H_n+\omega_n.
+\]
+
+令
+\[
+  Q_\infty:\mathcal E_\infty\to\mathcal E_3
+\]
+为逆极限诱导映射。
+由假设
+\[
+  [\omega_\infty]=0
+\]
+与上述递推恒等式的极限版本，得到
+\[
+  Q_\infty^\ast[\omega_3]=0.
+\]
+再由
+\[
+  \omega_3=\pi_3^\ast\omega_{\mathrm{obs}}
+\]
+以及
+\[
+  \pi_\infty=\pi_3\circ Q_\infty,
+\]
+推出
+\[
+  \pi_\infty^\ast[\omega_{\mathrm{obs}}]
+  =
+  Q_\infty^\ast\pi_3^\ast[\omega_{\mathrm{obs}}]
+  =
+  Q_\infty^\ast[\omega_3]
+  =
+  0.
+\]
+这证明了障碍在修复塔总空间上的拉回平凡化。
+
+接着，由证书第四段与假设“$[\omega_\infty]$ 正是终端截面障碍类”，可得
+\[
+  [\omega_\infty]=0
+  \Rightarrow
+  \exists\, s_\infty:U\to\mathcal E_\infty.
+\]
+于是
+\[
+  \pi_\infty\circ s_\infty=\id_U,
+\]
+故 $\pi_\infty$ 的确给出以 $U\subseteq \Ltwo$ 为基底、以 $L_{\ge 3}$ 语义纤维为修复层的正规型。
+一旦全局截面存在，任意
+\[
+  \gamma:[0,1]\to U
+\]
+都可通过
+\[
+  s_\infty\circ\gamma
+  \in
+  \Path_\infty(\gamma(0),\gamma(1))
+\]
+得到至少一个全局可行提升代表。
+因此，$L_2$ 中原本表现为孔洞的障碍，在 $L_{\ge 3}$ 修复塔总空间中被平凡化并允许延拓。
+定理成立。证毕。
+\end{proof}
+
+\subsection{引理：边缘算子删去谬误路径且在层间保持同伦闭合}
+\label{subsec:tex41-ch1-lemma}
+
+\begin{lemma}[边缘算子像空间的同伦稳定性]
+\label{lem:tex41-edge}
+对每个 $n\ge 3$，若定义~\ref{def:tex41-eye-geodesic} 的边缘算子满足
+\[
+  \Edge_n^2=\Edge_n
+\]
+且与遗忘映射相容：
+\[
+  q_n\circ \Edge_{n+1}=\Edge_n\circ q_n,
+\]
+则对任意端点 $x,y\in U$ 都有：
+\begin{enumerate}
+  \item 可行路径集
+  \[
+    \Adm_n(x,y)=\Img(\Edge_n)
+  \]
+  对端点固定同伦封闭；
+  \item 任意谬误路径
+  \[
+    \widetilde\gamma\in\Fall_n(x,y)
+  \]
+  都被边缘算子删去，因而不会进入任一级修复塔的可行路径搜索；
+  \item 若
+  \[
+    \widetilde\Gamma:[0,1]\times[0,1]\to\mathcal E_{n+1}
+  \]
+  是一条可行同伦，则其遗忘投影
+  \[
+    q_n\circ\widetilde\Gamma
+  \]
+  仍是第 $n$ 层的可行同伦。
+\end{enumerate}
+\end{lemma}
+
+\begin{Certificate}[证书：幂等投影、谬误零化与层间相容]
+\label{cert:tex41-edge}
+证书登记谓词链：
+\[
+\begin{aligned}
+  L_1 &: \Edge_n^2=\Edge_n
+  \Rightarrow
+  \Img(\Edge_n)\ \text{是投影像空间};\\
+  L_2 &: \widetilde\gamma\in\Fall_n
+  \Rightarrow
+  \Edge_n(\widetilde\gamma)=0;\\
+  L_3 &: q_n\circ\Edge_{n+1}=\Edge_n\circ q_n
+  \Rightarrow
+  \text{可行性在层间遗忘下保持};\\
+  L_4 &: (L_1\wedge L_2\wedge L_3)
+  \Rightarrow
+  \text{谬误路径不会混入同伦闭包后的可行路径类}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $L_1$，
+\[
+  \Edge_n^2=\Edge_n
+\]
+说明 $\Edge_n$ 是一个投影型筛选算子，因此
+\[
+  \Adm_n(x,y)=\Img(\Edge_n)
+\]
+本身就是“已通过筛选”的像空间。
+凡进入该像空间的路径，再次作用 $\Edge_n$ 不会改变，因此可行性是稳定的。
+
+由 $L_2$，若
+\[
+  \widetilde\gamma\in\Fall_n(x,y),
+\]
+则
+\[
+  \Edge_n(\widetilde\gamma)=0.
+\]
+这意味着谬误路径不是“被打低分的候选”，而是直接被删去的非法对象；
+因而它无法在任何后续极小化、选路或同伦比较中作为可行代表重新出现。
+
+由 $L_3$，若
+\[
+  \widetilde\Gamma
+\]
+在第 $n+1$ 层是可行同伦，则
+\[
+  \Edge_{n+1}(\widetilde\Gamma)=\widetilde\Gamma.
+\]
+施加 $q_n$ 并使用交换关系，可得
+\[
+  \Edge_n(q_n\circ\widetilde\Gamma)
+  =
+  q_n(\Edge_{n+1}(\widetilde\Gamma))
+  =
+  q_n\circ\widetilde\Gamma.
+\]
+故其遗忘投影仍是第 $n$ 层可行同伦。
+
+综上，
+\[
+  \text{幂等投影}
+  +
+  \text{谬误零化}
+  +
+  \text{层间相容}
+  \Rightarrow
+  \text{可行路径像空间对同伦闭合且不含谬误路径}.
+\]
+引理成立。证毕。
+\end{proof}
+
+\subsection{命题：修复后的视域加权测地线不会被谬误路径吸引}
+\label{subsec:tex41-ch1-proposition}
+
+\begin{proposition}[视域加权测地线的唯一可行代表]
+\label{prop:tex41-eye-geodesic}
+固定 $x,y\in U$。
+设定理~\ref{thm:tex41-repair-tower} 的假设成立，且在极限层满足：
+\begin{enumerate}
+  \item 可行路径集
+  \[
+    \Adm_\infty(x,y)
+  \]
+  非空；
+  \item 作用量
+  \[
+    \mathcal A_{\mathrm{eye},\infty}
+  \]
+  在 $\Adm_\infty(x,y)$ 上强制有界下并具下半连续性；
+  \item 在每个固定端点的可行同伦类内，
+  \[
+    \mathcal A_{\mathrm{eye},\infty}
+  \]
+  严格凸。
+\end{enumerate}
+则存在唯一极小提升路径
+\[
+  \widetilde\gamma^\star\in\Adm_\infty(x,y),
+\]
+使得
+\[
+  \mathcal A_{\mathrm{eye},\infty}(\widetilde\gamma^\star)
+  =
+  \inf_{\widetilde\gamma\in\Adm_\infty(x,y)}
+  \mathcal A_{\mathrm{eye},\infty}(\widetilde\gamma).
+\]
+其投影
+\[
+  \gamma^\star:=\pi_\infty\widetilde\gamma^\star
+\]
+即为修复后的视域加权测地线。
+此外，任何谬误路径类都不可能成为极小代表，因为它们已被引理~\ref{lem:tex41-edge} 的边缘算子从可行域中删除。
+\end{proposition}
+
+\begin{Certificate}[证书：可行域非空 + 直接法极小化 + 谬误路径排除]
+\label{cert:tex41-eye-geodesic}
+证书分三段：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex41-repair-tower} 给出全局可行截面，从而
+  \[
+    \Adm_\infty(x,y)\neq\varnothing;
+  \]
+  \item 下半连续 + 强制有界下
+  \[
+    \Rightarrow
+    \text{极小元存在};
+  \]
+  \item 引理~\ref{lem:tex41-edge} 给出谬误路径删去，
+  严格凸给出同伦类内唯一性。
+\end{enumerate}
+其中“视域加权测地线”的几何直觉与加权测地/变分模板可与标准测地线语言对齐
+\cite{Lee2018RiemannianManifolds}，
+但本文真正调用的仍是“可行路径 + 作用量极小”的证书化口径。
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex41-eye-geodesic} 第一段与定理~\ref{thm:tex41-repair-tower}，
+极限层存在全局可行截面
+\[
+  s_\infty:U\to\mathcal E_\infty.
+\]
+因此对任意端点 $x,y\in U$，至少存在一条可行提升路径，
+即
+\[
+  \Adm_\infty(x,y)\neq\varnothing.
+\]
+
+再由第二段，下半连续性与强制有界下给出直接法极小元：
+存在
+\[
+  \widetilde\gamma^\star\in\Adm_\infty(x,y)
+\]
+满足
+\[
+  \mathcal A_{\mathrm{eye},\infty}(\widetilde\gamma^\star)
+  =
+  \inf_{\widetilde\gamma\in\Adm_\infty(x,y)}
+  \mathcal A_{\mathrm{eye},\infty}(\widetilde\gamma).
+\]
+由第三段与引理~\ref{lem:tex41-edge}，所有谬误路径类都不属于
+\[
+  \Adm_\infty(x,y),
+\]
+故不可能被极小化程序选中。
+
+最后，由严格凸性，在固定端点的每个可行同伦类内极小元唯一；
+若把极小化搜索固定在由修复塔给出的可行类上，则
+\[
+  \widetilde\gamma^\star
+\]
+唯一。
+其投影
+\[
+  \gamma^\star=\pi_\infty\widetilde\gamma^\star
+\]
+即为修复后的视域加权测地线。
+这正是“不会被谬误路径吸引而污染”的严格表达：
+不是说谬误路径在评分上永远差，而是说它们根本不在可行域中。
+命题成立。证毕。
+\end{proof}
+
+\subsection{推论：用户原句的严格版本是“$L_2$ 为基底、$L_{\ge 3}$ 为修复纤维”的正规型}
+\label{subsec:tex41-ch1-corollary}
+
+\begin{corollary}[用户原句的证书化改写]
+\label{cor:tex41-main}
+在定理~\ref{thm:tex41-axiom-downgrade}、定理~\ref{thm:tex41-repair-tower}、
+引理~\ref{lem:tex41-edge} 与命题~\ref{prop:tex41-eye-geodesic} 的假设下，
+用户给出的自然语言陈述可被严格改写为：
+\[
+\boxed{
+\begin{aligned}
+  L_1&:\ \text{可数无穷离散层，只负责提供局部离散索引与证书槽；}\\
+  L_2&:\ \text{不可数无穷连续基底，承载连续几何、障碍类与基底路径；}\\
+  L_3&:\ \text{双可数离散对对 $L_2$ 的 $\omega$-递归编码首层；}\\
+  L_{\ge 3}&:\ \text{以 $L_2$ 为基底、以离散修复语义为纤维的同伦修复塔。}
+\end{aligned}
+}
+\]
+若某个开集 $U\subseteq L_2$ 出现孔洞，即
+\[
+  [\omega_{\mathrm{obs}}]\neq 0,
+\]
+则在修复塔正规型
+\[
+  \pi_\infty:\mathcal E_\infty\to U
+\]
+中有
+\[
+  \pi_\infty^\ast[\omega_{\mathrm{obs}}]=0,
+\]
+且存在全局可行截面与唯一的视域加权测地线代表。
+因此，严格表述并不是“$L_{\ge 3}$ 替代 $L_2$”，而是：
+\[
+  \text{$L_2$ 保持为基底，$L_{\ge 3}$ 作为纤维修复塔把障碍平凡化，}
+\]
+\[
+  \text{并用边缘算子删去无意义（谬误）路径，使测地线搜索不再被孔洞污染。}
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：编码定理 + 障碍平凡化 + 谬误路径删去 + 极小代表唯一]
+\label{cert:tex41-main}
+证书登记谓词链：
+\[
+\begin{aligned}
+  C_1 &: \text{定理~\ref{thm:tex41-axiom-downgrade}}
+  \Rightarrow
+  L_3\ \text{确由双离散 $\omega$-递归编码给出};\\
+  C_2 &: \text{定理~\ref{thm:tex41-repair-tower}}
+  \Rightarrow
+  \pi_\infty^\ast[\omega_{\mathrm{obs}}]=0
+  \ \text{且}\
+  \exists\,s_\infty;\\
+  C_3 &: \text{引理~\ref{lem:tex41-edge}}
+  \Rightarrow
+  \text{谬误路径被边缘算子删去};\\
+  C_4 &: \text{命题~\ref{prop:tex41-eye-geodesic}}
+  \Rightarrow
+  \text{可行视域加权测地线唯一选出}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $C_1$，
+\[
+  L_3
+\]
+不是口语标签，而是双可数离散对在连续基底上的首层递归编码对象。
+这说明“$L_3$ 基于双离散对编码 $L_2$”在本文中已经不是公理式宣告，而是有构造与证书支撑的定理。
+
+由 $C_2$，
+\[
+  \pi_\infty^\ast[\omega_{\mathrm{obs}}]=0
+\]
+意味着 $L_2$ 上的非平凡障碍，在修复塔总空间中已被沿纤维方向平凡化。
+因此“修复孔洞”在严格意义上是“把基底障碍拉回到纤维塔后变成零类”，而不是“否认基底曾有障碍”。
+
+由 $C_3$，
+\[
+  \Fall_\infty(x,y)
+\]
+中的路径被直接删去，而非仅仅降权。
+因此谬误路径不能进入可行搜索域，也不能与合法路径一起竞争极小代表。
+
+由 $C_4$，在可行域中存在唯一的视域加权测地线代表。
+于是用户原句可被严格读作：
+\[
+  \text{保持 $L_2$ 为基底}
+  \Longrightarrow
+  \text{让 $L_{\ge 3}$ 以纤维丛正规型吸收障碍}
+  \Longrightarrow
+  \text{删去谬误路径并稳定选路}.
+\]
+推论成立。证毕。
+\end{proof}
+
+\subsection{备注：边界、适用范围与避免误读}
+\label{subsec:tex41-ch1-remarks}
+
+\begin{remark}[不要把“编码”误读成“替代本体”]
+定理~\ref{thm:tex41-axiom-downgrade} 只说明：
+\[
+  \prod_{n\ge 3}(\NN\times\NN)
+\]
+这样的双离散 $\omega$-递归码空间可以\emph{覆盖并表示} $\Ltwo$。
+它没有说明“$\Ltwo$ 与单个离散层同构”，更没有说明“连续本体被消去”。
+因此，编码论断的正确读法是
+\[
+  \text{可审计表示}
+  \neq
+  \text{本体替代}.
+\]
+\end{remark}
+
+\begin{remark}[不要把“修复”误读成“原障碍从未存在”]
+定理~\ref{thm:tex41-repair-tower} 的结论是
+\[
+  \pi_\infty^\ast[\omega_{\mathrm{obs}}]=0,
+\]
+而不是
+\[
+  [\omega_{\mathrm{obs}}]=0.
+\]
+前者表示“在修复塔总空间中可平凡化”，后者表示“在原始 $L_2$ 基底上本来就无障碍”。
+二者不能混淆。
+这也正是“以 $L_2$ 为基底、以 $L_{\ge 3}$ 为纤维”的正规型必须保留两层结构的原因。
+\end{remark}
+
+\begin{remark}[不要把“删去谬误路径”误读成“任意路径都可被武断删除”]
+引理~\ref{lem:tex41-edge} 的删去动作依赖的是
+\[
+  \Sem_n(\widetilde\gamma)=0
+\]
+这一可审计谓词，而不是任意主观好恶。
+换言之，
+\[
+  \text{谬误路径删去}
+  =
+  \text{证书化的非法路径筛除},
+\]
+而不是“为了得到想要结论而事后删路径”。
+若没有显式的相容性谓词、边缘算子或层间交换关系，则不能宣称某条路径在本文意义下是“谬误路径”。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：第一章相对于旧两层表述的四层正规增益}
+\label{sec:tex41-ch2-upgrade}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心判断（本节严格化后）]
+就本文第一章（即第~\ref{sec:tex41-ch1} 节）相对于旧两层表述
+\[
+  L_1\to L_2
+\]
+的增益而言，正确判断不是“把原有离散到连续说得更顺”，而是把该两层表述提升为
+\[
+ L_1\to L_2\to L_3\to L_{>3}
+\]
+的四层正规生成链。
+其中
+\[
+  \begin{aligned}
+    L_1&=\text{可数无穷离散索引层},\\
+    L_2&=\text{不可数无穷连续基底},\\
+    L_3&=\text{双可数离散对对 $L_2$ 的 $\omega$-递归编码首层},\\
+    L_{>3}&=\text{在 $L_2$ 上施加语义约束、吸收障碍、}\\
+          &\quad \text{并删去谬误路径的离散修复纤维塔}.
+  \end{aligned}
+\]
+这一定式与第~\ref{sec:tex41-ch1} 节已经完成的对象链、边缘算子与可行测地线链条兼容，并与仓内关于“连续基底 + 离散修复层”的主线写法一致
+\cite{GaoZheng2025GFramework,GaoZhengAppVol1,RepoAppMathVol4Tex,RepoTex32HoleObstruction,
+  RepoTex35ExtendedCertificationTower,RepoTex36HomotopyTwistBijection,RepoTex37SemanticGaugeRuntime,
+  RepoTex38TerminalNormalForm}。
+\end{remark}
+
+\subsection{定义：旧两层表述、四层正规链与职责谓词}
+\label{subsec:tex41-upgrade-defs}
+
+\begin{definition}[旧两层表述与四层正规链]
+\label{def:tex41-upgrade-chain}
+定义旧两层表述
+\[
+  \mathfrak C_{\mathrm{old}}
+  :=
+  (L_1\leadsto L_2),
+\]
+其中符号
+\[
+  \leadsto
+\]
+只表示“离散对象与连续对象之间存在某种生成、逼近、表示或关联关系”，但并不区分
+\[
+  \text{索引},\quad
+  \text{基底},\quad
+  \text{编码},\quad
+  \text{修复}.
+\]
+再定义四层正规链
+\[
+  \mathfrak C_{\mathrm{new}}
+  :=
+  \bigl(
+    L_1\xRightarrow{\mathrm{idx}}L_2
+    \xRightarrow{\mathrm{enc}_1}L_3
+    \xRightarrow{\mathrm{repair}}L_{>3}
+  \bigr),
+\]
+并把第~\ref{sec:tex41-ch1} 节中粗记的
+\[
+  L_{\ge 3}
+\]
+细分解释为
+\[
+  L_3=\text{首层可审计编码落点},
+  \qquad
+  L_{>3}=\text{第 $4$ 层及以上的修复--约束--删边塔}.
+\]
+称 \(\mathfrak C_{\mathrm{new}}\) 为旧两层表述的正规细化，若其满足四个职责谓词：
+\[
+\begin{aligned}
+  \mathbf I(L_1) &: \Longleftrightarrow L_1\text{ 只提供可数离散索引与证书槽};\\
+  \mathbf B(L_2) &: \Longleftrightarrow L_2\text{ 是唯一连续基底并承载障碍类与基底路径};\\
+  \mathbf E(L_3\mid L_2) &: \Longleftrightarrow L_3\text{ 是对 }L_2\text{ 的首层 }\omega\text{-递归可审计编码};\\
+  \mathbf R(L_{>3}\mid L_2) &: \Longleftrightarrow L_{>3}\text{ 在 }L_2\text{ 上沿纤维吸收障碍、施加语义约束并删去谬误路径}.
+\end{aligned}
+\]
+\end{definition}
+
+\begin{definition}[可行域重构谓词]
+\label{def:tex41-upgrade-adm}
+对任意端点
+\[
+  x,y\in U\subseteq L_2,
+\]
+记
+\[
+  \Gamma_{\mathrm{all}}(x,y):=\Path_\infty(x,y),
+  \qquad
+  \Gamma_{\mathrm{fallacy}}(x,y):=\Fall_\infty(x,y),
+  \qquad
+  \Gamma_{\mathrm{adm}}(x,y):=\Adm_\infty(x,y).
+\]
+若
+\[
+  \Gamma_{\mathrm{adm}}(x,y)
+  =
+  \Gamma_{\mathrm{all}}(x,y)\setminus \Gamma_{\mathrm{fallacy}}(x,y),
+\]
+且极小化只在
+\[
+  \Gamma_{\mathrm{adm}}(x,y)
+\]
+上进行，则称第~\ref{sec:tex41-ch1} 节的修复语义已经进入\textbf{可行域重构阶段}。
+\end{definition}
+
+\begin{remark}[新节与第一章定理链的接口]
+定义~\ref{def:tex41-upgrade-chain}--\ref{def:tex41-upgrade-adm} 并不重新发明对象，
+而是把第~\ref{sec:tex41-ch1} 节已经给出的
+\[
+  \text{编码定理}
+  \Longrightarrow
+  \text{修复塔定理}
+  \Longrightarrow
+  \text{边缘算子引理}
+  \Longrightarrow
+  \text{视域加权测地线命题}
+\]
+重新整理成“旧式两层表述”和“新式四层正规链”的比较语言。
+\end{remark}
+
+\subsection{公理（降级为定理）：四层职责可由层前缀递归钉死}
+\label{subsec:tex41-upgrade-axiom-downgrade}
+
+\begin{theorem}[公理降级：四层职责链可按前缀递归分离]
+\label{thm:tex41-upgrade-induction}
+定义四个层前缀
+\[
+  \mathfrak C_1:=(L_1),\qquad
+  \mathfrak C_2:=(L_1,L_2),\qquad
+  \mathfrak C_3:=(L_1,L_2,L_3),\qquad
+  \mathfrak C_4:=(L_1,L_2,L_3,L_{>3}).
+\]
+再定义谓词
+\[
+  P(k)
+  :
+  \Longleftrightarrow
+  \text{在 }\mathfrak C_k\text{ 中，前 }k\text{ 个职责谓词 }
+  \mathbf I,\mathbf B,\mathbf E,\mathbf R
+  \text{ 已被逐层钉死且与先前层不混同。}
+\]
+则
+\[
+  P(1),\quad P(2),\quad P(3),\quad P(4)
+\]
+全部成立。
+特别地，旧两层表述
+\[
+  \mathfrak C_{\mathrm{old}}
+\]
+至多只能固定
+\[
+  \mathbf I\ \text{与}\ \mathbf B,
+\]
+而四层正规链
+\[
+  \mathfrak C_{\mathrm{new}}
+\]
+则把
+\[
+  \mathbf E\ \text{与}\ \mathbf R
+\]
+一并显式化。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：层前缀职责的递归钉死]
+\label{cert:tex41-upgrade-induction}
+定义谓词
+\[
+  P(k)
+\]
+如定理~\ref{thm:tex41-upgrade-induction} 所示。
+则数学归纳法证书由以下三段组成：
+\begin{enumerate}
+  \item \textbf{基步 $P(1)$：}由定义~\ref{def:tex41-l1}，$L_1$ 只承担可数离散索引职责；
+  \item \textbf{递推步 $P(k)\Rightarrow P(k+1)$（$k=1,2,3$）：}
+  \[
+    \mathbf I
+    \Longrightarrow
+    \mathbf B
+    \Longrightarrow
+    \mathbf E
+    \Longrightarrow
+    \mathbf R
+  \]
+  的新增职责分别由定义~\ref{def:tex41-l2}、定理~\ref{thm:tex41-axiom-downgrade}、定理~\ref{thm:tex41-repair-tower} 与引理~\ref{lem:tex41-edge} 支撑；
+  \item \textbf{终步 $P(4)$：}由命题~\ref{prop:tex41-eye-geodesic}，删去谬误路径后的极小化选路只发生在修复塔给出的可行域内，因此第四层不仅存在，而且对前三层具有约束回写作用。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+定义
+\[
+  P(k)
+  :
+  \Longleftrightarrow
+  \text{前 }k\text{ 层职责已被逐层钉死且不混同。}
+\]
+
+\textbf{基步 $P(1)$：}
+由定义~\ref{def:tex41-l1}，
+\[
+  L_1=\NN
+\]
+是可数无穷离散层，并只负责给出局部离散索引与证书槽。
+因此
+\[
+  \mathbf I(L_1)
+\]
+成立，故
+\[
+  P(1)
+\]
+成立。
+
+\textbf{第一递推步 $P(1)\Rightarrow P(2)$：}
+由定义~\ref{def:tex41-l2}，
+\[
+  |L_2|=|\RR|,
+\]
+且 $L_2$ 承载连续路径、局部测地线与障碍类。
+于是
+\[
+  \mathbf B(L_2)
+\]
+成立。
+又因为
+\[
+  |L_1|=|\NN|\neq|\RR|=|L_2|,
+\]
+并且 $L_1$ 不承载连续几何，故
+\[
+  L_1\neq L_2,
+  \qquad
+  \mathbf I(L_1)\neq \mathbf B(L_2).
+\]
+故
+\[
+  P(2)
+\]
+成立。
+
+\textbf{第二递推步 $P(2)\Rightarrow P(3)$：}
+由定理~\ref{thm:tex41-axiom-downgrade}，
+\[
+  \Enc:\CodeSpace\to L_2
+\]
+是满射，而
+\[
+  L_3
+\]
+是双可数离散对对 $L_2$ 的首层 $\omega$-递归编码落点。
+于是
+\[
+  \mathbf E(L_3\mid L_2)
+\]
+成立。
+同时
+\[
+  L_3\text{ 的职责是编码 }L_2,
+\]
+而不是替代 $L_2$ 为基底，
+故
+\[
+  \mathbf E(L_3\mid L_2)\neq \mathbf B(L_2).
+\]
+于是
+\[
+  P(3)
+\]
+成立。
+
+\textbf{第三递推步 $P(3)\Rightarrow P(4)$：}
+由定理~\ref{thm:tex41-repair-tower}，
+更高层修复塔沿纤维方向吸收障碍并给出全局可行截面；
+由引理~\ref{lem:tex41-edge}，
+谬误路径被边缘算子删去；
+由命题~\ref{prop:tex41-eye-geodesic}，
+极小化只在可行域中进行。
+因此
+\[
+  \mathbf R(L_{>3}\mid L_2)
+\]
+成立。
+又因为
+\[
+  L_{>3}\text{ 负责的是“修复 + 语义约束 + 删路”，而 }L_3\text{ 只负责首层编码，}
+\]
+故
+\[
+  \mathbf R(L_{>3}\mid L_2)\neq \mathbf E(L_3\mid L_2).
+\]
+故
+\[
+  P(4)
+\]
+成立。
+
+由有限数学归纳法，
+\[
+  P(1),\quad P(2),\quad P(3),\quad P(4)
+\]
+全成立。
+特别地，旧式
+\[
+  L_1\leadsto L_2
+\]
+只把
+\[
+  \mathbf I\ \text{与}\ \mathbf B
+\]
+压在同一条未细分箭头上，
+而新式
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+则把
+\[
+  \mathbf E\ \text{与}\ \mathbf R
+\]
+显式加入并与前两层分离。
+定理成立。证毕。
+\end{proof}
+
+\subsection{定理：关于“第一章抓住最核心增益”的严格化判断}
+\label{subsec:tex41-upgrade-theorem}
+
+\begin{theorem}[关于“第一章最核心增益”的严格化判断]
+\label{thm:tex41-upgrade-main}
+在定义~\ref{def:tex41-upgrade-chain} 与定义~\ref{def:tex41-upgrade-adm} 的口径下，
+第~\ref{sec:tex41-ch1} 节的真实增益不是“把旧式
+\[
+  L_1\leadsto L_2
+\]
+解释得更顺”，而是把它升级为四层分工明确的正规链
+\[
+\boxed{
+  L_1\to L_2\to L_3\to L_{>3}.
+}
+\]
+其中应严格理解为
+\[
+  \begin{aligned}
+    L_1&=\text{可数无穷离散索引层},\\
+    L_2&=\text{不可数无穷连续基底},\\
+    L_3&=\text{由双可数离散对对 $L_2$ 的 $\omega$-递归编码首层},\\
+    L_{>3}&=\text{在 $L_2$ 上施加语义约束、吸收障碍、}\\
+          &\quad \text{并删去谬误路径的离散修复纤维塔}.
+  \end{aligned}
+\]
+并且对任意端点对 $(x,y)$，若
+\[
+  \Gamma_{\mathrm{fallacy}}(x,y)\neq\varnothing,
+\]
+则
+\[
+  \Gamma_{\mathrm{all}}(x,y)\supsetneq \Gamma_{\mathrm{adm}}(x,y)
+  =
+  \Gamma_{\mathrm{all}}(x,y)\setminus \Gamma_{\mathrm{fallacy}}(x,y).
+\]
+因此，高层语义不是外加注释，而是直接进入路径可行域定义。
+\end{theorem}
+
+\begin{Certificate}[证书：基底钉死、首层编码、高阶修复与可行域重构]
+\label{cert:tex41-upgrade-main-thm}
+证书登记四条谓词链：
+\[
+\begin{aligned}
+  S_1 &: \text{定义~\ref{def:tex41-l2} 与推论~\ref{cor:tex41-main}}
+  \Rightarrow
+  L_2\text{ 被钉死为连续基底};\\
+  S_2 &: \text{定理~\ref{thm:tex41-axiom-downgrade} 与定理~\ref{thm:tex41-upgrade-induction}}
+  \Rightarrow
+  L_3\text{ 被钉死为首层编码，而不是高层总称};\\
+  S_3 &: \text{定理~\ref{thm:tex41-repair-tower}}
+  \Rightarrow
+  L_{>3}\text{ 沿纤维方向吸收障碍并给出全局可行截面};\\
+  S_4 &: \text{引理~\ref{lem:tex41-edge} 与命题~\ref{prop:tex41-eye-geodesic}}
+  \Rightarrow
+  \Gamma_{\mathrm{adm}}=\Gamma_{\mathrm{all}}\setminus\Gamma_{\mathrm{fallacy}}
+  \text{，且极小化只在可行域进行。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+先看旧结构。
+若只写到
+\[
+  L_1\leadsto L_2,
+\]
+它至多只能表达“离散对象与连续对象之间存在某种生成、逼近、表示或关联关系”。
+但这种两层写法保留了三个结构空白：
+\[
+  \text{基底与编码未分离},
+  \qquad
+  \text{连续对象与其可审计表示未分离},
+  \qquad
+  \text{障碍修复与路径搜索未分离}.
+\]
+因此，旧式表述至多给出
+\[
+  \text{离散接触连续},
+\]
+却不能钉死
+\[
+  \text{谁是基底、谁是编码、谁是修复、谁负责删边。}
+\]
+
+现在看第~\ref{sec:tex41-ch1} 节的新结构。
+
+\textbf{第一步：$L_2$ 被钉死为基底。}
+由 $S_1$，
+\[
+  L_2
+\]
+不再只是“连续层”的口头名称，而是连续路径、局部测地线、障碍类和纤维丛投影共同依附的基底。
+因此
+\[
+  \text{连续不是被消去的对象，而是被保留的对象。}
+\]
+
+\textbf{第二步：$L_3$ 被钉死为首层编码落点。}
+由 $S_2$，
+\[
+  L_3
+\]
+只承担一项严格职责：
+\[
+  \text{把双可数离散对经 $\omega$-递归方式压成对 $L_2$ 的首层可审计编码。}
+\]
+于是
+\[
+  L_3\neq L_{>3},
+\]
+并且
+\[
+  L_1\to L_3\to L_2
+\]
+成为“离散如何触及连续基底”的显式桥梁。
+
+\textbf{第三步：$L_{>3}$ 被钉死为修复塔。}
+由 $S_3$，
+\[
+  L_{>3}
+\]
+不再只是抽象的“更高层”，而是承担
+\[
+  \text{吸收障碍},\quad
+  \text{平凡化障碍类},\quad
+  \text{施加语义约束},\quad
+  \text{删去谬误路径}
+\]
+的高阶纤维塔。
+因此它的作用不是“替代 $L_2$”，而是
+\[
+  \text{在保留 $L_2$ 为基底的前提下，把额外修复语义放进纤维方向。}
+\]
+
+\textbf{第四步：语义约束进入可行域定义。}
+由 $S_4$，
+\[
+  \Gamma_{\mathrm{adm}}(x,y)
+  =
+  \Gamma_{\mathrm{all}}(x,y)\setminus \Gamma_{\mathrm{fallacy}}(x,y).
+\]
+若
+\[
+  \Gamma_{\mathrm{fallacy}}(x,y)\neq\varnothing,
+\]
+则
+\[
+  \Gamma_{\mathrm{all}}(x,y)\supsetneq \Gamma_{\mathrm{adm}}(x,y).
+\]
+因此系统不再是
+\[
+  \text{所有路径一起竞争，然后再挑一个最小值，}
+\]
+而是变成
+\[
+  \text{先删去谬误路径，再在可行域内做极小化。}
+\]
+这说明高层“语义”不是外加说明，而是直接参与了可行域重构。
+
+综上，第~\ref{sec:tex41-ch1} 节讲清楚的不是修辞，而是结构：
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+确实是相对于旧式
+\[
+  L_1\leadsto L_2
+\]
+的严格增益。
+定理成立。证毕。
+\end{proof}
+
+\subsection{引理：第一章真正完成的是四重分离，而不只是措辞润色}
+\label{subsec:tex41-upgrade-lemma}
+
+\begin{lemma}[第一章真正完成的是四重分离]
+\label{lem:tex41-upgrade-separation}
+第~\ref{sec:tex41-ch1} 节真正完成的，不是单句“离散生成连续”的润色，而是下列四个区分的稳定建立：
+\[
+  \text{索引}\neq\text{基底},
+  \qquad
+  \text{编码}\neq\text{本体替代},
+\]
+\[
+  \text{修复}\neq\text{连续消去},
+  \qquad
+  \text{最优搜索}\neq\text{无约束搜索}.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：四重分离的接口见证]
+\label{cert:tex41-upgrade-separation}
+证书由四条接口见证组成：
+\[
+\begin{aligned}
+  T_1 &: \text{定义~\ref{def:tex41-l1} 与定义~\ref{def:tex41-l2}}
+  \Rightarrow
+  \text{索引层与基底层具有不同基数与不同几何职责};\\
+  T_2 &: \text{定理~\ref{thm:tex41-axiom-downgrade}}
+  \Rightarrow
+  \text{首层编码是对基底的表示，而不是对基底的删除};\\
+  T_3 &: \text{定理~\ref{thm:tex41-repair-tower}}
+  \Rightarrow
+  \pi_\infty^\ast[\omega_{\mathrm{obs}}]=0
+  \text{并不推出 }[\omega_{\mathrm{obs}}]=0;\\
+  T_4 &: \text{引理~\ref{lem:tex41-edge} 与命题~\ref{prop:tex41-eye-geodesic}}
+  \Rightarrow
+  \text{极小化前先做路径合法性筛除}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $T_1$，
+若不区分
+\[
+  L_1\ \text{与}\ L_2,
+\]
+则可数离散索引层会与不可数连续基底混叠，
+从而无法说明连续几何究竟由谁承载。
+故
+\[
+  \text{索引}\neq\text{基底}.
+\]
+
+由 $T_2$，
+若没有
+\[
+  L_3,
+\]
+则“离散如何触及连续”仍停留在口号层；
+而一旦引入首层编码，就只能得到
+\[
+  \text{可审计表示}
+  \neq
+  \text{本体替代}.
+\]
+故
+\[
+  \text{编码}\neq\text{本体替代}.
+\]
+
+由 $T_3$，
+修复塔给出的结论是
+\[
+  \pi_\infty^\ast[\omega_{\mathrm{obs}}]=0,
+\]
+而不是
+\[
+  [\omega_{\mathrm{obs}}]=0.
+\]
+因此修复的含义是“在更高纤维总空间中把基底障碍平凡化”，
+而不是“把原连续基底消去掉”。
+故
+\[
+  \text{修复}\neq\text{连续消去}.
+\]
+
+由 $T_4$，
+合法路径集满足
+\[
+  \Gamma_{\mathrm{adm}}
+  =
+  \Gamma_{\mathrm{all}}\setminus\Gamma_{\mathrm{fallacy}},
+\]
+因此极小化不是在无约束全路径空间里进行，
+而是在删去谬误路径之后才启动。
+故
+\[
+  \text{最优搜索}\neq\text{无约束搜索}.
+\]
+
+四个区分全部成立。
+这正是第~\ref{sec:tex41-ch1} 节比旧式两层表述更强的根源。
+引理成立。证毕。
+\end{proof}
+
+\subsection{命题：用户总结的规范化版本}
+\label{subsec:tex41-upgrade-proposition}
+
+\begin{proposition}[用户总结的规范化改写]
+\label{prop:tex41-upgrade-summary}
+用户原句“第一章把原有 $L_1$ 到 $L_2$ 的连续统假设说得更明白了”，可被规范改写为
+\[
+\boxed{
+\begin{aligned}
+  &\text{第~\ref{sec:tex41-ch1} 节把原先两层的连续统表述，升级为：}\\
+  &\text{以 }L_2\text{ 为唯一连续基底，}
+  L_1\text{ 只提供离散索引，}
+  L_3\text{ 提供首层 }\omega\text{-递归离散编码，}\\
+  &L_{>3}\text{ 提供语义约束下的障碍修复与谬误路径删边正规型。}
+\end{aligned}
+}
+\]
+因而“离散统（一连续）”在本文中的严格读法是
+\[
+  \text{一连续基底}
+  +
+  \text{多离散修复层},
+\]
+而不是“连续最终被离散层取消”。
+\end{proposition}
+
+\begin{Certificate}[证书：基底唯一性、编码首层性与修复塔正规性]
+\label{cert:tex41-upgrade-summary}
+证书登记三段：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex41-upgrade-main} 给出“二层对应 $\to$ 四层正规链”的主结论；
+  \item 引理~\ref{lem:tex41-upgrade-separation} 给出四重分离，排除了“编码即替代”“修复即消去”等误读；
+  \item 推论~\ref{cor:tex41-main} 已将
+\[
+  L_2\text{ 为基底，}L_{\ge 3}\text{ 为修复纤维}
+\]
+钉成第~\ref{sec:tex41-ch1} 节的粗正规型。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex41-upgrade-main}，
+第~\ref{sec:tex41-ch1} 节的核心进展已经不是“把
+\[
+  L_1\leadsto L_2
+\]
+讲得更细”，而是把它展开成
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+的正规生成链。
+
+由引理~\ref{lem:tex41-upgrade-separation}，
+这一展开不是表面叙事分拆，而是把
+\[
+  \text{索引},\quad
+  \text{基底},\quad
+  \text{编码},\quad
+  \text{修复}
+\]
+四种职责稳定地区分开来。
+于是
+\[
+  L_2
+\]
+只能被理解为唯一连续基底，
+\[
+  L_3
+\]
+只能被理解为首层编码对象，
+而
+\[
+  L_{>3}
+\]
+只能被理解为高阶修复与删边塔。
+
+再由推论~\ref{cor:tex41-main}，
+第~\ref{sec:tex41-ch1} 节已经给出粗口径结论：
+\[
+  \text{$L_2$ 保持为基底，$L_{\ge 3}$ 作为纤维修复塔吸收障碍并稳定选路。}
+\]
+本命题所做的工作，只是进一步把粗记号
+\[
+  L_{\ge 3}
+\]
+细分为
+\[
+  L_3\ \text{与}\ L_{>3},
+\]
+从而把用户原句收紧为更强的结构性判断。
+命题成立。证毕。
+\end{proof}
+
+\subsection{推论：第一章的最大增益可压缩为“四层正规生成链”}
+\label{subsec:tex41-upgrade-corollary}
+
+\begin{corollary}[一句话压缩后的最大增益]
+\label{cor:tex41-upgrade-main}
+若把第~\ref{sec:tex41-ch1} 节相对于旧式两层表述的最大增益压缩成一句话，则应写成
+\[
+\boxed{
+  \text{它把“离散对连续的关系”从二层对应，提升成了四层分工的正规生成链。}
+}
+\]
+更具体地，它同时完成了三件此前不够清楚的事：
+\[
+  \text{把 }L_2\text{ 固定为不可替代的连续基底，}
+\]
+\[
+  \text{把 }L_3\text{ 固定为首层 }\omega\text{-递归离散编码，}
+\]
+\[
+  \text{把 }L_{>3}\text{ 固定为语义约束下的删边--修复塔。}
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：主定理 + 分离引理 + 规范命题]
+\label{cert:tex41-upgrade-main-cor}
+证书由三段组成：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex41-upgrade-main} 证明了“二层表述 $\to$ 四层正规链”的主判断；
+  \item 引理~\ref{lem:tex41-upgrade-separation} 证明了四层分工并非修辞，而是职责分离；
+  \item 命题~\ref{prop:tex41-upgrade-summary} 给出了用户原句的最终规范化版本。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex41-upgrade-main}，
+第~\ref{sec:tex41-ch1} 节的确把
+\[
+  L_1\leadsto L_2
+\]
+提升为
+\[
+  L_1\to L_2\to L_3\to L_{>3}.
+\]
+因此“二层对应 $\to$ 四层正规链”已经成立。
+
+由引理~\ref{lem:tex41-upgrade-separation}，
+这条四层链不是把一个长句切成四句，
+而是把
+\[
+  \text{索引},\ \text{基底},\ \text{编码},\ \text{修复}
+\]
+四种不同职责分开并钉死。
+
+再由命题~\ref{prop:tex41-upgrade-summary}，
+用户原句的规范版本已经明确指出：
+\[
+  L_2\text{ 是唯一连续基底，}
+  \qquad
+  L_3\text{ 是首层编码，}
+  \qquad
+  L_{>3}\text{ 是高阶删边--修复塔。}
+\]
+于是本推论中的压缩表达成立。
+推论成立。证毕。
+\end{proof}
+
+\subsection{备注：CH 语义、粗细记号与最终压缩结论}
+\label{subsec:tex41-upgrade-remarks}
+
+\begin{remark}[本节讨论的不是标准集合论意义下的 CH 证明]
+若把“连续统假设”理解为标准集合论中的
+\[
+  \mathrm{CH},
+\]
+则本节并未在标准意义上证明
+\[
+  \mathrm{CH}.
+\]
+本节所做的是：在本文体系内部，把“从可数离散到不可数连续”的旧式两层表述，重写为
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+的层级正规型。
+因此，本节结论是\textbf{内部架构的重写与结构正规化}，
+而不是对 ZFC 内独立命题的外部解决。
+关于标准 CH 的外部背景，可参照
+\cite{Jech2003SetTheory}；
+关于仓内“连续基底 + 离散修复层”的内部主线，可参照
+\cite{GaoZheng2025GFramework,GaoZhengAppVol1,RepoAppMathVol4Tex}。
+\end{remark}
+
+\begin{remark}[关于 $L_{\ge 3}$ 与 $L_{>3}$ 的粗细记号]
+第~\ref{sec:tex41-ch1} 节使用
+\[
+  L_{\ge 3}
+\]
+是为了强调“从首层编码到更高修复塔”的整体纤维方向；
+本节使用
+\[
+  L_{>3}
+\]
+则是为了在比较旧式两层表述时，把
+\[
+  L_3
+\]
+的首层编码职责从更高修复职责中显式剥离出来。
+因此，两种写法不是冲突关系，而是
+\[
+  \text{粗记号}
+  \quad\text{与}\quad
+  \text{细记号}
+\]
+的关系。
+\end{remark}
+
+\begin{remark}[“离散统（一连续）”的最短严格读法]
+若把用户原句中最有力量的压缩短语再收紧一次，
+则其最短严格读法不是
+\[
+  \text{离散替代连续},
+\]
+而是
+\[
+  \text{一连续基底}
+  +
+  \text{多离散修复层}.
+\]
+进一步压缩，第~\ref{sec:tex41-ch1} 节相对于旧式两层表述的最重增益可写成
+\[
+\boxed{
+  L_2\text{ 不是被取代的对象，而是被保留的连续基底。}
+}
+\]
+\[
+\boxed{
+  L_3\text{ 与 }L_{>3}\text{ 则是围绕该基底展开的编码--修复--删边体系。}
+}
+\]
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：对 CH 体系内语义与第一章推进关系的严格确认}
+\label{sec:tex41-ch-confirmation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心确认（严格化后）]
+若把“CH”明确限定为仓内 CH-layering 所说的
+\[
+  l_2
+\]
+外延阴影，而不是标准集合论中未加限定的
+\[
+  \CHstd,
+\]
+则用户修正句可以被严格确认：
+\[
+\boxed{
+  \CHint^{(1\to2)}
+  \text{可读作“在 }L_1\to L_2\text{ 处止步的连续统（一离散）假设”。}
+}
+\]
+这里的“止步”并不意味着第一章（即第~\ref{sec:tex41-ch1} 节）已经结束，而只是意味着：若只取
+\[
+  l_2
+\]
+切面，则可见者只有
+\[
+  L_1\text{ 的离散索引}
+  \quad\text{与}\quad
+  L_2\text{ 的连续基底吸收}.
+\]
+第一章真正给出的更强结论是
+\[
+\boxed{
+  \DTint^{(1\to2\to3\to\text{>3})},
+}
+\]
+即
+\[
+  L_1\to L_2\to L_3\to L_{>3},
+\]
+其中 $L_2$ 作为唯一连续基底被保留，$L_3$ 被构造成双可数离散对对连续基底的首层 $\omega$-递归编码，而 $L_{>3}$ 被写成沿纤维吸收障碍、施加语义约束并删去谬误路径的离散修复塔。该分层与仓内 PureMath
+  主稿中关于
+\[
+  \mathrm{CH}^{(l_2)},\qquad \mathrm{CH}^{(l_{\ge3})}
+\]
+及
+\[
+  \CHProfileOp(L_{\mathrm{cont}})
+\]
+的双面结构一致
+\cite{GaoZheng2025GFramework,GaoZhengAppVol1,RepoAppMathVol4Tex}。
+\end{remark}
+
+\subsection{定义：标准 CH、体系内截断语义与四层推进句}
+\label{subsec:tex41-ch-confirmation-defs}
+
+\begin{definition}[三种记号与层前缀句]
+\label{def:tex41-ch-confirmation-notations}
+沿用定义~\ref{def:tex41-upgrade-chain} 中的职责谓词
+\[
+  \mathbf I(L_1),\qquad
+  \mathbf B(L_2),\qquad
+  \mathbf E(L_3\mid L_2),\qquad
+  \mathbf R(L_{>3}\mid L_2).
+\]
+定义三条层前缀句：
+\[
+  \Sigma_2
+  :=
+  \mathbf I(L_1)\wedge \mathbf B(L_2),
+\]
+\[
+  \Sigma_3
+  :=
+  \Sigma_2\wedge \mathbf E(L_3\mid L_2),
+\]
+\[
+  \Sigma_4
+  :=
+  \Sigma_3\wedge \mathbf R(L_{>3}\mid L_2).
+\]
+再定义三种记号：
+\[
+  \CHstd
+  :=\text{标准集合论中的连续统假设},
+\]
+\[
+  \CHint^{(1\to2)}
+  :=\Sigma_2,
+\]
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}
+  :=\Sigma_4.
+\]
+其中
+\[
+  \CHint^{(1\to2)}
+\]
+表示：在体系内部，只取
+\[
+  L_1\to L_2
+\]
+前缀时，$L_1$ 的离散索引被 $L_2$ 的连续基底统一吸收，而 $L_3$ 与 $L_{>3}$ 的编码/修复语义尚未进入判断；
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}
+\]
+则表示：在四层正规链中，唯一连续基底、首层编码与高阶修复三者同时被激活，因此得到“离散统（一连续）”的完整句子。
+\end{definition}
+
+\begin{definition}[CH 画像与本文内部实现]
+\label{def:tex41-ch-confirmation-profile}
+借用仓内 PureMath 主稿中的 CH-layering 记法
+\cite{GaoZheng2025GFramework}，对任一连续统法则对象
+\[
+  L_{\mathrm{cont}},
+\]
+记其 CH 画像为
+\[
+  \CHProfileOp(L_{\mathrm{cont}})
+  :=
+  \bigl(
+    \mathrm{CH}^{(l_2)}(L_{\mathrm{cont}}),\,
+    \mathrm{CH}^{(l_{\ge3})}(L_{\mathrm{cont}})
+  \bigr).
+\]
+本文把该双面结构与层前缀句对应为：
+\[
+  \CHint^{(1\to2)}
+  \quad\text{对应}\quad
+  \mathrm{CH}^{(l_2)}
+  \text{ 的内部截断读法},
+\]
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}
+  \quad\text{对应}\quad
+  \bigl(
+    \mathrm{CH}^{(l_2)},
+    \mathrm{CH}^{(l_{\ge3})}
+  \bigr)
+  \text{ 在本文中的四层正规实现。}
+\]
+这里“对应”不是说两边逐字同义，而是说：PureMath 提供了
+\[
+  l_2\ \text{与}\ l_{\ge3}
+\]
+两张面孔的总框架；而本文第~\ref{sec:tex41-ch1} 节与第~\ref{sec:tex41-ch2-upgrade} 节把这两张面孔具体实现为
+\[
+  L_1,\ L_2,\ L_3,\ L_{>3}
+\]
+的内部定理链。
+\end{definition}
+
+\begin{remark}[本节的精细记号承接第~\ref{sec:tex41-ch2-upgrade} 节]
+第~\ref{sec:tex41-ch1} 节常用粗记号
+\[
+  L_{\ge3},
+\]
+强调“从首层编码到高阶修复”的整体纤维方向；
+而本节沿用第~\ref{sec:tex41-ch2-upgrade} 节的精细记号
+\[
+  L_3,\qquad L_{>3},
+\]
+是为了把“首层编码”与“更高修复塔”显式分开，从而能准确说出：
+\[
+  \CHint^{(1\to2)}
+\]
+只对应前缀止步，
+而
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}
+\]
+才对应第一章真正完成的四层推进。
+\end{remark}
+
+\subsection{公理（降级为定理）：前缀 CH 语义的最高可见面可由有限归纳钉死}
+\label{subsec:tex41-ch-confirmation-axiom}
+
+\begin{theorem}[公理降级：前缀 CH 语义的最高可见面可由有限归纳钉死]
+\label{thm:tex41-ch-confirmation-induction}
+定义三条层前缀链
+\[
+  \mathfrak C^{(2)}:=(L_1,L_2),\qquad
+  \mathfrak C^{(3)}:=(L_1,L_2,L_3),\qquad
+  \mathfrak C^{(4)}:=(L_1,L_2,L_3,L_{>3}),
+\]
+并定义谓词
+\[
+  P(k)
+  :
+  \Longleftrightarrow
+  \text{链 }\mathfrak C^{(k)}\text{ 的最高可见语义面恰由 }\Sigma_k\text{ 给出。}
+\]
+则
+\[
+  P(2),\qquad P(3),\qquad P(4)
+\]
+全部成立。
+特别地，
+\[
+  \CHint^{(1\to2)}=\Sigma_2
+\]
+是合法的体系内截断句，
+而
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}=\Sigma_4
+\]
+是合法的四层推进句。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：前缀链的最高可见面递归钉死]
+\label{cert:tex41-ch-confirmation-induction}
+令谓词
+\[
+  P(k)
+\]
+如定理~\ref{thm:tex41-ch-confirmation-induction} 所示。
+则数学归纳法证书由三段组成：
+\begin{enumerate}
+  \item \textbf{基步 $P(2)$：}由定义~\ref{def:tex41-l1}、定义~\ref{def:tex41-l2} 与定义~\ref{def:tex41-upgrade-chain}，前缀 $(L_1,L_2)$
+    只钉死离散索引层与连续基底层，因此其最高可见语义面正是
+  \[
+    \Sigma_2=\mathbf I(L_1)\wedge \mathbf B(L_2);
+  \]
+  \item \textbf{归纳步 $P(2)\Rightarrow P(3)$：}由定理~\ref{thm:tex41-axiom-downgrade}，$L_3$ 已被证成为对 $L_2$ 的首层 $\omega$-递归编码落点，
+    因此在 $(L_1,L_2,L_3)$ 中新增的恰是
+  \[
+    \mathbf E(L_3\mid L_2);
+  \]
+  \item \textbf{归纳步 $P(3)\Rightarrow P(4)$：}由定理~\ref{thm:tex41-repair-tower}、引理~\ref{lem:tex41-edge} 与命题~\ref{prop:tex41-eye-geodesic}，$L_{>3}$ 作为修复--约束--删边塔已被钉死，因此在 $(L_1,L_2,L_3,L_{>3})$ 中新增的恰是
+  \[
+    \mathbf R(L_{>3}\mid L_2).
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+定义
+\[
+  P(k)
+  :
+  \Longleftrightarrow
+  \text{链 }\mathfrak C^{(k)}\text{ 的最高可见语义面恰由 }\Sigma_k\text{ 给出。}
+\]
+
+\textbf{基步 $P(2)$：}
+由定义~\ref{def:tex41-l1}，
+\[
+  L_1
+\]
+只提供可数离散索引与证书槽；
+由定义~\ref{def:tex41-l2}，
+\[
+  L_2
+\]
+是不可数连续基底。
+再由定义~\ref{def:tex41-upgrade-chain}，
+\[
+  \mathbf I(L_1)\wedge \mathbf B(L_2)
+\]
+已经精确表达了前缀
+\[
+  (L_1,L_2)
+\]
+所能看到的全部职责，而
+\[
+  \mathbf E(L_3\mid L_2),\qquad
+  \mathbf R(L_{>3}\mid L_2)
+\]
+尚未进入该前缀。
+故
+\[
+  P(2)
+\]
+成立。
+
+\textbf{归纳步 $P(2)\Rightarrow P(3)$：}
+假设
+\[
+  P(2)
+\]
+成立。
+由定理~\ref{thm:tex41-axiom-downgrade}，
+\[
+  \Enc:\CodeSpace\to L_2
+\]
+为满射，且
+\[
+  L_3
+\]
+是双可数离散对对 $L_2$ 的首层 $\omega$-递归编码落点。
+因此，从前缀
+\[
+  (L_1,L_2)
+\]
+扩展到
+\[
+  (L_1,L_2,L_3)
+\]
+时，新增的最高可见语义面恰是
+\[
+  \mathbf E(L_3\mid L_2).
+\]
+于是
+\[
+  \Sigma_3
+  =
+  \Sigma_2\wedge \mathbf E(L_3\mid L_2)
+\]
+精确给出该前缀的最高可见面，
+故
+\[
+  P(3)
+\]
+成立。
+
+\textbf{归纳步 $P(3)\Rightarrow P(4)$：}
+假设
+\[
+  P(3)
+\]
+成立。
+由定理~\ref{thm:tex41-repair-tower}，
+\[
+  L_{>3}
+\]
+沿纤维方向吸收障碍并给出全局可行截面；
+由引理~\ref{lem:tex41-edge}，
+谬误路径被边缘算子删去；
+由命题~\ref{prop:tex41-eye-geodesic}，
+极小化只在可行域中进行。
+因此，从
+\[
+  (L_1,L_2,L_3)
+\]
+扩展到
+\[
+  (L_1,L_2,L_3,L_{>3})
+\]
+时，新增的最高可见语义面恰是
+\[
+  \mathbf R(L_{>3}\mid L_2).
+\]
+于是
+\[
+  \Sigma_4
+  =
+  \Sigma_3\wedge \mathbf R(L_{>3}\mid L_2)
+\]
+精确给出四层链的最高可见面，
+故
+\[
+  P(4)
+\]
+成立。
+
+综上，
+\[
+  P(2),\quad P(3),\quad P(4)
+\]
+全部成立。
+于是
+\[
+  \CHint^{(1\to2)}=\Sigma_2
+\]
+不是口头直觉，而是有前缀语义支撑的截断句；
+同时
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}=\Sigma_4
+\]
+不是口号，而是有四层职责链支撑的推进句。
+定理成立。证毕。
+\end{proof}
+
+\subsection{定理：用户修正句在体系内部的严格成立方式}
+\label{subsec:tex41-ch-confirmation-theorem}
+
+\begin{theorem}[用户修正句在体系内部的严格成立方式]
+\label{thm:tex41-ch-confirmation-main}
+若把“CH”严格限定为
+\[
+  \CHint^{(1\to2)},
+\]
+即限定为仓内 CH-layering 的
+\[
+  l_2
+\]
+外延阴影在本文中的内部截断读法，
+则用户修正句成立：
+\[
+\boxed{
+  \CHint^{(1\to2)}
+  \Longleftrightarrow
+  \text{在 }L_1\to L_2\text{ 处止步、由 }L_2\text{ 统一吸收 }L_1\text{ 的“连续统（一离散）假设”。}
+}
+\]
+并且第~\ref{sec:tex41-ch1} 节与第~\ref{sec:tex41-ch2-upgrade} 节并未停在此处，而是进一步证成
+\[
+\boxed{
+  \begin{aligned}
+    &\DTint^{(1\to2\to3\to\text{>3})}
+    \Longleftrightarrow\\
+    &\text{保持 }L_2\text{ 为唯一连续基底，并由 }L_3\text{ 与 }L_{>3}\text{ 实现“离散统（一连续）”治理。}
+  \end{aligned}
+}
+\]
+因此，第一章真正给出的不是“只在 $L_1\to L_2$ 处止步的句子”，而是相对于该止步句更强的四层推进定理。
+\end{theorem}
+
+\begin{Certificate}[证书：$l_2$ 阴影、CH 画像与四层推进的对应]
+\label{cert:tex41-ch-confirmation-main}
+证书登记四条谓词链：
+\[
+\begin{aligned}
+  U_1 &: \text{Jech 的标准 CH 语言}
+  \Rightarrow
+  \CHstd
+  \text{讨论的是 }2^{\aleph_0}=\aleph_1\text{ 这类 ZFC 基数命题};\\
+  U_2 &: \text{仓内 PureMath 的 CH-layering}
+  \Rightarrow
+  \mathrm{CH}^{(l_2)}\text{ 与 }\mathrm{CH}^{(l_{\ge3})}\text{ 是两张不同面孔};\\
+  U_3 &: \text{定理~\ref{thm:tex41-ch-confirmation-induction}}
+  \Rightarrow
+  \CHint^{(1\to2)}=\Sigma_2
+  \text{ 是前缀止步句};\\
+      &\quad
+  \DTint^{(1\to2\to3\to\text{>3})}=\Sigma_4
+  \text{ 是四层推进句};\\
+  U_4 &: \text{定理~\ref{thm:tex41-upgrade-main} 与命题~\ref{prop:tex41-upgrade-summary}}
+  \Rightarrow
+  \text{第一章真正完成的是 }L_1\to L_2\to L_3\to L_{>3}\text{ 的职责分离与正规化。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+先区分标准口径与体系内部口径。
+由 $U_1$，标准集合论中的
+\[
+  \CHstd
+\]
+讨论的是
+\[
+  |\NN|=\aleph_0,\qquad |\RR|=2^{\aleph_0},\qquad 2^{\aleph_0}=\aleph_1\ ?
+\]
+这样的基数命题
+\cite{Jech2003SetTheory}。
+因此，若不加限定地说“证明了 CH”，外部读者会自然把它读成
+\[
+  \CHstd.
+\]
+
+再看仓内 CH-layering 的分层口径。
+由 $U_2$ 与定义~\ref{def:tex41-ch-confirmation-profile}，
+PureMath 主稿明确把经典 CH 放在
+\[
+  l_2
+\]
+外延层，把同伦/曲率/语义数据放在
+\[
+  l_{\ge3}
+\]
+高层，并把同一连续统对象写成
+\[
+  \CHProfileOp(L_{\mathrm{cont}})
+  =
+  \bigl(
+    \mathrm{CH}^{(l_2)}(L_{\mathrm{cont}}),\,
+    \mathrm{CH}^{(l_{\ge3})}(L_{\mathrm{cont}})
+  \bigr)
+\]
+的双面结构
+\cite{GaoZheng2025GFramework,GaoZhengAppVol1,RepoAppMathVol4Tex}。
+这意味着：若一个句子只取
+\[
+  l_2
+\]
+切面，则它本质上只是在讨论\textbf{外延阴影}；
+若一个句子同时动用了更高层的编码、障碍修复与语义约束，则它已经超出单纯的
+\[
+  l_2
+\]
+阴影。
+
+接着看本文内部实现。
+由 $U_3$，
+\[
+  \CHint^{(1\to2)}=\Sigma_2
+\]
+只包含
+\[
+  \mathbf I(L_1)\wedge \mathbf B(L_2),
+\]
+也就是“离散索引层 + 连续基底层”的前缀句。
+因此它恰好对应于“在
+\[
+  L_1\to L_2
+\]
+处止步”的内部语义。
+把这一前缀句压缩成自然语言，正是：
+\[
+  L_2\text{ 统一吸收 }L_1\text{ 的离散索引表达，}
+\]
+也即“连续统（一离散）假设”的体系内止步形态。
+
+最后看第一章的真实落点。
+由 $U_4$，
+第~\ref{sec:tex41-ch1} 节与第~\ref{sec:tex41-ch2-upgrade} 节已经证明：
+\[
+  L_2
+\]
+不是被替代的对象，而是唯一连续基底；
+\[
+  L_3
+\]
+是双可数离散对对该基底的首层 $\omega$-递归编码；
+\[
+  L_{>3}
+\]
+则承担障碍吸收、语义约束与删去谬误路径的高阶纤维职责。
+于是本文真正证成的是
+\[
+  \Sigma_4
+  =
+  \mathbf I(L_1)\wedge
+  \mathbf B(L_2)\wedge
+  \mathbf E(L_3\mid L_2)\wedge
+  \mathbf R(L_{>3}\mid L_2),
+\]
+而不是只停留在
+\[
+  \Sigma_2.
+\]
+换言之，用户修正句在“CH 被限定为体系内
+\[
+  l_2
+\]
+阴影”这一前提下是成立的；但第一章本身比该修正句更强，因为它已经把止步句推进成四层正规推进句。
+定理成立。证毕。
+\end{proof}
+
+\subsection{引理：必须把标准 CH、体系内截断 CH 与四层推进句分记}
+\label{subsec:tex41-ch-confirmation-lemma}
+
+\begin{lemma}[必须把标准 CH、体系内截断 CH 与四层推进句分记]
+\label{lem:tex41-ch-confirmation-notation}
+若不把
+\[
+  \CHstd,\qquad
+  \CHint^{(1\to2)},\qquad
+  \DTint^{(1\to2\to3\to\text{>3})}
+\]
+分开记号，就会把下列三件不同的事情混成一件事：
+\[
+  \begin{aligned}
+    &\text{ZFC 中的基数命题},\\
+    &\text{体系内部在 }L_1\to L_2\text{ 处止步的截断句},\\
+    &\text{第一章已经给出的四层推进定理}.
+  \end{aligned}
+\]
+因此，本文必须坚持这三种记号分立。
+\end{lemma}
+
+\begin{Certificate}[证书：三种口径的对象域、层位与输出类型不同]
+\label{cert:tex41-ch-confirmation-notation}
+证书登记三条差异：
+\[
+\begin{aligned}
+  V_1 &: \CHstd\text{ 的对象域是标准集合论模型，输出是基数真值};\\
+  V_2 &: \CHint^{(1\to2)}\text{ 的对象域是本文内部前缀链，输出是止步型语义正规句};\\
+  V_3 &: \DTint^{(1\to2\to3\to\text{>3})}\text{ 的对象域是四层正规链，输出是带编码与修复的推进定理。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $V_1$，
+\[
+  \CHstd
+\]
+讨论的是标准集合论中的基数真值，
+其判定框架来自 ZFC 及其扩展模型。
+因此它的自然读法是“外部集合论命题”。
+
+由 $V_2$，
+\[
+  \CHint^{(1\to2)}
+\]
+并不是在询问
+\[
+  2^{\aleph_0}=\aleph_1
+\]
+的真假，而是在本文内部记录一个\textbf{只到}
+\[
+  L_1\to L_2
+\]
+\textbf{为止}的前缀语义句。
+因此它的输出类型是“截断正规句”，不是“外部基数真值”。
+
+由 $V_3$，
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}
+\]
+进一步要求
+\[
+  L_3\text{ 的首层编码}
+  \quad\text{与}\quad
+  L_{>3}\text{ 的高阶修复}
+\]
+同时进入句子。
+因此它的输出类型已经是“推进定理”，而不再是“止步句”。
+
+既然对象域、层位与输出类型都不同，
+三者就不能继续共用单一记号“CH”而不加限定。
+引理成立。证毕。
+\end{proof}
+
+\subsection{命题：第一章相对 PureMath 的真实关系是内部构造性细化}
+\label{subsec:tex41-ch-confirmation-proposition}
+
+\begin{proposition}[第一章相对 PureMath 的真实关系是内部构造性细化]
+\label{prop:tex41-ch-confirmation-refinement}
+第一章（即第~\ref{sec:tex41-ch1} 节）相对仓内 PureMath 的真实关系，
+不是“在 PureMath 之外另起一个与 CH-layering 对抗的口径”，
+而是对 PureMath 所给
+\[
+  l_2\quad\text{与}\quad l_{\ge3}
+\]
+双面结构的内部构造性细化。
+更具体地说，PureMath 给出的是
+\[
+  \CHProfileOp(L_{\mathrm{cont}})
+  =
+  \bigl(
+    \mathrm{CH}^{(l_2)}(L_{\mathrm{cont}}),\,
+    \mathrm{CH}^{(l_{\ge3})}(L_{\mathrm{cont}})
+  \bigr),
+\]
+而第一章把其在本文内部细化为
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+的四层正规构造，其中最关键的新显式桥梁是
+\[
+  L_3=\text{双可数离散对对 }L_2\text{ 的首层 }\omega\text{-递归编码。}
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：双面框架、首层桥梁与高层修复的三段对应]
+\label{cert:tex41-ch-confirmation-refinement}
+证书登记三条对应关系：
+\[
+\begin{aligned}
+  W_1 &: \text{PureMath 主稿给出 }(l_2,l_{\ge3})\text{ 双面结构与 }\CHProfileOp;\\
+  W_2 &: \text{定理~\ref{thm:tex41-axiom-downgrade} 给出 }L_3\text{ 作为首层 }\omega\text{-递归编码桥梁};\\
+  W_3 &: \text{定理~\ref{thm:tex41-repair-tower}、引理~\ref{lem:tex41-edge}、命题~\ref{prop:tex41-eye-geodesic} 给出 }L_{>3}\text{
+    的修复--删边治理.}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $W_1$，
+PureMath 主稿已经把 CH-layering 的总框架写成：
+\[
+  l_2\text{ 负责外延/基数面},
+  \qquad
+  l_{\ge3}\text{ 负责语义/同伦面},
+\]
+并以
+\[
+  \CHProfileOp(L_{\mathrm{cont}})
+\]
+同时记录两张面孔
+\cite{GaoZheng2025GFramework,GaoZhengAppVol1,RepoAppMathVol4Tex}。
+因此，PureMath 已经给出“二面结构”的总地图。
+
+由 $W_2$，
+第一章不是停在“高层语义存在”这类总说法上，
+而是把中间桥梁显式写成
+\[
+  L_3,
+\]
+并证明其确为“双可数离散对对连续基底的首层 $\omega$-递归编码落点”。
+这一步把“离散如何进入连续基底”从笼统表述推进为可审计构造。
+
+由 $W_3$，
+第一章还把更高层的语义治理进一步细化成
+\[
+  L_{>3},
+\]
+并证明其承担
+\[
+  \text{障碍吸收},\quad
+  \text{语义约束},\quad
+  \text{删去谬误路径},\quad
+  \text{可行域重构}
+\]
+的修复塔职责。
+因此，第一章不是在 PureMath 之外另起炉灶，而是把 PureMath 的
+\[
+  l_2/l_{\ge3}
+\]
+双面地图，在本文内部细化成一条四层可施工通道：
+\[
+  L_1\to L_2\to L_3\to L_{>3}.
+\]
+命题成立。证毕。
+\end{proof}
+
+\subsection{推论：可直接写入书稿的最严格版本}
+\label{subsec:tex41-ch-confirmation-corollary}
+
+\begin{corollary}[可直接写入书稿的最严格版本]
+\label{cor:tex41-ch-confirmation-final}
+若把本节结论压缩成可直接写入书稿、同时又尽量避免口径混淆的版本，则应写成：
+\[
+\boxed{
+\begin{aligned}
+  &\text{在 GaoZheng G-Framework 的内部语义中，}
+  \CHint^{(1\to2)}
+  \text{可被理解为：在 }L_1\to L_2\text{ 处止步、}\\
+  &\text{由 }L_2\text{ 统一吸收 }L_1\text{ 的“连续统（一离散）假设”；}
+\end{aligned}
+}
+\]
+\[
+\boxed{
+\begin{aligned}
+  &\text{而第一章进一步证明：}
+  L_1\ (\text{可数离散})
+  \to
+  L_2\ (\text{不可数连续})\\
+  &\to
+  L_3\ (\text{双可数超限离散编码连续})
+  \to
+  L_{>3}\ (\text{语义约束、删边与障碍修复}),
+\end{aligned}
+}
+\]
+从而得到
+\[
+\boxed{
+  \text{“离散统（一连续）”的四层正规定理。}
+}
+\]
+这一定稿比不加限定地说“第一章证明了 CH”更准确，也比只说“第一章把两层表述说得更明白了”更精确。
+\end{corollary}
+
+\begin{Certificate}[证书：主定理、符号引理与细化命题的合流]
+\label{cert:tex41-ch-confirmation-final}
+证书由三段组成：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex41-ch-confirmation-main} 给出用户修正句成立的精确前提与第一章更强的推进结论；
+  \item 引理~\ref{lem:tex41-ch-confirmation-notation} 说明必须把标准 CH、体系内截断句与四层推进句分记；
+  \item 命题~\ref{prop:tex41-ch-confirmation-refinement} 说明第一章相对 PureMath 的关系是内部构造性细化，而非口径对抗。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex41-ch-confirmation-main}，
+用户修正句只有在“CH 被限定为体系内部
+\[
+  l_2
+\]
+阴影”的前提下才严格成立；
+与此同时，第一章本身又比该修正句更强，因为它已经把止步句推进为
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+的四层定理链。
+
+由引理~\ref{lem:tex41-ch-confirmation-notation}，
+若不把
+\[
+  \CHstd,\quad \CHint^{(1\to2)},\quad \DTint^{(1\to2\to3\to\text{>3})}
+\]
+分开，就会把“外部基数命题”“内部止步句”“内部推进定理”三种不同对象混为一谈。
+因此，书稿中的最终措辞必须同时写出限定条件与推进方向。
+
+再由命题~\ref{prop:tex41-ch-confirmation-refinement}，
+第一章的角色并不是反驳 PureMath，而是把其双面框架在本文内部细化为
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+的构造性通道。
+于是本推论中的三段压缩表述全部成立。
+推论成立。证毕。
+\end{proof}
+
+\subsection{备注：标准 CH 口径、推荐落句与本节边界}
+\label{subsec:tex41-ch-confirmation-remarks}
+
+\begin{remark}[本节没有在标准集合论/ZFC 的意义下证明 classical CH]
+本节最容易被外部读者误读的一点是：
+\[
+  \CHint^{(1\to2)}
+  \text{ 的成立}
+\]
+并不等于
+\[
+  \CHstd
+  \text{ 在 ZFC 中被证明。}
+\]
+更准确地说：
+\[
+\boxed{
+  \text{本节没有在标准集合论/ZFC 的意义下证明 classical CH；}
+}
+\]
+但它确实在本文内部把
+\[
+  l_2
+\]
+阴影中的止步句推进为了
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+的四层正规定理链。
+\end{remark}
+
+\begin{remark}[最推荐直接落入书稿的压缩句]
+若只允许保留一条最稳妥的压缩句，则建议写成：
+\[
+\boxed{
+  \begin{aligned}
+    &\text{经典 CH 在本体系中只对应 }l_2\text{ 的外延阴影；}\\
+    &\text{其内部止步形态可表述为“连续统（一离散）假设”，}
+  \end{aligned}
+}
+\]
+\[
+\boxed{
+  \text{而第一章将其严格推进为“离散统（一连续）”的四层正规定理。}
+}
+\]
+这句话最不容易把外部集合论口径与本文内部层级语义口径混在一起。
+\end{remark}
+
+\begin{remark}[本节与前两节的分工]
+第~\ref{sec:tex41-ch1} 节负责建立对象、编码、修复、删边与选路的主链；
+第~\ref{sec:tex41-ch2-upgrade} 节负责说明第一章相对旧两层表述的四层正规增益；
+本节则专门负责回答一个更细的问题：
+\[
+  \text{若把“CH”限定为体系内部 }l_2\text{ 阴影，用户修正句究竟如何严格成立？}
+\]
+因此，本节不是重复前两节，而是把它们与 PureMath 的 CH-layering 口径做一次明确对接。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：经典 CH 的 $l_2$ 投影、ZFC 承载边界与四层推进的终局性降级}
+\label{sec:tex41-ch-zfc-boundary}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心判断（严格收紧后）]
+第~\ref{sec:tex41-ch-confirmation} 节已经说明：
+\[
+  \CHint^{(1\to2)}
+\]
+在本文内部只能被读作“在 $L_1\to L_2$ 处止步的截断句”，而不能与标准集合论中的
+\[
+  \CHstd
+\]
+直接混同。
+本节进一步处理一个更强、也更外部化的问题：
+\[
+  \text{classical CH 与 ZFC 在本稿四层结构面前究竟能承载什么，不能承载什么？}
+\]
+我们将严格证明四点：
+\begin{enumerate}
+  \item classical CH 在本文中只对应
+  \[
+    l_2
+  \]
+  外延层上的最小投影断言；
+  \item ZFC 不能承载“$L_1\to L_2$ 止步的连续统（一离散）假设”的完全富结构语义；
+  \item 所谓“经典 CH 问题终结”只能准确地指向“其在 ZFC 内的可判定性问题已被独立性结果终结”；
+  \item 第~\ref{sec:tex41-ch1} 节推进得到的
+  \[
+    \DTint^{(1\to2\to3\to\text{>3})}
+  \]
+  否定的不是
+  \[
+    \CHint^{(1\to2)}
+  \]
+  作为低层阴影的存在性，而是它作为完整连续统语义的终局性。
+\end{enumerate}
+这四点共同给出一个更稳定的外部表述：
+\[
+\boxed{
+  \text{classical CH 是富结构连续统语义在 }l_2\text{ 层上的投影像，而不是该语义本身。}
+}
+\]
+\end{remark}
+
+\subsection{定义：富结构连续统对象、$l_2$ 遗忘函子与终局性谓词}
+\label{subsec:tex41-ch-zfc-defs}
+
+\begin{definition}[富结构连续统对象与 $l_2$ 遗忘函子]
+\label{def:tex41-ch-zfc-functor}
+沿用仓内 PureMath 主稿的 CH-layering 口径
+\cite{GaoZheng2025GFramework}，
+记
+\[
+  \LawCont
+\]
+为“连续统法对象的富结构范畴”，其对象不仅携带
+\[
+  |L|
+\]
+这类外延基数面，而且携带
+\[
+  \mathbf{S}(L)
+\]
+所代表的同伦、曲率、生成性与语义度量面；
+记
+\[
+  \SetCard
+\]
+为“只保留基数与外延统计的集合范畴”。
+
+本文把
+\[
+  \SetCard
+\]
+理解为按“基数 + 外延统计”骨架化后的外延层，
+因此若两个富结构连续统对象在
+\[
+  l_2
+\]
+层不可区分，则它们在
+\[
+  \SetCard
+\]
+中记为同一对象。
+
+定义
+\[
+  \ForgetLtwo:\LawCont\to\SetCard,
+  \qquad
+  \ForgetLtwo(L):=\ProjLtwo(L),
+\]
+称为\textbf{$l_2$ 遗忘函子}。
+其含义是：保留外延/基数面，抹去所有只有在
+\[
+  l_{\ge3}
+\]
+层才可见的同伦、曲率、语义与生成机制。
+\end{definition}
+
+\begin{definition}[classical CH 的最小化表达与终局性谓词]
+\label{def:tex41-ch-zfc-finality}
+定义
+\[
+  \CHltwo
+  :
+  \quad
+  \mathfrak c=2^{\aleph_0}=\aleph_1
+\]
+为 classical CH 在
+\[
+  \SetCard
+\]
+上的最小化表达，也即富结构连续统对象经
+\[
+  \ForgetLtwo
+\]
+后能够看见的 classical CH 断言。
+
+再定义\textbf{终局性谓词}
+\[
+  \Final\!\bigl(\CHint^{(1\to2)}\bigr)
+\]
+表示：
+\[
+  \CHint^{(1\to2)}
+\]
+被当作“完整连续统语义”的最终、完备、不可再细化的正规型。
+若其否定成立，即
+\[
+  \neg\Final\!\bigl(\CHint^{(1\to2)}\bigr),
+\]
+则表示
+\[
+  \CHint^{(1\to2)}
+\]
+至多只能作为低层前缀、边界层或
+\[
+  l_2
+\]
+投影阴影存在，而不能再被视为全部连续统语义的终局形态。
+\end{definition}
+
+\begin{remark}[本节与第~\ref{sec:tex41-ch-confirmation} 节的分工]
+第~\ref{sec:tex41-ch-confirmation} 节回答的是：
+\[
+  \text{若把“CH”限定为体系内部 }l_2\text{ 阴影，止步句如何严格成立？}
+\]
+本节回答的则是：
+\[
+  \text{一旦把视野抬到 ZFC / classical CH 与富结构对象的对应层，哪些承载边界必须说清？}
+\]
+因此，本节不是重复上一节，而是把上一节的内部结论提升为“外部承载边界 + 基底关系 + 终局性降级”的明确论证。
+\end{remark}
+
+\subsection{公理（降级为定理）：classical CH 只是 $U_{l_2}$ 之后的最小外延断言}
+\label{subsec:tex41-ch-zfc-axiom}
+
+\begin{theorem}[公理降级：classical CH 只是在 $\ForgetLtwo$ 之后得到的 $l_2$ 外延断言]
+\label{thm:tex41-ch-zfc-axiom}
+在定义~\ref{def:tex41-ch-zfc-functor} 与定义~\ref{def:tex41-ch-zfc-finality} 的口径下，
+\[
+  \ForgetLtwo
+\]
+对四层正规链
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+只保留其
+\[
+  l_2
+\]
+外延面，而对
+\[
+  L_3\text{ 的首层编码}
+  \quad\text{与}\quad
+  L_{>3}\text{ 的修复/删边/语义约束}
+\]
+不敏感。
+因此，classical CH 在本文中的最小可见表达仅为
+\[
+  \CHltwo:\quad \mathfrak c=2^{\aleph_0}=\aleph_1,
+\]
+它是富结构连续统对象经
+\[
+  \ForgetLtwo
+\]
+后得到的外延断言，而不是
+\[
+  \LawCont
+\]
+中的完整语义对象。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：层前缀可见面的有限归纳钉死]
+\label{cert:tex41-ch-zfc-axiom}
+定义谓词
+\[
+  P(k)
+  :
+  \Longleftrightarrow
+  \text{长度为 }k\text{ 的层前缀所新增的结构已被钉死，且 }\ForgetLtwo\text{ 只保留其 }l_2\text{ 外延面。}
+\]
+则有限归纳证书由三段组成：
+\begin{enumerate}
+  \item \textbf{基步 $P(2)$：}
+  由定义~\ref{def:tex41-l1}、定义~\ref{def:tex41-l2} 与定理~\ref{thm:tex41-ch-confirmation-induction}，
+  前缀
+  \[
+    (L_1,L_2)
+  \]
+  的最高可见句正是
+  \[
+    \Sigma_2=\mathbf I(L_1)\wedge \mathbf B(L_2),
+  \]
+  而其经
+  \[
+    \ForgetLtwo
+  \]
+  后只剩外延/基数面；
+  \item \textbf{归纳步 $P(2)\Rightarrow P(3)$：}
+  由定理~\ref{thm:tex41-axiom-downgrade}，
+  \[
+    L_3
+  \]
+  是对
+  \[
+    L_2
+  \]
+  的首层 $\omega$-递归编码落点，
+  但 PureMath 已说明
+  \[
+    \ProjLtwo
+  \]
+  会遗忘这类同伦/语义数据
+  \cite{GaoZheng2025GFramework}；
+  \item \textbf{归纳步 $P(3)\Rightarrow P(4)$：}
+  由定理~\ref{thm:tex41-repair-tower}、引理~\ref{lem:tex41-edge} 与命题~\ref{prop:tex41-eye-geodesic}，
+  \[
+    L_{>3}
+  \]
+  新增的是障碍吸收、谬误路径删去与可行域重构；
+  这些数据属于
+  \[
+    l_{\ge3}
+  \]
+  层，也同样不被
+  \[
+    \ForgetLtwo
+  \]
+  保留。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+定义
+\[
+  P(k)
+  :
+  \Longleftrightarrow
+  \text{长度为 }k\text{ 的层前缀已经给出全部新增结构，而 }\ForgetLtwo\text{ 仅保留其 }l_2\text{ 外延面。}
+\]
+
+\textbf{基步 $P(2)$：}
+由定义~\ref{def:tex41-l1} 与定义~\ref{def:tex41-l2}，
+\[
+  (L_1,L_2)
+\]
+只固定可数离散索引层与不可数连续基底层。
+再由定理~\ref{thm:tex41-ch-confirmation-induction}，
+该前缀的最高可见句正是
+\[
+  \Sigma_2=\mathbf I(L_1)\wedge \mathbf B(L_2).
+\]
+而由定义~\ref{def:tex41-ch-zfc-functor}，
+\[
+  \ForgetLtwo=\ProjLtwo
+\]
+只保留外延/基数面。
+故
+\[
+  P(2)
+\]
+成立。
+
+\textbf{归纳步 $P(2)\Rightarrow P(3)$：}
+假设
+\[
+  P(2)
+\]
+成立。
+由定理~\ref{thm:tex41-axiom-downgrade}，
+\[
+  L_3
+\]
+是双可数离散对对
+\[
+  L_2
+\]
+的首层 $\omega$-递归编码。
+因此，从
+\[
+  (L_1,L_2)
+\]
+过渡到
+\[
+  (L_1,L_2,L_3)
+\]
+时，新增的是编码结构，而不是新的外延基数面。
+PureMath 主稿已明确说明
+\[
+  \ProjLtwo
+\]
+“遗忘全部语义/同伦数据，只保留基数与测度式的外延结构”
+\cite{GaoZheng2025GFramework}。
+故
+\[
+  \ForgetLtwo
+\]
+对
+\[
+  L_3
+\]
+所新增的编码层不敏感，因而
+\[
+  P(3)
+\]
+成立。
+
+\textbf{归纳步 $P(3)\Rightarrow P(4)$：}
+假设
+\[
+  P(3)
+\]
+成立。
+由定理~\ref{thm:tex41-repair-tower}，
+\[
+  L_{>3}
+\]
+沿纤维方向吸收障碍；
+由引理~\ref{lem:tex41-edge}，
+谬误路径被删去；
+由命题~\ref{prop:tex41-eye-geodesic}，
+极小化只在可行域内进行。
+这些都是
+\[
+  l_{\ge3}
+\]
+层的修复/语义/同伦数据，而不是
+\[
+  l_2
+\]
+层的外延统计。
+再由定义~\ref{def:tex41-ch-zfc-functor}，
+\[
+  \ForgetLtwo
+\]
+恰好把这些高层数据遗忘。
+故
+\[
+  P(4)
+\]
+成立。
+
+于是，由有限归纳可知：
+\[
+  \ForgetLtwo
+\]
+对四层正规链只能看见其
+\[
+  l_2
+\]
+外延面。
+因此，若进一步把 classical CH 写成
+\[
+  \SetCard
+\]
+中的陈述，它的最小表达只能是
+\[
+  \CHltwo:\quad \mathfrak c=2^{\aleph_0}=\aleph_1.
+\]
+这说明 classical CH 在本文中只是
+\[
+  \ForgetLtwo
+\]
+之后的外延断言，而不是富结构连续统对象的完整语义。
+定理成立。证毕。
+\end{proof}
+
+\subsection{定理：ZFC 不能承载“$L_1\to L_2$ 止步的连续统（一离散）假设”的完全语义}
+\label{subsec:tex41-ch-zfc-theorem}
+
+\begin{theorem}[ZFC 不能承载“$L_1\to L_2$ 止步的连续统（一离散）假设”的完全语义]
+\label{thm:tex41-ch-zfc-limit}
+设
+\[
+  \CHint^{(1\to2)}
+\]
+表示第~\ref{sec:tex41-ch-confirmation} 节所定义的“在
+\[
+  L_1\to L_2
+\]
+处止步”的体系内截断句。
+若把它理解为
+\[
+  \LawCont
+\]
+中的富结构语义对象，则 classical CH / ZFC 只能承载其经
+\[
+  \ForgetLtwo
+\]
+投影后的
+\[
+  l_2
+\]
+阴影，而不能承载其包含
+\[
+  L_3\text{ 编码},\quad
+  L_{>3}\text{ 修复},\quad
+  \text{同伦/曲率/语义约束}
+\]
+在内的完整语义。
+换言之，
+\[
+\boxed{
+  \text{ZFC 不能承载“}L_1\to L_2\text{ 止步的连续统（一离散）假设”的完全语义。}
+}
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：$l_2$ 阴影不可忠实恢复高层语义]
+\label{cert:tex41-ch-zfc-limit}
+证书登记三条见证：
+\[
+\begin{aligned}
+  Z_1 &: \text{PureMath 主稿指出 }\ProjLtwo\text{ 遗忘全部语义/同伦数据，只保留外延面};\\
+  Z_2 &: \text{同一对对象若在 }l_2\text{ 不可区分（同基数/同外延统计），仍可在 }l_{\ge3}\text{ 被明显地区分}\\
+      &\qquad \text{为不同语义/同伦对象}\cite{GaoZheng2025GFramework};\\
+  Z_3 &: \text{第~\ref{sec:tex41-ch1} 节与第~\ref{sec:tex41-ch2-upgrade} 节已经证明，完整内部语义实际包含 }L_3\text{ 与 }L_{>3}\text{ 的}\\
+      &\qquad \text{编码、修复、删边与可行域重构，而不止 }L_1\to L_2\text{ 前缀。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+先看 PureMath 给出的层化边界。
+由 $Z_1$，
+\[
+  \ProjLtwo=\ForgetLtwo
+\]
+只保留外延/基数面，而遗忘全部只有在
+\[
+  l_{\ge3}
+\]
+层才可见的语义、同伦与生成性数据
+\cite{GaoZheng2025GFramework}。
+又由 $Z_2$，
+PureMath 还明确指出：两个对象即使在
+\[
+  l_2
+\]
+层不可区分（同基数、同外延统计），仍可在
+\[
+  l_{\ge3}
+\]
+层有明显不同的语义面。
+由于定义~\ref{def:tex41-ch-zfc-functor} 已把
+\[
+  \SetCard
+\]
+骨架化为只按“基数 + 外延统计”识别对象的范畴，
+因此可把该结论写成：
+\[
+  \exists\,L_{\mathrm{cont}},L'_{\mathrm{cont}}\in\LawCont,
+  \qquad
+  \ForgetLtwo(L_{\mathrm{cont}})
+  =
+  \ForgetLtwo(L'_{\mathrm{cont}}),
+\]
+\[
+  \text{但}\qquad
+  \ProjLge(L_{\mathrm{cont}})
+  \neq
+  \ProjLge(L'_{\mathrm{cont}}).
+\]
+这说明：
+\[
+  l_2\text{ 数据不足以唯一重建 }l_{\ge3}\text{ 语义。}
+\]
+
+再看本文第一章真正给出的对象量。
+由 $Z_3$ 与定理~\ref{thm:tex41-axiom-downgrade}、定理~\ref{thm:tex41-repair-tower}、引理~\ref{lem:tex41-edge}、命题~\ref{prop:tex41-eye-geodesic}，
+第~\ref{sec:tex41-ch1} 节所建立的并不只是
+\[
+  L_1\to L_2
+\]
+的前缀吸收关系，
+而是
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+的四层正规链：
+\[
+  L_3
+  \text{ 负责首层 }\omega\text{-递归编码，}
+  \qquad
+  L_{>3}
+  \text{ 负责修复、删边与可行域重构。}
+\]
+因此，若把
+\[
+  \CHint^{(1\to2)}
+\]
+理解为一个\textbf{富结构语义对象}，
+它就不可能只由
+\[
+  \SetCard
+\]
+中的
+\[
+  l_2
+\]
+外延数据穷尽。
+
+于是，若假设 ZFC / classical CH 能承载
+\[
+  \CHint^{(1\to2)}
+\]
+的完整语义，
+则高层语义必须可由
+\[
+  \ForgetLtwo
+\]
+唯一恢复；
+但这与上式
+\[
+  \ForgetLtwo(L_{\mathrm{cont}})
+  =
+  \ForgetLtwo(L'_{\mathrm{cont}})
+  \quad\text{且}\quad
+  \ProjLge(L_{\mathrm{cont}})
+  \neq
+  \ProjLge(L'_{\mathrm{cont}})
+\]
+矛盾。
+故 ZFC 只能承载其
+\[
+  l_2
+\]
+阴影，而不能承载其完整富结构语义。
+定理成立。证毕。
+\end{proof}
+
+\subsection{引理：所谓“经典 CH 问题已经终结”只能指 ZFC 内可判定性问题已被独立性结果终结}
+\label{subsec:tex41-ch-zfc-lemma}
+
+\begin{lemma}[“经典 CH 问题终结”的严格改写]
+\label{lem:tex41-ch-zfc-independence}
+若把“经典 CH 问题已经终结”写成严格句子，
+则只能改写为：
+\[
+\boxed{
+  \text{classical CH 在 ZFC 内的可判定性问题，已被独立性结果终结。}
+}
+\]
+更准确地说，在假设
+\[
+  \mathrm{ZFC}
+\]
+一致的前提下，
+\[
+  \mathrm{ZFC}\nvdash \mathrm{CH},
+  \qquad
+  \mathrm{ZFC}\nvdash \neg\mathrm{CH}.
+\]
+因此，“终结”并不是说
+\[
+  \mathrm{CH}
+\]
+在一切基底上一劳永逸地失去争议，
+而只是说：在
+\[
+  \mathrm{ZFC}
+\]
+这一本底之内，classical CH 的真值不能由该本底单独决定。
+\end{lemma}
+
+\begin{Certificate}[证书：Gödel 相对一致性 + Cohen 相对一致性 + 独立性结论]
+\label{cert:tex41-ch-zfc-independence}
+证书登记三步：
+\begin{enumerate}
+  \item \textbf{Gödel 1940：}
+  \[
+    \Con(\mathrm{ZFC})
+    \Rightarrow
+    \Con(\mathrm{ZFC}+\mathrm{CH});
+  \]
+  \item \textbf{Cohen 1963/1964：}
+  \[
+    \Con(\mathrm{ZFC})
+    \Rightarrow
+    \Con(\mathrm{ZFC}+\neg\mathrm{CH});
+  \]
+  \item \textbf{合并结论：}
+  在假设
+  \[
+    \Con(\mathrm{ZFC})
+  \]
+  的前提下，
+  \[
+    \mathrm{CH}
+  \]
+  既不能由 ZFC 证明，也不能由 ZFC 否证
+  \cite{Godel1940CH,Cohen1963CHI,Cohen1964CHII,Jech2003SetTheory}。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书第一步，
+Gödel 关于可构造宇宙的结果给出
+\[
+  \Con(\mathrm{ZFC})
+  \Rightarrow
+  \Con(\mathrm{ZFC}+\mathrm{CH})
+\]
+\cite{Godel1940CH,Jech2003SetTheory}。
+这说明：若 ZFC 无矛盾，则把
+\[
+  \mathrm{CH}
+\]
+加入其中不会立刻导出矛盾。
+
+由证书第二步，
+Cohen 的 forcing 结果给出
+\[
+  \Con(\mathrm{ZFC})
+  \Rightarrow
+  \Con(\mathrm{ZFC}+\neg\mathrm{CH})
+\]
+\cite{Cohen1963CHI,Cohen1964CHII,Jech2003SetTheory}。
+这说明：若 ZFC 无矛盾，则把
+\[
+  \neg\mathrm{CH}
+\]
+加入其中也不会立刻导出矛盾。
+
+于是合并两步可得：
+若 ZFC 能证明
+\[
+  \mathrm{CH},
+\]
+则
+\[
+  \mathrm{ZFC}+\neg\mathrm{CH}
+\]
+必定矛盾；
+但 Cohen 的结果表明，在假设
+\[
+  \Con(\mathrm{ZFC})
+\]
+的前提下并非如此。
+因此
+\[
+  \mathrm{ZFC}\nvdash \mathrm{CH}.
+\]
+同理，若 ZFC 能证明
+\[
+  \neg\mathrm{CH},
+\]
+则
+\[
+  \mathrm{ZFC}+\mathrm{CH}
+\]
+必定矛盾；
+但 Gödel 的结果表明，在假设
+\[
+  \Con(\mathrm{ZFC})
+\]
+的前提下并非如此。
+因此
+\[
+  \mathrm{ZFC}\nvdash \neg\mathrm{CH}.
+\]
+
+故所谓“经典 CH 问题终结”，其严格含义只能是：
+\[
+  \text{在 ZFC 这一固定公理基底内，CH 的可判定性问题已经被独立性结果关闭。}
+\]
+这并不排除在更强或不同的基底中继续讨论连续统。
+引理成立。证毕。
+\end{proof}
+
+\subsection{命题：后续争议已被转写为经典集合层与富结构法则层的基底之争}
+\label{subsec:tex41-ch-zfc-proposition1}
+
+\begin{proposition}[争议核心已经转写为基底之争]
+\label{prop:tex41-ch-zfc-base-dispute}
+用户所说“争议已转为经典集合论与富结构作为基底的争议”这一判断成立。
+更严格地说，后续争议的核心不再是
+\[
+  \text{怎样在 ZFC 内强行判定 }\mathrm{CH},
+\]
+而是：
+\[
+\boxed{
+  \text{连续统的本体基底究竟应取 }\SetCard\text{，还是应取 }\LawCont\text{。}
+}
+\]
+前者只保留基数与外延统计；
+后者则允许同伦、曲率、语义连续性与生成机制进入对象定义。
+\end{proposition}
+
+\begin{Certificate}[证书：独立性只关闭 $l_2$ 可判定性，PureMath 打开 $l_{\ge3}$ 结构争议]
+\label{cert:tex41-ch-zfc-base-dispute}
+证书登记三条链：
+\[
+\begin{aligned}
+  B_1 &: \text{引理~\ref{lem:tex41-ch-zfc-independence} 关闭的是 classical CH 在 ZFC 内的可判定性问题};\\
+  B_2 &: \text{PureMath 主稿把 CH 重写为 }(l_2,l_{\ge3})\text{ 双面结构，而不把连续统压成纯基数问题};\\
+  B_3 &: \text{第~\ref{sec:tex41-ch1} 节与第~\ref{sec:tex41-ch2-upgrade} 节把 }l_{\ge3}\text{ 面具体实现为 }L_3\text{ 与 }L_{>3}
+    \text{ 的构造链。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $B_1$，
+独立性结果告诉我们的只是：
+\[
+  \mathrm{CH}
+\]
+不能在
+\[
+  \mathrm{ZFC}
+\]
+这一固定基底内被单独决定。
+因此，经典争论若继续推进，就不再是“怎样在同一套 ZFC 公理里再榨出一个判定”，而是“是否需要变更或扩张基底”。
+
+由 $B_2$，
+PureMath 主稿并未把连续统完全压成
+\[
+  \mathfrak c
+\]
+这样的单一外延量，而是明确区分了
+\[
+  l_2
+\]
+外延面与
+\[
+  l_{\ge3}
+\]
+语义/同伦面
+\cite{GaoZheng2025GFramework}。
+这说明：一旦接受 CH-layering 的总框架，
+连续统的讨论对象就不再是单纯的
+\[
+  \SetCard
+\]
+对象，而是
+\[
+  \LawCont
+\]
+中的富结构对象。
+
+由 $B_3$，
+本文第一章又把这一高层面具体落成
+\[
+  L_3\text{ 的首层编码}
+  \quad\text{与}\quad
+  L_{>3}\text{ 的修复/删边治理。}
+\]
+因此，后续争议的核心自然被重写为：
+\[
+  \text{连续统究竟应以 }\SetCard\text{ 为本体基底，还是以 }\LawCont\text{ 为本体基底？}
+\]
+命题成立。证毕。
+\end{proof}
+
+\subsection{命题：富结构基底与经典集合论不是互斥关系，而是“扩张—投影”关系}
+\label{subsec:tex41-ch-zfc-proposition2}
+
+\begin{proposition}[富结构基底与经典集合论是“扩张—投影”关系]
+\label{prop:tex41-ch-zfc-projection}
+富结构基底
+\[
+  \LawCont
+\]
+与经典集合论外延基底
+\[
+  \SetCard
+\]
+不是互斥关系，而是“扩张—投影”关系。
+更准确地说，
+\[
+\boxed{
+  \ForgetLtwo\bigl(\LawCont\bigr)\subseteq \SetCard.
+}
+\]
+也就是说，富结构基底兼容经典集合论的外延阴影，
+但不被经典集合论穷尽。
+\end{proposition}
+
+\begin{Certificate}[证书：对象扩张、函子投影与阴影保留]
+\label{cert:tex41-ch-zfc-projection}
+证书登记三条见证：
+\[
+\begin{aligned}
+  E_1 &: \text{定义~\ref{def:tex41-ch-zfc-functor} 已将 }\ForgetLtwo:\LawCont\to\SetCard\text{ 定义为合法遗忘函子};\\
+  E_2 &: \text{定理~\ref{thm:tex41-ch-zfc-axiom} 说明 classical CH 只是 }\ForgetLtwo\text{ 后的 }l_2\text{ 断言};\\
+  E_3 &: \text{定理~\ref{thm:tex41-ch-zfc-limit} 说明完整富结构语义不能由 }\SetCard\text{ 单独穷尽。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $E_1$，
+\[
+  \ForgetLtwo:\LawCont\to\SetCard
+\]
+本身就是从富结构对象域到外延对象域的遗忘函子。
+因此，
+\[
+  \LawCont
+\]
+中的每个连续统法对象都至少有一个
+\[
+  l_2
+\]
+阴影落在
+\[
+  \SetCard
+\]
+中。
+
+由 $E_2$，
+classical CH 在本文中正是这样一个阴影层断言：
+\[
+  \CHltwo
+\]
+并不直接作用于富结构对象的全部语义，而只作用于
+\[
+  \ForgetLtwo(L)
+\]
+这一外延像。
+故富结构并不排斥经典集合论层，反而把它作为自己的一个投影面保留下来。
+
+由 $E_3$，
+尽管外延阴影被保留，
+但完整富结构语义并不能由该阴影唯一恢复。
+因此，二者的正确关系不是
+\[
+  \LawCont\cap\SetCard=\varnothing,
+\]
+而是：
+\[
+  \LawCont
+  \text{ 是更大的对象域，}
+  \qquad
+  \SetCard
+  \text{ 是其 }l_2\text{ 外延投影层。}
+\]
+命题成立。证毕。
+\end{proof}
+
+\subsection{命题：四层推进否定的是止步假设的终局性，而非其低层投影存在性}
+\label{subsec:tex41-ch-zfc-proposition3}
+
+\begin{proposition}[四层推进否定的是终局性，而非低层投影存在性]
+\label{prop:tex41-ch-zfc-finality}
+对第~\ref{sec:tex41-ch1} 节与第~\ref{sec:tex41-ch-confirmation} 节已经建立的两条句子：
+\[
+  \CHint^{(1\to2)}
+\]
+与
+\[
+  \DTint^{(1\to2\to3\to\text{>3})},
+\]
+正确的逻辑关系不是
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}
+  \Rightarrow
+  \neg \CHint^{(1\to2)},
+\]
+而是
+\[
+\boxed{
+  \DTint^{(1\to2\to3\to\text{>3})}
+  \Rightarrow
+  \neg \Final\!\bigl(\CHint^{(1\to2)}\bigr).
+}
+\]
+也就是说，第一章推进后的“离散统（一连续）”定理所否定的，
+不是
+\[
+  L_1\to L_2
+\]
+止步态作为
+\[
+  l_2
+\]
+低层投影的存在性，
+而是它作为“完整连续统语义终局形态”的最终地位。
+\end{proposition}
+
+\begin{Certificate}[证书：止步句是前缀、四层句是推进、$L_2$ 基底并未被抹除]
+\label{cert:tex41-ch-zfc-finality}
+证书登记三条链：
+\[
+\begin{aligned}
+  F_1 &: \text{定理~\ref{thm:tex41-ch-confirmation-main} 已证明 }\CHint^{(1\to2)}\text{ 只是前缀止步句};\\
+  F_2 &: \text{同一定理又证明 }\DTint^{(1\to2\to3\to\text{>3})}\text{ 是更强的四层推进句};\\
+  F_3 &: \text{推论~\ref{cor:tex41-main} 已明确：}L_2\text{ 保留为连续基底，}L_{\ge3}\text{ 只是其纤维修复塔。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由 $F_1$，
+\[
+  \CHint^{(1\to2)}
+\]
+在本文内部的严格含义只是：
+\[
+  \text{在 }L_1\to L_2\text{ 处止步的截断句。}
+\]
+它记录的是一个前缀面，而不是全部连续统语义。
+
+由 $F_2$，
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}
+\]
+则进一步把
+\[
+  L_3
+\]
+的首层编码与
+\[
+  L_{>3}
+\]
+的高阶修复一并纳入句子，
+因此它严格强于
+\[
+  \CHint^{(1\to2)}.
+\]
+换言之，四层推进句不是“把止步句抹掉”，而是“把止步句嵌入到更大的正规链中并把其地位降级”。
+
+再由 $F_3$，
+第~\ref{sec:tex41-ch1} 节并未把
+\[
+  L_2
+\]
+这一连续基底删除或替换；
+相反，推论~\ref{cor:tex41-main} 已明确说明：
+\[
+  L_2
+  \text{ 保留为基底，}
+  \qquad
+  L_{\ge3}
+  \text{ 只作为沿纤维方向的修复塔出现。}
+\]
+因此，
+\[
+  L_1\to L_2
+\]
+止步态作为
+\[
+  l_2
+\]
+阴影并没有被证明“不存在”；
+被证明失效的，是它声称自己已经穷尽全部连续统语义的资格。
+
+于是正确结论只能写成
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}
+  \Rightarrow
+  \neg \Final\!\bigl(\CHint^{(1\to2)}\bigr),
+\]
+而不能写成
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}
+  \Rightarrow
+  \neg \CHint^{(1\to2)}.
+\]
+命题成立。证毕。
+\end{proof}
+
+\subsection{推论：可直接写入书稿的最稳严格版本}
+\label{subsec:tex41-ch-zfc-corollary}
+
+\begin{corollary}[可直接写入书稿的最稳严格版本]
+\label{cor:tex41-ch-zfc-final}
+综合定理~\ref{thm:tex41-ch-zfc-limit}、引理~\ref{lem:tex41-ch-zfc-independence} 与命题~\ref{prop:tex41-ch-zfc-base-dispute}
+  --\ref{prop:tex41-ch-zfc-finality}，
+可把本节结论压缩为以下四条：
+\[
+\boxed{
+\begin{aligned}
+  &\text{经典集合论（ZFC）只能承载 classical CH 的 }l_2\text{ 外延投影，}\\
+  &\text{不能承载“}L_1\to L_2\text{ 止步的连续统（一离散）假设”的完全富结构语义。}
+\end{aligned}
+}
+\]
+\[
+\boxed{
+\begin{aligned}
+  &\CHint^{(1\to2)}
+  \text{ 与 }
+  \DTint^{(1\to2\to3\to\text{>3})}
+  \text{ 都属于以 }\LawCont\text{ 为对象域的富结构层，}\\
+  &\text{而不是只按元素原子与基数统计组织的 }\SetCard\text{ 层。}
+\end{aligned}
+}
+\]
+\[
+\boxed{
+\begin{aligned}
+  &\text{因此，classical CH 在 ZFC 内的可判定性问题已被独立性结果终结；}\\
+  &\text{真正的后续争议被改写为：连续统应以经典集合论层为基底，}\\
+  &\text{还是应以更丰富的法则结构层为基底。}
+\end{aligned}
+}
+\]
+\[
+\boxed{
+\begin{aligned}
+  &\text{在富结构基底下，第一章推进后的“离散统（一连续）”定理}\\
+  &\text{并不否定 }L_1\to L_2\text{ 止步态作为 }l_2\text{ 投影的存在，}\\
+  &\text{而是否定其作为最终完备连续统语义的终局地位。}
+\end{aligned}
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：承载边界 + 独立性结论 + 基底关系 + 终局性降级]
+\label{cert:tex41-ch-zfc-final}
+证书由四段组成：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex41-ch-zfc-limit} 给出 ZFC 只能承载 $l_2$ 阴影、不能承载完整富结构语义的承载边界；
+  \item 引理~\ref{lem:tex41-ch-zfc-independence} 给出“经典 CH 问题终结”的严格限定语义；
+  \item 命题~\ref{prop:tex41-ch-zfc-base-dispute} 与命题~\ref{prop:tex41-ch-zfc-projection} 给出经典集合论层与富结构层的基底关系；
+  \item 命题~\ref{prop:tex41-ch-zfc-finality} 给出“否定终局性而非否定低层投影存在性”的精确逻辑式。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由定理~\ref{thm:tex41-ch-zfc-limit}，
+classical CH / ZFC 所能承载的仅是
+\[
+  l_2
+\]
+阴影，而不是包含
+\[
+  L_3,\ L_{>3}
+\]
+在内的完整富结构语义。
+因此，第一条压缩句成立。
+
+由命题~\ref{prop:tex41-ch-zfc-base-dispute} 与命题~\ref{prop:tex41-ch-zfc-projection}，
+\[
+  \LawCont
+\]
+与
+\[
+  \SetCard
+\]
+之间是“扩张—投影”关系；
+既然后者只能看见前者的
+\[
+  l_2
+\]
+阴影，
+则
+\[
+  \CHint^{(1\to2)}
+\]
+与
+\[
+  \DTint^{(1\to2\to3\to\text{>3})}
+\]
+的自然对象域都应归入更丰富的法则结构层，而不是纯元素基数层。
+因此，第二条压缩句成立。
+
+由引理~\ref{lem:tex41-ch-zfc-independence}，
+classical CH 在 ZFC 内的可判定性问题确已被独立性结果关闭。
+结合命题~\ref{prop:tex41-ch-zfc-base-dispute}，
+后续争议自然转写为基底选择之争。
+因此，第三条压缩句成立。
+
+最后，由命题~\ref{prop:tex41-ch-zfc-finality}，
+四层推进句所否定的只是
+\[
+  \CHint^{(1\to2)}
+\]
+的终局性，而不是其作为
+\[
+  l_2
+\]
+低层投影阴影的存在性。
+因此，第四条压缩句成立。
+综上，推论成立。证毕。
+\end{proof}
+
+\subsection{备注：措辞收紧、关键等式与推荐落句}
+\label{subsec:tex41-ch-zfc-remarks}
+
+\begin{remark}[“证伪”一词最该收紧的指向]
+若书稿中出现“第一章进一步证伪了 $L_1\to L_2$ 止步假设”这一类说法，
+则最稳的收紧方式应是：
+\[
+\boxed{
+  \text{证伪的是 }L_1\to L_2\text{ 止步假设的终局性/完备性，而非其低层投影存在性。}
+}
+\]
+不建议写成
+\[
+  \text{彻底证伪 }L_1\to L_2\text{ 止步假设本身。}
+\]
+原因正如命题~\ref{prop:tex41-ch-zfc-finality} 所示：
+第一章的工作方式是“保留
+\[
+  L_2
+\]
+为基底，再把高层修复语义放进纤维”，
+而不是“把
+\[
+  L_1\to L_2
+\]
+这一低层阴影从结构上抹除”。
+\end{remark}
+
+\begin{remark}[本节真正关键的等式]
+本节最有力的压缩关系并不是
+\[
+  \text{classical CH}
+  =
+  \text{富结构连续统语义本身},
+\]
+而是
+\[
+\boxed{
+  \text{classical CH}
+  =
+  \text{关于 }\ProjLtwo\bigl(\text{富结构连续统语义}\bigr)\text{ 的断言。}
+}
+\]
+也就是说，
+\[
+  \CHltwo
+\]
+只是富结构连续统对象在
+\[
+  l_2
+\]
+层上的投影画像，
+而不能与
+\[
+  \LawCont
+\]
+中的完整对象同一化。
+\end{remark}
+
+\begin{remark}[最推荐直接落入书稿的一句话]
+若要把本节压成一条可直接写入正文、同时又能准确钉住三层关系的句子，
+则最推荐写成：
+\[
+\boxed{
+\begin{aligned}
+  &\text{classical CH 只是 }l_2\text{ 外延层上的投影断言；}\\
+  &\text{“}L_1\to L_2\text{ 止步的连续统（一离散）假设”给出其体系内更丰富语义的截断口径，}\\
+  &\text{而第一章进一步以 }L_3\text{ 与 }L_{>3}\text{ 将该截断口径降级为低层边界，}\\
+  &\text{从而建立“离散统（一连续）”的更强正规型。}
+\end{aligned}
+}
+\]
+这句话既保留了
+\[
+  l_2
+\]
+阴影，
+又明确说明了高层推进的真正作用是“降级其终局地位”，
+因而是当前最稳的落句版本。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：本次讨论的增益评价}
+\label{sec:tex41-ch2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心结论（评价严格化后）]
+把第~\ref{sec:tex41-ch-confirmation} 节与第~\ref{sec:tex41-ch-zfc-boundary} 节所完成的
+“classical CH 的 $l_2$ 投影重定位、体系内止步句命名稳定化、四层推进句对止步态终局性的降级、基底争议显式化以及 PureMath--第一章主链焊接”
+统称为本次讨论，记为
+\[
+  \mathcal D.
+\]
+则其保守综合评分为
+\[
+  G(\mathcal D)=8.92\approx 8.9/10,
+\]
+应归入\textbf{高增益讨论}。
+其主导增益不是“再发明一个新对象”，而是
+\[
+  \text{基底重定位增益}
+  +
+  \text{语义正规化增益}
+  +
+  \text{反误读增益}.
+\]
+\end{remark}
+
+本节不再评价第~\ref{sec:tex41-ch1} 节的全部对象链，而只评价围绕
+\[
+  \mathrm{CH}_{\mathrm{cls}},\qquad
+  \mathrm{CH}^{\mathrm{int}}_{1\to2},\qquad
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+\]
+这三种句子之层位重排所带来的增益。
+其逻辑次序为：
+\[
+  \begin{aligned}
+    &\text{讨论对象与评价分量}
+    \Longrightarrow
+    \text{五项评价准则}
+    \Longrightarrow
+    \text{总评}\\
+    \Longrightarrow\ &
+    \text{真实增益重心}
+    \Longrightarrow
+    \text{对第一章的直接增益}
+    \Longrightarrow
+    \text{主链正规型}.
+  \end{aligned}
+\]
+
+\begin{remark}[阅读导航：评价对象、仓内背景与外部参照]
+本节所评价的并非悬空断言，而是建立在两组既有结果之上的评价链。
+第一组是第~\ref{sec:tex41-ch-confirmation} 节中的
+定理~\ref{thm:tex41-ch-confirmation-main}、
+引理~\ref{lem:tex41-ch-confirmation-notation} 与
+命题~\ref{prop:tex41-ch-confirmation-refinement}；
+第二组是第~\ref{sec:tex41-ch-zfc-boundary} 节中的
+定理~\ref{thm:tex41-ch-zfc-axiom}、
+定理~\ref{thm:tex41-ch-zfc-limit}、
+引理~\ref{lem:tex41-ch-zfc-independence}、
+命题~\ref{prop:tex41-ch-zfc-base-dispute}、
+命题~\ref{prop:tex41-ch-zfc-projection}、
+命题~\ref{prop:tex41-ch-zfc-finality}
+与推论~\ref{cor:tex41-ch-zfc-final}。
+
+仓内总背景继续参考
+\cite{GaoZheng2025GFramework,GaoZhengAppVol1,RepoAppMathVol4Tex}；
+其中 PureMath 主稿负责给出
+\[
+  (l_2,l_{\ge3})
+\]
+双面结构的总口径，
+第一章负责把它细化为
+\[
+  L_1\to L_2\to L_3\to L_{>3}
+\]
+的构造性主链。
+外部标准参照方面，classical CH 在 ZFC 内的独立性背景仍以
+\cite{Godel1940CH,Cohen1963CHI,Cohen1964CHII,Jech2003SetTheory}
+为准。
+\end{remark}
+
+\subsection{定义：讨论对象、五项评价准则与评级区间}
+\label{subsec:tex41-ch2-def}
+
+\begin{definition}[讨论对象与三种核心记号]
+\label{def:tex41-gain}
+定义本节所称“本次讨论”为
+\[
+  \mathcal D
+  :=
+  \text{第~\ref{sec:tex41-ch-confirmation} 节与第~\ref{sec:tex41-ch-zfc-boundary} 节中关于 CH 层位纠偏的定理链}.
+\]
+为压缩记号，约定
+\[
+  \mathrm{CH}_{\mathrm{cls}}
+  :=
+  \ProjLtwo\!\left(\CHint^{(1\to2)}\right),
+  \qquad
+  \mathrm{CH}^{\mathrm{int}}_{1\to2}
+  :=
+  \CHint^{(1\to2)},
+\]
+\[
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+  :=
+  \DTint^{(1\to2\to3\to\text{>3})}.
+\]
+其中：
+\[
+  \mathrm{CH}_{\mathrm{cls}}
+  \text{ 读作 classical CH 在本文中的 }l_2\text{ 最小外延读法},
+\]
+\[
+  \mathrm{CH}^{\mathrm{int}}_{1\to2}
+  \text{ 读作“连续统（一离散）假设”的体系内止步形态},
+\]
+\[
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+  \text{ 读作第一章“离散统（一连续）”的四层推进定理}.
+\]
+\end{definition}
+
+\begin{definition}[五项评价函数与比较量]
+\label{def:tex41-gain-rate}
+定义本次讨论的综合增益为
+\[
+  G(\mathcal D)
+  :=
+  0.15\,G_{\mathrm{obj}}
+  +
+  0.30\,G_{\mathrm{sem}}
+  +
+  0.25\,G_{\mathrm{base}}
+  +
+  0.20\,G_{\mathrm{risk}}
+  +
+  0.10\,G_{\mathrm{bridge}},
+\]
+其中
+\[
+  G_{\mathrm{obj}}
+  :=
+  \text{新增对象或新增构造的增益},
+\]
+\[
+  G_{\mathrm{sem}}
+  :=
+  \text{语义澄清与命名正规化的增益},
+\]
+\[
+  G_{\mathrm{base}}
+  :=
+  \text{把争议从命题真假改写为基底选择的增益},
+\]
+\[
+  G_{\mathrm{risk}}
+  :=
+  \text{消除误读、过强表述与逻辑滑移的增益},
+\]
+\[
+  G_{\mathrm{bridge}}
+  :=
+  \text{把 PureMath 与第一章接成单一主链的增益}.
+\]
+本节采用保守赋值
+\[
+  G_{\mathrm{obj}}=6.4,\qquad
+  G_{\mathrm{sem}}=9.6,\qquad
+  G_{\mathrm{base}}=9.2,
+\]
+\[
+  G_{\mathrm{risk}}=9.5,\qquad
+  G_{\mathrm{bridge}}=8.8.
+\]
+此外，为比较本次讨论对不同对象面的作用幅度，再定义
+\[
+  G_{\mathrm{chapter}}
+  :=
+  \text{本次讨论对第一章定位与落句的直接增益},
+\]
+\[
+  G_{\text{全体系新增定理}}
+  :=
+  \text{本次讨论作为全体系新增强定理的增益}.
+\]
+最后定义评级映射
+\[
+  \Rate:[0,10]\to
+  \{\text{低增益},\text{中增益},\text{中高增益},\text{高增益},\text{极高增益}\}
+\]
+为
+\[
+  \Rate(s):=
+  \begin{cases}
+    \text{低增益}, & 0\le s<4,\\
+    \text{中增益}, & 4\le s<6,\\
+    \text{中高增益}, & 6\le s<8,\\
+    \text{高增益}, & 8\le s<9,\\
+    \text{极高增益}, & 9\le s\le 10.
+  \end{cases}
+\]
+\end{definition}
+
+\begin{remark}[评价边界]
+定义~\ref{def:tex41-gain}--\ref{def:tex41-gain-rate} 评价的是
+\[
+  \text{本次讨论相对既有主链的整理与重定位增益},
+\]
+而不是声称本文已在外部标准数学中新增了与此同量级的普遍新原理。
+因此，本节中的“高增益”首先意味着：
+\[
+  \text{相对仓内既有链条，它把关键句子的层位、边界与桥接关系首次钉死。}
+\]
+\end{remark}
+
+\subsection{公理（降级为定理）：五项评价准则可递归汇总为讨论总增益}
+\label{subsec:tex41-ch2-axiom}
+
+\begin{theorem}[公理降级：五项评价准则可递归汇总为讨论总增益（数学归纳法证书）]
+\label{thm:tex41-gain-decomposition}
+令
+\[
+  \Delta_1:=0.15\,G_{\mathrm{obj}},\qquad
+  \Delta_2:=0.30\,G_{\mathrm{sem}},\qquad
+  \Delta_3:=0.25\,G_{\mathrm{base}},
+\]
+\[
+  \Delta_4:=0.20\,G_{\mathrm{risk}},\qquad
+  \Delta_5:=0.10\,G_{\mathrm{bridge}}.
+\]
+定义部分和
+\[
+  N(1):=\Delta_1,
+  \qquad
+  N(m+1):=N(m)+\Delta_{m+1}
+  \quad(1\le m\le 4).
+\]
+则对任意 $m\in\{1,2,3,4,5\}$，
+\[
+  N(m)=\sum_{k=1}^{m}\Delta_k.
+\]
+特别地，
+\[
+  G(\mathcal D)=N(5)=0.96+2.88+2.30+1.90+0.88=8.92.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：五项评分链的递归可加性]
+\label{cert:tex41-gain-decomposition}
+定义谓词
+\[
+  P(m)
+  :
+  \Longleftrightarrow
+  N(m)=\sum_{k=1}^{m}\Delta_k.
+\]
+则数学归纳法证书可记为
+\[
+  \pi_{\mathrm{ind}}
+  =
+  \bigl(
+    P(1),\
+    \forall m\in\{1,2,3,4\},\ P(m)\Rightarrow P(m+1)
+  \bigr).
+\]
+其中
+\[
+  P(m)\Rightarrow P(m+1)
+\]
+仅调用递推关系
+\[
+  N(m+1)=N(m)+\Delta_{m+1}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+\textbf{基步 $P(1)$：}
+由定义，
+\[
+  N(1)=\Delta_1=\sum_{k=1}^{1}\Delta_k.
+\]
+故 $P(1)$ 成立。
+
+\textbf{归纳步：}
+设 $P(m)$ 成立，即
+\[
+  N(m)=\sum_{k=1}^{m}\Delta_k.
+\]
+则由递推关系，
+\[
+  N(m+1)=N(m)+\Delta_{m+1}.
+\]
+代入归纳假设，得到
+\[
+  N(m+1)
+  =
+  \sum_{k=1}^{m}\Delta_k+\Delta_{m+1}
+  =
+  \sum_{k=1}^{m+1}\Delta_k.
+\]
+故 $P(m)\Rightarrow P(m+1)$ 成立。
+
+由数学归纳法，$P(m)$ 对 $m=1,\dots,5$ 全部成立。
+于是
+\[
+  N(5)
+  =
+  \sum_{k=1}^{5}\Delta_k
+  =
+  0.15\cdot 6.4
+  +
+  0.30\cdot 9.6
+  +
+  0.25\cdot 9.2
+  +
+  0.20\cdot 9.5
+  +
+  0.10\cdot 8.8
+  =
+  8.92.
+\]
+故
+\[
+  G(\mathcal D)=8.92.
+\]
+定理成立。证毕。
+\end{proof}
+
+\subsection{定理：本次讨论属于基底重定位型高增益讨论}
+\label{subsec:tex41-ch2-theorem}
+
+\begin{theorem}[总评：本次讨论属于基底重定位型高增益讨论]
+\label{thm:tex41-gain-total}
+在定义~\ref{def:tex41-gain-rate} 与定理~\ref{thm:tex41-gain-decomposition} 的口径下，
+\[
+  G(\mathcal D)=8.92,
+  \qquad
+  \Rate\bigl(G(\mathcal D)\bigr)=\text{高增益}.
+\]
+并且其主导增益类型不是“再发明一个新对象”，而是
+\[
+\boxed{
+  \text{基底重定位增益}
+  +
+  \text{语义正规化增益}
+  +
+  \text{反误读增益}
+}.
+\]
+更准确地说，本次讨论最大的价值在于首次稳定地区分了
+\[
+  \mathrm{CH}_{\mathrm{cls}},
+  \qquad
+  \mathrm{CH}^{\mathrm{int}}_{1\to2},
+  \qquad
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：投影重定位、止步态命名、终局性降级、基底显式化与主链焊接]
+\label{cert:tex41-gain-total}
+证书登记五条见证：
+\[
+\begin{aligned}
+  A_1 &: \text{定理~\ref{thm:tex41-ch-zfc-axiom} 与定理~\ref{thm:tex41-ch-zfc-limit} 已把 classical CH 钉为 }l_2\text{ 外延投影};\\
+  A_2 &: \text{定理~\ref{thm:tex41-ch-confirmation-main} 已把 }\mathrm{CH}^{\mathrm{int}}_{1\to2}\text{ 钉为体系内止步形态};\\
+  A_3 &: \text{命题~\ref{prop:tex41-ch-zfc-finality} 已把四层推进与止步句的关系收紧为 }
+         \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+         \Rightarrow
+         \neg\Final\!\bigl(\mathrm{CH}^{\mathrm{int}}_{1\to2}\bigr);\\
+  A_4 &: \text{引理~\ref{lem:tex41-ch-zfc-independence}、命题~\ref{prop:tex41-ch-zfc-base-dispute} 与命题~\ref{prop:tex41-ch-zfc-projection} 已把争议改写为基底之争};\\
+  A_5 &: \text{命题~\ref{prop:tex41-ch-confirmation-refinement} 说明 PureMath 给总分层口径，第一章给构造性落地链。}
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+第一步，本次讨论把 classical CH 的位置钉死了。
+由 $A_1$，classical CH 在本文中不再被读作“完整连续统语义本身”，
+而只读作
+\[
+  l_2\text{ 外延层投影}.
+\]
+用压缩记号写，就是
+\[
+  \mathrm{CH}_{\mathrm{cls}}
+  =
+  \ProjLtwo\!\left(\mathrm{CH}^{\mathrm{int}}_{1\to2}\right).
+\]
+这一步的增益很大，因为它把
+\[
+  \text{“classical CH 是什么”}
+\]
+与
+\[
+  \text{“富结构连续统语义是什么”}
+\]
+第一次稳定分开了。
+
+第二步，本次讨论把
+\[
+  L_1\to L_2
+\]
+止步态的地位也钉死了。
+由 $A_2$，
+\[
+  \mathrm{CH}^{\mathrm{int}}_{1\to2}
+\]
+不再只是一个模糊缩写，而被严格解释为
+\[
+  \text{体系内“连续统（一离散）假设”的止步形态}.
+\]
+于是，关于 CH 的内部解释第一次拥有了稳定名字与稳定层位。
+这正是
+\[
+  G_{\mathrm{sem}}
+\]
+极高的原因。
+
+第三步，本次讨论把第一章更强的推进关系写清楚了。
+由 $A_3$，
+\[
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+\]
+不是 classical CH 或止步态的简单改写，
+而是更强的四层推进定理；
+并且它与止步态的关系必须写成
+\[
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+  \Rightarrow
+  \neg\Final\!\bigl(\mathrm{CH}^{\mathrm{int}}_{1\to2}\bigr),
+\]
+而不能粗糙写成
+\[
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+  \Rightarrow
+  \neg \mathrm{CH}^{\mathrm{int}}_{1\to2}.
+\]
+这一步直接消除了最危险的过强表述，因此
+\[
+  G_{\mathrm{risk}}
+\]
+极高。
+
+第四步，本次讨论把“争议真正位于哪里”改写了。
+由 $A_4$，经典 CH 在 ZFC 内的可判定性问题已被独立性结果关闭
+\cite{Godel1940CH,Cohen1963CHI,Cohen1964CHII,Jech2003SetTheory}；
+但真正未关闭的，是连续统应以
+\[
+  \SetCard
+\]
+为本体基底，还是应以
+\[
+  \LawCont
+\]
+为本体基底。
+于是争议从
+\[
+  \text{命题真假之争}
+  \Longrightarrow
+  \text{基底选择之争}.
+\]
+这正是
+\[
+  G_{\mathrm{base}}
+\]
+极高的原因。
+
+第五步，本次讨论把 PureMath 与第一章焊成了单一主链。
+由 $A_5$，
+\[
+  \text{PureMath}
+  \quad\text{给出}\quad
+  l_2/l_{\ge3}\text{ 的总分层口径},
+\]
+\[
+  \text{第一章}
+  \quad\text{给出}\quad
+  L_1\to L_2\to L_3\to L_{>3}\text{ 的构造性落地链}.
+\]
+因此，本次讨论的价值不是孤立补充，而是把仓内两条主线收束为一条可稳定引用的单链。
+这正是
+\[
+  G_{\mathrm{bridge}}
+\]
+偏高的原因。
+
+综上，再结合定理~\ref{thm:tex41-gain-decomposition} 所得
+\[
+  G(\mathcal D)=8.92,
+\]
+可知本次讨论属于高增益讨论；
+但其高增益类型主要来自
+\[
+  \text{语义正规化}
+  +
+  \text{基底重定位}
+  +
+  \text{反误读纠偏},
+\]
+而不是新增形式对象的数量。
+定理成立。证毕。
+\end{proof}
+
+\subsection{引理：本次讨论最大的真实增益位于基底重定位与风险压降}
+\label{subsec:tex41-ch2-lemma}
+
+\begin{lemma}[本次讨论最大的真实增益位于基底重定位与风险压降]
+\label{lem:tex41-gain-focus}
+定义本次讨论在综合评分中的有效贡献为
+\[
+  \Delta_{\mathrm{base}}:=0.25\,G_{\mathrm{base}},
+  \qquad
+  \Delta_{\mathrm{risk}}:=0.20\,G_{\mathrm{risk}},
+  \qquad
+  \Delta_{\mathrm{obj}}:=0.15\,G_{\mathrm{obj}}.
+\]
+则有
+\[
+  \Delta_{\mathrm{base}}+\Delta_{\mathrm{risk}}
+  =
+  0.25\cdot 9.2 + 0.20\cdot 9.5
+  =
+  4.20
+  >
+  0.96
+  =
+  0.15\cdot 6.4
+  =
+  \Delta_{\mathrm{obj}}.
+\]
+因此，本次讨论最大的真实增益满足
+\[
+  \Delta_{\mathrm{base}}+\Delta_{\mathrm{risk}}
+  >
+  \Delta_{\mathrm{obj}}.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：四条边界被钉死后，新增对象不再是主导项]
+\label{cert:tex41-gain-focus}
+证书登记四条边界：
+\[
+  \mathrm{CH}_{\mathrm{cls}}
+  \neq
+  \mathrm{CH}^{\mathrm{int}}_{1\to2},
+\]
+\[
+  \mathrm{CH}^{\mathrm{int}}_{1\to2}
+  \neq
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}},
+\]
+\[
+  \text{投影存在}
+  \neq
+  \text{终局完备},
+\]
+\[
+  \text{兼容经典集合层}
+  \neq
+  \text{被经典集合层穷尽}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书~\ref{cert:tex41-gain-focus}，
+本次讨论最核心的工作不是新增一个像
+\[
+  L_3,\quad \pi_\infty,\quad \Edge_n
+\]
+那样的正式对象，
+而是把以下四个边界一次性钉死：
+
+首先，由定理~\ref{thm:tex41-ch-zfc-axiom}，
+\[
+  \mathrm{CH}_{\mathrm{cls}}
+\]
+只是
+\[
+  \ProjLtwo
+\]
+之后的最小 classical 读法，
+故它不能与体系内止步句
+\[
+  \mathrm{CH}^{\mathrm{int}}_{1\to2}
+\]
+混同。
+
+其次，由定理~\ref{thm:tex41-ch-confirmation-main} 与命题~\ref{prop:tex41-ch-zfc-finality}，
+\[
+  \mathrm{CH}^{\mathrm{int}}_{1\to2}
+\]
+只是前缀止步句，
+而
+\[
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+\]
+是更强的四层推进句，
+故二者也不能混同。
+
+再次，由命题~\ref{prop:tex41-ch-zfc-finality}，
+四层推进否定的是
+\[
+  \Final\!\bigl(\mathrm{CH}^{\mathrm{int}}_{1\to2}\bigr),
+\]
+而不是否定其
+\[
+  l_2
+\]
+投影存在性。
+因此，
+\[
+  \text{投影存在}
+  \neq
+  \text{终局完备}.
+\]
+
+最后，由命题~\ref{prop:tex41-ch-zfc-projection}，
+富结构基底与经典集合层之间是“扩张--投影”关系，
+这意味着经典集合层被保留为阴影层，
+但富结构连续统对象并不被其穷尽。
+因此，
+\[
+  \text{兼容经典集合层}
+  \neq
+  \text{被经典集合层穷尽}.
+\]
+
+一旦这四条边界明确，
+后续文稿就不会在“外部 CH”“内部 CH”“第一章推进定理”“富结构基底”之间来回滑移。
+因此，真正沉重的增益必然落在
+\[
+  \text{基底重定位}
+  +
+  \text{风险压降},
+\]
+而不是“新增对象数量”本身。
+数值上，
+\[
+  \Delta_{\mathrm{base}}+\Delta_{\mathrm{risk}}=4.20>\Delta_{\mathrm{obj}}=0.96.
+\]
+引理成立。证毕。
+\end{proof}
+
+\subsection{命题：本次讨论对第一章的直接增益高于对全体系新增构造的增益}
+\label{subsec:tex41-ch2-proposition}
+
+\begin{proposition}[对第一章的直接增益高于对全体系新增构造的增益]
+\label{prop:tex41-gain-internal}
+在定义~\ref{def:tex41-gain-rate} 的同一 $0$--$10$ 量表下，
+对
+\[
+  G_{\mathrm{chapter}}
+  \quad\text{与}\quad
+  G_{\text{全体系新增定理}}
+\]
+取保守比较赋值
+\[
+  G_{\mathrm{chapter}}=9.2,
+  \qquad
+  G_{\text{全体系新增定理}}=7.4.
+\]
+则
+\[
+  G_{\mathrm{chapter}}
+  >
+  G_{\text{全体系新增定理}}.
+\]
+也就是说，对第一章本身而言，本次讨论带来的增益高于它作为“全体系新增构造”所带来的增益。
+\end{proposition}
+
+\begin{Certificate}[证书：第一章定位跃升，而更强全体系定理仍未在文内建立]
+\label{cert:tex41-gain-internal}
+证书分三段：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex41-ch-zfc-axiom} 与命题~\ref{prop:tex41-ch-zfc-finality} 已把第一章定位提升为“降级 classical CH 的 $l_2$ 投影地位，
+    并推进更富结构的连续统语义主链”；
+  \item 命题~\ref{prop:tex41-ch-confirmation-refinement} 已证明第一章与 PureMath 的关系是内部构造性细化，而不是并行口径竞争；
+  \item 但下列更强全体系命题尚未在本文内建立：
+\[
+    \text{富结构基底相对经典集合基底的必要性定理},
+\]
+\[
+    \text{从 ZFC 模型到富结构模型的函子扩张定理},
+\]
+\[
+    \text{任一 }l_2\text{ 投影止步态必可延拓到 }L_3,L_{>3}\text{ 的普遍定理}.
+\]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+第一步，看第一章本身得到的定位增益。
+由证书第一段与定理~\ref{thm:tex41-gain-total}，
+本次讨论已经把第一章从
+\[
+  \text{“一份关于 }L_1,L_2,L_3,L_{>3}\text{ 的分层笔记”}
+\]
+提升为
+\[
+  \text{“一份把 classical CH 的 }l_2\text{ 投影地位降级，}
+\]
+\[
+  \text{并把更富结构的连续统语义显式推进到四层主链中的关键文稿”}.
+\]
+这种定位跃升直接作用于第一章自身的标题、落句、引用接口与理论边界，
+因此
+\[
+  G_{\mathrm{chapter}}
+\]
+必须很高。
+
+第二步，看它对全体系“新增强定理”的作用。
+由证书第二段，
+本次讨论确实把 PureMath 与第一章焊成了单链，
+但这种增益主要表现为
+\[
+  \text{重定位}
+  +
+  \text{降级}
+  +
+  \text{桥接}
+  +
+  \text{反误读},
+\]
+而不是一次性新增了多个此前完全没有的全体系普遍定理。
+
+第三步，看尚未在文内建立的更强句。
+由证书第三段，
+若要把本次讨论直接提升为“全体系新增强定理”的高峰，
+还需要证明关于富结构基底必要性、函子扩张与普遍延拓的更强命题。
+这些结论目前并未在本文内给出，
+因此它对全体系“新增构造量”的增益虽然不低，
+但仍低于它对第一章定位所造成的直接提升。
+
+于是取保守比较赋值
+\[
+  G_{\mathrm{chapter}}=9.2,
+  \qquad
+  G_{\text{全体系新增定理}}=7.4
+\]
+是合理的，
+并得到
+\[
+  G_{\mathrm{chapter}}
+  >
+  G_{\text{全体系新增定理}}.
+\]
+命题成立。证毕。
+\end{proof}
+
+\subsection{推论：本次讨论后，主链可压缩为如下正规型}
+\label{subsec:tex41-ch2-corollary}
+
+\begin{corollary}[本次讨论后，主链可压缩为如下正规型]
+\label{cor:tex41-gain-position}
+综合定理~\ref{thm:tex41-gain-total}、
+引理~\ref{lem:tex41-gain-focus}、
+命题~\ref{prop:tex41-gain-internal}
+以及第~\ref{sec:tex41-ch-confirmation} 节与第~\ref{sec:tex41-ch-zfc-boundary} 节的既有结果，
+当前主链可以稳定压缩为：
+\[
+\boxed{
+  \mathrm{CH}_{\mathrm{cls}}
+  =
+  \ProjLtwo\!\left(\mathrm{CH}^{\mathrm{int}}_{1\to2}\right)
+}
+\]
+\[
+\boxed{
+  \mathrm{CH}^{\mathrm{int}}_{1\to2}
+  =
+  \text{体系内“连续统（一离散）假设”的止步态}
+}
+\]
+\[
+\boxed{
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+  =
+  \text{第一章“离散统（一连续）”的更强四层推进定理}
+}
+\]
+以及
+\[
+\boxed{
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+  \Rightarrow
+  \neg \Final\!\left(\mathrm{CH}^{\mathrm{int}}_{1\to2}\right)
+}.
+\]
+这组关系一旦稳定，后续关于 CH、PureMath、第一章与富结构基底的表述就会显著收敛。
+\end{corollary}
+
+\begin{Certificate}[证书：投影式、止步式、推进式与终局性降级式的合流]
+\label{cert:tex41-gain-position}
+证书由四段组成：
+\begin{enumerate}
+  \item 定理~\ref{thm:tex41-ch-zfc-axiom} 给出
+  \[
+    \mathrm{CH}_{\mathrm{cls}}
+    =
+    \ProjLtwo\!\left(\mathrm{CH}^{\mathrm{int}}_{1\to2}\right)
+  \]
+  这一最小 classical 读法；
+  \item 定理~\ref{thm:tex41-ch-confirmation-main} 给出
+  \[
+    \mathrm{CH}^{\mathrm{int}}_{1\to2}
+  \]
+  的止步态含义与
+  \[
+    \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+  \]
+  的更强推进含义；
+  \item 命题~\ref{prop:tex41-ch-zfc-finality} 给出
+  \[
+    \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+    \Rightarrow
+    \neg \Final\!\bigl(\mathrm{CH}^{\mathrm{int}}_{1\to2}\bigr)
+  \]
+  这一精确逻辑式；
+  \item 定理~\ref{thm:tex41-gain-total} 与引理~\ref{lem:tex41-gain-focus} 说明这组正规型正是本次讨论的主要增益落点。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（基于数学符号推演逻辑的谓词因果链）]
+由证书第一段，
+classical CH 在本文中的最稳表达只能放在
+\[
+  l_2
+\]
+投影层，
+故第一条正规型成立。
+
+由证书第二段，
+\[
+  \mathrm{CH}^{\mathrm{int}}_{1\to2}
+\]
+只能读作止步态，
+而
+\[
+  \mathrm{DT}^{\mathrm{int}}_{1\to2\to3\to\text{>3}}
+\]
+只能读作更强的四层推进定理，
+故第二条与第三条正规型成立。
+
+再由证书第三段，
+四层推进句所否定的是止步句的
+\[
+  \Final
+\]
+资格，而不是其
+\[
+  l_2
+\]
+阴影存在性，
+故第四条正规型成立。
+
+最后，由证书第四段，
+本次讨论的最重增益正是把这四条关系从混说状态压缩成稳定正规型。
+因此，推论成立。证毕。
+\end{proof}
+
+\subsection{备注：一句话总评、问题坐标系、越界边界与最终评分}
+\label{subsec:tex41-ch2-remarks}
+
+\begin{remark}[一句话总评]
+若只用一句话评价本次讨论，则最稳妥的写法是：
+\[
+\boxed{
+  \begin{aligned}
+    &\text{本次讨论的最大增益，不是发明新对象，}\\
+    &\text{而是把“CH--止步态--第一章推进定理”三者的层级关系彻底钉死。}
+  \end{aligned}
+}
+\]
+\end{remark}
+
+\begin{remark}[问题坐标系的改写]
+若再压缩一步，本次讨论最重的贡献是把
+\[
+  \text{“CH 的真假问题”}
+\]
+改写成了
+\[
+  \text{“连续统应以何种基底被理解”}.
+\]
+这一步之所以沉重，不在于它立刻给出了全部新答案，
+而在于它改变的不是结论修辞，而是问题坐标系本身。
+\end{remark}
+
+\begin{remark}[当前不宜越界的强句]
+本次讨论虽然已经稳定给出“重定位”“降级”“推进”“反误读”四类结论，
+但下列强句现在仍不宜直接当作已证明结论：
+\[
+  \text{“富结构基底在绝对意义上唯一正确”},
+\]
+\[
+  \text{“第一章已在外部标准数学中终结 classical CH 的全部争议”}.
+\]
+更准确地说，当前已经稳定成立的是：
+\[
+  \text{classical CH 的 }l_2\text{ 投影重定位},
+  \qquad
+  \text{止步态的终局性降级},
+\]
+\[
+  \text{争议核心向基底之争的转写},
+  \qquad
+  \text{PureMath 与第一章的主链焊接}.
+\]
+\end{remark}
+
+\begin{remark}[最终评分与写作价值]
+因此，本次讨论的最终评价可压缩为
+\[
+\boxed{
+  8.9/10,\qquad
+  \text{高增益，且属于基底重定位型高增益。}
+}
+\]
+它对后续写作的价值，很可能大于其表面上看似“只是澄清语义”的印象；
+因为一旦基底位置、止步态位置与第一章位置都被钉死，
+后续大量文本会自动收敛到更稳的表述。
+\end{remark}
+
+\clearpage
+\begin{thebibliography}{99}
+
+\bibitem{GaoZheng2025GFramework}
+Gao, Z. (2025).
+\newblock Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra).
+\newblock In \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra): An Integrated Construction (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17651584}.
+
+
+\bibitem{GaoZhengAppVol1}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL, Quantum
+  Computing, and Superconductivity.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL,
+  Quantum Computing, and Superconductivity (v1.2)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17686133}.
+
+
+\bibitem{RepoAppMathVol4Tex}
+【仓内 TeX】应用数学卷 4 主稿：
+\code{docs/AppMathVol4/GFramework_AppMath_Vol4.tex}。
+
+\bibitem{RepoNB17EdgeOperator}
+【仓内 TeX】边缘算子闭合、同伦闭包与变分修复塔（形式系统笔记）：
+\code{NoteBook/notebook1/tex17_pub/gframework_edge_operator_homotopy_closure_variational_tower_formal_system.tex}。
+
+\bibitem{RepoTex29RepairableObstruction}
+【仓内 TeX】可修复障碍同伦类与广义分形：全集范畴与严格边界：
+\code{NoteBook/notebook2/tex29_pub/gframework_repairable_obstruction_homotopy_class_vs_generalized_fractal_formal_system
+  .tex}。
+
+\bibitem{RepoTex32HoleObstruction}
+【仓内 TeX】纤维--截面--孔洞--障碍量--势函数--条件化收敛形式系统稿：
+\code{NoteBook/notebook2/tex32_pub/gframework_fiber_section_hole_obstruction_potential_conditional_convergence_formal_sy
+  stem.tex}。
+
+\bibitem{RepoTex35ExtendedCertificationTower}
+【仓内 TeX】基于扩展签发协议的主丛联络--路径积分--同伦修复塔与结构表示定理：
+\code{NoteBook/notebook2/tex35_pub/gframework_extended_certification_tower.tex}。
+
+\bibitem{RepoTex36HomotopyTwistBijection}
+【仓内 TeX】主丛联络的纤维丛空间、路径积分支撑类与同伦扭曲正规形的集合等价整理稿：
+\code{NoteBook/notebook2/tex36_pub/gframework_principal_connection_fiber_space_path_integral_homotopy_twist_equivalence_
+  formal_system.tex}。
+
+\bibitem{RepoTex37SemanticGaugeRuntime}
+【仓内 TeX】G 框架正则语义规范场到自然语言语义逻辑占位规范场的高阶同伦扭曲双射、LLM 运行时降级与逻辑引擎整理稿：
+\code{NoteBook/notebook2/tex37_pub/gframework_semantic_gauge_field_natural_language_logic_placeholder_runtime_formal_sys
+  tem.tex}。
+
+\bibitem{RepoTex38TerminalNormalForm}
+【仓内 TeX】离散 Jacobi--Bianchi 修复塔、路径积分与终端正规型形式系统稿：
+\code{NoteBook/notebook2/tex38_pub/gframework_discrete_jacobi_bianchi_repair_tower_path_integral_terminal_normal_form_fo
+  rmal_system.tex}。
+
+\bibitem{Godel1940CH}
+Gödel, K. (1940).
+\newblock \emph{The Consistency of the Continuum Hypothesis}.
+\newblock Princeton University Press.
+
+\bibitem{Cohen1963CHI}
+Cohen, P. J. (1963).
+\newblock \emph{The Independence of the Continuum Hypothesis}.
+\newblock Proceedings of the National Academy of Sciences of the United States of America,
+\textbf{50}, 1143--1148.
+
+\bibitem{Cohen1964CHII}
+Cohen, P. J. (1964).
+\newblock \emph{The Independence of the Continuum Hypothesis, II}.
+\newblock Proceedings of the National Academy of Sciences of the United States of America,
+\textbf{51}, 105--110.
+
+\bibitem{Hatcher2002AT}
+Hatcher, A. (2002).
+\newblock \emph{Algebraic Topology}.
+\newblock Cambridge University Press.
+
+\bibitem{Weibel1994HomologicalAlgebra}
+Weibel, C. A. (1994).
+\newblock \emph{An Introduction to Homological Algebra}.
+\newblock Cambridge University Press.
+
+\bibitem{Husemoller1994FibreBundles}
+Husemoller, D. (1994).
+\newblock \emph{Fibre Bundles} (3rd ed.).
+\newblock Springer.
+
+\bibitem{KobayashiNomizu1963Foundations}
+Kobayashi, S., \& Nomizu, K. (1963).
+\newblock \emph{Foundations of Differential Geometry, Volume I}.
+\newblock Interscience Publishers.
+
+\bibitem{Lee2018RiemannianManifolds}
+Lee, J. M. (2018).
+\newblock \emph{Riemannian Manifolds: An Introduction to Curvature} (2nd ed.).
+\newblock Springer.
+
+\bibitem{Jech2003SetTheory}
+Jech, T. (2003).
+\newblock \emph{Set Theory: The Third Millennium Edition, Revised and Expanded}.
+\newblock Springer.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

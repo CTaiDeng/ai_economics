@@ -1,0 +1,2497 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 基本定理环境
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+
+% 记号（仅用于本笔记自洽引用，避免依赖主稿宏定义）
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\Layer}{\ensuremath{\ell}}
+\newcommand{\Jac}{\operatorname{Jac}}
+\newcommand{\Ob}{\mathrm{Ob}}
+\newcommand{\Prop}{\mathsf{Prop}}
+\newcommand{\LSPLPI}{\ensuremath{\mathsf{LS}_{\mathrm{PL\text{-}PI}}}}
+\newcommand{\LPL}{\ensuremath{L_{\mathrm{PL}}}}
+\newcommand{\LPI}{\ensuremath{L_{\mathrm{PI}}}}
+\newcommand{\ThetaPLPI}{\ensuremath{\Theta_{\mathrm{PL\text{-}PI}}}}
+\newcommand{\JacGap}{\ensuremath{\mathsf{JacGap}}}
+\newcommand{\ZF}{\ensuremath{\mathrm{ZF}}}
+\newcommand{\ZFC}{\ensuremath{\mathrm{ZFC}}}
+\newcommand{\AC}{\ensuremath{\mathrm{AC}}}
+\newcommand{\CH}{\ensuremath{\mathrm{CH}}}
+\newcommand{\code}[1]{\path{#1}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+\setlength{\emergencystretch}{6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{在 \GFramework 中：更高阶 $L_\infty$ 算子作为同伦修复塔\\（纯形式系统笔记）}
+\newcommand{\CertificateAuthorCN}{Gao Zheng（高政）}
+\author{\CertificateAuthorCN}
+\date{2025-12-28}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是把 \(L_\infty\) 算子作为单纯的分类工具，而是在 \GFramework{} 的
+同伦修复主线中，把高阶连贯性方程、Jacobiator-gap、障碍吸收、修复塔、治理接口
+与连续/离散分层组织成一个动态修复形式系统。若这些对象分散出现，\(L_\infty\)
+结构容易只被看成抽象代数，修复塔容易只被看成后验补丁；本文将二者统一为“更高阶
+算子如何逐层吸收低阶闭合失败”的问题。
+
+本文的第一层立场是 \(L_\infty\) 的修复化。高阶括号不是为了增加符号复杂度，而是
+为了在低阶 Jacobi 恒等式失败时提供可控补偿。每一阶 \(L_\infty\) 算子都承担一类
+连贯性修复任务，使原本无法闭合的代数结构进入可证书化的同伦闭包。
+
+本文的第二层立场是动态修复与静态逼近的区分。传统同伦塔有时被理解为静态逼近
+序列；本文更强调它作为动态修复系统的角色：障碍出现、被测量、被上升到高阶、
+再由相应 \(L_\infty\) 数据吸收。由此，同伦塔成为治理结构，而不只是分类结构。
+
+本文的第三层立场是跨卷接口。PureMath 中的 Jacobiator、GNLA、OHU 完备化，AppMath
+中的 Jacobian-gap、有限层截断与工程治理，都需要一个共同的高阶修复语法。本文
+通过 \(L_\infty\) 修复塔提供这一语法，使后续语义场、开放系统、统计命中与 PDE
+范式可以共享高阶连贯性底座。
+
+本文的第四层立场是高阶连贯性方程的证书化。\(L_\infty\) 结构中的每一阶关系都可
+被理解为“上一阶闭合失败如何被下一阶修复”的证书。低阶括号的失败不是噪声，而是
+被高阶括号读取并吸收的输入。由此，高阶连贯性方程成为宏观 Jacobi/Bianchi 基准的
+递归版本。
+
+本文的第五层立场是连续统与离散统的治理差异。连续统中的失败可能表现为不可直接
+定位的光滑崩溃或极限不稳定；离散统则能够将失败写成可数层级、有限截断或可审计
+证书。本文不把二者强行等同，而是通过同伦修复塔把连续问题转写为可治理的高阶
+离散结构。
+
+本文的第六层立场是从分类工具到量化治理的迁移。\(L_\infty\) 可以作为分类语言，
+但在 G-Framework 中它更重要的角色是治理语言：它告诉系统在第几阶失败、由哪一阶
+算子修复、何时需要继续上升、何时可在当前截断中停止。
+
+本文的第七层立场是为高阶正交命中提供连贯性前提。后续高阶正交命中会不断投影
+剩余梯度方向；这种“高阶残差提取”需要一个更基础的高阶连贯性语法。本文的
+\(L_\infty\) 修复塔正是这个语法底座。
+
+因此，本文在整体 \GFramework{} 中承担的是“高阶同伦修复塔”的核心基础作用。它
+向前连接边缘算子和比安基基准，向中间连接 \(L_\infty\) 高阶算子与障碍吸收，向后
+为高阶正交、雅可比间隙下降和确定性命中提供连贯性证书。概括地说，本文把
+“低阶闭合失败如何被高阶结构修复”推进为 \(L_\infty\) 动态修复形式系统。
+
+更具体地说，本文把高阶算子从“复杂代数结构”转化为“修复职责分配”。哪一阶失败，
+就由更高一阶或若干阶的连贯性数据来吸收；哪一阶仍无法吸收，就继续上升或声明
+当前截断不足。这样，\(L_\infty\) 不只是一个名字，而是一套层级化修复协议。
+
+从方法论上看，本文是高阶修复的母稿之一。边缘算子稿说明低阶失败如何出现，本文
+说明这些失败如何被高阶连贯性系统吸收；后续 JacGap 动力、开放系统治理和统计命中
+则把这种高阶修复语法工程化。三者共同构成从代数闭合到工程控制的长链条。
+
+从整体谱系看，本文使 \GFramework{} 的“高阶”具有明确含义：高阶不是任意复杂化，
+而是为了给低阶失败提供补偿空间。这个原则后来在高阶正交命中、雅可比间隙下降和
+PDE 残差范式中继续出现。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section[更高阶 $L_\infty$ 算子作为同伦修复塔]
+{在 \GFramework 中：更高阶 $L_\infty$ 算子作为同伦修复塔}
+\label{chap:linfty-homotopy-repair-tower}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[跨卷锚点（以各卷为准）]
+本章仅做 \GFramework 内部的纯形式抽象，不引入任何领域叙事或工程语境。
+具体定义与工程化实例以各卷为准，尤其包括：
+\begin{itemize}
+  \item \code{docs/PureMath/Pub_GFramework_PureMath.tex}
+        （代数引擎核心：Jacobiator、GNLA、$L_\infty$、Jacobiator-gap 证书，以及 OHU 完备化定理
+        \code{thm:GZ-OHU}）。\cite{GaoZheng2025GFramework}
+  \item \code{docs/AppMathVol1/Pub_GFramework_AppMath_Vol1.tex}
+        （分层的法空间联络；Jacobian-gap 泛函与纤维化 $H^3$ 阻碍；KAT 纠偏定理
+        \code{thm:KAT-jacobi-homotopy-invertible}）。\cite{GaoZhengAppVol1}
+  \item \code{docs/AppMathVol2/Pub_GFramework_AppMath_Vol2.tex}
+        （LBOPB 工程基线；有限层截断；并明确指出 $n>6$ 层的扭曲超出所选基线的分辨率范围）。\cite{GaoZhengAppVol2}
+  \item \code{docs/AppMathVol3/Pub_GFramework_AppMath_Vol3.tex}
+        （HACA/PACER 的 property-layer Jacobiator-gap；并显式回接 PureMath 的概念，
+        见 Remark \code{rem:haca-jacobiator-gap-puremath}）。\cite{GaoZhengAppVol3}
+  \item \code{docs/AppMathVol4/Pub_GFramework_AppMath_Vol4.tex}
+        （同伦约束系统与证书系统，见
+        Definitions \code{def:homotopy-constraint-system}
+        与 \code{def:certificate-system}）。\cite{GFrameworkAppVol4Pub}
+\end{itemize}
+\end{remark}
+
+\begin{remark}[记号：$l_k$ 与 $\Layer_k$]
+在 \GFramework 各卷中，高阶括号可能以两种很接近的记号出现。
+本章统一用 $\Layer_k$ 表示 $k$ 元运算（与 PureMath 卷一致），同时允许别名
+\[
+  l_k := \Layer_k
+\]
+以便与应用卷中“层索引”的叙述保持一致。
+\end{remark}
+
+% ------------------------------------------------------------
+% 1) Abstract setup: L_\infty identities and Jacobiator defects
+% ------------------------------------------------------------
+
+\subsection{抽象设定：$L_\infty$ 恒等式作为连贯性方程}
+
+\begin{definition}[$L_\infty$-代数（兼容性约定）]
+一个（分级）$L_\infty$-代数是一个 $\mathbb{Z}$-分级向量空间
+$V=\bigoplus_{n\in\mathbb{Z}}V^n$，
+并配备一族多线性映射
+\[
+  \Layer_k: V^{\otimes k}\to V,\qquad k\ge 1,
+\]
+其次数为 $2-k$，满足分级反对称，并且对每个 $n\ge 1$ 满足高阶 Jacobi 恒等式
+\begin{equation}
+\label{eq:Linfty-higher-Jacobi}
+\sum_{i+j=n+1}\;\;
+\sum_{\sigma\in S(i,n-i)}
+\chi(\sigma)\,
+(-1)^{i(j-1)}\,
+\Layer_j\!\Bigl(\Layer_i(x_{\sigma(1)},\dots,x_{\sigma(i)}),
+x_{\sigma(i+1)},\dots,x_{\sigma(n)}\Bigr)=0,
+\end{equation}
+其中 $S(i,n-i)$ 是 $(i,n-i)$-shuffle 集合，$\chi(\sigma)$ 是 Koszul 符号。
+此约定与 PureMath 卷中
+\texttt{Generalized Noncommutative Lie Algebras and Homotopy Lie Structures}
+一节的约定一致；亦可参见标准文献 \cite{LadaStasheff1993,LadaMarkl1995}。
+\end{definition}
+
+\begin{definition}[二元括号的 Jacobiator]
+给定一个次数为 $0$ 的分级反对称二元运算 $\Layer_2$，定义其 Jacobiator
+（分级情形下的符号约定全部吸收到 $\chi$ 中）为
+\[
+  \Jac_{\Layer_2}(x,y,z)
+  :=
+  \Layer_2(x,\Layer_2(y,z))
+  + \Layer_2(y,\Layer_2(z,x))
+  + \Layer_2(z,\Layer_2(x,y)).
+\]
+PureMath 卷中亦以 \emph{Jacobiator} 的形式给出此概念。
+\end{definition}
+
+\begin{definition}[闭元素与诱导上同调]
+设 $\Layer_1=:d$（次数 $+1$）。由 \eqref{eq:Linfty-higher-Jacobi} 的 $n=1$ 情形可得
+$d^2=0$。记
+\[
+  Z(V):=\ker(d),\qquad B(V):=\mathrm{im}(d),\qquad H(V):=Z(V)/B(V).
+\]
+若元素属于 $Z(V)$，称其为 \emph{$d$-闭}。
+\end{definition}
+
+% ------------------------------------------------------------
+% 2) Arity 3: l_3 repairs the Jacobiator defect of l_2
+% ------------------------------------------------------------
+
+\subsection{$3$ 元：$\Layer_3$ 修复 $\Layer_2$ 的 Jacobiator 缺陷}
+
+\begin{proposition}[$d$-闭输入上，Jacobiator 缺陷是 $d$-恰当的]
+\label{prop:arity3-repair}
+令 $(V,\{\Layer_k\}_{k\ge 1})$ 为 $L_\infty$-代数，记 $d:=\Layer_1$。
+则对任意 $d$-闭的齐次元素 $x,y,z\in Z(V)$，
+$\Layer_2$ 的 Jacobiator 缺陷是 $d$-恰当的，其原像由 $\Layer_3$ 给出：
+\begin{equation}
+\label{eq:arity3-exact}
+\Jac_{\Layer_2}(x,y,z)\;=\; d\bigl(\Layer_3(x,y,z)\bigr)
+\quad\text{在 }V\text{ 中成立，}
+\end{equation}
+此处仅差一个由 \eqref{eq:Linfty-higher-Jacobi} 的分级符号约定决定的 Koszul 符号。
+因此，$\Jac_{\Layer_2}(x,y,z)$ 在上同调中为零：$[\Jac_{\Layer_2}(x,y,z)]=0$ 于 $H(V)$。
+\end{proposition}
+
+\begin{proof}
+在 \eqref{eq:Linfty-higher-Jacobi} 中取 $n=3$。此时 $i+j=4$ 的贡献来自
+$(i,j)=(3,1),(2,2),(1,3)$。令 $x_1=x,x_2=y,x_3=z$，则
+\begin{align*}
+0
+&=
+\underbrace{\Layer_1(\Layer_3(x,y,z))}_{(i,j)=(3,1)}
+\;+\;
+\underbrace{\sum_{\sigma\in S(2,1)}\chi(\sigma)\,
+\Layer_2\bigl(\Layer_2(x_{\sigma(1)},x_{\sigma(2)}),x_{\sigma(3)}\bigr)}_{(i,j)=(2,2)}
+\\
+&\qquad
+\;+\;
+\underbrace{\sum_{\sigma\in S(1,2)}\chi(\sigma)\,
+(-1)^{1\cdot(3-1)}\,
+\Layer_3\bigl(\Layer_1(x_{\sigma(1)}),x_{\sigma(2)},x_{\sigma(3)}\bigr)}_{(i,j)=(1,3)}.
+\end{align*}
+中间一项正是分级 Jacobiator $\Jac_{\Layer_2}(x,y,z)$（由 shuffle 与反对称约定可见）。
+最后一项包含 $d=\Layer_1$ 作用在 $x,y,z$ 之一上的项。
+当 $x,y,z$ 为 $d$-闭时，这些项全为零，于是得到
+\[
+  \Jac_{\Layer_2}(x,y,z) + d(\Layer_3(x,y,z)) = 0,
+\]
+即 \eqref{eq:arity3-exact}（差别仅在固定符号约定上）。
+上同调结论随即成立，因为任何 $d$-恰当元素在 $H(V)$ 中都表示 $0$。
+\end{proof}
+
+\begin{corollary}[上同调上诱导出严格李括号]
+\label{cor:H-Lie}
+由 $\Layer_2$ 在上同调上诱导的二元括号
+\[
+  [\![x]\!]\,,[\![y]\!]\;\mapsto\;[\![\Layer_2(x,y)]\!],
+\]
+是 $H(V)$ 上良定义的分级李括号。
+\end{corollary}
+
+\begin{proof}
+良定义性来自 \eqref{eq:Linfty-higher-Jacobi} 在 $n=2$ 的情形：该恒等式表明
+$d$ 对 $\Layer_2$ 满足分级导子性质；因此代表元改变一个边界项时，
+$\Layer_2(x,y)$ 仅改变一个边界项。Jacobi 恒等式在上同调上的成立则来自
+Proposition~\ref{prop:arity3-repair}。
+\end{proof}
+
+% ------------------------------------------------------------
+% 3) Arity 4: l_4 repairs the next coherence defect
+% ------------------------------------------------------------
+
+\subsection{$4$ 元：$\Layer_4$ 修复 $(\Layer_2,\Layer_3)$ 的混合连贯性缺陷}
+
+\begin{definition}[由 $(\Layer_2,\Layer_3)$ 决定的 $4$ 元连贯性缺陷]
+\label{def:arity4-obstruction}
+对齐次且 $d$-闭的 $x_1,x_2,x_3,x_4\in Z(V)$，
+定义 $4$ 元缺陷 $\Ob_4(x_1,x_2,x_3,x_4)$ 为
+$n=4$ 的恒等式 \eqref{eq:Linfty-higher-Jacobi} 中所有仅含 $\Layer_2,\Layer_3$ 的项之和，即
+\[
+  \Ob_4 :=
+  \sum_{\sigma\in S(3,1)} \pm\,\Layer_2\bigl(\Layer_3(\cdots),\cdots\bigr)
+  \;+\;
+  \sum_{\sigma\in S(2,2)} \pm\,\Layer_3\bigl(\Layer_2(\cdots),\cdots\bigr),
+\]
+其中符号由 \eqref{eq:Linfty-higher-Jacobi} 固定。
+\end{definition}
+
+\begin{proposition}[$4$ 元缺陷在 $d$-闭输入上是 $d$-恰当的]
+\label{prop:arity4-repair}
+对 $d$-闭的 $x_1,x_2,x_3,x_4\in Z(V)$，
+\[
+  \Ob_4(x_1,x_2,x_3,x_4)= d\bigl(\Layer_4(x_1,x_2,x_3,x_4)\bigr),
+\]
+此处同样只差由固定 Koszul 约定决定的符号。
+\end{proposition}
+
+\begin{proof}
+在 \eqref{eq:Linfty-higher-Jacobi} 中取 $n=4$。此时 $i+j=5$ 的贡献来自
+$(4,1),(3,2),(2,3),(1,4)$。将各项分组为
+\[
+  0=
+  \underbrace{\Layer_1(\Layer_4(\cdots))}_{(4,1)}
+  \;+\;
+  \underbrace{\Bigl[\text{所有仅含 }\Layer_2,\Layer_3\text{ 的项}\Bigr]}_{(3,2)+(2,3)}
+  \;+\;
+  \underbrace{\Bigl[\text{某个输入先被 }d\text{ 作用的项}\Bigr]}_{(1,4)}.
+\]
+当输入 $d$-闭时，最后一组为零，而中间一组恰为 $\Ob_4$。故得结论。
+\end{proof}
+
+% ------------------------------------------------------------
+% 4) Arity 5 and 6: explicit expansions and interpretation
+% ------------------------------------------------------------
+
+\subsection{$5$ 元与 $6$ 元：对 $\Layer_5$ 与 $\Layer_6$ 的显式展开}
+
+\subsubsection{$5$ 元：$\Layer_5$ 修复由 $(\Layer_2,\Layer_3,\Layer_4)$ 构成的缺陷}
+
+\begin{definition}[由低阶括号决定的 $5$ 元缺陷 $\Ob_5$]
+\label{def:arity5-obstruction}
+对 $d$-闭的齐次元素 $x_1,\dots,x_5\in Z(V)$，
+定义 $\Ob_5(x_1,\dots,x_5)$ 为 $n=5$ 恒等式 \eqref{eq:Linfty-higher-Jacobi}
+中所有不含 $\Layer_5$ 的项之和，即来自 $(i,j)=(4,2),(3,3),(2,4)$ 的贡献：
+\[
+\begin{aligned}
+\Ob_5
+:=
+&\sum_{\sigma\in S(4,1)} \pm\,\Layer_2\bigl(\Layer_4(x_{\sigma(1)},\dots,x_{\sigma(4)}),x_{\sigma(5)}\bigr)
+\\
+&\quad + \sum_{\sigma\in S(3,2)} \pm\,\Layer_3\bigl(\Layer_3(x_{\sigma(1)},x_{\sigma(2)},x_{\sigma(3)}),x_{\sigma(4)},
+  x_{\sigma(5)}\bigr)
+\\
+&\quad + \sum_{\sigma\in S(2,3)} \pm\,\Layer_4\bigl(\Layer_2(x_{\sigma(1)},x_{\sigma(2)}),x_{\sigma(3)},x_{\sigma(4)},
+  x_{\sigma(5)}\bigr).
+\end{aligned}
+\]
+\end{definition}
+
+\begin{proposition}[$5$ 元缺陷是 $d$-恰当的，由 $\Layer_5$ 修复]
+\label{prop:arity5-repair}
+对 $d$-闭的齐次元素 $x_1,\dots,x_5\in Z(V)$，
+\[
+  \Ob_5(x_1,\dots,x_5)= -\,d\bigl(\Layer_5(x_1,\dots,x_5)\bigr),
+\]
+此处同样只差固定 Koszul 约定的符号。
+等价地，$\Ob_5$ 在上同调中为零，而 $\Layer_5$ 给出其原像（同伦填充元）。
+\end{proposition}
+
+\begin{proof}
+在 \eqref{eq:Linfty-higher-Jacobi} 中取 $n=5$。此时 $i+j=6$ 的贡献来自
+$(5,1),(4,2),(3,3),(2,4),(1,5)$。分组为
+\[
+0=
+\underbrace{\Layer_1(\Layer_5(\cdots))}_{(5,1)}
++
+\underbrace{\Ob_5(\cdots)}_{(4,2)+(3,3)+(2,4)}
++
+\underbrace{\Bigl[\text{某个输入先被 }d\text{ 作用再送入 }\Layer_5\text{ 的项}\Bigr]}_{(1,5)}.
+\]
+当输入 $d$-闭时，最后一组为零，于是 $\Ob_5 = -d(\Layer_5)$。
+\end{proof}
+
+\subsubsection{$6$ 元：$\Layer_6$ 修复由 $(\Layer_2,\Layer_3,\Layer_4,\Layer_5)$ 构成的下一层缺陷}
+
+\begin{definition}[由低阶括号决定的 $6$ 元缺陷 $\Ob_6$]
+\label{def:arity6-obstruction}
+对 $d$-闭的齐次元素 $x_1,\dots,x_6\in Z(V)$，
+定义 $\Ob_6(x_1,\dots,x_6)$ 为 $n=6$ 恒等式 \eqref{eq:Linfty-higher-Jacobi}
+中所有不含 $\Layer_6$ 的项之和，即来自 $(i,j)=(5,2),(4,3),(3,4),(2,5)$ 的贡献：
+\[
+\begin{aligned}
+\Ob_6
+:=
+&\sum_{\sigma\in S(5,1)} \pm\,\Layer_2\bigl(\Layer_5(\cdots),\cdots\bigr)
+\\
+&\quad + \sum_{\sigma\in S(4,2)} \pm\,\Layer_3\bigl(\Layer_4(\cdots),\cdots\bigr)
+\\
+&\quad + \sum_{\sigma\in S(3,3)} \pm\,\Layer_4\bigl(\Layer_3(\cdots),\cdots\bigr)
+\\
+&\quad + \sum_{\sigma\in S(2,4)} \pm\,\Layer_5\bigl(\Layer_2(\cdots),\cdots\bigr),
+\end{aligned}
+\]
+其中符号由 \eqref{eq:Linfty-higher-Jacobi} 固定。
+\end{definition}
+
+\begin{proposition}[$6$ 元缺陷是 $d$-恰当的，由 $\Layer_6$ 修复]
+\label{prop:arity6-repair}
+对 $d$-闭的齐次元素 $x_1,\dots,x_6\in Z(V)$，
+\[
+  \Ob_6(x_1,\dots,x_6)= -\,d\bigl(\Layer_6(x_1,\dots,x_6)\bigr),
+\]
+此处同样只差固定 Koszul 约定的符号。
+\end{proposition}
+
+\begin{proof}
+在 \eqref{eq:Linfty-higher-Jacobi} 中取 $n=6$。此时 $i+j=7$ 的贡献来自
+$(6,1),(5,2),(4,3),(3,4),(2,5),(1,6)$。分组为
+\[
+0=
+\underbrace{\Layer_1(\Layer_6(\cdots))}_{(6,1)}
++
+\underbrace{\Ob_6(\cdots)}_{(5,2)+(4,3)+(3,4)+(2,5)}
++
+\underbrace{\Bigl[\text{某个输入先被 }d\text{ 作用再送入 }\Layer_6\text{ 的项}\Bigr]}_{(1,6)}.
+\]
+当输入 $d$-闭时，最后一组为零，于是 $\Ob_6 = -d(\Layer_6)$。
+\end{proof}
+
+\begin{remark}[$\Layer_5,\Layer_6$ 在纯形式意义上比 $\Layer_3,\Layer_4$ 多了什么]
+Propositions~\ref{prop:arity5-repair}--\ref{prop:arity6-repair} 表明，纯形式层面上：
+\begin{itemize}
+  \item $\Layer_3$ 使 $3$ 元 Jacobiator 缺陷在上同调中消失（即变为 $d$-恰当）；
+  \item $\Layer_4$ 修复 $(\Layer_2,\Layer_3)$ 引出的下一层连贯性缺陷；
+  \item $\Layer_5$ 修复由 $(\Layer_2,\Layer_3,\Layer_4)$ 组合引出的缺陷；
+  \item $\Layer_6$ 修复由 $(\Layer_2,\Layer_3,\Layer_4,\Layer_5)$ 组合引出的缺陷。
+\end{itemize}
+因此 $(\Layer_5,\Layer_6)$ 并非“重复增加复杂度”，而是在要求控制五重、六重组合时，
+为保持连贯性塔闭合所必须补足的下一批数据。
+\end{remark}
+
+% ------------------------------------------------------------
+% 5) Inductive obstruction-killing and connection to JacGap / OHU
+% ------------------------------------------------------------
+
+\subsection{归纳式“消阻碍”与 Jacobiator-gap 完备化原理}
+
+\begin{definition}[$n$ 元层的连贯性阻碍]
+\label{def:obstruction-general}
+固定 $n\ge 3$。对 $d$-闭输入 $x_1,\dots,x_n\in Z(V)$，
+定义 $n$ 元阻碍 $\Ob_n(x_1,\dots,x_n)$ 为恒等式
+\eqref{eq:Linfty-higher-Jacobi} 在该 $n$ 下所有不含 $\Layer_n$ 的项之和，
+即满足 $i+j=n+1$ 且 $2\le i\le n-1$, $2\le j\le n-1$ 的项的总和。
+\end{definition}
+
+\begin{proposition}[一般修复步：$d$-闭输入上 $\Ob_n$ 必为 $d$-恰当]
+\label{prop:obstruction-exact-general}
+对每个 $n\ge 3$ 与任意 $d$-闭齐次输入 $x_1,\dots,x_n\in Z(V)$，都有
+\[
+  \Ob_n(x_1,\dots,x_n) = -\,d\bigl(\Layer_n(x_1,\dots,x_n)\bigr),
+\]
+此处同样只差固定 Koszul 约定的符号。
+\end{proposition}
+
+\begin{proof}
+在 $n$ 元恒等式 \eqref{eq:Linfty-higher-Jacobi} 中，抽出 $(i,j)=(n,1)$ 项，
+这正是 $\Layer_1(\Layer_n(\cdots))=d(\Layer_n(\cdots))$。
+再将所有 $2\le i,j\le n-1$ 的项归并为 $\Ob_n$。
+剩余的 $(i,j)=(1,n)$ 项正是“某个输入先被 $d$ 作用后再送入 $\Layer_n$”的项，
+在 $d$-闭输入上为零。整理即得结论。
+\end{proof}
+
+\begin{remark}[与 Jacobiator-gap 证书与 OHU 完备化的对应关系]
+在 PureMath 卷中，Jacobiator-gap 证书
+\[
+  \mathsf{JacGap}(L)=(c_1(L),\dots,c_k(L))
+\]
+被用作“受控的 Jacobi 失效及其兼容高阶同伦数据”的有限打包；
+同时 OHU 完备化定理以 Theorem~\code{thm:GZ-OHU}
+（\emph{GZ-OHU completion theorem}）给出全局存在性结论。
+
+从纯形式角度看，Proposition~\ref{prop:obstruction-exact-general} 是如下全局口号的
+局部代数机制：
+\[
+  \text{“只要提供下一阶高元括号，就能把受控 Jacobi 缺陷填成一个同伦边界。”}
+\]
+OHU 定理在可容许性假设下把“存在同伦完备扩张 $L^{\mathrm{OHU}}$”打包为全局定理；
+而逐阶修复的代数过程正由 \eqref{eq:Linfty-higher-Jacobi} 的各阶恒等式给出。
+\end{remark}
+
+% ------------------------------------------------------------
+% 6) Cross-volume alignment (PureMath + AppMath I--IV)
+% ------------------------------------------------------------
+
+\subsection{在 \GFramework 内部对齐：PureMath 与 AppMath I--IV 的逐卷对应}
+
+\subsubsection{PureMath}
+
+\begin{remark}[PureMath 中“修复塔”的定义位置]
+在 \code{docs/PureMath/Pub_GFramework_PureMath.tex} 中：
+\begin{itemize}
+  \item 定义 \emph{Jacobiator} 给出二元括号 $[\cdot,\cdot]$ 的 Jacobiator $\Jac$。
+  \item \emph{Generalized Noncommutative Lie Algebras and Homotopy Lie Structures} 一节
+        以 shuffle-sum 恒等式 \eqref{eq:Linfty-higher-Jacobi} 的形式（示意或显式）给出
+        $L_\infty$ 结构，并指出 $\Layer_2$ 的 Jacobi 失效由 $\Layer_3$ 控制。
+  \item 定义 \emph{Jacobiator-gap certificate (schematic)} 引入
+        $\mathsf{JacGap}(L)$ 作为“受控 Jacobi 失效”的证书化打包。
+  \item OHU 完备化定理以 Theorem~\code{thm:GZ-OHU}
+        （\emph{GZ-OHU completion theorem}）给出：在可容许性假设下存在同伦完备扩张
+        $L^{\mathrm{OHU}}$。
+\end{itemize}
+本章抽出其纯形式含义：高阶括号 $\Layer_{\ge 3}$ 逐阶为连贯性阻碍 $\Ob_n$ 提供原像，
+从而使各阶阻碍都变为 $d$-恰当。
+\end{remark}
+
+\subsubsection{AppMath Vol.~1}
+
+\begin{remark}[Vol.~1：分层 Jacobian-gap 控制作为纤维化阻碍问题]
+在 \code{docs/AppMathVol1/Pub_GFramework_AppMath_Vol1.tex} 中：
+\begin{itemize}
+  \item \emph{Layered Law-Space Connections and Jacobian-Gap Control} 一节引入层索引的
+        Jacobiator/Jacobian-gap 泛函
+        \(
+          J_n(\cdot,\cdot,\cdot;\Lambda^{(l_n)})
+        \)
+        并定义其相对目标的偏差（gap）。
+  \item \emph{Jacobian-gap homotopy-solvability and homotopy-invertibility} 一节把阻碍解释为
+        纤维化上同调类 $[\Delta J]\in H^3_{\mathrm{fibred}}(\mathcal{G}/B)$，并要求其可作零同伦。
+  \item Theorem~\code{thm:KAT-jacobi-homotopy-invertible} 明确指出：
+        当 Jacobian-gap 的同伦阻碍类可作零同伦（或等价地，上同调上为零）时，
+        存在 $L_\infty$ 或 $A_\infty$ 式的纠偏把结构校正到目标 GNLA，
+        并与 KAT 作用相容。
+\end{itemize}
+这与 Proposition~\ref{prop:arity3-repair} 一致：$3$ 元层的阻碍正是 Jacobiator 缺陷的上同调类；
+其平凡性等价于存在一个同伦填充元（$\Layer_3$ 型数据）使该缺陷成为 $d$-恰当。
+\end{remark}
+
+\subsubsection{AppMath Vol.~2}
+
+\begin{remark}[Vol.~2：有限层基线与 $n>6$ 的分辨率截断]
+在 \code{docs/AppMathVol2/Pub_GFramework_AppMath_Vol2.tex} 中：
+\begin{itemize}
+  \item \emph{Layer structure and its dependence on baseline} 一节强调层级 $(l_n)$ 依赖于
+        所选主丛基线（baseline），并给出不同基线下 $l_3$ 的解释差异。
+  \item 同一段文字明确声明：若某些扭曲仅在 $n>6$ 的层级上显著出现，则这超出所选
+        有限层工程基线的分辨率范围；并不宣称其为零，而是该截断模型不对其表述。
+\end{itemize}
+在纯形式上，这等价于：工程基线选择了连贯性塔 \eqref{eq:Linfty-higher-Jacobi}
+的截断层数 $N$。本章将 $N=6$ 的纯形式含义讲清楚：若建模要求控制到 $6$ 元层，
+则必须纳入 $\Layer_5,\Layer_6$ 以确保 $5$ 元与 $6$ 元阻碍都可变为 $d$-恰当
+（见 Propositions~\ref{prop:arity5-repair}--\ref{prop:arity6-repair}），
+而 $>6$ 的效应在此基线下按构造被排除在模型之外。
+\end{remark}
+
+\subsubsection{AppMath Vol.~3}
+
+\begin{remark}[Vol.~3：property-layer Jacobiator-gap 是 PureMath 缺陷的再解释]
+在 \code{docs/AppMathVol3/Pub_GFramework_AppMath_Vol3.tex} 中：
+\begin{itemize}
+  \item Remark~\code{rem:haca-jacobiator-gap-puremath} 明确指出：
+        PureMath 中 GNLA/$L_\infty$ 的 Jacobiator-gap 概念，在 HACA 的 property layer 上被再解释。
+  \item
+        \emph{Jacobiator-Gap Certificates for HACA and PACER: Heterogeneous Property-Changing Morphisms
+        and Law-Space Invariants} 一节给出“边界/上同调”的视角：
+        当 Jacobiator-gap 类是一个 coboundary（即上同调平凡）时，可以选择更高阶同伦数据
+        来“填充”该 gap，从而得到良好的高阶联络与算子丛结构。
+\end{itemize}
+在纯形式上，这仍对应于 Proposition~\ref{prop:arity3-repair} 及其高阶推广：
+“是一个 coboundary”即“是 $d$-恰当”；而“更高阶同伦数据”就是高阶括号/填充元 $\Layer_{\ge 3}$，
+它们见证了各阶连贯性阻碍的 $d$-恰当性。
+\end{remark}
+
+\subsubsection{AppMath Vol.~4}
+
+\begin{remark}[Vol.~4：同伦约束系统是连贯性控制的量化版本]
+在 \code{docs/AppMathVol4/Pub_GFramework_AppMath_Vol4.tex} 中：
+\begin{itemize}
+  \item Definition~\code{def:homotopy-constraint-system} 定义同伦约束系统：
+        在聚类状态空间的可容许轨道上，对 Jacobi gap 与风险度量施加积分或点态不等式约束。
+  \item Definition~\code{def:certificate-system} 定义证书映射与验证谓词，
+        用以沿可容许路径对上述约束进行可靠认证。
+\end{itemize}
+这可视为本章纯代数修复陈述的“量化、路径化类比”：本章要求每一阶阻碍 $\Ob_n$ 都严格
+是 $d$-恰当（因此上同调上为零）；而 Vol.~4 在更一般的设置下允许沿同伦路径存在可控的偏差，
+并用证书系统确保偏差不超出可容许区间。形式上可理解为：
+把“严格上同调平凡”替换为“在可容许同伦图表内受控平凡（以不等式方式表述）”。
+\end{remark}
+
+% ------------------------------------------------------------
+% 7) 命题-证明化的跨卷对齐（PureMath + AppMath I--IV）
+% ------------------------------------------------------------
+
+\section{跨卷对齐的命题-证明化表述：PureMath 与 AppMath I--IV 的统一机制}
+\label{sec:cross-volume-alignment-prop-proof}
+
+\subsection{统一抽象：实现映射、阻碍类与“可修复性”方程}
+
+\begin{definition}[实现映射（Realization map）$\mathcal{R}$]
+\label{def:realization-map}
+设 $\mathcal{D}$ 为“法空间几何/算子包”数据的一个抽象域（例如：主丛基线、联络、曲率、
+可观测量与算子函子等的合取数据），其具体取法由各卷给出。
+一个\emph{实现映射}是指从该域到 $L_\infty$ 数据的一个过程
+\[
+  \mathcal{R}:\mathcal{D}\longrightarrow (V,d,\{\Layer_k\}_{k\ge 2}),
+\]
+其中 $(V,d)$ 为微分分级向量空间（$d^2=0$），$\{\Layer_k\}$ 为满足
+\eqref{eq:Linfty-higher-Jacobi} 的高阶括号族。
+\end{definition}
+
+\begin{definition}[阻碍类的对位映射]
+令 $D\in\mathcal{D}$，并令 $\mathcal{R}(D)=(V,d,\{\Layer_k\})$。
+假设与 $D$ 相关的“gap/阻碍”在某个（纤维化或几何化的）$3$ 上同调群中给出为一类
+\[
+  [\Delta J(D)]\in H^3_{\mathrm{fibred}}(D),
+\]
+并且存在一个自然的比较映射（由实现 $\mathcal{R}$ 诱导）
+\[
+  \Psi_D:\ H^3_{\mathrm{fibred}}(D)\longrightarrow H(V),
+\]
+使得
+\[
+  \Psi_D([\Delta J(D)]) \;=\; [\Ob_3] \;=\; [\Jac_{\Layer_2}].
+\]
+（这里 $[\cdot]$ 表示在 $(V,d)$ 的上同调 $H(V)=\ker(d)/\mathrm{im}(d)$ 中的同调类，
+而 $\Ob_3$ 与 $\Jac_{\Layer_2}$ 在本章中等价表述，见 Definition~\ref{def:obstruction-general} 与
+Proposition~\ref{prop:arity3-repair}。）
+则称 $\Psi_D$ 为\emph{阻碍类对位映射}。
+\end{definition}
+
+\begin{proposition}[统一形式：三元阻碍的“可修复性”方程]
+\label{prop:unified-repair-equation-arity3}
+在上述设定下，若 $x,y,z\in Z(V)=\ker(d)$，则三元阻碍满足
+\[
+  \Ob_3(x,y,z)\;=\;\Jac_{\Layer_2}(x,y,z)\;=\;d\bigl(\Layer_3(x,y,z)\bigr)
+\]
+（符号约定同 \eqref{eq:Linfty-higher-Jacobi}），从而 $[\Ob_3]=0$ 于 $H(V)$。
+\end{proposition}
+
+\begin{proof}
+这正是 Proposition~\ref{prop:arity3-repair} 的结论；并由 Definition~\ref{def:obstruction-general}
+中对 $\Ob_n$ 的抽象定义可知 $\Ob_3$ 与 $\Jac_{\Layer_2}$ 等价。
+\end{proof}
+
+\begin{corollary}[跨域表述的最小一致性要求]
+\label{cor:minimal-consistency}
+若某卷以 $[\Delta J(D)]\in H^3_{\mathrm{fibred}}(D)$ 作为三元层的“gap/阻碍”刻画，
+并声称其“可作零同伦/可解”，则在存在阻碍类对位映射 $\Psi_D$ 的前提下，
+该断言至少应推出 $[\Jac_{\Layer_2}]=0$ 于 $H(V)$；等价地，应存在 $\Layer_3$ 使
+$\Jac_{\Layer_2}=d(\Layer_3)$ 在 $d$-闭输入上成立。
+\end{corollary}
+
+\subsection{对齐 AppMath Vol.~1：纤维化 $H^3$ 阻碍与 $\Ob_3$ 的同调类}
+
+\begin{proposition}[Vol.~1 的 $H^3_{\mathrm{fibred}}$ 阻碍与 $\Ob_3$ 的同调类对位]
+\label{prop:vol1-fibredH3-vs-Ob3}
+考虑 \code{docs/AppMathVol1/Pub_GFramework_AppMath_Vol1.tex} 中的
+“Jacobian-gap 作为纤维化 $H^3$ 阻碍类”的设定（参见其中关于
+$[\Delta J]\in H^3_{\mathrm{fibred}}(\mathcal{G}/B)$ 的段落，以及
+Theorem~\code{thm:KAT-jacobi-homotopy-invertible} 的叙述）。
+在存在实现映射 $\mathcal{R}$ 与对位映射 $\Psi$ 的前提下，有：
+\[
+  [\Delta J(D)]=0 \text{ 于 } H^3_{\mathrm{fibred}}(D)
+  \quad\Longrightarrow\quad
+  [\Ob_3]=[\Jac_{\Layer_2}]=0 \text{ 于 } H(V).
+\]
+\end{proposition}
+
+\begin{proof}
+由对位映射的定义，$\Psi_D([\Delta J(D)])=[\Ob_3]$。
+若 $[\Delta J(D)]=0$，则其像 $[\Ob_3]$ 亦为零。
+再由 Proposition~\ref{prop:unified-repair-equation-arity3}，
+零同调类等价于存在 $\Layer_3$ 使 $\Jac_{\Layer_2}=d(\Layer_3)$（在 $d$-闭输入上）。
+\end{proof}
+
+\begin{corollary}[Vol.~1“同伦可解性/可逆性”的 $L_\infty$ 充要表达]
+\label{cor:vol1-homotopy-solvable-linfty}
+在同一对位前提下，Vol.~1 中“$[\Delta J]=0$”的判据可被等价地表述为：
+存在三元填充元 $\Layer_3$ 使 $\Jac_{\Layer_2}$ 在 $d$-闭输入上为 $d$-恰当，
+从而二元括号在上同调 $H(V)$ 上诱导出严格李结构（见 Corollary~\ref{cor:H-Lie}）。
+\end{corollary}
+
+\subsection{对齐 AppMath Vol.~2：工程基线截断与 $L_\infty$ 截断/可延拓性}
+
+\begin{definition}[$N$-截断 $L_\infty$ 结构]
+\label{def:N-truncated-Linfty}
+给定 $N\ge 2$。称 $(V,d,\{\Layer_k\}_{2\le k\le N})$ 为一个\emph{$N$-截断 $L_\infty$ 结构}，
+若对所有 $1\le n\le N$，高阶 Jacobi 恒等式 \eqref{eq:Linfty-higher-Jacobi} 在该 $n$ 下成立，
+且其中只出现 $\Layer_k$（$k\le N$）。
+\end{definition}
+
+\begin{proposition}[$N$ 截断结构在 $d$-闭输入上的可延拓性]
+\label{prop:extension-obstruction}
+设给定一个 $N$-截断 $L_\infty$ 结构 $(V,d,\{\Layer_k\}_{k\le N})$。
+将 $n=N+1$ 的恒等式 \eqref{eq:Linfty-higher-Jacobi} 中\emph{不含} $\Layer_{N+1}$ 的部分记为
+$\Ob_{N+1}$（即本章 Definition~\ref{def:obstruction-general} 的 $\Ob_n$ 在 $n=N+1$ 的特例）。
+则对任意 $d$-闭的齐次输入 $x_1,\dots,x_{N+1}\in Z(V)$，
+使得 $n=N+1$ 的恒等式在这些输入上成立的充要条件是存在一个 $(N+1)$ 元括号 $\Layer_{N+1}$，使得
+\[
+  \Ob_{N+1}(x_1,\dots,x_{N+1}) = -\,d\bigl(\Layer_{N+1}(x_1,\dots,x_{N+1})\bigr).
+\]
+特别地，一旦存在这样的 $\Layer_{N+1}$，则 $\Ob_{N+1}(x_1,\dots,x_{N+1})$ 在 $H(V)$ 中为零。
+\end{proposition}
+
+\begin{proof}
+固定 $d$-闭输入 $x_1,\dots,x_{N+1}\in Z(V)$，考察 \eqref{eq:Linfty-higher-Jacobi} 在 $n=N+1$ 的情形。
+此时 $i+j=N+2$ 的贡献来自 $(N+1,1),(N,2),\dots,(2,N),(1,N+1)$。
+其中：
+\begin{itemize}
+  \item $(i,j)=(N+1,1)$ 项给出 $d\bigl(\Layer_{N+1}(x_1,\dots,x_{N+1})\bigr)$；
+  \item $2\le i,j\le N$ 的项之和按定义就是 $\Ob_{N+1}(x_1,\dots,x_{N+1})$；
+  \item $(i,j)=(1,N+1)$ 的项包含某个输入先被 $d$ 作用后再送入 $\Layer_{N+1}$ 的贡献，
+        在 $d$-闭输入上全部为零。
+\end{itemize}
+因此，$n=N+1$ 的恒等式在该组输入上的成立等价于
+\[
+  d\bigl(\Layer_{N+1}(x_1,\dots,x_{N+1})\bigr)+\Ob_{N+1}(x_1,\dots,x_{N+1})=0,
+\]
+也即命题所述的“修复方程”。最后一句由 $d^2=0$ 立刻推出：若 $\Ob_{N+1}=-d(\Layer_{N+1})$，则其同调类为零。
+\end{proof}
+
+\begin{corollary}[Vol.~2 的“有限层工程基线”可视为 $N=6$ 的截断选择]
+\label{cor:vol2-baseline-as-truncation}
+在 \code{docs/AppMathVol2/Pub_GFramework_AppMath_Vol2.tex} 的
+Section~\code{sec:multi-bundle-LBOPB}（尤其是“工程基线导致有限层
+$(l_n)_{0\le n\le 6}$，且 $n>6$ 层扭曲超出分辨率范围”的段落）中，
+“选择七域 LBOPB 基线并截断至 $0\le n\le 6$”在纯形式层面等价于：
+选择一个 $N=6$ 的截断 $L_\infty$ 模型，只承诺控制到 $\Layer_6$ 的连贯性方程。
+此时：
+\begin{itemize}
+  \item 若要在该截断内闭合到 $n\le 6$ 的一致性，则 $\Layer_5,\Layer_6$ 是必要数据
+        （见 Proposition~\ref{prop:arity5-repair}--\ref{prop:arity6-repair}）；
+  \item 对 $n\ge 7$ 的更高阶阻碍类 $[\Ob_n]$，该工程基线按构造不作表述与控制，
+        其“不可代表/不可保证可控”应被理解为“未进入截断模型的断言域”，而非“必为零”。
+\end{itemize}
+\end{corollary}
+
+\subsection{对齐 AppMath Vol.~3：Property-layer Jacobiator-gap 的函子化对位}
+
+\begin{definition}[Property-layer 的函子化抽象]
+\label{def:property-functor-abstract}
+令 $\mathsf{Op}$ 表示“算子/结构层”的抽象范畴（对象可理解为 $(V,d,\{\Layer_k\})$ 或其几何实现），
+令 $\mathsf{Prop}$ 表示“性质层/性质变换层”的抽象范畴。
+称一个函子
+\[
+  \Prop:\ \mathsf{Op}\longrightarrow \mathsf{Prop}
+\]
+为\emph{性质层函子}，若它把结构层的“可检验不变量/证书型数据”（例如 Jacobiator-gap 证书）
+映到性质层可表述的数据对象，并保持合成与恒等态射。
+该抽象对应于 \code{docs/AppMathVol3/Pub_GFramework_AppMath_Vol3.tex} 中
+property layer 的构造思路与
+Remark~\code{rem:haca-jacobiator-gap-puremath} 的显式回接。
+\end{definition}
+
+\begin{proposition}[结构层阻碍的平凡性在性质层下保持]
+\label{prop:prop-preserves-triviality}
+在 Definition~\ref{def:property-functor-abstract} 的设定下，若 $\Prop$ 诱导出同调层面的映射
+\[
+  \Prop_*:\ H(V)\longrightarrow H(\Prop(V)),
+\]
+并且对任意 $n\ge 3$，性质层的阻碍类满足
+\[
+  \Prop_*([\Ob_n]) = [\Ob_n^{\Prop}],
+\]
+则有蕴含
+\[
+  [\Ob_n]=0 \ \Longrightarrow\ [\Ob_n^{\Prop}]=0.
+\]
+特别地，若结构层 Jacobiator-gap 为 coboundary（上同调平凡），则 property-layer Jacobiator-gap 亦平凡。
+\end{proposition}
+
+\begin{proof}
+若 $[\Ob_n]=0$，则 $\Ob_n=d(\xi)$ 对某个 $\xi$ 成立。由函子诱导映射的同调性，
+$\Prop_*(0)=0$ 且 $\Prop_*$ 保持边界到边界，于是 $[\Ob_n^{\Prop}]=\Prop_*([\Ob_n])=0$。
+\end{proof}
+
+\begin{remark}[反向推出需要额外条件]
+一般而言，$[\Ob_n^{\Prop}]=0$ 并不能反推出 $[\Ob_n]=0$，除非额外假设 $\Prop$ 在相关子类上是忠实的
+或能反映 $d$-恰当性（例如：$\Prop(\eta)=d(\zeta)$ 能推出 $\eta=d(\xi)$）。
+Vol.~3 的工程语义正是通过证书与可验证结构来尽量逼近这种“可反映性”的条件。
+\end{remark}
+
+\subsection{对齐 AppMath Vol.~4：证书系统作为对 $d$-恰当性的可验证松弛}
+
+\begin{definition}[证书化的近似修复（在同伦图表内）]
+\label{def:certified-relaxed-repair}
+令 $\|\cdot\|$ 为 $(V,d)$ 上任意一个半范数/范数或可检验大小度量（不必具体化），
+并令 $\mathcal{U}$ 表示某个“同伦图表/可容许路径族”的抽象索引集合（例如 Vol.~4 的 cluster-state 路径域）。
+称在 $\mathcal{U}$ 上对 $n$ 元阻碍的\emph{证书化近似修复}为一组数据
+\[
+  \bigl(h_n,\ \varepsilon_n,\ \mathsf{Cert}_n\bigr),
+\]
+其中 $h_n$ 是一个候选 $n$ 元填充元，$\varepsilon_n\ge 0$ 为容许残差上界，
+$\mathsf{Cert}_n$ 为可验证谓词，使得对所有 $u\in\mathcal{U}$ 有
+\[
+  \bigl\|\Ob_n(u) + d(h_n(u))\bigr\|\ \le\ \varepsilon_n,
+\]
+并且该不等式由 $\mathsf{Cert}_n$ 可验证。
+该抽象对应于 \code{docs/AppMathVol4/Pub_GFramework_AppMath_Vol4.tex} 中
+Definition~\code{def:homotopy-constraint-system} 与
+Definition~\code{def:certificate-system} 的思想框架。
+\end{definition}
+
+\begin{proposition}[零残差证书 $\Rightarrow$ 严格 $L_\infty$ 修复方程（在图表内）]
+\label{prop:epsilon0-implies-exact}
+在 Definition~\ref{def:certified-relaxed-repair} 的设定下，若 $\varepsilon_n=0$，
+则对所有 $u\in\mathcal{U}$ 有严格等式
+\[
+  \Ob_n(u) = -\,d(h_n(u)).
+\]
+因此在该图表内可把 $h_n$ 视为（符号差异下的）$\Layer_n$，从而恢复本章
+Proposition~\ref{prop:obstruction-exact-general} 的严格修复机制（局部成立）。
+\end{proposition}
+
+\begin{proof}
+由 $\varepsilon_n=0$ 得 $\|\Ob_n(u)+d(h_n(u))\|=0$。若 $\|\cdot\|$ 为可分离的大小度量（或至少满足
+“$\|w\|=0 \Rightarrow w=0$”的基本性质），则推出 $\Ob_n(u)+d(h_n(u))=0$，即结论。
+\end{proof}
+
+\begin{remark}[非零残差对应“受控同调偏差”而非“同调平凡”]
+当 $\varepsilon_n>0$ 时，证书系统给出的是“受控偏差”：
+阻碍项并非严格 $d$-恰当，但其偏离量在可容许路径上可验证地受限。
+这可被理解为把“上同调平凡（严格为零）”替换为“在同伦图表内受控趋零/受控稳定”的版本；
+其严格化极限即 Proposition~\ref{prop:epsilon0-implies-exact} 的 $\varepsilon_n=0$ 情形。
+\end{remark}
+
+\subsection{总括：统一修复塔的跨卷一致性定理（形式版本）}
+
+\begin{theorem}[跨卷一致性：同一阻碍-填充方程驱动 PureMath 与 AppMath I--IV]
+\label{thm:cross-volume-unified-mechanism}
+在以下前提下：
+\begin{enumerate}
+  \item PureMath 卷提供 $L_\infty$ 的同伦括号塔与阻碍-填充方程（本章的
+        \eqref{eq:Linfty-higher-Jacobi} 与 Proposition~\ref{prop:obstruction-exact-general}）；
+  \item Vol.~1 将“Jacobian-gap”组织为 $H^3_{\mathrm{fibred}}$ 阻碍类，并满足对位映射 $\Psi$；
+  \item Vol.~2 通过工程基线选取给出有限层截断（例如 $N=6$）；
+  \item Vol.~3 通过性质层函子 $\Prop$ 将结构层 Jacobiator-gap 证书推到 property layer；
+  \item Vol.~4 通过同伦约束系统与证书系统把“严格 $d$-恰当”松弛为“可验证的受控残差”；
+\end{enumerate}
+则各卷在纯形式层面共享同一个核心机制：
+对每个 $n\ge 3$，阻碍项 $\Ob_n$ 的“可修复性”由是否存在 $n$ 元填充元（严格或证书化近似）
+以满足
+\[
+  \Ob_n \approx -\,d(\text{填充元})
+\]
+来刻画；其中“$\approx$”在 PureMath/Vol.~1/Vol.~3 的严格情形退化为等号，
+在 Vol.~4 的证书系统下对应受控残差不等式；而 Vol.~2 的截断选择决定了需要显式控制的阶数上界。
+\end{theorem}
+
+\begin{proof}
+严格情形由本章 Proposition~\ref{prop:obstruction-exact-general} 给出；
+Vol.~1 的对位性由 Proposition~\ref{prop:vol1-fibredH3-vs-Ob3} 给出；
+Vol.~2 的截断与延拓由 Proposition~\ref{prop:extension-obstruction} 与
+Corollary~\ref{cor:vol2-baseline-as-truncation} 给出；
+Vol.~3 的函子保持平凡性由 Proposition~\ref{prop:prop-preserves-triviality} 给出；
+Vol.~4 的证书化严格化极限由 Proposition~\ref{prop:epsilon0-implies-exact} 给出。
+将这些结论按“同一阻碍-填充方程在不同语义外壳下的呈现”组合，即得定理。
+\end{proof}
+
+\section{与传统同伦塔的对照：静态逼近与动态修复}
+\label{sec:homotopy-tower-vs-repair}
+
+\subsection{传统同伦塔：以 Postnikov/Whitehead 为原型的静态逼近序列}
+
+\begin{definition}[Postnikov 塔（抽象接口）]\label{def:postnikov-tower}
+令 $X$ 为连通空间。称一列空间与映射
+\[
+  X \xrightarrow{p_n} P_n X \xrightarrow{q_n} P_{n-1}X \xrightarrow{q_{n-1}} \cdots \xrightarrow{q_1} P_1X
+\]
+为 $X$ 的一个 \emph{Postnikov 塔}，若对每个 $n\ge 1$：
+\begin{enumerate}
+  \item $P_nX$ 的高阶同伦群消失：$\pi_k(P_nX)=0$（对一切 $k>n$）；
+  \item $p_n$ 在低阶同伦群上给出同构：$(p_n)_*:\pi_k(X)\xrightarrow{\ \cong\ }\pi_k(P_nX)$（对一切 $k\le n$）。
+\end{enumerate}
+类似地，Whitehead 塔可被理解为“逐层消去低阶同伦群”的对偶构造。
+（参见 \cite{HatcherAT}。）
+\end{definition}
+
+\begin{remark}[“静态分析工具”的可判定含义]
+在上述定义下，$P_nX$ 的语义是：它由 $X$ \emph{决定}（通过同伦截断/泛性质）并用于\emph{描述}
+“$X$ 的同伦型在阶数 $\le n$ 的部分是什么”。这类同伦塔不以“修复某个代数恒等式失效”为目标；
+它的输出对象仍处于“给定 $X$ 的同伦类”之内。
+\end{remark}
+
+\subsection{G-Framework 的修复塔：以 $L_\infty$ 连贯方程为驱动的构造序列}
+
+\begin{definition}[修复塔（括号扩张序列）]
+固定一个微分分级向量空间 $(V,d)$ 与一个二元括号 $\Layer_2$，并假设 $d$ 与 $\Layer_2$ 满足
+$n=1,2$ 的 $L_\infty$ 恒等式（即 $d^2=0$ 且 $d$ 为 $\Layer_2$ 的导子）。
+称一列高阶括号
+\[
+  (\Layer_3,\Layer_4,\dots)
+\]
+为 $(V,d,\Layer_2)$ 的一个\emph{修复塔}，若对每个 $n\ge 3$，在 $d$-闭输入上满足修复方程
+\[
+  \Ob_n = -\,d(\Layer_n),
+\]
+其中 $\Ob_n$ 为 Definition~\ref{def:obstruction-general} 的 $n$ 元阻碍。
+\end{definition}
+
+\begin{proposition}[“一步修复”方程就是下一阶连贯性方程（在 $d$-闭输入上）]
+\label{prop:repair-step-eq}
+对任意 $N\ge 2$，在给定 $(V,d,\{\Layer_k\}_{k\le N})$ 的情形下，
+$n=N+1$ 的 $L_\infty$ 恒等式在 $d$-闭输入上的成立，等价于存在 $\Layer_{N+1}$ 使
+\[
+  \Ob_{N+1} = -\,d(\Layer_{N+1})
+\]
+在 $d$-闭输入上成立。
+\end{proposition}
+
+\begin{proof}
+这正是 Proposition~\ref{prop:extension-obstruction} 的结论重述。
+\end{proof}
+
+\begin{remark}[“动态修复引擎”的形式化表达]
+Definition~\ref{def:obstruction-general} 与 Proposition~\ref{prop:repair-step-eq} 表明：
+本框架中每一层的“新增数据”并非任意附会，而是被下一阶连贯性方程
+\[
+  \Ob_{n} + d(\Layer_n)=0
+\]
+所\emph{强制}；这把“同伦塔”从一个静态分解对象转化为一串需要逐步求解的约束方程组。
+\end{remark}
+
+\subsection{四个核心差异的命题化版本（基于 PureMath 与 JacGap--D-Structure 文档）}
+
+\subsubsection{(1) 从逼近到修复：GZ-OHU 作为构造性存在定理}
+
+\begin{proposition}[OHU 完备化把“塔”变为构造机制（存在性/普遍性接口）]
+\label{prop:ohu-as-repair}
+在 \code{docs/PureMath/Pub_GFramework_PureMath.tex} 中，Jacobiator-gap 证书与 OHU 完备化被形式化为：
+\begin{itemize}
+  \item Jacobiator-gap 证书：Definition~\texttt{Jacobiator and Jacobiator-gap certificate}；
+  \item OHU 完备化：Definition~\texttt{OHU-completion}；
+  \item GZ-OHU 完备化定理：Theorem~\code{thm:GZ-OHU}。
+\end{itemize}
+因此，在“存在缺陷”（$\mathsf{JacGap}(L)$ 非平凡）的情形下，GZ-OHU 给出的不是一个“对既有对象的逼近序列”，
+而是一个\emph{构造性结论}：存在同伦完备扩张 $L^{\mathrm{OHU}}$ 及嵌入 $\iota:L\hookrightarrow L^{\mathrm{OHU}}$，
+并且该扩张带有“可通过同伦升级逐步降低缺陷”的机制接口（见定理的 Homotopy-completeness 条款）。
+\end{proposition}
+
+\begin{proof}
+该命题是对 \code{docs/PureMath/Pub_GFramework_PureMath.tex} 的 Theorem~\code{thm:GZ-OHU}
+（及其前置定义）的直接重述：它把“完备对象存在”与“缺陷可被同伦升级控制”同时写成可引用的形式系统断言。
+\end{proof}
+
+\subsubsection{(2) 从内蕴到几何耦合：$H$-扭曲两项 $L_\infty$ 与 GZ-Harmony}
+
+\begin{proposition}[$H$-扭曲两项 $L_\infty$ 中 $\Layer_3$ 受几何 3-形式与法曲率控制]
+\label{prop:h-twisted-geometry-coupling}
+在 \code{docs/PureMath/Pub_GFramework_PureMath.tex} 的
+\emph{$H$-Twisted Two-Term $L_\infty$ Structures and GZ-Harmony} 一节中，给出如下接口事实：
+\begin{enumerate}
+  \item 存在闭 $3$-形式 $H$（$\mathrm{d}H=0$）及其 law-level 影子 $H_{\mathrm{law}}$；
+  \item 存在两项 $L_\infty$ 结构 $V=V^{-1}\oplus V^0$，其三元括号 $\Layer_3^H:V^{0\otimes 3}\to V^{-1}$
+        被视为“$H$-扭曲 Jacobiator”；
+  \item Jacobiator 失配满足边界形式的修复方程
+        \[
+          \Jac_{\Layer_2}(x,y,z)=d\bigl(\Layer_3^H(x,y,z)\bigr)\qquad(x,y,z\in V^0),
+        \]
+        并且 $\mathrm{d}H=0$ 对应更高阶连贯性方程（$n=4$ 身份）的成立；
+  \item GZ-Harmony 进一步要求 $\Layer_3^H$ 与 $(H,\mathrm{law\text{-}curvature})$ 之间存在曲率--同伦映射
+        $\mathcal{K}_H$，并与三层联络的平行移动相容。
+\end{enumerate}
+这表明：在该框架里，$\Layer_3$ 并非纯代数“任取的填充元”，而是被几何数据与法曲率数据所约束的耦合变量。
+\end{proposition}
+
+\begin{proof}
+逐条对应于上述章节中对 $H$-twisted two-term $L_\infty$ 结构与 GZ-Harmony 的定义与条件 (C1)--(C2)。
+\end{proof}
+
+\subsubsection{(3) 从无穷序列到可控证书：JacGap 的有限性与停止条件}
+
+\begin{proposition}[Jacobiator-gap 证书给出有限维缺陷度量与严格化判据]
+\label{prop:jacgap-finite-metric}
+在 \code{docs/PureMath/Pub_GFramework_PureMath.tex} 中，Jacobiator-gap 证书 $\mathsf{JacGap}(L)$
+被定义为有限个非负连续泛函的集合（见 Definition~\texttt{Jacobiator and Jacobiator-gap certificate}），并满足：
+\begin{enumerate}
+  \item 若 $J_L$ 表示 Jacobiator，则 $\mathsf{JacGap}_L(a,b,c)$ 对任意三元组都是有限的；
+  \item $J_L\equiv 0$ 当且仅当 $\mathsf{JacGap}_L(a,b,c)=0$（对所有三元组）；
+  \item Jacobiator 的大小被 $\mathsf{JacGap}$ 控制（以范数不等式表达）。
+\end{enumerate}
+因此，$\mathsf{JacGap}(L)=0$ 提供了一个可执行的“严格化/停止条件”：此时 Jacobiator 在可观测意义下消失，
+并可进入严格李结构（或严格法对象）语义域。
+\end{proposition}
+
+\begin{proof}
+这三条都是上述定义中的条款 (a)--(c) 的直接转写。
+\end{proof}
+
+\subsubsection{(4) 引入序数型深度/广度：超限递归与扭曲塔不变量}
+
+\begin{definition}[同伦扭曲深度/广度（序数型接口）]
+\label{def:twist-depth-breadth}
+在 G-Equiv\cite{JacGapDStructureEquiv}（\code{NoteBook/notebook1/tex3_pub/jacobi_gap_D_structure_equivalence.tex}）中，
+对一条按序数索引的“无限同伦扭曲塔” $\{L_\alpha\}_{\alpha<\kappa}$，定义：
+\[
+  \alpha_\ast
+  =
+  \min\bigl\{\alpha<\kappa \mid [\mathsf{JacGap}(L_\alpha)]=0\ \text{（或落入预设容忍子集）}\bigr\}
+\]
+为\emph{同伦扭曲深度}，并定义
+\[
+  J_\ast
+  =
+  \bigl\{\,i \,\bigm|\, \exists \alpha<\alpha_\ast,\ c_i(L_\alpha)\ \text{发生非平凡同伦更新}\bigr\}
+\]
+为\emph{同伦扭曲广度}（其中 $\mathsf{JacGap}(L_\alpha)=(c_1(L_\alpha),\dots,c_k(L_\alpha))$）。
+\end{definition}
+
+\begin{proposition}[有限层修复是序数型深度/广度的特例]
+\label{prop:finite-vs-transfinite}
+若一条修复过程在某个有限层数 $N$ 内完成（即存在 $n\le N$ 使 $\mathsf{JacGap}$ 已落入容忍阈值），
+则可取 $\kappa=\omega$ 并有 $\alpha_\ast<\omega$；此时 $J_\ast$ 退化为“在有限步内被实际更新的证书分量集合”。
+反之，若允许修复索引提升为序数，则 $\alpha_\ast$ 可表达超出自然数层级的迭代高度，从而把“修复复杂度”写成序数不变量。
+\end{proposition}
+
+\begin{proof}
+第一句由 Definition~\ref{def:twist-depth-breadth} 的最小化定义立刻推出：若在有限步内达到阈值，则最小步数为某个自然数。
+第二句是同一定义在允许 $\kappa$ 为极限序数时的直接语义展开。
+\end{proof}
+
+\subsection{结论：把“同伦塔”实体化为可构造/可度量/可耦合的修复机制}
+
+\begin{theorem}[G-Framework“动态修复引擎”命题的形式化版本（接口化）]
+\label{thm:dynamic-repair-engine}
+在以下外部接口成立的前提下：
+\begin{enumerate}
+  \item 存在 $L_\infty$ 括号塔的连贯性方程 \eqref{eq:Linfty-higher-Jacobi} 及其逐阶“修复方程”表达
+        （见 Proposition~\ref{prop:repair-step-eq}）；
+  \item PureMath 卷给出 Jacobiator-gap 证书与 OHU 完备化定理（见 Proposition~\ref{prop:ohu-as-repair}
+        与 Proposition~\ref{prop:jacgap-finite-metric}）；
+  \item PureMath 卷给出 $H$-扭曲两项 $L_\infty$ 与 GZ-Harmony，把 $\Layer_3$ 与几何 $H$ 与法曲率耦合
+        （见 Proposition~\ref{prop:h-twisted-geometry-coupling}）；
+  \item G-Equiv\cite{JacGapDStructureEquiv}（\code{NoteBook/notebook1/tex3_pub/jacobi_gap_D_structure_equivalence.tex}）
+    给出序数型深度/广度不变量作为修复过程的刻度
+        （见 Definition~\ref{def:twist-depth-breadth}）；
+\end{enumerate}
+则“G-Framework 的同伦塔是动态构造与修复引擎”可以被严格理解为：
+\begin{quote}
+存在一条由高阶括号扩张（或同伦升级）组成的序列，使每一阶的结构性缺陷（Jacobi 失配/阻碍项）
+在可观测或证书化意义下被消去或压到阈值；该过程的规模由有限证书 $\mathsf{JacGap}$ 度量，
+其迭代高度与同时动用的证书分量可分别用序数 $\alpha_\ast$ 与集合 $J_\ast$ 记录。
+\end{quote}
+\end{theorem}
+
+\begin{proof}
+由 Proposition~\ref{prop:repair-step-eq}，每一阶修复都等价于求解一条“阻碍 = 边界”的方程；
+由 Proposition~\ref{prop:jacgap-finite-metric}，缺陷被有限证书度量并给出停止判据；
+由 Proposition~\ref{prop:h-twisted-geometry-coupling}，修复数据与几何/法曲率耦合而非自由漂移；
+由 Proposition~\ref{prop:ohu-as-repair}，在满足可容许性条件时存在 OHU 完备扩张作为“修复后对象”的存在性担保；
+最后由 Definition~\ref{def:twist-depth-breadth}，修复过程的深度/广度可以被抽取为不变量刻度。合并即得结论。
+\end{proof}
+
+\section{从分类工具到量化治理：同伦塔角色的接口化迁移}
+\label{sec:qualitative-to-quantitative-governance}
+
+本节回答如下问题：为何经典同伦塔（Postnikov/Whitehead）并未自然产生“异构系统统一”的治理能力，
+而 \GFramework 可以把同伦塔改造成可比较、可审计、可落地的治理接口。
+核心区别不是“是否存在同伦塔”，而是同伦塔的\emph{输出接口}发生了变化：从定性分类（是否可延拓）迁移为定量治理（缺陷多大、修复多深、过程可审计）。\cite{HomotopyMinimalityDialogue,HatcherAT}
+
+\subsection{传统同伦塔的三条接口缺口（定性分类）}
+
+\begin{remark}[缺口 1：二元阻碍判据缺乏统一度量]
+在经典 obstruction theory 中，障碍类通常以
+\[
+  [\omega]\in H^{n+1}(\cdot)
+\]
+出现，并以“$[\omega]=0$ 与否”作为延拓/提升的判据。该接口本质上是布尔型：
+\[
+  \mathrm{Extendable}(\cdot)\ \Longleftrightarrow\ [\omega]=0.
+\]
+在没有额外结构（范数、代价泛函、基线选择等）时，理论本身并不提供一个跨语境统一的数值尺度来回答：
+当 $[\omega]\neq 0$ 时，“障碍有多大、修复代价多高”。\cite{HatcherAT}
+\end{remark}
+
+\begin{remark}[缺口 2：存在性叙述不等价于可审计构造]
+传统同伦塔主要回答“对象是否存在/同伦型如何分解”。但对治理问题而言，关键是一个\emph{可审计过程}：
+每一步要么完成一次受控提升，要么输出明确诊断（残差/证书），以避免“静默卡死”的不可解释失败。
+经典存在性结论不自动包含此类过程性接口。\cite{HomotopyMinimalityDialogue}
+\end{remark}
+
+\begin{remark}[缺口 3：领域对象限制与元语义缺失]
+Postnikov/Whitehead 塔以拓扑空间（或其代数模型）为对象，天然服务于“同伦型分类”。
+若目标转向“逻辑规则（PL）与迭代过程（PI）的非交换性/矛盾修复”，则需要一个把规则与过程几何化并纳入同一状态空间的元语义层，
+否则同伦塔无法直接作为治理接口调用。\cite{HomotopyMinimalityDialogue}
+\end{remark}
+
+\subsection{\GFramework 的三条接口补全（定量治理）}
+
+\begin{definition}[量化治理接口 $\mathcal{Q}$（证书 + 深度 + 过程）]
+\label{def:quantitative-governance-interface}
+称一个“同伦修复体系”给出了量化治理接口，若它至少提供：
+\begin{enumerate}
+  \item \textbf{缺陷度量：}一个有限证书映射 $\mathcal{M}:L\mapsto \mathbb{R}_{\ge0}^k$，使 $\mathcal{M}(L)=0$ 当且仅当缺陷为零；
+  \item \textbf{修复深度：}一个深度不变量 $\mathcal{D}(L)$（自然数或序数），刻画达到阈值所需的最小修复高度；
+  \item \textbf{无静默失败过程：}一个证书驱动的修复过程，保证每一步要么推进修复，要么输出可核验的残差/失败证书。
+\end{enumerate}
+将 $(\mathcal{M}(L),\mathcal{D}(L))$ 记为 $\mathcal{Q}(L)$。
+\end{definition}
+
+\begin{proposition}[JacGap + 扭曲深度实现 $\mathcal{Q}$ 的前两分量]
+\label{prop:Q-metric-depth}
+在 PureMath 接口下，可取
+\[
+  \mathcal{M}(L):=\JacGap(L)\in\mathbb{R}_{\ge0}^k
+\]
+作为缺陷度量（Proposition~\ref{prop:jacgap-finite-metric}），并可取
+\[
+  \mathcal{D}(L):=\alpha_\ast
+\]
+作为修复深度（Definition~\ref{def:twist-depth-breadth}）。
+因此，$\mathcal{Q}(L):=(\JacGap(L),\alpha_\ast)$ 给出了跨领域可比较的“缺陷--深度”坐标。%
+\cite{GaoZheng2025GFramework,JacGapDStructureEquiv}
+\end{proposition}
+
+\begin{proof}
+第一部分由 Proposition~\ref{prop:jacgap-finite-metric} 给出：$\JacGap$ 是有限证书且给出严格化判据。
+第二部分由 Definition~\ref{def:twist-depth-breadth} 给出：$\alpha_\ast$ 是达到阈值（或平凡化）所需的最小序数高度。
+\end{proof}
+
+\begin{proposition}[OHU 完备化提供“无静默失败”的过程性接口]
+\label{prop:Q-failure-free}
+在 PureMath 的 OHU 接口口径下（Proposition~\ref{prop:ohu-as-repair}），修复过程不是“存在性陈述”，而是证书驱动的构造机制：
+只要对象满足可容许性并落入证书允许域，则存在同伦完备扩张 $L^{\mathrm{OHU}}$ 及相容括号塔，
+并可用证书验证谓词沿修复路径输出“成功提升”或“残差证书”，从而避免静默失败。\cite{GaoZheng2025GFramework}
+\end{proposition}
+
+\begin{proof}
+命题是对 Proposition~\ref{prop:ohu-as-repair} 的过程性读法：OHU 把“可修复性”包装为可构造接口，
+并与证书系统的验证谓词相容（见本笔记对 Vol.~4 的接口总结）。
+\end{proof}
+
+\subsection{本体论位移：从对象同伦到法则同伦}
+
+\begin{remark}[法空间使同伦塔可作用于规则与过程]\label{rem:lawspace-homotopy-tower}
+\GFramework 通过法空间 $\mathfrak{L}_{GZ}$ 把“规则（PL）与过程（PI）”提升为同一状态空间中的法对象，
+使同伦塔的修复方程可以直接用于处理“逻辑不一致/算子非交换性”。
+在该视角下，同伦塔不再只是对象分类机器，而成为治理接口：它输出 $\mathcal{Q}(L)$ 并驱动可审计修复过程。%
+\cite{HomotopyMinimalityDialogue,GaoZheng2025GFramework}
+\end{remark}
+
+\subsection{结论：经典同伦塔的输出是定性，\GFramework 的输出是定量接口}
+
+综合以上三条缺口与三条补全，可把差异压缩为一句接口陈述：
+\begin{quote}
+传统同伦塔主要输出“截断/障碍类（是否为零）”；\GFramework 额外输出“证书化缺陷量 + 修复深度 + 无静默失败过程”，
+从而把同伦塔从分类工具迁移为量化治理接口 $\mathcal{Q}$。%
+\end{quote}
+该结论与本笔记在 Section~\ref{sec:homotopy-tower-vs-repair} 的“静态逼近 vs 动态修复”对照一致，
+并与 Theorem~\ref{thm:dynamic-repair-engine} 给出的“动态修复引擎”形式化版本互为补充。%
+\cite{HomotopyMinimalityDialogue,GaoZheng2025GFramework,JacGapDStructureEquiv}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{连续统与离散统：从“数值平滑”到“结构治理”}
+\label{sec:continuum-vs-discrete-unified}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本节回答如下命题：为何在 \GFramework 的“离散统（Discrete-Unified）”本体论下，
+同伦修复塔（含 OHU 完备化）可以被视为一种\textbf{结构层面的“新微积分”}。
+这里的“新微积分”并非修辞，而是指\textbf{工具的角色与输出接口}与经典微积分在连续统时代的角色同构：
+它们都把“不可直接处理的复杂性”压缩为可迭代、可比较、可审计的接口对象。\cite{HomotopyMinimalityDialogue,GaoZheng2025GFramework}
+
+\subsection{三元映射：本体论--工具--普适性}
+
+为避免文学化表述，本节先给出一个\textbf{接口化定义}来固定“普适工具”的含义。
+
+\begin{definition}[工具普适性（接口口径）]
+\label{def:tool-universality-interface}
+设 $\mathcal{C}$ 为一类可研究对象（数值系统或结构系统），称某工具族 $\mathcal{T}$ 对 $\mathcal{C}$ 是\emph{普适的}，若它至少提供：
+\begin{enumerate}
+  \item \textbf{局部正规形：}把“复杂性/缺陷”归约为一个可解的局部方程或判据；
+  \item \textbf{可迭代过程：}把全局问题组织为有限步或可收敛的迭代序列（允许序数索引）；
+  \item \textbf{可比较接口：}输出一个跨对象可比较的量化接口（度量 + 深度），并附带“无静默失败”的可审计过程。
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[连续统时代的微积分（含测度论 $L$-积分）满足该接口]
+在连续统本体论下（光滑流形/可微结构与测度结构作为默认环境），微积分的极限机制给出局部线性化（导数），并把全局问题组织为
+（i）微分方程的演化；（ii）基于测度论的累积与范数评估（例如 Lebesgue 积分与 $L^p$ 范数）。
+因此，其“可比较接口”不仅来自导数阶、稳定性等解析量，也来自 $L^p$ 量化（见定义 \ref{def:measure-Lp-integral}）。
+\end{remark}
+
+\begin{definition}[测度空间与 $L$-积分（Lebesgue）]\label{def:measure-Lp-integral}
+给定测度空间 $(X,\Sigma,\mu)$。对可测函数 $f:X\to\mathbb{R}$，若
+\[
+  \int_X |f|\,d\mu < \infty,
+\]
+则称 $f$ 为 $\mu$-可积，并定义其（Lebesgue）$L$-积分为 $\int_X f\,d\mu$。
+更一般地，对 $1\le p<\infty$，定义
+\[
+  L^p(X,\mu):=\Bigl\{f\ \Bigm|\ \int_X |f|^p\,d\mu<\infty\Bigr\},
+  \qquad
+  \|f\|_{L^p(X,\mu)}:=\Bigl(\int_X |f|^p\,d\mu\Bigr)^{1/p}.
+\]
+在连续统口径下，许多“全局量/代价/误差”可以被写成 $\int_X f\,d\mu$ 或 $\|f\|_{L^p}$，从而形成可比较的度量接口。
+\end{definition}
+
+\subsection{连续统本体：平滑化无法吸收结构性缺陷}
+
+连续统口径的关键能力是\textbf{平滑化（smoothing）}：用极限把微观差异压缩为可微的局部线性数据。
+但在本笔记关注的对象中，困难往往不是“数值不连续”，而是“法则/结构不闭合”（例如 Jacobi 失配或上同调阻碍类非零）。
+这类缺陷是\textbf{方程级}或\textbf{同伦不变量级}的：若不改变结构本身，单靠平滑化不会自动消失。
+
+\begin{proposition}[结构性缺陷不是平滑极限可消的]
+\label{prop:defect-not-removed-by-smoothing}
+设 $\Layer_2$ 为给定的二元运算。
+若存在三元组 $(x,y,z)$ 使 $\Jac_{\Layer_2}(x,y,z)\neq 0$，则在保持 $\Layer_2$ 不变的前提下，
+任何仅作用于输入数据的“极限/平滑化”操作都不能把“Jacobi 恒等式成立”变为真命题。
+换言之，Jacobi 失配是\emph{结构方程的失真}，而非\emph{数值扰动的噪声}。
+\end{proposition}
+
+\begin{proof}
+Jacobi 恒等式是关于运算 $\Layer_2$ 的等式断言：对所有 $x,y,z$ 都要有 $\Jac_{\Layer_2}(x,y,z)=0$。
+若已存在某个三元组使其非零，则该断言在固定的 $\Layer_2$ 上为假。
+任何仅对输入 $(x,y,z)$ 做连续变化或取极限的操作，都不会改变“$\Layer_2$ 是否满足 Jacobi 恒等式”这一逻辑事实；
+除非改变运算本身（即更换法则/结构），否则无法把一个反例消去。
+\end{proof}
+
+\subsection{离散统本体：断裂事件需要同伦修复而非平滑化}
+
+离散统口径强调：连续性只在局部有效，而\textbf{全局结构演化由离散的层级事件统一治理}。%
+\cite{HomotopyMinimalityDialogue}
+在该口径下，面对结构缺陷，目标不是把缺陷“平滑掉”，而是把缺陷\textbf{吸纳为更高阶项}，
+从而在更高层次恢复连贯性。
+这正是 $L_\infty$ 形式系统的修复机制：
+\begin{itemize}
+  \item 在三元层，$\Layer_3$ 把 $\Layer_2$ 的 Jacobiator 缺陷写成 $d$-边界（Proposition~\ref{prop:arity3-repair}）；
+  \item 在更高阶，阻碍项 $\Ob_n$ 逐层被“边界化/证书化”（Proposition~\ref{prop:obstruction-exact-general} 与 Vol.~4 的证书系统抽象）；
+  \item 在过程层，OHU 把“可修复性”升级为可构造、无静默失败的完备化机制（Proposition~\ref{prop:Q-failure-free}）。
+\end{itemize}
+
+\subsection{同伦塔的发源与法空间运用}
+
+\begin{remark}[发源：对象同伦的分层逼近序列]
+经典同伦塔起源于代数拓扑中的分层逼近：以 Postnikov/Whitehead 塔为代表，
+其目标是在给定对象（空间）的同伦型内部做截断与分类，输出障碍类与 $k$-不变量等定性数据；
+见 Definition~\ref{def:postnikov-tower} 与 \cite{HatcherAT}。
+\end{remark}
+
+\begin{remark}[法空间运用：从对象分类到法则修复]
+在 \GFramework 中，同伦塔的分层思想被迁移到法空间 $\mathfrak{L}_{GZ}$：把“规则（PL）与过程（PI）”视为同一状态空间中的法对象，
+从而允许对\emph{法则层结构}直接施加同伦修复方程与证书化约束（见 Remark~\ref{rem:lawspace-homotopy-tower}）。
+因此，同伦塔在此不再以“给定空间的同伦型分类”为输出，而以量化治理接口 $\mathcal{Q}$ 与无静默失败的修复过程为输出。%
+\cite{HomotopyMinimalityDialogue,GaoZheng2025GFramework}
+\end{remark}
+
+\subsection{主命题：同伦修复塔的“结构微积分”地位}
+
+\begin{theorem}[从数值平滑到结构治理：同伦塔作为普适工具的接口化证明]
+\label{thm:homotopy-tower-as-new-calculus}
+在 \GFramework 的离散统本体论口径下，若对象类别 $\mathcal{C}$ 的“结构缺陷”可由阻碍项/证书（如 $\JacGap$）刻画，
+并满足本笔记已汇总的 OHU 与证书接口（Definition~\ref{def:quantitative-governance-interface}），
+则同伦修复塔（含 OHU 完备化）对 $\mathcal{C}$ 满足工具普适性接口 Definition~\ref{def:tool-universality-interface}。
+因此，在“处理对象从数值转向结构/法则”的意义下，它在离散统时代扮演了与微积分在连续统时代同构的角色。
+\end{theorem}
+
+\begin{proof}
+按 Definition~\ref{def:tool-universality-interface} 的三条逐一验证：
+\begin{enumerate}
+  \item \emph{局部正规形：}同伦修复把“缺陷”归约为逐阶的阻碍--填充方程
+        （例如三元层的 $\Jac_{\Layer_2}=d(\Layer_3)$，见 Proposition~\ref{prop:arity3-repair}；
+        一般阶的 $\Ob_n=-d(h_n)$，见 Proposition~\ref{prop:obstruction-exact-general} 与 Theorem~\ref{thm:cross-volume-unified-mechanism}）。
+  \item \emph{可迭代过程：}修复由高阶括号扩张/同伦升级组成序列，并允许用序数深度 $\alpha_\ast$ 记录迭代高度
+        （Definition~\ref{def:twist-depth-breadth}），从而覆盖有限层与超限层两种情形（Proposition~\ref{prop:finite-vs-transfinite}）。
+  \item \emph{可比较接口与可审计过程：}量化治理接口 $\mathcal{Q}$ 已在 Definition~\ref{def:quantitative-governance-interface} 中给出；
+        其度量分量可由 $\JacGap$ 实现（Proposition~\ref{prop:Q-metric-depth}），
+        过程分量由 OHU/证书系统提供“无静默失败”的构造性保证（Proposition~\ref{prop:Q-failure-free}）。
+\end{enumerate}
+三条同时成立，故同伦修复塔满足 Definition~\ref{def:tool-universality-interface}。
+\end{proof}
+
+\begin{remark}[连续统/离散统下工具角色的对应表（压缩版）]
+\mbox{}\par
+\begin{center}
+{\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{0.22\linewidth}|p{0.35\linewidth}|p{0.35\linewidth}|}
+\hline
+维度 &
+连续统时代：微积分 &
+离散统时代：同伦修复塔（OHU）\\
+\hline
+处理对象 &
+数值/函数（含测度空间上的 $L^p$ 可积函数） &
+结构/法则（法空间法对象；PL/PI）的缺陷与修复\\
+\hline
+核心障碍 &
+不可微/间断等解析失配 &
+Jacobiator-gap / 上同调阻碍等结构失配\\
+\hline
+关键动作 &
+极限线性化（smoothing）+ $L$-积分/范数归约 &
+同伦扭曲/高阶填充（repairing）\\
+\hline
+可比较接口 &
+解析不变量 + $L^p$ 范数 &
+$\mathcal{Q}(L)=(\JacGap(L),\alpha_\ast)$ + 证书过程\\
+\hline
+\end{tabular}
+}
+\end{center}
+\end{remark}
+
+\section{比安基基准：高阶连贯性方程作为“宏观雅可比恒等式”}
+\label{sec:bianchi-benchmark}
+
+\subsection{三元层：Jacobiator 的 Bianchi-闭性与受控修复}
+
+\begin{lemma}[$n=2$ 恒等式给出 $d$ 的导子性质]
+\label{lem:n2-derivation}
+设 $(V,d,\{\Layer_k\})$ 为 $L_\infty$-代数并记 $d:=\Layer_1$。
+则 \eqref{eq:Linfty-higher-Jacobi} 在 $n=2$ 的情形等价于：对任意齐次 $x,y\in V$，
+$d$ 对 $\Layer_2$ 满足分级导子性质
+\[
+  d\bigl(\Layer_2(x,y)\bigr)
+  =
+  \Layer_2(dx,y)
+  +(-1)^{|x|}\Layer_2(x,dy),
+\]
+其中 $|x|$ 表示 $x$ 的分级次数。
+\end{lemma}
+
+\begin{proposition}[Bianchi 基准：三元缺陷在 $d$-闭输入上是 $d$-闭的]
+\label{prop:bianchi-arity3-closed}
+设给定一个 $L_\infty$-代数 $(V,d,\{\Layer_k\})$。则对任意齐次且 $d$-闭的 $x,y,z\in Z(V)$，
+有
+\[
+  d\bigl(\Jac_{\Layer_2}(x,y,z)\bigr)=0.
+\]
+\end{proposition}
+
+\begin{proof}
+对 $d$-闭的 $x,y,z$，由引理 \ref{lem:n2-derivation}，
+\[
+  d\bigl(\Layer_2(x,\Layer_2(y,z))\bigr)
+  =
+  (-1)^{|x|}\Layer_2\bigl(x,d(\Layer_2(y,z))\bigr)
+  =
+  0,
+\]
+因为 $d(\Layer_2(y,z))=\Layer_2(dy,z)+(-1)^{|y|}\Layer_2(y,dz)=0$。
+其余两项同理为零，故 $d(\Jac_{\Layer_2}(x,y,z))=0$。
+\end{proof}
+
+\begin{remark}[“Bianchi 基准”的严格含义]
+命题 \ref{prop:bianchi-arity3-closed} 给出一个必要一致性条件：若要把三元缺陷解释为上同调类
+$[\Ob_3]=[\Jac_{\Layer_2}]\in H(V)$（见 Definition~\ref{def:obstruction-general}），至少需要它在 $d$-闭输入上是 $d$-闭的。
+在本笔记的 $L_\infty$ 约定下，该闭性由 $n=2$ 恒等式自动保证，可视为“宏观基准”：
+\emph{Jacobi 失配可以存在，但必须是可追踪的闭缺陷。}
+\end{remark}
+
+\begin{proposition}[受控修复：$n=3$ 恒等式给出 $\Jac_{\Layer_2}=d(\Layer_3)$]
+\label{prop:bianchi-arity3-repair}
+对 $d$-闭输入 $x,y,z\in Z(V)$，有
+\[
+  \Jac_{\Layer_2}(x,y,z)=d\bigl(\Layer_3(x,y,z)\bigr),
+\]
+从而 $[\Jac_{\Layer_2}(x,y,z)]=0$ 于 $H(V)$。
+\end{proposition}
+
+\begin{proof}
+这是 Proposition~\ref{prop:arity3-repair} 的直接重述。
+\end{proof}
+
+\subsection{四元层：高阶 Bianchi 表达式与 $\Layer_4$}
+
+\begin{definition}[四元 Bianchi 表达式（连贯性导数）]
+\label{def:bianchi-arity4}
+对齐次且 $d$-闭的 $x_1,x_2,x_3,x_4\in Z(V)$，将由 $(\Layer_2,\Layer_3)$ 决定的四元缺陷
+$\Ob_4(x_1,x_2,x_3,x_4)$（Definition~\ref{def:arity4-obstruction}）视为“对三元修复数据的连贯性导数”：
+它衡量 $\Layer_3$ 与 $\Layer_2$ 的混合组合在四元层面是否仍可被同伦数据吸收。
+\end{definition}
+
+\begin{proposition}[高阶 Bianchi：四元缺陷在 $d$-闭输入上是边界]
+\label{prop:bianchi-arity4-repair}
+对任意 $d$-闭的 $x_1,x_2,x_3,x_4\in Z(V)$，
+\[
+  \Ob_4(x_1,x_2,x_3,x_4)=d\bigl(\Layer_4(x_1,x_2,x_3,x_4)\bigr),
+\]
+因此 $d(\Ob_4(x_1,x_2,x_3,x_4))=0$ 且 $[\Ob_4]=0$ 于 $H(V)$（在该输入上）。
+\end{proposition}
+
+\begin{proof}
+这是 Proposition~\ref{prop:arity4-repair} 的直接重述；闭性由 $d^2=0$ 推出。
+\end{proof}
+
+\begin{remark}[与几何 Bianchi 的接口口径]
+在两项 $L_\infty$（或设置 $\Layer_4\equiv 0$ 的截断模型）中，
+命题 \ref{prop:bianchi-arity4-repair} 的右端退化为 $0$，从而要求 $\Ob_4\equiv 0$。
+PureMath 卷的 $H$-twisted two-term $L_\infty$ 结构把该条件具体化为 $\mathrm{d}H=0$ 的几何比安基恒等式；
+这正是 Proposition~\ref{prop:h-twisted-geometry-coupling} 中“$\mathrm{d}H=0$ 对应 $n=4$ 身份”的接口读法。
+\end{remark}
+
+\subsection{一般阶：Grand Jacobi / Grand Bianchi 与可修复性判据}
+
+\begin{theorem}[Grand Bianchi：每阶阻碍在 $d$-闭输入上都是边界]
+\label{thm:grand-bianchi-obstruction}
+对每个 $n\ge 3$ 与任意 $d$-闭齐次输入 $x_1,\dots,x_n\in Z(V)$，都有
+\[
+  \Ob_n(x_1,\dots,x_n)=-\,d\bigl(\Layer_n(x_1,\dots,x_n)\bigr),
+\]
+从而 $d(\Ob_n(x_1,\dots,x_n))=0$。
+\end{theorem}
+
+\begin{proof}
+由 Proposition~\ref{prop:obstruction-exact-general} 得到第一式；再由 $d^2=0$ 得到闭性。
+\end{proof}
+
+\begin{remark}[“雅可比可以破，但不能乱破”]
+在本笔记的严格形式中，“不能乱破”被精确地表达为：
+每一阶缺陷项 $\Ob_n$ 都必须满足 Bianchi-闭性（在 $d$-闭输入上 $d(\Ob_n)=0$），并且在完整 $L_\infty$ 数据存在时
+还必须是 $d$-边界（因此同调类为零）。在截断或工程基线语境下（见 Proposition~\ref{prop:extension-obstruction}），
+“能否继续修复/延拓”被归结为同一个判据：给定输入下的 $\Ob_{N+1}$ 是否落在 $d$ 的像中。
+\end{remark}
+
+\begin{remark}[与 OHU 完备化（可容许性）的接口对应]
+在本笔记的接口口径下，可以把 PureMath 卷中 OHU 的“可容许性/可构造性”约束理解为两类可检查前提的合取：
+\begin{enumerate}
+  \item \textbf{比安基基准：}缺陷项满足高阶连贯性方程所要求的闭性/一致性（本节的 Bianchi-闭性结论）；
+  \item \textbf{证书可控：}缺陷大小可被有限证书 $\JacGap$ 量化并落入允许域（见 Theorem~\ref{thm:jacgap-certificate-closure-mechanism}）。
+\end{enumerate}
+在这些前提下，可把“存在同伦完备扩张 $L^{\mathrm{OHU}}$”作为外部定理接口调用（Theorem~\code{thm:GZ-OHU}），
+并把 $l_2$ 的非严格 Jacobi 失配解释为同伦边界，从而恢复“受控意义下的代数有效性”。
+\end{remark}
+
+\section{JacGap 的证书封闭：从上同调变异到可控代数闭合}
+\label{sec:jacgap-certificate-closure}
+
+\subsection{有效性：严格闭合、同伦闭合与证书闭合}
+
+\begin{definition}[严格代数封闭（李闭合）]
+\label{def:strict-lie-closure}
+给定微分分级向量空间 $(V,d)$（$d^2=0$）与一个次数为 $0$ 的分级反对称二元运算 $\Layer_2:V^{\otimes 2}\to V$。
+若对任意齐次 $x,y,z\in V$ 都有
+\[
+  \Jac_{\Layer_2}(x,y,z)=0,
+\]
+则称 $\Layer_2$ \emph{严格满足 Jacobi 恒等式}，并称该结构在二元运算意义下\emph{严格闭合}。
+\end{definition}
+
+\begin{definition}[最小三元阻碍类（截断模型）]
+\label{def:minimal-obstruction-class}
+沿用实现映射 $\mathcal{R}$（Definition~\ref{def:realization-map}）的口径，
+考虑仅包含 $(V,d,\Layer_2)$ 的截断数据。
+若对任意 $d$-闭输入 $x,y,z\in Z(V)$，$\Jac_{\Layer_2}(x,y,z)\in Z(V)$（从而可取同调类），则定义
+\[
+  [\Ob_3]
+  \;:=\;
+  [\Jac_{\Layer_2}]
+  \ \in\ H(V)
+\]
+为\emph{三元阻碍类}（也称“最小层的拓扑变异指示量”）。
+\end{definition}
+
+\begin{remark}[消歧：JacGap 不是上同调类]
+本笔记中“上同调类”指 $H(V)=\ker(d)/\mathrm{im}(d)$ 内的等价类，如 $[\Ob_3]=[\Jac_{\Layer_2}]$。
+而 Jacobiator-gap 证书 $\JacGap(L)=(c_1(L),\dots,c_k(L))$ 是一组\emph{数值型/函数型证书量}，
+用于度量 Jacobiator（或相关缺陷项）的大小并给出阈值判据（见 Proposition~\ref{prop:jacgap-finite-metric}）。
+因此，严格表述应为：\emph{拓扑/同伦变异由阻碍类或缺陷项表示，JacGap 用有限证书对其进行度量与管理。}
+\end{remark}
+
+\begin{definition}[同伦闭合（$L_\infty$ 修复方程）]
+\label{def:homotopy-closure}
+若存在三元运算 $\Layer_3:V^{\otimes 3}\to V$ 使得对任意 $d$-闭输入 $x,y,z\in Z(V)$ 有
+\[
+  \Jac_{\Layer_2}(x,y,z)=d\bigl(\Layer_3(x,y,z)\bigr),
+\]
+则称该结构在三元层面\emph{同伦闭合}（亦即“Jacobi 失配在 $d$-闭输入上是 $d$-恰当的”）。
+该等式正是 Proposition~\ref{prop:arity3-repair} 的内容。
+\end{definition}
+
+\subsection{JacGap 证书：把无限变异投影为有限可审计指标}
+
+\begin{definition}[证书映射（有限投影）]
+\label{def:jacgap-certificate-map}
+在 PureMath 卷的接口下（参见命题 \ref{prop:jacgap-finite-metric}），
+Jacobiator-gap 证书给出一个到有限维非负正交体的映射
+\[
+  \JacGap:\ \mathsf{Law}\longrightarrow \mathbb{R}_{\ge 0}^k,
+  \qquad
+  L\longmapsto (c_1(L),\dots,c_k(L)).
+\]
+把该映射视为把“潜在无限复杂的拓扑/同伦变异”压缩为\emph{有限证书坐标}的投影。
+\end{definition}
+
+\begin{proposition}[有限可管理性：证书上界 $\Rightarrow$ 缺陷可控]
+\label{prop:jacgap-implies-controlled-jac}
+在命题 \ref{prop:jacgap-finite-metric} 的接口条件下，存在一个（由定义给出的）控制关系，使得：
+若 $L$ 的证书向量满足逐分量上界 $c_i(L)\le \varepsilon_i$（$1\le i\le k$），则 Jacobiator 缺陷项在可观测意义下被上界控制。
+因此，“系统不崩溃/可管理”可被形式化为：$L$ 沿演化始终落在某个证书允许域内。
+\end{proposition}
+
+\begin{proof}
+由命题 \ref{prop:jacgap-finite-metric} 的条款 (c)，Jacobiator 的大小被 $\JacGap(L)$ 控制（以范数不等式表达）。
+将该不等式的右端逐分量上界代入，即得结论。
+\end{proof}
+
+\subsection{证书封闭：把“闭合性”改写为可验证的约束系统}
+
+\begin{definition}[证书允许域与证书封闭]
+\label{def:certificate-closure}
+给定阈值向量 $\varepsilon=(\varepsilon_1,\dots,\varepsilon_k)\in \mathbb{R}_{\ge 0}^k$，定义证书允许域
+\[
+  \mathsf{Law}_{\le \varepsilon}
+  :=
+  \{\,L\in\mathsf{Law}\mid \forall i,\ c_i(L)\le \varepsilon_i\,\}.
+\]
+称 $L$ 在阈值 $\varepsilon$ 下\emph{证书闭合}，若：
+\begin{enumerate}
+  \item $L\in \mathsf{Law}_{\le \varepsilon}$（缺陷量可审计且落入允许区间）；
+  \item 并且在某个同伦图表/可容许路径域内，存在三元“填充元”与证书验证谓词，使三元修复方程以
+        “严格等式”或“受控残差不等式”的形式成立（参见 Definition~\ref{def:certified-relaxed-repair} 的 $n=3$ 特例）。
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[零残差证书 $\Rightarrow$ 三元同伦闭合]
+\label{prop:certificate-closure-eps0}
+在 Definition~\ref{def:certificate-closure} 的设定下，若三元层证书化修复满足残差上界 $\varepsilon_3=0$，
+则对图表内所有允许输入，都有严格等式
+\[
+  \Jac_{\Layer_2} = d(\Layer_3)
+\]
+（符号差异可并入固定约定），从而三元阻碍类 $[\Ob_3]=[\Jac_{\Layer_2}]$ 在 $H(V)$ 中为零。
+\end{proposition}
+
+\begin{proof}
+由 Proposition~\ref{prop:epsilon0-implies-exact}（取 $n=3$）得 $\varepsilon_3=0$ 推出严格等式
+$\Ob_3=-d(h_3)$。结合 Definition~\ref{def:obstruction-general} 中 $\Ob_3$ 与 $\Jac_{\Layer_2}$ 的等价表述，
+可将 $h_3$ 视为（符号差异下的）$\Layer_3$，从而得到 $\Jac_{\Layer_2}=d(\Layer_3)$。
+同调类结论由 $d$-恰当性直接推出。
+\end{proof}
+
+\subsection{OHU 完备化：由证书驱动的同伦修复算子（接口化）}
+
+\begin{theorem}[证书封闭机制：从 JacGap 到同伦闭合的实现路径（接口定理）]
+\label{thm:jacgap-certificate-closure-mechanism}
+在以下外部接口同时成立的前提下：
+\begin{enumerate}
+  \item PureMath 卷给出 Jacobiator-gap 证书与 OHU 完备化定理（Theorem~\code{thm:GZ-OHU}）；
+  \item OHU 完备化输出的扩张对象携带 $L_\infty$（或等价的同伦代数）括号塔，使逐阶修复方程可用
+        $\Ob_n=-d(\Layer_n)$ 组织（Proposition~\ref{prop:obstruction-exact-general}）；
+\end{enumerate}
+则可把“拓扑变异 $\Rightarrow$ 可控闭合”的机制严格解释为如下链条：
+\[
+\begin{aligned}
+\textbf{诊断：}\ &[\Ob_3]=[\Jac_{\Layer_2}] \ \text{刻画三元层失配}\\
+\Longrightarrow\ &\textbf{管理：}\ \JacGap(L)\in\mathbb{R}_{\ge0}^k\ \text{给出有限证书坐标}\\
+\Longrightarrow\ &\textbf{修复：}\ \exists\,L^{\mathrm{OHU}}\ \text{s.t.}\ \Jac_{\Layer_2}=d(\Layer_3)\ \text{（在允许输入上）}.
+\end{aligned}
+\]
+其中“管理”把潜在无限维的变异压缩为有限证书向量；“修复”把三元失配提升为同伦边界，从而恢复代数运算的有效性
+（在同伦意义或证书化意义下）。
+\end{theorem}
+
+\begin{proof}
+第一段由 Definition~\ref{def:minimal-obstruction-class} 与 Proposition~\ref{prop:extension-obstruction}
+（取 $N=2$）给出：三元阻碍类的平凡性等价于存在三元填充元。
+第二段由 Proposition~\ref{prop:jacgap-finite-metric} 与 Definition~\ref{def:jacgap-certificate-map} 给出：
+JacGap 把缺陷管理为有限证书坐标，并提供阈值/停止判据。
+最后一段由外部接口假设：OHU 完备化在可容许性条件下提供同伦完备扩张与括号塔，
+从而可在扩张内调用 Proposition~\ref{prop:arity3-repair} 得到 $\Jac_{\Layer_2}=d(\Layer_3)$。
+将三段组合即得结论。
+\end{proof}
+
+\section{边界扩张：以比安基为基准、量化雅可比的受控失效}
+\label{sec:bianchi-jacgap-boundary-extension}
+
+本节把三个核心文档中的结论组织成一条可检验的证明链条，目标是形式化陈述并证明如下命题：
+\begin{quote}
+\textbf{命题（边界扩张）：}
+\GFramework 通过“坚守比安基基准 + 放宽雅可比为受控失效（JacGap）”的策略，
+把理论有效域从严格李闭合（$Jac=0$）扩张到证书闭合（$JacGap\le \varepsilon$）的同伦修复域。
+\end{quote}
+
+\subsection{困境：严格恒等式把 $Jac=0$ 固化为硬边界}
+
+严格闭合定义见 Definition~\ref{def:strict-lie-closure}：若 $\Jac_{\Layer_2}\equiv 0$，则二元运算是严格李括号；
+若 $\Jac_{\Layer_2}\not\equiv 0$，则在严格李语义下不再属于“合法对象”。
+在工程/物理语境中，这对应于“非零 Jacobiator 被解释为不可积性或反常”，从而构成理论边界。
+
+这一“严格边界”的问题在于：它把任何微小的结构偏差都视为结构崩塌，使模型无法表达“有缺陷但可修复”的对象族。
+相关动机与“严格等价导致拓扑断裂”的讨论，可参见工作笔记
+\code{NoteBook/notebook1/tex6_pub/homotopy_minimality_dialogue.tex}。\cite{HomotopyMinimalityDialogue}
+
+\subsection{基准：比安基恒等式给出一致性约束与计算平台}
+
+在本笔记的接口口径下，“比安基基准”被编码为高阶连贯性方程的闭性要求：对每阶缺陷项 $\Ob_n$，
+必须满足 Bianchi-闭性 $d(\Ob_n)=0$；若完整 $L_\infty$ 数据存在，则更强地有
+\[
+  \Ob_n(x_1,\dots,x_n)=-\,d\bigl(\Layer_n(x_1,\dots,x_n)\bigr)
+  \qquad (x_i\in Z(V)).
+\]
+这正是 Theorem~\ref{thm:grand-bianchi-obstruction}（亦即本笔记称为 Grand Bianchi 的一致性约束），
+并在几何接口上对应于“曲率/扭曲项可追踪且满足守恒式”的基准设定（见 Section~\ref{sec:bianchi-benchmark}）。
+
+\subsection{扩张：JacGap 证书把 $Jac\neq 0$ 转化为可审计、可修复的缺陷}
+
+在 $d$-闭输入上，$L_\infty$ 的三元层修复方程给出
+\[
+  \Jac_{\Layer_2}(x,y,z)=d\bigl(\Layer_3(x,y,z)\bigr),
+  \qquad x,y,z\in Z(V),
+\]
+即把“雅可比失配”提升为同伦边界（Proposition~\ref{prop:arity3-repair}）。
+
+PureMath 发布稿 \code{docs/PureMath/Pub_GFramework_PureMath.tex} 进一步给出 Jacobiator-gap 证书体系：
+用有限证书坐标 $\JacGap(L)\in\mathbb{R}_{\ge 0}^k$ 管理缺陷大小，并提供阈值/停止判据
+（Proposition~\ref{prop:jacgap-finite-metric}）。\cite{GaoZheng2025GFramework}
+在证书允许域内，OHU 完备化把“存在同伦完备扩张 $L^{\mathrm{OHU}}$ 并携带括号塔”作为外部定理接口调用，
+从而把修复机制闭合为可构造链条（Theorem~\ref{thm:jacgap-certificate-closure-mechanism}）。
+关于把修复过程的迭代高度/规模进一步抽取为序数型不变量（扭曲深度/广度）的接口化刻度，参见
+\code{NoteBook/notebook1/tex3_pub/jacobi_gap_D_structure_equivalence.tex}。\cite{JacGapDStructureEquiv}
+
+\subsection{结论：严格闭合 $\subseteq$ 证书闭合，且在 $\varepsilon>0$ 时给出严格扩张}
+
+\begin{theorem}[比安基基准 + JacGap 证书 $\Rightarrow$ 有效域扩张（接口化）]
+\label{thm:bianchi-jacgap-domain-extension}
+在 Section~\ref{sec:bianchi-benchmark} 的比安基基准与 Section~\ref{sec:jacgap-certificate-closure} 的证书封闭接口成立时：
+\begin{enumerate}
+  \item 若 $\JacGap(L)=0$，则 $\Jac_{\Layer_2}\equiv 0$（严格闭合），这是经典严格李结构的情形；
+  \item 若存在阈值 $\varepsilon>0$ 使 $\JacGap(L)\le \varepsilon$，并且 $L$ 满足证书允许域与可容许性前提，
+        则存在同伦完备扩张（OHU）与括号塔，使 Jacobi 失配在同伦意义下被吸收为边界，
+        从而 $L$ 在“证书闭合/同伦闭合”的口径下依然是可计算、可验证、可修复的有效对象；
+  \item 因此，严格闭合域可视为证书闭合域在 $\varepsilon=0$ 时的退化特例；当 $\varepsilon>0$ 且存在
+        $\JacGap(L)\neq 0$ 的对象满足允许域时，证书闭合域在对象族意义下严格大于严格闭合域。
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+第 (1) 由 Proposition~\ref{prop:jacgap-finite-metric} 的条款 (b)（$\JacGap=0\iff Jacobiator=0$）直接得到。
+第 (2) 由 Theorem~\ref{thm:jacgap-certificate-closure-mechanism} 得到：在证书允许域与可容许性条件下，
+存在 OHU 扩张并可在扩张内调用 Proposition~\ref{prop:arity3-repair} 把 Jacobi 失配写成同伦边界。
+第 (3) 是对 (1)(2) 的集合论语义整理：$\varepsilon=0$ 给出严格闭合，$\varepsilon>0$ 给出放宽后的允许域。
+\end{proof}
+
+\section{同伦公理化：从“严格闭合”到“同伦闭合”的放宽原则}
+\label{sec:homotopy-axiomatization}
+
+本节把“严格版（Strict）$\rightarrow$ 同伦版（Homotopy）”的演进，用可检验的形式系统语言重写为一组
+接口条件与推论链条：保持拓扑/几何侧的不变性基准（Bianchi-闭性），并把代数侧的“点状严格闭合”
+放宽为“同伦闭合 + 证书闭合”。\cite{HomotopyMinimalityDialogue,GaoZheng2025GFramework}
+
+\subsection{为何“双重硬约束”过强：存在性否定（空解）判据}
+
+本笔记把“拓扑变异不变性”以 Bianchi-闭性表达：缺陷项 $\Ob_n$ 必须满足 $d(\Ob_n)=0$，
+见 Theorem~\ref{thm:grand-bianchi-obstruction}。
+把“代数封闭性”以严格 Jacobi 恒等式表达：$\Jac_{\Layer_2}\equiv 0$，
+见 Definition~\ref{def:strict-lie-closure}。
+
+\begin{proposition}[存在性否定：非平凡阻碍类 $\Rightarrow$ 严格闭合不可实现]
+\label{prop:existential-negation-strict}
+在截断数据 $(V,d,\Layer_2)$ 下，若最小三元阻碍类
+\[
+  [\Ob_3]=[\Jac_{\Layer_2}]\in H(V)
+\]
+非平凡（即 $[\Ob_3]\neq 0$），则不存在任何与该截断数据一致的严格闭合实现（$\Jac_{\Layer_2}\equiv 0$）。
+\end{proposition}
+
+\begin{proof}
+若存在严格闭合实现，则按 Definition~\ref{def:strict-lie-closure} 有 $\Jac_{\Layer_2}\equiv 0$，
+从而 $[\Ob_3]=[\Jac_{\Layer_2}]=0$，与假设 $[\Ob_3]\neq 0$ 矛盾。故严格闭合不可实现。
+\end{proof}
+
+命题 \ref{prop:existential-negation-strict} 给出了“强不变性（保留阻碍/变异）+ 强封闭性（强迫 $Jac=0$）”
+在一般情形下导致空解的形式化原因：严格语义要求把阻碍类强行归零，从而排除了一大类具有内禀结构张力的对象族。
+\cite{HomotopyMinimalityDialogue}
+
+\subsection{放宽路径：代数同伦封闭（$Jac=d\cdot H$）}
+
+同伦版的关键不是放弃一致性，而是把“闭合”改写为“边界可解释”。本笔记将其编码为同伦闭合方程
+（Definition~\ref{def:homotopy-closure}）：
+\[
+  \Jac_{\Layer_2}(x,y,z)=d\bigl(\Layer_3(x,y,z)\bigr),\qquad x,y,z\in Z(V).
+\]
+把 $H:=\Layer_3$ 视为“同伦填充/扭曲数据”，即可把该式读作
+\[
+  Jac = d\cdot H
+  \qquad (\text{在允许输入/图表内}).
+\]
+其含义是：雅可比失配允许非零，但必须在同伦意义下平凡（$d$-恰当）。
+该机制在纯形式层面由 Proposition~\ref{prop:arity3-repair} 保证，
+而在几何接口上对应于 $H$-twisted two-term $L_\infty$ 的构造与 Bianchi 条件的对齐
+（见 Remark“与几何 Bianchi 的接口口径”以及 Proposition~\ref{prop:h-twisted-geometry-coupling}）。\cite{GaoZheng2025GFramework}
+
+\subsection{受控封闭：同伦塔 + JacGap 证书 + OHU 完备化}
+
+一旦把三元层的闭合改写为同伦边界，后续问题不再是“是否闭合”，而是“如何受控地闭合”：
+更高阶连贯性缺陷由 $\Ob_n$ 描述，并由高阶括号逐阶修复（Theorem~\ref{thm:grand-bianchi-obstruction}）。
+
+PureMath 发布稿把“受控”落实为 Jacobiator-gap 证书 $\JacGap(L)\in\mathbb{R}_{\ge0}^k$，
+并给出 OHU 完备化存在性接口：在可容许性与证书允许域内存在同伦完备扩张 $L^{\mathrm{OHU}}$
+以及相容的括号塔，从而把修复过程闭合为可构造链条。\cite{GaoZheng2025GFramework}
+这一点在本笔记中已被形式化为 Theorem~\ref{thm:jacgap-certificate-closure-mechanism}
+与 Theorem~\ref{thm:bianchi-jacgap-domain-extension}。
+
+当修复需要表达为离散/迭代过程时，可进一步使用序数型扭曲深度/广度作为刻度（Definition~\ref{def:twist-depth-breadth}）；
+它把“有限步修复”与“超限递归修复”统一为同一接口，并与证书分量更新集合 $J_\ast$ 相耦合。\cite{JacGapDStructureEquiv}
+
+\subsection{小结：严格版是退化特例}
+
+把上述链条压缩为逻辑条件。令谓词 $\mathrm{Bianchi}(L)$ 表示 $L$ 满足 Bianchi-闭性；见 Theorem~\ref{thm:grand-bianchi-obstruction}。
+令谓词 $\mathrm{OHU}(L)$ 表示 $L$ 满足可容许性并可作 OHU 完备化；见 Theorem~\ref{thm:jacgap-certificate-closure-mechanism}（PureMath 接口）。
+
+于是两类有效域可写为：
+\[
+  \begin{aligned}
+    \mathsf{Strict} &:= \{L\mid \Jac_{\Layer_2}\equiv 0\},\\
+    \mathsf{Homotopy} &:= \{L\mid \mathrm{Bianchi}(L)\ \wedge\ \JacGap(L)\le \varepsilon\ \wedge\ \mathrm{OHU}(L)\}.
+  \end{aligned}
+\]
+由 Theorem~\ref{thm:bianchi-jacgap-domain-extension}，$\mathsf{Strict}$ 是 $\mathsf{Homotopy}$ 在 $\varepsilon=0$ 的退化特例；
+而命题 \ref{prop:existential-negation-strict} 表明：当存在非平凡阻碍类时，严格版会出现存在性否定，
+同伦版则以“同伦边界 + 证书审计 + 修复塔/完备化”机制继续保持可计算与可验证性。\cite{HomotopyMinimalityDialogue,GaoZheng2025GFramework}
+
+\section{PL-PI 视角下的同伦塔：逻辑--迭代耦合失配的发生机制}
+\label{sec:plpi-genesis}
+
+\subsection{起源维度：从 PL-PI 法系统到同伦修复问题}
+
+\begin{definition}[PL-PI 法系统（接口化表述）]
+\label{def:plpi-law-system}
+定义一个 \emph{PL-PI 法系统}为三元组
+\[
+  \LSPLPI = (\LPL,\ \LPI;\ \ThetaPLPI),
+\]
+其中：
+\begin{itemize}
+  \item $\LPL$ 表示“泛逻辑（Pan-Logic, PL）”层的法对象；
+  \item $\LPI$ 表示“泛迭代（Pan-Iteration, PI）”层的法对象；
+  \item $\ThetaPLPI$ 表示二者的耦合数据，用于编码：
+        \begin{enumerate}
+          \item PL 的推导约束如何限制 PI 的可许可更新；
+          \item PI 的评价/代价泛函如何反向确定（或更新）PL 的逻辑承诺；
+          \item 二者如何被嵌入同一法空间中并共享可容许的变形（law-flow）结构。
+        \end{enumerate}
+\end{itemize}
+该定义与 G-Math\cite{GaoZheng2025GFramework}（\code{docs/PureMath/Pub_GFramework_PureMath.tex}）中的
+Definition~\texttt{PL-PI law-system (schematic)} 的语义接口一致。
+\end{definition}
+
+\begin{definition}[GZ-可容许的 PL-PI 系统（接口条件）]
+\label{def:gz-admissible-plpi}
+称 $\LSPLPI$ 为 \emph{GZ-可容许}，若它至少满足如下三类接口条件：
+\begin{enumerate}
+  \item 存在从 PL-PI 法系统到带联络/曲率的主丛几何对象的重构函子
+        \[
+          \mathcal{R}_{\mathrm{PFB}}:\ \LSPLPI \longmapsto (\text{PFB 几何数据}),
+        \]
+        使得 $\LPL$ 与 $\LPI$（在 $\ThetaPLPI$ 约束下）可决定几何数据（至 gauge 等价）；
+  \item 上述几何对象可进一步诱导出 strict/homotopy 等版本的 PFB-GNLA（或 $L_\infty$）结构，
+        并在法空间意义下回收算子代数对象；
+  \item PL 与 PI 给出的度量/分层与 CH-layering 等全局分层结构相容。
+\end{enumerate}
+该定义对应于 G-Math\cite{GaoZheng2025GFramework} 中的 Definition~\texttt{GZ-admissible PL-PI systems (schematic)}。
+\end{definition}
+
+\begin{remark}[“发生学”在本节的严格含义]
+本节不把“发生学”作为修辞使用，而只指下面这一点：
+我们把“需要一个同伦塔”解释为“在把 $\LSPLPI$ 实现为可组合的算子结构时，出现逐阶连贯性方程的求解压力”。
+\end{remark}
+
+\subsection{驱动维度：从耦合失配到 Jacobiator-gap 的修复方程}
+
+\begin{definition}[PL-PI 失配的 Jacobiator 投影（接口定义）]
+\label{def:plpi-jacobiator-projection}
+固定一个 GZ-可容许的 $\LSPLPI$，并假设存在一个实现过程把它送到某个 $L_\infty$ 数据
+$(V,d,\{\Layer_k\}_{k\ge 2})$。
+定义 \emph{PL-PI 失配的 Jacobiator 投影}为二元括号 $\Layer_2$ 的 Jacobiator
+\[
+  \Jac_{\Layer_2}(x,y,z),
+\]
+并把其同调类 $[\Jac_{\Layer_2}(x,y,z)]\in H(V)$ 视为“耦合失配”的最小三元阻碍类。
+\end{definition}
+
+\begin{proposition}[耦合失配的三元修复：$\Jac_{\Layer_2}=d(\Layer_3)$]
+\label{prop:plpi-arity3-repair}
+在 Definition~\ref{def:plpi-jacobiator-projection} 的设定下，对任意 $d$-闭输入 $x,y,z\in Z(V)$，
+存在三元填充元 $\Layer_3$ 使得
+\[
+  \Jac_{\Layer_2}(x,y,z)=d\bigl(\Layer_3(x,y,z)\bigr),
+\]
+从而 $[\Jac_{\Layer_2}(x,y,z)]=0$ 于 $H(V)$。
+\end{proposition}
+
+\begin{proof}
+这是 Proposition~\ref{prop:arity3-repair} 的直接应用。
+\end{proof}
+
+\begin{remark}[“杀灭同伦群”与“修复 Jacobi 失配”的差异点]
+Postnikov/Whitehead 塔以空间的同伦群为驱动目标（参见 \cite{HatcherAT}）；而在本笔记的 $L_\infty$ 形式系统里，
+逐阶引入 $\Layer_n$ 的直接驱动是“让上一阶阻碍 $\Ob_n$ 成为 $d$-边界”（Definition~\ref{def:obstruction-general}）。
+二者同为分层机制，但其约束方程与终止判据不同。
+\end{remark}
+
+\subsection{语义维度：同伦扭曲深度与决策深度的对位}
+
+\begin{definition}[决策深度（Decision depth，接口化）]
+\label{def:decision-depth}
+设 $\mathsf{Upd}$ 为一个“修复更新算子”，把当前系统状态 $S_\alpha$ 更新为 $S_{\alpha+1}$，
+并允许在需要时把迭代索引提升为序数：
+\[
+  S_{\alpha+1} := \mathsf{Upd}(S_\alpha,\gamma_\alpha),
+  \qquad
+  \gamma_\alpha\in \mathrm{Dec}(S_\alpha).
+\]
+若存在最小序数 $\alpha_\ast$ 使得系统达到修复不动点（例如 $\JacGap$ 落入阈值集合或同调类消失），
+则称 $\alpha_\ast$ 为该过程的\emph{决策深度}，记为 $\mathrm{Depth}_{\mathrm{Dec}}(S_0)$。
+该定义与 G-Equiv\cite{JacGapDStructureEquiv}（\code{NoteBook/notebook1/tex3_pub/jacobi_gap_D_structure_equivalence.tex}）中对
+  D-Depth 的接口一致。
+\end{definition}
+
+\begin{proposition}[决策深度与同伦扭曲深度的同一刻度（在对位前提下）]
+\label{prop:decision-depth-vs-twist-depth}
+若一条修复过程既可被表示为序数索引的更新序列 $\{S_\alpha\}$，也可被表示为序数索引的同伦扭曲塔
+$\{L_\alpha\}$，并且二者满足如下对位条件：
+\[
+  \JacGap(L_\alpha)\ \text{达到阈值}
+  \quad\Longleftrightarrow\quad
+  S_\alpha\ \text{达到修复不动点},
+\]
+则 Definition~\ref{def:decision-depth} 的决策深度与 Definition~\ref{def:twist-depth-breadth}
+的同伦扭曲深度 $\alpha_\ast$ 相同。
+\end{proposition}
+
+\begin{proof}
+两者都被定义为使“达到阈值/达到不动点”首次发生的最小序数；在对位条件下，最小元相同。
+\end{proof}
+
+\subsection{尺度维度：超限递归修复塔与无限增长的可判定语义}
+
+\begin{definition}[超限修复塔（Transfinite repair tower）]
+\label{def:transfinite-repair-tower}
+称序列 $\{L_\alpha\}_{\alpha<\kappa}$ 为一条\emph{超限修复塔}，若：
+\begin{enumerate}
+  \item 在后继步 $\alpha\mapsto \alpha+1$，通过加入/调整有限阶的同伦数据（例如若干 $\Layer_n$ 或其等价数据）
+        使 $\JacGap(L_{\alpha+1})$ 不增并趋向阈值集合；
+  \item 在极限序数 $\lambda<\kappa$ 处，$L_\lambda$ 由先前阶段的某种汇总规则给出（如并、上确界、余极限），
+        并保持“可容许性”（仍处于允许的结构类中）。
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[有限修复与超限修复的区分点]
+\label{prop:finite-vs-transfinite-plpi}
+在 Definition~\ref{def:transfinite-repair-tower} 的设定下：
+\begin{enumerate}
+  \item 若存在 $\alpha_\ast<\omega$ 使得 $\JacGap(L_{\alpha_\ast})$ 已达到阈值，则该修复过程等价于有限层修复；
+  \item 若对所有 $n<\omega$，$\JacGap(L_n)$ 均未达到阈值，但存在某个极限序数 $\lambda$ 使得
+        $\JacGap(L_\lambda)$ 达到阈值，则该修复过程本质上需要超限递归索引。
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+两条都是 Definition~\ref{def:transfinite-repair-tower} 中“索引域”的直接区分：
+第一条把终止点落在自然数层级；第二条把终止点落在极限序数层级。
+\end{proof}
+
+\subsection{总括：PL-PI 发生学重构的四维命题}
+
+\begin{theorem}[PL-PI 视角下同伦塔的四维重构（形式版本）]
+\label{thm:plpi-four-dimensions}
+在 G-Math\cite{GaoZheng2025GFramework} 与 G-Equiv\cite{JacGapDStructureEquiv} 的接口假设下，
+PL-PI 视角对“同伦塔”的独立重构可被形式化为以下四点：
+\begin{enumerate}
+  \item \textbf{起源：}同伦塔的输入对象取为 PL-PI 法系统 $\LSPLPI$，并在 GZ-可容许性下通过重构函子产生几何/算子结构
+        （Definitions~\ref{def:plpi-law-system}--\ref{def:gz-admissible-plpi}）；
+  \item \textbf{驱动：}逐阶引入同伦数据的直接驱动是把 Jacobiator-gap（或一般阻碍 $\Ob_n$）变为 $d$-边界，
+        典型起点为 $\Jac_{\Layer_2}=d(\Layer_3)$（Proposition~\ref{prop:plpi-arity3-repair}）；
+  \item \textbf{语义：}修复塔的高度可在对位条件下等价地读作“达到阈值所需的最小决策序数”
+        （Proposition~\ref{prop:decision-depth-vs-twist-depth}）；
+  \item \textbf{尺度：}允许把修复索引提升为序数，从而把有限层修复与超限修复严格区分开来
+        （Proposition~\ref{prop:finite-vs-transfinite-plpi}）。
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+逐条由相应定义与命题直接得到。
+\end{proof}
+
+\section{CH-分层与 GZ-CBT 视角下的 $\ZF/\ZFC$：$\AC$ 诱导的 $l_2$ 投影语义}
+\label{sec:zf-zfc-chlayer}
+
+\subsection{CH-分层的接口：$\Pi_{l_2}$、$\Pi_{l_{\ge 3}}$ 与 CH-profile}
+
+\begin{definition}[连续统法对象与 CH-profile（接口化）]
+\label{def:chprofile-interface}
+称 $L_{\mathrm{cont}}$ 为一个\emph{连续统法对象}，若它在法空间层面刻画“类似实直线”的结构对象，
+并处在允许讨论 CH-分层的子类 $\mathsf{Law}_{\mathrm{Cont}}$ 中。
+CH-分层为其关联两类投影数据：
+\begin{itemize}
+  \item \textbf{扩展面（$l_2$ 层）：} $\Pi_{l_2}(L_{\mathrm{cont}})$，其不变量以基数与传统测度论数据为代表；
+  \item \textbf{语义/同伦面（$l_{\ge 3}$ 层）：} $\Pi_{l_{\ge 3}}(L_{\mathrm{cont}})$，其不变量包含可定义集的正则性、
+        决定性模式、法曲率谱数据等。
+\end{itemize}
+据此定义 CH-profile：
+\[
+  \mathsf{CHProfile}(L_{\mathrm{cont}})
+  :=
+  \bigl(
+    \mathrm{CH}^{(l_2)}(L_{\mathrm{cont}}),\,
+    \mathrm{CH}^{(l_{\ge 3})}(L_{\mathrm{cont}})
+  \bigr),
+\]
+其中 $\mathrm{CH}^{(l_2)}$ 是经典 CH 断言（或 $2^{\aleph_0}$ 的更细分规格），而 $\mathrm{CH}^{(l_{\ge 3})}$ 是对
+$\Pi_{l_{\ge 3}}$ 的语义约束族。该接口与 G-Math\cite{GaoZheng2025GFramework} 中关于 CH-layering 与 CH-profile 的定义一致。
+\end{definition}
+
+\begin{remark}[符号消歧：$l_2$ 与 $\Layer_2$]
+本节的 $l_2,l_{\ge 3}$ 仅表示 CH-分层的“层指标”，而 $\Layer_2$ 表示 $L_\infty$ 的二元括号。
+两者语义无关；为避免混淆，本节不使用 $l_2:=\Layer_2$ 这类别名记法。
+\end{remark}
+
+\subsection{$\AC$ 作为“强制投影原理”：良序化与扩展面总可定义}
+
+\begin{definition}[$l_2$-强制投影原理（Forced $l_2$-projection principle）]
+\label{def:forced-l2-projection}
+称“$l_2$-强制投影原理”成立，若对任意集合 $X$，存在某个序数 $\kappa$ 与双射 $b:X\to\kappa$。
+在该情形下，可把 $X$ 的\emph{扩展代表}记为
+\[
+  \Pi_{l_2}(X) := \min\{\kappa\mid \exists b:X\cong \kappa\},
+\]
+即把集合强制投影到“按序数排布的基数链”上。
+\end{definition}
+
+\begin{proposition}[$\AC$ 等价于 $l_2$-强制投影原理（接口等价）]
+\label{prop:ac-equiv-forced-projection}
+在经典集合论语义下，选择公理 $\AC$ 与 Definition~\ref{def:forced-l2-projection} 的“$l_2$-强制投影原理”互相等价。
+\end{proposition}
+
+\begin{proof}
+这是选择公理与良序定理（Well-ordering theorem）的经典等价：
+\begin{itemize}
+  \item 若 $\AC$ 成立，则每个集合都可良序化，从而同构于某个序数，故满足强制投影原理；
+  \item 若每个集合都同构于某个序数，则每个集合可良序化，于是可推出选择函数的存在性，从而得到 $\AC$。
+\end{itemize}
+本笔记把该等价视为外部数学接口事实（参见 \cite{JechSetTheory}；亦对应 G-Math\cite{GaoZheng2025GFramework} 对“刚性类型架构/可比性”的使用方式）。
+\end{proof}
+
+\begin{remark}[ZF 与 ZFC 的“结构性差异”在本节的精确表述]
+Definition~\ref{def:forced-l2-projection} 把“把对象纳入 $l_2$ 层的刚性基数链”写成一个可判定的全称存在断言。
+Proposition~\ref{prop:ac-equiv-forced-projection} 表明：从 $\ZF$ 到 $\ZFC=\ZF+\AC$ 的增量，
+等价于把该 $l_2$-投影从“可能局部可行”提升为“全域可行”。
+\end{remark}
+
+\subsection{选择公理的构造化：全域选择算子、评分剪枝与 JacGap 代价}
+\label{sec:ac-constructive-operator}
+
+\begin{definition}[经典选择公理的选择函数表述]
+\label{def:ac-choice-function}
+经典 $\AC$ 的一个等价表述是如下“选择函数存在性”断言：
+\begin{equation}
+\label{eq:ac-choice-function}
+\begin{aligned}
+\AC_{\ZFC}^{(\mathrm{CF})}:\quad
+&\forall \mathcal{F}\,
+\Bigl(\emptyset\notin\mathcal{F}\ \Rightarrow\\
+&\exists f:\mathcal{F}\to \bigcup \mathcal{F}\ \text{s.t.}\ \forall A\in\mathcal{F},\, f(A)\in A\Bigr).
+\end{aligned}
+\end{equation}
+该表述是“定性存在性”：它断言 $f$ 存在，但不携带构造过程、评分准则或代价度量。
+\end{definition}
+
+\begin{definition}[候选域、评分函数与剪枝（接口化）]
+\label{def:choice-score-pruning}
+对任意允许类中的法对象 $L$，设 $\Gamma(L)$ 为其\emph{候选域}（可理解为路径空间/实现空间的一个集合化截面），
+并给定：
+\begin{enumerate}
+  \item \textbf{评分函数（D-结构度量）：} $\mathcal{L}_D(\,\cdot\,;w):\Gamma(L)\to\mathbb{R}$，
+        其中 $w$ 为权重参数（可取有限维向量），用于把“逻辑一致性/可验证性/稳定性”等指标压缩为一条标量评分；
+  \item \textbf{阈值剪枝：}给定阈值 $\tau\in\mathbb{R}$，对任意非空子集 $A\subseteq \Gamma(L)$ 定义
+        \[
+          A_{\ge \tau}:=\{\gamma\in A\mid \mathcal{L}_D(\gamma;w)\ge \tau\}.
+        \]
+\end{enumerate}
+该定义对应于“先筛选（pruning），后择优（maximization）”的接口读法；与 G-Equiv\cite{JacGapDStructureEquiv}
+  （\code{NoteBook/notebook1/tex3_pub/jacobi_gap_D_structure_equivalence.tex}）
+中的“路径空间/D-结构”叙述口径一致（作为外部接口，不在本笔记内重建其细节）。
+\end{definition}
+
+\begin{assumption}[极值可达性与离散化基线]
+\label{ass:argmax-attained}
+对任意允许的 $L$ 与任意非空 $A\subseteq\Gamma(L)$，存在阈值 $\tau$ 使得 $A_{\ge\tau}\neq\emptyset$，
+且 $\mathcal{L}_D(\,\cdot\,;w)$ 在 $A_{\ge\tau}$ 上取到最大值（例如 $A_{\ge\tau}$ 有限，或在离散化基线上可枚举并存在最大元）。
+\end{assumption}
+
+\begin{definition}[带 $l_2$-投影证书的全域选择算子（构造化版本）]
+\label{def:global-choice-operator}
+假设对每个允许的法对象 $L$，额外给出一份\emph{$l_2$-投影证书}
+\[
+  b_L:\Gamma(L)\stackrel{\cong}{\longrightarrow}\kappa_L
+\]
+其中 $\kappa_L$ 为某个序数。用该证书定义 $\Gamma(L)$ 上的良序：
+\[
+  \gamma\prec_L\gamma'\quad:\Longleftrightarrow\quad b_L(\gamma)<b_L(\gamma').
+\]
+在 Assumption~\ref{ass:argmax-attained} 下，对任意非空 $A\subseteq\Gamma(L)$，定义“择优选择集”
+\[
+  \mathrm{ArgMax}_{A_{\ge\tau}}\bigl(\mathcal{L}_D(\,\cdot\,;w)\bigr)
+  :=
+  \left\{\gamma\in A_{\ge\tau}\,\middle|\,
+    \forall \gamma'\in A_{\ge\tau},\ \mathcal{L}_D(\gamma;w)\ge \mathcal{L}_D(\gamma';w)
+  \right\}.
+\]
+并定义\emph{全域选择算子}
+\[
+  \mathsf{Ch}_{L,w,\tau}(A)\;:=\;\min\nolimits_{\prec_L}\,
+  \mathrm{ArgMax}_{A_{\ge\tau}}\bigl(\mathcal{L}_D(\,\cdot\,;w)\bigr).
+\]
+\end{definition}
+
+\begin{proposition}[构造化 $\AC$：从“存在性”提升为“算子数据”]
+\label{prop:ac-as-operator-data}
+在 Definition~\ref{def:global-choice-operator} 的设定下：
+\begin{enumerate}
+  \item 对每个允许的 $L$，$\mathsf{Ch}_{L,w,\tau}$ 是一个良定义的选择算子：对任意非空 $A\subseteq\Gamma(L)$，
+        都有 $\mathsf{Ch}_{L,w,\tau}(A)\in A$；
+  \item 若仅保留“对每个 $\Gamma(L)$ 存在某个良序”这一弱信息，则回到经典的 $\AC$ 语义（Proposition~\ref{prop:ac-equiv-forced-projection}）；
+        若进一步要求给出具体的证书 $b_L$ 与评分/剪枝机制，则得到一个\emph{构造化}的选择接口（可计算、可度量、可审计）。
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(1) 由 Assumption~\ref{ass:argmax-attained}，$\mathrm{ArgMax}_{A_{\ge\tau}}(\mathcal{L}_D)$ 非空；
+又由 $b_L$ 诱导的 $\prec_L$ 为良序，故其最小元存在且属于 $A_{\ge\tau}\subseteq A$。
+(2) 第一部分是经典等价的语言重述；第二部分是对“把存在性提升为算子/证书数据”的接口化说明：在本节记号下，
+$\AC$ 仅保证“某个 $b_L$ 存在”，而构造化版本把 $b_L$ 作为可调用输入并与 $\mathcal{L}_D$ 组合成确定的 $\mathsf{Ch}$。
+\end{proof}
+
+\begin{definition}[JacGap-范数与选择代价（量化占位）]
+\label{def:ac-cost-jacgap}
+对允许类中的法对象 $L$，其 Jacobiator-gap 证书记为
+\[
+  \JacGap(L)=(c_1(L),\dots,c_k(L)),
+\]
+并定义一个范数型聚合
+\[
+  \|\JacGap(L)\|_{\infty}:=\max_{1\le i\le k} c_i(L).
+\]
+称选择机制在 $L$ 上的\emph{拓扑代价}由
+\[
+  \mathrm{Cost}_{\AC_G}(L)\;:=\;\Phi\bigl(\|\JacGap(L)\|_{\infty}\bigr)
+\]
+量化，其中 $\Phi:\mathbb{R}_{\ge 0}\to\mathbb{R}_{\ge 0}$ 为单调函数（可取恒等函数）。
+该定义把“选择导致的结构性代价”压缩为 JacGap 的可计算证书量（参见 Proposition~\ref{prop:jacgap-finite-metric}）。
+\end{definition}
+
+\begin{proposition}[零缺陷极限下的退化：$\AC_{\ZFC}$ 是 $\AC_G$ 的特例]
+\label{prop:ac-zfc-as-degenerate-acg}
+在 Definition~\ref{def:global-choice-operator} 与 Definition~\ref{def:ac-cost-jacgap} 的设定下，
+若对某个 $L$ 满足 $\JacGap(L)=0$，并且评分函数在该极限退化为常数（即 $\mathcal{L}_D(\gamma;w)\equiv C$ 于 $\Gamma(L)$），则：
+\begin{enumerate}
+  \item $\mathrm{Cost}_{\AC_G}(L)=\Phi(0)=0$；
+  \item 对任意非空 $A\subseteq\Gamma(L)$，有
+        \[
+          \mathrm{ArgMax}_{A_{\ge\tau}}\bigl(\mathcal{L}_D(\,\cdot\,;w)\bigr)=A_{\ge\tau},
+        \]
+        从而 $\mathsf{Ch}_{L,w,\tau}(A)$ 退化为“从 $A_{\ge\tau}$ 中取一个元素”的规则；
+  \item 特别地，在取 $\tau=-\infty$ 时，$\mathsf{Ch}_{L,w,\tau}$ 给出一个普通选择函数的实例，
+        其语义不再依赖评分与剪枝，从而回到 \eqref{eq:ac-choice-function} 的 $\AC_{\ZFC}^{(\mathrm{CF})}$ 读法。
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(1) 由 Definition~\ref{def:ac-cost-jacgap} 直接得到。
+(2) 若 $\mathcal{L}_D$ 常数，则任意元素都达到最大值，故 ArgMax 等于全集合。
+(3) 取 $\tau=-\infty$ 得 $A_{\ge\tau}=A$，于是 $\mathsf{Ch}$ 成为对每个非空 $A$ 选出一个元素的规则；
+把 $A$ 取为任意族 $\mathcal{F}$ 的成员，就得到一个选择函数实例，从而与 \eqref{eq:ac-choice-function} 的存在性断言一致。
+\end{proof}
+
+\subsection{CH 作为 $l_2$ 层断言与 GZ-CBT：层间失配与重写问题}
+
+\begin{definition}[$l_2$ 层的 CH 断言（形式化占位）]
+\label{def:ch-l2}
+在 $l_2$ 层，连续统断言 $\CH$ 被编码为对 $\Pi_{l_2}(L_{\mathrm{cont}})$ 的约束（例如
+$2^{\aleph_0}=\aleph_1$ 或其细化规格）。我们记
+\[
+  \mathrm{CH}^{(l_2)}(L_{\mathrm{cont}})
+\]
+为该断言在扩展面的真值/规格对象。
+\end{definition}
+
+\begin{definition}[连续统崩溃（CBT）与重写（接口化）]
+\label{def:cbt-interface}
+沿着 law-space 流 $t\mapsto L_{\mathrm{cont}}(t)$，
+若 CH-profile
+\[
+  \mathsf{CHProfile}\bigl(L_{\mathrm{cont}}(t)\bigr)
+  =
+  \bigl(\mathrm{CH}^{(l_2)}(t),\mathrm{CH}^{(l_{\ge 3})}(t)\bigr)
+\]
+在演化中出现“扩展面与语义面失去一致性”的现象，则称发生 \emph{连续统崩溃（CBT）}。
+GZ-CBT 的\emph{重写问题}是：通过调整连接、同伦数据与 PL-PI 配置，使 CH-分层约束在新的稳定域中恢复或受控稳定。
+该接口与 G-Math\cite{GaoZheng2025GFramework} 中 Chapter \texttt{GZ-CBT: Continuum Breakdown and the Rewriting of Law-Level
+  Structures}
+对“breakdown = loss of coherence; rewriting = systematic reconstruction”的描述一致。
+\end{definition}
+
+\begin{proposition}[低层投影不决定高层语义：层间信息丢失是 CBT 的必要条件]
+\label{prop:l2-not-determines-l3}
+若存在连续统法对象 $L_{\mathrm{cont}},L'_{\mathrm{cont}}$ 满足
+\[
+  \Pi_{l_2}(L_{\mathrm{cont}})=\Pi_{l_2}(L'_{\mathrm{cont}})
+  \quad\text{但}\quad
+  \Pi_{l_{\ge 3}}(L_{\mathrm{cont}})\neq \Pi_{l_{\ge 3}}(L'_{\mathrm{cont}}),
+\]
+则仅凭 $l_2$ 层数据无法唯一重建 $l_{\ge 3}$ 层语义；因此在允许的 law-flow 上，
+“层间失配/不一致性”具有非空的发生空间，从而为 Definition~\ref{def:cbt-interface} 中的 CBT 现象提供必要的结构条件。
+\end{proposition}
+
+\begin{proof}
+上述条件等价于 $l_2$ 投影 $\Pi_{l_2}$ 在该子类上非单射；
+于是同一个扩展面纤维上存在多个语义/同伦面取值。沿着法空间变形，
+一旦演化在纤维内产生“语义面漂移”而扩展面保持不变，层间一致性就会被破坏，
+从而为 CBT 事件提供必要结构条件。
+\end{proof}
+
+\subsection{结论：$\ZF/\ZFC$ 差异的 $l_2$ 投影解释（形式版本）}
+
+\begin{theorem}[$\ZF$ 与 $\ZFC$ 的差异可被刻画为 $l_2$ 投影的全域化]
+\label{thm:zfc-vs-zf-as-l2-projection}
+在 CH-分层与 GZ-CBT 的接口语义下，
+从 $\ZF$ 到 $\ZFC$ 的结构性增量可以被形式化为：把 $l_2$-强制投影原理
+（Definition~\ref{def:forced-l2-projection}）加入公理系统，从而使 $\Pi_{l_2}$ 在全域上可行。
+在该表述下：
+\begin{enumerate}
+  \item $\ZFC$ 允许把连续统对象的扩展面强制编码进按序数线性排布的基数链；
+  \item CH 问题在 $l_2$ 层被表达为对 $\Pi_{l_2}(L_{\mathrm{cont}})$ 的断言；
+  \item 若 $\Pi_{l_2}$ 在允许类上存在信息丢失（Proposition~\ref{prop:l2-not-determines-l3}），
+        则 GZ-CBT 的“层间失配与重写”机制成为在更高层恢复语义一致性的必要补充结构。
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1) 与 (2) 分别由 Definition~\ref{def:forced-l2-projection} 与 Definition~\ref{def:ch-l2} 给出其形式化描述；
+并且由 Proposition~\ref{prop:ac-equiv-forced-projection}，该强制投影原理与 $\AC$ 等价，故确为 $\ZF\to\ZFC$ 的结构增量。
+(3) 由 Proposition~\ref{prop:l2-not-determines-l3}：若 $l_2$ 投影非单射，则仅凭扩展面不足以固定语义/同伦面，
+从而“层间一致性失配”的发生空间非空；而 GZ-CBT 正是以“失配诊断 + 重写恢复”为目标的动态机制接口。
+\end{proof}
+
+\section{压轴：Bianchi--Jacobi 几何修复与类型变异超限递归的等价性（接口定理）}
+\label{sec:bianchi-mutation-equivalence}
+
+\subsection{字典：对象、缺陷、基准与修复}
+
+\begin{definition}[几何侧/逻辑侧的对位字典（接口化）]
+\label{def:geo-logic-dictionary}
+把“几何修复”与“逻辑递归”之间的对应关系压缩为如下字典（均为接口术语，不在本节内重建其外部来源）：
+\begin{enumerate}
+  \item \textbf{对象：}
+        几何侧对象为 $L_\infty$ 数据 $(V,d,\{\Layer_k\})$；
+        逻辑侧对象为 PL-PI 法系统 $\LSPLPI=(\LPL,\LPI;\ThetaPLPI)$（Definition~\ref{def:plpi-law-system}）。
+  \item \textbf{缺陷：}
+        几何侧缺陷为 Jacobiator 失配 $\Jac_{\Layer_2}$ 或更一般的阻碍项 $\Ob_n$；
+        逻辑侧缺陷为\emph{类型变异态射}（亦称性变态射/属变态射）
+        \[
+          \mu:\ T_A\longrightarrow T_B,
+        \]
+        它编码“同一合成式在不同计算路径下落入不同类型/属”的不兼容性。
+  \item \textbf{基准：}
+        几何侧基准为高阶连贯性方程（Grand Jacobi / Grand Bianchi），即 \eqref{eq:Linfty-higher-Jacobi}
+        所要求的 Bianchi-闭性与可修复性（Section~\ref{sec:bianchi-benchmark}）；
+        逻辑侧基准为\emph{变异基准}（Mutation benchmark），即允许类型变异但要求其满足元规则一致性（见 Definition~\ref{def:mutation-benchmark}）。
+  \item \textbf{修复：}
+        几何侧修复为逐阶引入 $\Layer_{\ge 3}$ 使 $\Ob_n=-d(\Layer_n)$（Theorem~\ref{thm:grand-bianchi-obstruction}）；
+        逻辑侧修复为对变异算子执行超限递归，逐阶加入更高阶“桥接算子”以消除或受控压缩变异残差（Definition~\ref{def:mutation-recursion-tower}）。
+  \item \textbf{规模：}
+        两侧过程的终止高度都可用序数刻度（扭曲深度/决策深度）记录，并在对位条件下相同（Proposition~\ref{prop:decision-depth-vs-twist-depth}）。
+\end{enumerate}
+\end{definition}
+
+\subsection{缺陷同构：Jacobiator 失配与类型变异态射}
+
+\begin{definition}[变异模、变异缺陷与边界算子（接口化）]
+\label{def:mutation-defect}
+设 $\mathsf{Ty}$ 为一个“类型/属”的抽象范畴。
+对一条固定的 PL-PI 计算轨道，设 $\tau(\cdot)$ 为其类型赋值。
+令 $M=\bigoplus_{n\in\mathbb{Z}}M^n$ 为一个 $\mathbb{Z}$-分级向量空间（称为\emph{变异模}），其元素用于线性化编码允许的类型变异态射/证书。
+并假设存在微分
+\[
+  \partial_{\mathrm{mut}}:M\longrightarrow M,\qquad \partial_{\mathrm{mut}}^2=0.
+\]
+对任意可参与二元合成的三元组 $(x,y,z)$，选取一个三元\emph{变异缺陷元}
+\[
+  \mathsf{Mut}_3(x,y,z)\in M,
+\]
+其语义可理解为编码
+\[
+  \tau\bigl((x\cdot y)\cdot z\bigr)\longrightarrow \tau\bigl(x\cdot(y\cdot z)\bigr)
+\]
+这一“同一合成在不同路径下发生类型变异”的失配态射。
+\end{definition}
+
+\begin{definition}[变异上同调（接口化）]
+\label{def:mutation-cohomology}
+由 $\partial_{\mathrm{mut}}^2=0$，可定义
+\[
+  Z(M):=\ker(\partial_{\mathrm{mut}}),\qquad
+  B(M):=\mathrm{im}(\partial_{\mathrm{mut}}),\qquad
+  H(M):=Z(M)/B(M).
+\]
+\end{definition}
+
+\begin{assumption}[对位：变异缺陷与 Jacobiator/阻碍的实现对应]
+\label{ass:mutation-vs-jacobiator}
+对一个 GZ-可容许的 $\LSPLPI$，存在实现过程把其送到某个 $L_\infty$ 数据 $(V,d,\{\Layer_k\})$（Definition~\ref{def:plpi-jacobiator-projection}）。
+并且存在一个链映射（把变异模编码为法空间链元）
+\[
+  \Phi:\ (M,\partial_{\mathrm{mut}})\longrightarrow (V,d)
+\]
+满足：
+\begin{enumerate}
+  \item \textbf{三元对位：}对任意 $d$-闭输入（在实现后意义下）都有
+        \[
+          \Phi\bigl(\mathsf{Mut}_3(x,y,z)\bigr)=\Jac_{\Layer_2}(x,y,z);
+        \]
+  \item \textbf{一般阶对位（占位）：}对每个 $n\ge 3$，可选取 $n$ 元变异阻碍元 $\mathsf{Mut}_n\in M$ 使得
+        \[
+          \Phi(\mathsf{Mut}_n)=\Ob_n
+        \]
+        （$\Ob_n$ 见 Definition~\ref{def:obstruction-general}）；
+  \item \textbf{边界反射（用于基准对齐）：}$\Phi$ 在 $B(M)=\mathrm{im}(\partial_{\mathrm{mut}})$ 上单射；
+  \item \textbf{阻碍可拉回（用于等价性）：}$\Phi$ 在上同调上诱导的映射 $\Phi_*:H(M)\to H(V)$ 是单射。
+\end{enumerate}
+\end{assumption}
+
+\subsection{基准同构：Bianchi-闭性与 Mutation benchmark}
+
+\begin{definition}[变异基准（Mutation benchmark）]
+\label{def:mutation-benchmark}
+在 Definition~\ref{def:mutation-defect} 的设定下，称三元变异缺陷满足\emph{变异基准}，若对所有允许输入都有
+\[
+  \partial_{\mathrm{mut}}\bigl(\mathsf{Mut}_3(x,y,z)\bigr)=0.
+\]
+\end{definition}
+
+\begin{proposition}[Bianchi 基准 $\Longleftrightarrow$ 变异基准（在对位假设下）]
+\label{prop:bianchi-implies-mutation-benchmark}
+在 Assumption~\ref{ass:mutation-vs-jacobiator} 的前提下，
+对任意 $d$-闭输入 $x,y,z\in Z(V)$，下列两条等价：
+\begin{enumerate}
+  \item 几何侧三元缺陷满足 Bianchi-闭性：$d(\Jac_{\Layer_2}(x,y,z))=0$；
+  \item 逻辑侧三元缺陷满足变异基准：$\partial_{\mathrm{mut}}(\mathsf{Mut}_3(x,y,z))=0$。
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+由链映射性质 $d\circ\Phi=\Phi\circ \partial_{\mathrm{mut}}$ 与三元对位
+$\Phi(\mathsf{Mut}_3)=\Jac_{\Layer_2}$，对任意 $x,y,z$ 有
+\[
+  \Phi\bigl(\partial_{\mathrm{mut}}(\mathsf{Mut}_3(x,y,z))\bigr)
+  =
+  d\bigl(\Jac_{\Layer_2}(x,y,z)\bigr).
+\]
+因此 (2)$\Rightarrow$(1) 直接成立。
+反向 (1)$\Rightarrow$(2)：若右端为 $0$，则左端为 $0$。又
+$\partial_{\mathrm{mut}}(\mathsf{Mut}_3(x,y,z))\in B(M)$，
+由 Assumption~\ref{ass:mutation-vs-jacobiator} 中 $\Phi$ 在 $B(M)$ 上单射，得到
+$\partial_{\mathrm{mut}}(\mathsf{Mut}_3(x,y,z))=0$。
+\end{proof}
+
+\subsection{修复同构：高阶括号扩张与超限递归}
+
+\begin{definition}[变异修复方程与高阶桥接算子]
+\label{def:mutation-repair-equation}
+称三元变异缺陷可被\emph{修复}，若存在一个三元桥接算子（同伦填充元的逻辑对应物）
+\[
+  \Theta_3(x,y,z)\in M
+\]
+使得
+\[
+  \mathsf{Mut}_3(x,y,z) = -\partial_{\mathrm{mut}}\bigl(\Theta_3(x,y,z)\bigr).
+\]
+更一般地，可对每个 $n\ge 3$ 定义 $n$ 元变异阻碍 $\mathsf{Mut}_n$，并要求存在 $\Theta_n$ 使
+$\mathsf{Mut}_n=-\partial_{\mathrm{mut}}(\Theta_n)$（对应几何侧 $\Ob_n=-d(\Layer_n)$）。
+\end{definition}
+
+\begin{definition}[变异递归塔（Transfinite mutation recursion）]
+\label{def:mutation-recursion-tower}
+称序数索引的序列 $\{S_\alpha\}_{\alpha<\kappa}$ 为一条\emph{变异递归塔}，若：
+\begin{enumerate}
+  \item 在后继步 $\alpha\mapsto \alpha+1$，通过加入有限阶桥接算子（若干 $\Theta_n$ 或其等价数据）
+        使当前变异缺陷的证书化残差不增并趋向阈值集合；
+  \item 在极限序数 $\lambda$ 处，$S_\lambda$ 由先前阶段的汇总规则给出（如并、上确界、余极限），并保持可容许性。
+\end{enumerate}
+该定义与 Definition~\ref{def:transfinite-repair-tower} 的“超限修复塔”口径一致，只是把修复数据视为逻辑侧的桥接算子。
+\end{definition}
+
+\begin{theorem}[核心等价：Bianchi--Jacobi 修复 $\cong$ 变异递归（接口定理）]
+\label{thm:bianchi-mutation-equivalence}
+在 Assumption~\ref{ass:mutation-vs-jacobiator} 的对位前提下：
+\begin{enumerate}
+  \item 若逻辑侧存在变异递归塔 $\{S_\alpha\}$，则其像可被组织为几何侧的同伦修复塔 $\{L_\alpha\}$，
+        并满足“逐阶阻碍 = 边界”的修复方程（Theorem~\ref{thm:grand-bianchi-obstruction}）；
+  \item 若几何侧存在同伦修复塔并满足 Bianchi 基准，则其可被解释为一条变异递归塔，使每阶变异缺陷满足变异基准，
+        并在允许意义下被桥接算子逐步吸收（Definition~\ref{def:mutation-recursion-tower}）。
+\end{enumerate}
+因此，“曲率/雅可比缺陷的受控修复”与“类型变异的超限递归桥接”在本笔记的断言域内是同一机制的两种语义外壳：
+它们都由“缺陷项落为边界”这一方程驱动，并以序数型深度/证书阈值作为可终止性刻度。
+\end{theorem}
+
+\begin{proof}
+(1) 若逻辑侧在每一阶给出桥接算子 $\Theta_n$ 使 $\mathsf{Mut}_n=-\partial_{\mathrm{mut}}(\Theta_n)$，
+则由链映射性质 $d\circ\Phi=\Phi\circ\partial_{\mathrm{mut}}$ 与一般阶对位 $\Phi(\mathsf{Mut}_n)=\Ob_n$，得到
+\[
+  \Ob_n
+  =
+  \Phi(\mathsf{Mut}_n)
+  =
+  -\,\Phi(\partial_{\mathrm{mut}}(\Theta_n))
+  =
+  -\,d\bigl(\Phi(\Theta_n)\bigr).
+\]
+因此在几何侧可取 $\Layer_n:=\Phi(\Theta_n)$，从而得到“逐阶阻碍 = 边界”的修复方程组；
+把这些方程按序数索引组织为一条塔，即得到几何侧同伦修复塔。
+
+(2) 反向：设几何侧给定一条同伦修复塔，使每一阶阻碍满足 $d$-恰当性（即存在 $\Layer_n$ 使 $\Ob_n=-d(\Layer_n)$）。
+由一般阶对位（占位）可选取 $\mathsf{Mut}_n\in M$ 使 $\Phi(\mathsf{Mut}_n)=\Ob_n$。
+首先，由 $d(\Ob_n)=0$ 与链映射相容性得到
+\[
+  \Phi\bigl(\partial_{\mathrm{mut}}(\mathsf{Mut}_n)\bigr)
+  =
+  d\bigl(\Phi(\mathsf{Mut}_n)\bigr)
+  =
+  d(\Ob_n)
+  =
+  0.
+\]
+而 $\partial_{\mathrm{mut}}(\mathsf{Mut}_n)\in B(M)$，由 $\Phi$ 在 $B(M)$ 上单射可得
+$\partial_{\mathrm{mut}}(\mathsf{Mut}_n)=0$，故 $\mathsf{Mut}_n\in Z(M)$，其同调类 $[\mathsf{Mut}_n]\in H(M)$ 有意义。
+其次，由 $[\Ob_n]=0$ 于 $H(V)$（因为 $\Ob_n$ 为 $d$-边界）与同调函子性，有
+\[
+  0
+  =
+  [\Ob_n]
+  =
+  [\Phi(\mathsf{Mut}_n)]
+  =
+  \Phi_*([\mathsf{Mut}_n]).
+\]
+由 Assumption~\ref{ass:mutation-vs-jacobiator} 中 $\Phi_*$ 单射，得到 $[\mathsf{Mut}_n]=0$，
+从而存在 $\Theta_n$ 使 $\mathsf{Mut}_n=\partial_{\mathrm{mut}}(\Theta_n)$。
+按 Definition~\ref{def:mutation-recursion-tower} 将这些桥接步组织为序数索引过程，即得到逻辑侧变异递归塔。
+序数型终止刻度由 Proposition~\ref{prop:decision-depth-vs-twist-depth} 的对位性给出。
+\end{proof}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{附录A：等价性命题（Bianchi--Jacobi 几何修复与类型变异递归）}
+\label{sec:equivalence-clean-statement}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本节把“第三人称原话摘录”改写为接口化、可检验的形式陈述：去除修辞，仅保留对象、缺陷、基准与修复方程，
+并把证明链条压缩为“缺陷对位 $\rightarrow$ 基准对位 $\rightarrow$ 修复对位”三步。
+\emph{完整的接口定理与证明}见 Section~\ref{sec:bianchi-mutation-equivalence} 的 Theorem~\ref{thm:bianchi-mutation-equivalence}；
+本节给出等价性命题的结构化摘要。
+
+\subsection{命题（摘要）}
+
+\begin{theorem}[等价性命题（结构化摘要）]
+在 Definition~\ref{def:geo-logic-dictionary} 的字典与 Assumption~\ref{ass:mutation-vs-jacobiator} 的对位前提下，
+几何侧的 Bianchi--Jacobi 受控修复（由 $\Ob_n=-d(\Layer_n)$ 驱动）与逻辑侧的类型变异递归桥接
+（由 $\mathsf{Mut}_n=-\partial_{\mathrm{mut}}(\Theta_n)$ 驱动）是同一机制的两种语义外壳。
+\end{theorem}
+
+\begin{proof}
+该断言是 Theorem~\ref{thm:bianchi-mutation-equivalence} 的摘要版陈述。
+为方便快速核验，以下用三个接口命题重述其证明骨架（分别对应“缺陷/基准/修复”的对位）。
+\end{proof}
+
+\subsection{证明骨架：缺陷--基准--修复三步对位}
+
+\begin{proposition}[缺陷对位：Jacobiator 失配 $\leftrightarrow$ 类型变异缺陷]
+\label{prop:equiv-defect}
+在 Assumption~\ref{ass:mutation-vs-jacobiator} 的三元对位条件下，对任意可实现为 $d$-闭输入的 $(x,y,z)$，有
+\[
+  \Phi\bigl(\mathsf{Mut}_3(x,y,z)\bigr)=\Jac_{\Layer_2}(x,y,z).
+\]
+因此，几何侧“Jacobiator 失配”与逻辑侧“类型变异缺陷”在实现层上是同一缺陷的两种表示。
+\end{proposition}
+
+\begin{proof}
+这是 Assumption~\ref{ass:mutation-vs-jacobiator} 的三元对位公设的直接复述。
+\end{proof}
+
+\begin{proposition}[基准对位：Grand Bianchi $\leftrightarrow$ 变异基准]
+\label{prop:equiv-benchmark}
+在同一对位前提下：
+\begin{enumerate}
+  \item 若几何侧满足高阶连贯性方程 \eqref{eq:Linfty-higher-Jacobi}（即 Bianchi-闭性与可修复性），
+        则逻辑侧可把变异缺陷组织为 $\partial_{\mathrm{mut}}$-闭类并服从变异基准（Definition~\ref{def:mutation-benchmark}）；
+  \item 反之，若逻辑侧满足变异基准并且缺陷可被桥接算子逐阶吸收，则其实现像满足相应阶的“阻碍落为边界”方程。
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+要点是链映射相容性 $d\circ\Phi=\Phi\circ\partial_{\mathrm{mut}}$ 与边界/上同调单射性假设：
+几何侧的 $d$-闭性与边界化结论，经 $\Phi$ 可拉回为逻辑侧的 $\partial_{\mathrm{mut}}$-闭性与边界化结论，
+从而把“基准”（允许变异但要求可追踪/可修复）对齐为同一条接口约束。细节见 Theorem~\ref{thm:bianchi-mutation-equivalence} 的反向证明。
+\end{proof}
+
+\begin{proposition}[修复对位：$\Layer_{\ge 3}$ 扩张 $\leftrightarrow$ 桥接算子超限递归]
+\label{prop:equiv-repair}
+在 Assumption~\ref{ass:mutation-vs-jacobiator} 的对位前提下，以下两类数据互相推出：
+\begin{enumerate}
+  \item 一组桥接算子 $\{\Theta_n\}_{n\ge 3}$ 使每阶变异缺陷满足
+        \[
+          \mathsf{Mut}_n=-\partial_{\mathrm{mut}}(\Theta_n),
+        \]
+        并按 Definition~\ref{def:mutation-recursion-tower} 组织为变异递归塔；
+  \item 一组高阶括号 $\{\Layer_n\}_{n\ge 3}$ 使每阶几何阻碍满足
+        \[
+          \Ob_n=-d(\Layer_n),
+        \]
+        并按 Definition~\ref{def:transfinite-repair-tower} 组织为同伦修复塔。
+\end{enumerate}
+并且在可实现的语境下可取 $\Layer_n=\Phi(\Theta_n)$，从而把两侧递归统一到同一条“缺陷 = 边界”的修复方程上。
+\end{proposition}
+
+\begin{proof}
+正向由链映射性质立刻给出：$\Ob_n=\Phi(\mathsf{Mut}_n)=-\Phi(\partial_{\mathrm{mut}}(\Theta_n))=-d(\Phi(\Theta_n))$。
+反向需要使用 Assumption~\ref{ass:mutation-vs-jacobiator} 中 $\Phi$ 在边界与上同调上的单射条件，以把“边界像”拉回为“边界原像”，
+从而构造出 $\Theta_n$ 并组织为变异递归塔；这正是 Theorem~\ref{thm:bianchi-mutation-equivalence} 的反向证明。
+\end{proof}
+
+\begin{remark}[关于“第一步”与“极限”】【\cite{HomotopyMinimalityDialogue}]
+在该对位结构下，几何侧的 $\Layer_3$ 对应逻辑侧的最小桥接算子 $\Theta_3$；
+更高阶的 $\Layer_n$ 对应更高阶的桥接数据。
+当修复过程被序数索引并允许极限步时，几何侧“高阶括号塔”的极限对象与逻辑侧“超限递归塔”的极限对象
+共享同一终止刻度（扭曲深度/决策深度），参见 Proposition~\ref{prop:decision-depth-vs-twist-depth}。
+\end{remark}
+
+\clearpage
+
+\renewcommand{\refname}{\texorpdfstring{参考文献}{References}}
+\begin{thebibliography}{99}
+
+\bibitem{LadaStasheff1993}
+Tom Lada and Jim Stasheff, \emph{Introduction to sh Lie algebras for physicists}, International Journal of Theoretical
+  Physics, 1993.
+
+\bibitem{LadaMarkl1995}
+Tom Lada and Martin Markl, \emph{Strongly homotopy Lie algebras}, Communications in Algebra, 1995.
+
+\bibitem{HatcherAT}
+Allen Hatcher, \emph{Algebraic Topology}, Cambridge University Press, 2002（含 Postnikov 塔等基础背景）。
+\url{https://pi.math.cornell.edu/~hatcher/AT/AT.pdf}
+
+\bibitem{JechSetTheory}
+Thomas Jech, \emph{Set Theory}, Springer, 2003（选择公理、良序定理与 CH 独立性等经典结论的系统整理）。
+
+\bibitem{GaoZheng2025GFramework}
+Gao, Z. (2025).
+\newblock Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra).
+\newblock In \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra): An Integrated Construction (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17651584}.
+
+
+\bibitem{GaoZhengAppVol1}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL, Quantum
+  Computing, and Superconductivity.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL,
+  Quantum Computing, and Superconductivity (v1.2)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17686133}.
+
+
+\bibitem{GaoZhengAppVol2}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II — LBOPB, Life-Science Monoids, and
+  Generative Precision Medicine.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II — LBOPB, Life-Science
+  Monoids, and Generative Precision Medicine (v1.1)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17744672}.
+
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+
+\bibitem{GFrameworkAppVol4Pub}
+GaoZheng：\emph{G-Framework Applied Mathematics Volume IV}（\code{docs/AppMathVol4/Pub_GFramework_AppMath_Vol4.tex}，发布稿；
+  含同伦约束系统与证书系统的定义框架等）。
+
+\bibitem{JacGapDStructureEquiv}
+GaoZheng：\emph{Jacobiator-gap 与 D-Structure 的等价：序数型扭曲深度/广度与超限递归修复塔}
+  （\code{NoteBook/notebook1/tex3_pub/jacobi_gap_D_structure_equivalence.tex}，工作笔记）。
+
+\bibitem{HomotopyMinimalityDialogue}
+GaoZheng：\emph{同伦、雅可比间隙与离散统本体}（\code{NoteBook/notebook1/tex6_pub/homotopy_minimality_dialogue.tex}，工作笔记）。
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

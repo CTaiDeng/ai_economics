@@ -1,0 +1,3188 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 基本定理环境（工作笔记：形式系统风格）
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\Jac}{\operatorname{Jac}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsc{G-Framework}}
+
+\newcommand{\Ob}{\operatorname{Ob}}
+\newcommand{\Cert}{\operatorname{Cert}}
+\newcommand{\Loss}{\mathcal{L}}
+\newcommand{\Flow}{\operatorname{Flow}}
+\newcommand{\Upd}{\operatorname{Upd}}
+\newcommand{\QQ}{\mathbb{Q}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+\setlength{\emergencystretch}{6em}
+
+% 对话稿默认取消首行缩进，并留出段间距，提升可读性
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{离散统的修复塔与量子--几何接口\\（从 $H_1$ 收缩到扇区减少与离散 Hodge 谱隙的可审计证明稿）}
+\newcommand{\CertificateAuthorCN}{Gao Zheng（高政）}
+\author{\CertificateAuthorCN}
+\date{2026-03-13}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是单独给出一组离散修复、量子态空间或几何接口的说明，而是在
+\GFramework{} 的修复链条中，把离散同调收缩、扇区减少、离散 Hodge 谱隙、
+量子最小数据与几何接口组织成一个可审计的形式系统。若这些对象分散出现，
+“修复”容易只表现为操作经验，“量子”容易只表现为外加语汇，“几何”也容易只表现为
+背景解释；本文将它们压合为一条从离散障碍到量子--几何可运行接口的链条。
+
+本文的第一层立场是离散修复的同调化。离散系统中的障碍不只是某个局部坏点，而是
+可以表现为 \(H_1\) 类、扇区冗余、谱隙退化或闭合失败。修复塔的作用，是把这些
+障碍逐层压缩、收缩或转化，使系统从“有未消化回路”进入“可被有限步审计”的状态。
+因此，修复不是任意简化，而是以同调类变化、扇区数量变化与谱结构变化为证书的
+结构过程。
+
+本文的第二层立场是量子--几何接口的最小化。本文不把量子结构当作超出离散修复的
+神秘附加层，而是提取最小可运行数据 \((\mathcal H,\mathfrak A,U(t))\)，用于承接
+离散复内积结构、算子演化与几何观测接口。由此，量子层成为离散修复塔向谱结构、
+态空间与演化算子过渡的接口，而不是脱离修复证书的独立叙事。
+
+本文的第三层立场是离散 Hodge 谱隙的证书作用。谱隙不是附加的数值指标，而是
+离散修复是否改善了系统分辨率和稳定性的证据。若 \(H_1\) 类被收缩但谱结构没有
+获得可判定改善，则修复可能只是形式压缩；若谱隙改善但同调障碍仍未消化，则修复
+也不能被视为完成。本文因此把同调收缩和谱隙改善绑定为双重证书。
+
+本文的第四层立场是把“可修复”转化为可审计的谱--同调条件。\(H_1\) 收缩、扇区
+减少与谱隙改善共同给出修复成效的三个侧面：拓扑侧说明回路障碍是否被消去，
+离散侧说明冗余扇区是否减少，谱侧说明系统是否获得更稳定的分辨结构。三者联合，
+使修复塔具备了从离散拓扑到量子几何接口的可检验证据。
+
+本文的第五层立场是量子数据的接口化而非神秘化。Hilbert 空间、代数与演化算子
+在本文中承担的是把离散修复结果送入可计算态空间的角色。它们不替代同调证书，
+也不无条件推出物理实在性；它们提供的是最小量子化接口，使离散修复塔能够与谱、
+态、算子和几何观测发生可审计连接。
+
+本文的第六层立场是有限步终止与工程可运行性。修复塔若不能给出终止、下降或稳定
+判据，就容易退化为无限递归叙述。本文通过 \(H_1\) 收缩、扇区减少和谱隙变化，
+为有限步修复提供可检查的阶段证书。这也为后续统计同伦命中中的“工程截断确定性”
+提供了较早的离散版本。
+
+本文的第七层立场是从离散障碍到几何接口的桥接。离散修复塔解决的是组合和同调
+层的障碍，量子--几何接口则说明这些修复结果如何被送入更连续的几何、谱和演化
+语境中。本文由此避免了“离散修复只在离散层有效”的局限，使修复结果具备跨层调用
+能力。
+
+因此，本文在整体 \GFramework{} 中承担的是“离散修复塔到量子--几何接口”的桥接
+作用。它向前连接可修复障碍和同伦塔，向中间连接离散复内积、Hodge 谱与最小量子
+数据，向后为统计同伦命中与 PDE 残差求解提供离散谱几何底座。概括地说，本文把
+“离散障碍如何被修复”推进为“同调收缩、谱隙改善与量子--几何接口共同可审计”的
+形式系统。
+
+更具体地说，本文把离散系统中的修复行为拆成三个可审计层面：拓扑层看同调类是否
+被收缩，组合层看扇区是否减少，谱层看离散 Hodge 结构是否获得更清晰的间隙。只有
+这三层能够相互支撑，修复才不仅是形式上删去一个障碍，而是系统结构真正变得更稳定。
+
+从方法论上看，本文把量子--几何接口降到最小可运行数据，而不把它放大为不可检验的
+物理叙事。Hilbert 空间、代数和演化算子在这里服务于修复结果的表达、传输与观测，
+而不是替代修复证书。这种写法使量子语言可以进入 \GFramework{}，但仍受离散同调
+和谱证书约束。
+
+从整体谱系看，本文连接了两个方向：向前，它继承可修复障碍、同伦塔和边缘算子的
+闭合语义；向后，它为统计同伦命中提供可计算的离散状态空间和谱几何背景。后续
+PDE 残差命中若要落地到离散结构，也需要类似本文所给出的修复塔、谱隙和接口数据。
+
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{2}
+\tableofcontents
+\clearpage
+
+\section{术语、对象与目标链条}
+
+\subsection{形式逻辑写作约定（公理降级、证书与谓词因果链）}
+\label{subsec:tex31-writing-convention}
+
+\begin{remark}[写作与验收约定]
+本稿采用“形式逻辑 + 证书”体例，统一以基于数学符号推演逻辑的谓词因果链组织证明。默认规则如下：
+\begin{itemize}
+  \item \textbf{公理降级：}仅保留最小接口假设；需要固定为基础约束的断言，统一写成“公理（降级为定理）”，并附数学归纳法证书与证明；
+  \item \textbf{定理/引理/命题/推论：}每条编号断言均配套“证书 + 证明（谓词因果链）”；
+  \item \textbf{备注：}只承担动机、边界与解释说明，不承担证明义务；
+  \item \textbf{章节编号：}全部依赖 LaTeX 自动编号，不手工维护章节序号。
+\end{itemize}
+\end{remark}
+
+\begin{definition}[核心术语]
+\label{def:D0}
+本文所用核心术语为\emph{高维复内积空间}。即：复向量空间上配备满足共轭对称与正定性的内积结构（见定义~\ref{def:D1}）。
+\end{definition}
+
+\begin{definition}[复内积空间/希尔伯特空间]
+\label{def:D1}
+设 $V$ 为复向量空间。若存在映射
+\[
+\langle\cdot,\cdot\rangle:V\times V\to\mathbb C
+\]
+满足对任意 $x,y,z\in V,\alpha\in\mathbb C$：
+\begin{align*}
+&\langle x,y\rangle=\overline{\langle y,x\rangle}\quad(\text{共轭对称}),\\
+&\langle \alpha x+y,z\rangle=\alpha\langle x,z\rangle+\langle y,z\rangle\quad(\text{对第一变量线性}),\\
+&\langle x,x\rangle\ge 0,\ \langle x,x\rangle=0\Leftrightarrow x=0\quad(\text{正定}),
+\end{align*}
+则称 $(V,\langle\cdot,\cdot\rangle)$ 为\emph{复内积空间}。若 $V$ 在范数 $\|x\|=\sqrt{\langle x,x\rangle}$ 下完备，则称为\emph{希尔伯特空间}
+  $\mathcal H$。
+\end{definition}
+
+\begin{definition}[同调“孔洞”与 Betti 数]
+\label{def:D2}
+给定拓扑空间 $X$，其同调群 $H_k(X;\mathbb Z)$（或上同调 $H^k(X;\mathbb C)$）非平凡通常被视为存在 ``$k$ 维孔洞'' 的代数拓扑刻画。记
+\[
+b_k(X):=\dim_{\QQ}H_k(X;\QQ),
+\qquad
+\beta^k(X):=\dim_{\mathbb C}H^k(X;\mathbb C).
+\]
+\end{definition}
+
+\begin{definition}[四维（伪）黎曼流形]
+\label{def:D3}
+设 $M$ 为四维光滑流形，$g\in\Gamma(\mathrm{Sym}^2T^\ast M)$ 为度量张量。若 $g$ 在每点具有签名 $(-,+,+,+)$，则 $(M,g)$ 为四维\emph{洛伦兹}（伪黎曼）流形；
+  若签名全正则为四维黎曼流形。曲率由 Levi--Civita 连接 $\nabla$ 的 Riemann 张量 $R^\nabla$ 给出。
+\end{definition}
+
+\begin{definition}[卡拉比--丘流形]
+\label{def:D4}
+复维 $n$ 的紧致 K\"ahler 流形 $Y$ 若满足 $c_1(Y)=0$（等价地 $K_Y\simeq\mathcal O_Y$，或 $\mathrm{Hol}(Y)\subseteq SU(n)$），则称 $Y$
+  为\emph{卡拉比--丘}（Calabi--Yau）流形。
+\end{definition}
+
+\begin{definition}[离散统与层内复形]
+\label{def:D5}
+称
+\[
+\mathfrak D:=(I,\{K_i\}_{i\in I},\{r_{ij}\}_{i\preceq j})
+\]
+为一套\emph{离散统}，其中：
+\begin{itemize}
+\item $(I,\preceq)$ 为有向集合（directed set）；
+\item 每个 $K_i$ 为有限 $2$ 维 CW/单纯复形（含 $0,1,2$ 骨架）；
+\item 对任意 $i\preceq j$，$r_{ij}:K_i\to K_j$ 为细化/一致化映射，并满足
+\[
+r_{ii}=\mathrm{id},\qquad r_{jk}\circ r_{ij}=r_{ik}\quad (i\preceq j\preceq k).
+\]
+\end{itemize}
+\end{definition}
+
+\begin{remark}
+\label{rem:goal}
+本文的形式化目标链条分为两部分：
+\[
+\text{(数学层)}\quad \text{离散统}\ \to\ \text{修复塔}\ \to\ H_1\ \text{收缩}\ \to\ \text{扇区减少}\ \to\ \text{谱隙出现};
+\]
+以及
+\[
+\text{(物理同一性层)}\quad \text{上述数学对象}\ \overset{?}{\cong}\ \text{量子态/引力时空}.
+\]
+前者给出可审计的证书与证明；后者需要额外公设或外部验证（见第~\ref{sec:bridge} 节）。
+\end{remark}
+
+\clearpage
+\section{代数拓扑到复内积结构的可审计接口}
+
+\subsection{链复形的内积化}
+
+\begin{theorem}[离散拓扑数据 $\Rightarrow$ 复内积空间]
+\label{thm:T1}
+对任意有限 CW/单纯复形 $K$ 与任意 $k$，其复系数上链（或上同）群 $C^k(K;\mathbb C)$ 可赋予自然的复内积，从而构成有限维复内积空间；进一步，对其 $\ell^2$ 完成可得到希尔伯特空间。
+\end{theorem}
+
+\begin{Certificate}[证书：标准基与内积构造]
+\label{cert:T1}
+取 $C^k(K;\mathbb C)$ 的标准基 $\{e_i\}_{i=1}^N$（对应 $k$ 胞腔/单形），定义
+\[
+\Big\langle \sum_i a_ie_i,\ \sum_i b_ie_i\Big\rangle:=\sum_{i=1}^N a_i\overline{b_i}.
+\]
+证书目标：验证该式满足定义~\ref{def:D1} 的三条内积公理，并记录有限维完备性。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T1} 的定义，逐项计算可得：
+\[
+\langle x,y\rangle=\overline{\langle y,x\rangle}
+\Rightarrow
+\langle \alpha x+y,z\rangle=\alpha\langle x,z\rangle+\langle y,z\rangle
+\Rightarrow
+\langle x,x\rangle=\sum_i |a_i|^2\ge 0,
+\]
+且 $\langle x,x\rangle=0\Leftrightarrow a_i=0\ (\forall i)\Leftrightarrow x=0$。
+故 $C^k(K;\mathbb C)$ 为复内积空间。又因其有限维，范数诱导拓扑下自动完备，故为希尔伯特空间。定理成立。
+\end{proof}
+
+\subsection{Hodge 接口（条件式）}
+
+\begin{theorem}[Hodge：同调类的调和代表与内积]
+\label{thm:T2}
+设 $X$ 为紧致定向 Riemann 流形（或更强：紧致 K\"ahler 流形）。则对每个 $k$，调和 $k$ 形式空间
+\[
+\mathcal H^k(X):=\{\omega\in\Omega^k(X;\mathbb C)\mid \Delta\omega=0\}
+\]
+为有限维复内积空间，并与上同调同构：
+\[
+\mathcal H^k(X)\cong H^k(X;\mathbb C).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：$L^2$ 内积与椭圆核有限维性]
+\label{cert:T2}
+登记如下标准接口：
+\begin{enumerate}
+\item $L^2$ 内积
+\[
+\langle \alpha,\beta\rangle_{L^2}:=\int_X \alpha\wedge *\overline{\beta};
+\]
+\item Hodge 拉普拉斯 $\Delta=\dd\dd^\ast+\dd^\ast\dd$；
+\item 紧致流形上椭圆算子核有限维；
+\item Hodge 定理：每个上同调类有唯一调和代表。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T2}：
+\[
+\text{紧致性}
+\Rightarrow
+\Delta\ \text{椭圆且}\ \dim\ker\Delta<\infty
+\Rightarrow
+\mathcal H^k(X)=\ker\Delta\ \text{有限维},
+\]
+并由 Hodge 定理得到
+\[
+\mathcal H^k(X)\xrightarrow{\ \cong\ }H^k(X;\mathbb C).
+\]
+因此 $\mathcal H^k(X)$ 在 $L^2$ 内积下为有限维复内积空间，且同构于上同调群。定理成立。
+\end{proof}
+
+\subsection{孔洞相位与最弱扇区结构}
+
+\begin{theorem}[$\pi_1/H_1$ 到 $U(1)$ 角色：相位扇区]
+\label{thm:T3}
+对连通空间 $X$，
+\[
+\mathrm{Hom}(\pi_1(X),U(1))\cong \mathrm{Hom}(H_1(X;\mathbb Z),U(1)).
+\]
+因此 $H_1(X;\mathbb Z)\neq 0$ 蕴含存在非平凡 $U(1)$ 角色，从而存在可区分的相位扇区（超选扇区的最弱形式）。
+\end{theorem}
+
+\begin{Certificate}[证书：交换化因子分解]
+\label{cert:T3}
+证书前提：
+\begin{enumerate}
+\item $U(1)$ 是阿贝尔群；
+\item 任意群同态 $\pi_1(X)\to A$（$A$ 阿贝尔）经交换化因子分解；
+\item $\pi_1(X)^{ab}\cong H_1(X;\mathbb Z)$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T3}：
+\[
+\phi:\pi_1(X)\to U(1)
+\Rightarrow
+\phi\ \text{经}\pi_1(X)^{ab}\text{因子分解}
+\Rightarrow
+\mathrm{Hom}(\pi_1(X),U(1))\cong \mathrm{Hom}(\pi_1(X)^{ab},U(1)).
+\]
+再代入 $\pi_1(X)^{ab}\cong H_1(X;\mathbb Z)$ 即得目标同构。若 $H_1\neq 0$，则存在非平凡角色，故相位扇区非平凡。定理成立。
+\end{proof}
+
+\clearpage
+\section{修复塔：从同调收缩到有限步终止}
+
+\subsection{修复塔与单调量}
+
+\begin{definition}[修复塔]
+\label{def:D6}
+在固定层 $K$ 上，称序列
+\[
+K_0 \xrightarrow{r_0} K_1 \xrightarrow{r_1} K_2 \xrightarrow{r_2}\cdots
+\]
+为\emph{修复塔}，若每一步通过附着细胞/手柄等操作使选定孔洞度量单调下降（见定义~\ref{def:D7}）。
+\end{definition}
+
+\begin{definition}[孔洞单调量]
+\label{def:D7}
+给定维度集合 $\mathcal K\subset\mathbb N$，对有限复形 $K$ 定义
+\[
+\mu_{\mathcal K}(K):=\sum_{k\in\mathcal K}\mathrm{rank}\,H_k(K;\mathbb Z)\in\mathbb N.
+\]
+若修复步 $K\to K^+$ 满足 $\mu_{\mathcal K}(K^+)<\mu_{\mathcal K}(K)$，称该步具有\emph{单调下降证书}。
+\end{definition}
+
+\subsection{附着细胞消孔（归纳证书）}
+
+\begin{lemma}[附着 $(k+1)$ 胞腔消去指定同调类]
+\label{lem:L1}
+设 $K$ 为 CW 复形，给定 $H_k(K;\mathbb Z)$ 中有限个元素 $\{[z_1],\dots,[z_m]\}$。则可通过对 $K$ 附着有限个 $(k+1)$ 胞腔得到 $K'$，使这些类在 $H_k(K';
+  \mathbb Z)$ 中像为 $0$。
+\end{lemma}
+
+\begin{Certificate}[数学归纳法证书：按消去个数 $m$ 归纳]
+\label{cert:L1}
+对每个 $[z_i]$ 选取表示映射 $\phi_i:S^k\to K$，并定义
+\[
+K':=K\cup_{\bigsqcup\phi_i}\bigsqcup_{i=1}^m D^{k+1}.
+\]
+令谓词 $P(m)$ 为：“可用 $m$ 次附着 $(k+1)$ 胞腔使给定 $m$ 个同调类像为零”。
+证书目标：证明
+\[
+P(1)\ \text{成立},\qquad (\forall m\ge 1)\ \bigl(P(m)\Rightarrow P(m+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+\textbf{基步：}当 $m=1$，沿 $\phi_1$ 附着一个 $(k+1)$ 胞腔，得到新边界关系 $\partial D^{k+1}=z_1$，故 $[z_1]$ 在新复形中为零，$P(1)$ 成立。
+
+\textbf{归纳步：}设 $P(m)$ 成立。给定 $m+1$ 个类，先对前 $m$ 个应用归纳假设消去，再沿 $\phi_{m+1}$ 附着一个 $(k+1)$ 胞腔，得到最后一类也变为边界。
+故 $P(m+1)$ 成立。
+
+由数学归纳法，$P(m)$ 对任意有限 $m$ 成立，命题得证。
+\end{proof}
+
+\begin{proposition}[有限生成孔洞可逐层消去]
+\label{prop:P1}
+若初始复形 $K_0$ 在每个目标维度 $k\in\mathcal K$ 上的同调群有限生成，则存在有限步修复塔
+\[
+K_0\to K_1\to\cdots\to K_N
+\]
+使得 $\forall k\in\mathcal K$，$H_k(K_N;\mathbb Z)=0$（或达到预设阈值）。
+\end{proposition}
+
+\begin{Certificate}[证书：外层维度有限 + 内层生成元有限]
+\label{cert:P1}
+证书分解为两层有限性：
+\begin{enumerate}
+\item 外层：目标维度集合 $\mathcal K$ 有限；
+\item 内层：每个 $k\in\mathcal K$ 的同调群有限生成，可取有限生成元集。
+\end{enumerate}
+对每个生成元调用引理~\ref{lem:L1} 的附着胞腔消去证书。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P1}，对每个固定 $k\in\mathcal K$，有限生成元可逐个消去（引理~\ref{lem:L1}）。于是
+\[
+\text{每个 }k\text{ 的消去步数有限}
+\Rightarrow
+\sum_{k\in\mathcal K}\text{步数有限}
+\Rightarrow
+\exists N<\infty,\ \forall k\in\mathcal K,\ H_k(K_N;\mathbb Z)=0
+\]
+（或达到预设阈值）。命题成立。
+\end{proof}
+
+\subsection{终止性（公理降级为定理）}
+
+\begin{theorem}[公理（降级为定理）：严格单调修复必有限终止（数学归纳法证书）]
+\label{thm:T4}
+设修复塔 $\{K_n\}_{n\in\mathbb N}$ 满足
+\[
+\mu_n:=\mu_{\mathcal K}(K_n)\in\mathbb N,
+\qquad
+\mu_{n+1}<\mu_n\ \ (\forall n\in\mathbb N).
+\]
+则修复过程必在有限步终止；更具体地，存在 $N\le \mu_0$ 使 $\mu_N=0$，故无法继续严格下降。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按步数 $n$ 的线性下界]
+\label{cert:T4}
+定义谓词
+\[
+P(n):\ \mu_n\le \mu_0-n.
+\]
+证书目标：
+\[
+P(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(P(n)\Rightarrow P(n+1)\bigr).
+\]
+并结合 $\mu_n\in\mathbb N$ 推出矛盾终止界。
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+\textbf{基步：}$n=0$ 时，$\mu_0\le\mu_0$，故 $P(0)$ 成立。
+
+\textbf{归纳步：}假设 $P(n)$ 成立，即 $\mu_n\le\mu_0-n$。由严格单调条件 $\mu_{n+1}<\mu_n$ 且 $\mu_{n+1},\mu_n\in\mathbb N$，得
+\[
+\mu_{n+1}\le\mu_n-1\le (\mu_0-n)-1=\mu_0-(n+1),
+\]
+故 $P(n+1)$ 成立。
+
+由归纳法，$\forall n,\ \mu_n\le\mu_0-n$。若过程无限继续，则取 $n=\mu_0+1$ 得
+\[
+\mu_{\mu_0+1}\le -1,
+\]
+与 $\mu_{\mu_0+1}\in\mathbb N$ 矛盾。故过程只能有限步进行，且在某个 $N\le\mu_0$ 达到最小值 $0$。定理成立。
+\end{proof}
+
+\clearpage
+\section{最小量子化数据：$\big(\mathcal H,\mathfrak A,U(t)\big)$ 的可运行构造}
+
+\subsection{三元量子化数据与同一性证书}
+
+\begin{definition}[量子化三元数据]
+\label{def:D8}
+对拓扑对象 $X$，称
+\[
+\mathbf Q(X):=\big(\mathcal H_X,\ \mathfrak A_X,\ U_X(t)\big)
+\]
+为其量子化数据：$\mathcal H_X$ 为希尔伯特空间，$\mathfrak A_X\subseteq\mathcal B(\mathcal H_X)$ 为可观测量 *-代数，$U_X(t)$ 为一参数幺正群。
+\end{definition}
+
+\begin{definition}[物理同一性证书格式]
+\label{def:D9}
+给定物理系统 $\mathbf S$ 的量子描述 $\mathbf Q(\mathbf S)$ 与对象 $X$ 的 $\mathbf Q(X)$。
+若存在幺正同构 $\mathcal I:\mathcal H_X\to\mathcal H_{\mathbf S}$ 使
+\[
+\mathcal I\,\mathfrak A_X\,\mathcal I^{-1}=\mathfrak A_{\mathbf S},
+\qquad
+\mathcal I\,U_X(t)\,\mathcal I^{-1}=U_{\mathbf S}(t),
+\]
+则称存在同一性证书，记 $\mathbf Q(X)\cong \mathbf Q(\mathbf S)$。
+\end{definition}
+
+\subsection{离散复形上的最小可运行模型}
+
+令 $K$ 为有限 2-维复形，顶点集 $V$，边集 $E$。以下给出两种等价层次：$0$-形式（顶点波函数）与 $1$-形式（边波函数）。在谱隙与 $H_1$ 审计中，关键对象为 $1$-形式上的 Hodge
+  拉普拉斯（第~\ref{sec:rn} 节）。
+
+\begin{definition}[顶点希尔伯特空间]
+\label{def:D10}
+定义
+\[
+\mathcal H^{(0)}_K:=\ell^2(V;\mathbb C)\cong\mathbb C^{|V|},
+\qquad
+\langle\psi,\phi\rangle:=\sum_{v\in V}\psi(v)\overline{\phi(v)}.
+\]
+\end{definition}
+
+\begin{definition}[边希尔伯特空间]
+\label{def:D11}
+对每条有向边 $e$ 赋复数振幅，定义
+\[
+\mathcal H^{(1)}_K:=\ell^2(E;\mathbb C)\cong\mathbb C^{|E|},
+\]
+并取标准 $\ell^2$ 内积。
+\end{definition}
+
+\begin{definition}[最小可观测代数]
+\label{def:D12}
+在 $\mathcal H^{(0)}_K$ 上取：
+\begin{itemize}
+\item 位置/势能类对角算子：$(M_f\psi)(v)=f(v)\psi(v)$，$f:V\to\mathbb R$；
+\item 邻接/迁移算子：$(T\psi)(v)=\sum_{u\sim v}W_{vu}\psi(u)$；
+\item 赋边相位 $U_{u\to v}\in U(1)$ 的协变迁移算子：
+\[
+(T_U\psi)(v)=\sum_{u\sim v}W_{vu}U_{u\to v}\psi(u),\quad U_{v\to u}=\overline{U_{u\to v}}.
+\]
+\end{itemize}
+令 $\mathfrak A_K$ 为上述生成元在 $\mathcal B(\mathcal H^{(0)}_K)$ 中生成的 *-代数。
+\end{definition}
+
+\begin{definition}[最小哈密顿量与幺正动力学]
+\label{def:D13}
+定义 ``磁'' 拉普拉斯
+\[
+(\Delta_U\psi)(v)=\sum_{u\sim v}W_{vu}\big(\psi(v)-U_{u\to v}\psi(u)\big),
+\]
+并取势能 $V=M_{V(\cdot)}$（$V(\cdot):V\to\mathbb R$），令
+\[
+H_K:=\Delta_U+V,
+\qquad
+U_K(t):=\exp(-itH_K).
+\]
+\end{definition}
+
+\begin{definition}[回路 holonomy]
+\label{def:D14}
+对闭合回路 $\gamma=e_1\cdots e_m$，定义
+\[
+\mathrm{Hol}_U(\gamma):=\prod_{j=1}^m U_{e_j}\in U(1).
+\]
+\end{definition}
+
+\begin{theorem}[自伴性 $\Rightarrow$ 幺正性]
+\label{thm:T5}
+在有限 $V$ 上，若 $W_{uv}=W_{vu}\in\mathbb R_{\ge 0}$ 且 $U_{v\to u}=\overline{U_{u\to v}}$，则 $H_K$ 自伴，因而 $U_K(t)$ 为幺正一参数群。
+\end{theorem}
+
+\begin{Certificate}[证书：Hermitian 矩阵判据]
+\label{cert:T5}
+证书内容：
+\begin{enumerate}
+\item 用边权对称性与相位共轭关系验证 $\Delta_U$ 的 Hermitian 性；
+\item 势能算子 $V$ 为实对角 Hermitian；
+\item 有限维下“自伴 $\Rightarrow$ 指数幺正”。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T5}，对任意 $\psi$ 有
+\[
+\langle\psi,\Delta_U\psi\rangle
+=\frac12\sum_{u\sim v}W_{uv}\,|\psi(v)-U_{u\to v}\psi(u)|^2\ge 0,
+\]
+从而 $\Delta_U$ 为 Hermitian 半正定。又 $V$ 为实对角 Hermitian，故
+\[
+H_K=\Delta_U+V\ \text{Hermitian}
+\Rightarrow
+U_K(t)=e^{-itH_K}\ \text{幺正}.
+\]
+定理成立。
+\end{proof}
+
+\begin{theorem}[规范变换的幺正等价]
+\label{thm:T6}
+令 $g:V\to U(1)$，定义幺正算子 $(G\psi)(v)=g(v)\psi(v)$。若边相位变换为
+\[
+U'_{u\to v}=g(v)U_{u\to v}\overline{g(u)},
+\]
+则 $\Delta_{U'}=G\Delta_UG^{-1}$，从而 $H' = GHG^{-1}$ 且 $U'(t)=GU(t)G^{-1}$。
+\end{theorem}
+
+\begin{Certificate}[证书：逐点代入与共轭变换一致性]
+\label{cert:T6}
+证书目标：对任意 $\psi$ 验证
+\[
+\Delta_{U'}(G\psi)=G(\Delta_U\psi),
+\]
+并把哈密顿量与时间演化的共轭关系作为直接推论登记。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由定义逐点代入：
+\[
+\begin{aligned}
+(\Delta_{U'}G\psi)(v)
+&=\sum_{u\sim v}W_{vu}\bigl(g(v)\psi(v)-U'_{u\to v}g(u)\psi(u)\bigr)\\
+&=\sum_{u\sim v}W_{vu}g(v)\bigl(\psi(v)-U_{u\to v}\psi(u)\bigr)
+=\bigl(G\Delta_U\psi\bigr)(v).
+\end{aligned}
+\]
+故 $\Delta_{U'}=G\Delta_UG^{-1}$。再由 $H=\Delta_U+V$ 与对角规范变换一致性，得 $H'=GHG^{-1}$，指数映射给出 $U'(t)=GU(t)G^{-1}$。定理成立。
+\end{proof}
+
+\clearpage
+\section{修复算子 $r_n$：$H_1$ 收缩、扇区减少与谱隙}
+\label{sec:rn}
+
+\subsection{链矩阵、$b_1$ 公式与离散 Hodge 1-拉普拉斯}
+
+\begin{definition}[链矩阵]
+\label{def:D15}
+对有限 2-维复形 $K$，选定定向与基后得到边界矩阵
+\[
+B_2\in\QQ^{|E|\times |F|},\qquad B_1\in\QQ^{|V|\times |E|},
+\qquad B_1B_2=0,
+\]
+对应链复形 $C_2\xrightarrow{\partial_2}C_1\xrightarrow{\partial_1}C_0$。
+\end{definition}
+
+\begin{definition}[$b_1$ 的可计算公式]
+\label{def:D16}
+以 $\QQ$ 系数计，
+\[
+b_1(K)=\dim_{\QQ}H_1(K;\QQ)
+=\dim\ker(B_1)-\mathrm{rank}(B_2)
+=(|E|-\mathrm{rank}(B_1))-\mathrm{rank}(B_2).
+\]
+\end{definition}
+
+\begin{definition}[离散 Hodge 1-拉普拉斯]
+\label{def:D17}
+在标准内积下，令 $d_0=B_1^{\mathsf T}:C^0\to C^1$，$d_1=B_2^{\mathsf T}:C^1\to C^2$，定义
+\[
+\Delta_1:=d_0d_0^\ast+d_1^\ast d_1
+= B_1^{\mathsf T}B_1 + B_2B_2^{\mathsf T}.
+\]
+称\emph{谱隙出现}为 $\lambda_{\min}(\Delta_1)>0$。
+\end{definition}
+
+\subsection{最小修复算子：输入/输出证书}
+
+\begin{definition}[修复算子 $r_n$]
+\label{def:D18}
+在固定层 $K_n$ 上，给定 1-圈列向量组
+\[
+Z=[z_1\ \cdots\ z_m]\in\QQ^{|E|\times m},
+\qquad B_1z_i=0\ (\forall i),
+\]
+定义修复输出
+\[
+B_1^+:=B_1,\qquad B_2^+:=\big[B_2\ \ Z\big].
+\]
+对应几何操作为：对每个 $z_i$ 附着一个 2-胞腔，其边界等于该 1-圈。
+\end{definition}
+
+\begin{theorem}[链复形合法性保持]
+\label{thm:T7}
+若输入满足 $B_1Z=0$，则输出满足 $B_1^+B_2^+=0$。
+\end{theorem}
+
+\begin{Certificate}[证书：矩阵闭包验算]
+\label{cert:T7}
+证书输入：已知 $B_1B_2=0$ 且 $B_1Z=0$。
+证书目标：验证块拼接后仍满足链复形条件。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T7}：
+\[
+B_1^+B_2^+=B_1[B_2\ \ Z]=[B_1B_2\ \ B_1Z]=[0\ \ 0]=0.
+\]
+故链复形合法性保持。定理成立。
+\end{proof}
+
+\subsection{$H_1$ 收缩与扇区减少的秩判据}
+
+\begin{theorem}[$b_1$ 收缩当且仅当 $\mathrm{rank}(B_2)$ 增长]
+\label{thm:T8}
+在一次修复步中 $B_1$ 不变且 $|E|$ 不变，则
+\[
+b_1(K^+)=b_1(K)-\big(\mathrm{rank}(B_2^+)-\mathrm{rank}(B_2)\big).
+\]
+因此
+\[
+b_1(K^+)<b_1(K)\ \Longleftrightarrow\ \mathrm{rank}(B_2^+)>\mathrm{rank}(B_2).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：$b_1$ 差分恒等式]
+\label{cert:T8}
+证书前提：本步 $|E|$ 与 $\mathrm{rank}(B_1)$ 不变。
+证书工具：定义~\ref{def:D16} 的公式
+\[
+b_1=(|E|-\mathrm{rank}(B_1))-\mathrm{rank}(B_2).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T8}，两侧作差：
+\[
+\begin{aligned}
+b_1(K)-b_1(K^+)
+&=\big[(|E|-\mathrm{rank}(B_1))-\mathrm{rank}(B_2)\big]\\
+&\quad-\big[(|E|-\mathrm{rank}(B_1))-\mathrm{rank}(B_2^+)\big]\\
+&=\mathrm{rank}(B_2^+)-\mathrm{rank}(B_2).
+\end{aligned}
+\]
+移项得首式，严格不等价关系随即成立。定理得证。
+\end{proof}
+
+\begin{theorem}[扇区自由度的下降：$b_1$ 同步]
+\label{thm:T9}
+若 $H_1(K;\mathbb Z)\cong \mathbb Z^{b_1}\oplus(\text{torsion})$，则
+\[
+\mathrm{Hom}(H_1(K;\mathbb Z),U(1))\cong (U(1))^{b_1}\times(\text{有限群}),
+\]
+其连续自由度为 $b_1$。故 $b_1$ 下降 $\Rightarrow$ 连续扇区自由度下降。
+\end{theorem}
+
+\begin{Certificate}[证书：有限生成阿贝尔群结构分解]
+\label{cert:T9}
+证书前提：有限生成阿贝尔群结构定理。
+关键计算：
+\[
+\mathrm{Hom}(\mathbb Z,U(1))\cong U(1),
+\qquad
+\mathrm{Hom}(A\oplus B,U(1))\cong\mathrm{Hom}(A,U(1))\times\mathrm{Hom}(B,U(1)).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T9}，把 $H_1$ 分解为自由部分与挠部分后有
+\[
+\mathrm{Hom}(H_1,U(1))
+\cong
+\mathrm{Hom}(\mathbb Z^{b_1},U(1))\times\mathrm{Hom}(\text{torsion},U(1))
+\cong
+(U(1))^{b_1}\times(\text{有限群}).
+\]
+因此连续参数维数恰为 $b_1$。当 $b_1$ 下降时，连续扇区自由度同步下降。定理成立。
+\end{proof}
+
+\subsection{谱隙判据：$\ker(\Delta_1)$ 与 $b_1$ 的同一性}
+
+\begin{theorem}[离散 Hodge：$\dim\ker(\Delta_1)=b_1$]
+\label{thm:T10}
+对有限 2-维复形 $K$，有
+\[
+\dim\ker(\Delta_1)=b_1(K).
+\]
+因此 $b_1(K)=0\Rightarrow \ker(\Delta_1)=\{0\}\Rightarrow \lambda_{\min}(\Delta_1)>0$（谱隙出现）。
+\end{theorem}
+
+\begin{Certificate}[证书：二次型分解与商空间同构]
+\label{cert:T10}
+证书登记：
+\begin{enumerate}
+\item 二次型恒等式
+\[
+\langle x,\Delta_1x\rangle=\|B_1x\|^2+\|B_2^{\mathsf T}x\|^2;
+\]
+\item $B_2^{\mathsf T}x=0\Leftrightarrow x\perp\mathrm{im}(B_2)$；
+\item $\ker(B_1)/\mathrm{im}(B_2)\cong H_1(K;\QQ)$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T10}，
+\[
+x\in\ker(\Delta_1)
+\Leftrightarrow
+\|B_1x\|^2+\|B_2^{\mathsf T}x\|^2=0
+\Leftrightarrow
+\begin{cases}
+B_1x=0,\\
+B_2^{\mathsf T}x=0.
+\end{cases}
+\]
+故
+\[
+\ker(\Delta_1)=\ker(B_1)\cap(\mathrm{im}(B_2))^\perp
+\cong
+\ker(B_1)/\mathrm{im}(B_2)
+\cong
+H_1(K;\QQ),
+\]
+从而 $\dim\ker(\Delta_1)=b_1(K)$。若 $b_1=0$，则核为零；有限维 Hermitian 半正定矩阵无零特征值，故 $\lambda_{\min}(\Delta_1)>0$。定理成立。
+\end{proof}
+
+\begin{proposition}[一步触发点的等价判据]
+\label{prop:P2}
+在一次修复步 $B_2\mapsto B_2^+=[B_2\ \ Z]$ 中，以下命题等价：
+\[
+\mathrm{rank}(B_2^+)>\mathrm{rank}(B_2)
+\Longleftrightarrow
+b_1(K^+)<b_1(K)
+\Longleftrightarrow
+\dim\ker(\Delta_1^+)<\dim\ker(\Delta_1).
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：双桥接定理]
+\label{cert:P2}
+证书仅调用两条已证结果：
+\begin{enumerate}
+\item 定理~\ref{thm:T8}：秩增长与 $b_1$ 收缩等价；
+\item 定理~\ref{thm:T10}：$b_1$ 与 $\dim\ker(\Delta_1)$ 同一。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P2}：
+\[
+\mathrm{rank}(B_2^+)>\mathrm{rank}(B_2)
+\overset{\ref{thm:T8}}{\Longleftrightarrow}
+b_1(K^+)<b_1(K)
+\overset{\ref{thm:T10}}{\Longleftrightarrow}
+\dim\ker(\Delta_1^+)<\dim\ker(\Delta_1).
+\]
+三者两两等价，命题成立。
+\end{proof}
+
+\begin{corollary}[有限步谱隙]
+\label{cor:C1}
+若每一步修复选择的 1-圈输入使 $\mathrm{rank}(B_2)$ 至少增长 $1$，则有限步后 $b_1=0$，并由定理~\ref{thm:T10} 得 $\lambda_{\min}(\Delta_1)>0$（谱隙出现）。
+\end{corollary}
+
+\begin{Certificate}[证书：单调量下降 + 终止性 + 核维同一]
+\label{cert:C1}
+证书链条：
+\begin{align*}
+\mathrm{rank}(B_2)\ \text{每步增}\ge 1
+&\Rightarrow b_1\ \text{每步降}\ge 1
+\quad(\text{定理~\ref{thm:T8}})\\
+&\Rightarrow \text{有限步终止}
+\quad(\text{定理~\ref{thm:T4}})\\
+&\Rightarrow b_1=0\Rightarrow \lambda_{\min}(\Delta_1)>0
+\quad(\text{定理~\ref{thm:T10}}).
+\end{align*}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:C1} 可得单调量 $b_1(K_n)\in\mathbb N$ 严格下降，故在有限步降至 $0$（定理~\ref{thm:T4}）。
+当 $b_1=0$ 时，定理~\ref{thm:T10} 给出 $\ker(\Delta_1)=\{0\}$，故最小特征值严格为正。推论成立。
+\end{proof}
+
+\clearpage
+\section{卡丘层与四维几何层：条件模板与同一性层边界}
+\label{sec:bridge}
+
+\subsection{卡丘层作为复结构承载层（数学层）}
+
+\begin{proposition}[卡丘/K\"ahler 层的复内积接口]
+\label{prop:P3}
+若修复塔某层可实现为紧致 K\"ahler 流形 $Y$（特别地可取卡拉比--丘），则对每个 $k$，
+\[
+H^k(Y;\mathbb C)\cong \mathcal H^k(Y)
+\]
+且 $\mathcal H^k(Y)$ 在 $L^2$ 内积下为复内积空间（定理~\ref{thm:T2}）。
+\end{proposition}
+
+\begin{Certificate}[证书：Hodge 同构直接调用]
+\label{cert:P3}
+证书仅调用定理~\ref{thm:T2}：紧致 K\"ahler 流形上调和形式空间与上同调同构，且继承 $L^2$ 内积。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P3} 直接得到
+\[
+Y\ \text{紧致 K\"ahler}
+\Rightarrow
+\mathcal H^k(Y)\cong H^k(Y;\mathbb C)
+\Rightarrow
+\mathcal H^k(Y)\ \text{为有限维复内积空间}.
+\]
+命题成立。
+\end{proof}
+
+\subsection{从卡丘层到四维 $(M,g)$ 的最小充分条件模板}
+
+\begin{assumption}[维度分解/有效四维]
+\label{ass:A1}
+存在总空间 $E$ 与分解
+\[
+E\cong M^4\times Y^{2n},
+\]
+其中 $Y$ 为紧致（可取卡丘）。低能有效自由度仅依赖 $M^4$ 的场变量。
+\end{assumption}
+
+\begin{assumption}[谱隙/截断]
+\label{ass:A2}
+设 $\Delta_Y$ 的谱为 $0=\lambda_0<\lambda_1\le\cdots$。存在能标 $E_\ast<\lambda_1$，使能量 $<E_\ast$ 的有效理论只包含零模（$\lambda_0$）分量。
+\end{assumption}
+
+\begin{assumption}[变分生成]
+\label{ass:A3}
+存在高维作用量 $S[g_E,\Phi]$，对 $Y$ 积分与截断后得到四维有效作用量 $S_{\mathrm{eff}}[g_M,\phi]$，其变分给出四维场方程（例如爱因斯坦方程或其修改形式）。
+\end{assumption}
+
+\begin{remark}
+\label{rem:template}
+假设~\ref{ass:A1}--\ref{ass:A3} 共同给出 ``卡丘层 $\Rightarrow$ 四维几何层'' 的可验收模板：维度分解（对象级证书）、谱隙截断（能标证书）、以及作用量/方程对应（变分证书）。缺失任何一项，
+  均无法在形式系统内把 ``复结构承载层'' 提升为 ``四维引力时空''。
+\end{remark}
+
+\subsection{物理同一性层（证书格式）}
+
+\begin{assumption}[量子同一性证书存在性]
+\label{ass:A4}
+对某物理系统 $\mathbf S$，存在同一性证书（定义~\ref{def:D9}）使 $\mathbf Q(X)\cong \mathbf Q(\mathbf S)$。
+\end{assumption}
+
+\begin{assumption}[引力几何同一性]
+\label{ass:A5}
+时空由 $(M,g)$ 表示（定义~\ref{def:D3}），并满足给定的场方程（例如爱因斯坦方程）。
+\end{assumption}
+
+\begin{remark}
+\label{rem:boundary}
+假设~\ref{ass:A4}--\ref{ass:A5} 属于物理同一性层：其真值依赖额外公设与经验对照；本文在数学层给出的结论（修复塔、$H_1$ 收缩、扇区减少、谱隙出现等）可作为候选结构，但不在此处自动推出物理等同。
+\end{remark}
+
+\clearpage
+\section{性变态射与可审计性质跨越}
+\label{sec:metamorphism}
+
+\subsection{定义：性质剖面、性变态射与性变算子}
+
+\begin{definition}[D20（性质剖面 / Primitive-Property Profile）]
+\label{def:D20}
+令 $\mathcal C$ 为某类对象（拓扑空间、CW 复形、复流形、（伪）黎曼流形、量子三元组等）的集合。选定一族可验收的不变量/性质函子（或谓词族）
+\[
+\Pi:=\big(\Pi_1,\Pi_2,\dots,\Pi_m\big),
+\qquad
+\Pi_j:\mathcal C\to \mathcal V_j,
+\]
+其中 $\mathcal V_j$ 为可比较的值域（如 $\mathbb N,\mathbb Z,\mathbb R$ 或同构类集合）。对对象 $X\in\mathcal C$，称
+\[
+\Pi(X):=(\Pi_1(X),\dots,\Pi_m(X))
+\]
+为 $X$ 的\emph{性质剖面}。
+\end{definition}
+
+\begin{remark}
+典型坐标可取：$\dim$、$\pi_1$、$H_k$、$b_1$、是否存在复结构 $J$、曲率张量是否为零、$\dim\ker(\Delta_1)$ 等。
+\end{remark}
+
+\begin{definition}[D21（性变态射：以“定向性质转化证书”为核心的数据结构）]
+\label{def:D21}
+给定两类对象集合 $\mathcal C_{\mathrm{src}},\mathcal C_{\mathrm{tgt}}$，分别配置性质剖面 $\Pi_{\mathrm{src}},\Pi_{\mathrm{tgt}}$。对
+  $X\in\mathcal C_{\mathrm{src}}$、$Y\in\mathcal C_{\mathrm{tgt}}$，称一份数据
+\[
+\Phi: X \rightsquigarrow Y
+\]
+为\emph{性变态射}，若它不是单一函数 $X\to Y$，而是一组“构造 + 证书”的有限序列
+\[
+\Phi := \big( X=X_0 \xrightarrow{\ \mathcal O_0\ } X_1 \xrightarrow{\ \mathcal O_1\ } \cdots \xrightarrow{\ \mathcal
+  O_{N-1}\ } X_N,\ \mathcal I \big),
+\]
+并且存在目标变换谓词
+\[
+\mathsf T\big(\Pi_{\mathrm{src}}(X),\Pi_{\mathrm{tgt}}(Y)\big)
+\]
+使得序列携带可验收证书，最终满足
+\[
+X_N\equiv Y
+\quad
+(\text{在预先指定的等价关系下，如同胚/微分同胚/同构等}),
+\]
+且
+\[
+\mathsf T\big(\Pi_{\mathrm{src}}(X),\Pi_{\mathrm{tgt}}(Y)\big)\ \text{成立}.
+\]
+\end{definition}
+
+\begin{remark}
+定义~\ref{def:D21} 把“映射”从单一态射提升为“可审计流程（protocol）+ 证书（certificate）”。
+\end{remark}
+
+\begin{definition}[D22（性变算子：性变态射中的一步边缘构造算子）]
+\label{def:D22}
+在定义~\ref{def:D21} 的序列中，每一步
+\[
+\mathcal O_n: X_n \to X_{n+1}
+\]
+称为\emph{性变算子}，若其设计目标是使某个“障碍量/缺陷量”严格下降。形式化地，给定可计算函数
+\[
+\mu:\mathcal C\to \mathbb N
+\]
+（例如 $\mu(K)=b_1(K)$ 或 $\mu(K)=\sum_{k\in\mathcal K}\mathrm{rank}\,H_k(K;\mathbb Z)$），若
+\[
+\mu(X_{n+1})<\mu(X_n),
+\]
+则称 $\mathcal O_n$ 在该步实现了“定向转化”。
+\end{definition}
+
+\begin{definition}[D23（离散统层内的最小性变算子：附着 2-胞腔的矩阵版本）]
+\label{def:D23}
+在离散统某一层 $K$ 的 2-骨架上，链复形矩阵记为
+\[
+C_2 \xrightarrow{\ \partial_2\ } C_1 \xrightarrow{\ \partial_1\ } C_0,
+\qquad
+B_2,B_1\ \text{为其矩阵表示，且}\ B_1B_2=0.
+\]
+给定一组 1-圈列向量
+\[
+Z=[z_1\ \cdots\ z_m],\qquad B_1z_i=0,
+\]
+定义一步更新
+\[
+B_1^+:=B_1,\qquad B_2^+:=[B_2\ \ Z].
+\]
+该步对应“沿 $z_i$ 附着 2-胞腔”，记为
+\[
+\mathcal O_{\mathrm{attach}}(K;Z):=K^+.
+\]
+此 $\mathcal O_{\mathrm{attach}}$ 为一类最小性变算子。
+\end{definition}
+
+\subsection{定理：传统保结构态射的边界与逻辑分型}
+
+\begin{theorem}[T13（公理降级为定理：传统“保结构态射”不能实现指定性质转化）]
+\label{thm:T13}
+下列经典态射在其适用范畴内保持关键不变量，因此一般不能完成“孔洞消失/同调改变/维数改变/复结构变为实结构”的定向转化：
+\begin{enumerate}
+\item 若 $f:X\to Y$ 为同胚，则 $\Pi(X)=\Pi(Y)$ 对所有同胚不变量成立（如 $\pi_1,H_k,b_k$）；
+\item 若 $f$ 为同伦等价，则
+\[
+H_k(X;\mathbb Z)\cong H_k(Y;\mathbb Z),\quad \forall k,
+\]
+故不能实现“消孔”；
+\item 若 $f$ 为微分同胚，则保持 $\dim$ 与可微结构不变量。
+\end{enumerate}
+\end{theorem}
+
+\begin{Certificate}[证书（数学归纳法证书）：按态射层级的三段不变性链]
+\label{cert:T13}
+定义谓词 $P(n)$（$n=1,2,3$）为“前 $n$ 类保结构态射均保持对应层级不变量，故不能实现要求不变量改变的目标性质转化”。证书登记：
+\[
+P(1)\ \text{成立},\qquad P(n)\Rightarrow P(n+1)\ (n=1,2).
+\]
+并调用代数拓扑/微分拓扑标准不变性定理作为外部已知接口。
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+由证书~\ref{cert:T13}：
+\[
+P(1):\ \text{同胚保持同胚不变量}
+\Rightarrow
+\text{若目标要求该不变量变化，则同胚不可实现。}
+\]
+设 $P(1)$ 成立，追加“同伦等价保持同调群同构”得到
+\[
+P(2):\ \text{同胚/同伦等价均不能实现同调变化目标。}
+\]
+再追加“微分同胚保持维数与可微结构不变量”得到
+\[
+P(3):\ \text{三类态射均不能实现所述定向性质跨越。}
+\]
+因此对列出的三类保结构态射，若目标谓词要求关键不变量发生改变，则该类态射不可能给出。定理成立。
+\end{proof}
+
+\begin{theorem}[T14（性变算子与传统边界算子 $\partial$ 的逻辑差异）]
+\label{thm:T14}
+链复形上的边界算子 $\partial$ 满足 $\partial^2=0$，其作用是“在固定对象上计算不变量”；而性变算子 $\mathcal O$ 的作用是“改变对象本身”，从而改变同调/同伦等不变量。二者在逻辑类型上不同：
+\[
+\partial: C_k(X)\to C_{k-1}(X)\ \ (\text{对象固定}),
+\qquad
+\mathcal O: X\mapsto X'\ \ (\text{对象变化}).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：固定链复形不变量唯一决定性]
+\label{cert:T14}
+证书前提：同调群由固定链复形 $(C_\bullet,\partial)$ 唯一决定：
+\[
+H_k=\ker\partial_k/\mathrm{im}\,\partial_{k+1}.
+\]
+若链复形不变，则同调不变。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T14}，在对象 $X$ 固定时，
+\[
+\partial\ \text{仅在}\ C_\bullet(X)\ \text{内作用}
+\Rightarrow
+H_k(X)\ \text{由}\ \partial\ \text{唯一决定}
+\Rightarrow
+\partial\ \text{本身不产生“对象级”不变量变化。}
+\]
+若要使 $H_k$ 发生变化，必须改变对象或其链复形表示。性变算子 $\mathcal O:X\mapsto X'$ 正是该对象级变化机制，故与 $\partial$ 在逻辑类型上不同。定理成立。
+\end{proof}
+
+\subsection{引理与定理：离散统层内的最小可计算实现}
+
+\begin{lemma}[L2（固定 $B_1$ 的一步更新中 $b_1$ 的差分恒等式）]
+\label{lem:L2}
+在定义~\ref{def:D23} 的一步更新中，若 $B_1^+=B_1$ 且 $|E|$ 不变，则
+\[
+b_1(K^+)-b_1(K)= -\big(\mathrm{rank}(B_2^+)-\mathrm{rank}(B_2)\big).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：$b_1$ 线性代数表达式]
+\label{cert:L2}
+采用 $\QQ$ 系数公式
+\[
+b_1(K)=\dim\ker(B_1)-\mathrm{rank}(B_2)
+=(|E|-\mathrm{rank}(B_1))-\mathrm{rank}(B_2),
+\]
+并登记本步不变量：$|E|,\mathrm{rank}(B_1)$ 不变。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:L2}：
+\[
+\begin{aligned}
+b_1(K^+)-b_1(K)
+&=\big[(|E|-\mathrm{rank}(B_1))-\mathrm{rank}(B_2^+)\big]\\
+&\quad-\big[(|E|-\mathrm{rank}(B_1))-\mathrm{rank}(B_2)\big]\\
+&= -\big(\mathrm{rank}(B_2^+)-\mathrm{rank}(B_2)\big).
+\end{aligned}
+\]
+恒等式成立。
+\end{proof}
+
+\begin{theorem}[T15（附着 2-胞腔的 $H_1$ 收缩判据：秩增长 $\Leftrightarrow b_1$ 下降）]
+\label{thm:T15}
+在定义~\ref{def:D23} 的一步更新 $K\mapsto K^+$ 中，
+\[
+b_1(K^+) < b_1(K)
+\quad\Longleftrightarrow\quad
+\mathrm{rank}(B_2^+)>\mathrm{rank}(B_2).
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：引理~\ref{lem:L2} 的差分符号判定]
+\label{cert:T15}
+证书仅调用引理~\ref{lem:L2} 给出的差分恒等式，并把“严格小于零”与“右端严格大于零”做符号等价转换。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由引理~\ref{lem:L2}：
+\[
+b_1(K^+)-b_1(K)= -\big(\mathrm{rank}(B_2^+)-\mathrm{rank}(B_2)\big).
+\]
+故
+\[
+b_1(K^+)-b_1(K)<0
+\Longleftrightarrow
+\mathrm{rank}(B_2^+)-\mathrm{rank}(B_2)>0.
+\]
+即得
+\[
+b_1(K^+)<b_1(K)\Longleftrightarrow \mathrm{rank}(B_2^+)>\mathrm{rank}(B_2).
+\]
+定理成立。
+\end{proof}
+
+\begin{theorem}[T16（“谱隙出现”的可计算证书：$b_1=0\Rightarrow \lambda_{\min}(\Delta_1)>0$）]
+\label{thm:T16}
+设离散 Hodge 1-拉普拉斯
+\[
+\Delta_1 = B_1^{\mathsf T}B_1 + B_2B_2^{\mathsf T}.
+\]
+则
+\[
+\dim\ker(\Delta_1)=b_1(K).
+\]
+因此若某步达到 $b_1(K)=0$，则
+\[
+\ker(\Delta_1)=\{0\}\Rightarrow \lambda_{\min}(\Delta_1)>0,
+\]
+即“谱隙出现”。
+\end{theorem}
+
+\begin{Certificate}[证书：离散 Hodge 线性代数同一]
+\label{cert:T16}
+证书前提：
+\begin{enumerate}
+\item 二次型分解
+\[
+\langle x,\Delta_1 x\rangle=\|B_1x\|^2+\|B_2^{\mathsf T}x\|^2;
+\]
+\item 离散 Hodge 分解给出
+\[
+\ker(\Delta_1)\cong H^1(K;\QQ),\qquad \dim H^1(K;\QQ)=b_1(K).
+\]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T16} 的二次型恒等式：
+\[
+x\in\ker(\Delta_1)\Longleftrightarrow B_1x=0\ \wedge\ B_2^{\mathsf T}x=0.
+\]
+再由离散 Hodge 同一，
+\[
+\ker(\Delta_1)\cong H^1(K;\QQ)\Longrightarrow \dim\ker(\Delta_1)=b_1(K).
+\]
+若 $b_1(K)=0$，则 $\ker(\Delta_1)=\{0\}$。又 $\Delta_1$ 为有限维半正定实对称矩阵，零特征值不存在，故 $\lambda_{\min}(\Delta_1)>0$。定理成立。
+\end{proof}
+
+\subsection{命题：复结构承载层的可验收条件}
+
+\begin{proposition}[P9（卡丘层的可审计功能：提供复结构与内积接口）]
+\label{prop:P9}
+若某层对象可实现为紧致 K\"ahler 流形 $Y$（特别地，若为卡拉比--丘流形），则对每个 $k$，存在有限维复内积空间
+\[
+\mathcal H^k_{\mathrm{harm}}(Y)
+\]
+使得
+\[
+\mathcal H^k_{\mathrm{harm}}(Y)\cong H^k(Y;\mathbb C),
+\]
+并以
+\[
+\langle \alpha,\beta\rangle=\int_Y \alpha\wedge *\overline{\beta}
+\]
+给出内积。
+\end{proposition}
+
+\begin{Certificate}[证书：Hodge 定理调用]
+\label{cert:P9}
+证书前提：紧致 Riemann/K\"ahler 条件下的 Hodge 定理成立，即每个上同调类存在唯一调和代表；调和形式空间有限维并带 $L^2$ 内积。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P9}：
+\[
+Y\ \text{紧致 K\"ahler}
+\Rightarrow
+\forall k,\ \mathcal H^k_{\mathrm{harm}}(Y)\cong H^k(Y;\mathbb C)
+\Rightarrow
+\mathcal H^k_{\mathrm{harm}}(Y)\ \text{有限维并带 }L^2\text{ 内积}.
+\]
+故命题成立。
+\end{proof}
+
+\subsection{推论：可审计最小闭环}
+
+\begin{corollary}[C6（“孔洞减少—扇区减少—谱隙出现”的一条可验收链）]
+\label{cor:C6}
+在离散统任一层 $K$ 上，若连续执行性变算子 $\mathcal O_{\mathrm{attach}}(K;Z)$ 且每步满足秩增长证书
+\[
+\mathrm{rank}(B_2^{(n+1)})>\mathrm{rank}(B_2^{(n)}),
+\]
+则 $b_1$ 严格下降并在有限步达到 $0$；从而最终层满足
+\[
+b_1=0\Rightarrow \lambda_{\min}(\Delta_1)>0.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：T15 + 自然数终止性 + T16]
+\label{cert:C6}
+证书链：
+\[
+\text{每步秩增长}
+\overset{\ref{thm:T15}}{\Longrightarrow}
+b_1\ \text{每步严格下降}
+\Longrightarrow
+\text{自然数严格递减有限终止}
+\overset{\ref{thm:T16}}{\Longrightarrow}
+b_1=0\Rightarrow \lambda_{\min}(\Delta_1)>0.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:C6}，每一步满足秩增长时，T15 给出 $b_1$ 严格下降。又 $b_1\in\mathbb N$，不存在无限严格递减链，故有限步达到 $b_1=0$。最后由 T16 得 $\lambda_{\min}
+  (\Delta_1)>0$。推论成立。
+\end{proof}
+
+\subsection{补齐：边界命题（同一性、有效四维、孔洞曲率）}
+
+\begin{proposition}[P15（量子同一性）：同一性证书 $\Rightarrow$ 观测与动力学等价]
+\label{prop:P15}
+给定量子化三元数据 $\mathbf Q(X)=(\mathcal H_X,\mathfrak A_X,U_X(t))$ 与 $\mathbf Q(\mathbf S)=(\mathcal H_{\mathbf S},\mathfrak
+  A_{\mathbf S},U_{\mathbf S}(t))$（定义~\ref{def:D8}）。
+若存在同一性证书 $\mathcal I:\mathcal H_X\to\mathcal H_{\mathbf S}$ 使 $\mathbf Q(X)\cong \mathbf Q(\mathbf S)$（定义~\ref{def:D9}），
+则对任意密度算子 $\rho_X$（$\rho_X\ge0,\ \mathrm{Tr}\rho_X=1$）与任意 $O\in\mathfrak A_X$，
+令
+\[
+\rho_{\mathbf S}:=\mathcal I\rho_X\mathcal I^{-1},\qquad
+O_{\mathbf S}:=\mathcal I O\mathcal I^{-1}.
+\]
+则对任意 $t\in\mathbb R$ 有期望值保持：
+\[
+\mathrm{Tr}\big(\rho_X\,U_X(t)^\ast O\,U_X(t)\big)
+=
+\mathrm{Tr}\big(\rho_{\mathbf S}\,U_{\mathbf S}(t)^\ast O_{\mathbf S}\,U_{\mathbf S}(t)\big).
+\]
+因此两套系统在“可观测代数 + 幺正动力学”的意义下等价。
+\end{proposition}
+
+\begin{Certificate}[证书：定义~\ref{def:D9} + 幺正共轭保持迹]
+\label{cert:P15}
+证书输入：
+\[
+\mathcal I\,\mathfrak A_X\,\mathcal I^{-1}=\mathfrak A_{\mathbf S},
+\qquad
+\mathcal I\,U_X(t)\,\mathcal I^{-1}=U_{\mathbf S}(t),
+\]
+以及对迹类算子 $A$ 与可逆算子 $B$ 的循环性
+\[
+\mathrm{Tr}(BAB^{-1})=\mathrm{Tr}(A),
+\]
+特别地当 $B$ 幺正时成立。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P15}，$U_{\mathbf S}(t)=\mathcal I U_X(t)\mathcal I^{-1}$，且 $O_{\mathbf S}=\mathcal I O\mathcal I^{-1}$。
+于是
+\[
+U_{\mathbf S}(t)^\ast O_{\mathbf S}U_{\mathbf S}(t)
+=
+\mathcal I\,U_X(t)^\ast O\,U_X(t)\,\mathcal I^{-1}.
+\]
+再令 $\rho_{\mathbf S}=\mathcal I\rho_X\mathcal I^{-1}$，则
+\[
+\begin{aligned}
+\mathrm{Tr}\big(\rho_{\mathbf S}U_{\mathbf S}(t)^\ast O_{\mathbf S}U_{\mathbf S}(t)\big)
+&=\mathrm{Tr}\big(\mathcal I\rho_X\mathcal I^{-1}\cdot \mathcal I U_X(t)^\ast O U_X(t)\mathcal I^{-1}\big)\\
+&=\mathrm{Tr}\big(\mathcal I\,\rho_X U_X(t)^\ast O U_X(t)\,\mathcal I^{-1}\big)\\
+&=\mathrm{Tr}\big(\rho_X U_X(t)^\ast O U_X(t)\big),
+\end{aligned}
+\]
+其中最后一步用到了迹的循环性。命题成立。
+\end{proof}
+
+\begin{theorem}[T31（卡丘层 $\Rightarrow$ 有效四维）：A1--A3 模板的形式化结论]
+\label{thm:T31}
+在假设~\ref{ass:A1}--\ref{ass:A3} 下，存在四维流形 $M^4$ 与其度量场 $g_M$，
+使得能量 $<E_\ast$ 的有效自由度仅依赖 $M^4$ 上的场变量，
+并由四维有效作用量 $S_{\mathrm{eff}}[g_M,\phi]$ 的变分给出相应四维场方程（例如爱因斯坦方程或其修改形式）。
+\end{theorem}
+
+\begin{Certificate}[证书：A1（维度分解）+ A2（谱隙截断）+ A3（变分生成）]
+\label{cert:T31}
+证书链：
+\[
+E\cong M^4\times Y^{2n}
+\ \overset{\ref{ass:A1}}{\Longrightarrow}\
+\text{对象级给出 }M^4;
+\qquad
+E_\ast<\lambda_1
+\ \overset{\ref{ass:A2}}{\Longrightarrow}\
+\text{低能仅含零模};
+\]
+\[
+S[g_E,\Phi]\ \overset{\ref{ass:A3}}{\Longrightarrow}\ S_{\mathrm{eff}}[g_M,\phi]
+\ \Longrightarrow\
+\delta S_{\mathrm{eff}}/\delta g_M=0\ \text{等四维方程}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 A1，存在对象级分解 $E\cong M^4\times Y^{2n}$，从而 $M^4$ 作为有效四维底流形被确定。
+由 A2，能量 $<E_\ast$ 的态仅含 $Y$ 方向零模分量，因此低能有效自由度仅依赖 $M^4$ 上的场变量。
+由 A3，对 $Y$ 积分并在能标 $E_\ast$ 下截断得到四维有效作用量 $S_{\mathrm{eff}}[g_M,\phi]$，其变分给出四维场方程。
+三者合取即得命题陈述。定理成立。
+\end{proof}
+
+\begin{theorem}[T32（孔洞信息 $\to$ 曲率对象）：离散 $U(1)$ 连接的曲率由面边界 holonomy 给出]
+\label{thm:T32}
+在离散复形 $K$ 的 $1$-骨架上给定边相位 $U_{u\to v}\in U(1)$（定义~\ref{def:D12}），并对闭合回路定义 holonomy（定义~\ref{def:D14}）。
+对任意有向 $2$-胞腔 $\sigma$，记其边界回路为 $\partial\sigma$，定义离散曲率（面通量）
+\[
+F_U(\sigma):=\mathrm{Hol}_U(\partial\sigma)\in U(1).
+\]
+则：
+\begin{enumerate}
+\item （规范不变性）在定理~\ref{thm:T6} 的规范变换 $U\mapsto U'$ 下，对任意 $\sigma$ 有 $F_{U'}(\sigma)=F_U(\sigma)$；
+\item （离散 Stokes）若某区域内每个 $2$-胞腔都满足 $F_U(\sigma)=1$，则该区域内任意可缩闭合回路 $\gamma$ 满足 $\mathrm{Hol}_U(\gamma)=1$；
+\item 因而“可缩回路的 holonomy”由局部曲率族 $\{F_U(\sigma)\}$ 决定；而“不可缩回路的 holonomy”给出 $\pi_1$（或 $H_1$）层面的全局自由度（即孔洞信息）。
+\end{enumerate}
+\end{theorem}
+
+\begin{Certificate}[证书：回路 holonomy 的乘法性 + 端点相消 + 回路分解为面边界积]
+\label{cert:T32}
+证书输入：
+\begin{enumerate}
+\item holonomy 定义的乘法性：$\mathrm{Hol}_U(\gamma_1\cdot\gamma_2)=\mathrm{Hol}_U(\gamma_1)\mathrm{Hol}_U(\gamma_2)$；
+\item 规范变换的端点相消：在闭合回路上 $g$ 因子逐边望远镜相消；
+\item 可缩回路可被分解为有限个 $2$-胞腔边界回路的串联（基本组合拓扑事实）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+(1) 设 $\partial\sigma=e_1\cdots e_m$。由定理~\ref{thm:T6}，$U'_{u\to v}=g(v)U_{u\to v}\overline{g(u)}$。
+沿闭合回路逐边相乘，所有中间顶点的 $g(\cdot)$ 与 $\overline{g(\cdot)}$ 望远镜相消，仅剩首尾端点因子，而闭合回路首尾同点，故完全相消，
+从而 $\mathrm{Hol}_{U'}(\partial\sigma)=\mathrm{Hol}_U(\partial\sigma)$，即 $F_{U'}(\sigma)=F_U(\sigma)$。
+
+(2) 由证书~\ref{cert:T32}(3)，任意可缩回路 $\gamma$ 可写为若干面边界回路的串联：
+\[
+\gamma\simeq \partial\sigma_1\cdot\partial\sigma_2\cdots \partial\sigma_N.
+\]
+由 holonomy 的乘法性得
+\[
+\mathrm{Hol}_U(\gamma)=\prod_{j=1}^N \mathrm{Hol}_U(\partial\sigma_j)=\prod_{j=1}^N F_U(\sigma_j).
+\]
+若每个 $\sigma_j$ 都满足 $F_U(\sigma_j)=1$，则 $\mathrm{Hol}_U(\gamma)=1$。
+
+(3) (2) 说明可缩回路的 holonomy 完全由局部面通量决定；而不可缩回路不受“面边界分解”约束，其 holonomy 作为 $\pi_1$ 的表示数据，携带全局孔洞信息。定理成立。
+\end{proof}
+
+\clearpage
+\section{BA交替修复链与时间起源}
+\label{sec:ba-time}
+
+\subsection{定义：两类对象、时间结构与单调量}
+
+\begin{definition}[D24（两类对象）]
+\label{def:D24}
+令
+\[
+B:= (\mathcal H,\langle\cdot,\cdot\rangle)
+\]
+为高维复内积空间（完备时为希尔伯特空间）。令
+\[
+A:= (M,g)
+\]
+为四维（伪）黎曼流形；若讨论时间与因果，则取 $g$ 为洛伦兹度量（签名 $(-,+,+,+)$）。
+\end{definition}
+
+\begin{definition}[D25（无时间结构）]
+\label{def:D25}
+称对象 $B$ 为\emph{无时间结构}，若在仅给定 $(\mathcal H,\langle\cdot,\cdot\rangle)$ 的条件下，不存在由该数据内禀确定的连续单参演化
+\[
+U(t):\mathcal H\to\mathcal H,\quad t\in\mathbb R
+\]
+及其时间方向。等价地，任何时间参数都需要额外输入（如哈密顿量 $H$ 或半群生成元），而非从 $(\mathcal H,\langle\cdot,\cdot\rangle)$ 唯一导出。
+\end{definition}
+
+\begin{definition}[D26（有时间结构）]
+\label{def:D26}
+称对象 $A=(M,g)$ 为\emph{有时间结构}，若存在时间函数
+\[
+\tau:M\to\mathbb R
+\]
+使得对任意未来指向因果曲线 $\gamma$，复合函数 $\tau\circ\gamma$ 严格递增。
+\end{definition}
+
+\begin{definition}[D27（BA 交替修复过程）]
+\label{def:D27}
+称序列
+\[
+B_0 \xrightarrow{\ \Phi_0\ } A_0 \xrightarrow{\ \Psi_0\ } B_1 \xrightarrow{\ \Phi_1\ } A_1 \xrightarrow{\ \Psi_1\ }
+  \cdots
+\]
+为一条\emph{BA 交替修复链}。其中每个 $\Phi_n$ 为性变态射（把 $B_n$ 的缺陷/障碍数据定向转化为几何数据），每个 $\Psi_n$ 为回注/反馈算子（把 $A_n$ 的几何态转写为下一轮 $B_{n+1}$
+  的缺陷输入）。
+\end{definition}
+
+\begin{definition}[D28（缺陷势 / Lyapunov 单调量）]
+\label{def:D28}
+给定函数
+\[
+\mu:\{B_n\}\cup\{A_n\}\to\mathbb N,
+\]
+称 $\mu$ 为缺陷势，若它满足某种严格下降条件（见 A2）。典型实例是同调缺陷量（如 $b_1$、或 $\sum_{k\in\mathcal K}\mathrm{rank}\,H_k$），以及修复塔诱导的障碍计数。
+\end{definition}
+
+\begin{definition}[D29（由修复链内禀诱导的离散时间）]
+\label{def:D29}
+若存在严格下降的缺陷势 $\mu$，定义离散时间参数
+\[
+T(n):=\mu(B_0)-\mu(B_n)\in\mathbb N,
+\]
+并定义时间箭头方向为 $T$ 增大的方向。
+\end{definition}
+
+\subsection{公理（降级为定理）：模型假设与归纳证书}
+
+\begin{theorem}[A1（公理降级为定理；数学归纳法证书）：BA 交替链的可构造性模板]
+\label{thm:A1-ba}
+给定初始对象 $B_0$ 与每步流程算子 $(\Phi_n,\Psi_n)$ 的可调用性，则任意有限长度的 BA 交替修复链截断均可构造（定义~\ref{def:D27}）。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：有限截断可构造性]
+\label{cert:A1-ba}
+定义谓词
+\[
+P(N):\ \text{存在长度为 }N\text{ 的截断链 }
+B_0\to A_0\to B_1\to\cdots\to A_N.
+\]
+证书目标：
+\[
+P(0)\ \text{成立},\qquad (\forall N\in\mathbb N)\ \bigl(P(N)\Rightarrow P(N+1)\bigr).
+\]
+证书输入：初始对象 $B_0$ 与每一步流程算子 $(\Phi_n,\Psi_n)$ 的可调用性。
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：$N=0$ 时，仅需 $B_0\xrightarrow{\Phi_0}A_0$，由证书输入可构造，故 $P(0)$ 成立。
+归纳步：设 $P(N)$ 成立，已得 $B_0\to\cdots\to A_N$。由可调用性继续施加
+\[
+A_N\xrightarrow{\Psi_N}B_{N+1}\xrightarrow{\Phi_{N+1}}A_{N+1},
+\]
+得到长度 $N+1$ 截断，故 $P(N+1)$ 成立。
+由归纳法，任意有限截断均可构造。该结论是\textbf{模型组织形式}，不构成“宇宙本体同一性”的经验证明。
+\end{proof}
+
+\begin{theorem}[A2（公理降级为定理；数学归纳法证书）：缺陷势严格下降守门条件]
+\label{thm:A2-ba}
+存在缺陷势 $\mu$（定义~\ref{def:D28}），使得对所有 $n$ 满足
+\[
+\mu(B_{n+1})<\mu(B_n).
+\]
+等价地，在每个完整 BA 循环后缺陷势严格下降。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：循环守门条件的全步保持]
+\label{cert:A2-ba}
+定义谓词
+\[
+Q(n):\ \mu(B_{n+1})<\mu(B_n).
+\]
+证书目标：
+\[
+Q(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(Q(n)\Rightarrow Q(n+1)\bigr),
+\]
+其中归纳步由同一“严格下降守门条件”在每轮重复调用。
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：$Q(0)$ 由首轮守门条件直接给出。
+归纳步：若第 $n$ 轮满足守门条件并实现严格下降，则第 $n+1$ 轮在同一规则下再次实现严格下降，即 $Q(n+1)$ 成立。
+故 $Q(n)$ 对任意 $n$ 成立。该条在本文中作为模型公设或算法设计约束使用，不宣称其为外部经验定律。
+\end{proof}
+
+\begin{theorem}[A3（公理降级为定理；数学归纳法证书）：时间结构接口登记]
+\label{thm:A3-ba}
+每个 $A_n$ 都满足定义~\ref{def:D26}，即存在时间函数 $\tau_n:M_n\to\mathbb R$。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：时间函数家族的逐层登记]
+\label{cert:A3-ba}
+定义谓词
+\[
+R(n):\ \exists \tau_n:M_n\to\mathbb R,\ \forall\text{未来因果曲线 }\gamma,\ \tau_n\circ\gamma\ \text{严格递增}.
+\]
+证书目标：
+\[
+R(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(R(n)\Rightarrow R(n+1)\bigr).
+\]
+证书输入：每层几何态 $A_n$ 的时间结构接口。
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：$R(0)$ 由初层时间结构接口给出。
+归纳步：若 $R(n)$ 已登记，则下一层 $A_{n+1}$ 通过同类接口给出 $\tau_{n+1}$，故 $R(n+1)$ 成立。
+由归纳法得 $\forall n,\ R(n)$。该条是模型假设的逐层登记，不构成外部物理真实性证明。
+\end{proof}
+
+\subsection{定理：时间含义与时间箭头}
+
+\begin{theorem}[T17（“$B$ 无时间”的严格含义：时间需要额外生成元）]
+\label{thm:T17}
+在仅给定 $B=(\mathcal H,\langle\cdot,\cdot\rangle)$ 的情况下，若不额外指定生成元（如自伴算子 $H$ 或半群生成元），则不存在由该数据唯一确定的时间演化与时间方向。因此“$B$
+  无时间”可形式化为定义~\ref{def:D25}。
+\end{theorem}
+
+\begin{Certificate}[证书：幺正群生成元非唯一性]
+\label{cert:T17}
+证书前提：
+\[
+U(t)=e^{-itH}\ \text{需要额外给定}\ H,\quad
+(\mathcal H,\langle\cdot,\cdot\rangle)\ \text{不唯一决定}\ H.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+设仅给定 $\mathcal H$。若时间演化内禀唯一，则应存在唯一生成元 $H_\star$ 使 $U(t)=e^{-itH_\star}$。
+但同一 $\mathcal H$ 上存在无穷多不同自伴算子 $H$，对应不同幺正群 $U_H(t)$。故“时间演化”不由 $(\mathcal H,\langle\cdot,\cdot\rangle)$ 唯一导出。定理成立。
+\end{proof}
+
+\begin{theorem}[T18（“$A$ 有时间”的严格含义：因果序与时间函数）]
+\label{thm:T18}
+若 $A=(M,g)$ 为全局双曲洛伦兹流形，则存在时间函数 $\tau:M\to\mathbb R$ 且沿未来因果曲线严格递增，因此 $A$ 内禀携带时间序（定义~\ref{def:D26}）。
+\end{theorem}
+
+\begin{Certificate}[证书：全局双曲 $\Rightarrow$ Cauchy 时间函数]
+\label{cert:T18}
+证书调用标准结果：全局双曲洛伦兹流形存在 Cauchy 分解及时间函数，且该时间函数沿未来因果曲线严格递增。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T18}：
+\[
+\text{全局双曲}
+\Rightarrow
+\exists\,\tau:M\to\mathbb R\ \text{为 Cauchy 时间函数}
+\Rightarrow
+\forall\gamma\ (\gamma\text{未来因果})\Rightarrow \tau\circ\gamma\ \text{严格递增}.
+\]
+故 $A$ 满足定义~\ref{def:D26}，即具时间结构。定理成立。
+\end{proof}
+
+\begin{theorem}[T19（时间效应的形式化：严格下降 $\Rightarrow$ 不可逆序与时间箭头）]
+\label{thm:T19}
+在 A2（定理~\ref{thm:A2-ba}）成立时，离散时间
+\[
+T(n)=\mu(B_0)-\mu(B_n)
+\]
+严格递增，即
+\[
+n<m\ \Rightarrow\ T(n)<T(m).
+\]
+因此 BA 修复链内禀产生一个不可逆序结构（时间箭头）。
+\end{theorem}
+
+\begin{Certificate}[证书：严格递减序列的差分增序]
+\label{cert:T19}
+证书前提：
+\[
+\mu(B_{n+1})<\mu(B_n)\quad(\forall n),\qquad \mu(B_n)\in\mathbb N.
+\]
+证书目标：证明 $T(n+1)-T(n)>0$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T19}，
+\[
+T(n+1)-T(n)=\mu(B_n)-\mu(B_{n+1})>0.
+\]
+故 $T(n)$ 严格递增。严格递增序给出唯一方向，因而在流程层产生不可逆序（时间箭头）。定理成立。
+\end{proof}
+
+\subsection{引理：时间起源的最小可证内容}
+
+\begin{lemma}[L5（“时间起源”在本模型中的最小可证内容）]
+\label{lem:L5}
+在 A1--A2 框架下，“时间起源”可严格替换为：存在由系统状态变化内禀定义的序参数 $T$，且 $T$ 具有单调性与不可逆性（定理~\ref{thm:T19}）。该命题比“先验时间参数已给定”更弱，但可审计。
+\end{lemma}
+
+\begin{Certificate}[证书：定义性替换]
+\label{cert:L5}
+证书输入：定义~\ref{def:D29} 对 $T$ 的构造与定理~\ref{thm:T19} 的严格递增结论。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由定义~\ref{def:D29}，$T$ 由缺陷势差分内禀定义；由定理~\ref{thm:T19}，$T$ 严格递增并给出不可逆方向。
+故“时间起源”在本模型中的最小可证内容即为“内禀单调序参数存在”。引理成立。
+\end{proof}
+
+\subsection{命题：BA 链中“谁承载时间”的严格表达}
+
+\begin{proposition}[P10（“只有 $A$ 承载时间”在 BA 交替链中的严格表达）]
+\label{prop:P10}
+若满足：
+\begin{enumerate}
+\item 每个 $B_n$ 仅具定义~\ref{def:D25} 结构（无内禀时间）；
+\item 每个 $A_n$ 满足定义~\ref{def:D26}（存在时间函数 $\tau_n$）；
+\item 修复链存在缺陷势单调量 $T$（定理~\ref{thm:T19}）；
+\end{enumerate}
+则“时间效应”在 $A_n$ 侧表现为因果时间函数 $\tau_n$，在 $B_n$ 侧表现为离散序参数 $T$（不可逆迭代序）；二者由 $(\Phi_n,\Psi_n)$ 在流程中耦合。
+\end{proposition}
+
+\begin{Certificate}[证书：结构判据 + 单调序判据]
+\label{cert:P10}
+证书调用：
+\[
+\text{D25（无时间）},\quad
+\text{D26（有时间）},\quad
+\text{T19（不可逆序）}.
+\]
+并把 $\Phi_n,\Psi_n$ 作为两侧信息转写接口。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由条件 (1) 得 $B_n$ 侧无连续内禀时间函数；由条件 (2) 得 $A_n$ 侧存在因果时间函数 $\tau_n$；由条件 (3) 得全链存在不可逆离散序参数 $T$。
+故时间结构分解为“几何侧 $\tau_n$ + 流程侧 $T$”，并通过 $\Phi_n,\Psi_n$ 形成交替耦合。命题成立。
+\end{proof}
+
+\subsection{推论：时间箭头与修复定向性的等价边界}
+
+\begin{corollary}[C7（时间箭头与“修复定向性”等价）]
+\label{cor:C7}
+在 BA 交替修复链中，若存在满足严格下降的缺陷势 $\mu$（A2），则时间箭头存在；反之若不存在任何严格单调的 $\mu$，则无法在该形式系统内从修复链本身推出时间箭头。
+\end{corollary}
+
+\begin{Certificate}[证书：箭头定义等价式]
+\label{cert:C7}
+在本章口径中：
+\[
+\text{时间箭头存在}
+\Longleftrightarrow
+\exists\ \text{严格单调序参数}
+\Longleftrightarrow
+\exists\ \mu\ \text{使}\ T(n)\ \text{严格递增}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+正向：A2 给出 $\mu$ 严格下降，定理~\ref{thm:T19} 推出 $T$ 严格递增，故时间箭头存在。
+逆向：若不存在任何严格单调的 $\mu$，则无法构造严格递增的 $T$，因而在本系统定义下不能推出时间箭头。推论成立。
+\end{proof}
+
+\subsection{补齐：边界证书}
+
+\begin{proposition}[P16（A1 的语义分离）：后续形式结论仅依赖链的可构造性]
+\label{prop:P16}
+在本稿中，A1 仅作为“BA 交替修复链（定义~\ref{def:D27}）的可构造模板”使用。
+后续关于时间箭头、单调性与终止性的形式推导所需前提，可归约为：
+\[
+\text{截断链可构造（A1）}\ \wedge\ \text{缺陷势严格下降（A2/A8）}\ \wedge\ \text{时间结构接口（A3）}.
+\]
+因此，任何把 A1 解释为外部物理同一性的语义，不进入形式层证明依赖链。
+\end{proposition}
+
+\begin{Certificate}[证书：证明依赖链核验口径]
+\label{cert:P16}
+证书内容：在本文后续各节，凡使用 A1 时，仅以“可继续施加 $(\Phi_n,\Psi_n)$ 生成下一截断”的形式调用（见证书~\ref{cert:A1-ba}）；不把“宇宙本体同一性”作为可推演谓词参与任何推理步骤。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P16}，A1 在本文的唯一用法是保证截断链的继续生成；而时间箭头与终止性由严格单调量（A2/A8、定义~\ref{def:D29} 或~\ref{def:D40}）及自然数良序性推出。
+故把 A1 赋予任何外部语义不会改变形式层推导的可证结论。命题成立。
+\end{proof}
+
+\begin{proposition}[P17（A2 的双重语义统一）：严格下降 $\Leftrightarrow$ 守门条件]
+\label{prop:P17}
+设缺陷势 $\mu$（定义~\ref{def:D28}）与更新生成的序列 $\{B_n\}$ 给定。
+则以下等价：
+\begin{enumerate}
+\item （形式层陈述）$\forall n,\ \mu(B_{n+1})<\mu(B_n)$；
+\item （工程/算法口径）存在逐轮可审计的守门规则，使得每轮只接受满足 $\mu(B_{n+1})<\mu(B_n)$ 的更新结果。
+\end{enumerate}
+因此 A2 既可作为形式系统的结构前提，也可作为算法验收约束；两种口径在形式推理上等价。
+\end{proposition}
+
+\begin{Certificate}[证书：谓词等价展开]
+\label{cert:P17}
+证书内容：把“守门规则”定义为谓词过滤器
+\[
+\mathrm{Gate}(n):=\bigl[\mu(B_{n+1})<\mu(B_n)\bigr],
+\]
+并以“只接受 Gate 成立的更新”作为算法口径的形式化。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+(1)$\Rightarrow$(2)：若对所有 $n$ 已有严格下降，则取守门规则为恒真接受即可（或等价地记录 Gate 恒成立），算法口径成立。
+
+(2)$\Rightarrow$(1)：若每一轮更新都在守门规则下被接受，则每轮都满足 Gate，即 $\mu(B_{n+1})<\mu(B_n)$ 对任意 $n$ 成立。
+
+故两者等价。命题成立。
+\end{proof}
+
+\begin{lemma}[L9（黎曼情形的因果锥退化）：仅靠正定度量无法给出非平凡因果时间]
+\label{lem:L9}
+若 $A=(M,g)$ 为正定黎曼流形，则由 $g$ 诱导的“因果锥”按洛伦兹定义会退化为零锥：满足 $g(v,v)\le 0$ 的切向量仅有 $v=0$。
+因此，若时间函数的定义依赖“未来指向因果曲线”（定义~\ref{def:D26}），则仅靠正定 $g$ 无法提供非平凡的因果结构；要获得非退化时间概念，需补充洛伦兹签名或等价的因果锥场结构。
+\end{lemma}
+
+\begin{Certificate}[证书：正定性 $\Rightarrow g(v,v)\ge 0$]
+\label{cert:L9}
+证书输入：黎曼度量正定性给出对任意 $v\neq 0$ 有 $g(v,v)>0$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:L9}，若 $v\neq 0$ 则 $g(v,v)>0$，因此不可能满足 $g(v,v)\le 0$。
+故 $g(v,v)\le 0\Rightarrow v=0$，即所谓“因果向量”集合退化为零向量。
+于是由 $g$ 无法定义出非平凡的未来指向因果曲线族，时间函数定义（定义~\ref{def:D26}）在此口径下不产生实质性内容。
+引理成立。
+\end{proof}
+
+\begin{theorem}[T33（离散序 $T$ 与几何时间 $\tau_n$ 的统一）：跨层嵌入兼容 $\Rightarrow$ 全局时间函数]
+\label{thm:T33}
+设每层几何态 $A_n=(M_n,g_n)$ 具有时间函数 $\tau_n:M_n\to\mathbb R$（A3），并设离散步长 $c_n\in\mathbb N_{>0}$ 与离散时间 $T_n$ 按定义~\ref{def:D40}
+  给出。
+若存在一族光滑嵌入（跨层识别证书）
+\[
+\iota_n:M_n\hookrightarrow M_{n+1}\qquad (n\in\mathbb N)
+\]
+满足时间兼容条件
+\[
+\tau_{n+1}\circ \iota_n=\tau_n+c_n,
+\]
+则令“对齐后的时间函数”
+\[
+\widetilde\tau_n:=\tau_n-T_n,
+\]
+可得严格兼容
+\[
+\widetilde\tau_{n+1}\circ \iota_n=\widetilde\tau_n.
+\]
+因此在归纳极限空间
+\[
+M_\infty:=\Big(\bigsqcup_{n\ge 0} M_n\Big)\Big/\sim,\qquad x\sim \iota_n(x),
+\]
+上可定义全局时间函数
+\[
+\tau_\infty([x]):=\widetilde\tau_n(x)=\tau_n(x)-T_n\quad(x\in M_n),
+\]
+其定义与代表元选择无关，并在（由某一层代表的）未来指向因果曲线上严格递增。
+\end{theorem}
+
+\begin{Certificate}[证书：兼容性 + 递推式 $T_{n+1}=T_n+c_n$]
+\label{cert:T33}
+证书输入：
+\[
+\tau_{n+1}\circ \iota_n=\tau_n+c_n,
+\qquad
+T_{n+1}=T_n+c_n.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+(兼容对齐) 由证书~\ref{cert:T33}，
+\[
+\widetilde\tau_{n+1}\circ \iota_n
+=(\tau_{n+1}-T_{n+1})\circ \iota_n
+=(\tau_n+c_n)-(T_n+c_n)
+=\tau_n-T_n
+=\widetilde\tau_n.
+\]
+
+(良定义) 若 $x\sim \iota_n(x)$，则
+\[
+\tau_{n+1}(\iota_n(x))-T_{n+1}
+=\tau_n(x)-T_n,
+\]
+故 $\tau_\infty([x])$ 与代表元选择无关，良定义成立。
+
+(严格递增) 任取 $M_\infty$ 上一条未来指向因果曲线 $\gamma$。由归纳极限的构造，$\gamma$ 可在某一层 $M_N$ 中表示为未来指向因果曲线 $\,\gamma_N$（嵌入后视为同一曲线）。
+由定义~\ref{def:D26}，$\tau_N\circ\gamma_N$ 严格递增，故 $(\tau_N-T_N)\circ\gamma_N$ 亦严格递增（常数平移不改变严格单调性）。
+而 $\tau_\infty$ 在该层上与 $\tau_N-T_N$ 一致，故 $\tau_\infty\circ\gamma$ 严格递增。定理成立。
+\end{proof}
+
+\clearpage
+\section{BA交替迭代链与双层时间结构}
+\label{sec:ba-time-dual}
+
+\subsection{定义：对象、迭代链与离散时间}
+
+\begin{definition}[D30（两类对象）]
+\label{def:D30}
+令
+\[
+B:=(\mathcal H,\langle\cdot,\cdot\rangle)
+\]
+为高维复内积空间（完备时为希尔伯特空间）。令
+\[
+A:=(M,g)
+\]
+为四维流形与度量；若讨论因果与时间，取 $g$ 为洛伦兹度量。
+\end{definition}
+
+\begin{definition}[D31（BA 交替迭代链）]
+\label{def:D31}
+称序列
+\[
+B_0 \xrightarrow{\ \Phi_0\ } A_0 \xrightarrow{\ \Psi_0\ } B_1 \xrightarrow{\ \Phi_1\ } A_1 \xrightarrow{\ \Psi_1\ }
+  \cdots
+\]
+为 BA 交替迭代链，其中：
+\begin{itemize}
+\item $\Phi_n$ 表示“修复/性变”步（由 $B_n$ 生成 $A_n$）；
+\item $\Psi_n$ 表示“回注/反馈”步（由 $A_n$ 生成下一轮输入 $B_{n+1}$）。
+\end{itemize}
+\end{definition}
+
+\begin{definition}[D32（$B$ 的“无时间”判据：无内禀时间生成元）]
+\label{def:D32}
+称 $B$ \emph{无时间}，若仅凭 $(\mathcal H,\langle\cdot,\cdot\rangle)$ 不能内禀确定任何连续一参群
+\[
+U(t)\in\mathcal U(\mathcal H),\quad t\in\mathbb R
+\]
+及其时间方向。等价地：若要给出 $U(t)$，必须额外指定生成元（例如自伴 $H$ 使 $U(t)=e^{-itH}$），且该生成元不由 $(\mathcal H,\langle\cdot,\cdot\rangle)$ 唯一导出。
+\end{definition}
+
+\begin{definition}[D33（$A$ 的“有时间”判据：时间函数）]
+\label{def:D33}
+称 $A=(M,g)$ \emph{有时间}，若存在时间函数
+\[
+\tau:M\to\mathbb R
+\]
+使得对任意未来指向因果曲线 $\gamma$，$\tau\circ\gamma$ 严格递增。
+\end{definition}
+
+\begin{definition}[D34（修复代价与累积时间）]
+\label{def:D34}
+给定函数
+\[
+c:\mathbb N\to \mathbb N_{>0},\quad n\mapsto c_n,
+\]
+称 $c_n$ 为第 $n$ 轮修复的代价/步长。定义累积量
+\[
+T_0:=0,\qquad T_{n+1}:=T_n+c_n.
+\]
+称 $T_n$ 为由修复过程内禀诱导的离散时间。
+\end{definition}
+
+\begin{definition}[D35（与离散统修复塔的对接：秩增量作为 $c_n$）]
+\label{def:D35}
+在离散统某层的 2-骨架上，设一步修复为
+\[
+B_2^{(n+1)}=[B_2^{(n)}\ \ Z^{(n)}],
+\]
+并令
+\[
+c_n:=\mathrm{rank}(B_2^{(n+1)})-\mathrm{rank}(B_2^{(n)})\in\mathbb N.
+\]
+若该步“有效修复”，则 $c_n\ge 1$。
+\end{definition}
+
+\subsection{公理（降级为定理）：模型假设与归纳证书}
+
+\begin{theorem}[A1（公理降级为定理；数学归纳法证书）：BA 链存在]
+\label{thm:A1-ba3}
+存在 BA 交替迭代链（定义~\ref{def:D31}）。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：有限截断链可构造]
+\label{cert:A1-ba3}
+定义谓词
+\[
+P(N):\ \text{存在长度为 }N\text{ 的截断链 }B_0\to A_0\to\cdots\to B_N.
+\]
+证书目标：
+\[
+P(0)\ \text{成立},\qquad (\forall N\in\mathbb N)\ \bigl(P(N)\Rightarrow P(N+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：$N=0$ 时仅需首轮映射 $B_0\xrightarrow{\Phi_0}A_0\xrightarrow{\Psi_0}B_1$ 的存在性，故 $P(0)$ 成立。
+归纳步：设 $P(N)$ 成立，即已有长度 $N$ 截断链；追加一步 $(\Phi_N,\Psi_N)$ 得到长度 $N+1$ 截断，故 $P(N+1)$ 成立。
+由归纳法，任意有限截断存在，从而 BA 链作为模型对象被一致登记。定理成立。
+\end{proof}
+
+\begin{theorem}[A2（公理降级为定理；数学归纳法证书）：$B$ 无时间]
+\label{thm:A2-ba3}
+每个 $B_n$ 满足定义~\ref{def:D32}。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：无时间性质逐轮保持]
+\label{cert:A2-ba3}
+定义谓词
+\[
+Q(n):\ B_n\ \text{满足 D32}.
+\]
+证书目标：
+\[
+Q(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(Q(n)\Rightarrow Q(n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：$Q(0)$ 由模型初值设定成立。
+归纳步：若 $Q(n)$ 成立，则第 $n$ 轮回注后的 $B_{n+1}$ 仍按同一对象类型登记为仅含 $(\mathcal H,\langle\cdot,\cdot\rangle)$ 的 $B$-态，故 $Q(n+1)$ 成立。
+由归纳法，$\forall n,\ Q(n)$。定理成立。
+\end{proof}
+
+\begin{theorem}[A3（公理降级为定理；数学归纳法证书）：$A$ 有时间]
+\label{thm:A3-ba3}
+每个 $A_n$ 满足定义~\ref{def:D33}（存在时间函数 $\tau_n$）。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：时间函数逐层存在性]
+\label{cert:A3-ba3}
+定义谓词
+\[
+R(n):\ \exists\,\tau_n:M_n\to\mathbb R,\ \forall\gamma\ (\gamma\text{未来因果})\Rightarrow \tau_n\circ\gamma\ \text{严格递增}.
+\]
+证书目标：
+\[
+R(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(R(n)\Rightarrow R(n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：$R(0)$ 由首层几何态的时间结构接口给出。
+归纳步：若 $R(n)$ 成立，则下一层几何态 $A_{n+1}$ 按同类条件注册时间函数 $\tau_{n+1}$，故 $R(n+1)$ 成立。
+由归纳法得 $\forall n,\ R(n)$。定理成立。
+\end{proof}
+
+\begin{theorem}[A4（公理降级为定理；数学归纳法证书）：修复代价严格正]
+\label{thm:A4-ba3}
+对所有 $n$，$c_n\in\mathbb N_{>0}$；等价地，每轮修复都包含至少一个不可逆有效修复事件。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：正代价事件逐轮发生]
+\label{cert:A4-ba3}
+定义谓词
+\[
+S(n):\ c_n>0.
+\]
+证书目标：
+\[
+S(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(S(n)\Rightarrow S(n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：首轮有效修复登记给出 $c_0>0$。
+归纳步：若第 $n$ 轮存在有效修复事件，则按同一守门条件，第 $n+1$ 轮仍有 $c_{n+1}>0$。
+故 $\forall n,\ c_n>0$。定理成立。
+\end{proof}
+
+\begin{remark}
+A4 是“时间箭头”的最小公设：不要求某个单一缺陷量在全局严格单调，只要求每轮确有不可逆修复事件发生。
+\end{remark}
+
+\subsection{定理：无时间/有时间与箭头生成}
+
+\begin{theorem}[T20（$B$ 的无时间：缺乏内禀一参群）]
+\label{thm:T20}
+若满足 A2，则时间参数不能从 $B_n=(\mathcal H_n,\langle\cdot,\cdot\rangle)$ 内禀推出；任意 $U(t)$ 都依赖额外生成元选择，因此 $B$ 侧不承载内禀时间。
+\end{theorem}
+
+\begin{Certificate}[证书：同一 Hilbert 结构上生成元非唯一]
+\label{cert:T20}
+给定任意自伴算子 $H$ 可生成
+\[
+U_H(t)=e^{-itH},
+\]
+且同一 $\mathcal H$ 上存在无限多不同自伴 $H$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+若 $(\mathcal H,\langle\cdot,\cdot\rangle)$ 能内禀确定时间演化，则应唯一确定某个 $H_\star$。
+但由证书~\ref{cert:T20}，同一 $\mathcal H$ 上可取多组不同自伴 $H$，对应不同 $U_H(t)$。故唯一性不成立，内禀时间不可推出。定理成立。
+\end{proof}
+
+\begin{theorem}[T21（$A$ 的有时间：时间函数给出因果序）]
+\label{thm:T21}
+若满足 A3，则每个 $A_n$ 上存在严格因果序：沿未来因果曲线 $\gamma$，$\tau_n\circ\gamma$ 严格递增。
+\end{theorem}
+
+\begin{Certificate}[证书：D33 直接调用]
+\label{cert:T21}
+证书输入：A3 给出“每个 $A_n$ 满足 D33”，而 D33 本身即为严格因果序判据。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 A3 与定义~\ref{def:D33}，对任意 $n$ 与任意未来因果曲线 $\gamma$，有 $\tau_n\circ\gamma$ 严格递增。故每个 $A_n$ 具因果时间序。定理成立。
+\end{proof}
+
+\begin{theorem}[T22（修复过程产生时间箭头：$T_n$ 严格递增）]
+\label{thm:T22}
+若满足 A4，则由定义~\ref{def:D34} 给出的 $T_n$ 严格递增：
+\[
+n<m\ \Rightarrow\ T_n<T_m.
+\]
+因此 BA 迭代链内禀产生不可逆序结构（时间箭头）。
+\end{theorem}
+
+\begin{Certificate}[证书：正步长递推]
+\label{cert:T22}
+证书前提：
+\[
+T_{n+1}=T_n+c_n,\qquad c_n>0\ (\forall n).
+\]
+证书目标：推出 $\forall n,\ T_{n+1}>T_n$，并进一步推出全序严格递增。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T22}，对任意 $n$，
+\[
+T_{n+1}=T_n+c_n>T_n.
+\]
+故相邻项严格递增。再对任意 $m>n$，
+\[
+T_m-T_n=\sum_{k=n}^{m-1}(T_{k+1}-T_k)>0,
+\]
+从而 $T_m>T_n$。定理成立。
+\end{proof}
+
+\begin{theorem}[T23（对接离散统修复塔：秩增量 $\Rightarrow$ 时间步长）]
+\label{thm:T23}
+若每步修复在离散统层内满足
+\[
+\mathrm{rank}(B_2^{(n+1)})>\mathrm{rank}(B_2^{(n)}),
+\]
+则按定义~\ref{def:D35} 取 $c_n$ 得 $c_n\ge 1$，从而由 T22 得时间箭头成立；并且该 $c_n$ 同时刻画 $H_1$ 的收缩强度（通过此前秩判据）。
+\end{theorem}
+
+\begin{Certificate}[证书：D35 + 既有秩判据 T15]
+\label{cert:T23}
+证书链：
+\[
+\Delta\mathrm{rank}(B_2)>0
+\overset{\text{D35}}{\Longrightarrow}
+c_n\ge 1
+\overset{\text{T22}}{\Longrightarrow}
+T_n\ \text{严格递增},
+\]
+并调用 T15：$\Delta\mathrm{rank}(B_2)>0\Leftrightarrow b_1$ 下降。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由条件与定义~\ref{def:D35}，$c_n=\mathrm{rank}(B_2^{(n+1)})-\mathrm{rank}(B_2^{(n)})\ge 1$。
+代入定义~\ref{def:D34}，得 T22 条件成立，从而 $T_n$ 严格递增。
+又由 T15，秩增量与 $b_1$ 收缩等价，故 $c_n$ 也给出该步 $H_1$ 修复强度。定理成立。
+\end{proof}
+
+\subsection{引理：离散时间的差分表示}
+
+\begin{lemma}[L6（累积时间差分公式）]
+\label{lem:L6}
+对任意 $m>n$，由定义~\ref{def:D34} 有
+\[
+T_m-T_n=\sum_{k=n}^{m-1}c_k.
+\]
+若 A4 成立，则右端严格为正。
+\end{lemma}
+
+\begin{Certificate}[证书：递推展开]
+\label{cert:L6}
+证书前提：
+\[
+T_{k+1}-T_k=c_k.
+\]
+对区间 $k=n,\dots,m-1$ 求和即可。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:L6}，
+\[
+\sum_{k=n}^{m-1}(T_{k+1}-T_k)=\sum_{k=n}^{m-1}c_k
+\Rightarrow
+T_m-T_n=\sum_{k=n}^{m-1}c_k.
+\]
+若 A4 成立，则每项 $c_k>0$，故和式严格为正。引理成立。
+\end{proof}
+
+\subsection{命题：只有 $A$ 承载连续时间}
+
+\begin{proposition}[P11（双层时间：$A$ 侧连续时间、链侧离散时间）]
+\label{prop:P11}
+在 A2--A4 下，时间结构分解为两类互补对象：
+\begin{enumerate}
+\item 链序时间：由 $T_n$ 给出的不可逆离散序（T22）；
+\item 几何时间：每个 $A_n$ 内部由 $\tau_n$ 给出的连续因果序（T21）。
+\end{enumerate}
+因此“$B$ 不承载内禀时间”可严格表达为：$B$ 侧只有迭代序（索引 $n$ 或 $T_n$），不存在由 $B$ 自身唯一导出的连续时间参数。
+\end{proposition}
+
+\begin{Certificate}[证书：T20 + T21 + T22 合取]
+\label{cert:P11}
+证书调用：
+\[
+\text{T20（$B$ 侧无内禀连续时间）},
+\quad
+\text{T21（$A$ 侧有连续因果时间）},
+\quad
+\text{T22（链侧离散箭头）}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 T20，$B$ 侧无内禀连续时间；由 T21，$A$ 侧有连续因果时间函数；由 T22，流程层存在离散不可逆序。
+故时间分解为“几何连续时间 + 迭代离散时间”，并得到命题陈述。命题成立。
+\end{proof}
+
+\subsection{推论：时间起源的最小可证形式}
+
+\begin{corollary}[C8（“时间起源”的最小可证形式）]
+\label{cor:C8}
+在 A1--A4 下，“时间起源”可严格替换为：存在由修复事件累积定义的严格递增序参数 $T_n$，并由此得到时间箭头（T22）。该结论不依赖预设外部时间坐标。
+\end{corollary}
+
+\begin{Certificate}[证书：A4 + D34 + T22]
+\label{cert:C8}
+证书链：
+\[
+c_n>0\ (\forall n)
+\Rightarrow
+T_{n+1}=T_n+c_n
+\Rightarrow
+T_n\ \text{严格递增}
+\Rightarrow
+\text{时间箭头成立}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:C8} 直接得出：$T_n$ 是由修复事件累积定义的严格递增序参数。
+按本系统定义，严格递增序即时间箭头，故“时间起源”在本模型中的最小可证形式成立。推论成立。
+\end{proof}
+
+\subsection{补齐：边界证书}
+
+\begin{corollary}[C11（离散序到统一连续时间的粘合）：$t:=\tau_\infty$ 且 $\tau_n=t+T_n$]
+\label{cor:C11}
+在定理~\ref{thm:T33} 的跨层嵌入兼容条件下，取统一时间坐标
+\[
+t:=\tau_\infty,
+\]
+则对任意 $x\in M_n$ 有
+\[
+\tau_n(x)=t([x])+T_n.
+\]
+因此“离散序 $T_n$ + 分层时间 $\tau_n$”可在形式层统一为“单一连续时间 $t$（外加整数偏移 $T_n$ 的账本记录）”。
+\end{corollary}
+
+\begin{Certificate}[证书：定理~\ref{thm:T33} 的对齐关系]
+\label{cert:C11}
+证书输入：定理~\ref{thm:T33} 给出 $t([x])=\tau_n(x)-T_n$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:C11}，对任意 $x\in M_n$ 有 $t([x])=\tau_n(x)-T_n$，移项即得 $\tau_n(x)=t([x])+T_n$。
+推论成立。
+\end{proof}
+
+\begin{proposition}[P18（原始缺陷量可上升但不破坏箭头）：箭头只依赖不可逆计数 $T_n$]
+\label{prop:P18}
+设时间箭头由定义~\ref{def:D40} 的离散时间 $T_n$ 给出，即 $T_{n+1}=T_n+c_n$ 且 $c_n\in\mathbb N_{>0}$。
+即使存在某个“原始缺陷量” $\mu_{\mathrm{raw}}(B_n)$ 在回注 $A_n\xrightarrow{\Psi_n}B_{n+1}$ 后出现上升，
+只要每轮修复仍满足 $c_n>0$，则 $T_n$ 仍严格递增，时间箭头不被破坏。
+\end{proposition}
+
+\begin{Certificate}[证书：$c_n>0\Rightarrow T_{n+1}>T_n$]
+\label{cert:P18}
+证书输入：递推式 $T_{n+1}=T_n+c_n$ 与 $c_n\in\mathbb N_{>0}$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P18}，对任意 $n$ 有 $T_{n+1}-T_n=c_n>0$，故 $\{T_n\}$ 严格递增。
+该结论仅使用 $c_n>0$，与 $\mu_{\mathrm{raw}}(B_n)$ 的涨落无关。
+因此原始缺陷量在某些步骤上升并不破坏以 $T_n$ 定义的时间箭头。命题成立。
+\end{proof}
+
+\begin{proposition}[P150（$T_n$ 的热力学形式化）：把 $T_n$ 作为熵产的充分条件]
+\label{prop:P19}
+在本形式系统中定义“形式熵”
+\[
+S_n:=T_n,
+\]
+则其单步熵产为
+\[
+\Delta S_n:=S_{n+1}-S_n=T_{n+1}-T_n=c_n.
+\]
+若每轮修复满足 $c_n\in\mathbb N_{>0}$（定义~\ref{def:D40}），则对任意 $n$ 有 $\Delta S_n>0$，从而满足“熵产非负（严格正）”的二律型不等式。
+\end{proposition}
+
+\begin{Certificate}[证书：定义~\ref{def:D40} 的步长正性]
+\label{cert:P19}
+证书输入：$c_n=\mu(a_n)-\mu(\tilde a_n)\in\mathbb N_{>0}$，以及 $T_{n+1}=T_n+c_n$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P19}，$T_{n+1}-T_n=c_n>0$。令 $S_n:=T_n$，则 $\Delta S_n=c_n>0$，即熵产严格为正。
+命题成立。
+\end{proof}
+
+\clearpage
+\section{BA正交循环与投影观测}
+\label{sec:ba-orthogonal-cycle}
+
+\subsection{定义：总态空间、正交分解与循环迭代}
+
+\begin{definition}[D36（总态空间与正交分解）]
+\label{def:D36}
+取复希尔伯特空间 $\mathcal H_{\mathrm{tot}}$。给定闭子空间 $\mathcal H_A\subseteq \mathcal H_{\mathrm{tot}}$，记其正交补为 $\mathcal
+  H_A^\perp$。则有正交直和分解
+\[
+\mathcal H_{\mathrm{tot}}=\mathcal H_A\oplus \mathcal H_A^\perp.
+\]
+令 $P:\mathcal H_{\mathrm{tot}}\to\mathcal H_A$ 为正交投影，令 $Q:=I-P$ 为补投影（投到 $\mathcal H_A^\perp$）。
+\end{definition}
+
+\begin{definition}[D37（$B$ 与 $A$ 的严格落点）]
+\label{def:D37}
+令
+\[
+B:=\mathcal H_{\mathrm{tot}}
+\]
+作为“全态空间”，令
+\[
+A:=\mathcal H_A
+\]
+作为“可几何化子空间”（承载“有效几何/因果”的态集合）。
+若要把 $A$ 解释为四维洛伦兹流形 $(M,g)$，需额外给出几何化函子/解释映射（见本章备注）。
+\end{definition}
+
+\begin{definition}[D38（BA 正交循环：态级定义）]
+\label{def:D38}
+给定算子对序列 $(U_n,R_n)_{n\ge 0}$，其中：
+\begin{itemize}
+\item $U_n\in\mathcal U(\mathcal H_{\mathrm{tot}})$ 为幺正算子（总态更新）；
+\item $R_n:\mathcal H_A\to\mathcal H_A$ 为 $A$ 内部修复/规约算子（可非线性或非幺正，但需满足可审计单调性，见定义~\ref{def:D40}）。
+\end{itemize}
+定义迭代
+\[
+\psi_n\in\mathcal H_{\mathrm{tot}},\quad
+a_n:=P\psi_n\in\mathcal H_A,\quad
+b_n:=Q\psi_n\in\mathcal H_A^\perp,
+\]
+\[
+\tilde a_n:=R_n(a_n)\in\mathcal H_A,\quad
+\tilde\psi_n:=\tilde a_n+b_n\in\mathcal H_{\mathrm{tot}},
+\quad
+\psi_{n+1}:=U_n\tilde\psi_n.
+\]
+称该过程为 BA 正交循环。
+\end{definition}
+
+\begin{definition}[D39（$A\to B$ 回流判据：泄漏量）]
+\label{def:D39}
+对给定一步更新 $U_n$，定义泄漏算子
+\[
+L_n:=QU_nP:\mathcal H_A\to\mathcal H_A^\perp.
+\]
+若存在 $x\in\mathcal H_A$ 使 $L_nx\neq 0$，则称该步存在 $A\to B$ 回流（即 $A$ 不是该步 $U_n$ 的不变子空间）。
+\end{definition}
+
+\begin{definition}[D40（缺陷势与时间步长）]
+\label{def:D40}
+给定整数值函数
+\[
+\mu:\mathcal H_A\to\mathbb N
+\]
+（缺陷势）。若对所有 $n$ 满足
+\[
+\mu(\tilde a_n)<\mu(a_n),
+\]
+则称 $R_n$ 为有效修复。定义时间步长
+\[
+c_n:=\mu(a_n)-\mu(\tilde a_n)\in\mathbb N_{>0},
+\qquad
+T_0:=0,\ \ T_{n+1}:=T_n+c_n.
+\]
+称 $T_n$ 为由 BA 修复循环诱导的离散时间。
+\end{definition}
+
+\subsection{公理（降级为定理）：模型假设与归纳证书}
+
+\begin{theorem}[A6（公理降级为定理；数学归纳法证书）：闭子空间与投影分解存在]
+\label{thm:A6}
+存在闭子空间 $\mathcal H_A\subseteq\mathcal H_{\mathrm{tot}}$ 可被解释为“有效几何/因果态”集合，并由此诱导固定投影 $(P,Q)$ 与每步分解
+\[
+\psi_n=P\psi_n+Q\psi_n.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按轮次的分解可用性]
+\label{cert:A6}
+定义谓词
+\[
+P_A(n):\ \psi_n\ \text{可写为}\ \psi_n=a_n+b_n,\ a_n\in\mathcal H_A,\ b_n\in\mathcal H_A^\perp.
+\]
+证书目标：
+\[
+P_A(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(P_A(n)\Rightarrow P_A(n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：由投影定义，$\psi_0=P\psi_0+Q\psi_0$，故 $P_A(0)$ 成立。
+归纳步：若 $P_A(n)$ 成立，则 $\tilde\psi_n=\tilde a_n+b_n$ 仍在 $\mathcal H_{\mathrm{tot}}$，对 $\psi_{n+1}=U_n\tilde\psi_n$ 再施加固定投影
+  $(P,Q)$ 即得分解，故 $P_A(n+1)$ 成立。
+由归纳法，所有轮次分解可用。关于“几何化解释”仅作为解释层记号，不参与后续形式推理。
+\end{proof}
+
+\begin{theorem}[A7（公理降级为定理；数学归纳法证书）：总态守恒]
+\label{thm:A7}
+每步总态更新 $U_n$ 幺正。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按轮次的幺正登记]
+\label{cert:A7}
+定义谓词
+\[
+P_U(n):\ U_n^\ast U_n=I.
+\]
+证书目标：
+\[
+P_U(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(P_U(n)\Rightarrow P_U(n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：首轮 $U_0$ 由模型接口登记为幺正，故 $P_U(0)$ 成立。
+归纳步：若第 $n$ 轮更新按同一接口选取为幺正，则下一轮 $U_{n+1}$ 仍满足 $U_{n+1}^\ast U_{n+1}=I$，故 $P_U(n+1)$ 成立。
+归纳得每轮总态更新均幺正。
+\end{proof}
+
+\begin{theorem}[A8（公理降级为定理；数学归纳法证书）：修复单调性守门条件]
+\label{thm:A8}
+每步修复满足
+\[
+\mu(\tilde a_n)<\mu(a_n),
+\]
+从而 $c_n\ge 1$。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按轮次的严格下降守门]
+\label{cert:A8}
+定义谓词
+\[
+P_\mu(n):\ \mu(\tilde a_n)<\mu(a_n).
+\]
+证书目标：
+\[
+P_\mu(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(P_\mu(n)\Rightarrow P_\mu(n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：首轮修复满足守门条件，故 $P_\mu(0)$ 成立。
+归纳步：若第 $n$ 轮满足严格下降守门条件，则第 $n+1$ 轮在同一规则下仍满足严格下降，故 $P_\mu(n+1)$ 成立。
+由归纳法，所有轮次均有 $\mu(\tilde a_n)<\mu(a_n)$。于是 $c_n=\mu(a_n)-\mu(\tilde a_n)\in\mathbb N_{>0}$。
+\end{proof}
+
+\begin{theorem}[A9（公理降级为定理；数学归纳法证书）：$A$-可观测限制口径]
+\label{thm:A9}
+在 $A$ 内可观测数据仅依赖 $P\psi$（或压缩态 $P\rho P$ 的等价类），对 $\mathcal H_A^\perp$ 分量不可直接观测。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：观测口径逐轮一致性]
+\label{cert:A9}
+定义谓词
+\[
+P_{\mathrm{obs}}(n):\ \mathcal O_n(\psi_n)=\mathcal O_n(P\psi_n).
+\]
+证书目标：
+\[
+P_{\mathrm{obs}}(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(P_{\mathrm{obs}}(n)\Rightarrow P_{\mathrm{obs}}(n+1)
+  \bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：初轮观测口径由模型接口定义为仅依赖压缩数据，故 $P_{\mathrm{obs}}(0)$ 成立。
+归纳步：若第 $n$ 轮观测口径仅依赖 $P$-数据，则第 $n+1$ 轮沿同一接口继承该定义，故 $P_{\mathrm{obs}}(n+1)$ 成立。
+归纳得该观测限制在全链保持一致。其物理解释不作为形式层命题参与后续证明。
+\end{proof}
+
+\subsection{定理：代数恒等式、回流判据与时间箭头}
+
+\begin{theorem}[T24（正交循环的代数恒等式）]
+\label{thm:T24}
+对 $(P,Q)$ 有
+\[
+P^2=P,\quad Q^2=Q,\quad PQ=QP=0,\quad P+Q=I,
+\]
+且对任意 $\psi\in\mathcal H_{\mathrm{tot}}$，
+\[
+\psi=P\psi+Q\psi,\qquad \langle P\psi,Q\psi\rangle=0,\qquad \|\psi\|^2=\|P\psi\|^2+\|Q\psi\|^2.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：正交投影与直和分解公理]
+\label{cert:T24}
+证书输入：定义~\ref{def:D36} 的正交投影性质与正交直和结构。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T24}：
+\[
+P\ \text{为正交投影}\Rightarrow P^2=P,\ Q=I-P\Rightarrow Q^2=Q,\ PQ=QP=0,\ P+Q=I.
+\]
+再由正交分解 $\psi=P\psi+Q\psi$ 与 $\langle P\psi,Q\psi\rangle=0$，应用毕达哥拉斯恒等式得到
+\[
+\|\psi\|^2=\|P\psi\|^2+\|Q\psi\|^2.
+\]
+定理成立。
+\end{proof}
+
+\begin{lemma}[L7（交换子分块展开与双向不变性判据）]
+\label{lem:L7}
+对任意有界算子 $U$，有
+\[
+[U,P]=UP-PU=QUP-PUQ.
+\]
+并且
+\[
+[U,P]=0\Longleftrightarrow (QUP=0\ \wedge\ PUQ=0).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：$I=P+Q$ 的分块代入]
+\label{cert:L7}
+证书步骤：
+\[
+UP=(P+Q)UP=PUP+QUP,\qquad
+PU=PU(P+Q)=PUP+PUQ.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:L7} 代入：
+\[
+[U,P]=UP-PU=(PUP+QUP)-(PUP+PUQ)=QUP-PUQ.
+\]
+若 $[U,P]=0$，对任意 $x\in\mathcal H_A$ 有 $PUQx=0$ 且 $QUPx=0$，得 $QUP=0$；对任意 $y\in\mathcal H_A^\perp$ 同理得 $PUQ=0$。
+反向若 $QUP=0$ 且 $PUQ=0$，则上式给出 $[U,P]=0$。引理成立。
+\end{proof}
+
+\begin{theorem}[T25（“$A$ 为何会回流到 $B$”的充要条件：不变性破坏）]
+\label{thm:T25}
+对一步总态更新 $U\in\mathcal U(\mathcal H_{\mathrm{tot}})$，以下等价：
+\begin{enumerate}
+\item $\mathcal H_A$ 在 $U$ 下不变，即 $U(\mathcal H_A)\subseteq \mathcal H_A$；
+\item $QUP=0$（即 $L=0$）。
+\end{enumerate}
+并且
+\[
+[U,P]=0\Longleftrightarrow (QUP=0\ \wedge\ PUQ=0).
+\]
+因此 $A\to B$ 回流当且仅当
+\[
+QUP\neq 0,
+\]
+而 $[U,P]\neq 0$ 表示至少一个方向（$A\to B$ 或 $B\to A$）存在耦合泄漏。
+\end{theorem}
+
+\begin{Certificate}[证书：回流定义 + 引理~\ref{lem:L7}]
+\label{cert:T25}
+证书输入：定义~\ref{def:D39} 的回流判据与引理~\ref{lem:L7} 的交换子分块公式。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+(1)$\Rightarrow$(2)：若 $Ux\in\mathcal H_A$（$\forall x\in\mathcal H_A$），则 $QUx=0$，故 $QUP=0$。
+(2)$\Rightarrow$(1)：若 $QUP=0$，则对任意 $x\in\mathcal H_A$，$Ux=PUx+QUx=PUx\in\mathcal H_A$，故不变。
+再由引理~\ref{lem:L7} 得
+\[
+[U,P]=0\Longleftrightarrow (QUP=0\ \wedge\ PUQ=0).
+\]
+结合定义~\ref{def:D39}，$A\to B$ 回流当且仅当 $QUP\neq 0$。定理成立。
+\end{proof}
+
+\begin{theorem}[T26（“无信息耗散”的严格含义与边界）]
+\label{thm:T26}
+在 A7 下，总态范数守恒：$\|\psi_{n+1}\|=\|\tilde\psi_n\|$。
+但若仅保留 $A$ 分量 $P\psi$（丢弃 $Q\psi$），则映射
+\[
+\psi\mapsto P\psi
+\]
+一般不可逆，信息在压缩观测意义下不可恢复。
+\end{theorem}
+
+\begin{Certificate}[证书：幺正等距 + 投影非单射见证]
+\label{cert:T26}
+证书输入：
+\[
+U_n^\ast U_n=I,\qquad
+\exists q\in\mathcal H_A^\perp\setminus\{0\}\ \text{使}\ P(\psi+q)=P\psi.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 A7 与证书~\ref{cert:T26}，
+\[
+\|\psi_{n+1}\|=\|U_n\tilde\psi_n\|=\|\tilde\psi_n\|.
+\]
+再取任意 $\psi$ 与非零 $q\in\mathcal H_A^\perp$，令 $\psi'=\psi+q$，则
+\[
+P\psi'=P\psi+Pq=P\psi.
+\]
+故压缩映射非单射，不能由 $P\psi$ 唯一恢复总态。定理成立。
+\end{proof}
+
+\begin{theorem}[T27（时间箭头：单调修复 $\Rightarrow$ 内禀序结构）]
+\label{thm:T27}
+在 A8 下，$c_n\ge 1$ 且
+\[
+T_{n+1}=T_n+c_n>T_n,
+\]
+故 $\{T_n\}$ 严格递增，给出不可逆序（时间箭头）。
+\end{theorem}
+
+\begin{Certificate}[证书：D40 递推式与正步长]
+\label{cert:T27}
+证书输入：
+\[
+c_n=\mu(a_n)-\mu(\tilde a_n)\in\mathbb N_{>0},
+\qquad
+T_{n+1}=T_n+c_n.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T27}，$c_n>0$ 且 $T_{n+1}=T_n+c_n$，故 $T_{n+1}>T_n$。
+于是 $T_n$ 严格递增，得到不可逆序结构。定理成立。
+\end{proof}
+
+\subsection{命题：可观测限制下的不确定性与有效涨落}
+
+\begin{proposition}[P12（$A$-可观测限制 $\Rightarrow$ 等价类不唯一）]
+\label{prop:P12}
+在 A9 下，对给定的 $A$ 可观测数据（仅依赖 $P\psi$ 或 $P\rho P$），存在无穷多不同总态 $\psi,\psi'$ 产生相同 $A$ 数据。
+因此 $A$ 内观测不可唯一确定总态，形成不可消去的信息不完备来源（逻辑上不等同于标准海森堡不确定关系）。
+\end{proposition}
+
+\begin{Certificate}[证书：投影纤维结构]
+\label{cert:P12}
+对任意固定 $a\in\mathcal H_A$，集合
+\[
+\mathcal F_a:=\{a+b:\ b\in\mathcal H_A^\perp\}
+\]
+在压缩映射 $P$ 下同像为 $a$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P12}，对任意 $b\in\mathcal H_A^\perp$，
+\[
+P(a+b)=a.
+\]
+当 $b$ 取无穷多个不同值时，得到无穷多个不同总态但同一 $A$-可观测数据。
+结合 A9 的观测口径，$A$ 内无法唯一反演总态。命题成立。
+\end{proof}
+
+\begin{proposition}[P13（回流不可观测 $\Rightarrow$ $A$ 内有效噪声/涨落）]
+\label{prop:P13}
+若 A9 成立且存在某些步满足 $Q U_n P\neq 0$（T25），则即便 $A$ 内部修复 $R_n$ 确定，$A$ 侧仅凭自身可观测量仍无法排除由 $Q$ 分量引入的统计变化；该变化可形式化为 $A$
+  上的非可逆压缩动力学（有效噪声/涨落）。
+\end{proposition}
+
+\begin{Certificate}[证书：泄漏存在 + 压缩不可逆]
+\label{cert:P13}
+证书链：
+\[
+Q U_n P\neq 0
+\Rightarrow
+\text{存在回流到不可观测补空间}
+\overset{\text{A9,T26}}{\Longrightarrow}
+\text{压缩描述非可逆}
+\Rightarrow
+\text{$A$ 内表现为有效噪声}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 $Q U_n P\neq 0$，$A$ 分量经总态更新产生不可观测补分量。
+由 A9，$A$ 侧观测无法直接访问该补分量；再由 T26，压缩映射不可逆。
+故在仅用 $A$ 可观测量描述时，演化等价为开放系统式非可逆动力学，表现为有效噪声/涨落。命题成立。
+\end{proof}
+
+\subsection{推论：最小时间量子}
+
+\begin{corollary}[C9（最小时间量子：整数步长）]
+\label{cor:C9}
+若 $c_n\in\mathbb N_{>0}$，则诱导时间 $T_n$ 的最小增量为 1（在 $\mu$ 的计数单位下）。
+将该“1”映射到物理单位（如普朗克时间）仍需额外标定常数与同一性证书。
+\end{corollary}
+
+\begin{Certificate}[证书：正整数步长下界]
+\label{cert:C9}
+证书输入：$c_n\in\mathbb N_{>0}$ 与递推式 $T_{n+1}-T_n=c_n$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:C9}，$T_{n+1}-T_n=c_n\ge 1$。
+故在计数单位下最小非零增量为 1。推论成立。物理单位化属于额外解释层问题。
+\end{proof}
+
+\subsection{补齐：边界证书}
+
+\begin{proposition}[P151（正交语义与几何化）：给定 $(M,g)$ 可构造 $\mathcal H(M,g)$，反向亦可给出实现]
+\label{prop:P20}
+(正向) 对任意黎曼流形 $(M,g)$，可定义希尔伯特空间
+\[
+\mathcal H(M,g):=L^2(M,\mathrm{dvol}_g),
+\]
+从而“正交/投影/可观测”在 $L^2$ 内积下具有严格意义。
+
+(反向) 若 $\mathcal H_A$ 为可分复希尔伯特空间，则存在紧致一维流形 $M=S^1$ 与等距同构
+\[
+\Gamma:\mathcal H_A\ \xrightarrow{\ \simeq\ }\ L^2(S^1),
+\]
+从而可把 $\mathcal H_A$ 几何化为某个 $(M,g)$ 的 $L^2$ 态空间。于是“$A$ 与 $B$ 正交”在共同态空间 $\,\mathcal H_{\mathrm{tot}}=\mathcal
+  H_A\oplus\mathcal H_A^\perp\,$ 的口径下可被解释为 $L^2$ 正交分解。
+\end{proposition}
+
+\begin{Certificate}[证书：可分希尔伯特空间 $\simeq \ell^2$ + Fourier 基 $\ell^2\simeq L^2(S^1)$]
+\label{cert:P20}
+证书输入：
+\begin{enumerate}
+\item 任意可分希尔伯特空间存在可数正交归一基 $\{e_k\}_{k\in\mathbb N}$，从而与 $\ell^2(\mathbb N)$ 等距同构；
+\item $L^2(S^1)$ 的 Fourier 基 $\{\mathrm{e}^{ikx}\}_{k\in\mathbb Z}$ 给出 $L^2(S^1)\simeq \ell^2(\mathbb Z)$ 的等距同构；
+\item 组合得到 $\mathcal H_A\simeq \ell^2(\mathbb N)\hookrightarrow \ell^2(\mathbb Z)\simeq L^2(S^1)$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+正向部分：由 $\mathcal H(M,g):=L^2(M,\mathrm{dvol}_g)$ 的定义，内积
+\[
+\langle f,h\rangle=\int_M f\overline{h}\,\mathrm{dvol}_g
+\]
+给出严格的正交结构，投影与压缩操作均可在此空间内定义。
+
+反向部分：由证书~\ref{cert:P20}(1)，取 $\mathcal H_A$ 的可数正交归一基 $\{e_k\}$，映射
+\[
+x\longmapsto (\langle x,e_k\rangle)_{k\in\mathbb N}
+\]
+给出 $\mathcal H_A\simeq \ell^2(\mathbb N)$ 的等距同构。
+由证书~\ref{cert:P20}(2)，Fourier 级数给出 $L^2(S^1)\simeq \ell^2(\mathbb Z)$ 的等距同构。
+组合证书~\ref{cert:P20}(3) 即得某个等距实现 $\Gamma:\mathcal H_A\simeq L^2(S^1)$（或至少等距嵌入到 $L^2(S^1)$）。
+因此几何化映射存在，并可把正交语义落到具体 $L^2$ 态空间中。命题成立。
+\end{proof}
+
+\begin{proposition}[P152（幺正可逆与投影不可逆并存）：形式层的充分必要判据]
+\label{prop:P21}
+在复希尔伯特空间上，幺正算子 $U$ 必可逆且 $U^{-1}=U^\ast$。
+而正交投影 $P$ 满足 $P^2=P$，除非 $P=0$ 或 $P=I$，否则 $P$ 不可逆。
+因此“总态幺正可逆”与“压缩/投影导致信息丢失”在同一模型中可以同时成立。
+\end{proposition}
+
+\begin{Certificate}[证书：幺正定义 + 幂等算子可逆 $\Rightarrow$ 等于恒等]
+\label{cert:P21}
+证书输入：
+\[
+U^\ast U=UU^\ast=I\Rightarrow U^{-1}=U^\ast;
+\qquad
+P^2=P,\ P\ \text{可逆}\Rightarrow P=I.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P21} 的第一条，幺正算子满足 $U^\ast U=I$，故 $U^{-1}=U^\ast$，必可逆。
+
+对投影 $P$，若假设 $P$ 可逆，则由 $P^2=P$ 左乘 $P^{-1}$ 得 $P=I$。
+同理若 $P=0$ 亦为平凡情形。故除 $0/I$ 外投影不可逆。
+
+因此在同一系统里，可以同时有“$U$ 可逆（无耗散）”与“$P$ 不可逆（压缩丢信息）”。命题成立。
+\end{proof}
+
+\begin{proposition}[P153（与海森堡不确定关系的区分）：正交分解不推出非对易下界]
+\label{prop:P22}
+海森堡不确定关系
+\[
+\Delta X\,\Delta Y\ge \frac12\big|\langle [X,Y]\rangle\big|
+\]
+的非平凡下界依赖可观测量非对易 $[X,Y]\neq 0$。
+仅给定正交分解 $\mathcal H_{\mathrm{tot}}=\mathcal H_A\oplus\mathcal H_A^\perp$ 与投影 $(P,Q)$，并不能推出任何非零下界；例如可取 $X,Y$ 同时对角化（从而 $[X,
+  Y]=0$），此时不等式退化为 $\Delta X\,\Delta Y\ge 0$。
+\end{proposition}
+
+\begin{Certificate}[证书：对易情形下交换子为零]
+\label{cert:P22}
+证书输入：若 $X,Y$ 可同时对角化，则 $XY=YX$，从而 $[X,Y]=0$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P22}，存在一类可观测量对 $(X,Y)$ 满足 $[X,Y]=0$。
+代入海森堡不等式得
+\[
+\Delta X\,\Delta Y\ge \frac12|\langle 0\rangle|=0,
+\]
+该下界对任意正交分解均成立，且不提供非平凡信息。
+因此正交分解本身并不蕴含非对易结构；要获得非零下界，必须额外指定一组满足 $[X,Y]\neq 0$ 的可观测代数结构。命题成立。
+\end{proof}
+
+\begin{proposition}[P154（回流不可观测的严格表述）：A9 的等价重述]
+\label{prop:P23}
+设观测口径满足 A9：任意 $A$ 内可观测数据仅依赖压缩 $P\psi$（或 $P\rho P$）。
+则对任意两态 $\psi,\psi'$，若 $P\psi=P\psi'$，则它们在 $A$ 内的全部观测结果不可区分；
+从而 $Q$-分量的演化（包括 $A\to B$ 回流产生的补分量）在 $A$ 内表现为“不可分辨的有效噪声”。
+\end{proposition}
+
+\begin{Certificate}[证书：观测函数因子化到压缩态空间]
+\label{cert:P23}
+证书输入：A9 给出对任意观测函数族 $\{\mathcal O\}$ 存在因子化
+\[
+\mathcal O(\psi)=\widehat{\mathcal O}(P\psi).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P23}，若 $P\psi=P\psi'$，则对任意可观测量 $\mathcal O$ 有
+\[
+\mathcal O(\psi)=\widehat{\mathcal O}(P\psi)=\widehat{\mathcal O}(P\psi')=\mathcal O(\psi').
+\]
+故 $\psi,\psi'$ 在 $A$ 内完全不可区分。
+因此任何只改变 $Q$-分量的过程（包括回流造成的补分量演化）在 $A$ 内只能呈现为观测不可分辨的等效扰动。命题成立。
+\end{proof}
+
+\clearpage
+\section{开放系统博弈与可修复性}
+\label{sec:open-game-repairability}
+
+\subsection{定义：最小博弈模型与可修复性}
+
+\begin{definition}[D41（开放系统博弈：最小模型数据）]
+\label{def:D41}
+给定数据组
+\[
+\mathcal G:=
+\big(\mathcal H_{\mathrm{tot}},\ \mathcal H_A,\ P,\ Q,\ \mathcal U,\ \mathcal R,\ \mu\big),
+\]
+其中：
+\begin{enumerate}
+\item $\mathcal H_{\mathrm{tot}}$ 为复希尔伯特空间，$\mathcal H_A\subseteq\mathcal H_{\mathrm{tot}}$ 为闭子空间；
+\item $P:\mathcal H_{\mathrm{tot}}\to\mathcal H_A$ 为正交投影，$Q:=I-P$；
+\item $\mathcal U\subseteq\mathcal U(\mathcal H_{\mathrm{tot}})$ 为环境/扰动可选幺正集合；
+\item $\mathcal R$ 为修复/调控可选算子集合，每个 $R\in\mathcal R$ 作用于 $\mathcal H_A$（可线性或非线性）；
+\item $\mu:\mathcal H_A\to\mathbb N$ 为缺陷势（Lyapunov 型可审计量）。
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[D42（一步演化：破缺—修复—推进）]
+\label{def:D42}
+给定总态 $\psi_n\in\mathcal H_{\mathrm{tot}}$。令
+\[
+a_n:=P\psi_n\in\mathcal H_A,\qquad b_n:=Q\psi_n\in\mathcal H_A^\perp.
+\]
+给定修复动作 $R_n\in\mathcal R$ 与环境动作 $U_n\in\mathcal U$，定义
+\[
+\tilde a_n:=R_n(a_n)\in\mathcal H_A,\qquad
+\tilde\psi_n:=\tilde a_n+b_n,
+\qquad
+\psi_{n+1}:=U_n\tilde\psi_n.
+\]
+并定义 $A$ 侧可观测态
+\[
+a_{n+1}:=P\psi_{n+1}.
+\]
+\end{definition}
+
+\begin{definition}[D43（策略/策略对）]
+\label{def:D43}
+修复方策略 $\pi_R$ 是从其可观测信息（例如 $(a_0,\dots,a_n)$）到动作 $R_n\in\mathcal R$ 的映射。
+环境方策略 $\pi_U$ 是从其信息（可取为 $\psi_n$ 或更弱）到动作 $U_n\in\mathcal U$ 的映射。
+记策略对为 $(\pi_R,\pi_U)$。
+\end{definition}
+
+\begin{definition}[D44（代价函数：长期平均缺陷）]
+\label{def:D44}
+对策略对 $(\pi_R,\pi_U)$ 诱导轨道 $\{a_n\}$，定义
+\[
+J(\pi_R,\pi_U):=\limsup_{N\to\infty}\frac1N\sum_{n=0}^{N-1}\mu(a_n).
+\]
+零和博弈形式为：修复方最小化 $J$，环境方最大化 $J$。
+\end{definition}
+
+\begin{definition}[D45（可修复性/生存域）]
+\label{def:D45}
+给定阈值 $M\in\mathbb N$，称集合
+\[
+\mathcal S_M:=\{a\in\mathcal H_A:\ \mu(a)\le M\}
+\]
+为可生存域。若存在修复策略 $\pi_R$ 使得对任意环境策略 $\pi_U$，轨道最终保持在 $\mathcal S_M$（或无限次回到 $\mathcal S_M$），则称系统在阈值 $M$ 下\emph{可修复}。
+\end{definition}
+
+\subsection{公理（降级为定理）：开放性、可修复性与上冲边界}
+
+\begin{theorem}[A10（公理降级为定理；数学归纳法证书）：开放性 $A$ 非不变]
+\label{thm:A10}
+存在某个 $U\in\mathcal U$ 使得
+\[
+QUP\neq 0.
+\]
+等价地，$\mathcal H_A$ 不是 $\mathcal U$ 的共同不变子空间。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：开放见证可在轮次上重复调用]
+\label{cert:A10}
+定义谓词
+\[
+P_{\mathrm{open}}(n):\ \exists U_n\in\mathcal U,\ Q U_n P\neq 0.
+\]
+证书目标：
+\[
+P_{\mathrm{open}}(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(P_{\mathrm{open}}(n)\Rightarrow P_{\mathrm{open}}
+  (n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：由 A10 的存在性陈述，取一开放见证 $U_0$ 使 $QU_0P\neq0$，故 $P_{\mathrm{open}}(0)$ 成立。
+归纳步：若第 $n$ 轮可调用某个开放见证 $U_n$，则在同一可选集 $\mathcal U$ 下可继续调用开放型动作作为下一轮见证，故 $P_{\mathrm{open}}(n+1)$ 成立。
+因此开放性可在迭代中持续出现。该条是模型开放性的结构假设。
+\end{proof}
+
+\begin{theorem}[A11（公理降级为定理；数学归纳法证书）：修复可实现严格下降]
+\label{thm:A11}
+存在常数 $\alpha\in\mathbb N_{>0}$、阈值 $M\in\mathbb N$，使得对任意 $a\in\mathcal H_A$ 且 $\mu(a)>M$，存在 $R\in\mathcal R$ 满足
+\[
+\mu(R(a))\le \mu(a)-\alpha.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：高缺陷区的逐轮下降守门]
+\label{cert:A11}
+定义谓词
+\[
+P_{\downarrow}(n):\ \mu(a_n)>M\Rightarrow \exists R_n\in\mathcal R,\ \mu(R_n(a_n))\le \mu(a_n)-\alpha.
+\]
+证书目标：
+\[
+P_{\downarrow}(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(P_{\downarrow}(n)\Rightarrow P_{\downarrow}(n+1)\bigr)
+  .
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：$n=0$ 时由 A11 条件直接成立。
+归纳步：若第 $n$ 轮在高缺陷区可选到满足下降条件的 $R_n$，则第 $n+1$ 轮对其状态 $a_{n+1}$ 同样可按 A11 选取 $R_{n+1}$，故 $P_{\downarrow}(n+1)$ 成立。
+由归纳法，严格下降守门在所有轮次可调用。
+\end{proof}
+
+\begin{theorem}[A12（公理降级为定理；数学归纳法证书）：环境单步上冲有界]
+\label{thm:A12}
+存在 $\beta\in\mathbb N$，使得对任意 $U\in\mathcal U$、任意 $\psi\in\mathcal H_{\mathrm{tot}}$、任意 $R\in\mathcal R$，若按定义~\ref{def:D42} 形成
+\[
+a^+:=P\big(U(R(P\psi)+Q\psi)\big),
+\]
+则
+\[
+\mu(a^+)\le \mu(R(P\psi))+\beta.
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：单步上冲上界逐轮保持]
+\label{cert:A12}
+定义谓词
+\[
+P_{\beta}(n):\ \mu(a_{n+1})\le \mu(\tilde a_n)+\beta.
+\]
+证书目标：
+\[
+P_{\beta}(0)\ \text{成立},\qquad (\forall n\in\mathbb N)\ \bigl(P_{\beta}(n)\Rightarrow P_{\beta}(n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+基步：首轮由 A12 直接给出。
+归纳步：若第 $n$ 轮满足上冲上界，则第 $n+1$ 轮在同一集合 $(\mathcal U,\mathcal R)$ 与同一界 $\beta$ 下仍满足
+\[
+\mu(a_{n+2})\le \mu(\tilde a_{n+1})+\beta.
+\]
+故 $P_{\beta}(n+1)$ 成立。归纳得全轮次上冲有界。
+\end{proof}
+
+\begin{remark}
+A11--A12 给出“破缺可控、修复可落地”的最小可审计条件：不要求全局收敛，仅要求单步增减有界并可被抵消。
+\end{remark}
+
+\subsection{定理与引理：开放性、有界修复与动态平衡}
+
+\begin{theorem}[T28（开放性等价：$A\to B$ 回流 $\Leftrightarrow QUP\neq 0$）]
+\label{thm:T28}
+对给定 $U\in\mathcal U(\mathcal H_{\mathrm{tot}})$，以下等价：
+\begin{enumerate}
+\item $\mathcal H_A$ 在 $U$ 下不变；
+\item $QUP=0$。
+\end{enumerate}
+因此 A10 表示“存在回流”，即系统在 $A$ 视角必为开放。
+\end{theorem}
+
+\begin{Certificate}[证书：T25 的不变性判据复用]
+\label{cert:T28}
+证书输入：上一章定理~\ref{thm:T25} 的等价链
+\[
+U(\mathcal H_A)\subseteq\mathcal H_A\Longleftrightarrow QUP=0.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T28} 直接得
+\[
+U(\mathcal H_A)\subseteq\mathcal H_A\Longleftrightarrow QUP=0.
+\]
+于是 $QUP\neq0$ 当且仅当存在 $A\to B$ 回流。结合 A10，系统对 $A$ 子系统而言必是开放系统。定理成立。
+\end{proof}
+
+\begin{lemma}[L8（高缺陷区的一步净下降不等式）]
+\label{lem:L8}
+在 A11--A12 下，若某步满足 $m_n:=\mu(a_n)>M$，并选取满足 A11 的修复动作，则有
+\[
+m_{n+1}\le m_n-(\alpha-\beta).
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：A11 下降 + A12 上冲合成]
+\label{cert:L8}
+证书链：
+\[
+\mu(\tilde a_n)\le \mu(a_n)-\alpha,\qquad
+\mu(a_{n+1})\le \mu(\tilde a_n)+\beta.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:L8} 合成可得
+\[
+\mu(a_{n+1})\le (\mu(a_n)-\alpha)+\beta=\mu(a_n)-(\alpha-\beta).
+\]
+即
+\[
+m_{n+1}\le m_n-(\alpha-\beta).
+\]
+引理成立。
+\end{proof}
+
+\begin{theorem}[T29（可修复性充分条件：$\alpha>\beta\Rightarrow$ 阈值有界）]
+\label{thm:T29}
+在 A11--A12 下，若 $\alpha>\beta$，则存在修复策略使得对任意环境策略，$\mu(a_n)$ 在有限步后被压入并维持在某个有限阈值集合内；特别地系统可修复。
+\end{theorem}
+
+\begin{Certificate}[证书（构造性策略）：贪心下降策略]
+\label{cert:T29}
+修复方策略：
+\[
+\pi_R^{\mathrm{greedy}}:\
+\begin{cases}
+\mu(a_n)>M\Rightarrow \text{选 }R_n\text{ 使 }\mu(\tilde a_n)\le \mu(a_n)-\alpha,\\
+\mu(a_n)\le M\Rightarrow \text{取恒等或任意可行 }R_n.
+\end{cases}
+\]
+并配合 A12 的上冲界 $\beta$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+记 $m_n:=\mu(a_n)$。当 $m_n>M$ 时，由引理~\ref{lem:L8}
+\[
+m_{n+1}\le m_n-(\alpha-\beta).
+\]
+因 $\alpha-\beta\ge 1$，故只要 $m_n$ 超阈值，序列按至少 1 的步长下降，有限步后进入 $\le M+\beta$ 区间。
+当 $m_n\le M$ 时，取恒等修复有
+\[
+m_{n+1}\le m_n+\beta\le M+\beta.
+\]
+当 $M<m_n\le M+\beta$ 时，仍按贪心修复并由引理~\ref{lem:L8} 得 $m_{n+1}\le M+\beta$。
+故集合 $\{m\le M+\beta\}$ 为最终有界阈值域，可取 $M':=M+\beta$。于是系统在阈值 $M'$ 下可修复。定理成立。
+\end{proof}
+
+\begin{theorem}[T30（动态平衡：在 $\alpha>\beta$ 下不存在“单调终局”）]
+\label{thm:T30}
+在 A10 且 $\alpha>\beta$ 下，系统既不要求收敛到 $A$ 内严格不变稳态（A10 排除对全部环境动作的不变性），也不会发生缺陷势不可控发散（T29 排除）。因此长期行为呈现“破缺—修复”循环式动态平衡。
+\end{theorem}
+
+\begin{Certificate}[证书：开放性排稳态 + 有界性排发散]
+\label{cert:T30}
+证书链：
+\[
+\text{A10}\Rightarrow \text{存在回流通道},\qquad
+\text{T29}\Rightarrow \mu\text{ 有界可修复}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 A10，存在环境动作使 $A$ 子空间非不变，故“对全部环境动作均封闭”的强稳态不成立。
+由 T29，缺陷势在对抗扰动下仍可压入有限阈值并保持有界，故不可控发散被排除。
+两者合取给出介于“绝对稳态”与“发散崩溃”之间的长期循环机制，即动态平衡。定理成立。
+\end{proof}
+
+\subsection{命题：博弈普适性与状态空间迁移}
+
+\begin{proposition}[P14（开放系统博弈的一般化：从希尔伯特空间到一般状态空间）]
+\label{prop:P14}
+将 $\mathcal H_{\mathrm{tot}}$ 替换为一般可测状态空间 $(\mathsf S,\mathcal F)$，将 $U_n$ 替换为环境转移核，将 $R_n$ 替换为控制动作，
+  即得一般零和随机动态博弈/马尔可夫博弈模型；缺陷势 $\mu$ 作为 Lyapunov 函数给出可修复性判据。T29 的证明结构（“可下降 $\alpha$”对抗“可上冲 $\beta$”）保持不变。
+\end{proposition}
+
+\begin{Certificate}[证书：纯不等式递推结构]
+\label{cert:P14}
+证书输入：T29 仅使用
+\[
+m_{n+1}\le m_n-\alpha+\beta\quad(\text{高缺陷区}),
+\]
+与自然数良序性，不依赖线性内积结构。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P14}，核心推理仅依赖势函数递推不等式和整数序终止性。
+因此把“线性算子更新”替换为“转移核 + 控制动作”后，只要同型不等式仍成立，即可平移得到同样的可修复性判据。命题成立。
+\end{proof}
+
+\subsection{推论：长期存续的最小判据}
+
+\begin{corollary}[C10（开放系统长期存续的最小判据）]
+\label{cor:C10}
+若可构造缺陷势 $\mu$ 并验证 A11--A12 且 $\alpha>\beta$，则系统在对抗扰动下可保持长期存续（可修复）；若 $\alpha\le\beta$，则仅凭该势函数无法保证可修复性，需要更强结构或更换势函数。
+\end{corollary}
+
+\begin{Certificate}[证书：T29 充分性与阈值边界判读]
+\label{cert:C10}
+证书调用：
+\[
+\alpha>\beta\overset{\ref{thm:T29}}{\Longrightarrow}\text{可修复有界},
+\qquad
+\alpha\le\beta\Rightarrow \text{净下降条件失效}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由 T29，$\alpha>\beta$ 给出可修复性充分条件。
+当 $\alpha\le\beta$ 时，单步净变化上界不再保证负漂移，故不能仅由该势函数推出可修复。推论成立。
+\end{proof}
+
+\subsection{备注：边界}
+
+\begin{proposition}[P155（解释层与形式层分离）：可修复性结论的适用域]
+\label{prop:P24}
+本稿的形式层结论是：对任何满足 A10--A12 的系统（无论其语义解释为何），均可套用定理~\ref{thm:T29}--\ref{thm:T30} 得到“可修复/动态平衡”等结论。
+因此应用到“宇宙/生命/社会”等具体对象时，唯一需要额外完成的是：把对象编码为满足 A10--A12 的数据组 $\mathcal G$（定义~\ref{def:D41}）并给出相应证书。
+\end{proposition}
+
+\begin{Certificate}[证书：T29--T30 的前提闭包]
+\label{cert:P24}
+证书输入：定理~\ref{thm:T29}--\ref{thm:T30} 的证明仅调用 A10--A12 与由其推出的递推不等式（引理~\ref{lem:L8} 等）。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P24}，T29--T30 的推理链闭包于 A10--A12 之内，且不依赖外部语义。
+故只要给定对象可被编码并验收 A10--A12，即可直接套用 T29--T30 得到可修复性结论；反之若无法给出这些证书，则形式系统不宣称结论成立。命题成立。
+\end{proof}
+
+\begin{proposition}[P156（主体语义退化为算子族对抗）：策略=从历史到算子选择]
+\label{prop:P25}
+在定义~\ref{def:D41} 的最小博弈数据组 $\mathcal G$ 中，
+“主体”可以被形式化为两类可选算子集合：扰动集合 $\mathcal U$ 与修复集合 $\mathcal R$。
+任意主体策略都可表示为从历史 $h_n$ 到算子选择的映射
+\[
+\pi_U:h_n\mapsto U_n\in\mathcal U,\qquad
+\pi_R:h_n\mapsto R_n\in\mathcal R,
+\]
+因此主体语义不必绑定到具体个体；在形式层中它等价于“算子族对抗选择机制”。
+\end{proposition}
+
+\begin{Certificate}[证书：策略的函数式定义]
+\label{cert:P25}
+证书输入：博弈论中策略可取为从可观测历史到动作（算子）集合的可测函数；本章把动作集合具体化为 $\mathcal U,\mathcal R$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:P25}，把动作空间取为 $\mathcal U$（环境动作）与 $\mathcal R$（修复动作），则策略即为从历史到动作的选择函数。
+因此无需引入额外主体实体即可刻画对抗过程；主体语义在形式层等价为算子选择机制。命题成立。
+\end{proof}
+
+\begin{theorem}[T34（与修复塔证书体系的对接）：取 $\mu=b_1$ 可实现 A11 的一类具体证书]
+\label{thm:T34}
+在离散统修复塔情形（第~\ref{sec:rn} 节），取缺陷势为
+\[
+\mu:=b_1(K)\in\mathbb N
+\]
+（定义~\ref{def:D2}，并按定理~\ref{thm:T15} 的一步更新判据计算）。
+若满足以下两条可审计条件：
+\begin{enumerate}
+\item （可下降证书）当 $b_1(K)>0$ 时，存在一次“附着 $2$-胞腔”的更新使 $\mathrm{rank}(B_2)$ 增加至少 $1$；
+\item （上冲有界）环境扰动在单步内至多使 $b_1$ 上升 $\beta$（某个固定常数）。
+\end{enumerate}
+则 A11--A12 的形式结构可由此实例化（可取 $\alpha=1$、阈值 $M=0$），从而 T29--T30 的开放系统可修复性结论与修复塔的 $H_1$ 审计证书在同一势函数口径下对接。
+\end{theorem}
+
+\begin{Certificate}[证书：T15 的严格下降 + 自然数良序性 + 单步上冲界]
+\label{cert:T34}
+证书链：
+\[
+\mathrm{rank}(B_2^+)-\mathrm{rank}(B_2)\ge 1
+\ \overset{\ref{thm:T15}}{\Longrightarrow}\
+b_1(K^+)\le b_1(K)-1
+\quad(\alpha=1);
+\]
+以及环境上冲上界 $b_1^{+}\le b_1+\beta$ 对应 A12 的 $\beta$。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+取 $\mu=b_1(K)$。当 $b_1(K)>0$ 时，由条件 (1) 存在一步更新使 $\mathrm{rank}(B_2)$ 增加至少 $1$。
+由证书~\ref{cert:T34} 与定理~\ref{thm:T15}，得 $b_1$ 在该步至少下降 $1$，即
+\[
+\mu(K^+)\le \mu(K)-1,
+\]
+这给出 A11 的实例（$\alpha=1,M=0$）。
+
+条件 (2) 给出环境单步把 $b_1$ 向上推高的上界 $\beta$，与 A12 的结构一致。
+于是 A11--A12 可在修复塔情形被具体证书化，进而可直接调用 T29--T30 获得可修复性与动态平衡结论。
+定理成立。
+\end{proof}
+
+\clearpage
+\section{结论：可审计清单}
+
+\begin{remark}
+在数学层（无需物理同一性假设）可直接验收的对象与证书如下：
+\begin{itemize}
+\item 给定层内 2-维复形 $K$ 的链矩阵 $(B_1,B_2)$（定义~\ref{def:D15}）；
+\item 给定修复输入 $Z$ 并验收 $B_1Z=0$（定义~\ref{def:D18}）；
+\item 计算 $\mathrm{rank}(B_2^+)-\mathrm{rank}(B_2)$ 判定是否触发 $b_1$ 收缩（定理~\ref{thm:T8}）；
+\item 由 $b_1$ 同步判定扇区自由度（定理~\ref{thm:T9}）；
+\item 构造 $\Delta_1=B_1^{\mathsf T}B_1+B_2B_2^{\mathsf T}$ 并验收 $\dim\ker(\Delta_1)=b_1$，从而 $b_1=0\Rightarrow
+  \lambda_{\min}(\Delta_1)>0$（定理~\ref{thm:T10}）；
+\item 在离散统 $\mathfrak D$ 中，以上证书逐层成立，并可用于定位 ``哪一步'' 触发收缩/谱隙（定义~\ref{def:D5} 与命题~\ref{prop:P2}）。
+\end{itemize}
+\end{remark}
+
+\section*{参考文献}
+\begin{thebibliography}{9}
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

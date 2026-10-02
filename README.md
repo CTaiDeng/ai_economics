@@ -1,0 +1,82 @@
+# 市场参与的形式系统
+
+## 仓库目的
+
+本仓库围绕后 AI 条件下的市场参与、价值形成与收入分配开展形式化经济研究，整理研究文稿及其配套参考资料。核心问题是：当部分产品的生产能力约束松弛、传统生产—就业—劳动收入—消费的传导减弱时，如何通过有效参与、贡献激励与底线保障，维持有真实资金来源、可持续且可核验的市场循环。
+
+研究重点是“参与式分配、能者多得与坐标最小救济”的协同机制，并考察注意力与兴趣消费、组织合同、收益权与实际支付、治理公正和动态稳定之间的条件关系。文稿按明确的适用域、假设、证明和经验核验要求陈述结论。
+
+## 重点文献
+
+**《市场参与的形式系统：参与式分配、能者多得与最小救济的演化机制》**，Gao Zheng（高政）。
+
+- [TeX 源文稿：docs/tex/tex1/market_participation_formal_system.tex](docs/tex/tex1/market_participation_formal_system.tex)
+- [编译版 PDF](docs/tex/tex1/market_participation_formal_system.pdf)
+- 主要内容：生产能力约束松弛与稀缺性转移；参与、注意力和消费回流；基本份额与贡献差异分配；最小救济、组织治理、动态稳定及可证伪预测。围棋行业作为组织参与的参照模型，市场循环的有向同伦表示作为条件性数学扩展。
+
+本地配套文献统一存放在 [docs/project_docs/](docs/project_docs/)，包括纯粹数学、应用数学三卷及中文工作笔记。重点文献中的本地资料条目统一采用该目录下相对于仓库根目录的路径；对应的 Zenodo 来源、引用版本与本地文件见下文。
+
+## Zenodo 记录与引用
+
+### 作者：GaoZheng（高政）
+
+[作者博客](https://mymetamathematics.blogspot.com) · [![ORCID](https://orcid.org/sites/default/files/images/orcid_16x16.png) 0009-0008-3013-6626](https://orcid.org/0009-0008-3013-6626)
+
+以下列出本项目参考资料对应的 Zenodo 来源与引用。引用条目采用所提供的发布版本信息，本地文档路径均相对于项目根目录。
+
+### 纯粹数学
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17651584.svg)](https://doi.org/10.5281/zenodo.17651584)
+
+- 本地文档：[docs/project_docs/Pub_GFramework_PureMath.tex](docs/project_docs/Pub_GFramework_PureMath.tex)
+- 来源：[Zenodo 记录 17651584](https://zenodo.org/records/17651584)
+- 版本说明：下列引用为 v1.0；本地 TeX 文件的 `\date` 标注为 Version 1.1, 2025。
+
+#### Citation
+
+Gao, Z. (2025). Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis (GaoZheng G-Framework) and the Principal-Bundle-Based Generalized Noncommutative Lie Algebra (GaoZheng G-Algebra). In Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis (GaoZheng G-Framework) and the Principal-Bundle-Based Generalized Noncommutative Lie Algebra (GaoZheng G-Algebra): An Integrated Construction (v1.0). Zenodo. [https://doi.org/10.5281/zenodo.17651584](https://doi.org/10.5281/zenodo.17651584)
+
+### 应用数学·第1卷
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17686133.svg)](https://doi.org/10.5281/zenodo.17686133)
+
+- 本地文档：[docs/project_docs/Pub_GFramework_AppMath_Vol1.tex](docs/project_docs/Pub_GFramework_AppMath_Vol1.tex)
+- 来源：[Zenodo 记录 17686133](https://zenodo.org/records/17686133)
+- 版本说明：下列引用为 v1.2；本地 TeX 文件的 `\date` 标注为 Version 1.3, 2025。
+
+#### Citation
+
+Gao, Z. (2025). GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL, Quantum Computing, and Superconductivity. In GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume I — Law-Space Geometry, GRL, Quantum Computing, and Superconductivity (v1.2). Zenodo. [https://doi.org/10.5281/zenodo.17686133](https://doi.org/10.5281/zenodo.17686133)
+
+### 应用数学·第2卷
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17744672.svg)](https://doi.org/10.5281/zenodo.17744672)
+
+- 本地文档：[docs/project_docs/Pub_GFramework_AppMath_Vol2.tex](docs/project_docs/Pub_GFramework_AppMath_Vol2.tex)
+- 来源：[Zenodo 记录 17744672](https://zenodo.org/records/17744672)
+
+#### Citation
+
+Gao, Z. (2025). GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II – LBOPB, Life-Science Monoids, and Generative Precision Medicine. In GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume II – LBOPB, Life-Science Monoids, and Generative Precision Medicine (v1.1). Zenodo. [https://doi.org/10.5281/zenodo.17744672](https://doi.org/10.5281/zenodo.17744672)
+
+### 应用数学·第3卷
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17762295.svg)](https://doi.org/10.5281/zenodo.17762295)
+
+- 本地文档：[docs/project_docs/Pub_GFramework_AppMath_Vol3.tex](docs/project_docs/Pub_GFramework_AppMath_Vol3.tex)
+- 来源：[Zenodo 记录 17762295](https://zenodo.org/records/17762295)
+
+#### Citation
+
+Gao, Z. (2025). GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and Certificate-Based AI. In GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and Certificate-Based AI (v1.0). Zenodo. [https://doi.org/10.5281/zenodo.17762295](https://doi.org/10.5281/zenodo.17762295)
+
+### 中文工作笔记
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22739417.svg)](https://doi.org/10.5281/zenodo.22739417)
+
+- 本地目录：[docs/project_docs/notebook_tex_v5.2/](docs/project_docs/notebook_tex_v5.2/)
+- 来源：[Zenodo 记录 22739417](https://zenodo.org/records/22739417)
+
+#### Citation
+
+Gao, Z. (2026). Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis (GaoZheng G-Framework) and the Principal-Bundle-Based Generalized Noncommutative Lie Algebra (GaoZheng G-Algebra) 中文工作笔记 (Version v5.2). Zenodo. [https://doi.org/10.5281/zenodo.22739417](https://doi.org/10.5281/zenodo.22739417)

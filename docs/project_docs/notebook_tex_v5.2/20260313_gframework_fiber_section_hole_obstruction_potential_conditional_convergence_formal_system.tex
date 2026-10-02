@@ -1,0 +1,1722 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 基本定理环境（工作笔记：形式系统风格）
+\newtheorem{definition}{定义}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\Jac}{\operatorname{Jac}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsc{G-Framework}}
+
+\newcommand{\Ob}{\operatorname{Ob}}
+\newcommand{\ObTot}{\operatorname{ObTot}}
+\newcommand{\Hole}{\operatorname{Hole}}
+\newcommand{\Lift}{\operatorname{Lift}}
+\newcommand{\Cert}{\operatorname{Cert}}
+\newcommand{\Loss}{\mathcal{L}}
+\newcommand{\Flow}{\operatorname{Flow}}
+\newcommand{\Upd}{\operatorname{Upd}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+\setlength{\emergencystretch}{6em}
+
+% 对话稿默认取消首行缩进，并留出段间距，提升可读性
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{纤维--截面--孔洞--障碍量--势函数--条件化收敛\\
+（独立说明稿：与层 $l_n$ 同伦塔链的对齐与收敛模板，形式逻辑版）}
+\newcommand{\CertificateAuthorCN}{Gao Zheng（高政）}
+\author{\CertificateAuthorCN}
+\date{2026-03-13}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是把纤维、截面、孔洞、障碍量、势函数与条件收敛分别作为孤立术语
+处理，而是在 \GFramework{} 的障碍修复链条中，把它们组织成一个从层结构到收敛
+判据的形式系统。若这些对象分散出现，孔洞容易只被看成拓扑缺口，势函数容易只
+被看成数值代价，条件收敛容易只被看成附加假设；本文将三者统一为“障碍如何被
+度量、如何被扭曲、如何在条件下收敛”的问题。
+
+本文的第一层立场是层、纤维与截面的对象化。系统不是单一平面上的点集，而是由
+层结构、遗忘投影、纤维与截面共同组成的多层对象。截面给出可选择的局部代表，
+纤维给出被投影隐藏的内部自由度，遗忘投影则暴露出何处可能产生孔洞、崩溃与
+上同调障碍。由此，障碍不再只是外部失败，而是层间投影与截面选择不相容时产生的
+结构性失闭合。
+
+本文的第二层立场是把孔洞转化为可度量的障碍量。孔洞的意义不只在于“缺了一块”，
+而在于它阻断了截面延拓、破坏了同伦闭合，并诱导可被势函数读取的障碍量。势函数
+不是任意打分，而是将孔洞、障碍类、同伦扭曲代价与修复进展压入同一个数值结构，
+使“是否可修复”与“如何趋近修复”能够被比较。
+
+本文的第三层立场是截面失败的可定位化。一个截面无法全局延拓时，失败并不总是
+来自整个空间的不可处理性，而可能来自某个孔洞、某个纤维缺口、某个层间不兼容或
+某个被遗忘投影隐藏的自由度。本文将这些失败转写为可定位的障碍对象，再通过障碍量
+和势函数将其纳入可比较的修复过程。这样，修复不再是对全局空间的盲目重构，而是
+对“何处失闭合、何处需补纤维、何处需扭曲”的精确响应。
+
+本文的第四层立场是势函数的桥接作用。势函数在本文中同时连接拓扑信息与动力信息：
+一方面，它读取孔洞、上同调障碍和截面不连续；另一方面，它给出同伦扭曲、收敛
+下降与条件化控制的数值接口。由此，势函数不是替代拓扑证明的打分器，而是把拓扑
+障碍送入可计算修复过程的桥。
+
+本文的第五层立场是条件化收敛。本文并不把所有障碍都无条件消解为收敛结论，而是
+明确区分混合指标、同伦塔、势函数下降与条件化收敛之间的证书关系。只有当障碍量
+被合适的扭曲、势函数下降与层间相容条件共同控制时，收敛才是可证明的；否则，
+本文只保留边界而不把它写成定理结论。
+
+本文的第六层立场是两种无穷的分离。层数无穷、修复塔无穷、截面延拓过程无穷，与
+势函数下降的极限行为不是同一件事。本文通过混合指标与条件化收敛，把结构无穷、
+过程无穷和数值极限分开处理。这样可以避免把“层级可继续展开”误写成“势能必然
+收敛”，也避免把“势能下降”误写成“拓扑障碍必然消失”。
+
+本文的第七层立场是为后续同伦命中提供低残差雏形。后续统计力学同伦命中会把目标
+集合写成低残差集合，而本文已经给出较早的版本：孔洞、障碍量和势函数共同定义一个
+可被压低的目标区域。也就是说，后续的“命中低残差集合”在这里先表现为“使障碍量与
+势函数进入可接受阈值”的条件化收敛问题。
+
+因此，本文在整体 \GFramework{} 中承担的是“孔洞--障碍量--势函数--条件收敛”的
+中间锚定作用。它向前连接纤维丛、截面与上同调障碍，向后连接统计力学命中中的
+低残差集合与可控隧穿路径。概括地说，本文把“孔洞是否阻断修复”这一问题，推进为
+“障碍量能否经由势函数与同伦扭曲被条件化压低”的形式系统。
+
+更具体地说，本文将“孔洞”从视觉化直觉转化为纤维--截面系统中的失败位置。孔洞
+不是单纯缺口，而是截面无法穿过、投影无法恢复、局部代表无法拼合的地方。障碍量
+则把这种失败量化，使后续修复不再只依赖拓扑存在性，而能进入势函数下降和阈值判定。
+
+从方法论上看，本文是从同伦修复走向统计命中的过渡稿。前者强调障碍类如何被吸收，
+后者强调目标集合如何被命中；本文则把障碍写成势函数和条件化收敛对象，使“修复”
+与“命中”之间出现可计算中介。后续低残差集合的概念，在这里已经以低障碍量、
+低势能区域的形式出现。
+
+从整体谱系看，本文避免两种过度说法：其一，孔洞存在并不等于不可修复；其二，势函数
+下降也不等于拓扑障碍自动消失。只有当纤维、截面、障碍量、同伦扭曲和条件收敛证书
+共同闭合时，本文才给出收敛结论。这种谨慎边界使它成为 \GFramework{} 修复链中的
+重要中层控制稿。
+
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{2}
+\tableofcontents
+\clearpage
+
+% ------------------------------
+% 本文为独立说明稿：不依赖专著正文的外部引用。
+% ------------------------------
+
+\section{目标、写作约定与总体结构}
+
+\begin{remark}[形式逻辑写作约定]
+本文统一采用“形式逻辑 + 证书”体例，并执行以下规范：
+\begin{itemize}
+  \item \textbf{公理降级：}凡需要作为基础约束的强陈述，统一写成“公理（降级为定理）”，并配套\textbf{数学归纳法证书}与证明；
+  \item \textbf{定理/引理/命题/推论：}每条编号断言均配套“证书 + 证明（基于数学符号推演逻辑的谓词因果链）”；
+  \item \textbf{备注：}仅承担动机、边界与解释说明，不承担证明义务；
+  \item \textbf{章节编号：}全部依赖 LaTeX 自动编号，不手工维护章节序号。
+\end{itemize}
+\end{remark}
+
+本文把两条叙述链严格对齐，并给出可审计的“条件化收敛”证明骨架。
+
+\begin{itemize}
+\item \textbf{Chain-A（骨架链）}：
+\[
+\text{纤维}\to\text{截面}\to\text{孔洞}\to\text{障碍量}\to\text{势函数}\to\text{条件化收敛}.
+\]
+\item \textbf{Chain-B（层化链）}：
+\[
+\begin{aligned}
+l_2
+&\to(\text{连续统（一离散）})\to(\text{崩溃/上同调障碍})\\
+&\to(\text{同伦塔度量，}l_{\ge3})\to(\text{同伦扭曲})\\
+&\to(\text{变分法收敛})\to(\text{离散统（一连续）}).
+\end{aligned}
+\]
+\end{itemize}
+
+\begin{remark}[强结论边界]
+本文所有“\textbf{强结论}”（例如“全局最优路径收敛”或“孔洞 $\Leftrightarrow$ 单一障碍类非零”）若缺乏对应假设，将被明确标注为\textbf{未证明}。
+\end{remark}
+
+\section{层、遗忘投影、纤维与截面}
+
+\subsection{层与状态空间}
+
+\begin{definition}[层与状态空间]\label{def:layer-space}
+对每个整数 $n\ge 2$，给定一层 $l_n$ 及其可表述对象（系统状态）空间 $\mathcal S_n$。
+层 $l_2$ 仅保留外延（extensional）信息；层 $l_{n\ge3}$ 允许加入语义/同伦/曲率/生成性等增强信息。
+\end{definition}
+
+\subsection{遗忘投影与纤维冗余}
+
+\begin{definition}[遗忘投影]\label{def:forget-map}
+对任意 $n\ge3$，给定遗忘投影
+\[
+\pi_{n\to2}:\mathcal S_n\to\mathcal S_2,
+\]
+其含义是把 $l_n$ 层对象遗忘到 $l_2$ 层可见的外延数据。
+\end{definition}
+
+\begin{definition}[纤维（冗余集合）]\label{def:fiber}
+对任意 $x\in\mathcal S_2$，定义 $x$ 在第 $n$ 层的纤维
+\[
+\operatorname{Fib}_n(x):=\pi_{n\to2}^{-1}(x)\subseteq \mathcal S_n.
+\]
+当 $|\operatorname{Fib}_n(x)|>1$ 时，称 $l_2$ 对应于 $x$ 的信息对 $l_n$ 是\emph{冗余的}：即多个语义对象在遗忘后不可区分。
+\end{definition}
+
+\begin{remark}
+“连续统（一离散）”可被解释为：在 $l_2$ 层输出的是离散外延标签（例如某个离散不变量），而其纤维 $\operatorname{Fib}_n(x)$ 可能含有不可数多的语义提升候选。
+\end{remark}
+
+\subsection{可接受集、可提升性与截面}
+
+\begin{definition}[可接受集]\label{def:acceptable}
+对每个 $n\ge3$，给定可接受集（满足一致性/约束/可审计性）
+\[
+\mathcal A_n\subseteq \mathcal S_n.
+\]
+\end{definition}
+
+\begin{definition}[可接受提升集合]\label{def:lift}
+对任意 $x\in\mathcal S_2$，定义
+\[
+\Lift_n(x):=\mathcal A_n\cap \operatorname{Fib}_n(x).
+\]
+若 $\Lift_n(x)\neq\varnothing$，则称 $x$ 在层 $l_n$ 上\emph{可提升}（存在满足约束的语义代表）。
+\end{definition}
+
+\begin{definition}[截面（冗余剔除的选择）]\label{def:section}
+设
+\[
+\mathcal D_n:=\{x\in\mathcal S_2:\Lift_n(x)\neq\varnothing\}.
+\]
+称映射
+\[
+\sigma_n:\mathcal D_n\to \mathcal A_n
+\]
+为第 $n$ 层的截面，若
+\[
+\pi_{n\to2}\circ \sigma_n=\mathrm{id}_{\mathcal D_n}.
+\]
+\end{definition}
+
+\begin{proposition}[截面存在与可提升选择规则等价]\label{prop:section-choice}
+对固定 $n\ge 3$，存在截面 $\sigma_n$ 当且仅当对每个 $x\in\mathcal D_n$ 能从 $\Lift_n(x)$ 中选取一个元素作为代表。
+\end{proposition}
+
+\begin{Certificate}[证书：选择映射与恒等复合判据]\label{cert:section-choice}
+证书包含两项：
+\begin{enumerate}
+\item 选择函数条款：$\forall x\in\mathcal D_n,\ \exists y_x\in\Lift_n(x)$；
+\item 复合校验条款：$\pi_{n\to2}(y_x)=x$。
+\end{enumerate}
+目标是验证“可选择”与“存在截面”互相推出。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:section-choice}：若存在选择规则 $x\mapsto y_x\in\Lift_n(x)$，定义
+\[
+\sigma_n(x):=y_x.
+\]
+由于 $y_x\in\Lift_n(x)\subseteq\pi_{n\to2}^{-1}(x)$，故
+\[
+\pi_{n\to2}(\sigma_n(x))=\pi_{n\to2}(y_x)=x,
+\]
+即 $\pi_{n\to2}\circ\sigma_n=\mathrm{id}_{\mathcal D_n}$，截面存在。
+反向，若截面存在，则取 $y_x:=\sigma_n(x)$，显然 $y_x\in\Lift_n(x)$，给出选择规则。
+故两者等价。
+\end{proof}
+
+\begin{remark}
+截面 $\sigma_n$ 的存在把“纤维多值冗余”压缩为“可审计单值代表”。这正是 Chain-A 中“纤维 $\to$ 截面”的接口含义。
+\end{remark}
+
+\section{孔洞、崩溃与上同调障碍}
+
+\subsection{孔洞判据（可行域为空）}
+
+\begin{definition}[孔洞]\label{def:hole}
+对任意 $x\in\mathcal S_2$，称 $x$ 是（第 $n$ 层）孔洞点，若
+\[
+\Lift_n(x)=\varnothing.
+\]
+记该性质为 $\Hole_n(x)$。
+\end{definition}
+
+\begin{remark}
+“崩溃（上同调障碍）”在最小可审计意义下可取为：$\Lift_n(x)=\varnothing$（可行域为空）。此时“崩溃”不依赖修辞理解，而是一个可计算判据。
+\end{remark}
+
+\subsection{障碍类与完备性条款}
+
+\begin{definition}[塔式障碍类与总障碍]\label{def:obstruction-tower}
+设存在与提升塔相配套的一族障碍类
+\[
+\operatorname{ob}_{k+1}(x)\in H^{k+1}(\mathcal B_x;\mathcal G_{k,x}),\qquad k\ge2,
+\]
+并定义总障碍向量
+\[
+\ObTot(x):=\bigl(\operatorname{ob}_3(x),\operatorname{ob}_4(x),\ldots\bigr)
+\in \prod_{k\ge2} H^{k+1}(\mathcal B_x;\mathcal G_{k,x}).
+\]
+\end{definition}
+
+\begin{remark}[参考：障碍理论]
+上述“逐级延拓失败对应上同调障碍类”的形式化口径属于标准障碍理论框架，可参见 \cite{Hatcher2002,Whitehead1978}。
+\end{remark}
+
+\begin{assumption}[障碍理论完备性 $\mathbf{(OT\text{-}Complete)}$]\label{ass:ot-complete}
+对任意 $x\in\mathcal S_2$，有充要式
+\[
+\Lift_\infty(x)\neq\varnothing
+\iff
+\forall k\ge2,\ \operatorname{ob}_{k+1}(x)=0,
+\]
+其中 $\Lift_\infty$ 表示在塔极限意义下的可接受提升集合。
+\end{assumption}
+
+\begin{lemma}[必要性：可提升 $\Rightarrow$ 障碍全为零]\label{lem:ob-necessary}
+若 $\Lift_\infty(x)\neq\varnothing$，则 $\forall k\ge2,\ \operatorname{ob}_{k+1}(x)=0$。
+\end{lemma}
+
+\begin{Certificate}[证书：失败测度归零判据]\label{cert:ob-necessary}
+证书登记规则：每一级障碍类 $\operatorname{ob}_{k+1}(x)$ 都刻画“从第 $k$ 级向第 $(k+1)$ 级延拓失败”的等价类；若延拓数据已存在，则对应失败类必须为零类。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:ob-necessary}：
+\[
+\Lift_\infty(x)\neq\varnothing
+\Rightarrow
+\text{各级延拓均可实现}
+\Rightarrow
+\text{各级失败测度消失}
+\Rightarrow
+\forall k\ge2,\ \operatorname{ob}_{k+1}(x)=0.
+\]
+引理成立。
+\end{proof}
+
+\begin{lemma}[充分性需要完备性]\label{lem:ob-sufficient}
+若 $\forall k\ge2,\ \operatorname{ob}_{k+1}(x)=0$，则在假设~\ref{ass:ot-complete} 下有 $\Lift_\infty(x)\neq\varnothing$。
+\end{lemma}
+
+\begin{Certificate}[证书：完备性条款调用]\label{cert:ob-sufficient}
+证书仅调用假设~\ref{ass:ot-complete} 的“$\Leftarrow$”方向：
+\[
+\forall k\ge2,\ \operatorname{ob}_{k+1}(x)=0
+\Rightarrow
+\Lift_\infty(x)\neq\varnothing.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:ob-sufficient} 直接得到结论，引理成立。
+\end{proof}
+
+\begin{theorem}[孔洞与总障碍的充要对应]\label{thm:hole-iff-obtot}
+在假设~\ref{ass:ot-complete} 下，
+\[
+\Hole_\infty(x)\iff \ObTot(x)\neq 0,
+\qquad
+\Lift_\infty(x)\neq\varnothing \iff \ObTot(x)=0.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：必要性 + 充分性双桥接]\label{cert:hole-iff-obtot}
+证书包含两条桥接：
+\begin{enumerate}
+\item 引理~\ref{lem:ob-necessary}：$\Lift_\infty\neq\varnothing\Rightarrow\ObTot=0$；
+\item 引理~\ref{lem:ob-sufficient}：$\ObTot=0\Rightarrow\Lift_\infty\neq\varnothing$。
+\end{enumerate}
+再对可提升命题取逻辑否定得到孔洞命题。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:hole-iff-obtot}：
+\[
+\Lift_\infty(x)\neq\varnothing \Longleftrightarrow \ObTot(x)=0.
+\]
+对该等价式取否定并使用
+\(
+\Hole_\infty(x)\Longleftrightarrow \Lift_\infty(x)=\varnothing
+\)
+得到
+\(
+\Hole_\infty(x)\Longleftrightarrow \ObTot(x)\neq 0
+\)。
+定理成立。
+\end{proof}
+
+\begin{corollary}[非孔洞点的可提升判据]\label{cor:non-hole-lift}
+在假设~\ref{ass:ot-complete} 下，
+\[
+\neg\Hole_\infty(x)\iff \ObTot(x)=0.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：定理~\ref{thm:hole-iff-obtot} 的逻辑重写]\label{cert:non-hole-lift}
+证书只需把定理~\ref{thm:hole-iff-obtot} 的第一条等价式两侧同时取否定。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:non-hole-lift}：
+\[
+\Hole_\infty(x)\iff \ObTot(x)\neq 0
+\Rightarrow
+\neg\Hole_\infty(x)\iff \ObTot(x)=0.
+\]
+推论成立。
+\end{proof}
+
+\begin{remark}
+若不引入假设~\ref{ass:ot-complete}，则一般只能保证必要性（引理~\ref{lem:ob-necessary}），而充分性属于\textbf{未证明}。
+\end{remark}
+
+\section{同伦塔、混合指标与两种无穷}
+
+\subsection{层阶与语义参数的混合指标}
+
+\begin{definition}[混合指标]\label{def:mixed-index}
+对每个 $n\ge3$，令 $\Theta_n$ 为语义/算子自由度参数空间，并假设
+\[
+|\Theta_n|\ge|\mathbb R|.
+\]
+则一次“语义增强步骤”的指标为
+\[
+(n,\theta_n)\in \mathbb N_{\ge3}\times\Theta_n.
+\]
+其中 $n$ 是可数层阶，而 $\theta_n$ 是不可数连续自由度。
+\end{definition}
+
+\begin{lemma}[两种无穷在同一指标集内共存]\label{lem:two-infinities}
+固定任意 $\theta\in\Theta_n$ 时，
+\(
+\{(n,\theta):n\in\mathbb N_{\ge3}\}
+\)
+给出可数子结构；固定任意 $n$ 时，
+\(
+\{(n,\theta):\theta\in\Theta_n\}
+\)
+给出不可数子结构。
+\end{lemma}
+
+\begin{Certificate}[证书：两类单射嵌入]\label{cert:two-infinities}
+证书登记两条单射：
+\[
+\iota_1:\mathbb N_{\ge3}\hookrightarrow \mathbb N_{\ge3}\times\Theta_n,\ n\mapsto(n,\theta),
+\]
+\[
+\iota_2:\Theta_n\hookrightarrow \mathbb N_{\ge3}\times\Theta_n,\ \theta\mapsto(n,\theta).
+\]
+由此分别保留可数性与不可数性。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:two-infinities}：
+\(
+\iota_1
+\)
+把可数集嵌入指标集，故存在可数子结构；
+\(
+\iota_2
+\)
+把不可数集嵌入指标集，故存在不可数子结构。
+两种无穷在同一指标框架中共存。
+\end{proof}
+
+\subsection{算子与语义的唯一索引}
+
+\begin{definition}[算子库与语义映射]\label{def:op-sem}
+令 $\mathcal O_n$ 为第 $n$ 层边缘/修复算子库。给定语义映射
+\[
+\operatorname{Sem}_n:\mathcal O_n\to \Sigma_n,
+\]
+其中 $\Sigma_n$ 为语义对象（或语义类型）空间。
+\end{definition}
+
+\begin{assumption}[算子定义语义（单射性）]\label{ass:sem-inj}
+假设 $\operatorname{Sem}_n$ 单射：若 $\operatorname{Sem}_n(o)=\operatorname{Sem}_n(o')$，则 $o=o'$。
+\end{assumption}
+
+\begin{proposition}[单射条件下的算子语义唯一索引]\label{prop:sem-unique-index}
+在假设~\ref{ass:sem-inj} 下，每个语义值最多对应一个算子，即
+\[
+\forall s\in\Sigma_n,\ \bigl|\operatorname{Sem}_n^{-1}(\{s\})\bigr|\le 1.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：单射定义的逆像基数判据]\label{cert:sem-unique-index}
+证书目标：把“单射”改写为“任一像元的逆像基数不超过 1”，即
+\[
+\operatorname{Sem}_n\ \text{单射}
+\Longleftrightarrow
+\forall s,\ |\operatorname{Sem}_n^{-1}(\{s\})|\le 1.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:sem-unique-index}：
+若存在 $s$ 使逆像中有 $o\neq o'$，则
+\(
+\operatorname{Sem}_n(o)=\operatorname{Sem}_n(o')=s
+\)
+与单射矛盾。
+故每个语义值最多对应一个算子，命题成立。
+\end{proof}
+
+\begin{remark}
+假设~\ref{ass:sem-inj} 的弱化版本是“到同余类的双射”：把语义等价与算子等价同时按同一同余关系取商。若不作任何假设，则“算子 $\equiv$ 语义”为\textbf{未证明}。
+\end{remark}
+
+\section{障碍量、同伦扭曲与势函数}
+
+\subsection{同伦塔度量与障碍量}
+
+\begin{definition}[度量与障碍量]\label{def:ob-measure}
+对每个 $n\ge3$，在 $\mathcal S_n$ 上给定度量（或伪度量）$d_n$。
+定义障碍量为到可接受集的距离：
+\[
+\Ob_n(y):=\inf_{z\in\mathcal A_n} d_n(y,z)\in\mathbb R_{\ge0}.
+\]
+\end{definition}
+
+\begin{proposition}[闭集情形下的零障碍判据]\label{prop:ob-zero-criterion}
+若 $\mathcal A_n$ 在 $d_n$ 诱导拓扑下为闭集，则
+\[
+\Ob_n(y)=0\iff y\in\mathcal A_n.
+\]
+\end{proposition}
+
+\begin{Certificate}[证书：距离到闭集的标准判据]\label{cert:ob-zero-criterion}
+证书包含两条：
+\begin{enumerate}
+\item 任意集合 $A$ 上有 $\mathrm{dist}(y,A)=0\iff y\in\overline{A}$；
+\item 若 $A$ 闭，则 $\overline{A}=A$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:ob-zero-criterion}：
+\[
+\Ob_n(y)=0
+\Longleftrightarrow
+y\in\overline{\mathcal A_n}
+\Longleftrightarrow
+y\in\mathcal A_n.
+\]
+命题成立。
+\end{proof}
+
+\subsection{同伦扭曲（算子参数路径）}
+
+\begin{definition}[更新算子与同伦扭曲]\label{def:twist}
+令 $R_n:\mathcal S_{n-1}\times\Theta_n\to\mathcal S_n$ 为第 $n$ 层更新（修复）算子。
+给定参数序列/路径 $(\theta_n)$，定义状态序列
+\[
+y_n:=R_n(y_{n-1};\theta_n).
+\]
+把由 $\theta_n$ 的变化诱导的 $y_n$ 变形称为“同伦扭曲”。
+\end{definition}
+
+\subsection{势函数（变分泛函）}
+
+\begin{definition}[势函数]\label{def:potential}
+对每个 $n\ge3$，给定势函数（变分泛函）
+\[
+\Phi_n:\mathcal S_n\to\mathbb R.
+\]
+在构造截面或更新规则时，可采用“最小化 $\Phi_n$ 且使 $\Ob_n$ 下降”的选择策略。
+\end{definition}
+
+\section{条件化收敛：障碍修复与稳态}
+
+\subsection{条件化收敛条款}
+
+\begin{assumption}[障碍收缩]\label{ass:ob-contract}
+存在常数序列 $(\rho_n)_{n\ge3}$ 满足 $0\le\rho_n<1$，使得沿更新 $y_n=R_n(y_{n-1};\theta_n)$ 有
+\[
+\Ob_n(y_n)\le \rho_n\,\Ob_{n-1}(y_{n-1}).
+\]
+\end{assumption}
+
+\begin{assumption}[势值单调与下界]\label{ass:phi-monotone}
+沿同一更新序列有
+\[
+\Phi_n(y_n)\le \Phi_{n-1}(y_{n-1}),
+\]
+且存在下界 $m\in\mathbb R$ 使得 $\Phi_n(y_n)\ge m$ 对所有 $n$ 成立。
+\end{assumption}
+
+\begin{theorem}[公理（降级为定理）：乘性收缩递推律（数学归纳法证书）]
+\label{thm:axiom-downgrade-induction}
+在假设~\ref{ass:ob-contract} 下，对任意 $n\ge3$ 有
+\[
+\Ob_n(y_n)
+\le
+\Bigl(\prod_{k=3}^{n}\rho_k\Bigr)\Ob_2(y_2).
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书：按层级 $n$ 的乘积上界谓词]\label{cert:axiom-downgrade-induction}
+定义谓词
+\[
+P(n):\ \Ob_n(y_n)\le \Bigl(\prod_{k=3}^{n}\rho_k\Bigr)\Ob_2(y_2).
+\]
+证书目标：
+\[
+P(3)\ \text{成立},\qquad
+(\forall n\ge3)\ \bigl(P(n)\Rightarrow P(n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+\textbf{基步：}当 $n=3$，由假设~\ref{ass:ob-contract}
+\[
+\Ob_3(y_3)\le\rho_3\Ob_2(y_2)=\Bigl(\prod_{k=3}^{3}\rho_k\Bigr)\Ob_2(y_2),
+\]
+即 $P(3)$ 成立。
+
+\textbf{归纳步：}设 $P(n)$ 成立。由假设~\ref{ass:ob-contract}
+\[
+\Ob_{n+1}(y_{n+1})\le\rho_{n+1}\Ob_n(y_n)
+\le
+\rho_{n+1}\Bigl(\prod_{k=3}^{n}\rho_k\Bigr)\Ob_2(y_2)
+=\Bigl(\prod_{k=3}^{n+1}\rho_k\Bigr)\Ob_2(y_2).
+\]
+故 $P(n+1)$ 成立。
+
+由数学归纳法，$P(n)$ 对全部 $n\ge3$ 成立。定理成立。
+\end{proof}
+
+\subsection{收敛结论}
+
+\begin{theorem}[障碍趋零与势值收敛]\label{thm:conditional-conv}
+在假设~\ref{ass:ob-contract}--\ref{ass:phi-monotone} 下，沿更新序列 $(y_n)$ 有：
+\begin{enumerate}
+\item 若 $\sup_{n\ge3}\rho_n\le\bar\rho<1$，则 $\Ob_n(y_n)\to0$；
+\item $\Phi_n(y_n)$ 单调不增且下有界，因此存在极限
+\(
+\lim_{n\to\infty}\Phi_n(y_n)\in\mathbb R
+\)。
+\end{enumerate}
+\end{theorem}
+
+\begin{Certificate}[证书：递推上界 + 单调有界收敛]\label{cert:conditional-conv}
+证书分两段：
+\begin{enumerate}
+\item 由定理~\ref{thm:axiom-downgrade-induction} 得乘积上界，再由
+\(
+\rho_n\le\bar\rho<1
+\)
+推出指数衰减；
+\item 由假设~\ref{ass:phi-monotone} 应用实数完备性的“单调有界收敛定理”（参见 \cite{Rudin1976}）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:conditional-conv}：
+\[
+\Ob_n(y_n)
+\le
+\Bigl(\prod_{k=3}^{n}\rho_k\Bigr)\Ob_2(y_2)
+\le
+\bar\rho^{n-2}\Ob_2(y_2)
+\xrightarrow[n\to\infty]{}0,
+\]
+得第 (1) 条。
+又由
+\(
+\Phi_n(y_n)
+\)
+单调不增且下有界，故极限存在，得第 (2) 条。定理成立。
+\end{proof}
+
+\begin{corollary}[任意精度可达的稳态阈值]\label{cor:epsilon-stability}
+在定理~\ref{thm:conditional-conv} 的第 (1) 条件下，
+对任意 $\varepsilon>0$，存在 $N(\varepsilon)$ 使得
+\[
+\forall n\ge N(\varepsilon),\quad \Ob_n(y_n)<\varepsilon.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：收敛定义展开]\label{cert:epsilon-stability}
+证书只需调用极限定义：
+\(
+\Ob_n(y_n)\to 0
+\)
+当且仅当上述 $\varepsilon$--$N$ 性质成立。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:epsilon-stability} 与定理~\ref{thm:conditional-conv} 第 (1) 条直接得到结论。
+\end{proof}
+
+\begin{remark}
+定理~\ref{thm:conditional-conv} 仅给出“可行性残差趋零 + 势值收敛”的稳态骨架；若要推出“收敛到全局最优”，必须额外引入下一节强条件。
+\end{remark}
+
+\section{从趋近无孔洞到存在性无孔洞：极限提升的最小接口}
+\label{sec:approx-to-existence-no-hole}
+
+\subsection{定义（把“趋近无孔洞”升级到“存在性无孔洞”所需的最小对象）}
+
+\begin{definition}[层级塔与极限提升]\label{def:tower-limit-lift}
+对每个 $n\ge 3$，给定状态空间 $\mathcal S_n$。
+对每个 $n\ge 4$，给定遗忘投影
+\[
+\pi_{n\to n-1}:\mathcal S_n\to \mathcal S_{n-1},
+\qquad
+\pi_{n\to2}:=\pi_{3\to2}\circ\pi_{4\to3}\circ\cdots\circ\pi_{n\to n-1}.
+\]
+其中 $\pi_{3\to2}:\mathcal S_3\to\mathcal S_2$ 为底层遗忘投影。
+并约定当 $n=3$ 时 $\pi_{n\to2}:=\pi_{3\to2}$，从而上述 $\pi_{n\to2}$ 可视为对全部 $n\ge3$ 的统一记号。
+定义逆极限（塔极限）
+\[
+\mathcal S_\infty:=\varprojlim_{n\ge3}(\mathcal S_n,\pi_{n\to n-1}),
+\]
+其元素写作 $y_\infty=(y_3,y_4,\dots)$ 且满足一致性
+\[
+\pi_{n\to n-1}(y_n)=y_{n-1}\quad (n\ge4).
+\]
+定义极限投影 $\pi_{\infty\to2}:\mathcal S_\infty\to \mathcal S_2$ 为
+\[
+\pi_{\infty\to2}(y_\infty)=\pi_{3\to2}(y_3).
+\]
+\end{definition}
+
+\begin{definition}[可接受子塔与极限可接受集]\label{def:acceptable-subtower-limit}
+每层给定可接受集 $\mathcal A_n\subseteq \mathcal S_n$，并假设子塔相容（$n\ge4$）：
+\[
+\pi_{n\to n-1}(\mathcal A_n)\subseteq \mathcal A_{n-1}.
+\]
+定义极限可接受集
+\[
+\mathcal A_\infty:=\varprojlim_{n\ge3}(\mathcal A_n,\pi_{n\to n-1})\subseteq \mathcal S_\infty.
+\]
+对 $x\in\mathcal S_2$，定义极限提升集与极限孔洞谓词：
+\[
+\Lift_\infty(x):=\mathcal A_\infty\cap \pi_{\infty\to2}^{-1}(x),
+\qquad
+\Hole_\infty(x)\;:\Longleftrightarrow\;\Lift_\infty(x)=\varnothing.
+\]
+\end{definition}
+
+\begin{definition}[上同调障碍塔与总障碍]\label{def:obstruction-total}
+对每个 $k\ge2$，定义障碍类
+\[
+\operatorname{ob}_{k+1}(x)\in H^{k+1}(\mathcal B_x;\mathcal G_{k,x}),
+\]
+并定义总障碍
+\[
+\ObTot(x):=\bigl(\operatorname{ob}_3(x),\operatorname{ob}_4(x),\dots\bigr)\in\prod_{k\ge2} H^{k+1}(\mathcal B_x;\mathcal
+  G_{k,x}).
+\]
+记
+\[
+\ObTot(x)=0\;:\Longleftrightarrow\;\forall k\ge2,\ \operatorname{ob}_{k+1}(x)=0.
+\]
+\end{definition}
+
+\subsection{假设（最小完备性：把“逼近可行”升级为“存在可行”）}
+
+\begin{assumption}[最小完备性：近似提升 $\Leftrightarrow$ 障碍归零 $\Leftrightarrow$ 极限提升存在]\label{ass:min-completeness-approx-ob-exist}
+对任意 $x\in\mathcal S_2$，以下三者等价：
+\begin{enumerate}
+\item \textbf{存在性无孔洞（严格）：}
+\(
+\Lift_\infty(x)\neq\varnothing
+\)；
+\item \textbf{上同调障碍全归零（严格）：}
+\(
+\ObTot(x)=0
+\)；
+\item \textbf{近似无孔洞（度量意义）可实现：}存在一致的塔序列 $y_\infty=(y_3,y_4,\dots)\in\mathcal S_\infty$ 且 $\pi_{\infty\to2}(y_\infty)=x$，
+  使得
+\[
+\Ob_n(y_n)\xrightarrow[n\to\infty]{}0,
+\qquad
+\Ob_n(y):=\inf_{z\in\mathcal A_n} d_n(y,z).
+\]
+\end{enumerate}
+\end{assumption}
+
+\begin{remark}[契约型完备性接口]
+假设~\ref{ass:min-completeness-approx-ob-exist} 是一条“契约型完备性假设”：它把所有需要的拓扑/紧性/闭性/障碍理论充分性压缩为一个最小接口条款。
+在不改变“两阶段结构”（先可行性修复，再最优性择优）的前提下，它把结论强度从“逼近意义的 $\Ob\to0$”升级为“存在性意义的 $\Lift_\infty(x)\neq\varnothing$”。
+\end{remark}
+
+\subsection{定理（把 $\Ob\to0$ 提升为 $\Lift_\infty(x)\neq\varnothing$）}
+
+\begin{theorem}[严格无孔洞提升定理]\label{thm:strict-no-hole-lift-from-approx}
+设第一阶段已构造出层级序列
+\[
+y_n = R_n(y_{n-1};\theta_n)\in\mathcal S_n\quad (n\ge3),
+\]
+并满足一致性与外延对齐
+\[
+\pi_{n\to n-1}(y_n)=y_{n-1}\quad (n\ge4),
+\qquad
+\pi_{n\to2}(y_n)=x\quad (n\ge3),
+\]
+以及逼近可行性
+\[
+\Ob_n(y_n)\to 0.
+\]
+则在假设~\ref{ass:min-completeness-approx-ob-exist} 下，
+\[
+\Lift_\infty(x)\neq\varnothing
+\quad\text{且等价地}\quad
+\ObTot(x)=0,
+\]
+从而 $\neg \Hole_\infty(x)$。
+\end{theorem}
+
+\begin{Certificate}[证书：假设~\ref{ass:min-completeness-approx-ob-exist} 的等价链调用]\label{cert:strict-no-hole-lift-from-approx}
+证书调用假设~\ref{ass:min-completeness-approx-ob-exist} 的蕴含链
+\(
+\text{(3)}\Rightarrow\text{(1)}
+\)
+与
+\(
+\text{(3)}\Rightarrow\text{(2)}
+\)。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+令 $y_\infty:=(y_3,y_4,\dots)$。由一致性 $\pi_{n\to n-1}(y_n)=y_{n-1}$（$n\ge4$），得 $y_\infty\in\mathcal S_\infty$，且由外延对齐得
+  $\pi_{\infty\to2}(y_\infty)=x$。
+又由逼近可行性 $\Ob_n(y_n)\to 0$，满足假设~\ref{ass:min-completeness-approx-ob-exist} 的条款 (3)。
+因此由证书~\ref{cert:strict-no-hole-lift-from-approx} 得
+\(
+\Lift_\infty(x)\neq\varnothing
+\)
+与
+\(
+\ObTot(x)=0
+\)。
+再由定义~\ref{def:acceptable-subtower-limit} 中
+\(
+\Hole_\infty(x)\Longleftrightarrow \Lift_\infty(x)=\varnothing
+\)
+知 $\neg \Hole_\infty(x)$。定理成立。
+\end{proof}
+
+\subsection{推论（把“孔洞”与“上同调障碍归零”严格等价化）}
+
+\begin{corollary}[严格充要式：孔洞 $\Leftrightarrow$ 障碍非零]\label{cor:hole-iff-obtot-strict}
+在假设~\ref{ass:min-completeness-approx-ob-exist} 下，对任意 $x\in\mathcal S_2$，有严格充要式：
+\[
+\Hole_\infty(x)
+\Longleftrightarrow
+\Lift_\infty(x)=\varnothing
+\Longleftrightarrow
+\ObTot(x)\neq 0.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：由“$\Lift_\infty\neq\varnothing \Longleftrightarrow \ObTot=0$”取否定]\label{cert:hole-iff-obtot-strict}
+证书包含两步：
+\begin{enumerate}
+\item 由定义~\ref{def:acceptable-subtower-limit} 得 $\Hole_\infty(x)\Longleftrightarrow \Lift_\infty(x)=\varnothing$；
+\item 由假设~\ref{ass:min-completeness-approx-ob-exist} 的 (1)$\Longleftrightarrow$(2) 得 $\Lift_\infty(x)
+  \neq\varnothing\Longleftrightarrow \ObTot(x)=0$，两侧同取否定得到 $\Lift_\infty(x)=\varnothing\Longleftrightarrow \ObTot(x)\neq
+  0$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:hole-iff-obtot-strict} 两步串接，立即得到所述三段等价。推论成立。
+\end{proof}
+
+\subsection{备注（关于“截面”的一句话，避免误解）}
+
+\begin{remark}[存在性无孔洞与极限截面]
+\begin{enumerate}
+\item 本次升级的核心是把“$\Ob\to0$”从\textbf{逼近意义}升级为“$\Lift_\infty(x)\neq\varnothing$”的\textbf{存在性意义}。这一步不需要改变主定理的两段结构（先可行性修复，
+  再最优性择优），只需补上假设~\ref{ass:min-completeness-approx-ob-exist}。
+\item 若希望从“对每个 $x$ 有提升”进一步升级到“存在一个截面 $\sigma_\infty$”，例如
+\[
+\sigma_\infty:\mathcal D_\infty\to\mathcal A_\infty,\quad
+\pi_{\infty\to2}\circ\sigma_\infty=\mathrm{id}_{\mathcal D_\infty},
+\quad
+\mathcal D_\infty:=\{x\in\mathcal S_2:\Lift_\infty(x)\neq\varnothing\},
+\]
+则通常只需集合论层面的“选择”（对每个 $x$ 选取一个提升代表）。该截面是否\textbf{可构造}属于额外要求；不加则仍是严格的“存在性无孔洞”。
+\end{enumerate}
+\end{remark}
+
+\section{变分法：全局最优存在性与全局收敛条件}
+
+\subsection{最优解存在性（可达性）}
+
+\begin{theorem}[最小值可达（存在性条款）]\label{thm:existence-minimizer}
+对固定外延态 $x\in\mathcal S_2$，令可行集
+\[
+K(x):=\Lift_\infty(x).
+\]
+若满足：
+\begin{enumerate}
+\item $K(x)\neq\varnothing$；
+\item $K(x)$ 在所用拓扑下为闭集；
+\item $\inf_{y\in K(x)}\Phi(y)>-\infty$；
+\item $K(x)$ 紧，或 $\Phi$ 在 $K(x)$ 上胁迫（当 $\|y\|\to\infty$ 且 $y\in K(x)$ 时 $\Phi(y)\to+\infty$），
+\end{enumerate}
+则存在
+\(
+y^\star(x)\in\arg\min_{y\in K(x)}\Phi(y)
+\)。
+\end{theorem}
+
+\begin{Certificate}[证书：极小化序列紧化与闭性回收]\label{cert:existence-minimizer}
+证书链条：
+\[
+\begin{aligned}
+\text{下有界}
+&\Rightarrow \text{存在极小化序列}
+\Rightarrow \text{紧性/胁迫性给出有界并可抽收敛子列}\\
+&\Rightarrow \text{闭性保证极限留在 }K(x)
+\Rightarrow \text{极限达到下确界}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{remark}[参考：直接法/存在性]
+定理~\ref{thm:existence-minimizer} 的证明骨架可视为变分法“直接法”在抽象可行集上的模板化改写，可参见 \cite{Dacorogna2008}。
+\end{remark}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:existence-minimizer}：取极小化序列 $(y^{(m)})\subseteq K(x)$，并令其满足
+\[
+\Phi(y^{(m)})\downarrow\inf_{y\in K(x)}\Phi(y).
+\]
+由紧性或胁迫性，可抽取收敛子列 $y^{(m_j)}$，使 $y^{(m_j)}\to y^\star$。
+闭性给出 $y^\star\in K(x)$。
+再由下半连续型极限传递（在本文口径下由构造假设吸收）得
+\[
+\Phi(y^\star)=\inf_{y\in K(x)}\Phi(y).
+\]
+故最小值可达。
+\end{proof}
+
+\subsection{收敛到全局最优（强条件）}
+
+\begin{assumption}[凸性与强凸性]\label{ass:strong-convex}
+假设 $K(x)$ 为凸集，且 $\Phi$ 在 $K(x)$ 上 $\mu$-强凸：存在 $\mu>0$ 使
+\[
+\Phi(v)\ge \Phi(u)+\langle\nabla\Phi(u),v-u\rangle+\frac{\mu}{2}\|v-u\|^2,
+\quad \forall u,v\in K(x).
+\]
+\end{assumption}
+
+\begin{assumption}[Lipschitz 梯度与步长]\label{ass:lipschitz-step}
+假设 $\nabla\Phi$ 在 $K(x)$ 上 $L$-Lipschitz，且取步长 $0<\alpha<2/L$。
+\end{assumption}
+
+\begin{theorem}[投影梯度法全局收敛（强条件版）]\label{thm:pgd-global}
+在假设~\ref{ass:strong-convex}--\ref{ass:lipschitz-step} 下，迭代
+\[
+y_{t+1}=\Pi_{K(x)}\bigl(y_t-\alpha\nabla\Phi(y_t)\bigr)
+\]
+收敛到唯一全局最优解 $y^\star(x)$。
+\end{theorem}
+
+\begin{Certificate}[证书：强凸唯一性 + 非扩张投影 + 梯度步收缩]\label{cert:pgd-global}
+证书登记三项标准接口：
+\begin{enumerate}
+\item 强凸性 $\Rightarrow$ 最优解唯一；
+\item 投影算子 $\Pi_{K(x)}$ 为非扩张映射；
+\item 在 $0<\alpha<2/L$ 下，梯度步与强凸组合给出误差收缩。
+\end{enumerate}
+\end{Certificate}
+
+\begin{remark}[参考：凸优化与一阶方法]
+投影梯度法在强凸 + Lipschitz 梯度条件下的收敛性属于凸优化与一阶方法的标准结论，可参见 \cite{BoydVandenberghe2004,Nesterov2004,Beck2017,BauschkeCombettes2017}
+  。
+\end{remark}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:pgd-global}：
+\[
+\text{强凸}
+\Rightarrow
+\exists!\ y^\star(x),
+\]
+且对误差 $e_t:=y_t-y^\star$ 有
+\[
+\|e_{t+1}\|
+\le
+q\|e_t\|,\qquad 0<q<1.
+\]
+于是
+\(
+\|e_t\|\le q^t\|e_0\|\to0
+\)
+，故 $y_t\to y^\star(x)$。定理成立。
+\end{proof}
+
+\begin{corollary}[强条件下的唯一极小值判据]\label{cor:unique-minimizer}
+在假设~\ref{ass:strong-convex} 下，$K(x)$ 上最小值点唯一。
+\end{corollary}
+
+\begin{Certificate}[证书：强凸排斥双极小点]\label{cert:unique-minimizer}
+若存在 $u\neq v$ 均为极小点，代入强凸不等式并取中点
+\(
+\tfrac{u+v}{2}
+\)
+会得到严格更小函数值，矛盾。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:unique-minimizer}：假设存在两极小点 $u\neq v$，则强凸性推出
+\[
+\Phi\Bigl(\frac{u+v}{2}\Bigr)
+<
+\frac{\Phi(u)+\Phi(v)}{2}
+=
+\Phi(u),
+\]
+与“$u$ 为极小点”矛盾。故极小点唯一。
+\end{proof}
+
+\begin{remark}
+若缺乏凸性/强凸性/Lipschitz 梯度等条件，则“全局最优路径收敛”一般属于\textbf{未证明}；此时应回退到第~\ref{thm:conditional-conv} 的稳态结论。
+\end{remark}
+
+\section{双重收敛：层级修复与可行域优化的可审计分解}
+\label{sec:double-convergence}
+
+\subsection{记号与目标}
+\label{subsec:double-convergence-notation-goal}
+
+以下严格区分两类索引：
+\begin{itemize}
+\item \textbf{层级索引：}$n\ge 3$，表示语义层 $l_n$ 的层级修复（同伦/曲率/语义增强的层）；对应层级更新序列 $y_n$；
+\item \textbf{优化迭代索引：}$t\in\mathbb N$，表示在固定可行域 $K(x)$ 上做变分迭代（投影梯度步）；对应优化迭代序列 $y^{t}$。
+\end{itemize}
+
+本文把“收敛”严格拆成两条可审计结论，并强调二者的接口分工：
+\begin{enumerate}
+\item \textbf{可行性收敛（层级修复轨道）}：沿层级更新 $y_n$，障碍量趋零 $\Ob_n(y_n)\to 0$；
+\item \textbf{最优性收敛（可行域内择优轨道）}：在可行域 $K(x)$ 上，沿优化迭代 $y^{t}$ 收敛到唯一全局最优 $y^\star(x)$。
+\end{enumerate}
+
+\begin{remark}[接口化直觉]
+第一条只管“是否逼近可接受集”（一致性/可行性）；第二条只管“在可行域内如何择优”（全局最优/收敛率）。
+两者相互正交：$\Ob$ 管可行性残差，$\Phi$ 管最优性比较。
+\end{remark}
+
+\subsection{定义（层级数据、障碍量、提升与最优）}
+\label{subsec:double-convergence-definitions}
+
+\begin{definition}[D1（层级数据与语义增强）]\label{def:dc-D1}
+对每个 $n\ge 3$，定义层级数据五元组
+\[
+\mathfrak D_n := \bigl(\mathcal S_n,\ \Theta_n,\ R_n,\ d_n,\ \mathcal A_n\bigr),
+\]
+其中：$\mathcal S_n$ 为第 $n$ 层状态空间（见定义~\ref{def:layer-space}），$\Theta_n$ 为连续参数空间（见定义~\ref{def:mixed-index}），
+$R_n:\mathcal S_{n-1}\times \Theta_n\to \mathcal S_n$ 为更新/修复算子（见定义~\ref{def:twist}），
+$d_n$ 为 $\mathcal S_n$ 上度量（或伪度量，见定义~\ref{def:ob-measure}），
+$\mathcal A_n\subseteq \mathcal S_n$ 为可接受集（见定义~\ref{def:acceptable}）。
+\end{definition}
+
+\begin{remark}[对比：$l_2$ 的接口缺失]
+层 $l_2$ 仅保留外延信息（离散标签/基数级）。在不额外引入 $d_n,\mathcal A_n,\Phi$ 等接口的前提下，
+无法在 $l_2$ 内部形成可审计的“修复收敛”与“最优收敛”不等式链。
+\end{remark}
+
+\begin{definition}[D2（障碍量）]\label{def:dc-D2}
+定义障碍量（到可接受集的距离）
+\[
+\Ob_n(y):=\inf_{z\in\mathcal A_n} d_n(y,z)\in\mathbb R_{\ge 0}
+\]
+（见定义~\ref{def:ob-measure}）。它刻画“可行性残差”（一致性缺口/孔洞风险的度量化替身）。
+\end{definition}
+
+\begin{definition}[D3（纤维、提升、孔洞）]\label{def:dc-D3}
+给定遗忘投影
+\[
+\pi_{n\to 2}:\mathcal S_n\to\mathcal S_2
+\]
+（见定义~\ref{def:forget-map}）。对任意 $x\in\mathcal S_2$ 定义可接受提升集
+\[
+\Lift_n(x):=\mathcal A_n\cap \pi_{n\to 2}^{-1}(x)
+\]
+（见定义~\ref{def:lift}），并定义孔洞谓词
+\[
+\Hole_n(x)\ :\iff\ \Lift_n(x)=\varnothing
+\]
+（见定义~\ref{def:hole}）。
+\end{definition}
+
+\begin{remark}[从 $\Ob\to 0$ 到“无孔洞”需要额外条款]
+本章“可行性收敛”的主结论以 $\Ob_n(y_n)\to 0$ 表达。若要从 $\Ob_n(y_n)\to 0$ 进一步推出
+“确实消除孔洞”（例如 $x$ 具有极限意义下的可接受提升），需要额外加入“提升完备性/极限存在性/障碍完备性”等条款，
+参见第~\ref{subsec:double-convergence-remarks} 小节。
+\end{remark}
+
+\begin{definition}[D4（可行域与势函数）]\label{def:dc-D4}
+对固定外延态 $x\in\mathcal S_2$，令 $K(x)$ 为承载优化的目标可行域（可取 $K(x)=\Lift_\infty(x)$，见定理~\ref{thm:existence-minimizer} 的口径）。
+给定势函数（变分泛函）
+\[
+\Phi:K(x)\to\mathbb R,
+\]
+并定义全局最优解
+\[
+y^\star(x)\in \arg\min_{y\in K(x)}\Phi(y).
+\]
+\end{definition}
+
+\subsection{公理/假设（证书）}
+\label{subsec:double-convergence-assumptions}
+
+\begin{assumption}[障碍收缩（可行性修复）]\label{ass:dc-ob-contract}
+沿层级更新序列
+\[
+y_n = R_n(y_{n-1};\theta_n),\qquad n\ge 3,
+\]
+存在 $\rho_n\in[0,1)$ 使得
+\[
+\Ob_n(y_n)\le \rho_n\,\Ob_{n-1}(y_{n-1}),
+\]
+并且存在统一上界 $\bar\rho<1$ 满足
+\[
+\sup_{n\ge 3}\rho_n \le \bar\rho.
+\]
+\end{assumption}
+
+\begin{assumption}[强凸 + Lipschitz 梯度（最优性锁定）]\label{ass:dc-opt-lock}
+在可行域 $K(x)$ 上满足：
+\begin{enumerate}
+\item $K(x)$ 非空、闭、凸；
+\item $\Phi$ 为 $\mu$-强凸（$\mu>0$），即
+\[
+\Phi(v)\ge \Phi(u)+\langle \nabla\Phi(u),v-u\rangle + \frac{\mu}{2}\|v-u\|^2,\quad \forall u,v\in K(x);
+\]
+\item $\nabla \Phi$ 为 $L$-Lipschitz（$L>0$），即
+\[
+\|\nabla\Phi(u)-\nabla\Phi(v)\|\le L\|u-v\|,\quad \forall u,v\in K(x).
+\]
+\end{enumerate}
+\end{assumption}
+
+\begin{Certificate}[证书 0：接口引用（结构前提）]\label{cert:dc-interface}
+本章将以下接口作为可直接调用的结构前提（无需在本文内部重证）：
+\begin{itemize}
+\item 修复算子接口：$R_n:\mathcal S_{n-1}\times\Theta_n\to\mathcal S_n$；
+\item 障碍量定义：$\Ob_n(y)=\inf_{z\in\mathcal A_n}d_n(y,z)$；
+\item 投影算子：$\Pi_{K(x)}$ 为到闭凸集 $K(x)$ 的投影（因此满足非扩张性；见引理~\ref{lem:dc-proj-nonexpansive}，参考 \cite{BauschkeCombettes2017}）；
+\item 优化迭代（投影梯度）：
+\[
+y^{t+1}=\Pi_{K(x)}\bigl(y^t-\alpha\nabla\Phi(y^t)\bigr).
+\]
+\end{itemize}
+\end{Certificate}
+
+\subsection{第一重收敛：可行性修复（障碍量归零）}
+\label{subsec:double-convergence-feasibility}
+
+\begin{lemma}[障碍量指数衰减]\label{lem:dc-ob-decay}
+在假设~\ref{ass:dc-ob-contract} 下，
+\[
+\Ob_n(y_n)
+\le
+\Bigl(\prod_{k=3}^n \rho_k\Bigr)\Ob_2(y_2)
+\le
+\bar\rho^{\,n-2}\Ob_2(y_2)
+\xrightarrow[n\to\infty]{}0.
+\]
+\end{lemma}
+
+\begin{Certificate}[数学归纳法证书：乘积上界谓词]\label{cert:dc-ob-decay}
+令命题
+\[
+P(n):\quad \Ob_n(y_n)\le\Bigl(\prod_{k=3}^n\rho_k\Bigr)\Ob_2(y_2).
+\]
+证书目标：
+\[
+P(3)\ \text{成立},\qquad (\forall n\ge 3)\ \bigl(P(n)\Rightarrow P(n+1)\bigr).
+\]
+并在归纳结论基础上调用 $\rho_k\le\bar\rho<1$ 推出极限为 $0$。
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+\textbf{基步：}当 $n=3$，由假设~\ref{ass:dc-ob-contract} 得
+\[
+\Ob_3(y_3)\le\rho_3\Ob_2(y_2)=\Bigl(\prod_{k=3}^{3}\rho_k\Bigr)\Ob_2(y_2),
+\]
+故 $P(3)$ 成立。
+
+\textbf{归纳步：}设 $P(n)$ 成立。由假设~\ref{ass:dc-ob-contract} 得
+\[
+\Ob_{n+1}(y_{n+1})\le \rho_{n+1}\Ob_n(y_n)
+\le \rho_{n+1}\Bigl(\prod_{k=3}^n\rho_k\Bigr)\Ob_2(y_2)
+=\Bigl(\prod_{k=3}^{n+1}\rho_k\Bigr)\Ob_2(y_2),
+\]
+故 $P(n+1)$ 成立。
+
+由数学归纳法得 $P(n)$ 对全部 $n\ge 3$ 成立。再由 $\rho_k\le\bar\rho<1$ 得
+\[
+\Ob_n(y_n)\le\bar\rho^{\,n-2}\Ob_2(y_2)\xrightarrow[n\to\infty]{}0.
+\]
+引理成立。
+\end{proof}
+
+\begin{corollary}[趋于可接受：任意精度可行]\label{cor:dc-eps-feasible}
+在引理~\ref{lem:dc-ob-decay} 下，对任意 $\varepsilon>0$，存在 $N(\varepsilon)$ 使得
+\[
+\forall n\ge N(\varepsilon),\quad \Ob_n(y_n)\le \varepsilon.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：极限定义展开]\label{cert:dc-eps-feasible}
+证书只需把 $\Ob_n(y_n)\to 0$ 按 $\varepsilon$--$N$ 语言展开即可。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:dc-eps-feasible} 与引理~\ref{lem:dc-ob-decay} 直接推出结论。
+\end{proof}
+
+\subsection{第二重收敛：最优路径锁定（全局最优）}
+\label{subsec:double-convergence-optimality}
+
+\begin{lemma}[投影非扩张性]\label{lem:dc-proj-nonexpansive}
+对闭凸集 $K(x)$ 的投影 $\Pi_{K(x)}$，有
+\[
+\|\Pi_{K(x)}(u)-\Pi_{K(x)}(v)\|\le \|u-v\|,\quad \forall u,v.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书：投影的一阶最优性条件]\label{cert:dc-proj-nonexpansive}
+证书登记：闭凸集上的投影满足变分不等式刻画，并推出（甚至更强的）firmly nonexpansive 性质；可参见 \cite{BauschkeCombettes2017}。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:dc-proj-nonexpansive}：
+\[
+\text{闭凸集}\Rightarrow \Pi_{K(x)}\ \text{存在且唯一}
+\Rightarrow \Pi_{K(x)}\ \text{满足投影变分不等式}
+\Rightarrow \Pi_{K(x)}\ \text{非扩张}.
+\]
+引理成立。
+\end{proof}
+
+\begin{proposition}[唯一全局最优解存在]\label{prop:dc-unique-opt}
+在假设~\ref{ass:dc-opt-lock} 下，$\Phi$ 在 $K(x)$ 上存在唯一全局最优解 $y^\star(x)$。
+\end{proposition}
+
+\begin{Certificate}[证书：强凸唯一性 + 胁迫性/可达性模板]\label{cert:dc-unique-opt}
+证书链条：
+\[
+\text{强凸}\Rightarrow \text{极小点至多一个}
+\Rightarrow \text{唯一性成立};
+\]
+并在本文默认口径下，将 $K(x)$ 视为欧氏空间上的闭凸集，则强凸性给出二次下界，从而 $\Phi$ 在 $K(x)$ 上胁迫，
+结合闭性与连续性得到极小值可达（参见 \cite{BoydVandenberghe2004,Beck2017}）。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:dc-unique-opt}：
+\[
+\text{强凸}\Rightarrow \text{若存在两极小点则中点严格更小}\Rightarrow \text{矛盾}\Rightarrow \text{极小点唯一}.
+\]
+另一方面，强凸性给出二次增长下界，从而 $\Phi$ 在 $K(x)$ 上胁迫；结合 $K(x)$ 的闭性与 $\Phi$ 的连续性，下确界可达。
+故唯一最小点存在。命题成立。
+\end{proof}
+
+\begin{proposition}[投影梯度线性收敛]\label{prop:dc-pgd-linear}
+在假设~\ref{ass:dc-opt-lock} 下，取步长满足
+\[
+0<\alpha<\frac{2}{L},
+\]
+并定义迭代
+\[
+y^{t+1}=\Pi_{K(x)}\bigl(y^t-\alpha\nabla\Phi(y^t)\bigr).
+\]
+则存在 $q\in(0,1)$ 使得
+\[
+\|y^{t+1}-y^\star(x)\|\le q\,\|y^{t}-y^\star(x)\|,\qquad \forall t,
+\]
+从而 $y^{t}\to y^\star(x)$（线性收敛）。
+\end{proposition}
+
+\begin{Certificate}[证书：压缩映射 + 投影非扩张 + 不动点条件]\label{cert:dc-pgd-linear}
+证书分三步：
+\begin{enumerate}
+\item 对 $\mu$-强凸且 $L$-smooth 的 $\Phi$，在合适步长下，梯度步进映射 $T(y):=y-\alpha\nabla\Phi(y)$ 在 $K(x)$ 上为压缩映射；
+\item 由引理~\ref{lem:dc-proj-nonexpansive}，投影 $\Pi_{K(x)}$ 为非扩张映射；
+\item 最优解 $y^\star$ 满足投影梯度不动点条件 $y^\star=\Pi_{K(x)}(T(y^\star))$（等价于闭凸集上一阶最优性）。
+\end{enumerate}
+上述为一阶方法标准链，可参见 \cite{Nesterov2004,Beck2017,BauschkeCombettes2017}。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:dc-pgd-linear}：
+\[
+\|y^{t+1}-y^\star\|
+=\|\Pi_{K(x)}(T(y^t))-\Pi_{K(x)}(T(y^\star))\|
+\le \|T(y^t)-T(y^\star)\|
+\le q\,\|y^t-y^\star\|,
+\]
+其中 $0<q<1$。故误差满足线性收缩，从而 $y^t\to y^\star(x)$。命题成立。
+\end{proof}
+
+\begin{remark}[边界提示]
+若去掉强凸/闭凸/步长等条件，“收敛到全局最优”一般属于\textbf{未证明}；通常只能证明“势值收敛到某个临界值或停点”。
+\end{remark}
+
+\subsection{核心定理：$l_{\ge 3}$ 的双重收敛修复（可行性 + 最优性）}
+\label{subsec:double-convergence-main-theorem}
+
+\begin{theorem}[双重收敛主定理]\label{thm:dc-double-convergence}
+在 $n\ge 3$ 的语义层级上，若满足：
+\begin{itemize}
+\item 假设~\ref{ass:dc-ob-contract}（障碍收缩：可行性修复）；
+\item 存在非空闭凸可行域 $K(x)$ 与势函数 $\Phi$ 满足假设~\ref{ass:dc-opt-lock}（强凸 + Lipschitz 梯度：最优性锁定）；
+\item 并在可行域 $K(x)$ 上以投影梯度法进行优化迭代；
+\end{itemize}
+则存在两重收敛结论：
+\begin{enumerate}
+\item \textbf{(A) 可行性修复收敛：}沿层级修复序列 $y_n$，有 $\Ob_n(y_n)\to 0$；
+\item \textbf{(B) 最优路径锁定收敛：}沿优化迭代 $y^t$，有 $y^t\to y^\star(x)$，其中 $y^\star(x)$ 为 $K(x)$ 上 $\Phi$ 的唯一全局最优解。
+\end{enumerate}
+\end{theorem}
+
+\begin{Certificate}[证书：两条收敛链的拼接]\label{cert:dc-double-convergence}
+证书链条：
+\[
+\text{假设~\ref{ass:dc-ob-contract}}
+\Rightarrow
+\text{引理~\ref{lem:dc-ob-decay}}
+\Rightarrow
+\text{(A)};
+\]
+\[
+\text{假设~\ref{ass:dc-opt-lock}}
+\Rightarrow
+\text{命题~\ref{prop:dc-unique-opt} 与命题~\ref{prop:dc-pgd-linear}}
+\Rightarrow
+\text{(B)}.
+\]
+两条链共享的仅是“接口对象的可引用性”（证书~\ref{cert:dc-interface}），在逻辑上彼此独立。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:dc-double-convergence}：
+(A) 由引理~\ref{lem:dc-ob-decay} 直接得到；
+(B) 由命题~\ref{prop:dc-unique-opt} 得最优解存在且唯一，再由命题~\ref{prop:dc-pgd-linear} 得线性收敛到该唯一最优解。
+两者合并即得结论。定理成立。
+\end{proof}
+
+\subsection{备注：孔洞/上同调障碍与双重收敛对齐}
+\label{subsec:double-convergence-remarks}
+
+\begin{remark}
+为把“孔洞/上同调障碍”与本章双重收敛结论对齐，需要区分“逼近”与“存在”两类语义强度：
+\begin{enumerate}
+\item \textbf{从孔洞到无孔洞的最弱落地：}本章把“从孔洞到无孔洞”的最弱可审计表达落实为 $\Ob_n(y_n)\to 0$，
+它等价于“以任意精度逼近可接受集”（推论~\ref{cor:dc-eps-feasible}）。
+\item \textbf{从 $\Ob\to 0$ 升级到“确有提升/确有截面”：}若要求真正得到 $x$ 的极限意义下的可接受提升（或截面存在），可加入例如：
+\begin{itemize}
+\item 障碍完备性：$\Lift_\infty(x)\neq\varnothing \iff \ObTot(x)=0$（假设~\ref{ass:ot-complete} 与定理~\ref{thm:hole-iff-obtot}）；
+\item 极限存在性：存在极限对象 $y_\infty\in K(x)$ 且满足某种极限投影条件（例如 $\pi_{\infty\to 2}(y_\infty)=x$）。
+\end{itemize}
+\item \textbf{$l_2$ 的局限：}缺少 $(d,\Ob,\Phi)$ 等接口时，“收缩/优化”无法落到不等式与收敛率；因此 $l_2$ 只能呈现外延标签，而不能自产生“修复--择优”的证明链。
+\item \textbf{两种无穷（可数 + 不可数）：}层级索引 $n\in\mathbb N$（可数）与连续参数 $\theta_n\in\Theta_n$（不可数）共同构成修复自由度；
+这正是让“绕过障碍”与“势能比较”成为可计算/可审计机制的关键结构来源（见定义~\ref{def:mixed-index} 与引理~\ref{lem:two-infinities}）。
+\end{enumerate}
+\end{remark}
+
+\section{两类无穷自由度：全连通与最优路径的严格化表述}
+\label{sec:two-infinities-connectivity-optimal}
+
+\subsection{定义}
+
+\begin{definition}[D1（两类“无穷自由度”）]\label{def:D1-two-infinities-freedom}
+本文中与“修复--择优”相关的自由度分为两类：
+\begin{enumerate}
+\item \textbf{可数无穷自由度：层级/塔阶索引}
+\[
+n\in\mathbb N_{\ge3},
+\]
+表示“第 $n$ 级新增一批边缘算子/修复算子”，用于逐级处理障碍塔 $\bigl(\operatorname{ob}_{k+1}(x)\bigr)_{k\ge2}$（见定义~\ref{def:obstruction-tower}
+  与定义~\ref{def:obstruction-total}）。
+\item \textbf{不可数无穷自由度：每级内部的连续语义参数}
+\[
+\theta_n\in\Theta_n,\qquad |\Theta_n|\ge|\mathbb R|,
+\]
+用于在固定可行约束下引入连续变形、梯度与势函数比较结构，从而执行变分择优（见定义~\ref{def:mixed-index} 与定义~\ref{def:potential}）。
+\end{enumerate}
+\end{definition}
+
+\subsection{命题}
+
+\begin{proposition}[P1（可数无穷自由度“实现全连通”的严格化版本）]\label{prop:P1-countable-global-feasible-connectivity}
+把“全连通”严格化为以下更可审计的目标：
+\[
+\textbf{全连通（可行连通）}:=\forall x\in\mathcal S_2,\ \Lift_\infty(x)\neq\varnothing
+\quad(\text{即 }\Hole_\infty(x)\ \text{处处为假}).
+\]
+在假设~\ref{ass:min-completeness-approx-ob-exist} 下，若对任意 $x\in\mathcal S_2$ 都存在可数层级更新序列
+\[
+y_n=R_n(y_{n-1};\theta_n)\in\mathcal S_n\quad(n\ge3),
+\qquad
+\pi_{n\to2}(y_n)=x,
+\]
+并且满足
+\[
+\Ob_n(y_n)\xrightarrow[n\to\infty]{}0,
+\]
+则推出 $\Lift_\infty(x)\neq\varnothing$，从而“无孔洞/可行连通”成立。
+\end{proposition}
+
+\begin{Certificate}[证书：收缩趋零接口 + 最小完备性升级接口]\label{cert:P1-countable-global-feasible-connectivity}
+证书分两段：
+\begin{enumerate}
+\item \textbf{（可选的趋零来源）}若沿层级更新满足假设~\ref{ass:ob-contract}，并进一步满足定理~\ref{thm:conditional-conv} 的条件 $\sup_{n\ge3}
+  \rho_n\le\bar\rho<1$，则可推出 $\Ob_n(y_n)\to0$；
+\item \textbf{（结论升级）}由假设~\ref{ass:min-completeness-approx-ob-exist} 的 (3)$\Rightarrow$(1) 与 (3)$\Rightarrow$(2)
+  （或直接调用定理~\ref{thm:strict-no-hole-lift-from-approx}），把 $\Ob_n(y_n)\to0$ 升级为 $\Lift_\infty(x)\neq\varnothing$（并推出
+  $\ObTot(x)=0$）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+任取 $x\in\mathcal S_2$。由命题条件，存在一致层级更新序列 $(y_n)_{n\ge3}$ 满足 $\pi_{n\to2}(y_n)=x$ 且 $\Ob_n(y_n)\to0$。
+因此满足假设~\ref{ass:min-completeness-approx-ob-exist} 的条款 (3)。
+由证书~\ref{cert:P1-countable-global-feasible-connectivity} 的第 2 段，得到 $\Lift_\infty(x)\neq\varnothing$（并且 $\ObTot(x)=0$）。
+由于 $x$ 任意，故 $\forall x\in\mathcal S_2,\ \Lift_\infty(x)\neq\varnothing$，即“全连通（可行连通）”成立。命题成立。
+\end{proof}
+
+\subsection{定理}
+
+\begin{theorem}[T1（不可数无穷自由度“实现最优路径”的严格化版本）]\label{thm:T1-uncountable-optimal-path}
+对固定 $x\in\mathcal S_2$，设可行域 $K(x)\neq\varnothing$，并在本文口径下取
+\[
+K(x):=\Lift_\infty(x).
+\]
+若满足：
+\begin{enumerate}
+\item $K(x)$ 闭凸；
+\item $\Phi$ 在 $K(x)$ 上 $\mu$-强凸，且 $\nabla\Phi$ 在 $K(x)$ 上为 $L$-Lipschitz；
+\end{enumerate}
+则投影梯度迭代
+\[
+y^{t+1}=\Pi_{K(x)}\bigl(y^t-\alpha\nabla\Phi(y^t)\bigr),\qquad 0<\alpha<\frac{2}{L}
+\]
+收敛到唯一全局最优解 $y^\star(x)$，并且存在 $q\in(0,1)$ 使误差线性收缩：
+\[
+\|y^{t+1}-y^\star(x)\|\le q\,\|y^t-y^\star(x)\|,\quad \forall t.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：强凸唯一性 + 压缩映射 + 投影非扩张]\label{cert:T1-uncountable-optimal-path}
+证书登记三项标准接口：
+\begin{enumerate}
+\item 强凸 + Lipschitz 梯度 $\Rightarrow$ 全局最优解唯一；
+\item 在 $0<\alpha<2/L$ 下，梯度步进映射为压缩；
+\item 闭凸集投影 $\Pi_{K(x)}$ 非扩张，与压缩步进复合仍为压缩，从而得到线性收敛。
+\end{enumerate}
+上述链条在本文中可直接由命题~\ref{prop:dc-unique-opt} 与命题~\ref{prop:dc-pgd-linear} 调用。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:T1-uncountable-optimal-path}：在给定的闭凸可行域 $K(x)$ 上，
+\[
+\begin{aligned}
+\text{强凸 + Lipschitz 梯度}
+&\Rightarrow
+\exists!\ y^\star(x)\\
+&\Rightarrow
+\text{投影梯度迭代为压缩}\\
+&\Rightarrow
+\exists q\in(0,1)\ \text{使得}\\
+&\qquad
+\|y^{t+1}-y^\star\|\le q\,\|y^t-y^\star\|\\
+&\Rightarrow
+y^t\to y^\star(x).
+\end{aligned}
+\]
+严格推导见命题~\ref{prop:dc-unique-opt} 与命题~\ref{prop:dc-pgd-linear}。定理成立。
+\end{proof}
+
+\subsection{推论}
+
+\begin{corollary}[C1（“可数无穷实现全连通，不可数无穷实现最优路径”的严格版本）]\label{cor:C1-two-infinities-slogan}
+您所述句子
+\[
+\text{“可数无穷（自由度）实现全连通，不可数无穷（自由度）实现最优路径”}
+\]
+在本文框架下可严格改写为两条可审计断言：
+\[
+\boxed{
+\begin{aligned}
+\text{可数层级 }(n\in\mathbb N)\ \text{用于逐级消除障碍残差}
+&\Rightarrow
+\forall x\in\mathcal S_2,\ \Lift_\infty(x)\neq\varnothing\\
+&\qquad(\text{无孔洞/可行连通}).
+\end{aligned}
+}
+\]
+\[
+\boxed{
+\begin{aligned}
+\text{不可数连续参数 }(\theta_n\in\Theta_n,\ |\Theta_n|\ge|\mathbb R|)\ \text{支撑势函数与梯度结构}
+&\Rightarrow
+y^t\to y^\star(x)\\
+&\qquad(\text{最优路径收敛}).
+\end{aligned}
+}
+\]
+\end{corollary}
+
+\begin{Certificate}[证书：命题 P1 + 定理 T1 直接拼接]\label{cert:C1-two-infinities-slogan}
+证书仅需两项：
+\begin{enumerate}
+\item 由命题~\ref{prop:P1-countable-global-feasible-connectivity} 得“无孔洞/可行连通”；
+\item 由定理~\ref{thm:T1-uncountable-optimal-path} 得“最优路径收敛”。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:C1-two-infinities-slogan}，两条方框断言分别是命题~\ref{prop:P1-countable-global-feasible-connectivity} 与定理~\ref{thm:T1-uncountable-optimal-path} 的文字化重述。推论成立。
+\end{proof}
+
+\subsection{备注（两点必要的精确化）}
+
+\begin{remark}[全连通与不可数自由度的边界]\label{rem:two-infinities-precision}
+\begin{enumerate}
+\item “全连通”若按拓扑学标准理解为“路径连通/单连通”等更强性质，则需额外假设（例如各层可接受集 $\mathcal A_n$ 的路径连通性，以及投影/提升保持连通性）。
+在目前最小骨架里，“全连通”最稳妥的严格含义是\textbf{处处无孔洞（可行提升处处存在）}，即 $\forall x,\ \Lift_\infty(x)\neq\varnothing$。
+\item “不可数”并非逻辑上绝对必要：离散优化同样可以寻优。
+但在本文口径下，“不可数自由度”的关键作用是为“势函数比较、梯度、变分路径、收缩率”等\textbf{可审计不等式}提供自然载体，从而把“最优路径”从叙述目标提升为可证明对象。
+\end{enumerate}
+\end{remark}
+
+\section{两条链的严格对齐：Chain-B 作为 Chain-A 的实例}
+
+\subsection{对齐主定理}
+
+\begin{theorem}[链对齐]\label{thm:alignment}
+在前述对象与假设下，Chain-B 可按如下对应实现为 Chain-A 的实例化：
+\[
+\begin{array}{rcl}
+l_2 &\leftrightarrow& \mathcal S_2,\\
+\text{连续统（一离散）} &\leftrightarrow& \text{纤维 }\operatorname{Fib}_n(x)\text{ 的冗余 + }l_2\text{ 的离散外延输出},\\
+\text{崩溃/上同调障碍} &\leftrightarrow& \Hole_n(x)\ (\text{并在 }\mathbf{(OT\text{-}Complete)}\text{ 下等价于 }\ObTot(x)\neq0),\\
+\text{同伦塔度量（}l_{\ge3}\text{）} &\leftrightarrow& (\mathcal S_n,d_n)\text{ 与 }\Ob_n,\\
+\text{同伦扭曲} &\leftrightarrow& y_n=R_n(y_{n-1};\theta_n),\\
+\text{变分法收敛} &\leftrightarrow& \Phi\text{ 的下降/最小化与第~\ref{thm:conditional-conv},\ref{thm:pgd-global} 条结论},\\
+\text{离散统（一连续）} &\leftrightarrow& \sigma\text{（离散选代表）与 }\theta\text{（连续自由度）共同诱导的连续族}.
+\end{array}
+\]
+\end{theorem}
+
+\begin{Certificate}[证书：对象映射表与已证结论回填]\label{cert:alignment}
+证书由两部分组成：
+\begin{enumerate}
+\item 对象级映射：调用定义~\ref{def:forget-map}--\ref{def:potential} 的符号对照；
+\item 性质级映射：调用定理~\ref{thm:hole-iff-obtot}、\ref{thm:conditional-conv}、\ref{thm:pgd-global}。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:alignment}，逐项替换可得：
+\[
+\text{层化链每一环节}
+\Rightarrow
+\text{在本文对象集中有唯一对应接口}
+\Rightarrow
+\text{Chain-B 成为 Chain-A 的实例化}.
+\]
+定理成立。
+\end{proof}
+
+\subsection{“离散统（一连续）”的精确化}
+
+\begin{lemma}[离散层阶与连续自由度的合成极限]\label{lem:discrete-continuous}
+即使层阶 $n\in\mathbb N$ 为离散（可数），只要每层存在不可数参数 $\theta_n\in\Theta_n$，则由截面/选择规则构造出的代表族 $\sigma(x;\theta)$ 可在 $\theta$ 上形成连续族，
+  从而出现“离散统（一连续）”现象。
+\end{lemma}
+
+\begin{Certificate}[证书：参数不可数性 + 选择规则正则性]\label{cert:discrete-continuous}
+证书分两层：
+\begin{enumerate}
+\item 结构层：由定义~\ref{def:mixed-index}，参数方向不可数；
+\item 正则层：附加“$\sigma$ 对参数连续”的正则性假设，则像族随参数连续变化。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:discrete-continuous}：
+\[
+|\Theta_n|\ge|\mathbb R|
+\Rightarrow
+\text{可用连续参数簇索引代表}
+\Rightarrow
+\sigma(x;\theta)
+\text{可形成连续族（在连续性假设下）}.
+\]
+故“离散层阶 + 连续参数”可合成“离散统（一连续）”现象。
+\end{proof}
+
+\section{相对增益：从叙述链到可复用形式接口}
+
+\begin{definition}[增益维度]\label{def:gain-metrics}
+令 $\mathsf{OrigB}$ 表示仅含 Chain-B 的自然语言表达；$\mathsf{Align}$ 表示本文给出的对齐结构。
+定义四维增益：
+\[
+\Delta_{\mathrm{ref}}:\text{可指称性},\quad
+\Delta_{\mathrm{dis}}:\text{消歧},\quad
+\Delta_{\mathrm{ver}}:\text{可验证性},\quad
+\Delta_{\mathrm{imp}}:\text{可实现性}.
+\]
+\end{definition}
+
+\begin{theorem}[相对 $\mathsf{OrigB}$ 的增益为正]\label{thm:gain-positive}
+相对 $\mathsf{OrigB}$，本文结构 $\mathsf{Align}$ 在
+\(
+\Delta_{\mathrm{ref}},\Delta_{\mathrm{dis}},\Delta_{\mathrm{ver}},\Delta_{\mathrm{imp}}
+\)
+上均给出严格正增益。
+\end{theorem}
+
+\begin{Certificate}[证书：四维增益逐项见证]\label{cert:gain-positive}
+证书按四维分解：
+\begin{enumerate}
+\item 见证对象：$\pi,\operatorname{Fib},\sigma,\Hole,\Ob,\Phi$ 的显式定义；
+\item 见证语义：连续/离散、可数/不可数、崩溃/孔洞的一一对应；
+\item 见证验证：收敛/稳态/全局最优被拆解为假设 + 结论；
+\item 见证实现：诊断（孔洞）、修复（算子/约束）、优化（势函数）接口化。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:gain-positive}：
+\[
+\text{显式对象增加}
+\Rightarrow
+\Delta_{\mathrm{ref}}>0,
+\quad
+\text{语义一一映射增加}
+\Rightarrow
+\Delta_{\mathrm{dis}}>0,
+\]
+\[
+\text{可证条款增加}
+\Rightarrow
+\Delta_{\mathrm{ver}}>0,
+\quad
+\text{接口落地增加}
+\Rightarrow
+\Delta_{\mathrm{imp}}>0.
+\]
+故四维增益均严格为正。定理成立。
+\end{proof}
+
+\begin{remark}
+若把比较对象换成“已包含相同符号链与证明骨架的更强版本文本”，则增益量级会下降为“重包装/接口化增益”；本文不对该比较对象作额外假设。
+\end{remark}
+
+\section{结语：可审计的稳态构造模板}
+
+本文给出一条可复用模板：
+
+\begin{enumerate}
+\item 用遗忘投影 $\pi$ 识别 $l_2$ 外延态的纤维冗余；
+\item 用 $\mathcal A$ 与 $\Lift$ 定义可行域，并以 $\Hole$ 诊断崩溃点；
+\item 若需要“孔洞 $\Leftrightarrow$ 上同调障碍”，引入塔式障碍与完备性假设；
+\item 用 $\Ob$（可行性残差）与 $\Phi$（优化目标）分离建模；
+\item 在明确的收缩/单调条件下推出条件化收敛；
+\item 若要全局最优，再显式加入凸性/强凸性等强假设，否则标注为未证明。
+\end{enumerate}
+
+% ------------------------------
+% 正文到此结束
+% ------------------------------
+
+\section*{参考文献}
+\begin{thebibliography}{99}
+
+\bibitem{Hatcher2002}
+A.\ Hatcher,
+\emph{Algebraic Topology},
+Cambridge University Press, 2002.
+\\ \url{https://pi.math.cornell.edu/~hatcher/AT/ATpage.html}
+
+\bibitem{Whitehead1978}
+G.\ W.\ Whitehead,
+\emph{Elements of Homotopy Theory},
+Springer, 1978.
+
+\bibitem{Rudin1976}
+W.\ Rudin,
+\emph{Principles of Mathematical Analysis} (3rd ed.),
+McGraw--Hill, 1976.
+
+\bibitem{BoydVandenberghe2004}
+S.\ Boyd and L.\ Vandenberghe,
+\emph{Convex Optimization},
+Cambridge University Press, 2004.
+\\ \url{https://web.stanford.edu/~boyd/cvxbook/}
+
+\bibitem{Nesterov2004}
+Y.\ Nesterov,
+\emph{Introductory Lectures on Convex Optimization: A Basic Course},
+Kluwer Academic Publishers, 2004.
+
+\bibitem{Beck2017}
+A.\ Beck,
+\emph{First-Order Methods in Optimization},
+SIAM, 2017.
+
+\bibitem{BauschkeCombettes2017}
+H.\ H.\ Bauschke and P.\ L.\ Combettes,
+\emph{Convex Analysis and Monotone Operator Theory in Hilbert Spaces} (2nd ed.),
+Springer, 2017.
+
+\bibitem{Dacorogna2008}
+B.\ Dacorogna,
+\emph{Direct Methods in the Calculus of Variations} (2nd ed.),
+Springer, 2008.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

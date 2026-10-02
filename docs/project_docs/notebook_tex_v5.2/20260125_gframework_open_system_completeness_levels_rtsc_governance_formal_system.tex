@@ -1,0 +1,1286 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 基本定理环境（工作笔记：形式系统风格）
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+% 记号（仅用于本笔记自洽引用，避免依赖主稿宏定义）
+\newcommand{\RR}{\ensuremath{\mathbb{R}}}
+\newcommand{\NN}{\ensuremath{\mathbb{N}}}
+\newcommand{\GZLS}{\ensuremath{\mathsf{GZLS}}}
+\newcommand{\JacGap}{\ensuremath{\mathrm{JacGap}}}
+\newcommand{\EDOM}{\ensuremath{\mathsf{E}_{\mathrm{dom}}}}
+\newcommand{\Res}{\ensuremath{\mathrm{Res}}}
+\newcommand{\Unc}{\ensuremath{\mathrm{Unc}}}
+\newcommand{\Cert}{\ensuremath{\mathrm{Cert}}}
+\newcommand{\code}[1]{\path{#1}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+
+\hfuzz=700pt
+\hbadness=10000
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{开放系统博弈的完备性：等级、同伦修复塔与工业化室温超导治理\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-01-25}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是孤立讨论开放系统博弈、完备性等级或室温超导治理，而是在
+G-Framework 的开放系统链条中，把封闭回合博弈、开放环境耦合、同伦修复塔、
+跨域同构与工业化治理组织成一个可分层的形式系统。若这些对象分散出现，开放性
+容易只被理解为外部扰动，完备性容易只被理解为算力充分，治理也容易只被理解为
+流程管理；本文将它们统一为“系统在开放环境中如何获得可审计完备性”的问题。
+
+本文的第一层立场是开放系统完备性的等级化。封闭系统回合博弈只能处理规则固定、
+边界静止、状态空间已知的场景；开放系统则必须面对外界实时输入、策略漂移、
+知识增补、失败回流与修复塔扩展。完备性因此不能写成单一是/否判定，而必须写成
+按等级增长的能力谱系：从局部可解、局部可修复，到跨域可迁移、开放环境可治理。
+
+本文的第二层立场是把 RTSC 治理作为开放系统范例。室温超导在本文中被处理为复杂
+开放系统自动化设计的治理对象，而不是无条件物理结论。可行性需要按层划分：哪些
+节点可被结构控制，哪些节点需要插件路线，哪些节点只能通过环境适配器间接调节，
+哪些节点需要承认为暂不可控。总雅可比间隙给出这种可控性的审计判据。
+
+本文的第三层立场是公理降级与语言扩展。所谓基础公理在开放系统中不能只作为
+不证自明的静态假设，而应被降级为可证明、可调用、可迁移的定理接口。语言扩展
+则负责把封闭回合中的固定谓词提升为开放环境中可增补、可纠错、可修复的语义空间。
+
+本文的第四层立场是跨域同构的治理化。芯片、发动机、RTSC 等对象在物理机制上
+并不相同，但它们都可以被写成开放状态、外界扰动、系统构造算子、证书门槛与修复
+深度的组合。本文所说的跨域同构，不是抹平领域差异，而是给出一个共同治理骨架：
+各领域只在状态空间、干扰类型、构造算子和证书阈值上取不同实例。
+
+本文的第五层立场是封闭系统回合博弈的边界化。封闭博弈并非无用，它在固定规则和
+有限状态中仍然有效；但当外界实时干扰、知识更新、实验失败和策略增补进入系统时，
+封闭博弈无法提供普适解决方案。本文因此把封闭博弈降级为开放系统中的局部子模型，
+而不是把它当作总框架。
+
+本文的第六层立场是修复深度与开放度的耦合。开放度越高，系统面对的不可预见输入
+越多；修复深度越大，系统吸收失败、补充规则和更新证书的能力越强。完备性等级
+由二者共同决定，而不是由单一算法性能或单一算力指标决定。
+
+本文的第七层立场是为后续统计命中提供治理外壳。低残差命中和高阶正交收敛需要在
+开放环境中运行时，必须知道哪些扰动来自环境、哪些来自构造、哪些失败可修复、哪些
+失败必须降级。本文的开放系统完备性等级，正为后续命中范式提供这种治理边界。
+
+因此，本文在整体 G-Framework 中承担的是“开放系统完备性与治理等级”的锚定作用。
+它向前连接开放系统博弈和修复塔，向中间连接自动化科研、跨域同构与治理证书，
+向后为统计命中、PDE 残差求解和高阶正交控制提供开放环境中的可执行边界。概括地
+说，本文把“封闭算法是否足够”推进为“开放系统在何种等级上可修复、可迁移、可治理”
+的形式系统。
+
+更具体地说，本文把“完备性”从绝对结论改写为等级结构。一个开放系统可以在某一
+开放度和修复深度下完备，却在更高开放度或更强扰动下失去完备性。这个分层视角
+让系统能力变得可比较，也让失败不再是整体否定，而是指向具体等级的边界。
+
+从方法论上看，本文使治理进入形式系统。治理不是论文之外的管理建议，而是系统
+面对开放环境时的结构要求：证书如何更新，失败如何回收，路线如何替换，风险如何
+降级，跨域模板如何迁移。RTSC 只是一个高复杂度范例，真正抽象出来的是开放系统
+自动化科研的治理接口。
+
+从整体谱系看，本文把 G-Framework 从封闭数学结构推进到开放工程世界。后续同伦
+命中、PDE 残差求解和统计修复都需要在开放条件下运行；本文说明这些系统不可能只
+依靠一次性算法，而必须配套开放度、修复深度、证书门槛和治理策略。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：开放系统完备性、等级与跨域同构}
+\label{sec:tex25-formal-logic}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[目标（按统一口径把“完备性/等级/跨域实例”写成可复用骨架）]
+本章沿用工作笔记中已固定的接口口径：总体状态 $\mathcal{S}=\mathcal{X}\times\mathcal{Z}$、
+阶段更新 $O_t=\pi_t\circ\delta_t$（外界实时干扰 $\delta_t$ + 系统构造算子 $\pi_t$）、
+以及“算子词 $w=a_1\cdots a_T$ + Total \JacGap/\Cert{} 门槛”的执行层统一表达。
+目标是把以下三件事连成\textbf{同一条可证书化主线}：
+\begin{enumerate}
+  \item 开放系统博弈的“完备性”应如何定义，且为何经典意义下的绝对完备性一般不可得；
+  \item 等级 $\mathrm{Level}=(\kappa,\ell)$（开放度 $\kappa$ $\times$ 修复深度 $\ell$）如何把“难度”变成可判定结构；
+  \item 芯片、发动机与工业化 RTSC 三类问题如何在同一套 $(\mathcal{S},\delta,\pi,w,J,\Cert,\tau)$ 框架下同构，只在具体取法与等级高低上不同。
+\end{enumerate}
+\end{remark}
+
+\subsection{定义（开放系统：总体状态与阶段更新）}
+\label{subsec:tex25-def-state-update}
+
+\begin{definition}[定义 1（开放系统：总体状态与阶段更新）]
+令总体状态空间
+\[
+  \mathcal{S}:=\mathcal{X}\times\mathcal{Z},\qquad s:=(x,z),\ x\in\mathcal{X},\ z\in\mathcal{Z}.
+\]
+其中 $x$ 表示“物理态”（能量/温度/电磁/几何应力/材料微观态等的汇总口径），$z$ 表示“工程态”（算法参数、任务编排、控制策略、验证覆盖、运维链路、制造工艺配置等的汇总口径）。
+
+每一阶段 $t$ 的更新由总算子给出：
+\[
+  s_{t+1}=O_t(s_t),\qquad O_t:\mathcal{S}\to\mathcal{S}.
+\]
+并采用外生—内生二分的标准分解：
+\[
+  O_t=\pi_t\circ\delta_t,
+\]
+其中 $\delta_t$ 为外界实时干扰算子（环境/对手/基础设施/人因等触发），$\pi_t$ 为系统构造算子（系统内部可控结构与策略触发）。
+\end{definition}
+
+\begin{remark}[备注：外生—内生二分的接口意义]
+该分解的核心不是叙事，而是把“不可控外生输入”与“可控内生构造”在算子层面拆开，
+从而使后续的证书化审计与同伦修复塔具备统一入口：外界扰动被登记为 $\delta_t$，内部可控动作被登记为 $\pi_t$。
+\end{remark}
+
+\subsection{定义（可执行计划 = 算子词；统一执行层）}
+\label{subsec:tex25-def-word}
+
+\begin{definition}[定义 2（可执行计划：执行层幺半群与算子词）]
+令 $\EDOM$ 为“工程离散执行层”的幺半群（元素为可执行原语，乘法为连接/拼接，幺元为 $\varepsilon$）。
+任一可执行计划写成算子词
+\[
+  w=a_1a_2\cdots a_T,\qquad a_t\in\EDOM.
+\]
+约定空词 $\varepsilon$ 的长度为 $|\varepsilon|=0$，且对任意状态 $s$，$\varepsilon\cdot s=s$。
+\end{definition}
+
+\begin{definition}[定义 3（跨域统一：域算子幺半群到执行层的投影）]
+对任一具体域 $D$（芯片域/发动机域/RTSC 域等），设其域算子幺半群为 $\mathcal{M}^{D}$。
+若存在幺半群同态投影
+\[
+  \Phi^{D}:\mathcal{M}^{D}\to \EDOM,
+\]
+则域内动作序列可统一落到执行层词空间 $\EDOM^{\ast}$，
+从而把不同学科域的设计/科研动作纳入同一套“词空间搜索 + 证书门槛”的形式系统。
+\end{definition}
+
+\subsection{定义（风险度量、证书门槛与行动量）}
+\label{subsec:tex25-def-risk-cert-action}
+
+\begin{definition}[定义 4（风险向量与证书谓词）]
+令 $J:\mathcal{S}\to\RR_{\ge 0}^{m}$ 为风险/缺口向量度量（可包含 Total \JacGap{}、残差 $\Res$、不确定度 $\Unc$ 等可计算量）。
+并设证书谓词
+\[
+  \Cert:\mathcal{S}\to\{0,1\}
+\]
+表达“可复现/可审计/可回放”的硬门槛（$\Cert=1$ 表示证书链闭合）。
+\end{definition}
+
+\begin{definition}[定义 5（行动量：证书门槛惩罚下的统一变分泛函）]
+把“可优化目标”统一写成行动量（变分泛函）：
+\[
+  \begin{aligned}
+    \mathcal{S}_{\mathrm{act}}[w]
+    &:=
+    \int_{0}^{T}\Bigl(
+      G_{\mathrm{tot}}\bigl(m(t)\bigr)
+      +\lambda\,\Res\bigl(m(t)\bigr)
+      +\eta\,\Unc\bigl(m(t)\bigr)
+      \\
+      &\qquad\qquad
+      +M\cdot\bigl(1-\Cert\bigl(m(t)\bigr)\bigr)
+    \Bigr)\,dt,
+    \\
+    &\qquad
+    \lambda,\eta,M\ge 0,
+  \end{aligned}
+\]
+其中算子词 $w$ 在基底上诱导轨线 $m(t)$（由仿真器/实验协议/制造与测试链路定义），$M\gg 0$ 表示“证书门槛惩罚”。
+\end{definition}
+
+\subsection{开放系统博弈的完备性定义（绝对完备 vs 工程完备）}
+\label{subsec:tex25-def-completeness}
+
+\begin{definition}[定义 6（两类完备性）]
+给定阈值域
+\[
+  \mathcal{A}:=\{\,s\in\mathcal{S}:\ J(s)\preceq J_{\max}\,\},
+\]
+其中 $\preceq$ 表示分量逐点不超过（分量序）。
+\begin{enumerate}
+  \item \textbf{绝对完备性（absolute completeness）：}
+  给定可行初态域 $\Omega$ 与策略类 $\Pi$。
+  若存在某策略 $\pi^{\mathrm{pol}}\in\Pi$ 使得对任意外界策略（含对手）$\eta$ 与任意初态 $s_0\in\Omega$，都有
+  \[
+    \forall t\ge 0,\qquad s_t\in\mathcal{A},
+  \]
+  则称系统在 $(\Omega,\Pi)$ 上绝对完备。
+  \item \textbf{工程完备性（operational/tower completeness）：}
+  给定扰动类 $\mathcal{E}$（允许的 $\delta_t$ 序列集合）与修复词语言 $\mathcal{W}_{\mathrm{repair}}\subseteq\EDOM^{\ast}$。
+  若存在界函数 $L(\cdot)$ 使得对任意扰动序列 $\delta_{0:T-1}\in\mathcal{E}$ 与任意初态 $s_0\in\Omega$，
+  都存在修复词 $w\in\mathcal{W}_{\mathrm{repair}}$ 满足
+  \[
+    |w|\le L\bigl(J(s_T)\bigr),\qquad
+    J(w\cdot s_T)\preceq J_{\max},\qquad
+    \Cert(w\cdot s_T)=1,
+  \]
+  则称系统在 $(\Omega,\mathcal{E},\mathcal{W}_{\mathrm{repair}})$ 上工程完备。
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[备注：工程完备性不是“永不出错”]
+工程完备性不是“永不出错”，而是“可证书化地把错误拉回可接受域”，并把“拉回所需烈度”变成可审计量（见下一个定义）。
+\end{remark}
+
+\begin{definition}[定义 7（修复烈度证书 $\tau$）]
+定义修复烈度（可计算证书接口）
+\[
+  \tau:\mathcal{S}\times\EDOM^{\ast}\to\RR_{\ge 0}^{q},\qquad \tau(s,w),
+\]
+用于量化“把 $s$ 拉回 $\mathcal{A}$ 所付出的代价”。
+典型可取：
+\[
+  \tau(s,w)=(|w|,\ \text{资源消耗},\ \text{副作用上界}).
+\]
+工程完备性可加强为“有界烈度完备性”：在定义~6 的结论中进一步要求 $\tau(s_T,w)\preceq \tau_{\max}$。
+\end{definition}
+
+\subsection{公理（降级为定理：执行语义、对抗与有限候选）}
+\label{subsec:tex25-axioms}
+
+\begin{theorem}[公理（降级为定理）A0：算子词作用的可定义性（按词长度归纳）]
+\label{thm:tex25-axiom-a0-word-action}
+对任意初态 $s\in\mathcal{S}$ 与任意算子词 $w\in\EDOM^{\ast}$，$w\cdot s$ 由以下递推规则良定义：
+\[
+  \varepsilon\cdot s=s,\qquad
+  (wa)\cdot s=a\cdot(w\cdot s),
+\]
+其中 $a\in\EDOM$，$wa$ 表示在词尾拼接原语 $a$。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书 A0：按词长度的可定义性]
+\label{cert:tex25-a0-word-action}
+定义谓词 $P(T)$ 为：“对任意长度为 $T$ 的算子词 $w$ 与任意 $s\in\mathcal{S}$，$w\cdot s$ 可由递推规则唯一计算。”
+证书化要求为：
+\[
+  P(0)\ \text{成立},\qquad
+  (\forall T\in\NN)\ \bigl(P(T)\Rightarrow P(T+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+由证书~\ref{cert:tex25-a0-word-action}：
+\begin{itemize}
+  \item 基步：$T=0$ 时唯一的词为 $\varepsilon$，按定义 $\varepsilon\cdot s=s$，故 $P(0)$ 成立；
+  \item 归纳步：假设 $P(T)$ 成立。对任意长度 $T+1$ 的词 $w'=wa$（$|w|=T$），按递推
+  \[
+    w'\cdot s=(wa)\cdot s=a\cdot(w\cdot s),
+  \]
+  其中 $w\cdot s$ 由归纳假设唯一可得，因此 $w'\cdot s$ 亦唯一可得，故 $P(T+1)$ 成立。
+\end{itemize}
+由数学归纳法得对任意长度的算子词，作用 $w\cdot s$ 良定义。证毕。
+\end{proof}
+
+\begin{theorem}[公理（降级为定理）A1：自适应对抗（外界干扰可依赖历史与策略结构）]
+\label{thm:tex25-axiom-a1-adaptive}
+记历史为 $h_t=(s_0,\pi_0,\dots,s_t)$。
+允许外界/对手选择 $\delta_t$ 依赖历史与我方策略结构，即存在映射
+\[
+  \eta:\ h_t\mapsto \delta_t,
+\]
+使得 $\delta_t=\eta(h_t)$。
+\end{theorem}
+
+\begin{Certificate}[证书 A1：历史依赖的对抗接口登记]
+\label{cert:tex25-a1-adaptive}
+证书登记：在运行期事件流中记录 $(s_t,\pi_t,\delta_t,\Cert(s_t),J(s_t))$，从而历史 $h_t$ 可重放；
+因此“$\delta_t$ 可依赖历史与策略结构”可被实现为对日志的确定映射。
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-a1-adaptive}：
+\[
+  P_1:\ \text{事件流可重放 } h_t,\qquad
+  P_2:\ \eta\text{ 作为 }h_t\mapsto\delta_t\text{ 的映射可实现}.
+\]
+因此 A1 在本章口径下是可证书化的对抗建模约定。证毕。
+\end{proof}
+
+\begin{theorem}[公理（降级为定理）A2：有限候选（局部可控动作集合有限）]
+\label{thm:tex25-axiom-a2-finite}
+对任意状态 $s$，我方在每一步只能从有限候选集合中选取系统构造算子：
+\[
+  \mathcal{U}(s)\subseteq \{\pi:\mathcal{S}\to\mathcal{S}\},
+  \qquad
+  0<|\mathcal{U}(s)|<\infty.
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 A2：候选集合的可枚举性]
+\label{cert:tex25-a2-finite}
+证书登记：对每个阶段 $t$，记录候选集 $\mathcal{U}(s_t)$ 的有限列表与其签名（版本/来源/哈希），并记录选中者 $\pi_t$；
+从而“有限候选”可被审计与复算。
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-a2-finite}：
+\[
+  Q_1:\ \mathcal{U}(s_t)\ \text{可枚举并被记录},\qquad
+  Q_2:\ \pi_t\in\mathcal{U}(s_t)\ \text{可被复算验证}.
+\]
+因此 A2 在本章口径下是可证书化的有限算力约束。证毕。
+\end{proof}
+
+\subsection{定理（公理降级）：绝对完备性一般不可得}
+\label{subsec:tex25-theorem-absolute}
+
+\begin{theorem}[定理 1（公理降级）：开放对抗下的绝对完备性一般不可得]
+\label{thm:tex25-thm1-absolute-impossible}
+在公理（降级）A1--A2 下，若外界扰动类足够丰富（存在把系统推入局部不可控扇区的扰动），
+则绝对完备性（定义~6）一般不可得：不存在单一 $\pi^{\mathrm{pol}}$ 能对所有 $\eta$ 保证 $\forall t\ge 0,\ s_t\in\mathcal{A}$。
+\end{theorem}
+
+\begin{Certificate}[证书 T1：构造性反例证书（对角化扰动）]
+\label{cert:tex25-thm1-diagonal}
+对任意给定策略 $\pi^{\mathrm{pol}}$，构造外界策略 $\eta^{\pi^{\mathrm{pol}}}$：
+在每个阶段选择 $\delta_t$ 把当前 $s_t$ 推入一个使得
+\[
+  \forall \pi\in\mathcal{U}(s_t),\quad
+  J\bigl((\pi\circ\delta_t)(s_t)\bigr)\not\preceq J_{\max}
+\]
+成立的局部扇区（即对所有可选内生动作都超阈）。
+该 $\eta^{\pi^{\mathrm{pol}}}$ 依赖 $\pi^{\mathrm{pol}}$ 的结构，因而对每个 $\pi^{\mathrm{pol}}$ 都可构造不同反例外界。
+\end{Certificate}
+
+\begin{proof}[证明（谓词因果链）]
+由证书~\ref{cert:tex25-thm1-diagonal}，记谓词链为：
+\[
+  R_1:\ |\mathcal{U}(s)|<\infty\ (\text{由 A2}),
+  \qquad
+  R_2:\ \delta_t=\eta(h_t)\ \text{可依赖策略结构 }(\text{由 A1}).
+\]
+由 $R_1$，对任意 $s$，候选集 $\mathcal{U}(s)$ 为有限集合。
+若扰动类足够丰富，则存在扰动 $\delta$ 使得对所有 $\pi\in\mathcal{U}(s)$，都有 $J((\pi\circ\delta)(s))\not\preceq J_{\max}$，
+即“局部不可控扇区”存在。
+由 $R_2$，外界可根据历史与策略结构把系统导向该扇区并选择相应扰动；
+因此对任意固定策略 $\pi^{\mathrm{pol}}$，均存在 $\eta^{\pi^{\mathrm{pol}}}$ 使得某一步超阈，否定绝对完备性。证毕。
+\end{proof}
+
+\subsection{引理：工程完备性的可获得判据（行动量下降/同伦塔下降）}
+\label{subsec:tex25-lemma-operational}
+
+\begin{lemma}[引理 1：行动量下降 $\Rightarrow$ 工程完备性]
+\label{lem:tex25-lem1-action-descent}
+若存在选择规则（可由 ORL/离散搜索/证书门槛化优化器实现）使得：
+\begin{enumerate}
+  \item 当 $J(s)\not\preceq J_{\max}$ 时，总能在有限候选修复词集合 $\mathcal{W}_{\le L}\subseteq\mathcal{W}_{\mathrm{repair}}$ 中找到
+    $w^{\star}$ 使行动量严格下降：
+  \[
+    \mathcal{S}_{\mathrm{act}}[w^{\star}]<\mathcal{S}_{\mathrm{act}}[w],\qquad \forall w\in\mathcal{W}_{\le L}
+      \setminus\{w^{\star}\};
+  \]
+  \item 并且该下降满足“有限步必入阈域”的离散李雅普诺夫条件（例如存在 $\epsilon>0$ 使每次修复至少使某个主导分量下降 $\epsilon$，或使 $|J(s)|$ 在有限步内单调逼近阈内）。
+\end{enumerate}
+则对相应扰动类 $\mathcal{E}$ 成立工程完备性（定义~6）。
+\end{lemma}
+
+\begin{Certificate}[数学归纳法证书 L1：按修复回合数 $k$ 归纳]
+\label{cert:tex25-lem1-induction}
+定义谓词 $R(k)$ 为：“经过至多 $k$ 次修复回合，可把状态送入阈域 $\mathcal{A}$，且证书链闭合（$\Cert=1$）。”
+证书化要求为：
+\[
+  R(0)\ \text{对}\ s\in\mathcal{A}\ \text{成立},\qquad
+  \bigl(R(k)\Rightarrow R(k+1)\bigr)\ \text{由严格下降与阈入条件推出}.
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+由证书~\ref{cert:tex25-lem1-induction}，记谓词链为：
+\[
+  \begin{aligned}
+    S_1:&\ \text{阈外时存在 }w^\star\text{ 使 }\mathcal{S}_{\mathrm{act}}\text{严格下降},\\
+    S_2:&\ \text{严格下降 + 阈入条件}\Rightarrow\text{不可能无限停留在阈外}.
+  \end{aligned}
+\]
+若 $s\in\mathcal{A}$，则 $R(0)$ 成立。
+若 $s\notin\mathcal{A}$，由 $S_1$ 可选到修复词并推进；由 $S_2$，推进不可能无限次而不入阈域，
+因此存在有限 $k$ 使 $R(k)$ 成立，从而存在有限长度修复词把状态拉回阈内并给出证书链。证毕。
+\end{proof}
+
+\subsection{等级（Level）= 开放度 $\kappa$ $\times$ 修复深度 $\ell$}
+\label{subsec:tex25-level}
+
+\begin{definition}[定义 8（开放度指数 $\kappa$：量词模式口径）]
+用量词模式刻画开放度（越大越开放）：
+\begin{enumerate}
+  \item $\kappa=0$：封闭确定系统（无对手/无外生序列自由度）；
+  \item $\kappa=1$：随机但分布固定（成功概率口径受控）；
+  \item $\kappa=2$：分布切换（工况切换/漂移），切换集可枚举；
+  \item $\kappa=3$：对抗自适应（外界选择依赖历史与策略结构，$\forall \eta$ 量词显式进入）；
+  \item $\kappa=4$：对抗 + 尾部事件主导约束（罕见但决定性扰动必须纳入 $\mathcal{E}$）；
+  \item $\kappa=5$：跨域强开放（物理/工程/制造/供应链/合规/竞争同时联动，且约束本身随时间重写）。
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[定义 9（修复深度 $\ell$：同伦修复塔层数的工程口径）]
+用“必须动用多少层自由度容器才能把 $J$ 拉回阈内”定义修复深度：
+\begin{enumerate}
+  \item $\ell=0$：无需修复（仅在阈内微调优化）；
+  \item $\ell=1$：单域局部修复（参数微调/局部补丁）；
+  \item $\ell=2$：跨模块协调修复（多子系统联动）；
+  \item $\ell=3$：体系结构级修复（架构重构/工艺路径更换）；
+  \item $\ell=4$：制造—运维—安全链路级修复（可维护性与可审计性成为主约束）；
+  \item $\ell=5$：治理级修复（组织流程/合规/供应链与风险策略成为主变量）。
+\end{enumerate}
+并定义等级为
+\[
+  \mathrm{Level}:=(\kappa,\ell).
+\]
+\end{definition}
+
+\subsection{三个典型实例：把 \texorpdfstring{$(\mathcal{S},\delta,\pi,w,J,\Cert,\tau)$}{(S,delta,pi,w,J,Cert,tau)} 落到芯片、发动机与工业化
+  RTSC}
+\label{subsec:tex25-examples}
+
+本节按统一模板给出三个实例：状态分解 $s=(x,z)$、干扰 $\delta_t$ 与构造 $\pi_t$、最小三分量证书 $J$、烈度证书 $\tau$、以及等级 $(\kappa,\ell)$ 的解释。
+
+\subsubsection{命题 1（芯片：从单次最优到量产可复用，等级跃迁到强开放）}
+\label{subsubsec:tex25-chip}
+
+\begin{proposition}[命题 1：芯片量产可复用将问题推入强开放等级]
+\label{prop:tex25-chip}
+在芯片域中，若目标从“一次性原型最优”升级为“量产可复用/可运维”，则外界扰动类必须显式纳入（工艺漂移、规格变更、供应链与竞争压力等），
+并且修复往往需要体系结构级动作与证书链闭合；因此该问题的典型等级从 $(\kappa,\ell)\approx(2,2)$ 跃迁到 $(4,3)$ 或 $(5,3)$。
+\end{proposition}
+
+\begin{Certificate}[证书 P1（芯片）：最小三分量证书与烈度接口]
+\label{cert:tex25-chip}
+证书登记以下可审计接口（示意）：
+\begin{enumerate}
+  \item 状态分解：$s=(x_{\mathrm{chip}},z_{\mathrm{chip}})$，其中
+  \[
+    \begin{aligned}
+      x_{\mathrm{chip}}
+      &= (p_{\mathrm{proc}},T(\cdot),E(\cdot),\sigma(\cdot),r_{\mathrm{aging}},\dots),
+      \\
+      z_{\mathrm{chip}}
+      &= (\mathrm{Spec},\mathrm{Arch},\mathrm{RTL},\mathrm{Netlist},\mathrm{P\&R},\mathrm{STA},\mathrm{DFT},
+      \mathrm{Coverage},\dots).
+    \end{aligned}
+  \]
+  \item 干扰：$\delta_t$ 含工艺漂移/温度边界变化与规格/IP/EDA/供应链约束变更；
+  \item 最小三分量证书：
+  \[
+    J_{\mathrm{chip}}(s):=(g_1,g_2,g_3),
+  \]
+  其中 $g_1=\mathrm{Viol}(\mathrm{PPA}\ \&\ \mathrm{Reliability})$，$g_2=\Res_{\mathrm{silicon-sim}}$，
+  $g_3=1-\Cert_{\mathrm{tapeout}}$（构建/追溯/覆盖/签核链路未闭合则为 1）；
+  \item 烈度证书：
+  \[
+    \tau_{\mathrm{chip}}(s,w)=(|w|,\ \mathrm{EDA\_cost}(w),\ \mathrm{NRE}(w),\ \Delta\mathrm{Schedule}(w),\
+      \Delta\mathrm{Risk}(w)).
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-chip}：
+\[
+  \begin{aligned}
+    P_1:&\ \delta_t\ \text{包含工艺/规格/供应链等外界可变约束},\\
+    P_2:&\ \text{量产目标要求 }\Cert_{\mathrm{tapeout}}=1\text{（证书链闭合）},\\
+    P_3:&\ \text{修复常需架构/流程级动作（}\ell\ge 3\text{）}.
+  \end{aligned}
+\]
+由 $P_1$，对抗与尾部风险因素显式进入扰动类，开放度上升（$\kappa\ge 4$）；由 $P_2$--$P_3$，修复深度至少达到体系结构级，
+因此等级从原型口径的中开放跃迁到强开放。证毕。
+\end{proof}
+
+\subsubsection{命题 2（发动机：安全/寿命/合规把系统推入强开放）}
+\label{subsubsec:tex25-engine}
+
+\begin{proposition}[命题 2：发动机问题天然处于强开放且修复深度较高]
+\label{prop:tex25-engine}
+发动机设计/运维问题在引入安全、寿命与合规约束后，几乎天然满足 $(\kappa,\ell)\ge(3,3)$：
+外界工况切换、法规约束变更与制造漂移等进入扰动类；修复常需架构级与试验—仿真闭环级动作，并要求证书闭合。
+\end{proposition}
+
+\begin{Certificate}[证书 P2（发动机）：最小三分量证书与烈度接口]
+\label{cert:tex25-engine}
+证书登记接口（示意）：
+\begin{enumerate}
+  \item 状态分解：$s=(x_{\mathrm{eng}},z_{\mathrm{eng}})$，其中
+  \[
+    \begin{aligned}
+      x_{\mathrm{eng}}
+      &= (u(\cdot),p(\cdot),T(\cdot),Y(\cdot),\sigma(\cdot),d_{\mathrm{fatigue}},\dots),
+      \\
+      z_{\mathrm{eng}}
+      &= (\mathrm{Geom},\mathrm{Mat},\mathrm{Process},\mathrm{CtrlLaw},\mathrm{Sensors},\mathrm{TestPlan},\dots).
+    \end{aligned}
+  \]
+  \item 干扰：燃料品质波动、环境工况（温湿/海拔/沙尘）、载荷谱变化、法规排放约束变更、材料批次漂移、使用者行为差异等；
+  \item 最小三分量证书：
+  \[
+    J_{\mathrm{eng}}(s)=(g_1,g_2,g_3),
+  \]
+  其中 $g_1$ 为性能/排放硬约束裕度的负部，$g_2$ 为安全/寿命裕度的负部，$g_3=1-\Cert_{\mathrm{certification}}$（合规证据链闭合度）；
+  \item 烈度证书：
+  \[
+    \tau_{\mathrm{eng}}(s,w)=(|w|,\ \mathrm{TestHours}(w),\ \mathrm{PrototypeIter}(w),\ \Delta\mathrm{Mass}(w),\
+      \Delta\mathrm{Cost}(w)).
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-engine}：
+\[
+  \begin{aligned}
+    Q_1:&\ \delta_t\ \text{包含多工况切换与法规/寿命尾部风险},\\
+    Q_2:&\ \Cert_{\mathrm{certification}}=1\ \text{是硬约束（证据链闭合）},\\
+    Q_3:&\ \text{修复需要跨模块/架构级动作（}\ell\ge 3\text{）}.
+  \end{aligned}
+\]
+由 $Q_1$ 得开放度至少为强开放（$\kappa\ge 3$）；由 $Q_2$--$Q_3$ 得修复深度至少达到体系结构级，故命题成立。证毕。
+\end{proof}
+
+\subsubsection{命题 3（工业化 RTSC：从材料命题改写为跨域治理命题，典型进入 Lv5）}
+\label{subsubsec:tex25-rtsc}
+
+\begin{proposition}[命题 3：工业化 RTSC 的完备性必须以工程完备性刻画]
+\label{prop:tex25-rtsc}
+工业化室温超导（RTSC）不是单一材料命题，而是跨域开放系统的可控性/治理命题。
+其典型等级可按 $(\kappa,\ell)\approx(5,4)$ 或更高建模：跨域强开放（物理+工程+制造+运维+安全/合规联动），且必须把“可维护、可审计、可回滚”当成一等变量才能闭合证书链。
+\end{proposition}
+
+\begin{Certificate}[证书 P3（RTSC）：子节点缺口 $\mathbf{g}$、Total \JacGap{} 与烈度接口]
+\label{cert:tex25-rtsc}
+证书登记必要结构（示意）：
+\begin{enumerate}
+  \item 状态分解：$s=(x_{\mathrm{rtsc}},z_{\mathrm{rtsc}})$，其中
+  \[
+    \begin{aligned}
+      x_{\mathrm{rtsc}}
+      &= (\psi,\rho,J_c,\kappa_{\mathrm{th}},\Phi_{\mathrm{flux}},\dots),
+      \\
+      z_{\mathrm{rtsc}}
+      &= (\mathrm{MatCtrl},\mathrm{EnvCtrl},\mathrm{Geo},\mathrm{Shield},\mathrm{Ctrl},\mathrm{MeasProto},\mathrm{QA},
+      \mathrm{Maintain},\dots).
+    \end{aligned}
+  \]
+  \item 干扰：热/机械/外磁扰动、电流冲击、制造偏差与老化漂移、测量噪声与口径漂移；
+  进入工业系统后叠加极端工况与故障传播（尾部事件）作为扰动类 $\mathcal{E}_{\mathrm{industrial}}$ 的成员；
+  \item 最小三分量缺口：令
+  \[
+    \mathbf{g}(s)=(g_1(s),g_2(s),g_3(s))\in\RR_{\ge 0}^{3},
+    \qquad
+    G_{\mathrm{tot}}(s)=\|\mathbf{g}(s)\|_1\ \ (\text{或}\ \|\mathbf{g}(s)\|_2),
+  \]
+  其中 $g_1$ 为稳定缺口（热—磁—电耦合下退相/失稳风险），$g_2$ 为热治理缺口，$g_3=1-\Cert(s)$ 为证书缺口；
+  $G_{\mathrm{tot}}$ 可视为 Total \JacGap{} 的统一口径之一；
+  \item 烈度证书：
+  \[
+    \begin{aligned}
+      \tau_{\mathrm{rtsc}}(s,w)
+      &=
+      (|w|,\ \mathrm{PrototypeCost}(w),\ \mathrm{CycleTest}(w),
+      \\
+      &\qquad
+      \mathrm{MaintainComplexity}(w),\ \mathrm{SafetySideEffect}(w)).
+    \end{aligned}
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-rtsc}：
+\[
+  \begin{aligned}
+    Z_1:&\ \delta_t\ \text{包含跨域扰动与尾部事件（}\kappa=5\text{）},\\
+    Z_2:&\ g_3=1-\Cert(s)\ \text{把“证据链闭合”提升为硬缺口分量},\\
+    Z_3:&\ \text{工业化要求把维护/审计/回滚纳入修复烈度（}\ell\ge 4\text{）}.
+  \end{aligned}
+\]
+由 $Z_1$ 得跨域强开放；由 $Z_2$--$Z_3$ 得必须以工程完备性（可修复且证书闭合）刻画完备性，并且修复深度达到制造—运维—安全链路级。证毕。
+\end{proof}
+
+\subsection{推论：自动化科研/设计“能否成立”取决于选择的完备性口径}
+\label{subsec:tex25-corollary}
+
+\begin{corollary}[推论 1：从不可得的绝对完备转向可得的工程完备，自动化才有可判定目标]
+\label{cor:tex25-cor1}
+\begin{enumerate}
+  \item 若要求自动化系统满足绝对完备性（对所有 $\eta$ 都全程不超阈），则在强开放（$\kappa\ge 3$）下通常会被定理~\ref{thm:tex25-thm1-absolute-impossible} 否定；
+  \item 若把目标改写为工程完备性：对给定扰动类 $\mathcal{E}$ 与修复语言 $\mathcal{W}_{\mathrm{repair}}$，保证“超阈可拉回 + 证书闭合 + 烈度可审计”，
+  则引理~\ref{lem:tex25-lem1-action-descent} 给出可获得判据：只要能构造行动量下降与阈入条件，就能把“自动化”变成可证书化对象。
+\end{enumerate}
+\end{corollary}
+
+\begin{Certificate}[证书 C1：由 T1 与 L1 的直接分支]
+\label{cert:tex25-cor1}
+证书登记谓词链：
+\[
+  \begin{aligned}
+    &(\kappa\ge 3)\wedge(\text{A1,A2})\Rightarrow (\text{定理 1 否定绝对完备}),
+    \\
+    &(\text{行动量严格下降 + 阈入条件})\Rightarrow(\text{引理 1 给出工程完备}).
+  \end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-cor1}：
+第一部分直接调用定理~\ref{thm:tex25-thm1-absolute-impossible}；
+第二部分直接调用引理~\ref{lem:tex25-lem1-action-descent}。证毕。
+\end{proof}
+
+\subsection{备注（把要点压成一句话）}
+\label{subsec:tex25-remark}
+
+\begin{remark}[一句话总结（可复算版本）]
+\begin{enumerate}
+  \item 经典意义的绝对完备在一般开放系统下通常不可得（定理~\ref{thm:tex25-thm1-absolute-impossible}）；
+  \item 正确的工程口径是“完备性降级”：把目标从“永不失守”改为“可证书化地修复并回滚到阈内”，并把修复烈度 $\tau$ 作为一等证书；
+  \item 芯片、发动机与工业化 RTSC 的统一点是：都可以写成
+  \[
+    (\mathcal{S},\ O_t=\pi_t\circ\delta_t,\ w\in\EDOM^{\ast},\ \mathcal{S}_{\mathrm{act}}[w],\ J,\ \Cert,\ \tau),
+  \]
+  差异只在于各自的 $(x,z,\delta,\pi,J,\tau)$ 具体取法，以及所处等级 $(\kappa,\ell)$ 的高低。
+\end{enumerate}
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：封闭系统回合博弈不足以普适解决自动化设计与自动化科研}
+\label{sec:tex25-closed-vs-open}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[本节目标（把“不能解决”写成可核验不可普适性）]
+本节给出一个“可核验的形式系统”式证明：为何把问题限定为
+\textbf{封闭系统博弈（回合同伦类固定 + 已知未知）}在一般意义上不足以解决\textbf{自动化设计与自动化科研}。
+
+这里将“不能解决”精确定义为：\textbf{不存在一个以封闭系统博弈为完备建模前提的统一求解器，能对开放任务族给出普适的正确性保证与可审计证书}。
+\end{remark}
+
+\subsection{形式语言与可核验证书（规格—证书—验证器）}
+\label{subsec:tex25-lang-cert}
+
+\begin{definition}[时间、历史与规格谓词]
+令时间（回合）集合为 $\mathbb{T}:=\{0,1,2,\dots\}$。
+记时刻 $t$ 的交互历史为
+\[
+  h_t=(o_0,a_0,o_1,a_1,\dots,o_t),
+\]
+其中 $o_t$ 为观测、$a_t$ 为动作。
+
+把“成功规格”（specification）抽象为谓词
+\[
+  \mathsf{Spec}(x;L)\in\{\top,\bot\},
+\]
+其中 $x$ 为输出（设计方案、实验方案、理论陈述、代码等），$L$ 为环境/自然/系统的“规律对象”（law-object）。
+\end{definition}
+
+\begin{definition}[可核验证书（可审计见证）]
+证书抽象为对象 $c$（可理解为有限字符串/日志/证明草图/不变量链等），并设存在验证器
+\[
+  \mathsf{Verify}(x,c)\in\{\top,\bot\}
+\]
+满足\textbf{可靠性（soundness）}：
+\[
+  \mathsf{Verify}(x,c)=\top\ \Rightarrow\ \mathsf{Spec}(x;L)=\top.
+\]
+即：验证通过蕴含规格成立（证书可审计、可复核）。
+\end{definition}
+
+\subsection{定义：封闭系统回合博弈（回合同伦类固定 + 已知未知）}
+\label{subsec:tex25-closed-game}
+
+\begin{definition}[封闭系统回合博弈（closed-game）]
+一个封闭系统回合博弈（简称 closed-game）是七元组
+\[
+  G:=\bigl(\mathcal{S},\mathcal{A},\mathcal{O},T,R,\Theta,\Sigma_0\bigr),
+\]
+满足以下“封闭性”约束：
+\begin{enumerate}
+  \item 状态空间 $\mathcal{S}$、动作空间 $\mathcal{A}$、观测空间 $\mathcal{O}$ 在 $t=0$ 已固定（不随回合扩展）；
+  \item 转移律 $T_\theta(s'|s,a)$ 与回报/代价 $R_\theta(s,a)$ 属于已知参数族 $\{(T_\theta,R_\theta)\}_{\theta\in\Theta}$；
+  \item 不确定性仅体现在参数 $\theta\in\Theta$（\textbf{已知未知}）：$\Theta$ 与参数化形式已知；
+  \item $\Sigma_0$ 为“可表达事件/谓词”的 $\sigma$-代数（或可表达语句集合），并在全程\textbf{不扩展}：
+  任何事件/约束必须是 $\Sigma_0$-可测/可表达；
+  \item 允许部分可观测与随机，但\textbf{不允许}从 $\Sigma_0$ 之外注入新的可判定结构（新变量/新约束/新观测谓词）。
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[备注：回合同伦类固定的含义]
+以上定义严格对应“同伦类固定”的口径：回合只是沿既定的 $\mathcal{S}\text{--}\mathcal{A}\text{--}\mathcal{O}$ 结构推进；
+不确定性仅是“在已知框架内选参数”，而非“扩展语言/扩展可表达结构”。
+\end{remark}
+
+\subsection{定义：开放任务（自动化设计与自动化科研的最小抽象）}
+\label{subsec:tex25-open-task}
+
+\begin{definition}[开放任务：规律对象演化与语言扩展]
+自动化设计/科研的一般任务抽象为：存在一个“规律对象”过程
+\[
+  L_0\subseteq L_1\subseteq L_2\subseteq \cdots,
+\]
+并且允许可表达集合（语言）随回合扩展：
+\[
+  \Sigma_0\subset \Sigma_1\subset \Sigma_2\subset \cdots.
+\]
+在回合 $t$，任务要求输出 $x$ 使得对当前规律对象 $L_t$ 满足规格
+\[
+  \mathsf{Spec}(x;L_t)=\top,
+\]
+且最好能给出可审计证书 $c$ 使 $\mathsf{Verify}(x,c)=\top$。
+\end{definition}
+
+\begin{remark}[备注：未知未知的最小形式化]
+开放任务的关键差异不是“不知道参数 $\theta$ 的取值”，而是：将来可能出现新的谓词与约束集合（$\Sigma_{t+1}\setminus\Sigma_t$），
+使得成功规格依赖此前\textbf{不可表达}的结构，即“未知未知”的语言扩展型困难。
+\end{remark}
+
+\subsection{公理（降级为定理）：有效性、封闭性与开放性}
+\label{subsec:tex25-closed-open-axioms}
+
+\begin{theorem}[公理（降级为定理）A：有效可自动化（算法与验证器均为有效过程）]
+\label{thm:tex25-ax-a-effective}
+自动化求解器 $\mathsf{Alg}$ 是有效过程：对任意有限描述输入，输出候选解 $x$ 与（可选）证书对象 $c$；
+验证器 $\mathsf{Verify}$ 亦为有效过程。
+\end{theorem}
+
+\begin{Certificate}[证书 A：有效性接口登记（可执行/可重放）]
+\label{cert:tex25-ax-a-effective}
+证书登记：提供 $\mathsf{Alg}$ 与 $\mathsf{Verify}$ 的有限描述（程序/版本/哈希）与可重放输入，
+从而“给定输入 $\Rightarrow$ 产生 $(x,c)$ 并可计算 $\mathsf{Verify}(x,c)$”可被复算验证。
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-ax-a-effective}，记谓词链：
+\[
+  P_1:\ \mathsf{Alg}\ \text{可执行并输出 }(x,c),\qquad
+  P_2:\ \mathsf{Verify}\ \text{可执行并输出真假值}.
+\]
+故本公理在本章口径下可被视为“可核验的建模前提”。证毕。
+\end{proof}
+
+\begin{theorem}[公理（降级为定理）B：封闭系统封闭性（运行期不允许扩展 $\Sigma_0$）]
+\label{thm:tex25-ax-b-closure}
+若 $\mathsf{Alg}$ 以 closed-game（定义~\ref{subsec:tex25-closed-game}）为完备建模前提，
+则其推理、策略选择与证书体系仅允许引用 $(\mathcal{S},\mathcal{A},\mathcal{O},T,R,\Theta,\Sigma_0)$，
+并且在运行期不允许把可表达集合从 $\Sigma_0$ 扩展到 $\Sigma_0$ 之外。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书 B：按回合的“语言不扩展”不变量]
+\label{cert:tex25-ax-b-closure}
+定义谓词 $P(t)$ 为：“运行到回合 $t$ 时，$\mathsf{Alg}$ 与 $\mathsf{Verify}$ 仅使用 $\Sigma_0$ 中的谓词/事件来表达断言与检查证书。”
+证书化要求：
+\[
+  P(0)\ \text{成立},\qquad
+  (\forall t\in\mathbb{T})\ \bigl(P(t)\Rightarrow P(t+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+由证书~\ref{cert:tex25-ax-b-closure}：
+\begin{itemize}
+  \item 基步：$t=0$ 时 closed-game 的可表达集合定义即为 $\Sigma_0$，故 $P(0)$；
+  \item 归纳步：若 $P(t)$ 成立，则在 $t+1$ 的推理与证书验证中仍受“不得引入 $\Sigma_0$ 之外谓词”的规则约束，
+  因而仍只使用 $\Sigma_0$，故 $P(t+1)$。
+\end{itemize}
+由数学归纳法得对所有回合 $t$，语言不扩展不变量成立。证毕。
+\end{proof}
+
+\begin{theorem}[公理（降级为定理）C：设计/科研开放性（存在关键规格依赖 $\Sigma_1\setminus\Sigma_0$）]
+\label{thm:tex25-ax-c-openness}
+自动化设计/科研的一般类任务允许（并在关键场景中必然要求）$\Sigma$ 的扩展：
+存在任务实例使得成功规格依赖某个 $E\in\Sigma_1\setminus\Sigma_0$（即关键约束在初始语言中不可表达）。
+\end{theorem}
+
+\begin{Certificate}[证书 C：关键约束“不可表达性”的结构性检查]
+\label{cert:tex25-ax-c-openness}
+证书登记：给出一个任务实例及其规格描述，并核验以下三点：
+\begin{enumerate}
+  \item 该实例在回合 $t^\ast$ 引入新谓词/约束 $E$；
+  \item $E$ 不属于初始可表达集合 $\Sigma_0$（否则不构成扩展）；
+  \item 规格 $\mathsf{Spec}(\cdot;L_{t^\ast})$ 的真值依赖 $E$（删除 $E$ 则无法等价刻画）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-ax-c-openness}：
+\[
+  Q_1:\ E\in\Sigma_1,\qquad
+  Q_2:\ E\notin\Sigma_0,\qquad
+  Q_3:\ \mathsf{Spec}\ \text{依赖 }E.
+\]
+由 $Q_1$--$Q_3$ 得该任务实例确实要求语言扩展，故本公理在“存在性”意义下成立。证毕。
+\end{proof}
+
+\subsection{引理与定理（证书 + 证明：谓词因果链）}
+\label{subsec:tex25-closed-open-results}
+
+\begin{lemma}[表达闭包引理：封闭系统对语言扩展型约束不可完备]
+\label{lem:tex25-lem1-express-closure}
+在 closed-game 模型中，任何可被 $\mathsf{Alg}$ 证书化保证的规格断言都必须是 $\Sigma_0$-可表达命题。
+若成功规格依赖某关键约束 $E\notin\Sigma_0$，则在不扩展语言的前提下，无法给出保证 $\mathsf{Spec}(x;L)$ 的可审计证书。
+\end{lemma}
+
+\begin{Certificate}[证书 L1：三点结构性核验（输入语言/验证器/规格依赖）]
+\label{cert:tex25-lem1-express-closure}
+核验引理~\ref{lem:tex25-lem1-express-closure} 只需检查：
+\begin{enumerate}
+  \item 由公理~\ref{thm:tex25-ax-b-closure}，$\mathsf{Alg}$ 的证书与推理语句只允许引用 $\Sigma_0$ 内谓词；
+  \item 验证器 $\mathsf{Verify}$ 也只能判定 $\Sigma_0$-语句真伪（否则等价于偷偷引入 $\Sigma_1$）；
+  \item 若规格真值依赖 $E\in\Sigma_1\setminus\Sigma_0$，则不存在等价的 $\Sigma_0$-公式完全刻画该依赖（否则 $E$ 实际已在 $\Sigma_0$ 中可表达）。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-lem1-express-closure}，记谓词链：
+\[
+  P_1:\ \text{证书语句}\subseteq\mathcal{L}(\Sigma_0),\qquad
+  P_2:\ \mathsf{Verify}\ \text{仅可见}\ \Sigma_0,\qquad
+  P_3:\ \mathsf{Spec}\ \text{依赖}\ E\notin\Sigma_0.
+\]
+由 $P_3$（不可表达性）可取两种规律对象 $L,L'$ 使它们在所有 $\Sigma_0$-可表达观测/约束上完全一致，
+但在 $E$ 上取值不同，从而 $\mathsf{Spec}(x;L)$ 与 $\mathsf{Spec}(x;L')$ 可分歧。
+
+又由 $P_1,P_2$，若某对 $(x,c)$ 在 $L$ 上满足 $\mathsf{Verify}(x,c)=\top$，则在 $L'$ 上同样无法被 $\mathsf{Verify}$ 区分，
+因此仍会给出 $\top$；但规格在 $E$ 上分歧导致“验证通过 $\Rightarrow$ 规格成立”的可靠性断裂。矛盾。
+故在不扩展语言的前提下无法对语言扩展型约束给出可审计保证。证毕。
+\end{proof}
+
+\begin{lemma}[不可区分分歧引理：前缀不可区分但后缀互斥]
+\label{lem:tex25-lem2-indistinguishable-diverge}
+对任意封闭系统策略/求解器 $\mathsf{Alg}$，存在一个开放任务族与某个有限回合 $t^\ast$，
+使得在所有 $t<t^\ast$ 之前，$\mathsf{Alg}$ 所能获得的全部观测历史分布在两个世界中完全相同；
+但在回合 $t^\ast$，为满足规格需要采取互斥动作 $a\neq a'$。
+因此 $\mathsf{Alg}$ 不可能同时保证两边成功概率都为 $1$。
+\end{lemma}
+
+\begin{Certificate}[证书 L2：构造两个世界的“前缀同分布 + 后缀强分歧”实例]
+\label{cert:tex25-lem2-indistinguishable-diverge}
+给出构造即可核验：
+\begin{enumerate}
+  \item 构造两个环境过程 $L^{(0)}_t,L^{(1)}_t$，使得对所有 $t<t^\ast$、对任意动作序列，观测分布一致；
+  \item 在 $t^\ast$ 引入新谓词 $E\in\Sigma_1\setminus\Sigma_0$，并令规格满足
+  \[
+    \mathsf{Spec}(\cdot;L^{(0)})\ \text{在动作 }a\text{ 成功、在 }a'\text{ 失败},\qquad
+    \mathsf{Spec}(\cdot;L^{(1)})\ \text{反之}.
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-lem2-indistinguishable-diverge}，在 $t^\ast$ 之前两世界对 $\Sigma_0$ 信息完全不可区分，
+故 $\mathsf{Alg}$ 在 $t^\ast$ 时刻的内部状态（作为历史函数）在两边同分布，从而其动作选择也同分布。
+
+记谓词链：
+\[
+  Q_1:\ h_{t^\ast-1}^{(0)}\overset{d}{=}h_{t^\ast-1}^{(1)},
+  \qquad
+  Q_2:\ a\ \text{与}\ a'\ \text{在两世界中互斥成功},
+  \qquad
+  Q_3:\ \mathsf{Alg}\ \text{在两世界给出同一动作分布}.
+\]
+由 $Q_2,Q_3$ 得：同一个动作分布不可能使两边成功概率同时为 $1$。
+因此不存在对所有实例都成功的封闭系统保证式策略。证毕。
+\end{proof}
+
+\begin{theorem}[封闭系统不可普适定理：不足以统一求解开放任务族]
+\label{thm:tex25-thm2-closed-not-universal}
+在公理~\ref{thm:tex25-ax-a-effective}--\ref{thm:tex25-ax-c-openness} 下，
+不存在一个以 closed-game（回合同伦类固定 + 已知未知）为完备建模前提的自动化求解器 $\mathsf{Alg}$，
+能够对“自动化设计与自动化科研”的一般类任务给出\textbf{普适的}成功保证与可审计证书。
+\end{theorem}
+
+\begin{Certificate}[证书 T：反例存在性链（开放性 $\Rightarrow$ 证书断裂 $\Rightarrow$ 不可普适）]
+\label{cert:tex25-thm2-closed-not-universal}
+核验该定理只需检查如下反例链条：
+\begin{enumerate}
+  \item 由公理~\ref{thm:tex25-ax-c-openness}，存在任务使关键规格依赖 $E\in\Sigma_1\setminus\Sigma_0$；
+  \item 由引理~\ref{lem:tex25-lem1-express-closure}，此类规格无法在不扩展语言的封闭系统中被证书化保证；
+  \item 由引理~\ref{lem:tex25-lem2-indistinguishable-diverge}，可构造“前缀不可区分、后缀强分歧”的任务族，使任何封闭系统策略都无法对所有实例同时保证成功。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+反证法。假设存在 $\mathsf{Alg}$ 能对所有开放任务实例给出成功输出与证书保证。
+由公理~\ref{thm:tex25-ax-c-openness}，取一实例其成功依赖某新谓词 $E\notin\Sigma_0$。
+由引理~\ref{lem:tex25-lem1-express-closure}，$\mathsf{Alg}$ 不可能在仅使用 $\Sigma_0$ 的证书体系中保证该规格；
+由引理~\ref{lem:tex25-lem2-indistinguishable-diverge}，甚至可构造不可区分分歧使其必败一边。矛盾。
+故 $\mathsf{Alg}$ 不存在。证毕。
+\end{proof}
+
+\subsection{命题：把一切预先塞进封闭系统仍无法得到“证书+审计”的开放性质}
+\label{subsec:tex25-preclosure-dilemma}
+
+\begin{proposition}[预封闭两难：全覆盖与可审计有效性不可兼得]
+\label{prop:tex25-preclosure-dilemma}
+设想用一个超大的 $\Sigma_0^\star$ 预先囊括所有未来可能出现的谓词/约束，使开放任务“看起来封闭”。
+则至少出现以下两难之一：
+\begin{enumerate}
+  \item \textbf{不完备：}$\Sigma_0^\star$ 仍遗漏某些未来约束，回到定理~\ref{thm:tex25-thm2-closed-not-universal} 的反例；
+  \item \textbf{不可审计/不可有效：}若坚持“对任意未来科研规格谓词 $E$ 都有 $E\in\Sigma_0^\star$”，
+  则证书验证与求解在一般性上将不再是可行的有限审计过程（等价于要求不可有效的元预言机），从而失去“证书+审计”的工程含义。
+\end{enumerate}
+\end{proposition}
+
+\begin{Certificate}[证书 P：覆盖性与有效性两条检查不可同时满足]
+\label{cert:tex25-preclosure-dilemma}
+核验方式：检查 $\Sigma_0^\star$ 是否能同时满足两条性质：
+\[
+  C_1:\ \forall E\ (\text{未来可提出的关键规格谓词})\Rightarrow E\in\Sigma_0^\star,
+  \qquad
+  C_2:\ \exists\ \text{有限可行的 }\mathsf{Verify}\ \text{与求解过程，使证书可审计}.
+\]
+一般情况下 $C_1$ 与 $C_2$ 不能同时成立；否则会把“开放世界的发现过程”压平成“先验可枚举的封闭列表”，与开放任务定义矛盾。
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-preclosure-dilemma}：
+\begin{itemize}
+  \item 若否定 $C_1$（不全覆盖），则存在 $E\notin\Sigma_0^\star$，由引理~\ref{lem:tex25-lem1-express-closure}--\ref{lem:tex25-lem2-indistinguishable-diverge} 仍可构造反例；
+  \item 若坚持 $C_1$，则 $\Sigma_0^\star$ 必须能表达任意未来提出的科研规格与机制假设；此时对极一般语句族的决定性验证将使 $C_2$ 在一般性上失效，
+  从而证书验证不再是可行有限过程（等价于引入元预言机），失去审计意义。
+\end{itemize}
+故两难成立。证毕。
+\end{proof}
+
+\subsection{推论：自动化设计/科研必然要求开放系统算子（运行期扩展 $\Sigma$）}
+\label{subsec:tex25-cor-open-necessity}
+
+\begin{corollary}[开放必要性推论：若允许未知未知注入，则必须超出 fixed $\Sigma_0$]
+\label{cor:tex25-open-necessity}
+若目标包含以下任一刚性要求：
+\begin{enumerate}
+  \item 新失效模式出现时仍能保持规格（鲁棒性与合规证书）；
+  \item 观测维度、评价指标、约束集合可随发现扩展；
+  \item 理论/模型类可被增广（不仅调参，而是改写可表达语言与结构）；
+\end{enumerate}
+则求解器必须具备运行期扩展 $\Sigma$ 的能力，即需要“开放系统边缘算子/修复塔”类机制，
+而不能被限制为仅在 fixed $\Sigma_0$ 的回合同伦类内做策略最优。
+\end{corollary}
+
+\begin{Certificate}[证书 C：由不可普适定理的逆否命题给出开放必要性]
+\label{cert:tex25-open-necessity}
+核验：检查目标是否允许出现 $E\in\Sigma_1\setminus\Sigma_0$ 的关键约束；若允许，则由定理~\ref{thm:tex25-thm2-closed-not-universal} 必须超出封闭系统。
+\end{Certificate}
+
+\begin{proof}[证明（证书；谓词因果链）]
+由证书~\ref{cert:tex25-open-necessity}：
+允许关键约束落在 $\Sigma_1\setminus\Sigma_0$ 的目标实例存在 $\Rightarrow$
+封闭系统普适保证不可能（定理~\ref{thm:tex25-thm2-closed-not-universal}）$\Rightarrow$
+必须引入可在运行期扩展 $\Sigma$ 的开放机制。证毕。
+\end{proof}
+
+\subsection{备注：与本章“开放系统完备性/修复塔”口径的对齐}
+\label{subsec:tex25-closed-open-remark}
+
+\begin{remark}[对齐要点（四条）]
+\begin{enumerate}
+  \item 封闭系统（回合同伦类 + 已知未知）擅长的是“在既定语言与既定机制内做最优”；
+  \item 自动化设计/科研的关键难点常表现为 $\Sigma_t$ 的扩展：新失效机理、新法规约束、新观测量、新可证伪标准等；
+  \item 因此“封闭系统不能解决”应严格理解为：它无法对开放任务族提供\textbf{可审计的普适成功保证}；
+  它可以作为子模块（在某个阶段固定 $\Sigma_t$ 后做局部最优），但不足以构成总框架；
+  \item 这也解释了本章前半部分为何采用开放系统算子 $O_t=\pi_t\circ\delta_t$、以及“工程完备性/修复烈度证书”的口径：
+  它们正是在形式系统层面允许“外部注入”与“可修复回滚”的机制化表达。
+\end{enumerate}
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：把“公理 A/B/C”降级为定理 $T_A,T_B,T_C$（回合归纳与语言扩展）}
+\label{sec:tex24-ta-tb-tc}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本节把先前抽象讨论中使用的三条“公理 A/B/C”（有效性/封闭性/开放性）进一步\textbf{降级为定理}：
+\[
+  (T_A,T_B,T_C).
+\]
+每条定理均给出：\textbf{证书（可核验条件）+ 数学归纳法证书 + 证明（谓词因果链）}。
+为避免循环论证，仅保留最小的底层形式系统：一阶逻辑与自然数归纳原理，以及“可计算/可测在复合下封闭”的标准闭包事实。
+
+\subsection{基础公理（最小保留）}
+\label{sec:tex24-ta-tb-tc-base}
+
+\begin{axiom}[基础公理 B0$^\star$（一阶逻辑公理）]
+含等号的经典一阶逻辑推演规则（演绎系统的标准公理/规则）。
+\end{axiom}
+
+\begin{axiom}[基础公理 B1$^\star$（自然数归纳原理）]
+对任意谓词 $P(t)$，若
+\[
+  P(0)\ \wedge\ \forall t\in\NN,\ (P(t)\Rightarrow P(t+1)),
+\]
+则 $\forall t\in\NN,\ P(t)$。
+\end{axiom}
+
+\begin{axiom}[基础公理 B2$^\star$（可计算封闭性）]
+可计算函数在复合、有限元组的编码/解码（例如用配对函数把 $\langle o_0,\dots,o_t\rangle$ 编码为单一自然数/字符串）下保持可计算。
+\end{axiom}
+
+\begin{axiom}[基础公理 B3$^\star$（可测封闭性）]
+若 $f$ 对 $\Sigma$ 可测、$g$ 对 $\Sigma$ 可测，则 $g\circ f$ 对 $\Sigma$ 可测；
+有限拼接（构造历史元组）在积 $\sigma$-代数下保持可测。
+\end{axiom}
+
+\begin{remark}[备注：B2$^\star$--B3$^\star$ 的角色]
+公理 B2$^\star$--B3$^\star$ 是“把算法/观测写成递归更新并做归纳步”时必需的底层闭包性质；
+若缺失这些闭包性质，则无法把“第 $t$ 步可计算/可测”自然提升为“第 $t+1$ 步可计算/可测”。
+（为避免与本文其它章节的记号混淆，本节仅在符号上以 $^\star$ 标注底层公理。）
+\end{remark}
+
+\subsection{定义（把“算法/回合/封闭性/开放性”写成可归纳对象）}
+\label{sec:tex24-ta-tb-tc-defs}
+
+\begin{definition}[定义 D22（回合交互算法）]
+\label{def:d22-round-alg}
+算法 $\mathsf{Alg}$ 由内部态 $(m_t)_{t\ge 0}$ 与两类更新函数给出：
+\[
+  a_t=\mathsf{Act}(m_t,o_t),\qquad
+  m_{t+1}=\mathsf{Upd}(m_t,o_t),
+\]
+其中 $\mathsf{Act},\mathsf{Upd}$ 在底层意义下为可计算函数；初始态 $m_0$ 为常量（可计算）。
+\end{definition}
+
+\begin{definition}[定义 D23（封闭系统：固定可表达事件族）]
+\label{def:d23-closed-sigma}
+给定固定的可表达事件 $\sigma$-代数 $\Sigma_0$。
+称交互过程是\textbf{封闭的}，若对任意回合 $t$：
+\begin{enumerate}
+  \item 观测 $o_t$ 为 $\Sigma_0$-可测（或等价地：只允许引用 $\Sigma_0$ 中谓词/特征来定义观测语句）；
+  \item 系统给出的任何可验证证书断言也必须是 $\Sigma_0$-可测/可表达；
+  \item $\Sigma_0$ 不随回合扩展（运行期不允许引入 $\Sigma_0$ 之外的新谓词依赖）。
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[定义 D24（开放任务：可表达族随发现扩展）]
+\label{def:d24-open-task}
+称任务族是\textbf{开放的}，若存在严格递增链
+\[
+  \Sigma_0\subset \Sigma_1\subset \Sigma_2\subset \cdots,
+\]
+并且在某些回合，引入的成功规格依赖 $\Sigma_k\setminus\Sigma_{k-1}$ 中的新事件（新谓词/新约束）。
+\end{definition}
+
+\subsection{公理降级为定理（数学归纳法：证书 + 证明）}
+\label{sec:tex24-ta-tb-tc-theorems}
+
+\subsubsection{定理 $T_A$：算法有效性可由回合归纳推出}
+\label{subsec:tex24-ta}
+
+\begin{theorem}[定理 $T_A$（有效可自动化定理：有限回合上的可计算性）]
+\label{thm:tex24-ta}
+在定义~\ref{def:d22-round-alg} 与基础公理 B2$^\star$ 下，对任意回合 $t$，
+\[
+  (m_t,a_t)\ \text{都可由历史}\ (o_0,\dots,o_t)\ \text{可计算得到},
+\]
+因此 $\mathsf{Alg}$ 在任意有限回合上都是有效过程。
+\end{theorem}
+
+\begin{Certificate}[证书 $\mathsf{Cert}_{T_A}$：回合递推的可计算见证 + 数学归纳法证书]
+\label{cert:tex24-ta}
+\textbf{可核验输入：}
+\begin{enumerate}
+  \item $\mathsf{Act},\mathsf{Upd}$ 的可计算性证明/实现（例如有限程序或等价的可计算模型）；
+  \item 初始态 $m_0$ 的有限描述；
+  \item 历史编码 $\langle o_0,\dots,o_t\rangle$ 的标准有限编码/解码方式（由 B2$^\star$ 保证存在）。
+\end{enumerate}
+
+\textbf{数学归纳法证书：}令谓词
+\[
+  P(t):\quad (m_t,a_t)\ \text{可由}\ (o_0,\dots,o_t)\ \text{可计算得到。}
+\]
+证书化要求为
+\[
+  P(0)\ \text{成立},\qquad
+  (\forall t\in\NN)\ \bigl(P(t)\Rightarrow P(t+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+由证书~\ref{cert:tex24-ta}：
+\begin{itemize}
+  \item 基例 $t=0$：$m_0$ 为常量可计算；给定 $o_0$，由可计算函数 $\mathsf{Act}$ 得
+  $a_0=\mathsf{Act}(m_0,o_0)$ 可计算，故 $P(0)$；
+  \item 归纳步：假设 $P(t)$ 成立，则 $m_t$ 可由 $(o_0,\dots,o_t)$ 计算得到。
+  给定 $o_t$，由可计算函数 $\mathsf{Upd}$ 得
+  \[
+    m_{t+1}=\mathsf{Upd}(m_t,o_t)
+  \]
+  可计算；再给定 $o_{t+1}$，由可计算函数 $\mathsf{Act}$ 得
+  \[
+    a_{t+1}=\mathsf{Act}(m_{t+1},o_{t+1})
+  \]
+  可计算。故 $P(t+1)$ 成立。
+\end{itemize}
+由基础公理 B1$^\star$（归纳原理），$\forall t,\ P(t)$ 成立。证毕。
+\end{proof}
+
+\subsubsection{定理 $T_B$：封闭性可由 $\Sigma_0$-可测性回合归纳推出}
+\label{subsec:tex24-tb}
+
+\begin{theorem}[定理 $T_B$（封闭系统封闭性定理：$\Sigma_0$-可测性不变量）]
+\label{thm:tex24-tb}
+在定义~\ref{def:d23-closed-sigma} 与基础公理 B3$^\star$ 下，
+若对任意回合 $t$，观测 $o_t$ 都是 $\Sigma_0$-可测，并且 $\mathsf{Act},\mathsf{Upd}$ 作为映射在适当的积 $\sigma$-代数上是 $\Sigma_0$-可测，
+则对任意 $t$，内部态 $m_t$ 与动作 $a_t$ 均为 $\Sigma_0$-可测；
+因此算法在任何回合都无法依赖 $\Sigma_0$ 之外的新事件（不会在运行期“自然长出”对新谓词的依赖）。
+\end{theorem}
+
+\begin{Certificate}[证书 $\mathsf{Cert}_{T_B}$：封闭性可核验输入 + 数学归纳法证书]
+\label{cert:tex24-tb}
+\textbf{可核验输入：}
+\begin{enumerate}
+  \item 固定 $\sigma$-代数 $\Sigma_0$（或等价的可表达谓词集合）；
+  \item 观测产生机制保证：$\forall t,\ o_t$ 为 $\Sigma_0$-可测；
+  \item $\mathsf{Act},\mathsf{Upd}$ 的 $\Sigma_0$-可测性说明（通常由其仅引用 $\Sigma_0$ 中特征/谓词构成）；
+  \item 初始态 $m_0$ 为常量（常量函数可测）。
+\end{enumerate}
+
+\textbf{数学归纳法证书：}令谓词
+\[
+  Q(t):\quad m_t\ \text{与}\ a_t\ \text{均为}\ \Sigma_0\text{-可测。}
+\]
+证书化要求为
+\[
+  Q(0)\ \text{成立},\qquad
+  (\forall t\in\NN)\ \bigl(Q(t)\Rightarrow Q(t+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+由证书~\ref{cert:tex24-tb}：
+\begin{itemize}
+  \item 基例 $t=0$：$m_0$ 为常量，故 $\Sigma_0$-可测；又 $o_0$ 为 $\Sigma_0$-可测且 $\mathsf{Act}$ 可测，
+  因此
+  \[
+    a_0=\mathsf{Act}(m_0,o_0)
+  \]
+  为 $\Sigma_0$-可测（由 B3$^\star$ 的复合可测性），故 $Q(0)$；
+  \item 归纳步：假设 $Q(t)$ 成立，则 $(m_t,o_t)$ 为 $\Sigma_0$-可测元组。
+  由 $\mathsf{Upd}$ 可测性得
+  \[
+    m_{t+1}=\mathsf{Upd}(m_t,o_t)
+  \]
+  为 $\Sigma_0$-可测；又 $o_{t+1}$ 为 $\Sigma_0$-可测，故 $(m_{t+1},o_{t+1})$ 可测，
+  再由 $\mathsf{Act}$ 可测性得
+  \[
+    a_{t+1}=\mathsf{Act}(m_{t+1},o_{t+1})
+  \]
+  为 $\Sigma_0$-可测。故 $Q(t+1)$ 成立。
+\end{itemize}
+由基础公理 B1$^\star$（归纳原理），$\forall t,\ Q(t)$ 成立；于是封闭性作为结构不变量被归纳推出。证毕。
+\end{proof}
+
+\begin{remark}[直观旁注（仍对应严格结论）]
+封闭系统里允许的“可表达事件族”固定为 $\Sigma_0$。
+以上归纳证明表明：算法产生的一切内部态/动作依赖都被锁死在 $\Sigma_0$ 内，
+因此它不可能在运行期凭空获得对 $\Sigma_0$ 之外新谓词/新约束的依赖。
+\end{remark}
+
+\subsubsection{定理 $T_C$：开放性可作为可构造存在性定理（并可归纳强化）}
+\label{subsec:tex24-tc}
+
+\begin{theorem}[定理 $T_C$（开放任务存在性定理：任意深度的语言扩展可构造）]
+\label{thm:tex24-tc}
+对任意 $n\in\NN_{\ge 1}$，存在一个任务实例 $\mathcal{P}_n$ 与一条严格递增链
+\[
+  \Sigma_0\subset \Sigma_1\subset\cdots\subset \Sigma_n,
+\]
+使得该任务的成功规格 $\mathsf{Spec}_n$ 必然依赖若干事件
+\[
+  E_k\in\Sigma_k\setminus\Sigma_{k-1}\quad (k=1,\dots,n),
+\]
+并且在第 $k$ 次“发现/观测通道打开”之前，历史对 $E_k$ 不可区分（等价表述为：$E_k$ 对 $\Sigma_{k-1}$ 不可测）。
+因此若不允许扩展可表达族（固定 $\Sigma_0$），则对这一类开放任务无法给出普适成功保证与可审计证书。
+\end{theorem}
+
+\begin{Certificate}[证书 $\mathsf{Cert}_{T_C}$：开放任务的显式构造 + 数学归纳法证书]
+\label{cert:tex24-tc}
+\textbf{显式构造（可核验）：}
+\begin{enumerate}
+  \item 取环境私有隐变量 $b_1,\dots,b_n\in\{0,1\}$；
+  \item 取回合时刻 $0\le t_1<\cdots<t_n$；
+  \item 对每个 $k$ 定义新事件（新谓词）
+  \[
+    E_k:=[b_k=1];
+  \]
+  并规定：在回合 $t<t_k$ 的所有观测分布与 $b_k$ 无关（前缀不可区分），在回合 $t=t_k$ 起新增观测通道显式揭示 $E_k$；
+  \item 成功规格要求输出 $(b_1,\dots,b_n)$（或等价地要求满足所有 $E_k$ 的一致性约束）。
+\end{enumerate}
+核验点：检查“不可区分前缀 + 之后显式揭示 + 规格依赖该揭示”。
+
+\textbf{数学归纳法证书：}令谓词
+\[
+  R(n):\quad \exists\ \mathcal{P}_n,\ \exists\ \Sigma_0\subset\cdots\subset\Sigma_n,\ \exists\
+    E_k\in\Sigma_k\setminus\Sigma_{k-1}\ (k\le n),
+\]
+使其满足上述“前缀不可区分 + 后缀揭示 + 规格依赖”的开放性性质。
+证书化要求为
+\[
+  R(1)\ \text{成立},\qquad
+  (\forall n\in\NN_{\ge 1})\ \bigl(R(n)\Rightarrow R(n+1)\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；谓词因果链）]
+由证书~\ref{cert:tex24-tc}：
+\begin{itemize}
+  \item 基例 $n=1$：取单个隐变量 $b_1\in\{0,1\}$。
+  规定在 $t<t_1$ 时观测恒为常量（与 $b_1$ 无关），在 $t=t_1$ 起新增观测通道揭示 $E_1=[b_1=1]$。
+  令 $\Sigma_0$ 为由前缀观测生成的 $\sigma$-代数，则 $E_1$ 对 $\Sigma_0$ 不可测；令 $\Sigma_1:=\sigma(\Sigma_0\cup\{E_1\})$，
+  得 $E_1\in\Sigma_1\setminus\Sigma_0$。规格要求输出 $b_1$，故依赖 $E_1$，从而 $R(1)$ 成立；
+  \item 归纳步：假设 $R(n)$ 成立，已构造 $\mathcal{P}_n$、链 $\Sigma_0\subset\cdots\subset\Sigma_n$ 与事件 $E_1,\dots,E_n$。
+  构造 $\mathcal{P}_{n+1}$：在完成 $\mathcal{P}_n$ 的全部交互后，于更晚回合 $t_{n+1}$ 引入新的独立隐变量 $b_{n+1}\in\{0,1\}$，
+  并规定在 $t<t_{n+1}$ 的观测与 $b_{n+1}$ 无关，在 $t=t_{n+1}$ 起新增通道揭示
+  $E_{n+1}=[b_{n+1}=1]$。
+  定义
+  \[
+    \Sigma_{n+1}:=\sigma(\Sigma_n\cup\{E_{n+1}\}).
+  \]
+  由于 $t<t_{n+1}$ 时观测对 $b_{n+1}$ 不敏感，故 $E_{n+1}$ 对 $\Sigma_n$ 不可测，从而
+  $E_{n+1}\in\Sigma_{n+1}\setminus\Sigma_n$；把成功规格改为同时输出 $(b_1,\dots,b_n,b_{n+1})$，
+  则规格必然依赖新增事件 $E_{n+1}$。故 $R(n+1)$ 成立。
+\end{itemize}
+由基础公理 B1$^\star$（归纳原理），对任意 $n\ge 1$，$R(n)$ 成立，即开放性在形式层面可构造并可归纳强化。证毕。
+\end{proof}
+
+\subsection{备注（把三条降级定理与结论对齐）}
+\label{sec:tex24-ta-tb-tc-remark}
+
+\begin{remark}[三条对齐（可复算版本）]
+\begin{enumerate}
+  \item $T_A$ 表明：只要把求解器写成“回合递归更新”的形式（任何可实现程序的常见形态），则“有效性”不是经验性假设，而是可用归纳推出的性质；
+  \item $T_B$ 表明：一旦把“封闭系统”严格定义为“固定 $\Sigma_0$ 的可表达事件族”，则封闭性是可用归纳推出的结构不变量：一切依赖被困在 $\Sigma_0$；
+  \item $T_C$ 表明：开放任务的关键不是“参数未知”，而是“谓词/约束/观测通道会新增”；且这种新增可对任意深度 $n$ 构造并用归纳证明其存在性。
+\end{enumerate}
+\end{remark}
+
+\end{CJK*}
+\end{document}

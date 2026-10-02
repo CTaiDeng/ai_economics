@@ -1,0 +1,65 @@
+{
+  "folders": [
+    {
+      "name": "economics",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "chatgpt.openOnStartup": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 500,
+    "files.encoding": "utf8",
+    "files.eol": "\n",
+    "terminal.integrated.defaultProfile.windows": "PowerShell 7",
+    "terminal.integrated.profiles.windows": {
+      "PowerShell 7": {
+        "path": "${env:ProgramFiles}\\PowerShell\\7\\pwsh.exe",
+        "args": [
+          "-NoExit",
+          "-Command",
+          "if (Test-Path \"${workspaceFolder}\\activate_venv.ps1\") { . \"${workspaceFolder}\\activate_venv.ps1\" }"
+        ]
+      }
+    },
+    "terminal.integrated.env.windows": {
+      "PYCACHE_GOVERNANCE_CONFIG": "${workspaceFolder}\\scripts\\pycache_customize\\pycache_governance.json",
+      "PYTHONPYCACHEPREFIX": "${workspaceFolder}\\out\\pycache"
+    },
+    "terminal.integrated.env.linux": {
+      "PYCACHE_GOVERNANCE_CONFIG": "${workspaceFolder}/scripts/pycache_customize/pycache_governance.json",
+      "PYTHONPYCACHEPREFIX": "${workspaceFolder}/out/pycache"
+    },
+    "terminal.integrated.env.osx": {
+      "PYCACHE_GOVERNANCE_CONFIG": "${workspaceFolder}/scripts/pycache_customize/pycache_governance.json",
+      "PYTHONPYCACHEPREFIX": "${workspaceFolder}/out/pycache"
+    },
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "python.terminal.activateEnvironment": true,
+    "git.autoRepositoryDetection": "subFolders",
+    "git.repositoryScanMaxDepth": 0,
+    "window.zoomLevel": 1.0,
+    "editor.fontSize": 15,
+    "markdown.preview.fontSize": 15,
+    "terminal.integrated.fontSize": 15,
+    "notebook.output.fontSize": 15,
+    "notebook.markup.fontSize": 15,
+    "debug.console.fontSize": 15,
+    "editor.codeLensFontFamily": "Consolas, 'Courier New', monospace",
+    "editor.inlayHints.fontFamily": "Consolas, 'Courier New', monospace",
+    "editor.inlineSuggest.fontFamily": "Consolas, 'Courier New', monospace",
+    "notebook.output.fontFamily": "Consolas, 'Courier New', monospace",
+    "notebook.markup.fontFamily": "Consolas, 'Courier New', monospace",
+    "terminal.integrated.fontFamily": "Consolas, 'Courier New', monospace",
+    "scm.inputFontFamily": "Consolas, 'Courier New', monospace",
+    "debug.console.fontFamily": "Consolas, 'Courier New', monospace",
+    "chatgpt.runCodexInWindowsSubsystemForLinux": false,
+    "window.title": "${rootName}",
+    "git.ignoreLimitWarning": true,
+    "latex-workshop.latex.autoBuild.run": "never",
+    "latex-workshop.latex.autoBuild.cleanAndRetry.enabled": false,
+    "latex-workshop.chktex.enabled": false,
+    "latex-workshop.lacheck.enabled": false,
+    "powershell.scriptAnalysis.enable": true
+  }
+}

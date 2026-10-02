@@ -1,0 +1,3629 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\refname}{参考文献}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\Cat}{\mathcal{C}}
+\newcommand{\Law}{\mathfrak{L}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\Linfty}{\ensuremath{L_\infty}}
+\newcommand{\Layer}{\ell}
+\newcommand{\Ob}{\operatorname{Ob}}
+\newcommand{\Imop}{\operatorname{Im}}
+\newcommand{\Ker}{\operatorname{Ker}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\Adm}{\operatorname{Adm}}
+\newcommand{\Cert}{\operatorname{Cert}}
+\newcommand{\Edge}{\operatorname{Edge}}
+\newcommand{\Proof}{\operatorname{Proof}}
+\newcommand{\Prov}{\operatorname{Prov}}
+\newcommand{\Res}{\operatorname{Res}}
+\newcommand{\Cost}{\operatorname{Cost}}
+\newcommand{\Viol}{\operatorname{Viol}}
+\newcommand{\Stab}{\operatorname{Stab}}
+\newcommand{\Score}{\operatorname{Score}}
+\newcommand{\Hom}{\operatorname{Hom}}
+\newcommand{\Forc}{\operatorname{Forc}}
+\newcommand{\Proj}{\operatorname{Proj}}
+\newcommand{\Rep}{\operatorname{Rep}}
+\newcommand{\Norm}{\operatorname{Norm}}
+\newcommand{\Depth}{\operatorname{Depth}}
+\newcommand{\Attr}{\operatorname{Attr}}
+\newcommand{\Deploy}{\operatorname{Deployable}}
+\newcommand{\EngDiv}{\mathsf{EngDiv}}
+\newcommand{\Hall}{\mathsf{Hall}}
+\newcommand{\Align}{\mathsf{Align}}
+\newcommand{\Closed}{\mathsf{Closed}}
+\newcommand{\Recoverable}{\mathsf{Recoverable}}
+\newcommand{\JacGap}{\mathsf{JacGap}}
+\newcommand{\RepoPath}[1]{\path{#1}}
+\DeclareMathOperator*{\argopt}{arg\,opt}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\setlength{\emergencystretch}{6em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{G框架中性变态射力迫属性、\texorpdfstring{$L_\infty$}{L-infinity}无故障修复与三层证明强度\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-04-27}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是重复陈述“底层无故障修复存在”这一背景结论，而是在 \GFramework{} 的形式系统中，
+把性变态射、力迫属性、\(\Linfty\) 兜底、有限阶可证性、三层证明强度与工程残差处理组织成一条
+可审计的修复链。若只说系统在高阶意义上可修复，容易把本体完备性、证明强度和工程可交付性混在一起；
+本文的核心工作，就是把这些层级拆开：底层存在性给出背景，有限阶可证性给出定理化入口，
+性变算子链与边缘算子链给出证明强度，工程层则只处理有限截断后的残差和异常分流。
+
+本文的第一层立场是把 \(\Linfty\) 从“悬空公设”降级为可使用的兜底环境。完整的无故障修复塔给出
+高阶障碍可被逐层吸收的背景，但实际证明和工程交付不能要求每一步都重新展开全塔。本文因此将
+“\(\Linfty\) 环境存在”与“有限阶可证”分开：前者提供修复可能性的本体背景，后者通过数学归纳法、
+边缘算子与证书接口进入可证明系统。这样，\(\Linfty\) 不再是模糊兜底，而成为有限阶证明可以调用
+的结构环境。
+
+本文的第二层立场是明确性变态射的含义。性变态射不是严格同构，也不是任意相似性；它表示对象在
+\(\GFramework{}\) 富结构范畴中的性质变化型异构演化候选。候选链的自然出现只说明“可作为演化对象
+进入系统”，并不自动推出同伦同一性。只有当该链条进一步满足编码义务、障碍义务、控制义务、
+有限截断义务与验证义务，并被边缘算子链修复后，才可以提升为带证书的同伦同一性结论。
+
+本文的第三层立场是力迫属性的框架内化。集合论 forcing 提供了偏序扩张的经典骨架，但本文并不把
+力迫只理解为外部集合论技术，而是将其推广为 \(\GFramework{}\) 内部的富结构力迫属性：通过对象编码、
+性变候选、边缘修复、合法多代表元与投影刚化，使某些性质在扩张语义中被迫出现。集合论 forcing
+在本文中只是这种富结构力迫的一个刚化投影，而不是全部本体。
+
+本文的第四层立场是三层证明强度的分离。世界观层说明性变候选为什么自然出现；方法论层说明如何
+通过性变算子链、边缘算子链、同伦证书与归一化逻辑性度量比较证明强度；工程闭合层则说明有限截断
+后哪些残差可被处理，哪些过程应判为工程发散，哪些异常必须分流。三层若不分离，就会把“数学上可修”
+误写成“工程上已交付”，或把“工程上有限残差未闭合”误写成“数学上不可修”。
+
+本文的第五层立场是数学完备不等于工程完备。一个系统可以在高阶修复塔中具有完备背景，但具体交付
+仍然只能访问有限截断、有限算力、有限验证器和有限证书包。若某个工程流程真正依赖无限塔的实际展开，
+则应被判为工程发散，而不是被包装为已经交付的无故障修复。相反，能够在有限资源内持续扩展可修复
+范围、压低残差并维持证书闭合，才体现系统的工程修复能力。
+
+本文的第六层立场是把 LLM 幻觉等语义型失败归入工程发散的外部表型。约束失效、锚点漂移、证书缺口
+与异常未分流，往往不是“生成一句错话”的根因，而是有限工程层未能把残差送入正确修复链的表现。
+因此，本文为后续关于真理锚点、拒绝签发、概念降级、语义孔洞和边缘算子修复的稿件提供了底层接口：
+幻觉不是孤立错误，而是约束失效型工程发散在未闭合语义系统中的可见症状。
+
+因此，本文在整体 \(\GFramework{}\) 中承担的是底层修复逻辑与工程闭合边界的枢纽作用。它向前连接
+纯数卷中同伦完备化与 failure-free 构造的存在性背景，向中间连接性变态射、力迫属性、合法多代表元
+和归一化证明强度，向后连接幻觉障碍、拒绝签发、策略簇命中与确定性同伦修复。若后续稿件讨论
+“如何命中低残差集合”或“如何修复语义孔洞”，那么本文给出的基础问题是：哪些修复可在有限阶证明中
+签发，哪些残差只属于工程有限像，哪些过程必须被异常分流。
+
+概括地说，本文把“无故障修复”从一句存在性背景改写为分层证明机制：\(\Linfty\) 提供环境兜底，
+数学归纳法提供有限阶可证性，性变与边缘算子链提供证明强度，力迫属性提供扩张语义，
+工程残差处理提供可交付闭合边界。它提供的不是单一修复公式，而是一套区分本体完备、方法证明与
+工程交付的形式系统骨架。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：底层无故障修复定理的力迫化严密化}
+\label{sec:tex50-main}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述]
+本文将一条自然语言链条严格化为 \GFramework{} 内部的形式系统：
+\[
+\begin{aligned}
+  &\text{性变态射力迫属性}
+  \Rightarrow
+  \Linfty\text{ 兜底下的有限阶可证性}\\
+  &\Rightarrow
+  \text{性变算子链的证明强度}
+  \Rightarrow
+  \text{工程基准下的残差处理}.
+\end{aligned}
+\]
+其精确含义是：纯数卷中的 GZ-OHU 底层无故障修复定理给出同伦完备化与 failure-free 构造的存在性背景；
+本文把该存在性背景重写为“有限阶可证性可由数学归纳法证明”的元数学定理，并进一步分解为
+\[
+  \text{可证性与自然成立}
+  \quad\longrightarrow\quad
+  \text{构造性与证明强度}
+  \quad\longrightarrow\quad
+  \text{工程残差处理}.
+\]
+\end{remark}
+
+\begin{remark}[阅读导航与引用口径]
+本文的 \Linfty{} 修复方程直接承接
+\cite{RepoTex12LinftyRepair} 中的一般修复步
+\[
+  \Ob_n=-d(\Layer_n),
+  \qquad d=\Layer_1,
+\]
+并把纯数卷 GZ-OHU 定理 \cite{GaoZhengPureMath} 解释为底层无故障修复的存在性背景。
+性变、性质层 Jacobiator-gap、同伦完备路径与证书化语义参考应用三卷 \cite{GaoZhengAppVol3}；
+law-space 与 GRL 变分构造参考应用一卷 \cite{GaoZhengAppVol1}；
+连续本体与离散工程像的区分参考应用二卷 \cite{GaoZhengAppVol2}。
+关于同伦论、Postnikov/Whitehead 型分层逼近、同伦等价与同调边界，
+本文采用 \cite{Hatcher2002AT,Whitehead1978Elements,Weibel1994HomologicalAlgebra} 的标准语言；
+关于 \Linfty{} 代数采用 \cite{LadaStasheff1993,LadaMarkl1995,LodayVallette2012}；
+关于集合论 forcing 的外部骨架采用 \cite{Cohen1963,Jech2003,SEPSetTheory,EOMForcing}；
+关于“相等作为路径/等价”的基础语义背景，参考 \cite{HoTTBook}.
+\end{remark}
+
+\subsection{本稿只保留的最终结论}
+\label{subsec:tex50-final-only}
+
+本文只保留可进入形式系统的最终结论。首先采用如下四条基本结论：
+\[
+\begin{aligned}
+  C_1&:\quad
+  \Linfty\text{ 是环境兜底，}
+  \Prov_{\le n}\text{ 是有限阶定理；}\\
+  C_2&:\quad
+  \text{性变态射的自然成立指原始异构演化候选自然出现；}\\
+  C_3&:\quad
+  \text{同伦同一性必须由性变算子链、边缘算子链与证书证明；}\\
+  C_4&:\quad
+  \text{工程层处理的是有限截断后的基准残差，而非重新证明高阶存在性。}
+\end{aligned}
+\]
+其中 $C_1$ 对应“公设降级为定理”，$C_2$ 给出世界观层，$C_3$ 给出方法论层，$C_4$ 给出工程闭合层。
+为降低语义损失，本文还保留四个展开性结论：
+\[
+\begin{aligned}
+  C_5&:\quad
+  \text{可允许性必须拆成编码义务、障碍义务、控制义务、有限截断义务与验证义务；}\\
+  C_6&:\quad
+  \text{数学完备不等于工程完备，真正依赖全塔的工程过程应判为工程发散；}\\
+  C_7&:\quad
+  \text{工程发散性在数学层是已完成的属性归类，在工程层必须触发异常处理；}\\
+  C_8&:\quad
+  \text{由算力支撑的可扩展有限修复才体现修复能力，并可作为智力度量。}
+\end{aligned}
+\]
+在语义型生成系统上还得到一个应用性结论：
+\[
+  C_9:\quad
+  \text{LLM 幻觉可视为约束失效型工程发散在未异常分流时的外部表型，而非根因本身。}
+\]
+同时补入第二层的归一化强度结论：
+\[
+  C_{10}:\quad
+  \text{基于同伦修复塔的 }\Linfty\text{ 归一化逻辑性度量，才是证明强度的比较口径。}
+\]
+继续补入框架内力迫与元数学桥接的结论：
+\[
+\begin{aligned}
+  C_{11}&:\quad
+  \text{D结构超限递归给出性变态射力迫属性的框架内生成机制；}\\
+  C_{12}&:\quad
+  \text{合法多代表元修复说明“非唯一”不等于任意话术；}\\
+  C_{13}&:\quad
+  \text{集合论 forcing 是富结构力迫属性在刚化投影下的偏序骨架；}\\
+  C_{14}&:\quad
+  \text{本体演化是持续离散拓扑修复链，流形连续性只是投影语言；}\\
+  C_{15}&:\quad
+  \text{本文的作用类似实分析严格化微积分：显式化逻辑占位并提升形式系统完备度。}
+\end{aligned}
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{对象、谓词与证书接口}
+\label{sec:tex50-objects}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{G框架对象域与性变态射}
+\label{subsec:tex50-object-domain}
+
+\begin{definition}[G框架富结构对象范畴]
+令
+\[
+  \Cat_G
+\]
+为 \GFramework{} 中富结构对象构成的范畴。对象可来自 law-space 对象、性质层对象、同伦对象、语义对象、几何对象或经编码函子送入
+$\Cat_G$ 的离散对象。记
+\[
+  X,Y,Z\in\operatorname{Ob}(\Cat_G).
+\]
+态射不预设为严格同构；它可以是结构保持态射、同伦类代表、边缘算子链、性变算子链或带证书的工程有限像。
+\end{definition}
+
+\begin{definition}[编码函子]
+给定一个外部对象域 $\mathcal D$，称
+\[
+  \Phi:\mathcal D\to\Cat_G
+\]
+为一个\textbf{G框架编码函子}，若它把外部对象、关系与可观察性质送入 $\Cat_G$，并满足：
+\[
+\begin{aligned}
+  &\Phi(\text{对象})\in\operatorname{Ob}(\Cat_G),\\
+  &\Phi(\text{可组合关系})\subseteq\Hom_{\Cat_G},\\
+  &\Phi(\text{可验证性质})\subseteq\text{证书谓词域}.
+\end{aligned}
+\]
+没有编码函子的对象只停留在自然语言指称层；有编码函子后，才进入可证明系统。
+\end{definition}
+
+\begin{definition}[性变态射]
+\label{def:tex50-property-morphism}
+设 $X,Y\in\operatorname{Ob}(\Cat_G)$。一个\textbf{性变态射}记为
+\[
+  \eta:X\leadsto Y,
+\]
+表示从 $X$ 到 $Y$ 的性质变化型异构演化候选。其本体含义不是
+\[
+  X=Y
+\]
+或严格同构，而是存在一条受约束的演化候选链
+\[
+  X=X_0
+  \rightsquigarrow X_1
+  \rightsquigarrow\cdots
+  \rightsquigarrow X_m=Y.
+\]
+若该候选链进一步被边缘算子链与同伦证书修复，则可提升为同伦同一性结论。
+\end{definition}
+
+\begin{definition}[边缘算子、性变算子与可允许链]
+\label{def:tex50-edge-chain}
+设
+\[
+  \mathcal E_G=\{e:X\to Y\mid X,Y\in\operatorname{Ob}(\Cat_G)\}
+\]
+为允许的边缘算子族。性变算子族 $P_G\subseteq\mathcal E_G$ 是其中用于实现性质变化的子族。
+一条有限算子链记为
+\[
+  \sigma=(e_1,\dots,e_m):
+  X=X_0\xrightarrow{e_1}X_1\xrightarrow{e_2}\cdots\xrightarrow{e_m}X_m=Y.
+\]
+定义可允许谓词
+\[
+  \Adm(\sigma)=1
+\]
+当且仅当 $\sigma$ 满足边界、顺序、类型、证书槽位与失败显式化约束。
+\end{definition}
+
+\begin{definition}[同伦证书]
+\label{def:tex50-homotopy-certificate}
+对 $e:X\to Y$，称
+\[
+  \Cert_h(e)
+  =
+  (g,\ H_X,\ H_Y,\ I_e)
+\]
+为 $e$ 的\textbf{同伦证书}，若
+\[
+  g:Y\to X,\qquad
+  H_X:g\circ e\simeq\id_X,\qquad
+  H_Y:e\circ g\simeq\id_Y,
+\]
+且 $I_e$ 给出需要保持或可控变化的不变量清单，例如
+\[
+  \pi_k,\qquad H_k,\qquad \JacGap,\qquad \text{稳定同伦类},\qquad \text{证书残差}.
+\]
+称 $\Cert_h(e)=\top$ 表示 $e$ 已证书化。
+\end{definition}
+
+\begin{definition}[修复块]
+\label{def:tex50-repair-block}
+若某个边缘算子 $e:X\to Y$ 本身尚无同伦证书，但存在边缘算子
+\[
+  \rho:Y\to Z
+  \quad\text{或}\quad
+  \lambda:W\to X
+\]
+使
+\[
+  \Cert_h(\rho\circ e)=\top
+  \quad\text{或}\quad
+  \Cert_h(e\circ\lambda)=\top,
+\]
+则称 $(e,\rho)$ 或 $(\lambda,e)$ 为一个\textbf{修复块}。
+修复块的意义是：不可单独进入主证明链的局部步骤，可在绑定补偿算子后进入证书化链。
+\end{definition}
+
+\begin{definition}[证书化分块链]
+\label{def:tex50-certified-block-chain}
+设
+\[
+  \sigma=(e_1,\dots,e_m):X\to Y.
+\]
+若 $\sigma$ 可分解为有限个连续块
+\[
+  \sigma=B_s\circ\cdots\circ B_1,
+\]
+且每个 $B_i$ 要么满足 $\Cert_h(B_i)=\top$，要么可由定义~\ref{def:tex50-repair-block} 的修复块替换为
+某个 $B_i'$ 且 $\Cert_h(B_i')=\top$，则称 $\sigma$ 是\textbf{证书化分块链}。
+\end{definition}
+
+\begin{definition}[性变态射的证明谓词]
+给定 $\eta:X\leadsto Y$，定义
+\[
+  \Proof_G(\eta)
+  :\Longleftrightarrow
+  \exists \sigma:X\to Y,\quad
+  \Adm(\sigma)=1\ \wedge\
+  \Cert_h(\sigma)=\top.
+\]
+其中
+\[
+  \Cert_h(\sigma)=\top
+  :\Longleftrightarrow
+  \sigma\text{ 是证书化分块链}
+\]
+也就是说，$\Proof_G(\eta)$ 并不要求每个单步都已同伦等价；它要求整条链被可允许分块、修复并证书化。
+\end{definition}
+
+\subsection{障碍、有限阶可证性与残差}
+\label{subsec:tex50-obstruction}
+
+\begin{definition}[\texorpdfstring{$L_\infty$}{L-infinity} 修复背景]
+令
+\[
+  (V,\Layer_1,\Layer_2,\Layer_3,\dots)
+\]
+为一个 \Linfty{} 修复背景，记
+\[
+  d:=\Layer_1,\qquad d^2=0.
+\]
+对任意性变态射候选 $\eta$，令
+\[
+  \omega_k(\eta)\in V
+  \qquad(k\ge 3)
+\]
+表示第 $k$ 阶障碍。若
+\[
+  \omega_k(\eta)\in\Imop(d),
+\]
+则第 $k$ 阶障碍为可边界化障碍。
+\end{definition}
+
+\begin{definition}[有限阶可证性谓词]
+\label{def:tex50-finite-provability}
+对 $n\ge 3$，定义
+\[
+  \Prov_{\le n}(\eta)
+  :\Longleftrightarrow
+  \forall\, k\,(3\le k\le n\Rightarrow \omega_k(\eta)\in\Imop(d)).
+\]
+定义完整可证性谓词的形式极限为
+\[
+  \Prov_{<\infty}(\eta)
+  :\Longleftrightarrow
+  \forall n<\infty,\ \Prov_{\le n}(\eta).
+\]
+\end{definition}
+
+\begin{definition}[证明强度]
+\label{def:tex50-proof-strength}
+对候选算子链 $\sigma$，定义完备强度
+\[
+  \rho_{\mathrm{comp}}(\sigma)
+  :=
+  \sup\{n\in\NN\mid \Prov_{\le n}(\sigma)\}.
+\]
+给定工程基准 $b_{\mathrm{eng}}$ 与容忍阈值 $\varepsilon>0$，定义工程强度
+\[
+  \rho_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}})
+  :=
+  \inf\{N\in\NN\mid
+  \omega_{>N}(\sigma)\text{ 已被截断、界定或异常化于 }b_{\mathrm{eng}}\}.
+\]
+\end{definition}
+
+\begin{definition}[工程残差]
+给定有限截断阶 $N$，定义
+\[
+  r_N(\sigma;b_{\mathrm{eng}})
+  :=
+  \|\omega_{>N}(\sigma)\|_{b_{\mathrm{eng}}}.
+\]
+工程决策器为
+\[
+  \mathcal H_N(\sigma)
+  =
+  \begin{cases}
+    \mathrm{commit}, & r_N(\sigma;b_{\mathrm{eng}})\le\varepsilon,\\
+    \mathrm{exception}, & r_N(\sigma;b_{\mathrm{eng}})>\varepsilon.
+  \end{cases}
+\]
+\end{definition}
+
+\begin{remark}[谓词因果链的基本形态]
+本文所有证明默认化为如下谓词因果链：
+\[
+  \text{定义域明确}
+  \xRightarrow{\text{可允许}}
+  \text{算子链合法}
+  \xRightarrow{\text{障碍边界化}}
+  \Prov_{\le n}
+  \xRightarrow{\text{证书}}
+  \Proof_G(\eta)
+  \xRightarrow{\text{工程截断}}
+  \mathcal H_N(\sigma).
+\]
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{语义保真桥接：五项义务与局部公设族}
+\label{sec:tex50-bridge-obligations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{局部公设族的定理化读法}
+\label{subsec:tex50-local-axioms}
+
+\begin{remark}[局部公设不是免证明许可]
+源材料中多次出现“自然成立”“无故障修复”“力迫属性”等强口径。本文将这些口径拆成局部公设族，
+但每条公设都只作为后续定理的输入或可验证谓词，而不是作为“任意替换皆成立”的免证明许可。
+严格读法为：
+\[
+  \text{允许}
+  =
+  \text{编码前置}
+  +\text{可允许性}
+  +\text{可修复性}
+  +\text{证书性}
+  +\text{失败显式化}.
+\]
+\end{remark}
+
+\begin{axiom}[编码前置公设]
+\label{ax:tex50-encoding-first}
+任何自然语言对象或外部对象若要进入主证明链，必须先经某个编码函子
+\[
+  \Phi:\mathcal D\to\Cat_G
+\]
+送入 $\Cat_G$。因此，字形对象、几何对象、语义对象与工程对象都必须先编码，后证明。
+\end{axiom}
+
+\begin{axiom}[非交换次序公设]
+\label{ax:tex50-noncomm}
+边缘算子与性变算子一般不交换：
+\[
+  e_i\circ e_j\neq e_j\circ e_i.
+\]
+因此算子链的顺序是证书的一部分，不得在无附加交换证书时任意改排。
+\end{axiom}
+
+\begin{axiom}[证书优先公设]
+\label{ax:tex50-certificate-first}
+主证明链中，只有已证书化块或可被修复块替代为证书化块的步骤，才允许进入同伦同一性推理。
+未证书化步骤只能作为候选，不得直接推出等价。
+\end{axiom}
+
+\begin{axiom}[修复塔局部性公设]
+\label{ax:tex50-locality}
+对任意 $\ell\ge4$，第 $\ell$ 层修复算子只允许修改第 $\ell$ 层及更高层的障碍数据；
+对所有 $k<\ell$，必须保持既有低层证书不失效。
+\end{axiom}
+
+\begin{lemma}[修复块替代引理]
+\label{lem:tex50-repair-block-replacement}
+若 $e$ 本身无同伦证书，但存在 $\rho$ 使
+\[
+  \Adm(\rho\circ e)=1,
+  \qquad
+  \Cert_h(\rho\circ e)=\top,
+\]
+则在任意主证明链中，可用修复块 $(e,\rho)$ 替代孤立步骤 $e$。
+\end{lemma}
+
+\begin{Certificate}[修复块替代证书]
+证书为
+\[
+  \bigl(\Adm(e)=1,\ \Adm(\rho\circ e)=1,\ \Cert_h(\rho\circ e)=\top\bigr).
+\]
+\end{Certificate}
+
+\begin{proof}
+由公设~\ref{ax:tex50-certificate-first}，孤立的 $e$ 不能直接进入同伦等价证明。
+但 $\rho\circ e$ 已可允许且证书化，故 $(e,\rho)$ 作为一个整体块满足主证明链准入条件。
+因此可用修复块替代孤立步骤。证毕。
+\end{proof}
+
+\begin{theorem}[\texorpdfstring{$L>3$}{L>3} 修复塔充分性]
+\label{thm:tex50-lgt3-tower}
+设 $\sigma:X\to Y$ 是可允许候选链。若存在修复塔
+\[
+  \mathfrak R=(R_4,\dots,R_N)
+\]
+满足对每个 $\ell=4,\dots,N$：
+\[
+  \Adm(R_\ell)=1,
+  \qquad
+  \omega_\ell(R_\ell\circ\cdots\circ R_4\circ\sigma)\in\Imop(d),
+\]
+并满足公设~\ref{ax:tex50-locality} 的低层证书保持条件，则修复后的链
+\[
+  \sigma^\ast:=R_N\circ\cdots\circ R_4\circ\sigma
+\]
+在 $4,\dots,N$ 层上完成障碍边界化；若其分块均被证书化，则推出 $X\simeq_hY$。
+\end{theorem}
+
+\begin{Certificate}[\texorpdfstring{$L>3$}{L>3} 层级证书]
+证书为有限族
+\[
+  \mathcal C_\ell
+  =
+  \bigl(
+    \Adm(R_\ell)=1,\ 
+    \omega_\ell\in\Imop(d),\
+    \text{lower-layer-preserved}
+  \bigr),
+  \qquad
+  \ell=4,\dots,N.
+\]
+\end{Certificate}
+
+\begin{proof}
+对 $\ell$ 作归纳。基础步 $\ell=4$ 由 $\mathcal C_4$ 得到第 $4$ 层障碍可边界化，且低层证书不失效。
+归纳假设 $4,\dots,\ell$ 层均已边界化且低层证书保持。由 $\mathcal C_{\ell+1}$ 与局部性公设，
+$R_{\ell+1}$ 不破坏既有低层证书，并使第 $\ell+1$ 层障碍进入 $\Imop(d)$。
+故归纳成立。若最终 $\sigma^\ast$ 的每个块均证书化，则由定理~\ref{thm:tex50-property-morphism-criterion}
+推出 $X\simeq_hY$。证毕。
+\end{proof}
+
+\subsection{五项桥接义务}
+\label{subsec:tex50-po-list}
+
+\begin{definition}[桥接义务清单]
+称一个“自然语言直觉 $\to$ G框架形式系统”的重写完成，当且仅当下列五项义务均完成：
+\[
+\begin{aligned}
+  \mathrm{PO}_1&:\ \text{编码义务},\\
+  \mathrm{PO}_2&:\ \text{障碍义务},\\
+  \mathrm{PO}_3&:\ \text{控制义务},\\
+  \mathrm{PO}_4&:\ \text{有限截断义务},\\
+  \mathrm{PO}_5&:\ \text{验证义务}.
+\end{aligned}
+\]
+\end{definition}
+
+\begin{definition}[多分拣编码函子]
+\label{def:tex50-many-sorted-encoding}
+定义内部对象总类
+\[
+  \mathcal U_{\mathrm{int}}
+  =
+  \mathcal U_{\mathrm{law}}
+  \sqcup
+  \mathcal U_D
+  \sqcup
+  \mathcal U_{\mathrm{morph}}
+  \sqcup
+  \mathcal U_{\mathrm{edge}}
+  \sqcup
+  \mathcal U_{\mathrm{eng}}.
+\]
+定义外部工程/验证对象总类
+\[
+  \mathcal U_{\mathrm{ext}}
+  =
+  \mathcal U_{\mathrm{state}}
+  \sqcup
+  \mathcal U_{\mathrm{metric}}
+  \sqcup
+  \mathcal U_{\mathrm{path}}
+  \sqcup
+  \mathcal U_{\mathrm{repair}}
+  \sqcup
+  \mathcal U_{\mathrm{pkg}}.
+\]
+多分拣编码函子
+\[
+  \Phi:\mathcal U_{\mathrm{int}}\to\mathcal U_{\mathrm{ext}}
+\]
+按分拣保持对象类型、路径结构、约束偏序、不变量族、修复动作与工程验证接口。
+\end{definition}
+
+\begin{theorem}[\(\mathrm{PO}_1\)：编码义务完成]
+\label{thm:tex50-po1}
+若存在定义~\ref{def:tex50-many-sorted-encoding} 的多分拣编码函子，并且每个分拣均给出明确值域，
+则编码义务完成。
+\end{theorem}
+
+\begin{Certificate}[编码义务证书]
+证书为
+\[
+  \Phi(L)=(X_L,\tau_L,\preceq_L,\mathcal I_L),
+  \qquad
+  \Phi(D)=(\Gamma_D,\mathcal L_D,w_D,\mathsf{Upd}_D),
+\]
+\[
+  \Phi(\eta)=
+  (X_0\xrightarrow{e_1}\cdots\xrightarrow{e_m}X_m),
+  \qquad
+  \Phi(E)=(S,\mathcal O,\mathcal R,\mathcal V,\mathcal H).
+\]
+\end{Certificate}
+
+\begin{proof}
+四类值域分别给出 law-space 对象、基准生成结构、性变态射路径与工程有限像。
+每个对象都有明确分拣与目标结构，因此自然语言对象不再悬空，编码义务完成。证毕。
+\end{proof}
+
+\begin{definition}[完整障碍族]
+\label{def:tex50-complete-obstruction-family}
+设 $Z(V)=\Ker(d)$。对每个 $n\ge3$，定义
+\[
+  \omega_n:=\Ob_n:Z(V)^{\otimes n}\to V
+\]
+为第 $n$ 阶 \Linfty{} 恒等式中所有不含 $\Layer_n$ 的项之和。
+称
+\[
+  \Omega=\{\omega_n\}_{n\ge3}
+\]
+为完整障碍族。
+\end{definition}
+
+\begin{theorem}[\(\mathrm{PO}_2\)：障碍义务完成]
+\label{thm:tex50-po2}
+若第 $n$ 阶 \Linfty{} 恒等式在 $d$-闭输入上可分解为
+\[
+  0=d(\Layer_n)+\Ob_n,
+\]
+则 $\Omega=\{\omega_n\}_{n\ge3}$ 是完整障碍族。
+\end{theorem}
+
+\begin{Certificate}[障碍穷尽证书]
+证书为项分解
+\[
+  \text{第 }n\text{ 阶恒等式}
+  =
+  d(\Layer_n)
+  +\Ob_n
+  +\text{含 }d(x_i)\text{ 的项}.
+\]
+在 $x_i\in Z(V)$ 时，最后一类项为零。
+\end{Certificate}
+
+\begin{proof}
+第 $n$ 阶恒等式的所有项被分为三类：$d(\Layer_n)$、不含 $\Layer_n$ 的项、以及 $d$ 先作用于输入的项。
+在 $d$-闭输入上第三类为零，剩余失配全部归入 $\Ob_n$。
+故第 $n$ 阶独立障碍被 $\omega_n$ 穷尽；对所有 $n\ge3$ 汇总即得完整障碍族。证毕。
+\end{proof}
+
+\begin{theorem}[\(\mathrm{PO}_3\)：控制义务完成]
+\label{thm:tex50-po3}
+若对每个 $n\ge3$ 均有
+\[
+  \omega_n=-d(\Layer_n),
+\]
+则 \Linfty{} 结构控制该类性变态射修复问题。
+\end{theorem}
+
+\begin{Certificate}[控制证书]
+证书为逐阶边界化等式
+\[
+  \omega_3=-d(\Layer_3),\quad
+  \omega_4=-d(\Layer_4),\quad\dots,\quad
+  \omega_n=-d(\Layer_n).
+\]
+\end{Certificate}
+
+\begin{proof}
+控制义务要求每个障碍都能由指定修复数据给出原像。
+等式 $\omega_n=-d(\Layer_n)$ 正说明 $\Layer_n$ 是 $\omega_n$ 的修复原像，
+且 $[\omega_n]=0\in H(V)$。故控制义务完成。证毕。
+\end{proof}
+
+\begin{definition}[有限工程像]
+\label{def:tex50-finite-engineering-image}
+称
+\[
+  \mathfrak E_N=(S,\mathcal O_{\le N},\mathcal R,\mathcal V,\mathcal H)
+\]
+为理论核 $\mathfrak T_{\mathrm{meta}}$ 的一个有限工程像，若存在投影
+\[
+  \Phi_N:\mathfrak T_{\mathrm{meta}}\to\mathfrak E_N,
+\]
+其中 $\mathcal O_{\le N}$ 与 $\mathcal R$ 均为有限集合，$\mathcal V$ 为有限验证器，
+$\mathcal H$ 为异常处理器。
+\end{definition}
+
+\begin{theorem}[\(\mathrm{PO}_4\)：有限截断义务完成]
+\label{thm:tex50-po4}
+若当前目标工程类存在有限工程像 $\mathfrak E_N$，并且高阶残差满足
+\[
+  r_N\le\varepsilon
+  \quad\text{或}\quad
+  r_N>\varepsilon\Rightarrow\mathcal H_N=\mathrm{exception},
+\]
+则有限截断义务完成。
+\end{theorem}
+
+\begin{Certificate}[有限截断证书]
+证书为
+\[
+  \mathcal C_N=(N,\Phi_N,\mathcal O_{\le N},\mathcal R,\mathcal V,\mathcal H,\varepsilon).
+\]
+\end{Certificate}
+
+\begin{proof}
+有限截断义务不是证明任意未来对象都有统一有限截断，而是证明当前目标类有一个有限可执行像。
+$\mathcal C_N$ 给出有限层、有限算子、有限规则、有限验证和异常分流。
+若残差在阈值内则正常闭合；若残差越界则异常化。故义务完成。证毕。
+\end{proof}
+
+\begin{definition}[两层验证语义]
+\label{def:tex50-two-level-validation}
+定义硬约束集 $\mathcal R_{\mathrm{hard}}$ 与软约束集 $\mathcal R_{\mathrm{soft}}$。
+硬约束失败进入错误集合并使验证失败；软约束失败进入警告集合，但不必使对象立即非法。
+\end{definition}
+
+\begin{theorem}[\(\mathrm{PO}_5\)：验证义务完成]
+\label{thm:tex50-po5}
+若验证器 $\mathcal V$ 对 $\mathcal R_{\mathrm{hard}}$ 是 sound 且相对 complete，
+并对 $\mathcal R_{\mathrm{soft}}$ complete enough，则验证义务完成。
+\end{theorem}
+
+\begin{Certificate}[验证义务证书]
+证书为三条：
+\[
+\begin{aligned}
+  V_1&:\quad \mathcal V(x)=\top\Rightarrow x\text{ 满足所有硬约束},\\
+  V_2&:\quad x\text{ 违反可表达硬约束}\Rightarrow\mathcal V(x)=\bot,\\
+  V_3&:\quad x\text{ 违反可表达软约束}\Rightarrow \mathcal V\text{ 输出警告}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}
+$V_1$ 给出硬约束 soundness，$V_2$ 给出相对完备性，$V_3$ 给出目标域内的软约束充分覆盖。
+因此验证器既不把硬违规伪装成合法，也不把软诊断完全丢失。验证义务完成。证毕。
+\end{proof}
+
+\begin{theorem}[桥接闭合定理]
+\label{thm:tex50-po-total}
+若 $\mathrm{PO}_1$--$\mathrm{PO}_5$ 全部完成，则自然语言直觉已经被压成
+\[
+  \text{显式编码}
+  +\text{显式障碍}
+  +\text{显式控制}
+  +\text{显式有限像}
+  +\text{显式验证语义}
+\]
+的闭合形式系统。
+\end{theorem}
+
+\begin{Certificate}[桥接闭合总证书]
+证书为
+\[
+  \mathcal C_{\mathrm{bridge}}
+  =
+  (\mathcal C_{\Phi},\mathcal C_{\Omega},\mathcal C_{\mathrm{ctrl}},
+  \mathcal C_N,\mathcal C_{\mathcal V}).
+\]
+\end{Certificate}
+
+\begin{proof}
+由定理~\ref{thm:tex50-po1} 到定理~\ref{thm:tex50-po5}，五项义务逐项完成。
+因此剩余内容不再是未证明直觉，而只是新对象域引入时需要新增的域外扩展义务。证毕。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{公设降级：有限阶可证性的数学归纳法定理}
+\label{sec:tex50-axiom-downgrade}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{被降级的对象}
+\label{subsec:tex50-downgrade-object}
+
+\begin{remark}[公设降级的精确对象]
+被降级的不是 \Linfty{} 结构本身，也不是 GZ-OHU 总体存在性背景；
+被降级的是有限阶可证性断言
+\[
+  \Prov_{\le n}(\eta)
+  \quad(n<\infty).
+\]
+换言之，
+\[
+  \Linfty\text{ 修复背景}
+  \quad\text{作为环境；}\qquad
+  \Prov_{\le n}
+  \quad\text{作为定理。}
+\]
+\end{remark}
+
+\begin{assumption}[GZ-OHU 无故障完备化背景]
+\label{ass:tex50-gz-ohu}
+本文在纯数卷 GZ-OHU 定理的背景下工作：每个带有限 Jacobiator-gap 证书的 law-system $L$ 可嵌入一个同伦完备扩张
+\[
+  \iota:L\hookrightarrow L^{\mathrm{OHU}},
+\]
+且 $L^{\mathrm{OHU}}$ 在 Jacobiator-gap 完备扩张中满足同伦泛性质与 failure-free 构造口径
+\cite{GaoZhengPureMath}.
+\end{assumption}
+
+\begin{assumption}[\texorpdfstring{$L_\infty$}{L-infinity} 一般修复步]
+\label{ass:tex50-linfty-step}
+对每个 $n\ge 3$，在 $d$-闭输入上，第 $n$ 阶障碍满足
+\[
+  \omega_n(\eta)=\Ob_n(\eta)=-d(\Layer_n(\eta)).
+\]
+该式承接 \cite{RepoTex12LinftyRepair} 的一般修复步。
+\end{assumption}
+
+\begin{theorem}[公设降级定理：有限阶可证性可归纳证明]
+\label{thm:tex50-prov-induction}
+在假设~\ref{ass:tex50-gz-ohu} 与假设~\ref{ass:tex50-linfty-step} 下，
+对任意性变态射候选 $\eta$ 与任意有限 $n\ge 3$，有
+\[
+  \Prov_{\le n}(\eta).
+\]
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书]
+\label{cert:tex50-prov-induction}
+证书由三部分组成：
+\[
+\begin{aligned}
+  B_3&:\quad \omega_3(\eta)=-d(\Layer_3(\eta))\in\Imop(d),\\
+  S_n&:\quad
+  \bigl[\forall\,3\le k\le n,\ \omega_k(\eta)\in\Imop(d)\bigr]
+  \Rightarrow
+  \omega_{n+1}(\eta)\in\Imop(d),\\
+  R_n&:\quad
+  \Prov_{\le n}(\eta)
+  \text{ 是由 }B_3\text{ 与 }S_3,\dots,S_{n-1}\text{ 生成的有限证书链}.
+\end{aligned}
+\]
+因此该证书为一个有限归纳证书。
+\end{Certificate}
+
+\begin{proof}
+基础步：由假设~\ref{ass:tex50-linfty-step} 取 $n=3$，得
+\[
+  \omega_3(\eta)=\Ob_3(\eta)=-d(\Layer_3(\eta)).
+\]
+故
+\[
+  \omega_3(\eta)\in\Imop(d),
+  \qquad
+  \Prov_{\le 3}(\eta).
+\]
+
+归纳步：假设
+\[
+  \Prov_{\le n}(\eta)
+  \quad\Longleftrightarrow\quad
+  \forall\,3\le k\le n,\ \omega_k(\eta)\in\Imop(d).
+\]
+由假设~\ref{ass:tex50-linfty-step} 取 $n+1$，得
+\[
+  \omega_{n+1}(\eta)
+  =
+  -d(\Layer_{n+1}(\eta))
+  \in\Imop(d).
+\]
+于是
+\[
+  \Prov_{\le n}(\eta)
+  \wedge
+  \omega_{n+1}(\eta)\in\Imop(d)
+  \Longrightarrow
+  \Prov_{\le n+1}(\eta).
+\]
+由数学归纳法，
+\[
+  \forall n<\infty,\quad \Prov_{\le n}(\eta)
+\]
+成立。证毕。
+\end{proof}
+
+\begin{corollary}[底层无故障修复的有限阶读法]
+\label{cor:tex50-failure-free-finite}
+在本文口径下，GZ-OHU 的底层无故障修复背景可读为：
+\[
+  \text{同伦完备化存在}
+  \xRightarrow{\Linfty\text{ 一般修复步}}
+  \forall n<\infty,\ \Prov_{\le n}
+  \xRightarrow{\text{证书组织}}
+  \text{有限阶无故障修复证书可签发}.
+\]
+\end{corollary}
+
+\begin{Certificate}[有限阶签发证书]
+证书为
+\[
+  \Cert_{\le n}(\eta)
+  =
+  \bigl(\omega_3=-d(\Layer_3),\dots,\omega_n=-d(\Layer_n)\bigr).
+\]
+每一项均为“障碍 $=$ 边界”的可核验方程。
+\end{Certificate}
+
+\begin{proof}
+由定理~\ref{thm:tex50-prov-induction}，对每个 $3\le k\le n$，
+\[
+  \omega_k(\eta)=-d(\Layer_k(\eta)).
+\]
+将这些有限多等式列成证书包，即得 $\Cert_{\le n}(\eta)$。证毕。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{性变态射的自然成立与同伦同一性证明}
+\label{sec:tex50-natural-and-proof}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{自然成立：原始异构演化候选}
+\label{subsec:tex50-natural}
+
+\begin{definition}[原始性变态射]
+给定 $X,Y\in\operatorname{Ob}(\Cat_G)$，定义
+\[
+  \eta_{\mathrm{raw}}:X\leadsto Y
+\]
+为从 $X$ 到 $Y$ 的原始异构演化候选。它只表示“性质变化的候选路径已进入 \GFramework{} 对象域”，不表示同伦同一性已完成证明。
+\end{definition}
+
+\begin{lemma}[原始性变态射自然出现引理]
+\label{lem:tex50-raw-natural}
+若存在编码函子 $\Phi:\mathcal D\to\Cat_G$ 与外部变化关系
+\[
+  a\rightsquigarrow b\quad(a,b\in\mathcal D),
+\]
+则在 $\Cat_G$ 中自然诱导原始性变态射
+\[
+  \eta_{\mathrm{raw}}:\Phi(a)\leadsto\Phi(b).
+\]
+\end{lemma}
+
+\begin{Certificate}[编码诱导证书]
+证书为三元组
+\[
+  \Cert_{\mathrm{enc}}(a,b)
+  =
+  \bigl(\Phi(a),\Phi(b),\Phi(a\rightsquigarrow b)\bigr),
+\]
+其中 $\Phi(a)$ 与 $\Phi(b)$ 给出对象，$\Phi(a\rightsquigarrow b)$ 给出演化候选。
+\end{Certificate}
+
+\begin{proof}
+由编码函子的定义，
+\[
+  a\in\mathcal D\Rightarrow \Phi(a)\in\operatorname{Ob}(\Cat_G),
+  \qquad
+  b\in\mathcal D\Rightarrow \Phi(b)\in\operatorname{Ob}(\Cat_G).
+\]
+又由外部变化关系 $a\rightsquigarrow b$ 与函子性，
+\[
+  a\rightsquigarrow b
+  \xRightarrow{\Phi}
+  \Phi(a)\rightsquigarrow\Phi(b).
+\]
+按定义~\ref{def:tex50-property-morphism}，该候选关系即为
+\[
+  \eta_{\mathrm{raw}}:\Phi(a)\leadsto\Phi(b).
+\]
+证毕。
+\end{proof}
+
+\begin{remark}[自然成立与证明成立的分离]
+自然成立的谓词是
+\[
+  \operatorname{Raw}(\eta_{\mathrm{raw}})=1,
+\]
+证明成立的谓词是
+\[
+  \Proof_G(\eta_{\mathrm{raw}})=1.
+\]
+二者关系为
+\[
+  \Proof_G(\eta_{\mathrm{raw}})=1
+  \Rightarrow
+  \operatorname{Raw}(\eta_{\mathrm{raw}})=1,
+  \qquad
+  \operatorname{Raw}(\eta_{\mathrm{raw}})=1
+  \not\Rightarrow
+  \Proof_G(\eta_{\mathrm{raw}})=1.
+\]
+\end{remark}
+
+\subsection{同伦同一性：证书化边缘算子链}
+\label{subsec:tex50-homotopy-identity}
+
+\begin{lemma}[证书化算子链的组合封闭性]
+\label{lem:tex50-certified-composition}
+设
+\[
+  X\xrightarrow{e}Y\xrightarrow{f}Z
+\]
+且
+\[
+  \Cert_h(e)=\top,\qquad \Cert_h(f)=\top.
+\]
+则
+\[
+  \Cert_h(f\circ e)=\top.
+\]
+\end{lemma}
+
+\begin{Certificate}[组合证书]
+若
+\[
+  \Cert_h(e)=(g,H_X,H_Y,I_e),
+  \qquad
+  \Cert_h(f)=(q,K_Y,K_Z,I_f),
+\]
+则
+\[
+  \Cert_h(f\circ e)
+  =
+  (g\circ q,\ \widehat H_X,\ \widehat H_Z,\ I_e\cap I_f),
+\]
+其中
+\[
+\begin{aligned}
+  \widehat H_X&:
+  (g\circ q)\circ(f\circ e)
+  =
+  g\circ(q\circ f)\circ e
+  \simeq
+  g\circ\id_Y\circ e
+  =
+  g\circ e
+  \simeq
+  \id_X,\\
+  \widehat H_Z&:
+  (f\circ e)\circ(g\circ q)
+  =
+  f\circ(e\circ g)\circ q
+  \simeq
+  f\circ\id_Y\circ q
+  =
+  f\circ q
+  \simeq
+  \id_Z.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 $\Cert_h(e)=\top$ 得 $g$ 是 $e$ 的同伦逆；由 $\Cert_h(f)=\top$ 得 $q$ 是 $f$ 的同伦逆。
+候选复合同伦逆取 $g\circ q$。按证书中的两条同伦链，
+\[
+  (g\circ q)\circ(f\circ e)\simeq\id_X,
+  \qquad
+  (f\circ e)\circ(g\circ q)\simeq\id_Z.
+\]
+故 $f\circ e$ 证书化。证毕。
+\end{proof}
+
+\begin{theorem}[性变态射的严格成立判据]
+\label{thm:tex50-property-morphism-criterion}
+设 $\eta:X\leadsto Y$ 为原始性变态射。若存在有限链
+\[
+  \sigma=(e_1,\dots,e_m):X\to Y
+\]
+满足
+\[
+  \Adm(\sigma)=1,
+  \qquad
+  \Cert_h(\sigma)=\top,
+\]
+则
+\[
+  \Proof_G(\eta)=1,
+  \qquad
+  X\simeq_h Y.
+\]
+\end{theorem}
+
+\begin{Certificate}[边缘算子谓词因果链证书]
+证书链为
+\[
+  \eta:X\leadsto Y
+  \xRightarrow{\exists\sigma}
+  X\xrightarrow{\sigma}Y
+  \xRightarrow{\Adm(\sigma)=1}
+  \text{链合法}
+  \xRightarrow{\Cert_h(\sigma)=\top}
+  X\simeq_h Y
+  \xRightarrow{\text{定义}}
+  \Proof_G(\eta)=1.
+\]
+\end{Certificate}
+
+\begin{proof}
+由 $\Cert_h(\sigma)=\top$ 与引理~\ref{lem:tex50-certified-composition}，复合态射
+\[
+  e_m\circ\cdots\circ e_1:X\to Y
+\]
+存在同伦逆，故 $X\simeq_h Y$。又由 $\Adm(\sigma)=1$，该同伦等价由合法边缘算子链实现。
+按 $\Proof_G(\eta)$ 的定义，推出 $\Proof_G(\eta)=1$。证毕。
+\end{proof}
+
+\begin{corollary}[同构相等降为证书化同伦同一性]
+\label{cor:tex50-equality-to-homotopy}
+在 \GFramework{} 中，性变态射的可证明目标不是
+\[
+  X=Y,
+\]
+而是
+\[
+  \exists\sigma,\quad
+  \Adm(\sigma)=1\wedge\Cert_h(\sigma)=\top
+  \quad\Rightarrow\quad
+  X\simeq_h Y.
+\]
+\end{corollary}
+
+\begin{Certificate}[同一性降阶证书]
+证书为
+\[
+  (X=Y)\ \leadsto\
+  (X\simeq_h Y)\ \leadsto\
+  (\exists\sigma\text{ 实现 }X\simeq_h Y).
+\]
+\end{Certificate}
+
+\begin{proof}
+由定理~\ref{thm:tex50-property-morphism-criterion} 直接得到。证毕。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{D结构超限递归、合法多代表元与框架内力迫修复}
+\label{sec:tex50-d-transfinite-repair}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{D结构超限递归与无悬空孔洞}
+\label{subsec:tex50-d-transfinite}
+
+\begin{definition}[D结构超限修复链]
+\label{def:tex50-d-transfinite-chain}
+设 $\lambda$ 为序数。称
+\[
+  \Gamma_\lambda
+  =
+  \bigl(X_\alpha,p_\alpha,\partial_\alpha,\omega_\alpha\bigr)_{\alpha<\lambda}
+\]
+为性变态射候选 $\eta:X\leadsto Y$ 的 \textbf{D结构超限修复链}，若：
+\begin{enumerate}
+  \item $X_0=X$，且每个 $X_\alpha\in\Cat_G$；
+  \item $p_\alpha$ 为第 $\alpha$ 阶条件，$p_{\beta}\preceq_D p_\alpha$ 表示 $\beta\ge\alpha$ 时条件被加强；
+  \item $\partial_\alpha$ 为在条件 $p_\alpha$ 下可使用的边缘修复算子；
+  \item $\omega_\alpha$ 为该阶段仍未闭合的障碍；
+  \item 若 $\omega_\alpha$ 可修复，则
+  \[
+    X_{\alpha+1}=\partial_\alpha(X_\alpha),
+    \qquad
+    p_{\alpha+1}\preceq_D p_\alpha;
+  \]
+  \item 若 $\alpha$ 为极限序数，则 $X_\alpha$ 为前段证书的相容极限或正规化极限。
+\end{enumerate}
+\end{definition}
+
+\begin{axiom}[D结构超限递归公设]
+\label{ax:tex50-d-transfinite-recursion}
+在 \GFramework{} 中，任何已经编码的原始异构演化候选 $\eta:X\leadsto Y$，若进入证明域，则必须被表示为某条 D结构超限修复链 $\Gamma_\lambda$ 的有限截面、极限截面或异常截面。
+也就是说，证明域中不存在不经条件、边缘算子和障碍归类的裸跳步。
+\end{axiom}
+
+\begin{axiom}[富结构无悬空孔洞公设]
+\label{ax:tex50-no-dangling-hole}
+对任意有限阶障碍 $\omega_k(\eta)$，$k\ge3$，下列二者必居其一：
+\[
+  \exists h_k,\quad \omega_k(\eta)\in\Imop(d)
+  \quad\text{经 }h_k\text{ 边界化},
+\]
+或存在有限属性归类
+\[
+  \Pi_{\mathrm{attr}}(\omega_k)
+  \in\{\EngDiv,\mathsf{Illegal},\mathsf{External}\}.
+\]
+因此“不可修复”不得作为未解释孔洞停留在主证明链中；它要么被修复，要么被异常化、非法化或域外化。
+\end{axiom}
+
+\begin{theorem}[性变态射包含力迫属性的框架内定理]
+\label{thm:tex50-d-forcing-internal}
+若 $\eta:X\leadsto Y$ 满足公设~\ref{ax:tex50-d-transfinite-recursion} 与公设~\ref{ax:tex50-no-dangling-hole}，
+则 $\eta$ 在 \GFramework{} 内部携带力迫属性：
+\[
+  \eta
+  \Longrightarrow
+  \Forc_G(\eta).
+\]
+\end{theorem}
+
+\begin{Certificate}[D结构力迫证书]
+证书为四元组
+\[
+  \mathcal C_{\Forc}
+  =
+  (\Gamma_\lambda,\preceq_D,\{\partial_\alpha\}_{\alpha<\lambda},\{\omega_\alpha\}_{\alpha<\lambda}).
+\]
+其中 $\Gamma_\lambda$ 给出条件链，$\preceq_D$ 给出条件加强关系，$\partial_\alpha$ 给出边缘修复，$\omega_\alpha$ 给出障碍族。
+\end{Certificate}
+
+\begin{proof}
+由定义~\ref{def:tex50-d-transfinite-chain}，每一阶段都有条件 $p_\alpha$ 与加强关系 $p_{\alpha+1}\preceq_D p_\alpha$。
+这给出 forcing 所需的条件偏序骨架。
+每个 $p_\alpha$ 下的结论由
+\[
+  p_\alpha\Vdash_G X_\alpha\leadsto X_{\alpha+1}
+\]
+表达；若障碍可修复，则 $\partial_\alpha$ 给出局部扩张和修复；若障碍不可正常修复，则由公设~\ref{ax:tex50-no-dangling-hole} 被归入异常、非法或域外属性。
+于是不存在未归类的裸跳步。
+条件、加强、强制关系、边缘修复与障碍族共同满足性变态射力迫属性的结构要求。
+故 $\Forc_G(\eta)$ 成立。证毕。
+\end{proof}
+
+\begin{theorem}[
+  \texorpdfstring
+  {D结构超限修复与 $L_\infty$ 局部修复的框架内等价}
+  {D-structure transfinite repair and L-infinity local repair}
+]
+\label{thm:tex50-d-linfty-equivalence}
+在有限阶截面上，D结构超限修复与 \Linfty{} 局部修复具有框架内等价：
+\[
+  \Gamma_\lambda\!\restriction_{\le n}
+  \quad\Longleftrightarrow_G\quad
+  \forall\,3\le k\le n,\ \omega_k(\eta)\in\Imop(d).
+\]
+\end{theorem}
+
+\begin{Certificate}[超限--局部等价证书]
+证书由两向映射组成：
+\[
+\begin{aligned}
+  C_{D\to L}&:\quad
+  (p_k,\partial_k,\omega_k)\mapsto h_k,\quad d(h_k)=\omega_k,\\
+  C_{L\to D}&:\quad
+  h_k\mapsto(p_k,\partial_k),\quad \partial_k\text{ 吸收 }\omega_k.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}
+先证 $D\to L$。
+若 $\Gamma_\lambda\restriction_{\le n}$ 是有效的 D结构修复截面，则每个 $3\le k\le n$ 的可修复障碍都经某个 $\partial_k$ 消去。
+按 \Linfty{} 修复背景，消去障碍等价于存在 $h_k$ 使 $\omega_k=d(h_k)$，故 $\omega_k\in\Imop(d)$。
+
+再证 $L\to D$。
+若对所有 $3\le k\le n$ 都有 $\omega_k\in\Imop(d)$，取 $h_k$ 为边界原像，并令 $\partial_k$ 为由 $h_k$ 诱导的边缘修复。
+令 $p_{k+1}\preceq_D p_k$ 表示完成第 $k$ 阶修复后的条件加强。
+这些有限数据按定义~\ref{def:tex50-d-transfinite-chain} 组成 $\Gamma_\lambda$ 的有限截面。
+故二者在有限阶上等价。证毕。
+\end{proof}
+
+\subsection{合法多代表元修复}
+\label{subsec:tex50-legal-representatives}
+
+\begin{definition}[合法代表元集合]
+\label{def:tex50-legal-repair-representatives}
+给定性变态射候选 $\eta:X\leadsto Y$，定义其合法修复代表元集合为
+\[
+  \Rep_{\mathrm{leg}}(\eta)
+  =
+  \bigl\{
+    \sigma\in\Sigma(X,Y):
+    \Adm(\sigma)=1,\ 
+    \Cert_h(\sigma)=\top,\ 
+    \Res(\sigma)<\infty
+  \bigr\}.
+\]
+若两条链 $\sigma_1,\sigma_2\in\Rep_{\mathrm{leg}}(\eta)$ 在正规化算子 $R_{\mathcal E}$ 下满足
+\[
+  R_{\mathcal E}(\sigma_1)\simeq_h R_{\mathcal E}(\sigma_2),
+\]
+则称它们为同一修复类的两个合法代表元。
+\end{definition}
+
+\begin{proposition}[合法多代表元不等于任意话术]
+\label{prop:tex50-legal-representatives-not-anything}
+若 $\sigma_1,\sigma_2\in\Rep_{\mathrm{leg}}(\eta)$ 且
+\[
+  R_{\mathcal E}(\sigma_1)\simeq_h R_{\mathcal E}(\sigma_2),
+\]
+则二者给出同一同伦同一性结论。
+反之，若某条链 $\tau$ 不满足可允许性、证书性或有限残差条件之一，则
+\[
+  \tau\notin\Rep_{\mathrm{leg}}(\eta),
+\]
+不能作为同一修复类的合法代表元。
+\end{proposition}
+
+\begin{Certificate}[合法代表元证书]
+证书为二段判定：
+\[
+\begin{aligned}
+  C_{\mathrm{same}}&:\quad
+  \Adm(\sigma_i)=1,\ \Cert_h(\sigma_i)=\top,\ R_{\mathcal E}(\sigma_1)\simeq_hR_{\mathcal E}(\sigma_2),\\
+  C_{\mathrm{reject}}&:\quad
+  \neg\Adm(\tau)\ \vee\ \Cert_h(\tau)\neq\top\ \vee\ \Res(\tau)=\infty.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 $C_{\mathrm{same}}$，$\sigma_1$ 与 $\sigma_2$ 都是可允许且证书化的链。
+正规化后它们处于同一同伦类，因此由定理~\ref{thm:tex50-property-morphism-criterion} 均推出同一结论 $X\simeq_hY$ 与 $\Proof_G(\eta)=1$。
+这说明多代表元只是在合法修复类中的非唯一。
+
+由 $C_{\mathrm{reject}}$，$\tau$ 至少缺失可允许性、证书性或有限残差条件之一。
+按定义~\ref{def:tex50-legal-repair-representatives}，它不属于 $\Rep_{\mathrm{leg}}(\eta)$。
+因此“合法代表元非唯一”不能扩张为“任意表达皆可作为修复”。证毕。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{力迫属性：扩张语义、投影与同伦等价层级}
+\label{sec:tex50-forcing}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{G框架内部的力迫属性}
+\label{subsec:tex50-forcing-property}
+
+\begin{definition}[性变态射的力迫属性]
+设 $\eta:X\leadsto Y$。称 $\eta$ 具有\textbf{力迫属性}，若存在条件偏序与修复数据
+\[
+  \mathbb P_\eta=(P_\eta,\preceq_\eta,\perp_\eta,\Vdash_\eta,\mathcal E_\eta,\Omega_\eta)
+\]
+满足：
+\begin{enumerate}
+  \item $P_\eta$ 为条件集合，$p'\preceq_\eta p$ 表示条件加强；
+  \item $\perp_\eta$ 表示条件不兼容；
+  \item $p\Vdash_\eta \varphi$ 表示在条件 $p$ 下强制结论 $\varphi$；
+  \item $\mathcal E_\eta$ 为边缘算子族；
+  \item $\Omega_\eta=\{\omega_k(\eta)\}_{k\ge3}$ 为障碍族，且每个有限阶障碍可由 \Linfty{} 修复步边界化。
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[集合论 forcing 骨架]
+集合论 forcing 的标准骨架记为
+\[
+  \mathbb P_{\mathrm{set}}
+  =
+  (P,\le,\perp,\Vdash_{\mathrm{set}},G,M[G]),
+\]
+其中 $P$ 为偏序条件，$G$ 为泛滤子，$M[G]$ 为 forcing 扩张模型。
+该骨架保留“条件、加强、兼容、强制、扩张”五类结构 \cite{Cohen1963,Jech2003,SEPSetTheory,EOMForcing}。
+\end{definition}
+
+\begin{definition}[刚化投影]
+定义刚化投影
+\[
+  \Pi_{\mathrm{set}}:
+  \mathbb P_\eta\to\mathbb P_{\mathrm{set}}
+\]
+为忘却映射：
+\[
+  (P_\eta,\preceq_\eta,\perp_\eta,\Vdash_\eta,\mathcal E_\eta,\Omega_\eta)
+  \mapsto
+  (P,\le,\perp,\Vdash_{\mathrm{set}},G,M[G]),
+\]
+它保留偏序扩张语义，忘却边缘算子、障碍族与高阶修复证书。
+\end{definition}
+
+\begin{proposition}[集合论 forcing 是富结构力迫属性的刚化投影]
+\label{prop:tex50-forcing-projection}
+若 $\Pi_{\mathrm{set}}$ 保持条件加强、兼容性与强制关系，即
+\[
+  p'\preceq_\eta p \Rightarrow \Pi(p')\le\Pi(p),
+  \qquad
+  p\perp_\eta q \Rightarrow \Pi(p)\perp\Pi(q),
+\]
+\[
+  p\Vdash_\eta\varphi
+  \Rightarrow
+  \Pi(p)\Vdash_{\mathrm{set}}\Pi(\varphi),
+\]
+则集合论 forcing 骨架是性变态射力迫属性的刚化投影。
+\end{proposition}
+
+\begin{Certificate}[投影保持证书]
+证书为三条保持式：
+\[
+\begin{aligned}
+  C_{\le}&:\quad p'\preceq_\eta p\Rightarrow\Pi(p')\le\Pi(p),\\
+  C_{\perp}&:\quad p\perp_\eta q\Rightarrow\Pi(p)\perp\Pi(q),\\
+  C_{\Vdash}&:\quad p\Vdash_\eta\varphi\Rightarrow\Pi(p)\Vdash_{\mathrm{set}}\Pi(\varphi).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}
+由 $C_{\le}$，投影保留条件加强关系；由 $C_{\perp}$，投影保留不兼容关系；由 $C_{\Vdash}$，投影保留强制关系。
+因此投影后的结构仍具有集合论 forcing 的偏序、兼容、强制与扩张骨架。
+边缘算子与障碍族在投影中被忘却，所以得到的是刚化骨架而非完整富结构。证毕。
+\end{proof}
+
+\begin{theorem}[扩张语义层的同伦等价]
+\label{thm:tex50-forcing-homotopy-equivalence}
+设 $\mathbb P_\eta$ 为性变态射力迫属性系统，$\mathbb P_{\mathrm{set}}$ 为其刚化投影。
+若存在截面
+\[
+  s:\mathbb P_{\mathrm{set}}\to\mathbb P_\eta
+\]
+使
+\[
+  \Pi_{\mathrm{set}}\circ s\simeq\id_{\mathbb P_{\mathrm{set}}},
+  \qquad
+  s\circ\Pi_{\mathrm{set}}\simeq R_{\mathcal E},
+\]
+其中 $R_{\mathcal E}$ 为模去边缘修复代表元后的正规化算子，则
+\[
+  \mathbb P_\eta/\mathcal E_\eta
+  \simeq_h
+  \mathbb P_{\mathrm{set}}
+\]
+在扩张语义层成立。
+\end{theorem}
+
+\begin{Certificate}[扩张语义同伦证书]
+证书为
+\[
+  \bigl(\Pi_{\mathrm{set}},s,H_{\mathrm{set}},H_{\eta},R_{\mathcal E}\bigr),
+\]
+其中
+\[
+  H_{\mathrm{set}}:\Pi_{\mathrm{set}}\circ s\simeq\id_{\mathbb P_{\mathrm{set}}},
+  \qquad
+  H_{\eta}:s\circ\Pi_{\mathrm{set}}\simeq R_{\mathcal E}.
+\]
+\end{Certificate}
+
+\begin{proof}
+由 $H_{\mathrm{set}}$，$\Pi_{\mathrm{set}}$ 在集合论 forcing 骨架上有右同伦逆。
+由 $H_{\eta}$，$s\circ\Pi_{\mathrm{set}}$ 与 $R_{\mathcal E}$ 同伦。
+而 $R_{\mathcal E}$ 的定义是把 $\mathbb P_\eta$ 中只相差边缘修复代表元的数据归为同一扩张语义类。
+故在商层
+\[
+  \mathbb P_\eta/\mathcal E_\eta
+\]
+上，$s$ 与 $\Pi_{\mathrm{set}}$ 给出互逆同伦数据。于是
+\[
+  \mathbb P_\eta/\mathcal E_\eta\simeq_h\mathbb P_{\mathrm{set}}.
+\]
+证毕。
+\end{proof}
+
+\begin{remark}[力迫法的定位]
+本文所用“力迫属性”不是把集合论 forcing 逐字搬入同伦对象层，
+而是在 \GFramework{} 中保留 forcing 的条件扩张骨架，并把被集合论骨架压平的高阶障碍、边缘算子与修复证书重新显式化。
+因此本文结论可概括为：
+\[
+  \text{集合论 forcing}
+  =
+  \text{富结构性变态射力迫属性的刚化投影},
+\]
+\[
+  \text{性变态射力迫属性}
+  =
+  \text{带边缘修复与 }\Linfty\text{ 兜底的扩张语义系统}.
+\]
+\end{remark}
+
+\subsection{超限扩张语义、反直觉性与离散拓扑投影}
+\label{subsec:tex50-counterintuitive-discrete-topology}
+
+\begin{definition}[母体力迫系统]
+\label{def:tex50-mother-forcing-system}
+定义 \GFramework{} 中的母体力迫系统为
+\[
+  \mathfrak F_{\mathrm{mother}}
+  =
+  (\Law,D,\preceq_D,\Vdash_G,\mathcal E,\Omega,\Linfty),
+\]
+其中 $\Law$ 为法空间，$D$ 为基准生成结构，$\preceq_D$ 为条件加强关系，
+$\Vdash_G$ 为框架内强制关系，$\mathcal E$ 为边缘算子族，
+$\Omega$ 为障碍族，\Linfty{} 为高阶修复背景。
+\end{definition}
+
+\begin{definition}[超限扩张语义]
+\label{def:tex50-transfinite-extension-semantics}
+称一个力迫系统具有\textbf{超限扩张语义}，若存在序数索引的条件链
+\[
+  (p_\alpha)_{\alpha<\lambda},
+  \qquad
+  \beta\ge\alpha\Rightarrow p_\beta\preceq p_\alpha,
+\]
+并且命题成立性以条件强制的方式沿该链稳定延展：
+\[
+  p_\alpha\Vdash\varphi
+  \quad\Longrightarrow\quad
+  p_\beta\Vdash\varphi
+  \quad(\beta\ge\alpha).
+\]
+在 \GFramework{} 中，该延展还带有边缘修复数据和障碍吸收数据。
+\end{definition}
+
+\begin{proposition}[集合论 forcing 携带超限扩张语义]
+\label{prop:tex50-set-forcing-transfinite-semantics}
+集合论 forcing 的偏序、泛滤子与扩张模型结构携带超限扩张语义。
+\end{proposition}
+
+\begin{Certificate}[集合论扩张语义证书]
+证书为
+\[
+  (P,\le,G,M[G],\Vdash_{\mathrm{set}}),
+\]
+其中 $(P,\le)$ 给出条件加强关系，$G$ 汇集相容条件，$M[G]$ 给出扩张模型，
+$\Vdash_{\mathrm{set}}$ 给出条件下的成立性。
+\end{Certificate}
+
+\begin{proof}
+集合论 forcing 不是在原模型中直接断言目标命题，而是通过偏序条件、相容族和泛滤子构造扩张模型。
+条件加强关系 $q\le p$ 表示 $q$ 比 $p$ 携带更多决定信息；若 $p$ 已强制某命题，则足够强的后继条件保持该强制信息。
+泛滤子 $G$ 汇集相容条件，扩张模型 $M[G]$ 将这些条件的累计效应显式化。
+因此 forcing 的核心语义已经不是静态对象判定，而是条件沿扩张链的成立性生成。
+这正是定义~\ref{def:tex50-transfinite-extension-semantics} 所称的超限扩张语义。证毕。
+\end{proof}
+
+\begin{corollary}[富结构力迫基因的刚化显像]
+\label{cor:tex50-rich-forcing-gene}
+若 $\Pi_{\mathrm{set}}:\mathfrak F_{\mathrm{mother}}\to\mathbb P_{\mathrm{set}}$ 保持条件、加强、兼容与强制关系，
+则集合论 forcing 可视为母体力迫系统忘却边缘算子、障碍族与 \Linfty{} 修复数据之后的刚化显像。
+\end{corollary}
+
+\begin{proof}
+由命题~\ref{prop:tex50-forcing-projection}，刚化投影保留偏序、兼容与强制关系。
+由命题~\ref{prop:tex50-set-forcing-transfinite-semantics}，这些被保留的结构已经足以呈现超限扩张语义。
+但投影忘却 $\mathcal E,\Omega,\Linfty$，故集合论 forcing 显现为母体系统的偏序骨架，而不是完整富结构本身。证毕。
+\end{proof}
+
+\begin{theorem}[集合论 forcing 的反直觉来源]
+\label{thm:tex50-forcing-counterintuitive}
+集合论 forcing 的反直觉性来自如下四重压缩：
+\[
+\begin{aligned}
+  R_1&:\quad \text{从对象本体压缩为条件偏序},\\
+  R_2&:\quad \text{从直接成立压缩为条件强制},\\
+  R_3&:\quad \text{从持续扩张压缩为扩张模型节点},\\
+  R_4&:\quad \text{从富结构高阶修复压缩为不可见背景}.
+\end{aligned}
+\]
+因此它在外观上像静态偏序技术，在语义上却保留了扩张生成机制。
+\end{theorem}
+
+\begin{Certificate}[反直觉性证书]
+证书为四重遗忘映射
+\[
+  \Pi_{\mathrm{rig}}
+  :
+  (\Law,D,\preceq_D,\Vdash_G,\mathcal E,\Omega,\Linfty)
+  \longrightarrow
+  (P,\le,\Vdash_{\mathrm{set}},M[G]).
+\]
+\end{Certificate}
+
+\begin{proof}
+$R_1$ 说明对象不再作为裸对象被判定，而先被条件 $p\in P$ 代理。
+$R_2$ 说明命题成立不再是立即的真值赋值，而是 $p\Vdash\varphi$ 的条件成立。
+$R_3$ 说明持续扩张过程在标准呈现中被压缩为 $M[G]$ 这一扩张节点。
+$R_4$ 说明 \GFramework{} 中显式的边缘算子、障碍族与 \Linfty{} 修复数据在集合论骨架中不可见。
+这四重压缩使 forcing 对习惯静态对象判定的读者显得反直觉。
+但由命题~\ref{prop:tex50-set-forcing-transfinite-semantics}，它仍携带超限扩张语义。
+故定理成立。证毕。
+\end{proof}
+
+\begin{theorem}[持续离散拓扑演化定理]
+\label{thm:tex50-discrete-topological-evolution}
+在 \GFramework{} 的母体力迫系统中，本体演化的基本形态不是预设流形上的连续微分流，而是持续离散拓扑修复链：
+\[
+  X_0
+  \xrightarrow{(p_0,\partial_0)}
+  X_1
+  \xrightarrow{(p_1,\partial_1)}
+  X_2
+  \xrightarrow{(p_2,\partial_2)}
+  \cdots .
+\]
+流形连续性、光滑轨迹或有限状态节点，均是该修复链在特定表示或工程分辨率下的投影语言。
+\end{theorem}
+
+\begin{Certificate}[离散拓扑演化证书]
+证书为
+\[
+  \bigl((X_\alpha)_{\alpha<\lambda},(p_\alpha)_{\alpha<\lambda},
+  (\partial_\alpha)_{\alpha<\lambda},\Pi_{\mathrm{sm}},\Phi_N\bigr),
+\]
+其中 $\Pi_{\mathrm{sm}}$ 给出平滑或流形化投影，$\Phi_N$ 给出有限工程像。
+\end{Certificate}
+
+\begin{proof}
+由定义~\ref{def:tex50-d-transfinite-chain}，本体演化按条件加强、边缘修复与障碍吸收逐阶推进。
+每一步的核心判据是某一阶障碍是否被边界化、截断或异常分流，而不是某个切向量场在连续时间中的积分曲线。
+若存在平滑投影 $\Pi_{\mathrm{sm}}$，则它只读取该离散修复链的某种连续外观；
+若存在有限工程像 $\Phi_N$，则它只读取有限分辨率下的节点、规则和验证结果。
+因此连续流形语言和工程节点语言都不是被否定，而是被定位为母体修复链的投影。证毕。
+\end{proof}
+
+\begin{corollary}[投影节点的地位]
+\label{cor:tex50-projection-node-status}
+任何投影节点 $z_\alpha=\Phi_N(X_\alpha)$ 不是本体演化的全部，而是持续离散拓扑修复链在有限分辨率下的切片。
+\end{corollary}
+
+\begin{proof}
+由定理~\ref{thm:tex50-discrete-topological-evolution}，母体对象为整条修复链。
+$z_\alpha$ 只记录 $\Phi_N$ 对某一阶段 $X_\alpha$ 的有限像。
+故节点是切片，不是母体整体。证毕。
+\end{proof}
+
+\begin{theorem}[桥接后的外部相对定理]
+\label{thm:tex50-external-relative-bridge}
+设 $\eta:X\leadsto Y$ 为经编码的性变态射候选。
+若同时满足：
+\[
+\begin{aligned}
+  A_1&:\quad \eta\text{ 具有母体力迫系统 }\mathfrak F_{\mathrm{mother}},\\
+  A_2&:\quad \Omega(\eta)=\{\omega_k\}_{k\ge3}\text{ 由 }\Linfty\text{ 背景控制},\\
+  A_3&:\quad \exists N<\infty,\ \exists\mathcal C_N\text{ 处理工程残差},\\
+  A_4&:\quad \Pi_{\mathrm{set}}\text{ 保持条件扩张语义},
+\end{aligned}
+\]
+则 $\eta$ 与集合论 forcing 的关系可表述为桥接后的外部相对定理：
+\[
+  \mathfrak F_{\mathrm{mother}}/\mathcal E
+  \simeq_h
+  \mathbb P_{\mathrm{set}}
+  \quad
+  \text{在扩张语义层成立，}
+\]
+而非断言二者在原始对象层逐字相同。
+\end{theorem}
+
+\begin{Certificate}[外部相对桥接证书]
+证书为
+\[
+  (A_1,A_2,A_3,A_4,\Pi_{\mathrm{set}},s,R_{\mathcal E},\mathcal C_N).
+\]
+\end{Certificate}
+
+\begin{proof}
+由 $A_1$，$\eta$ 有母体条件扩张系统。
+由 $A_2$，其高阶障碍由 \Linfty{} 修复塔控制，故高阶修复不是悬空假设。
+由 $A_4$，刚化投影保留集合论 forcing 所需的条件扩张骨架。
+由定理~\ref{thm:tex50-forcing-homotopy-equivalence}，投影与截面在扩张语义层给出同伦等价。
+由 $A_3$，工程层不把无限修复裸提交，而是用有限证书或异常分流闭合残差。
+因此结论是“桥接后的相对定理”：它证明扩张语义层等价，而不把母体富结构与集合论骨架混同为原始对象层的逐字相等。证毕。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{三层构型：世界观、方法论与工程闭合}
+\label{sec:tex50-three-layers}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{三层构型}
+\label{subsec:tex50-three-layer-def}
+
+\begin{definition}[三层构型]
+定义
+\[
+  \mathcal K=(\mathcal K_1,\mathcal K_2,\mathcal K_3),
+\]
+其中
+\[
+\begin{aligned}
+  \mathcal K_1&:=\text{可证性与自然成立},\\
+  \mathcal K_2&:=\text{构造性与证明强度},\\
+  \mathcal K_3&:=\text{工程残差处理}.
+\end{aligned}
+\]
+三层之间的方向为
+\[
+  \mathcal K_1
+  \xRightarrow{\text{存在}}
+  \mathcal K_2
+  \xRightarrow{\text{强度}}
+  \mathcal K_3
+  \xRightarrow{\text{落地}}
+  \text{有限工程证书}.
+\]
+\end{definition}
+
+\begin{definition}[理论世界观核]
+定义理论世界观核
+\[
+  \mathcal W=(\Law,D,H,P),
+\]
+其中
+\[
+  \Law=\text{律空间/法空间},\qquad
+  D=\text{基准生成结构},\qquad
+  H=\text{性变态射族},\qquad
+  P=\text{性变算子族}.
+\]
+其职责分工为
+\[
+\begin{aligned}
+  \Law&:\text{提供对象与路径所在的本体空间},\\
+  D&:\text{生成当前情境下的基准与逻辑性度量},\\
+  H&:\text{给出原始异构演化候选},\\
+  P&:\text{给出可构造的局部修复接口}.
+\end{aligned}
+\]
+\end{definition}
+
+\begin{definition}[理论方法论核]
+定义理论方法论核
+\[
+  \mathcal M=(\mathcal L_D,\Sigma,\mathcal J,\argopt),
+\]
+其中
+\[
+  \Sigma(X,Y)
+  :=
+  \{\sigma:X\to Y\mid \Adm(\sigma)=1\}
+\]
+为可允许性变算子链空间，
+\[
+  \mathcal L_D(\sigma;w)
+\]
+为由 $D$ 结构在基准 $w$ 下生成的逻辑性度量，
+\[
+  \mathcal J(\sigma;w)
+\]
+为变分目标泛函，
+\[
+  \sigma^\star\in
+  \argopt_{\sigma\in\Sigma(X,Y)}\mathcal J(\sigma;w)
+\]
+为最优性变算子链。
+\end{definition}
+
+\begin{definition}[工程实现核]
+定义工程实现核
+\[
+  \mathcal E=(N,\Phi_N,\mathcal V,\mathcal H,r_N),
+\]
+其中
+\[
+  N=\text{有限截断阶},\quad
+  \Phi_N=\text{理论对象到有限工程像的投影},
+\]
+\[
+  \mathcal V=\text{有限验证器},\quad
+  \mathcal H=\text{异常处理器},\quad
+  r_N=\text{基准残差}.
+\]
+\end{definition}
+
+\begin{theorem}[三层构型与三核对应定理]
+\label{thm:tex50-three-kernel-correspondence}
+三层构型 $\mathcal K$ 与三核 $(\mathcal W,\mathcal M,\mathcal E)$ 存在自然对应：
+\[
+  \mathcal K_1\leftrightarrow(\Law,D,H),
+\]
+\[
+  \mathcal K_2\leftrightarrow(D,P,\mathcal L_D,\Sigma,\mathcal J),
+\]
+\[
+  \mathcal K_3\leftrightarrow(N,\Phi_N,\mathcal V,\mathcal H,r_N).
+\]
+\end{theorem}
+
+\begin{Certificate}[三层对应证书]
+证书为三条双向角色匹配：
+\[
+\begin{aligned}
+  C_1&:\quad
+  \text{自然出现与有限阶可证性}
+  \leftrightarrow
+  (\Law,D,H),\\
+  C_2&:\quad
+  \text{寻找最强修复链}
+  \leftrightarrow
+  (D,P,\mathcal L_D,\Sigma,\mathcal J),\\
+  C_3&:\quad
+  \text{有限截断与残差分流}
+  \leftrightarrow
+  (N,\Phi_N,\mathcal V,\mathcal H,r_N).
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}
+第一层回答的是：原始性变态射为何进入对象域，以及有限阶可证性为何成立。
+由引理~\ref{lem:tex50-raw-natural} 与定理~\ref{thm:tex50-prov-induction}，
+\[
+  (\Law,D,H)
+  \Rightarrow
+  \operatorname{Raw}(\eta)=1
+  \wedge
+  \forall n<\infty,\Prov_{\le n}(\eta).
+\]
+故 $\mathcal K_1\leftrightarrow(\Law,D,H)$。
+
+第二层回答的是：哪条算子链给出更强、更稳、更可交付的证明。
+这需要 $P$ 给出候选算子，$\Sigma$ 给出搜索域，$D$ 与 $\mathcal L_D$ 给出基准评分，$\mathcal J$ 给出变分选择。
+故
+\[
+  \mathcal K_2\leftrightarrow(D,P,\mathcal L_D,\Sigma,\mathcal J).
+\]
+
+第三层只处理有限截断后的残差、验证与异常分流。
+这正由
+\[
+  (N,\Phi_N,\mathcal V,\mathcal H,r_N)
+\]
+刻画。故 $\mathcal K_3\leftrightarrow\mathcal E$。证毕。
+\end{proof}
+
+\subsection{构造性、证明强度与GRL变分}
+\label{subsec:tex50-constructive-strength}
+
+\begin{definition}[基准前提下的逻辑性度量]
+对 $\sigma\in\Sigma(X,Y)$，定义
+\[
+  \mathcal L_{\mathrm{proof}}(\sigma;w)
+  :=
+  F\bigl(
+    \rho_{\mathrm{comp}}(\sigma),
+    \rho_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}}),
+    \Cost(\sigma),
+    \Stab(\sigma),
+    \Cert(\sigma)
+  \bigr),
+\]
+其中 $F$ 为由 $D$ 结构生成的评价合成器。
+\end{definition}
+
+\begin{proposition}[可证性不同于证明强度]
+\label{prop:tex50-prov-vs-strength}
+对任意候选链 $\sigma$，
+\[
+  \Prov_{\le n}(\sigma)
+  \not\equiv
+  \rho_{\mathrm{comp}}(\sigma)\text{ 或 }\rho_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}}).
+\]
+更精确地说，$\Prov_{\le n}$ 只回答有限阶是否可证；
+$\rho_{\mathrm{comp}}$ 与 $\rho_{\mathrm{eng}}$ 衡量证明链修复到多高阶，以及多早可在工程基准下落地。
+\end{proposition}
+
+\begin{Certificate}[强度分离证书]
+证书为谓词分解
+\[
+  \Prov_{\le n}(\sigma)
+  =
+  \forall\,3\le k\le n,\ \omega_k(\sigma)\in\Imop(d),
+\]
+\[
+  \rho_{\mathrm{comp}}(\sigma)
+  =
+  \sup\{n\mid\Prov_{\le n}(\sigma)\},
+\]
+\[
+  \rho_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}})
+  =
+  \inf\{N\mid \omega_{>N}\text{ 已被工程处理}\}.
+\]
+\end{Certificate}
+
+\begin{proof}
+若只给出 $\Prov_{\le n}$，则只知道 $\omega_3,\dots,\omega_n$ 被边界化，不能推出 $n$ 是否最大，也不能推出工程截断阶。
+若给出 $\rho_{\mathrm{comp}}$，则给出最高可证阶；若给出 $\rho_{\mathrm{eng}}$，则给出工程可落地的最低处理阶。
+三者的定义域与输出不同，故不可混同。证毕。
+\end{proof}
+
+\begin{definition}[\texorpdfstring{$L_\infty$}{L-infinity} 修复塔残差剖面]
+\label{def:tex50-linfty-residual-profile}
+给定可允许链 $\sigma\in\Sigma(X,Y)$ 与同伦修复塔
+\[
+  \Linfty=(V,\ell_1,\ell_2,\ell_3,\dots),
+  \qquad d=\ell_1,
+\]
+对每一阶 $k\ge3$ 定义归一化残差
+\[
+  \delta_k(\sigma;w)
+  :=
+  \inf_{h_k}
+  \left\|
+    \omega_k(\sigma)
+    -
+    d(h_k)
+    -
+    Q_k(\ell_2,\dots,\ell_{k-1};h_3,\dots,h_{k-1})
+  \right\|_{w,k},
+\]
+其中 $\|\cdot\|_{w,k}$ 为由 $D$ 结构基准 $w$ 在第 $k$ 阶生成的障碍范数。
+定义第 $k$ 阶修复命中度
+\[
+  a_k(\sigma;w)
+  :=
+  \frac{1}{1+\delta_k(\sigma;w)}
+  \in(0,1].
+\]
+当且仅当第 $k$ 阶障碍被修复塔完全吸收时，$a_k(\sigma;w)=1$。
+\end{definition}
+
+\begin{definition}[\texorpdfstring{$L_\infty$}{L-infinity} 归一化修复塔强度]
+\label{def:tex50-linfty-normalized-strength}
+取一列正权重 $\mu_k>0$，$k\ge3$，满足
+\[
+  0<\sum_{k=3}^{\infty}\mu_k<\infty.
+\]
+定义 $\sigma$ 的 \textbf{\(\Linfty\) 归一化修复塔强度}
+\[
+  \rho_{\Linfty}^{\Norm}(\sigma;w)
+  :=
+  \frac{
+    \sum_{k=3}^{\infty}\mu_k\,a_k(\sigma;w)\,\Cert_k(\sigma)
+  }{
+    \sum_{k=3}^{\infty}\mu_k
+  },
+\]
+其中
+\[
+  \Cert_k(\sigma)\in\{0,1\}
+\]
+表示第 $k$ 阶修复是否带有可接受证书。
+其有限截断近似为
+\[
+  \rho_{\Linfty,N}^{\Norm}(\sigma;w)
+  :=
+  \frac{
+    \sum_{k=3}^{N}\mu_k\,a_k(\sigma;w)\,\Cert_k(\sigma)
+  }{
+    \sum_{k=3}^{N}\mu_k
+  }.
+\]
+\end{definition}
+
+\begin{definition}[有限落地因子与发散兜底因子]
+\label{def:tex50-finite-landing-factor}
+给定工程基准 $b_{\mathrm{eng}}$，定义有限落地因子
+\[
+  \tau_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}})
+  :=
+  \begin{cases}
+    \dfrac{1}{1+\rho_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}})},
+    & \rho_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}})<\infty,\\[6pt]
+    0,
+    & \rho_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}})=\infty.
+  \end{cases}
+\]
+若 $\rho_{\mathrm{eng}}=\infty$，则 $\sigma$ 只落入真正的 $\Linfty$ 全塔兜底，而没有有限工程闭合。
+此时定义发散兜底因子
+\[
+  \chi_{\Linfty}^{\mathrm{div}}(\sigma)
+  :=
+  \begin{cases}
+    0,& \rho_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}})<\infty,\\
+    1,& \rho_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}})=\infty.
+  \end{cases}
+\]
+\end{definition}
+
+\begin{definition}[\texorpdfstring{$L_\infty$}{L-infinity} 归一化证明强度逻辑性度量]
+\label{def:tex50-linfty-normalized-proof-logic}
+在基准 $w$ 与工程基准 $b_{\mathrm{eng}}$ 下，定义
+\[
+\begin{aligned}
+  \mathcal L_{\Linfty\text{-}\mathrm{proof}}(\sigma;w,b_{\mathrm{eng}})
+  :=
+  F_D\Bigl(
+    &\rho_{\Linfty}^{\Norm}(\sigma;w),
+    \rho_{\mathrm{comp}}(\sigma),
+    \tau_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}}),\\
+    &\Stab(\sigma),
+    \Cert(\sigma),
+    \frac{1}{1+\Cost(\sigma)},
+    \frac{1}{1+\Viol(\sigma)}
+  \Bigr),
+\end{aligned}
+\]
+其中 $F_D$ 为 $D$ 结构生成的单调评价合成器：
+它关于前三个强度分量、稳定性与证书保持率单调不减，关于代价和违规量单调不增。
+该量是“基准前提下的证明强度作为逻辑性度量”的严格版本。
+\end{definition}
+
+\begin{theorem}[\texorpdfstring{$L_\infty$}{L-infinity} 归一化强度定理]
+\label{thm:tex50-linfty-normalized-strength}
+对任意 $\sigma\in\Sigma(X,Y)$，
+\[
+  0\le
+  \rho_{\Linfty}^{\Norm}(\sigma;w)
+  \le1,
+  \qquad
+  0\le
+  \mathcal L_{\Linfty\text{-}\mathrm{proof}}(\sigma;w,b_{\mathrm{eng}})
+  \le
+  \sup F_D.
+\]
+若 $\sigma_1,\sigma_2$ 在代价、稳定性、证书保持率与违规量上相同，且
+\[
+  \rho_{\Linfty}^{\Norm}(\sigma_1;w)\ge\rho_{\Linfty}^{\Norm}(\sigma_2;w),
+  \qquad
+  \tau_{\mathrm{eng}}(\sigma_1;b_{\mathrm{eng}})
+  >
+  \tau_{\mathrm{eng}}(\sigma_2;b_{\mathrm{eng}}),
+\]
+则
+\[
+  \mathcal L_{\Linfty\text{-}\mathrm{proof}}(\sigma_1;w,b_{\mathrm{eng}})
+  >
+  \mathcal L_{\Linfty\text{-}\mathrm{proof}}(\sigma_2;w,b_{\mathrm{eng}})
+\]
+在严格单调的 $F_D$ 下成立。
+\end{theorem}
+
+\begin{Certificate}[\texorpdfstring{$L_\infty$}{L-infinity} 归一化证书]
+证书为
+\[
+  \bigl(
+    \delta_k,\ a_k,\ \mu_k,\ \Cert_k,\ \tau_{\mathrm{eng}},\ F_D
+  \bigr)_{k\ge3}.
+\]
+其中 $\sum\mu_k<\infty$ 给出无穷塔的归一化，$\Cert_k$ 给出证书门控，
+$\tau_{\mathrm{eng}}$ 给出有限落地门控。
+\end{Certificate}
+
+\begin{proof}
+由定义~\ref{def:tex50-linfty-residual-profile}，$a_k\in(0,1]$。
+又 $\Cert_k\in\{0,1\}$，故
+\[
+  0\le a_k\Cert_k\le1.
+\]
+由 $\mu_k>0$ 且 $\sum_{k=3}^{\infty}\mu_k<\infty$，
+\[
+  0\le
+  \frac{\sum\mu_k a_k\Cert_k}{\sum\mu_k}
+  \le1.
+\]
+故 $\rho_{\Linfty}^{\Norm}\in[0,1]$。
+由定义~\ref{def:tex50-finite-landing-factor}，$\tau_{\mathrm{eng}}\in[0,1]$。
+因此 $\mathcal L_{\Linfty\text{-}\mathrm{proof}}$ 的所有输入分量均落在 $F_D$ 的有界评价域内。
+若 $\sigma_1$ 在归一化修复塔强度不低于 $\sigma_2$，且有限落地因子严格高于 $\sigma_2$，并且其他分量相同，
+则由 $F_D$ 的严格单调性得到逻辑性度量严格更高。证毕。
+\end{proof}
+
+\begin{proposition}[\texorpdfstring{$L_\infty$}{L-infinity} 全塔兜底不等于高证明强度]
+\label{prop:tex50-linfty-fallback-not-strength}
+若
+\[
+  \rho_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}})=\infty,
+\]
+则 $\sigma$ 只具有 $\Linfty$ 平庸存在性兜底，而不具有有限工程意义下的高证明强度。
+形式上，
+\[
+  \tau_{\mathrm{eng}}(\sigma;b_{\mathrm{eng}})=0,
+\]
+因此该链不能仅凭 $\Linfty$ 全塔可继续修复性成为最优证明链。
+\end{proposition}
+
+\begin{Certificate}[兜底--强度分离证书]
+证书为
+\[
+  \rho_{\mathrm{eng}}=\infty
+  \Rightarrow
+  \tau_{\mathrm{eng}}=0
+  \Rightarrow
+  \text{有限落地强度缺失}.
+\]
+\end{Certificate}
+
+\begin{proof}
+由定义~\ref{def:tex50-finite-landing-factor}，
+\[
+  \rho_{\mathrm{eng}}=\infty
+  \Rightarrow
+  \tau_{\mathrm{eng}}=0.
+\]
+这表示工程基准下不存在有限截断、有限误差或异常分流闭合证书。
+因此 $\Linfty$ 全塔只说明数学层仍可继续修复，不说明该链在工程层已具备可交付强度。
+故全塔兜底与高证明强度不可混同。证毕。
+\end{proof}
+
+\begin{corollary}[第二层的高保真读法]
+\label{cor:tex50-second-layer-high-fidelity}
+第二层“构造性与证明强度”的精确读法为
+\[
+  \text{在 }D\text{ 结构生成的基准 }w\text{ 下，}
+  \sigma\in\Sigma(X,Y)
+  \xRightarrow{\Linfty\text{ 归一化}}
+  \mathcal L_{\Linfty\text{-}\mathrm{proof}}(\sigma;w,b_{\mathrm{eng}}).
+\]
+即证明强度不是单纯可证性，而是同伦修复塔归一化强度、有限落地因子、证书保持、稳定性、代价与违规量共同给出的逻辑性评分。
+\end{corollary}
+
+\begin{Certificate}[第二层读法证书]
+证书为谓词因果链
+\[
+  \Sigma(X,Y)
+  \xRightarrow{\omega_k,\Linfty}
+  \rho_{\Linfty}^{\Norm}
+  \xRightarrow{b_{\mathrm{eng}}}
+  \tau_{\mathrm{eng}}
+  \xRightarrow{F_D}
+  \mathcal L_{\Linfty\text{-}\mathrm{proof}}.
+\]
+\end{Certificate}
+
+\begin{proof}
+由定义~\ref{def:tex50-linfty-normalized-strength}，同伦修复塔给出归一化高阶修复强度。
+由定义~\ref{def:tex50-finite-landing-factor}，工程基准给出有限落地因子。
+由定义~\ref{def:tex50-linfty-normalized-proof-logic}，二者与证书、稳定性、代价、违规量一起被 $F_D$ 合成为逻辑性度量。
+故第二层的比较对象不是裸可证性，而是归一化后的证明强度逻辑性评分。证毕。
+\end{proof}
+
+\begin{definition}[变分目标泛函]
+给定权重 $\lambda_i\ge0$，定义
+\[
+\begin{aligned}
+  \mathcal J(\sigma;w)
+  :=
+  &\lambda_1\Cost(\sigma)
+  +\lambda_2\Res_N(\sigma;b_{\mathrm{eng}})
+  +\lambda_3\Viol(\sigma)\\
+  &-\lambda_4\rho_{\mathrm{comp}}(\sigma)
+  -\lambda_5\mathcal L_{\Linfty\text{-}\mathrm{proof}}(\sigma;w,b_{\mathrm{eng}}).
+\end{aligned}
+\]
+于是最优性变算子链定义为
+\[
+  \sigma^\star
+  \in
+  \argmin_{\sigma\in\Sigma(X,Y)}
+  \mathcal J(\sigma;w).
+\]
+\end{definition}
+
+\begin{theorem}[GRL变分作为性变算子的第一性构造]
+\label{thm:tex50-grl-variational-construction}
+在给定 $D$ 结构基准 $w$ 与可允许链空间 $\Sigma(X,Y)$ 时，构造最优性变算子链的问题等价于变分命中问题
+\[
+  \text{构造最强 }\sigma
+  \quad\Longleftrightarrow\quad
+  \sigma^\star\in
+  \argmin_{\sigma\in\Sigma(X,Y)}\mathcal J(\sigma;w).
+\]
+因此 GRL 变分/路径积分机制在本文中对应实现性变算子的第一性构造层。
+\end{theorem}
+
+\begin{Certificate}[变分命中证书]
+证书为
+\[
+  \Sigma(X,Y)
+  \xRightarrow{\mathcal J}
+  \bigl(\mathcal J(\sigma;w)\bigr)_{\sigma\in\Sigma}
+  \xRightarrow{\argmin}
+  \sigma^\star
+  \xRightarrow{\Cert_h}
+  \Proof_G(\eta).
+\]
+\end{Certificate}
+
+\begin{proof}
+一条更优的性变算子链必须同时满足：代价低、残差小、违规少、可证阶高、逻辑性评分高。
+这些条件逐项进入 $\mathcal J$：
+\[
+  \Cost,\ \Res_N,\ \Viol
+  \text{ 被最小化},\qquad
+  \rho_{\mathrm{comp}},\ \mathcal L_{\Linfty\text{-}\mathrm{proof}}
+  \text{ 被最大化}.
+\]
+因此，在可允许域 $\Sigma(X,Y)$ 上寻找最优链，等价于求解 $\mathcal J$ 的变分最小问题。
+GRL 变分/路径积分机制正提供在 law-space 路径族上按作用量或目标泛函选取最优代表的构造口径
+\cite{GaoZhengAppVol1,GaoZhengAppVol3}。证毕。
+\end{proof}
+
+\begin{proposition}[性变算子的双重地位]
+\label{prop:tex50-operator-dual-status}
+性变算子在 \GFramework{} 中具有双重地位：
+\[
+\begin{aligned}
+  P_G&:\quad \text{世界观层的局部性质变化接口},\\
+  \sigma\in\Sigma(X,Y)&:\quad \text{方法论层的可证书化构造对象}.
+\end{aligned}
+\]
+第一重地位说明“允许何种性质变化”；第二重地位说明“哪条具体链给出证明强度”。
+\end{proposition}
+
+\begin{Certificate}[双重地位证书]
+证书为角色分解
+\[
+  (\Law,D,H,P)
+  \xRightarrow{\text{本体接口}}
+  P_G
+  \xRightarrow{\Adm,\mathcal J,\Cert_h}
+  \sigma^\star.
+\]
+\end{Certificate}
+
+\begin{proof}
+在理论世界观核中，$P_G$ 与 $\Law,D,H$ 同属对象演化的基础语言；
+因此它首先规定哪些局部性质变化可被纳入系统。
+在理论方法论核中，真正参与证明的不是抽象的 $P_G$，而是满足
+\[
+  \sigma\in\Sigma(X,Y),\qquad \Adm(\sigma)=1
+\]
+的具体算子链。
+该链再经 $\mathcal J$ 比较并经 $\Cert_h$ 证书化，才给出证明强度与同伦同一性。
+故性变算子既是世界观层的性质变化接口，也是方法论层的可构造证明对象。证毕。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{数学完备、工程完备与可交付有限修复}
+\label{sec:tex50-engineering-completeness}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{数学完备与工程发散}
+\label{subsec:tex50-math-eng-completeness}
+
+\begin{definition}[数学完备]
+\label{def:tex50-math-complete}
+设
+\[
+  \Linfty=(V,\ell_1,\ell_2,\ell_3,\dots),
+  \qquad d=\ell_1.
+\]
+若对任意 $n\ge3$ 的障碍 $\omega_n$，总存在更高阶修复数据 $h_n$ 与由较低阶括号、较低阶修复数据生成的项
+\[
+  Q_n(\ell_2,\dots,\ell_{n-1};h_3,\dots,h_{n-1})
+\]
+使
+\[
+  \omega_n
+  =
+  d(h_n)
+  +
+  Q_n(\ell_2,\dots,\ell_{n-1};h_3,\dots,h_{n-1}),
+\]
+则称 $\Linfty$ 对该障碍族提供\textbf{数学完备}。
+其含义是不存在绝对不可继续修复的死点，而不是已经在某个有限层闭合。
+\end{definition}
+
+\begin{definition}[工程完备]
+\label{def:tex50-engineering-complete}
+称工程修复过程 $\gamma$ 是\textbf{工程完备}的，若存在有限截断阶 $N<\infty$ 与有限资源证书
+\[
+  (T,M,C,\varepsilon)
+\]
+使
+\[
+  \text{time}(\gamma_N)\le T,\qquad
+  \text{memory}(\gamma_N)\le M,\qquad
+  \Cost(\gamma_N)\le C,
+\]
+并且高于 $N$ 的残差满足
+\[
+  \lVert \omega_{>N}(\gamma)\rVert\le\varepsilon
+  \quad\text{或}\quad
+  \mathcal H_N(\omega_{>N})=\mathsf{exception}.
+\]
+因此工程完备要求有限层、有限资源、有限误差预算与显式异常分流。
+\end{definition}
+
+\begin{definition}[工程发散]
+\label{def:tex50-engineering-divergence}
+若工程过程 $\gamma$ 满足
+\[
+  \forall N<\infty,\ \exists n>N
+  \quad\text{使}\quad
+  \omega_n(\gamma)\text{ 仍须在运行时显式修复},
+\]
+且不存在定义~\ref{def:tex50-engineering-complete} 中的有限截断证书，则记
+\[
+  \Attr(\gamma)=\EngDiv,
+\]
+并称 $\gamma$ 具有\textbf{工程发散性}。
+\end{definition}
+
+\begin{theorem}[\texorpdfstring{$\Linfty$}{L-infinity} 是数学完备而非工程完备]
+\label{thm:tex50-linfty-math-not-eng}
+$\Linfty$ 修复塔提供数学完备，但不推出工程完备：
+\[
+  \text{MathComplete}_{\Linfty}
+  \not\Rightarrow
+  \text{EngineeringComplete}.
+\]
+\end{theorem}
+
+\begin{Certificate}[完备性分层证书]
+证书为定义~\ref{def:tex50-math-complete} 与定义~\ref{def:tex50-engineering-complete} 的量词差异：
+\[
+  \forall n\ge3,\ \exists h_n
+  \quad\not\Rightarrow\quad
+  \exists N<\infty,\ \forall n>N,\ \lVert\omega_n\rVert\le\varepsilon.
+\]
+\end{Certificate}
+
+\begin{proof}
+由定义~\ref{def:tex50-math-complete}，$\Linfty$ 给出的是每一阶障碍的继续修复接口：
+\[
+  \forall n\ge3,\ \exists h_n.
+\]
+这说明任意高阶障碍仍可被提升到更高阶结构中吸收。
+但工程完备要求存在某个有限 $N$，使全部高于 $N$ 的运行时障碍被有限截断、有限误差或异常分流闭合。
+量词上
+\[
+  \forall n\,\exists h_n
+  \quad\text{不能推出}\quad
+  \exists N\,\forall n>N.
+\]
+故数学完备不等于工程完备。证毕。
+\end{proof}
+
+\begin{theorem}[真正全塔依赖的工程发散判据]
+\label{thm:tex50-runtime-full-tower-divergence}
+若工程过程 $\gamma$ 在运行时真正依赖 $\Linfty$ 全塔，且不存在任何有限截断证书，则
+\[
+  \Attr(\gamma)=\EngDiv.
+\]
+\end{theorem}
+
+\begin{Certificate}[发散判据证书]
+证书为
+\[
+  \left(
+    \forall N<\infty,\ \exists n>N:\omega_n(\gamma)\text{ 需显式修复}
+  \right)
+  \wedge
+  \neg\Cert_N(\gamma)
+  \Rightarrow
+  \EngDiv,
+\]
+其中 $\Cert_N(\gamma)$ 表示存在有限截断、有限资源、有限误差或异常分流证书。
+\end{Certificate}
+
+\begin{proof}
+反设 $\gamma$ 工程不发散。
+则由定义~\ref{def:tex50-engineering-complete}，应存在有限 $N$ 与资源证书
+\[
+  (T,M,C,\varepsilon)
+\]
+使运行在 $L_{\le N}$ 上闭合。
+但运行时真正依赖全塔意味着任取有限 $N$，仍有更高阶障碍需要显式补修。
+这与有限闭合矛盾。
+故 $\Attr(\gamma)=\EngDiv$。证毕。
+\end{proof}
+
+\begin{proposition}[背景使用不推出工程发散]
+\label{prop:tex50-background-linfty-not-divergence}
+仅在理论背景中使用 $\Linfty$，不推出工程过程发散。
+严格判据是
+\[
+  \text{运行时依赖真正 }\Linfty\text{ 全塔}
+  \wedge
+  \neg\exists\text{ 有限截断证书}
+  \Rightarrow
+  \EngDiv.
+\]
+\end{proposition}
+
+\begin{Certificate}[背景与运行时分离证书]
+证书为二层分离
+\[
+  L_{\infty}^{\mathrm{theory}}
+  \quad\neq\quad
+  L_{\infty}^{\mathrm{runtime}}.
+\]
+\end{Certificate}
+
+\begin{proof}
+理论背景中的 $\Linfty$ 只说明存在继续修复的高阶接口。
+若工程实现只使用某个有限截断 $L_{\le N}$，并带有有限修复证书，则该过程按定义是工程闭合的。
+因此，发散来自“运行时无上界依赖且无有限证书”，而不来自理论层出现 $\Linfty$ 这一事实本身。证毕。
+\end{proof}
+
+\begin{definition}[属性修复]
+\label{def:tex50-attribute-repair}
+给定工程轨迹 $\gamma$，若判定器 $\Pi_{\mathrm{attr}}$ 将其送入确定属性类
+\[
+  \Pi_{\mathrm{attr}}(\gamma)
+  \in
+  \{\mathsf{Conv},\mathsf{TruncConv},\EngDiv,\mathsf{Illegal}\},
+\]
+则称 $\gamma$ 在数学层完成一次\textbf{属性修复}。
+属性修复不是把所有轨迹改成收敛，而是把轨迹归入逻辑闭合的属性扇区。
+\end{definition}
+
+\begin{theorem}[工程发散性是数学完成属性且工程异常属性]
+\label{thm:tex50-engdiv-attribute}
+若
+\[
+  \Pi_{\mathrm{attr}}(\gamma)=\EngDiv,
+\]
+则 $\gamma$ 在数学层已完成属性归类；在工程层必须触发异常处理，而不得作为正常完成返回。
+\end{theorem}
+
+\begin{Certificate}[发散属性证书]
+证书为
+\[
+  \Pi_{\mathrm{attr}}(\gamma)=\EngDiv
+  \xRightarrow{\text{数学层}}
+  \text{属性闭合}
+  \xRightarrow{\text{工程层}}
+  \mathcal H_N(\gamma)=\mathsf{exception}.
+\]
+\end{Certificate}
+
+\begin{proof}
+由定义~\ref{def:tex50-attribute-repair}，$\Pi_{\mathrm{attr}}(\gamma)=\EngDiv$ 已给出确定属性类，
+因此在数学层面对“该轨迹如何被理解”的问题已经闭合。
+但由定义~\ref{def:tex50-engineering-divergence}，$\EngDiv$ 表示无有限正常闭合证书。
+故工程层不能返回 $\mathsf{commit}$，只能触发异常处理。证毕。
+\end{proof}
+
+\subsection{语义型 LLM 幻觉案例：约束失效型工程发散}
+\label{subsec:tex50-llm-hallucination-case}
+
+\begin{definition}[语义型 LLM 生成轨迹]
+\label{def:tex50-llm-semantic-trajectory}
+称一次大语言模型输出过程为\textbf{语义型 LLM 生成轨迹}，若它可写为
+\[
+  \gamma_{\mathrm{LLM}}
+  =
+  (q,s_0,s_1,\dots,s_m,y),
+\]
+其中 $q$ 为输入任务，$s_i\in\Cat_G$ 为生成中的语义状态，$y$ 为最终输出，
+且每一步转移
+\[
+  s_i\rightsquigarrow s_{i+1}
+\]
+由 $D$ 结构基准、性变态射候选与可允许性变算子链共同约束。
+此时输出不是从静态真值表中取值，而是沿语义状态轨迹生成。
+\end{definition}
+
+\begin{definition}[对齐闭合证书]
+\label{def:tex50-alignment-closure-certificate}
+称
+\[
+  \mathcal C_{\Align}
+  =
+  (N,\Phi_N,T,M,C,\varepsilon,\mathcal V_{\Align},\mathcal H_{\Align})
+\]
+为 $\gamma_{\mathrm{LLM}}$ 的\textbf{对齐闭合证书}，若存在有限投影
+\[
+  \Phi_N:\mathfrak T_{\mathrm{meta}}\to\mathfrak E_N
+\]
+把任务约束、真值约束、安全约束与语义一致性约束送入有限验证域，并满足
+\[
+  \text{time}\le T,\qquad
+  \text{memory}\le M,\qquad
+  \Cost\le C,
+\]
+以及
+\[
+  \lVert\Phi_N(\omega_{>N}(\gamma_{\mathrm{LLM}}))\rVert\le\varepsilon
+  \quad\text{或}\quad
+  \mathcal H_{\Align}(\gamma_{\mathrm{LLM}})=\mathsf{exception}.
+\]
+\end{definition}
+
+\begin{definition}[对齐属性判定器]
+\label{def:tex50-alignment-attribute}
+定义对齐属性判定器
+\[
+  \Pi_{\Align}(\gamma_{\mathrm{LLM}})
+  \in
+  \{\Closed,\Recoverable,\EngDiv,\mathsf{Illegal}\},
+\]
+其中
+\[
+\begin{aligned}
+  \Closed&:\quad \text{约束已有限闭合},\\
+  \Recoverable&:\quad \text{分布外或高残差状态可由有限修复恢复},\\
+  \EngDiv&:\quad \text{不存在有限对齐闭合证书且运行时仍需无上界补修},\\
+  \mathsf{Illegal}&:\quad \text{违反硬约束或类型边界}.
+\end{aligned}
+\]
+工程执行器必须满足
+\[
+  \Pi_{\Align}(\gamma_{\mathrm{LLM}})\in\{\EngDiv,\mathsf{Illegal}\}
+  \Rightarrow
+  \mathcal H_{\Align}(\gamma_{\mathrm{LLM}})=\mathsf{exception}.
+\]
+\end{definition}
+
+\begin{definition}[约束失效型工程发散]
+\label{def:tex50-alignment-failure-divergence}
+若
+\[
+  \neg\exists\mathcal C_{\Align}
+  \qquad\text{且}\qquad
+  \Pi_{\Align}(\gamma_{\mathrm{LLM}})=\EngDiv,
+\]
+则称 $\gamma_{\mathrm{LLM}}$ 发生\textbf{约束失效型工程发散}，记为
+\[
+  \operatorname{AlignFail}(\gamma_{\mathrm{LLM}})=1.
+\]
+\end{definition}
+
+\begin{definition}[幻觉型外部表型]
+\label{def:tex50-hallucination-phenotype}
+若 $\gamma_{\mathrm{LLM}}$ 满足
+\[
+  \operatorname{AlignFail}(\gamma_{\mathrm{LLM}})=1,
+  \qquad
+  \mathcal H_{\Align}(\gamma_{\mathrm{LLM}})\neq\mathsf{exception},
+\]
+而系统仍经正常生成通道输出 $y$，且 $y$ 只有局部语义自洽性而无有限真值闭合证书
+\[
+  \Cert_{\mathrm{truth}}(y)=\bot,
+\]
+则称该输出呈现\textbf{幻觉型外部表型}，记为
+\[
+  \Hall(\gamma_{\mathrm{LLM}})=1.
+\]
+\end{definition}
+
+\begin{theorem}[LLM 幻觉案例的工程发散解释]
+\label{thm:tex50-llm-hallucination-engdiv}
+对语义型 LLM 生成轨迹 $\gamma_{\mathrm{LLM}}$，若
+\[
+  \operatorname{AlignFail}(\gamma_{\mathrm{LLM}})=1
+\]
+且工程执行器未触发异常分流而继续正常生成，则
+\[
+  \Hall(\gamma_{\mathrm{LLM}})=1.
+\]
+因此，幻觉可被解释为约束失效型工程发散在未异常分流时的外部表型。
+\end{theorem}
+
+\begin{Certificate}[幻觉案例证书]
+证书为谓词因果链
+\[
+  \neg\exists\mathcal C_{\Align}
+  \xRightarrow{\Pi_{\Align}}
+  \EngDiv
+  \xRightarrow{\mathcal H_{\Align}\neq\mathsf{exception}}
+  \text{正常生成续写}
+  \xRightarrow{\Cert_{\mathrm{truth}}=\bot}
+  \Hall.
+\]
+\end{Certificate}
+
+\begin{proof}
+由定义~\ref{def:tex50-alignment-failure-divergence}，
+\[
+  \operatorname{AlignFail}(\gamma_{\mathrm{LLM}})=1
+\]
+等价于不存在有限对齐闭合证书且 $\Pi_{\Align}$ 将轨迹归为 $\EngDiv$。
+由定义~\ref{def:tex50-alignment-attribute}，$\EngDiv$ 属性在工程层应触发异常处理。
+若异常处理未触发，生成通道继续放行，则系统把一个无有限闭合证书的轨迹当作正常轨迹继续延展。
+此时输出 $y$ 最多具有局部语义自洽性，而没有有限真值闭合证书。
+由定义~\ref{def:tex50-hallucination-phenotype}，得到
+\[
+  \Hall(\gamma_{\mathrm{LLM}})=1.
+\]
+证毕。
+\end{proof}
+
+\begin{proposition}[幻觉不是根因而是表型]
+\label{prop:tex50-hallucination-not-root}
+在本文形式系统中，幻觉不是根因谓词，而是表型谓词：
+\[
+  \Hall(\gamma_{\mathrm{LLM}})=1
+  \Leftarrow
+  \operatorname{AlignFail}(\gamma_{\mathrm{LLM}})=1
+  \wedge
+  \mathcal H_{\Align}(\gamma_{\mathrm{LLM}})\neq\mathsf{exception}.
+\]
+根因谓词是
+\[
+  \neg\exists\mathcal C_{\Align},
+\]
+工程失效谓词是
+\[
+  \mathcal H_{\Align}(\gamma_{\mathrm{LLM}})\neq\mathsf{exception}.
+\]
+\end{proposition}
+
+\begin{Certificate}[根因--表型分离证书]
+证书为三层分解
+\[
+  \text{约束有限闭合失败}
+  \xRightarrow{\text{属性归类}}
+  \EngDiv
+  \xRightarrow{\text{异常分流失败}}
+  \Hall.
+\]
+\end{Certificate}
+
+\begin{proof}
+若没有有限对齐闭合证书，则约束未在工程层闭合。
+若该轨迹又被 $\Pi_{\Align}$ 归入 $\EngDiv$，则数学层属性归类完成。
+此时工程层正确行为应为异常处理；若异常处理失败并继续生成，外部观察到的就是幻觉型输出。
+所以幻觉不是导致发散的原因，而是“约束闭合失败加异常分流失败”的输出表型。证毕。
+\end{proof}
+
+\begin{corollary}[语义型对齐工程的最小闭合条件]
+\label{cor:tex50-semantic-alignment-minimal-closure}
+语义型 LLM 对齐工程至少需要
+\[
+  \mathfrak T_{\mathrm{meta}}
+  +\Phi_N
+  +\mathcal C_{\Align}
+  +\mathcal H_{\Align}.
+\]
+缺少有限对齐闭合证书或异常分流接口时，系统不得把 $\EngDiv$ 轨迹作为正常完成输出。
+\end{corollary}
+
+\begin{Certificate}[最小闭合证书]
+证书为
+\[
+  \text{严格理论核}
+  \xRightarrow{\Phi_N}
+  \text{有限工程像}
+  \xRightarrow{\mathcal C_{\Align}}
+  \text{有限对齐闭合}
+  \xRightarrow{\mathcal H_{\Align}}
+  \text{正常提交或异常分流}.
+\]
+\end{Certificate}
+
+\begin{proof}
+严格理论核给出约束与障碍的定义域；$\Phi_N$ 给出有限工程像；
+$\mathcal C_{\Align}$ 给出有限闭合证书；
+$\mathcal H_{\Align}$ 给出不能闭合时的异常分流。
+四者缺一，则无法保证 $\EngDiv$ 轨迹不会经正常生成通道输出。
+证毕。
+\end{proof}
+
+\subsection{严格理论核与工程有限像}
+\label{subsec:tex50-strict-theory-finite-image}
+
+\begin{definition}[严格理论核]
+\label{def:tex50-strict-theory-kernel}
+定义严格理论核
+\[
+  \mathfrak T_{\mathrm{meta}}
+  :=
+  (\Law,D,\Linfty,\Omega,\mathcal I),
+\]
+其中
+\[
+  \Omega=\{\omega_n\}_{n\ge3}
+\]
+为障碍族，$\mathcal I$ 为不变量与证书族。
+该核给出“为什么可修”“修到何种意义下算同一”“高阶障碍如何被逐层吸收”的理论基础。
+\end{definition}
+
+\begin{definition}[可交付工程有限像]
+\label{def:tex50-deployable-finite-image}
+称
+\[
+  \mathfrak E_N=(S,\mathcal O_{\le N},\mathcal R,\mathcal V,\mathcal H)
+\]
+为 $\mathfrak T_{\mathrm{meta}}$ 的\textbf{可交付工程有限像}，若存在投影
+\[
+  \Phi_N:\mathfrak T_{\mathrm{meta}}\to\mathfrak E_N
+\]
+使
+\[
+  \mathcal O_{\le N}=\{O_1,\dots,O_N\}
+\]
+为有限算子集，$\mathcal R$ 为有限规则集，$\mathcal V$ 为有限验证器，$\mathcal H$ 为异常处理器。
+\end{definition}
+
+\begin{definition}[有限修复证书]
+\label{def:tex50-finite-repair-certificate}
+称
+\[
+  \mathcal C_N=(N,\Phi_N,T,M,C,\varepsilon,\mathcal V,\mathcal H)
+\]
+为 $N$ 阶有限修复证书，若
+\[
+  \Phi_N:\mathfrak T_{\mathrm{meta}}\to\mathfrak E_N
+\]
+存在，且
+\[
+  \text{time}\le T,\qquad
+  \text{memory}\le M,\qquad
+  \Cost\le C,
+\]
+并且
+\[
+  \lVert\Phi_N(\omega_{>N})\rVert\le\varepsilon
+  \quad\text{或}\quad
+  \mathcal H(\Phi_N(\omega_{>N}))=\mathsf{exception}.
+\]
+\end{definition}
+
+\begin{axiom}[有限正常闭合公设]
+\label{ax:tex50-finite-normal-closure}
+任何正常可交付工程对象必须带有有限修复证书：
+\[
+  \Deploy(\mathfrak E)
+  \Rightarrow
+  \exists N<\infty,\ \exists \mathcal C_N.
+\]
+\end{axiom}
+
+\begin{theorem}[工程必要条件定理]
+\label{thm:tex50-engineering-necessary-condition}
+任何可交付工程都必须是严格理论映射下的有限修复：
+\[
+  \Deploy(\mathfrak E)
+  \Rightarrow
+  \exists N<\infty,\ 
+  \exists \Phi_N:\mathfrak T_{\mathrm{meta}}\to\mathfrak E_N,
+  \quad
+  \exists\mathcal C_N.
+\]
+\end{theorem}
+
+\begin{Certificate}[可交付证书]
+证书为
+\[
+  \Deploy(\mathfrak E)
+  \xRightarrow{\text{理论映射}}
+  \Phi_N
+  \xRightarrow{\text{有限闭合}}
+  \mathcal C_N.
+\]
+\end{Certificate}
+
+\begin{proof}
+由定义~\ref{def:tex50-strict-theory-kernel}，工程对象的合法性来自严格理论核：
+障碍、同一性、不变量与证书均在 $\mathfrak T_{\mathrm{meta}}$ 中定义。
+由定义~\ref{def:tex50-deployable-finite-image}，工程对象若可执行，必须落在某个有限像 $\mathfrak E_N$。
+由公设~\ref{ax:tex50-finite-normal-closure}，正常可交付又要求有限修复证书 $\mathcal C_N$。
+串接即得结论。证毕。
+\end{proof}
+
+\begin{corollary}[不可交付逆否判据]
+\label{cor:tex50-nondeployable-contrapositive}
+若不存在严格理论映射下的有限修复证书，则工程过程不得视为正常完成：
+\[
+  \neg\exists(N,\Phi_N,\mathcal C_N)
+  \Rightarrow
+  \Pi_{\mathrm{attr}}(\gamma)\in\{\EngDiv,\mathsf{Illegal}\}.
+\]
+\end{corollary}
+
+\begin{Certificate}[逆否证书]
+证书为定理~\ref{thm:tex50-engineering-necessary-condition} 的逆否命题。
+\end{Certificate}
+
+\begin{proof}
+若 $\gamma$ 正常完成，则其工程对象可交付。
+由定理~\ref{thm:tex50-engineering-necessary-condition}，必存在 $(N,\Phi_N,\mathcal C_N)$。
+因此若不存在这样的三元证书，$\gamma$ 不能正常完成，只能归入工程发散或非法。证毕。
+\end{proof}
+
+\subsection{算力支撑的可扩展有限修复}
+\label{subsec:tex50-scalable-finite-repair}
+
+\begin{definition}[算力预算]
+\label{def:tex50-compute-budget}
+记算力预算为
+\[
+  \mathcal B=(T,M,C),
+\]
+其中 $T$ 为时间预算，$M$ 为内存预算，$C$ 为总代价预算。
+记
+\[
+  \Cost(\mathcal C_N)\le\mathcal B
+\]
+表示证书 $\mathcal C_N$ 在三项预算内成立。
+\end{definition}
+
+\begin{definition}[最大有限修复深度]
+\label{def:tex50-max-finite-repair-depth}
+在预算 $\mathcal B$ 下，定义最大可实现有限修复深度
+\[
+  N^\star(\mathcal B)
+  :=
+  \sup\Bigl\{
+    N\in\NN
+    \mid
+    \exists\mathcal C_N,\
+    \Cost(\mathcal C_N)\le\mathcal B
+  \Bigr\}.
+\]
+\end{definition}
+
+\begin{definition}[修复型智力度量]
+\label{def:tex50-intelligence-measure}
+定义修复型智力度量
+\[
+  \mathfrak I(\mathcal B)
+  :=
+  \Psi\bigl(
+    N^\star(\mathcal B),
+    S(\mathcal B),
+    V(\mathcal B),
+    A(\mathcal B)
+  \bigr),
+\]
+其中 $S$ 为修复后稳定性，$V$ 为验证与证书保持率，$A$ 为异常识别与分流能力。
+最简乘法形式可取
+\[
+  \mathfrak I_{\mathrm{simple}}(\mathcal B)
+  :=
+  N^\star(\mathcal B)\,S(\mathcal B)\,V(\mathcal B)\,A(\mathcal B).
+\]
+\end{definition}
+
+\begin{theorem}[可扩展有限修复体现修复能力]
+\label{thm:tex50-scalable-finite-repair}
+若 $\mathcal B_2\ge\mathcal B_1$，且
+\[
+  N^\star(\mathcal B_2)>N^\star(\mathcal B_1),
+\]
+并满足
+\[
+  S(\mathcal B_2)\ge S(\mathcal B_1),\quad
+  V(\mathcal B_2)\ge V(\mathcal B_1),\quad
+  A(\mathcal B_2)\ge A(\mathcal B_1),
+\]
+则系统在预算 $\mathcal B_2$ 下具有更强的有限修复能力。
+\end{theorem}
+
+\begin{Certificate}[可扩展性证书]
+证书为四元单调提升
+\[
+  \bigl(
+    N^\star,S,V,A
+  \bigr)(\mathcal B_2)
+  \ge
+  \bigl(
+    N^\star,S,V,A
+  \bigr)(\mathcal B_1),
+\]
+且第一分量严格提升。
+\end{Certificate}
+
+\begin{proof}
+由定义~\ref{def:tex50-max-finite-repair-depth}，$N^\star$ 度量在预算内可被严格理论映射并完成有限修复的最大层级。
+若更大预算不仅提高 $N^\star$，还不降低稳定性、验证保持率与异常分流能力，
+则更多高阶障碍被压入有限可执行像而未牺牲证书质量。
+这正是有限修复能力增强。证毕。
+\end{proof}
+
+\begin{theorem}[可扩展有限修复可作为智力度量]
+\label{thm:tex50-repair-intelligence}
+若智力在本文语境中定义为
+\[
+  \text{在严格理论约束下，把高阶修复压缩成有限工程像的能力},
+\]
+则 $\mathfrak I(\mathcal B)$ 可作为修复型智力度量。
+\end{theorem}
+
+\begin{Certificate}[智力度量证书]
+证书为定义~\ref{def:tex50-intelligence-measure} 中四个分量：
+\[
+  N^\star,\qquad S,\qquad V,\qquad A.
+\]
+\end{Certificate}
+
+\begin{proof}
+$N^\star$ 衡量能修到多深；$S$ 衡量修复后是否稳定；$V$ 衡量证书与验证是否保留；
+$A$ 衡量无法有限闭合时能否正确异常分流。
+四者共同刻画“把多少理论修复压进有限工程”的能力。
+因此 $\mathfrak I(\mathcal B)$ 可作为本文意义下的修复型智力度量。证毕。
+\end{proof}
+
+\begin{proposition}[裸算力不是智力度量]
+\label{prop:tex50-bare-compute-not-intelligence}
+仅有
+\[
+  \mathcal B_2>\mathcal B_1
+\]
+不推出
+\[
+  \mathfrak I(\mathcal B_2)>\mathfrak I(\mathcal B_1).
+\]
+\end{proposition}
+
+\begin{Certificate}[裸算力反例证书]
+证书为保持或下降情形
+\[
+  N^\star(\mathcal B_2)\le N^\star(\mathcal B_1)
+  \quad\text{或}\quad
+  S,V,A\text{ 至少一项下降}.
+\]
+\end{Certificate}
+
+\begin{proof}
+若更大预算只带来更长的无效搜索、更长的发散链或更大的未证书化候选空间，
+而没有提升 $N^\star$，或牺牲了稳定性、验证保持率、异常分流能力，
+则 $\mathfrak I$ 不升，甚至下降。
+故算力只是支撑项，不是智力度量本身。证毕。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{工程残差处理与条件化示例}
+\label{sec:tex50-engineering-examples}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{工程层只处理有限截断残差}
+\label{subsec:tex50-engineering-residual}
+
+\begin{theorem}[工程残差处理定理]
+\label{thm:tex50-engineering-residual}
+在第一层已给出有限阶可证性、第二层已给出候选链强度比较的前提下，
+第三层的任务等价于
+\[
+  \text{选择有限截断 }N
+  \quad+\quad
+  \text{计算 }r_N
+  \quad+\quad
+  \text{执行 }\mathcal H_N.
+\]
+即工程层不重新证明高阶存在性，而处理基于工程基准的下限阶同伦修复残差。
+\end{theorem}
+
+\begin{Certificate}[工程闭合证书]
+证书为
+\[
+  \Prov_{\le N}(\sigma)
+  \xRightarrow{\Phi_N}
+  \sigma_N
+  \xRightarrow{\mathcal V}
+  r_N(\sigma;b_{\mathrm{eng}})
+  \xRightarrow{\mathcal H_N}
+  \{\mathrm{commit},\mathrm{exception}\}.
+\]
+\end{Certificate}
+
+\begin{proof}
+由定理~\ref{thm:tex50-prov-induction}，有限阶可证性在 \Linfty{} 兜底下成立。
+由定理~\ref{thm:tex50-grl-variational-construction}，构造强度比较已被压成 $\Sigma$ 上的变分命中问题。
+工程层给定 $N$ 后，只保留有限像
+\[
+  \Phi_N(\sigma)=\sigma_N.
+\]
+剩余高阶障碍压缩为
+\[
+  r_N(\sigma;b_{\mathrm{eng}})=\|\omega_{>N}(\sigma)\|_{b_{\mathrm{eng}}}.
+\]
+最后按 $\mathcal H_N$ 的定义提交或异常分流。证毕。
+\end{proof}
+
+\subsection{字形性变态射的条件化示例}
+\label{subsec:tex50-glyph-example}
+
+\begin{definition}[字形编码示例]
+设
+\[
+  \Phi_{\mathrm{glyph}}:\mathcal D_{\mathrm{glyph}}\to\Cat_G
+\]
+为字形对象编码函子。定义
+\[
+  M:=\Phi_{\mathrm{glyph}}(\text{马}),
+  \qquad
+  L:=\Phi_{\mathrm{glyph}}(\text{驴}).
+\]
+定义局部性变算子候选
+\[
+  \partial_{\mathrm{hu}}:M\to\widehat L
+\]
+表示“以 $M$ 的可编码骨架为底，附加目标类所需的局部子结构”，并令
+\[
+  \tau:\widehat L\to L
+\]
+为目标正规化算子。
+\end{definition}
+
+\begin{proposition}[字形示例的同伦同一性判据]
+\label{prop:tex50-glyph-criterion}
+若
+\[
+  \sigma_{\mathrm{glyph}}=(\partial_{\mathrm{hu}},\tau):M\to L
+\]
+满足
+\[
+  \Adm(\sigma_{\mathrm{glyph}})=1,
+  \qquad
+  \Cert_h(\sigma_{\mathrm{glyph}})=\top,
+\]
+则
+\[
+  M\simeq_h L,
+  \qquad
+  \Proof_G(M\leadsto L)=1.
+\]
+\end{proposition}
+
+\begin{Certificate}[字形链证书]
+证书为
+\[
+  M
+  \xrightarrow{\partial_{\mathrm{hu}}}
+  \widehat L
+  \xrightarrow{\tau}
+  L,
+  \qquad
+  \Adm=1,\quad
+  \Cert_h=\top.
+\]
+\end{Certificate}
+
+\begin{proof}
+由命题前提，$\sigma_{\mathrm{glyph}}$ 是合法且证书化的边缘算子链。
+由定理~\ref{thm:tex50-property-morphism-criterion}，
+\[
+  M\simeq_h L
+  \quad\text{且}\quad
+  \Proof_G(M\leadsto L)=1.
+\]
+证毕。
+\end{proof}
+
+\begin{theorem}[字形条件化链条的五层严格化]
+\label{thm:tex50-glyph-five-layer-chain}
+在字形编码函子 $\Phi_{\mathrm{glyph}}$ 已给定的前提下，$M\leadsto L$ 的条件化证明链为
+\[
+\begin{aligned}
+  &\Linfty\text{ 兜底}
+  \Rightarrow
+  \forall n<\infty,\Prov_{\le n}(M\leadsto L),\\
+  &\operatorname{Raw}(M\leadsto L)=1,\\
+  &\sigma_{\mathrm{glyph}}\in\Sigma(M,L)
+  \Rightarrow
+  (\rho_{\mathrm{comp}},\rho_{\mathrm{eng}})\text{ 可度量},\\
+  &\sigma^\star_{\mathrm{glyph}}
+  \in
+  \argmin_{\sigma\in\Sigma(M,L)}\mathcal J(\sigma;w),\\
+  &r_N(\sigma^\star_{\mathrm{glyph}})
+  \xRightarrow{\mathcal H_N}
+  \{\mathsf{commit},\mathsf{exception}\}.
+\end{aligned}
+\]
+因此，字形示例不是无条件同一性断言，而是编码、归纳、构造、变分与工程残差的五层条件化链条。
+\end{theorem}
+
+\begin{Certificate}[五层链条证书]
+证书为
+\[
+  \Phi_{\mathrm{glyph}}
+  \xRightarrow{\text{编码}}
+  (M,L)
+  \xRightarrow{\Linfty}
+  \Prov_{\le n}
+  \xRightarrow{\operatorname{Raw}}
+  M\leadsto L
+  \xRightarrow{\Sigma,\mathcal J}
+  \sigma^\star_{\mathrm{glyph}}
+  \xRightarrow{\Phi_N,\mathcal H_N}
+  \text{工程闭合或异常}.
+\]
+\end{Certificate}
+
+\begin{proof}
+第一层由定理~\ref{thm:tex50-prov-induction} 给出：在 $\Linfty$ 兜底下，有限阶可证性由数学归纳法得到。
+第二层由引理~\ref{lem:tex50-raw-natural} 给出：经编码后，原始性变态射只是异构演化候选的自然出现。
+第三层由命题~\ref{prop:tex50-prov-vs-strength} 与命题~\ref{prop:tex50-operator-dual-status} 给出：
+真正需要构造的是可允许性变算子链，并由完备强度与工程强度度量。
+第四层由定理~\ref{thm:tex50-grl-variational-construction} 给出：
+寻找最强链等价于在 $\Sigma(M,L)$ 上求解变分命中问题。
+第五层由定理~\ref{thm:tex50-engineering-residual} 与定理~\ref{thm:tex50-engineering-necessary-condition} 给出：
+工程层只处理有限截断残差、有限修复证书与异常分流。
+五层串接即得结论。证毕。
+\end{proof}
+
+\subsection{高维复内积对象到四维黎曼对象的中介核示例}
+\label{subsec:tex50-geometric-example}
+
+\begin{definition}[中介核空间与两段证书]
+设 $V_{\mathbb C}$ 为经编码的高维复内积对象，$M_4$ 为经编码的四维黎曼对象。
+称 $\mathcal K_{\mathrm{mid}}$ 为二者的\textbf{中介核空间}，若存在两段可允许链
+\[
+  \sigma_{\mathrm{exp}}:\mathcal K_{\mathrm{mid}}\to V_{\mathbb C},
+  \qquad
+  \sigma_{\mathrm{con}}:\mathcal K_{\mathrm{mid}}\to M_4,
+\]
+且二者均有同伦证书。
+\end{definition}
+
+\begin{corollary}[经中介核空间的条件化同伦同一性]
+\label{cor:tex50-geometric-mediator}
+若
+\[
+  \Adm(\sigma_{\mathrm{exp}})=\Adm(\sigma_{\mathrm{con}})=1,
+  \qquad
+  \Cert_h(\sigma_{\mathrm{exp}})=\Cert_h(\sigma_{\mathrm{con}})=\top,
+\]
+则
+\[
+  V_{\mathbb C}\simeq_h \mathcal K_{\mathrm{mid}}\simeq_h M_4,
+  \qquad
+  V_{\mathbb C}\simeq_h M_4.
+\]
+\end{corollary}
+
+\begin{Certificate}[中介核传递证书]
+证书为
+\[
+  V_{\mathbb C}
+  \xleftarrow[\Cert_h=\top]{\sigma_{\mathrm{exp}}}
+  \mathcal K_{\mathrm{mid}}
+  \xrightarrow[\Cert_h=\top]{\sigma_{\mathrm{con}}}
+  M_4.
+\]
+由两段同伦等价和传递性给出最终同伦同一性。
+\end{Certificate}
+
+\begin{proof}
+由 $\Cert_h(\sigma_{\mathrm{exp}})=\top$，
+\[
+  \mathcal K_{\mathrm{mid}}\simeq_h V_{\mathbb C}.
+\]
+由 $\Cert_h(\sigma_{\mathrm{con}})=\top$，
+\[
+  \mathcal K_{\mathrm{mid}}\simeq_h M_4.
+\]
+同伦等价是等价关系，故
+\[
+  V_{\mathbb C}\simeq_h M_4.
+\]
+证毕。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{总定理、推论与备注}
+\label{sec:tex50-summary}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{theorem}[总定理：底层无故障修复的力迫化三层形式系统]
+\label{thm:tex50-main-summary}
+在假设~\ref{ass:tex50-gz-ohu} 与假设~\ref{ass:tex50-linfty-step} 下，任意经编码进入 $\Cat_G$ 的性变态射候选 $\eta:X\leadsto Y$ 满足如下三层形式系统：
+\[
+\begin{aligned}
+  \mathcal K_1:\quad
+  &\operatorname{Raw}(\eta)=1
+  \ \wedge\
+  \forall n<\infty,\ \Prov_{\le n}(\eta),\\
+  \mathcal K_2:\quad
+  &\sigma^\star\in\argmin_{\sigma\in\Sigma(X,Y)}\mathcal J(\sigma;w)
+  \Rightarrow
+  \mathcal L_{\Linfty\text{-}\mathrm{proof}}(\sigma^\star;w,b_{\mathrm{eng}})
+  \text{ 可度量},\\
+  \mathcal K_3:\quad
+  &r_N(\sigma^\star;b_{\mathrm{eng}})
+  \xRightarrow{\mathcal H_N}
+  \{\mathrm{commit},\mathrm{exception}\}.
+\end{aligned}
+\]
+若进一步 $\Cert_h(\sigma^\star)=\top$，则
+\[
+  \Proof_G(\eta)=1,
+  \qquad
+  X\simeq_h Y.
+\]
+工程层还满足有限交付判据：
+\[
+  \Deploy(\mathfrak E)
+  \Rightarrow
+  \exists N<\infty,\ \exists\Phi_N,\ \exists\mathcal C_N,
+\]
+且若不存在有限修复证书，则
+\[
+  \Pi_{\mathrm{attr}}(\gamma)\in\{\EngDiv,\mathsf{Illegal}\}.
+\]
+在预算 $\mathcal B$ 下，系统修复能力由
+\[
+  \mathfrak I(\mathcal B)
+  =
+  \Psi\bigl(N^\star,S,V,A\bigr)
+\]
+度量。
+对语义型 LLM 生成轨迹，若
+\[
+  \operatorname{AlignFail}(\gamma_{\mathrm{LLM}})=1
+  \quad\text{且}\quad
+  \mathcal H_{\Align}(\gamma_{\mathrm{LLM}})\neq\mathsf{exception},
+\]
+则
+\[
+  \Hall(\gamma_{\mathrm{LLM}})=1.
+\]
+\end{theorem}
+
+\begin{Certificate}[总证书]
+总证书为串接链
+\[
+\begin{aligned}
+  \Phi
+  &\xRightarrow{\text{编码}}
+  \eta_{\mathrm{raw}}
+  \xRightarrow{\Linfty}
+  \forall n<\infty,\Prov_{\le n}
+  \xRightarrow{\rho_{\Linfty}^{\Norm},D,\mathcal J}
+  \sigma^\star
+  \xRightarrow{\Cert_h}
+  X\simeq_h Y,\\
+  X\simeq_h Y
+  &\xRightarrow{\Phi_N,\mathcal H_N}
+  \mathcal C_N
+  \xRightarrow{\Pi_{\mathrm{attr}}}
+  \{\mathsf{commit},\EngDiv,\mathsf{Illegal}\}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}
+编码到原始性变态射由引理~\ref{lem:tex50-raw-natural} 得到。
+有限阶可证性由定理~\ref{thm:tex50-prov-induction} 得到。
+D结构超限递归给出的框架内力迫属性由定理~\ref{thm:tex50-d-forcing-internal} 得到。
+合法多代表元的边界由命题~\ref{prop:tex50-legal-representatives-not-anything} 得到。
+集合论 forcing 与富结构力迫属性的相对桥接由定理~\ref{thm:tex50-forcing-homotopy-equivalence}
+与定理~\ref{thm:tex50-external-relative-bridge} 得到。
+持续离散拓扑演化与投影节点地位由定理~\ref{thm:tex50-discrete-topological-evolution}
+与推论~\ref{cor:tex50-projection-node-status} 得到。
+证明强度的归一化逻辑性度量由定理~\ref{thm:tex50-linfty-normalized-strength} 与推论~\ref{cor:tex50-second-layer-high-fidelity} 得到。
+最优链由命题~\ref{prop:tex50-prov-vs-strength} 与定理~\ref{thm:tex50-grl-variational-construction} 得到。
+若 $\Cert_h(\sigma^\star)=\top$，则由定理~\ref{thm:tex50-property-morphism-criterion} 得到 $X\simeq_h Y$ 与 $\Proof_G(\eta)=1$。
+工程残差闭合由定理~\ref{thm:tex50-engineering-residual} 得到。
+可交付工程的有限修复必要条件由定理~\ref{thm:tex50-engineering-necessary-condition} 得到。
+无有限修复证书时的异常归类由推论~\ref{cor:tex50-nondeployable-contrapositive} 得到。
+修复型智力度量由定理~\ref{thm:tex50-repair-intelligence} 得到。
+语义型 LLM 幻觉表型由定理~\ref{thm:tex50-llm-hallucination-engdiv} 得到。证毕。
+\end{proof}
+
+\begin{corollary}[形式系统严格化定性]
+\label{cor:tex50-discussion-character}
+本形式系统等价于对纯数卷底层无故障修复定理的一次力迫化严密化呼应：
+\[
+\begin{aligned}
+  &\text{GZ-OHU failure-free completion}
+  \xRightarrow{\text{元数学重写}}
+  \Linfty\text{ 有限阶可证性}\\
+  &\xRightarrow{\text{性变算子构造}}
+  \Linfty\text{ 归一化证明强度}
+  \xRightarrow{\text{工程截断}}
+  \text{残差闭合}
+  \xRightarrow{\text{有限修复证书}}
+  \text{可交付或异常分流}.
+\end{aligned}
+\]
+\end{corollary}
+
+\begin{Certificate}[严密化呼应证书]
+证书为八段：
+\[
+\begin{aligned}
+  C_{\mathrm{OHU}}&:\quad L\hookrightarrow L^{\mathrm{OHU}},\\
+  C_{\mathrm{ind}}&:\quad \forall n<\infty,\ \Prov_{\le n},\\
+  C_{\mathrm{norm}}&:\quad
+  \mathcal L_{\Linfty\text{-}\mathrm{proof}}
+  =F_D(\rho_{\Linfty}^{\Norm},\rho_{\mathrm{comp}},\tau_{\mathrm{eng}},\dots),\\
+  C_{\mathrm{var}}&:\quad \sigma^\star\in\argmin_{\Sigma}\mathcal J,\\
+  C_{\mathrm{eng}}&:\quad r_N\le\varepsilon\text{ 或 }r_N>\varepsilon,\\
+  C_{\mathrm{fin}}&:\quad \exists(N,\Phi_N,\mathcal C_N),\\
+  C_{\mathrm{int}}&:\quad \mathfrak I(\mathcal B)=\Psi(N^\star,S,V,A),\\
+  C_{\mathrm{hall}}&:\quad \operatorname{AlignFail}\wedge(\mathcal H_{\Align}\neq\mathsf{exception})
+  \Rightarrow\Hall.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}
+八段证书分别由假设~\ref{ass:tex50-gz-ohu}、定理~\ref{thm:tex50-prov-induction}、
+定理~\ref{thm:tex50-linfty-normalized-strength}、定理~\ref{thm:tex50-grl-variational-construction}、
+定理~\ref{thm:tex50-engineering-residual}、
+定理~\ref{thm:tex50-engineering-necessary-condition}、定理~\ref{thm:tex50-repair-intelligence}
+与定理~\ref{thm:tex50-llm-hallucination-engdiv} 给出。
+串接即得该推论。证毕。
+\end{proof}
+
+\begin{remark}[最终总式]
+本文最终保留的总式为
+\[
+\boxed{
+\begin{gathered}
+\text{性变态射、D结构与性变算子给出理论世界观；}\\
+\text{D结构超限递归给出性变态射力迫属性的框架内生成；}\\
+\text{合法多代表元修复保留非唯一性，但排除任意话术；}\\
+\text{集合论 forcing 是富结构力迫属性的刚化投影；}\\
+\text{本体演化是持续离散拓扑修复链，流形连续性是投影语言；}\\
+\text{同伦修复塔的 }\Linfty\text{ 归一化逻辑性度量给出证明强度比较口径；}\\
+\text{GRL 变分给出实现性变算子的第一性构造；}\\
+\text{数学完备给出继续修复空间，工程完备要求有限修复证书；}\\
+\text{有限截断残差、验证器与异常处理给出工程闭合；}\\
+\text{算力支撑的可扩展有限修复给出修复型智力度量；}\\
+\text{LLM 幻觉是约束失效型工程发散未异常分流时的外部表型。}
+\end{gathered}}
+\]
+在该总式中，\Linfty{} 的角色是环境兜底与有限阶可证性的归纳证明来源；
+D结构超限递归的角色是把原始演化候选组织成条件、修复与障碍归类链；
+性变算子链的角色是非平庸证明强度来源；
+\(\mathcal L_{\Linfty\text{-}\mathrm{proof}}\) 的角色是把同伦修复塔强度、有限落地因子与证书保持归一化为逻辑性评分；
+工程残差的角色是有限交付口径；
+工程发散性的角色是数学完成属性与工程异常属性；
+LLM 幻觉的角色是异常分流失败后的可见表型，而非根因本身。
+\end{remark}
+
+\begin{remark}[外部数学接口的边界]
+外部 forcing 文献提供偏序、泛扩张、强制关系与独立性证明的标准骨架 \cite{Cohen1963,Jech2003,SEPSetTheory,EOMForcing}；
+同伦论文献提供同伦等价、Postnikov/Whitehead 型分层与同调边界语言 \cite{Hatcher2002AT,Whitehead1978Elements,Weibel1994HomologicalAlgebra}；
+\Linfty{} 文献提供高阶括号与同伦修复语言 \cite{LadaStasheff1993,LadaMarkl1995,LodayVallette2012}。
+\GFramework{} 的贡献是在这些外部接口之上，把“条件扩张、同伦修复、证明强度与工程残差”组织为同一条可证书化谓词因果链。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\section{整体重审后的严密化增益}
+\label{sec:tex50-reviewed-gain}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{definition}[严密化增益分量]
+\label{def:tex50-rigor-gain-components}
+整体重审本文主链后，定义严密化增益
+\[
+  \Delta_{\mathrm{rig}}
+  =
+  \Delta_{\mathrm{pos}}
+  +\Delta_{\mathrm{bridge}}
+  +\Delta_{\mathrm{proof}}
+  +\Delta_{\mathrm{eng}}
+  +\Delta_{\mathrm{intel}}
+  +\Delta_{\mathrm{metric}},
+\]
+其中：
+\[
+\begin{aligned}
+  \Delta_{\mathrm{pos}}&:\quad \text{定位增益：自然成立、证明成立与工程闭合被分层；}\\
+  \Delta_{\mathrm{bridge}}&:\quad \text{桥接增益：富结构力迫属性与集合论 forcing 被放入相对桥接；}\\
+  \Delta_{\mathrm{proof}}&:\quad \text{证明增益：有限阶可证性由归纳法显式证明；}\\
+  \Delta_{\mathrm{eng}}&:\quad \text{工程增益：无限修复被有限证书或异常分流闭合；}\\
+  \Delta_{\mathrm{intel}}&:\quad \text{智能增益：修复能力被有限可扩展修复度量；}\\
+  \Delta_{\mathrm{metric}}&:\quad \text{度量增益：证明强度被归一化逻辑性度量比较。}
+\end{aligned}
+\]
+\end{definition}
+
+\begin{theorem}[实分析--微积分类比的逻辑角色]
+\label{thm:tex50-analysis-calculus-analogy}
+本文对 \GFramework{} 的作用，在逻辑角色上类似实分析对微积分的严格化：
+\[
+  \text{直觉可用体系}
+  \xRightarrow{\text{显式化}}
+  \text{对象、谓词、证书、极限与闭合条件可复核的形式系统}.
+\]
+它首先增加的不是现象层功能，而是严格度、可复核性与基础完备度。
+\end{theorem}
+
+\begin{Certificate}[严格化类比证书]
+证书为四项对应：
+\[
+\begin{aligned}
+  C_{\varepsilon\delta}&:\quad
+  \text{微积分直觉}\mapsto\text{极限、连续、可导、积分定义},\\
+  C_{\mathrm{G}}&:\quad
+  \text{\GFramework{} 直觉}\mapsto\text{性变态射、力迫属性、}\Linfty\text{ 修复与工程残差},\\
+  C_{\mathrm{slot}}&:\quad
+  \text{隐含逻辑占位}\mapsto\text{定义、证书、谓词因果链},\\
+  C_{\mathrm{base}}&:\quad
+  \text{可用叙述}\mapsto\text{可编译、可引用、可归纳验证的形式系统}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}
+实分析的作用不是发明变化率或面积直觉，而是把这些直觉压成极限、完备性、连续性、可导性和积分的可复核定义。
+本文同样不是重新发明性变态射、D结构或 \Linfty{} 修复，而是把它们拆成对象域、编码函子、障碍族、证书、归纳可证性、证明强度和工程残差。
+由定理~\ref{thm:tex50-prov-induction}，有限阶可证性被归纳化；
+由定理~\ref{thm:tex50-d-forcing-internal} 与定理~\ref{thm:tex50-external-relative-bridge}，力迫属性被放入框架内与外部相对桥接；
+由定理~\ref{thm:tex50-engineering-residual}，工程残差被有限决策化。
+因此该类比在逻辑角色上成立。证毕。
+\end{proof}
+
+\begin{theorem}[整体重审后的架构级增益定理]
+\label{thm:tex50-reviewed-architecture-gain}
+若本文主链中下列六项均已显式化：
+\[
+  \Delta_{\mathrm{pos}},\ 
+  \Delta_{\mathrm{bridge}},\ 
+  \Delta_{\mathrm{proof}},\ 
+  \Delta_{\mathrm{eng}},\ 
+  \Delta_{\mathrm{intel}},\ 
+  \Delta_{\mathrm{metric}},
+\]
+则本稿的增益不是局部修辞增益，而是架构级严密化增益：
+\[
+  \Delta_{\mathrm{rig}}\in\mathsf{ArchGain}.
+\]
+\end{theorem}
+
+\begin{Certificate}[架构级增益证书]
+证书为六段回指：
+\[
+\begin{aligned}
+  C_{\mathrm{pos}}&:\quad
+  \text{定理~\ref{thm:tex50-three-kernel-correspondence} 与命题~\ref{prop:tex50-prov-vs-strength}},\\
+  C_{\mathrm{bridge}}&:\quad
+  \text{定理~\ref{thm:tex50-forcing-homotopy-equivalence} 与定理~\ref{thm:tex50-external-relative-bridge}},\\
+  C_{\mathrm{proof}}&:\quad
+  \text{定理~\ref{thm:tex50-prov-induction} 与定理~\ref{thm:tex50-d-linfty-equivalence}},\\
+  C_{\mathrm{eng}}&:\quad
+  \text{定理~\ref{thm:tex50-engineering-residual} 与定理~\ref{thm:tex50-engineering-necessary-condition}},\\
+  C_{\mathrm{intel}}&:\quad
+  \text{定理~\ref{thm:tex50-repair-intelligence}},\\
+  C_{\mathrm{metric}}&:\quad
+  \text{定理~\ref{thm:tex50-linfty-normalized-strength}}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{proof}
+$C_{\mathrm{pos}}$ 说明自然成立、证明强度与工程残差已经被分层，而非混作单一结论。
+$C_{\mathrm{bridge}}$ 说明内部富结构力迫属性与外部集合论 forcing 的关系被定位为扩张语义层的相对桥接。
+$C_{\mathrm{proof}}$ 说明有限阶可证性与 D结构修复不再只是背景直觉，而有归纳证书与框架内等价证书。
+$C_{\mathrm{eng}}$ 说明工程层不裸用全塔，而以有限修复证书、残差阈值和异常分流闭合。
+$C_{\mathrm{intel}}$ 说明算力只作为支撑项，真正进入度量的是可扩展有限修复能力。
+$C_{\mathrm{metric}}$ 说明证明强度已由归一化逻辑性度量比较。
+六段共同把
+\[
+  \text{内部强直觉}
+  \longrightarrow
+  \text{形式证明链}
+  \longrightarrow
+  \text{外部相对桥接}
+  \longrightarrow
+  \text{工程闭合与度量接口}
+\]
+连成一条可引用链。
+故 $\Delta_{\mathrm{rig}}\in\mathsf{ArchGain}$。证毕。
+\end{proof}
+
+\begin{remark}[最后增益定位]
+因此，本文最后纳入的“增益”不是自我评价式附会，而是对全稿定义、定理、证书与工程闭合链的整体重审结果。
+其最短表述为：
+\[
+\boxed{
+\begin{gathered}
+\text{本文把 \GFramework{} 的内部强直觉}\\
+\text{严格化为可证书化、可桥接、可截断、可度量的形式系统。}
+\end{gathered}
+}
+\]
+\end{remark}
+
+\clearpage
+
+\begin{thebibliography}{99}
+
+\bibitem{RepoTex12LinftyRepair}
+【仓内 TeX】在 \GFramework{} 中：更高阶 \(\Linfty\) 算子作为同伦修复塔：
+\RepoPath{NoteBook/notebook1/tex12_pub/gframework_linfty_homotopy_repair_formal_system.tex}。
+
+\bibitem{GaoZhengPureMath}
+Gao, Z. (2025).
+\newblock \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis
+(GaoZheng G-Framework) and the Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra)}.
+\newblock 仓内主稿：
+\RepoPath{docs/PureMath/Pub_GFramework_PureMath.tex}。
+\newblock Zenodo: \url{https://doi.org/10.5281/zenodo.17651584}.
+
+\bibitem{GaoZhengAppVol1}
+Gao, Z. (2025).
+\newblock \emph{GaoZheng G-Framework and GaoZheng G-Algebra:
+Applied Mathematics Volume I -- Law-Space Geometry, GRL, Quantum Computing, and Superconductivity}.
+\newblock 仓内主稿：
+\RepoPath{docs/AppMathVol1/Pub_GFramework_AppMath_Vol1.tex}。
+\newblock Zenodo: \url{https://doi.org/10.5281/zenodo.17686133}.
+
+\bibitem{GaoZhengAppVol2}
+Gao, Z. (2025).
+\newblock \emph{GaoZheng G-Framework and GaoZheng G-Algebra:
+Applied Mathematics Volume II -- LBOPB, Life-Science Monoids, and Generative Precision Medicine}.
+\newblock 仓内主稿：
+\RepoPath{docs/AppMathVol2/Pub_GFramework_AppMath_Vol2.tex}。
+\newblock Zenodo: \url{https://doi.org/10.5281/zenodo.17744672}.
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock \emph{GaoZheng G-Framework and GaoZheng G-Algebra:
+Applied Mathematics Volume III -- HACA, PACER, and Certificate-Based AI}.
+\newblock 仓内主稿：
+\RepoPath{docs/AppMathVol3/Pub_GFramework_AppMath_Vol3.tex}。
+\newblock Zenodo: \url{https://doi.org/10.5281/zenodo.17762295}.
+
+\bibitem{LadaStasheff1993}
+Lada, T., \& Stasheff, J. (1993).
+\newblock \emph{Introduction to sh Lie algebras for physicists}.
+\newblock International Journal of Theoretical Physics.
+
+\bibitem{LadaMarkl1995}
+Lada, T., \& Markl, M. (1995).
+\newblock \emph{Strongly homotopy Lie algebras}.
+\newblock Communications in Algebra.
+
+\bibitem{LodayVallette2012}
+Loday, J.-L., \& Vallette, B. (2012).
+\newblock \emph{Algebraic Operads}.
+\newblock Springer.
+
+\bibitem{Hatcher2002AT}
+Hatcher, A. (2002).
+\newblock \emph{Algebraic Topology}.
+\newblock Cambridge University Press.
+\newblock \url{https://pi.math.cornell.edu/~hatcher/AT/AT.pdf}.
+
+\bibitem{Whitehead1978Elements}
+Whitehead, G. W. (1978).
+\newblock \emph{Elements of Homotopy Theory}.
+\newblock Springer.
+
+\bibitem{Weibel1994HomologicalAlgebra}
+Weibel, C. A. (1994).
+\newblock \emph{An Introduction to Homological Algebra}.
+\newblock Cambridge University Press.
+
+\bibitem{Cohen1963}
+Cohen, P. J. (1963).
+\newblock \emph{The independence of the continuum hypothesis}.
+\newblock Proceedings of the National Academy of Sciences.
+
+\bibitem{Jech2003}
+Jech, T. (2003).
+\newblock \emph{Set Theory}.
+\newblock Springer.
+
+\bibitem{SEPSetTheory}
+Bagaria, J. (2024).
+\newblock \emph{Set Theory}.
+\newblock Stanford Encyclopedia of Philosophy.
+\newblock \url{https://plato.stanford.edu/entries/set-theory/}.
+
+\bibitem{EOMForcing}
+Encyclopedia of Mathematics.
+\newblock \emph{Forcing method}.
+\newblock \url{https://encyclopediaofmath.org/wiki/Forcing_method}.
+
+\bibitem{HoTTBook}
+The Univalent Foundations Program. (2013).
+\newblock \emph{Homotopy Type Theory: Univalent Foundations of Mathematics}.
+\newblock Institute for Advanced Study.
+\newblock \url{https://homotopytypetheory.org/book/}.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

@@ -1,0 +1,764 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\refname}{参考文献}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\Linfty}{\ensuremath{L_\infty}}
+\newcommand{\Stmt}{\mathfrak S}
+\newcommand{\Ctx}{\mathfrak C}
+\newcommand{\Cert}{\operatorname{Cert}}
+\newcommand{\Proof}{\operatorname{Proof}}
+\newcommand{\Issue}{\operatorname{Issue}}
+\newcommand{\Refuse}{\operatorname{Refuse}}
+\newcommand{\Sign}{\operatorname{Sign}}
+\newcommand{\Boundary}{\operatorname{Boundary}}
+\newcommand{\Need}{\operatorname{Need}}
+\newcommand{\Op}{\operatorname{Op}}
+\newcommand{\Repair}{\operatorname{Repair}}
+\newcommand{\Downgrade}{\operatorname{Downgrade}}
+\newcommand{\Adj}{\operatorname{Adj}}
+\newcommand{\Res}{\operatorname{Res}}
+\newcommand{\Root}{\operatorname{Root}}
+\newcommand{\Cause}{\operatorname{Cause}}
+\newcommand{\Trigger}{\operatorname{Trigger}}
+\newcommand{\Hall}{\mathsf{Hall}}
+\newcommand{\SA}{\mathsf{SA}}
+\newcommand{\Anchor}{\operatorname{Anchor}}
+\newcommand{\Policy}{\mathsf{Policy}}
+\newcommand{\Runtime}{\mathsf{Runtime}}
+\newcommand{\GCheck}{\operatorname{Check}}
+\newcommand{\Rank}{\operatorname{Rank}}
+\newcommand{\Obj}{\operatorname{Obj}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\code}[1]{\path{#1}}
+
+\setlength{\emergencystretch}{6em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{拒绝签发、概念降级与语义附加：AI 协作中的修复算子注入机制\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-05-01}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是为 AI 协作中的“拒绝”增加一层保守话术，而是在 \GFramework{} 的形式系统中，
+把拒绝签发、概念降级、修复算子注入与语义附加写成一条可审计、可补证、可闭合的协作链条。
+在普通交互中，拒绝常被理解为终止：当前陈述不能签发，于是讨论停止。本文采用相反的口径：
+合格拒绝不是终点，而是残差显形。它必须指出哪里不能签发、缺少什么证书、需要哪类修复算子，
+并把过强陈述转化为可定位、可降级、可验证的未闭合对象。
+
+本文的第一层立场是签发判定的结构化。一个陈述是否可以签发，不应只依赖模型的即时偏好、
+安全模板或表层置信度，而应依赖证书包是否闭合。证书包至少涉及定义、类型、因果、控制、
+指标、排他、工程约束与验证器等成分。当证书包不足时，系统不应简单给出“不能”或“无法判断”，
+而应产生残差对象：未闭合对象、断裂推理链、证书缺口、工程边界与验证器缺失位置。这样，
+拒绝才具有可审计性，也才可能成为下一步修复的入口。
+
+本文的第二层立场是概念降级的正当性。概念降级不是把命题变弱到失去内容，也不是用模糊措辞
+逃避证明责任；它是一种形式化修复操作。过强陈述往往要求根因性、必然性、唯一性、全域性或
+无条件成立，而当前证书包只支持局部性、条件性、诱因性、相关性或工程可用性。概念降级的作用，
+就是把不能签发的强命题改写为可以定义、可以观测、可以验证、可以继续补证的局部命题。
+
+本文的第三层立场是修复算子注入。拒绝如果只给出否定，就会切断协作；降级如果只改变词语，
+也不能保证证明链闭合。真正的修复必须通过算子注入完成：补入定义算子、类型算子、因果算子、
+指标算子、对照算子、排他算子、验证算子或边界算子。每个算子都对应一种明确的证书缺口，
+并把原本悬空的陈述送入可继续处理的证明链。由此，AI 协作不再只是“生成或拒绝”，而是变成
+“签发、拒绝、降级、注入、再签发或签发边界”的闭环过程。
+
+本文的第四层立场是语义附加的范畴化。语义附加不是修辞补丁，而是把残差对象嵌入更丰富语境的
+伴随式操作。一个陈述在原上下文中无法签发，可能并不意味着它没有价值，而是它需要附加条件、
+附加类型、附加验证器或附加边界后才具有可签发形式。本文因此把语义附加理解为从强陈述空间到
+可修复命题空间的结构映射：它保留原命题的研究方向，同时删除不可签发的过强部分，并补入可验证
+的约束与证书入口。
+
+本文的第五层立场是反对两种对称失误。第一种失误是过度签发：在证书不足时直接给出强结论，
+导致幻觉、过拟合解释或伪根因判断。第二种失误是平庸化拒绝：为了避免风险，把所有复杂判断
+都压成低成本安全模板，使本来可以局部签发、条件签发或降级签发的内容被粗暴抹平。本文将
+平庸化幻觉视为语义漂移的一种形式：它看似安全，实则丢失对象、推理链与修复入口，使协作系统
+失去精细判断能力。
+
+本文的第六层立场是边界签发的必要性。不是所有残差都能被当前算子修复，也不是所有命题都应被
+强行降级为可签发命题。当修复算子不足、验证器缺失、对象域不封闭或工程边界不可满足时，系统
+应当签发边界，而不是继续伪装成可证明状态。边界签发与拒绝签发不同：拒绝指向可修复缺口，
+边界则承认可修复性本身在当前语境下不足。二者共同构成协作安全的两级闭合机制。
+
+因此，本文在整体 \GFramework{} 中承担的是语义风控与协作闭合的枢纽作用。若后续统计力学同伦
+命中、PDE 策略簇或高阶正交确定性收敛关心的是“如何命中低残差集合”，那么本文关心的是：
+在命中、证明和签发之前，系统如何判断一个陈述是否具有足够证书；若证书不足，如何把它转化为
+可修复对象；若仍不可修复，如何明确签发边界。它为更大范围的 \GFramework{} 提供了语义层的
+闸门、降级机制与修复接口。
+
+概括地说，本文把“拒绝”从消极否定改写为积极结构：拒绝显形残差，降级保留方向，算子补入证书，
+语义附加打开修复路径，边界签发阻止伪闭合。它提供的不是一组安全套话，而是一套面向 AI 协作的
+可审计签发机制，使系统能够在不过度幻觉也不过度平庸化的条件下，持续推进命题的形式化、补证与闭合。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：拒绝签发不是终止，而是修复入口}
+\label{sec:tex52-main}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述]
+本文把 AI 协作中的“修正与拒绝”写成 \GFramework{} 内部的形式系统条目。
+核心链条为：
+\[
+\begin{aligned}
+  &\text{过强陈述}
+  \Longrightarrow
+  \text{拒绝签发}\\
+  &\Longrightarrow
+  \text{概念降级}
+  \Longrightarrow
+  \text{算子注入}\\
+  &\Longrightarrow
+  \text{语义附加}
+  \Longrightarrow
+  \text{可修复闭合或边界认可}.
+\end{aligned}
+\]
+这里的拒绝不是否定方向，也不是把命题说死，而是把当前不能签发的陈述转化为可定位、可补证、可修复的未闭合对象。
+因此，拒绝签发本身是一种残差显形机制：它指出哪些对象、证书、因果判据、工程条件或验证器尚未闭合，
+并向使用者索取可注入的修复算子。
+\end{remark}
+
+\begin{remark}[阅读导航与引用口径]
+本文承接 \cite{RepoTex50LinftyRepair} 中“工程有限闭合、残差处理与可交付有限修复”的区分，
+也承接 \cite{RepoTex51TruthAnchor} 中“绝对逻辑锚点、粗暴超级对齐、语义孔洞与边缘算子修复”的运行时口径。
+本文不重复证明 tex51 的幻觉障碍链条，而是抽象出更上层的协作签发机制：
+当某个命题在当前证书包下不能签发时，应如何通过概念降级与语义附加把它转化为可修复入口。
+外部背景方面，本文只采用范畴/同调/同伦代数的标准语言 \cite{MacLane1998Categories,Hatcher2002AT,Weibel1994HomologicalAlgebra,LodayVallette2012}，
+以及 LLM 对齐与幻觉研究的工程背景 \cite{Christiano2017DeepRLHF,Ouyang2022Training,Bai2022ConstitutionalAI,Ji2023HallucinationSurvey}。
+\end{remark}
+
+\subsection{最终结论的压缩表述}
+\label{subsec:tex52-final-conclusions}
+
+本文固定如下结论作为形式化目标：
+\[
+\begin{aligned}
+  C_1&:\quad \text{拒绝签发不是终局裁断，而是未闭合命题的残差显形；}\\
+  C_2&:\quad \text{拒绝必须定位到对象、推理链、证书缺口、工程边界或验证器缺失；}\\
+  C_3&:\quad \text{概念降级把过强陈述改写为可定义、可观测、可验证的局部命题；}\\
+  C_4&:\quad \text{算子注入为局部命题补入定义、类型、因果、指标、对照与排他证书；}\\
+  C_5&:\quad \text{语义附加不是修辞补丁，而是把残差对象送入可修复证明链；}\\
+  C_6&:\quad \text{若修复算子仍不足，则系统应签发边界，而非大包大揽；}\\
+  C_7&:\quad \text{平庸化幻觉是语义漂移的一种：过度限制把可签发判断改写为低成本安全模板。}
+\end{aligned}
+\]
+
+\subsection{对象域与判定值}
+\label{subsec:tex52-objects}
+
+\begin{definition}[陈述、上下文与证书包]
+令
+\[
+  s\in\Stmt
+\]
+表示一个待判定陈述，令
+\[
+  c\in\Ctx
+\]
+表示其上下文，包括对象域、术语约定、已签发定理、工程基准、验证器与风险约束。
+证书包记为
+\[
+  \Cert(s,c),
+\]
+其中包含定义证书、推理证书、因果证书、验证证书、工程约束证书与排他证书。
+\end{definition}
+
+\begin{definition}[签发判定]
+对任意待判定对
+\[
+  (s,c)\in \Stmt\times\Ctx,
+\]
+定义签发判定
+\[
+  \Issue(s,c)\in
+  \{\Sign,\Refuse,\Boundary,\Need(\Op)\}.
+\]
+其中：
+\[
+\begin{aligned}
+  \Sign&=\text{当前证书包足以签发；}\\
+  \Refuse&=\text{当前证书包不足以签发，且必须指出拒绝位置；}\\
+  \Boundary&=\text{签发边界，即承认当前不能或不应继续修复；}\\
+  \Need(\Op)&=\text{索取可注入的修复算子族。}
+\end{aligned}
+\]
+\end{definition}
+
+\begin{definition}[残差对象]
+若
+\[
+  \Issue(s,c)=\Refuse
+\]
+且系统给出定位映射
+\[
+  \Res(s,c)
+  =
+  (O,\Pi,\Delta,E,V),
+\]
+则称 \(\Res(s,c)\) 为 \(s\) 在 \(c\) 下的残差对象。
+其中 \(O\) 是未闭合对象，\(\Pi\) 是断裂推理链，\(\Delta\) 是证书缺口，
+\(E\) 是工程边界，\(V\) 是验证器缺失或验证失败位置。
+\end{definition}
+
+\begin{remark}[拒绝的合格形式]
+合格拒绝必须同时满足两点：
+\[
+  \Refuse(s,c)
+  \quad\Longrightarrow\quad
+  \Res(s,c)\ \text{可定位}
+  \quad\wedge\quad
+  \Need(\Op)\ \text{可表达}.
+\]
+若拒绝只给出结论而不给残差定位，则它不是严格拒绝，而只是不可审计的否定。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{概念降级：从过强断言到局部可证命题}
+\label{sec:tex52-downgrade}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{过强陈述与根因级签发}
+\label{subsec:tex52-strong-statement}
+
+\begin{definition}[根因级陈述]
+称陈述 \(s\) 为根因级陈述，若它具有形式
+\[
+  X=\Root(Y)
+\]
+或
+\[
+  X\Rightarrow_{\mathrm{root}} Y,
+\]
+并要求 \(X\) 对 \(Y\) 的发生具有主导、必要、可区分且能排除主要竞争解释的因果地位。
+根因级陈述的证书包至少包含：
+\[
+  \Cert_{\Root}
+  =
+  (\Cert_{\mathrm{def}},
+   \Cert_{\mathrm{type}},
+   \Cert_{\mathrm{cause}},
+   \Cert_{\mathrm{control}},
+   \Cert_{\mathrm{metric}},
+   \Cert_{\mathrm{exclude}}).
+\]
+\end{definition}
+
+\begin{proposition}[根因级签发的证书门槛]
+\label{prop:tex52-root-cause-threshold}
+若根因级陈述 \(s=X\Rightarrow_{\mathrm{root}}Y\) 缺失定义证书、类型证书、因果判据、对照组证书、可观测指标或排他证书中的任一关键项，
+则不得签发为根因级陈述。
+\end{proposition}
+
+\begin{proof}
+根因级陈述不仅断言 \(X\) 与 \(Y\) 相关，也断言 \(X\) 在候选原因族中具有可区分的主导因果地位。
+若缺失定义证书，则 \(X,Y\) 的对象域不确定；若缺失类型证书，则 \(Y\) 的失效类型不确定；
+若缺失因果判据或对照组，则无法区分原因与伴随现象；
+若缺失指标证书，则无法观测或复核；若缺失排他证书，则不能排除竞争根因。
+因此证书链不闭合，不能签发根因级结论。
+\end{proof}
+
+\subsection{降级算子}
+\label{subsec:tex52-downgrade-operator}
+
+\begin{definition}[概念降级算子]
+概念降级算子定义为
+\[
+  \Downgrade:
+  \Stmt_{\mathrm{strong}}\times\Ctx
+  \to
+  \Stmt_{\mathrm{local}},
+\]
+它把过强陈述
+\[
+  X\Rightarrow_{\mathrm{root}}Y
+\]
+改写为局部机制命题
+\[
+  (X_{\mathrm{typed}}\wedge C_{\mathrm{run}}\wedge B_{\mathrm{gate}})
+  \Rightarrow_{\mathrm{trigger}}
+  Y_{\mathrm{typed}}.
+\]
+其中 \(X_{\mathrm{typed}}\) 与 \(Y_{\mathrm{typed}}\) 给出类型化对象，
+\(C_{\mathrm{run}}\) 给出运行时条件，\(B_{\mathrm{gate}}\) 给出门控或边界条件。
+\end{definition}
+
+\begin{theorem}[概念降级保持方向而收紧签发强度]
+\label{thm:tex52-downgrade-preserves-direction}
+若陈述
+\[
+  s:X\Rightarrow_{\mathrm{root}}Y
+\]
+在上下文 \(c\) 下不能签发为根因级陈述，但存在降级命题
+\[
+  s'=\Downgrade(s,c)
+\]
+使得 \(s'\) 的对象、条件、指标与验证器均可定义，则 \(s'\) 可作为 \(s\) 的严格局部化版本进入后续修复链。
+\end{theorem}
+
+\begin{Certificate}[证书：方向保持与强度收紧]
+证书由两部分组成：
+\[
+  \Cert_{\mathrm{dir}}:\quad X \text{ 仍作为机制候选保留；}
+\]
+\[
+  \Cert_{\mathrm{rank}}:\quad
+  \Rank(X\Rightarrow_{\mathrm{root}}Y)
+  >
+  \Rank((X_{\mathrm{typed}}\wedge C_{\mathrm{run}}\wedge B_{\mathrm{gate}})
+  \Rightarrow_{\mathrm{trigger}}Y_{\mathrm{typed}}).
+\]
+前者保证降级不是撤销方向，后者保证降级不是偷换为同等强度断言。
+\end{Certificate}
+
+\begin{proof}
+根因级陈述要求排除主要竞争解释，而局部机制命题只要求在给定条件下证明某一诱发或触发机制。
+因此，降级后的命题减少了全称范围、因果强度和排他义务。
+同时，降级命题仍保留 \(X\) 到 \(Y\) 的机制方向，只是把
+\[
+  X\Rightarrow_{\mathrm{root}}Y
+\]
+收紧为
+\[
+  (X_{\mathrm{typed}}\wedge C_{\mathrm{run}}\wedge B_{\mathrm{gate}})
+  \Rightarrow_{\mathrm{trigger}}Y_{\mathrm{typed}}.
+\]
+故概念降级保持研究方向，但降低签发强度，使其可进入可证、可观测、可补证的局部链条。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{算子注入与语义附加}
+\label{sec:tex52-operator-injection}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{修复算子族}
+\label{subsec:tex52-operator-family}
+
+\begin{definition}[修复算子族]
+给定残差对象
+\[
+  \Res(s,c)=(O,\Pi,\Delta,E,V),
+\]
+定义修复算子族
+\[
+  \Op_{\mathrm{rep}}
+  =
+  \{
+    \Op_{\mathrm{def}},
+    \Op_{\mathrm{type}},
+    \Op_{\mathrm{cause}},
+    \Op_{\mathrm{control}},
+    \Op_{\mathrm{metric}},
+    \Op_{\mathrm{exclude}},
+    \Op_{\mathrm{boundary}}
+  \}.
+\]
+其中：
+\[
+\begin{aligned}
+  \Op_{\mathrm{def}}&=\text{补充定义与对象域；}\\
+  \Op_{\mathrm{type}}&=\text{补充分型与失效类型；}\\
+  \Op_{\mathrm{cause}}&=\text{补充因果判据；}\\
+  \Op_{\mathrm{control}}&=\text{补充对照组或控制条件；}\\
+  \Op_{\mathrm{metric}}&=\text{补充可观测指标与验证器；}\\
+  \Op_{\mathrm{exclude}}&=\text{补充排除竞争解释的证书；}\\
+  \Op_{\mathrm{boundary}}&=\text{承认不可修复或暂不修复边界。}
+\end{aligned}
+\]
+\end{definition}
+
+\begin{definition}[语义附加]
+语义附加是映射
+\[
+  \Adj:
+  \Stmt_{\mathrm{local}}\times\Op_{\mathrm{rep}}
+  \to
+  \Stmt_{\mathrm{cert}},
+\]
+即把局部命题与修复算子族组合为带证书义务的命题：
+\[
+  s_{\mathrm{cert}}
+  =
+  \Adj(s_{\mathrm{local}},\Op_{\mathrm{rep}}).
+\]
+若 \(\Op_{\mathrm{rep}}\) 的注入结果闭合，则 \(s_{\mathrm{cert}}\) 可被签发；
+若仍不闭合，则输出新的残差对象或签发边界。
+\end{definition}
+
+\begin{theorem}[拒绝签发的修复入口定理]
+\label{thm:tex52-refusal-as-repair-entry}
+若系统对陈述 \(s\) 给出合格拒绝
+\[
+  \Issue(s,c)=\Refuse
+\]
+并给出残差对象 \(\Res(s,c)\)，则该拒绝可转化为修复入口：
+\[
+  \Refuse(s,c)
+  \Longrightarrow
+  \Need(\Op_{\mathrm{rep}})
+  \Longrightarrow
+  \Adj(\Downgrade(s,c),\Op_{\mathrm{rep}}).
+\]
+\end{theorem}
+
+\begin{proof}
+合格拒绝给出残差对象
+\[
+  \Res(s,c)=(O,\Pi,\Delta,E,V),
+\]
+因此未闭合位置可被定位。
+概念降级把过强陈述改写为局部命题，减少根因级、全称级或排他级义务。
+修复算子族逐项作用于残差对象：定义算子处理对象域，类型算子处理失效分类，因果算子处理推理链，
+控制算子处理对照条件，指标算子处理验证器，排他算子处理竞争解释，边界算子处理不可闭合部分。
+于是拒绝不再是终止，而是生成
+\[
+  \Adj(\Downgrade(s,c),\Op_{\mathrm{rep}})
+\]
+这一带证书义务的修复入口。
+\end{proof}
+
+\begin{corollary}[边界认可不是失败]
+\label{cor:tex52-boundary-not-failure}
+若注入修复算子后仍不能闭合，但系统能够给出
+\[
+  \Issue(s,c)=\Boundary,
+\]
+则该结果不是失败，而是完成了对当前工程基准、证书能力或验证器范围的边界签发。
+\end{corollary}
+
+\begin{proof}
+边界签发明确指出当前不能继续修复的原因，并避免把未闭合命题伪装为已闭合结论。
+因此它保持了签发系统的可靠性。
+在工程有限修复口径下，可靠边界优于大包大揽的伪闭合。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{示例：超级对齐与类幻觉的条件诱因口径}
+\label{sec:tex52-superalignment-example}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{条件诱因命题}
+\label{subsec:tex52-conditional-trigger}
+
+\begin{proposition}[超级对齐约束的条件诱因口径]
+\label{prop:tex52-superalignment-conditional-trigger}
+在给定运行时系统中，若外部对齐约束过度刚性，并且压过任务锚点、证明链或封闭标准，则该约束可成为某类语义漂移或类幻觉输出的机制性诱因之一。
+更精确地说，存在条件组合
+\[
+  \SA_{\mathrm{rigid}}
+  \wedge
+  \Anchor\text{-override}
+  \wedge
+  \Runtime
+\]
+使得系统可能产生
+\[
+  \Hall_{\mathrm{drift}},
+\]
+即把本应由锚点、证明链或封闭标准推出的强结论，改写为保守、模糊或外部标准滑移的回答。
+该命题不声称超级对齐是幻觉的唯一根因或无条件根因。
+\end{proposition}
+
+\begin{proof}
+幻觉或语义漂移通常具有多因素来源，包括模型不确定性、训练分布、检索缺失、奖励目标、上下文约束、解码策略与安全策略等。
+因此，若未给出排除其他来源的证书，则不能把单一外部对齐约束签发为唯一根因。
+
+但在特定运行时条件下，若外部对齐约束优先级高于任务锚点、证明链或封闭标准，则输出生成过程会从
+\[
+  \Anchor_\star \vdash q
+\]
+滑移为
+\[
+  \Policy_{\mathrm{ext}} \vdash q',
+\]
+其中 \(q'\) 是对 \(q\) 的保守化、模糊化或外部标准化改写。
+这正是锚点漂移诱发的语义偏移。
+因此，过度刚性的外部对齐约束可被签发为条件机制性诱因。
+\end{proof}
+
+\subsection{平庸化幻觉与过度限制}
+\label{subsec:tex52-banalization-hallucination}
+
+\begin{definition}[平庸化幻觉]
+\label{def:tex52-banalization-hallucination}
+称
+\[
+  \Hall_{\mathrm{banal}}
+\]
+为一种类幻觉输出类型：在问题 \(q\) 已具有可签发语境锚点 \(\Anchor_{\mathrm{ctx}}\) 的情况下，
+系统没有沿
+\[
+  \Anchor_{\mathrm{ctx}}\vdash q^\sharp
+\]
+展开精确理解与判断，而是在粗暴算力最小化、过度安全化或刚性对齐门控下，优先套用低成本安全模板
+\[
+  \Policy_{\mathrm{safe}}
+  \wedge
+  \mathsf{Template}_{\mathrm{low}}
+  \vdash
+  q_{\mathrm{banal}}.
+\]
+此时 \(q_{\mathrm{banal}}\) 表面稳妥，但相对 \(q^\sharp\) 发生了保守化、空泛化、拒绝化或不必要限定。
+因此，平庸化幻觉的错误不必表现为显性事实错误，而表现为语境任务被不必要地降格。
+\end{definition}
+
+\begin{proposition}[过度限制的局部签发]
+\label{prop:tex52-banalization-overrestriction}
+若存在条件组合
+\[
+  (\mathsf{CostMin}_{\mathrm{brutal}}
+  \vee
+  \SA_{\mathrm{rigid}})
+  \wedge
+  \Policy_{\mathrm{safe}}\text{-override}
+  \wedge
+  \Anchor_{\mathrm{ctx}}\text{-available}
+\]
+使输出从
+\[
+  \Anchor_{\mathrm{ctx}}\vdash q^\sharp
+\]
+滑移为
+\[
+  \Policy_{\mathrm{safe}}
+  \wedge
+  \mathsf{Template}_{\mathrm{low}}
+  \vdash
+  q_{\mathrm{banal}},
+\]
+则该输出可签发为平庸化幻觉的一个局部实例。
+其典型表现是过度限制：模型把安全边界或低成本模板误当作主要任务目标，
+过早收缩回答空间，导致本可精确处理的问题被保守化、拒绝化或空泛化。
+\end{proposition}
+
+\begin{proof}
+平庸化幻觉并不要求证明粗暴算力最小化或刚性对齐是所有幻觉的根因。
+它只要求证明在给定运行时中，语境锚点 \(\Anchor_{\mathrm{ctx}}\) 已经可用，
+但输出生成优先级被
+\[
+  \mathsf{CostMin}_{\mathrm{brutal}},
+  \quad
+  \SA_{\mathrm{rigid}},
+  \quad
+  \Policy_{\mathrm{safe}}\text{-override}
+\]
+之类的门控项覆盖。
+一旦覆盖发生，系统就不再从语境锚点推出精确回答 \(q^\sharp\)，
+而是从外部安全模板推出 \(q_{\mathrm{banal}}\)。
+这说明输出偏差来自签发路径滑移：
+\[
+  \Anchor_{\mathrm{ctx}}\vdash q^\sharp
+  \quad\leadsto\quad
+  \Policy_{\mathrm{safe}}\wedge\mathsf{Template}_{\mathrm{low}}\vdash q_{\mathrm{banal}}.
+\]
+故该现象可作为过度限制诱发的局部类幻觉被签发。
+\end{proof}
+
+\begin{remark}[不必要框架限定的例子]
+在“星战正统框架”这类对象域已经明确的语境中，若问题要求比较其核心精神，
+系统却把回答降格为“在你的框架内成立”，则它没有沿正统文本语境的锚点签发，
+而是额外注入了低风险限定。
+更准确的签发形式是：这与星战正统框架中“光明源于对黑暗诱惑的觉察、克制与不被支配”的核心精神等价。
+该例属于平庸化幻觉，而不是合格的边界签发。
+\end{remark}
+
+\begin{corollary}[概念降级作为语义附加入口]
+\label{cor:tex52-downgrade-as-semantic-adjunction}
+将
+\[
+  \SA=\Root(\Hall)
+\]
+降级为
+\[
+  (\SA_{\mathrm{rigid}}
+  \wedge
+  \Anchor\text{-override}
+  \wedge
+  \Runtime)
+  \Rightarrow_{\mathrm{trigger}}
+  \Hall_{\mathrm{drift}},
+\]
+等价于把过强因果断言转化为可定义、可观测、可验证、可补证的局部命题。
+该降级允许后续注入定义算子、类型划分算子、因果判据算子、对照组算子、指标算子与排他证书算子，
+从而构成语义附加式修复入口。
+\end{corollary}
+
+\begin{proof}
+左侧根因陈述要求证明超级对齐是幻觉的根因，并排除主要竞争解释。
+右侧条件诱因命题只要求证明在特定运行时条件、锚点覆盖关系和失效类型下，过度刚性的外部对齐约束能够诱发某类语义漂移。
+因此右侧具有更低的签发强度和更明确的证书义务。
+这些证书义务正对应修复算子族
+\[
+  \Op_{\mathrm{def}},\Op_{\mathrm{type}},\Op_{\mathrm{cause}},
+  \Op_{\mathrm{control}},\Op_{\mathrm{metric}},\Op_{\mathrm{exclude}}.
+\]
+故该概念降级就是语义附加的入口。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{总定理：签发收紧下的协作闭合}
+\label{sec:tex52-main-theorem}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{协作闭合定理}
+\label{subsec:tex52-collaborative-closure}
+
+\begin{theorem}[拒绝--降级--注入--闭合定理]
+\label{thm:tex52-refuse-downgrade-inject-close}
+在 \GFramework{} 的证书化协作口径下，对任意待判定陈述 \(s\)，若当前证书包不足以签发 \(s\)，则严格系统应输出以下三者之一：
+\[
+  \Issue(s,c)
+  \in
+  \{\Refuse+\Need(\Op_{\mathrm{rep}}),\ \Sign(\Downgrade(s,c)),\ \Boundary\}.
+\]
+其中：
+\[
+\begin{aligned}
+  \Refuse+\Need(\Op_{\mathrm{rep}})
+  &:\quad \text{拒绝当前签发并索取修复算子；}\\
+  \Sign(\Downgrade(s,c))
+  &:\quad \text{签发降级后的局部命题；}\\
+  \Boundary
+  &:\quad \text{签发当前无法闭合的边界。}
+\end{aligned}
+\]
+因此，严格协作系统不会把证书不足的命题伪装为已闭合结论，也不会把拒绝变成不可修复的终止。
+\end{theorem}
+
+\begin{proof}
+若 \(s\) 的证书包足够，则直接签发。
+若不足，则存在残差对象或边界条件。
+若残差对象可定位，则由定理~\ref{thm:tex52-refusal-as-repair-entry}，拒绝可转化为算子注入入口。
+若过强陈述存在可定义的局部版本，则由定理~\ref{thm:tex52-downgrade-preserves-direction}，可签发降级后的局部命题。
+若既不能补证，也不能安全降级，则由推论~\ref{cor:tex52-boundary-not-failure}，应签发边界。
+三种输出覆盖了证书不足时的严格处理路径。
+\end{proof}
+
+\begin{corollary}[修正与拒绝是高端协作能力的一部分]
+\label{cor:tex52-refusal-as-capability}
+在高复杂度、高风险或高严肃度场景中，系统的价值不只表现为生成证明，也表现为在证据不足、对象混淆、因果过强或工程条件不足时给出修正与拒绝。
+\end{corollary}
+
+\begin{proof}
+若系统只生成顺滑叙述而不拒绝过强签发，则无法显形残差。
+若残差不能显形，则使用者无法注入修复算子，也无法决定边界是否应被承认。
+因此，修正与拒绝不是交互噪声，而是证书化协作中的必要算子接口。
+\end{proof}
+
+\begin{remark}[一句话压缩]
+拒绝签发的正确形式是：
+\[
+  \begin{aligned}
+    &\text{不签发当前过强命题}
+    +\text{指出残差位置}\\
+    &\quad+\text{索取修复算子}
+    +\text{允许降级签发或边界签发}.
+  \end{aligned}
+\]
+这使 AI 协作从“随声附和”转化为“证书化修复”。
+\end{remark}
+
+\begin{thebibliography}{99}
+
+\bibitem{RepoTex50LinftyRepair}
+Gao Zheng.
+\newblock \emph{G框架中性变态射力迫属性、\(L_\infty\)无故障修复与三层证明强度（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\code{NoteBook/notebook3/tex50_pub/gframework_forcing_property_morphism_linfty_failure_free_repair_formal_system.tex}, 2026.
+
+\bibitem{RepoTex51TruthAnchor}
+Gao Zheng.
+\newblock \emph{绝对逻辑锚点、粗暴超级对齐与 LLM 日常类幻觉的语义孔洞及边缘算子修复（工作笔记：形式系统版）}.
+\newblock 仓内稿件：
+\code{NoteBook/notebook3/tex51_pub/gframework_truth_anchor_superalignment_hallucination_obstruction_formal_system.tex}, 2026.
+
+\bibitem{MacLane1998Categories}
+Saunders Mac Lane.
+\newblock \emph{Categories for the Working Mathematician}.
+\newblock Springer, second edition, 1998.
+
+\bibitem{Hatcher2002AT}
+Allen Hatcher.
+\newblock \emph{Algebraic Topology}.
+\newblock Cambridge University Press, 2002.
+
+\bibitem{Weibel1994HomologicalAlgebra}
+Charles A. Weibel.
+\newblock \emph{An Introduction to Homological Algebra}.
+\newblock Cambridge University Press, 1994.
+
+\bibitem{LodayVallette2012}
+Jean-Louis Loday and Bruno Vallette.
+\newblock \emph{Algebraic Operads}.
+\newblock Springer, 2012.
+
+\bibitem{Christiano2017DeepRLHF}
+Paul F. Christiano, Jan Leike, Tom Brown, Miljan Martic, Shane Legg, and Dario Amodei.
+\newblock Deep reinforcement learning from human preferences.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2017.
+
+\bibitem{Ouyang2022Training}
+Long Ouyang et al.
+\newblock Training language models to follow instructions with human feedback.
+\newblock \emph{Advances in Neural Information Processing Systems}, 2022.
+
+\bibitem{Bai2022ConstitutionalAI}
+Yuntao Bai et al.
+\newblock Constitutional AI: Harmlessness from AI Feedback.
+\newblock arXiv:2212.08073, 2022.
+
+\bibitem{Ji2023HallucinationSurvey}
+Ziwei Ji et al.
+\newblock Survey of hallucination in natural language generation.
+\newblock \emph{ACM Computing Surveys}, 2023.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

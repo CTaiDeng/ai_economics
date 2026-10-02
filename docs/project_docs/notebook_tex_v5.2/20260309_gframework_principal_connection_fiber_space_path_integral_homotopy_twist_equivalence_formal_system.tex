@@ -1,0 +1,5791 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 每章（以 section 作为章级）结束后分页；参考文献前亦自动分页
+\pretocmd{\section}{\ifnum\value{section}>0\clearpage\fi}{}{}
+
+% 基本定理环境（工作笔记：形式系统风格；参考 NoteBook/notebook1/tex20_pub）
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+% 记号（仅用于本笔记自洽引用，避免依赖主稿宏定义）
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\Path}{\operatorname{Path}}
+\newcommand{\PT}{\operatorname{PT}}
+\newcommand{\Img}{\operatorname{Im}}
+\newcommand{\NF}{\operatorname{NF}}
+\newcommand{\Enc}{\operatorname{Enc}}
+\newcommand{\Ob}{\operatorname{Ob}}
+\newcommand{\id}{\mathrm{id}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+\setlength{\emergencystretch}{6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{主丛联络的纤维丛空间、路径积分支撑类与同伦扭曲正规形的集合等价\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-03-09}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是孤立地给出一组主丛联络、纤维丛空间、路径积分或同伦扭曲术语，
+而是在 \GFramework{} 的整体脉络中，把联络可达终点、路径积分支撑信道、同伦扭曲
+正规形、离散扩展塔、同伦修复塔、边缘算子、微观隧穿命中与工程干预包络组织成一条
+可追踪的形式链条。若这些对象分散出现，它们容易被误读为几何、物理、同伦与算法
+四套互不相干的语言；本文将其压合为一个可以定义、可以编码、可以双射、可以修复、
+可以统计命中、可以工程干预的联络传输形式系统。
+
+本文的第一层立场是三重编码同一性。固定主丛联络 \(A\)、起点基底点
+\(b_{\mathrm{src}}\)、目标底空间 \(B_{\mathrm{tar}}\) 与起始纤维点
+\(p_{\mathrm{src}}\) 后，本文不把纤维终点、路径积分与同伦扭曲视为三类互不相干
+对象，而是把它们写成同一联络可达传输数据的三种编码：
+\[
+  \mathcal F_A
+  \cong_{\mathrm{set}}
+  \mathcal{PI}_A
+  \cong_{\mathrm{set}}
+  \mathcal T_A.
+\]
+其中 \(\mathcal F_A\) 是联络传输可达的纤维终点空间，\(\mathcal{PI}_A\) 是路径积分
+支撑信道的指标集合，\(\mathcal T_A\) 是连接可见的同伦扭曲正规形集合。这个三重
+等价是本文的对象锚点。
+
+本文的第二层立场是路径积分的支撑类化。本文不把路径积分的复数振幅值直接拿来与
+纤维点比较，也不把物理路径积分无条件移植为集合等价；可严格比较的是路径积分
+支撑信道或承载类。换言之，路径积分在本文中的主要作用是为联络可见传输终点提供
+支撑类编码，而不是以数值振幅本身充当终点对象。这一收紧使“路径积分集合等价”成为
+对象层命题，而不是类型混淆。
+
+本文的第三层立场是同伦扭曲的正规形化。同伦扭曲不是任意口头变形，而是对路径类
+进行可审计选择后得到的连接可见正规代表。只有当同伦扭曲被压缩为正规形集合
+\(\mathcal T_A\) 时，它才可与纤维终点空间和路径积分支撑类建立显式双射。由此，
+本文把“同伦变形”从解释性语词转化为可编码、可选择、可回投影的正规代表机制。
+
+本文的第四层立场是从单层等价到修复塔的递推。第一章证明单层三重等价，第二章将
+这一对象对应递推到离散扩展塔与同伦修复塔。也就是说，本文不只说明某一层的路径、
+终点与扭曲可以互相编码，还说明这种编码可以沿修复层级传递，并在扩展签发协议中
+被封装为终端结构表示。这个递推接口承接 \cite{RepoTex35Tower,RepoTex29RepairableObstruction}
+的修复塔与可修复障碍口径。
+
+本文的第五层立场是边缘算子与作用映射的工程化。联络提升、边缘算子、作用泛函与
+有效组合，不只是抽象几何对象；它们在本文中进入可求解链，承担从路径类到有效作用
+代表的选择功能。由此，联络几何不再只给出可达性说明，而被推进为一种可以筛选、
+编码、传输和求解的对象链。
+
+本文的第六层立场是微观隧穿命中修复的严格定位。微观隧穿不是跳过证书链的神秘
+捷径，而是在路径支撑类、作用映射与修复塔已经给定的条件下，对障碍另一侧可行代表
+的统计命中机制。本文将其写成概率型命中修复图景，并在后续章节中叠加 Jacobi 间隙
+驱动、数据轮询复用、加速/阻尼切换与显式步数估计，使统计可发生的命中过程获得
+工程可干预的控制包络。
+
+本文的第七层立场是开放系统博弈中的双刃能力定位。一般开放系统中的高双刃性能力
+生成器，既可能提升修复效率，也可能放大障碍传播。因此，本文不把能力增强写成单向
+好事，而是通过允许路径、作用映射、修复塔与证书闭合条件约束其使用。这样，强能力
+必须通过结构签发和障碍修复接口进入系统，而不能绕过主链直接成为不可审计的执行权。
+
+本文的第八层立场是为后续 \GFramework{} 主链提供路径--同伦--命中底座。后续关于
+语义规范场运行时、开放系统博弈修复引擎、Jacobi--Bianchi 障碍修复、统计晶格
+同伦隧穿、高阶正交确定性收敛与 PDE 求解范式替代的稿件，都需要一个更早的结构事实：
+同一个可达对象必须能够在纤维终点、路径支撑类与同伦扭曲正规形之间切换编码。本文
+提供的三重等价与修复塔递推，正是这条主链的路径--同伦编码底座。
+
+因此，本文在整体 \GFramework{} 中承担的是“联络传输三重编码与同伦修复塔锚定”
+作用。它向前连接主丛联络、水平提升、路径积分与障碍同调背景，向中间连接纤维终点、
+支撑类、正规形、离散扩展塔与边缘算子，向后连接微观隧穿命中修复、开放系统博弈、
+工程干预包络与后续确定性同伦命中范式。本文所说的等价不是物理振幅值与几何点的
+混同，而是联络可见传输数据在三种编码中的集合层同一性。
+
+概括地说，本文把 \GFramework{} 中“同一个可达传输对象如何在几何、路径积分和同伦
+语言之间保持一致”这一问题，从叙事性类比推进为纤维终点空间、路径积分支撑类、
+同伦扭曲正规形、离散修复塔与工程干预机制共同构成的形式系统。它提供的不是单一
+几何命题，而是一条由联络提升、路径支撑、正规代表、修复递推、统计命中与控制包络
+组成的方法论主干。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：主丛联络的纤维丛空间等价于路径积分集合等价于同伦扭曲集合}
+\label{sec:tex36-ch1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（严格化后）]
+若把“路径积分的集合”严格解释为\textbf{路径积分支撑信道的指标集合}，并把“同伦扭曲的集合”严格解释为\textbf{连接可见的同伦扭曲正规形集合}，
+则对固定主丛联络 $A$、固定起点基底点 $b_{\mathrm{src}}$、固定目标底空间 $B_{\mathrm{tar}}$ 与固定初始纤维点 $p_{\mathrm{src}}$，
+存在显式双射
+\[
+  \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \cong_{\mathrm{set}}
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+换言之，三者只是同一“联络可达传输数据”的三种编码。
+\end{remark}
+
+本章只主张\textbf{集合层面的等价}。因此，“路径积分”不按复数振幅值本身来与纤维点比较，而按其\textbf{支撑信道/承载类}来比较；
+“同伦扭曲”不按任意口头变形来比较，而按\textbf{连接可见的正规形代表}来比较。这样做以后，命题才具有严格的对象同型意义。
+
+\begin{remark}[阅读导航：仓内文稿与外部参照]
+本文第一章聚焦单层三重等价，第二章把这一对象级对应递推到离散扩展塔与同伦修复塔。仓内互参方面：与第二章主题直接对应的独立整理稿可参照 \cite{RepoTex35Tower}；
+关于“可修复障碍”的对象层边界与修复形式矩阵，可参照 \cite{RepoTex29RepairableObstruction}；
+更系统的 law-space、主丛联络、路径积分与 Jacobiator-gap 背景，可参照本仓库卷册主稿 \cite{GaoZhengAppVol3}。
+
+外部标准参照方面，主丛、联络、水平提升与分类空间理论可参照 \cite{KobayashiNomizu1963Foundations,Husemoller1994FibreBundles,Hall2015LieGroups}；
+路径积分与半经典驻相写法可参照 \cite{FeynmanHibbs1965QMPI,Schulman2005Technique}；
+同伦/同调与障碍上升的标准背景可参照 \cite{Hatcher2002AT,Whitehead1978Elements,Weibel1994HomologicalAlgebra,
+  LodayVallette2012AlgebraicOperads}。
+\end{remark}
+
+\subsection{对象域、记号与三类集合的精确定义}
+\label{subsec:tex36-objects}
+
+\begin{definition}[主丛、联络、起点与目标底空间]
+设
+\[
+  \pi:P\to B
+\]
+是一个以李群 $G$ 为结构群的主丛，$A$ 是 $P$ 上的一条主丛联络。
+固定一个起点基底点
+\[
+  b_{\mathrm{src}}\in B,
+\]
+固定一个目标底空间
+\[
+  B_{\mathrm{tar}}\subseteq B,
+\]
+并固定一个起始纤维点
+\[
+  p_{\mathrm{src}}\in \pi^{-1}(b_{\mathrm{src}}).
+\]
+\end{definition}
+
+\begin{definition}[从起点基底点到目标底空间的可容许路径集合]
+定义
+\[
+  \Path_A(b_{\mathrm{src}},B_{\mathrm{tar}})
+  :=
+  \left\{
+    \gamma:[0,1]\to B\
+    \middle|\
+    \begin{aligned}
+      &\gamma(0)=b_{\mathrm{src}},\\
+      &\gamma(1)\in B_{\mathrm{tar}},\\
+      &\gamma\text{ 为分段光滑且位于联络图册可提升域内}
+    \end{aligned}
+  \right\}.
+\]
+称其为从起点基底点到目标底空间的 $A$-可容许路径集合。
+\end{definition}
+
+\begin{definition}[水平提升与联络传输终点]
+对任意 $\gamma\in \Path_A(b_{\mathrm{src}},B_{\mathrm{tar}})$，若存在唯一分段光滑曲线
+\[
+  \widetilde{\gamma}:[0,1]\to P
+\]
+满足
+\[
+  \pi\circ \widetilde{\gamma}=\gamma,\qquad
+  \widetilde{\gamma}(0)=p_{\mathrm{src}},\qquad
+  A(\dot{\widetilde{\gamma}}(t))=0
+\]
+（在每个光滑分段内部成立），则定义联络传输终点映射
+\[
+  \PT_A^{p_{\mathrm{src}}}:\Path_A(b_{\mathrm{src}},B_{\mathrm{tar}})
+  \to \pi^{-1}(B_{\mathrm{tar}}),
+  \qquad
+  \gamma\mapsto \widetilde{\gamma}(1).
+\]
+\end{definition}
+
+\begin{definition}[主丛联络的纤维丛空间（可达纤维终点空间）]
+定义
+\[
+  \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  :=
+  \Img\!\bigl(\PT_A^{p_{\mathrm{src}}}\bigr)
+  \subseteq \pi^{-1}(B_{\mathrm{tar}}).
+\]
+称其为在联络 $A$ 下，从 $p_{\mathrm{src}}$ 出发到达目标底空间 $B_{\mathrm{tar}}$ 的\textbf{纤维丛空间}。
+\end{definition}
+
+\begin{definition}[连接可见等价关系与路径积分支撑类集合]
+\label{def:tex36-pi-set}
+在 $\Path_A(b_{\mathrm{src}},B_{\mathrm{tar}})$ 上定义等价关系
+\[
+  \gamma_1\sim_A \gamma_2
+  \quad:\Longleftrightarrow\quad
+  \PT_A^{p_{\mathrm{src}}}(\gamma_1)=\PT_A^{p_{\mathrm{src}}}(\gamma_2).
+\]
+将商集
+\[
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  :=
+  \Path_A(b_{\mathrm{src}},B_{\mathrm{tar}})\big/\sim_A
+\]
+称为从起点基底点到目标底空间的\textbf{路径积分支撑类集合}。
+
+这里的含义是：若两条路径在联络可见层面产生同一传输终点，则在集合论口径下它们属于同一路径积分支撑信道。
+\end{definition}
+
+\begin{definition}[同伦扭曲正规化与同伦扭曲集合]
+\label{def:tex36-twist-set}
+设
+\[
+  q_A:\Path_A(b_{\mathrm{src}},B_{\mathrm{tar}})
+  \to
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+\]
+是自然商映射。称一个映射
+\[
+  \NF_A:
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \to
+  \Path_A(b_{\mathrm{src}},B_{\mathrm{tar}})
+\]
+为\textbf{同伦扭曲正规化算子}，若满足
+\[
+  q_A\circ \NF_A=\id_{\mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})}.
+\]
+定义其像集
+\[
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  :=
+  \Img(\NF_A)
+\]
+为从起点基底点到目标底空间的\textbf{同伦扭曲正规形集合}。
+\end{definition}
+
+\begin{remark}[三类对象的角色分工]
+\begin{enumerate}
+  \item $\mathcal{F}_{A}$ 记录“联络把起始纤维点送到了目标底空间上的哪些纤维点”；
+  \item $\mathcal{PI}_{A}$ 记录“路径积分在集合层面上有多少个可区分的支撑信道”；
+  \item $\mathcal{T}_{A}$ 记录“每个支撑信道选出哪个正规形作为同伦扭曲代表”。
+\end{enumerate}
+因此三者分别是“终点编码”“商类编码”“正规形编码”。
+\end{remark}
+
+\subsection{公理（降级为定理）：分段可容许路径的水平提升存在唯一性}
+\label{subsec:tex36-axiom-downgraded}
+
+\begin{theorem}[公理（降级为定理）A0：分段可容许路径的水平提升存在唯一性]
+\label{thm:tex36-a0}
+对任意正整数 $n$，任取一条分解为 $n$ 段的可容许路径
+\[
+  \gamma=\gamma_n*\gamma_{n-1}*\cdots *\gamma_1
+  \in \Path_A(b_{\mathrm{src}},B_{\mathrm{tar}}),
+\]
+若每个局部段 $\gamma_k$ 都处在联络局部提升定理可适用的图册内，
+则存在唯一分段光滑水平提升
+\[
+  \widetilde{\gamma}:[0,1]\to P
+\]
+满足
+\[
+  \pi\circ \widetilde{\gamma}=\gamma,\qquad
+  \widetilde{\gamma}(0)=p_{\mathrm{src}},\qquad
+  A(\dot{\widetilde{\gamma}})=0
+\]
+（逐段成立）。
+因此定义 \ref{def:tex36-pi-set} 中的 $\PT_A^{p_{\mathrm{src}}}$ 是良定义的。
+\end{theorem}
+
+上述定理只是把主丛联络下的标准水平提升存在唯一性按“分段可容许路径”重写为归纳版；外部标准参照可见 \cite{KobayashiNomizu1963Foundations,Husemoller1994FibreBundles}。
+
+\begin{Certificate}[数学归纳法证书 A0(n)：按分段数的水平提升证书]
+\label{cert:tex36-a0}
+令谓词
+\[
+  P(n)
+  :
+  \Longleftrightarrow
+  \text{任意由 $n$ 段局部可提升路径拼接而成的 $\gamma$ 都存在唯一水平提升}.
+\]
+证书由两部分组成：
+\begin{enumerate}
+  \item \textbf{基础步 $P(1)$：}单段路径的水平提升由联络局部提升方程的初值问题唯一决定；
+  \item \textbf{归纳步 $P(n)\Rightarrow P(n+1)$：}先对前 $n$ 段使用 $P(n)$ 得唯一提升，再以其终点作为第 $n+1$ 段的初值，
+  对最后一段使用单段唯一提升，于是得到全路径唯一提升。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+令
+\[
+  P(n)
+  :
+  \Longleftrightarrow
+  \forall \gamma=\gamma_n*\cdots *\gamma_1,\
+  \exists!\,\widetilde{\gamma}\ \text{s.t.}\
+  \pi\circ\widetilde{\gamma}=\gamma,\
+  \widetilde{\gamma}(0)=p_{\mathrm{src}},\
+  A(\dot{\widetilde{\gamma}})=0.
+\]
+
+\textbf{基础步：}当 $n=1$ 时，$\gamma=\gamma_1$ 落在某个局部图册中。由联络给出的水平提升微分方程与初值
+\[
+  \widetilde{\gamma}(0)=p_{\mathrm{src}}
+\]
+唯一确定一条局部提升；由于整段 $\gamma_1$ 都位于该可提升域内，这条局部提升延拓为全段唯一提升。
+故 $P(1)$ 成立。
+
+\textbf{归纳步：}设 $P(n)$ 成立。任取一条 $(n+1)$ 段路径
+\[
+  \gamma=\gamma_{n+1}*\gamma_n*\cdots *\gamma_1.
+\]
+记其前 $n$ 段前缀为
+\[
+  \gamma^{(n)}:=\gamma_n*\cdots *\gamma_1.
+\]
+由归纳假设 $P(n)$，存在唯一水平提升
+\[
+  \widetilde{\gamma}^{(n)}
+\]
+满足
+\[
+  \pi\circ \widetilde{\gamma}^{(n)}=\gamma^{(n)},\qquad
+  \widetilde{\gamma}^{(n)}(0)=p_{\mathrm{src}}.
+\]
+于是其终点
+\[
+  p_n:=\widetilde{\gamma}^{(n)}(1)
+\]
+唯一确定。再对最后一段 $\gamma_{n+1}$，以 $p_n$ 为初值应用单段唯一提升定理，
+得到唯一水平提升 $\widetilde{\gamma}_{n+1}$。将其与 $\widetilde{\gamma}^{(n)}$ 拼接，得到整条 $(n+1)$ 段路径的唯一水平提升
+\[
+  \widetilde{\gamma}:=\widetilde{\gamma}_{n+1}*\widetilde{\gamma}^{(n)}.
+\]
+故 $P(n+1)$ 成立。
+
+由数学归纳法，$\forall n\in\NN_{>0}$，$P(n)$ 成立。于是对任意分段可容许路径，联络传输终点映射 $\PT_A^{p_{\mathrm{src}}}$ 良定义。证毕。
+\end{proof}
+
+\subsection{引理：纤维丛空间与路径积分支撑类集合的双射}
+\label{subsec:tex36-lemma}
+
+\begin{lemma}[纤维终点空间与路径积分支撑类集合之间存在显式双射]
+\label{lem:tex36-fiber-pi}
+映射
+\[
+  \overline{\PT}_A^{p_{\mathrm{src}}}:
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \to
+  \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}),
+  \qquad
+  [\gamma]_{\sim_A}\mapsto \PT_A^{p_{\mathrm{src}}}(\gamma)
+\]
+是良定义双射。
+\end{lemma}
+
+\begin{Certificate}[证书 L1：按定义因子化证书]
+\label{cert:tex36-l1}
+等价关系 $\sim_A$ 就是由“联络传输终点相等”定义出来的，因此：
+\begin{enumerate}
+  \item 良定义性由 $\sim_A$ 的定义直接保证；
+  \item 单射性由“像相同 $\Rightarrow$ 处于同一商类”直接保证；
+  \item 满射性由 $\mathcal{F}_A=\Img(\PT_A^{p_{\mathrm{src}}})$ 的定义直接保证。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 谓词因果链）]
+先证良定义。若
+\[
+  [\gamma_1]_{\sim_A}=[\gamma_2]_{\sim_A},
+\]
+则由定义 \ref{def:tex36-pi-set}，
+\[
+  \gamma_1\sim_A \gamma_2
+  \Rightarrow
+  \PT_A^{p_{\mathrm{src}}}(\gamma_1)=\PT_A^{p_{\mathrm{src}}}(\gamma_2).
+\]
+故 $\overline{\PT}_A^{p_{\mathrm{src}}}$ 与代表元的选择无关，因此良定义。
+
+再证单射。若
+\[
+  \overline{\PT}_A^{p_{\mathrm{src}}}([\gamma_1]_{\sim_A})
+  =
+  \overline{\PT}_A^{p_{\mathrm{src}}}([\gamma_2]_{\sim_A}),
+\]
+则
+\[
+  \PT_A^{p_{\mathrm{src}}}(\gamma_1)
+  =
+  \PT_A^{p_{\mathrm{src}}}(\gamma_2)
+  \Rightarrow
+  \gamma_1\sim_A \gamma_2
+  \Rightarrow
+  [\gamma_1]_{\sim_A}=[\gamma_2]_{\sim_A}.
+\]
+故该映射为单射。
+
+最后证满射。任取
+\[
+  p\in \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+由 $\mathcal{F}_A$ 的定义，
+\[
+  p\in\Img(\PT_A^{p_{\mathrm{src}}})
+  \Rightarrow
+  \exists \gamma\in \Path_A(b_{\mathrm{src}},B_{\mathrm{tar}})
+  \ \text{s.t.}\
+  p=\PT_A^{p_{\mathrm{src}}}(\gamma).
+\]
+于是
+\[
+  \overline{\PT}_A^{p_{\mathrm{src}}}([\gamma]_{\sim_A})=p.
+\]
+故该映射为满射。
+
+综上，$\overline{\PT}_A^{p_{\mathrm{src}}}$ 是双射。证毕。
+\end{proof}
+
+\subsection{命题：路径积分支撑类集合与同伦扭曲正规形集合的双射}
+\label{subsec:tex36-proposition}
+
+\begin{proposition}[路径积分支撑类集合与同伦扭曲正规形集合之间存在显式双射]
+\label{prop:tex36-pi-twist}
+正规化算子
+\[
+  \NF_A:
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \to
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+\]
+是双射。
+\end{proposition}
+
+\begin{Certificate}[证书 P1：正规化截面证书]
+\label{cert:tex36-p1}
+由定义 \ref{def:tex36-twist-set}，
+\[
+  q_A\circ \NF_A=\id_{\mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})}.
+\]
+因此 $\NF_A$ 是商映射 $q_A$ 的一个截面，并且
+\[
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  =\Img(\NF_A).
+\]
+截面映射在其像上天然为双射。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 谓词因果链）]
+先证单射。设
+\[
+  \NF_A(\xi_1)=\NF_A(\xi_2),
+\qquad
+  \xi_1,\xi_2\in \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+对两边施加商映射 $q_A$，利用
+\[
+  q_A\circ \NF_A=\id,
+\]
+得
+\[
+  \xi_1
+  =
+  q_A(\NF_A(\xi_1))
+  =
+  q_A(\NF_A(\xi_2))
+  =
+  \xi_2.
+\]
+故 $\NF_A$ 为单射。
+
+再证满射。任取
+\[
+  \tau\in \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+由 $\mathcal{T}_A=\Img(\NF_A)$ 的定义，
+\[
+  \exists \xi\in \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \ \text{s.t.}\
+  \tau=\NF_A(\xi).
+\]
+故 $\NF_A$ 为满射。
+
+因此 $\NF_A$ 是双射。证毕。
+\end{proof}
+
+\subsection{定理：主丛联络的纤维丛空间、路径积分集合与同伦扭曲集合三重等价}
+\label{subsec:tex36-theorem}
+
+\begin{theorem}[主定理：三类集合存在显式双射链]
+\label{thm:tex36-main}
+在定理 \ref{thm:tex36-a0} 的水平提升存在唯一性前提与定义 \ref{def:tex36-twist-set} 的正规化前提下，
+存在显式双射链
+\[
+  \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \cong_{\mathrm{set}}
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+亦即：主丛联络的纤维丛空间，等价于从起点基底点到目标底空间的路径积分支撑类集合，
+并进一步等价于从起点基底点到目标底空间的同伦扭曲正规形集合。
+\end{theorem}
+
+\begin{Certificate}[证书 T1：双射复合证书]
+\label{cert:tex36-t1}
+由引理 \ref{lem:tex36-fiber-pi} 得到双射
+\[
+  \bigl(\overline{\PT}_A^{p_{\mathrm{src}}}\bigr)^{-1}:
+  \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \to
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}),
+\]
+由命题 \ref{prop:tex36-pi-twist} 得到双射
+\[
+  \NF_A:
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \to
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+故其复合
+\[
+  \Psi_A
+  :=
+  \NF_A\circ
+  \bigl(\overline{\PT}_A^{p_{\mathrm{src}}}\bigr)^{-1}
+\]
+给出从 $\mathcal{F}_A$ 到 $\mathcal{T}_A$ 的显式双射。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 谓词因果链）]
+由引理 \ref{lem:tex36-fiber-pi}，
+\[
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \cong_{\mathrm{set}}
+  \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+由命题 \ref{prop:tex36-pi-twist}，
+\[
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+于是由集合双射的传递性，
+\[
+  \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+将上述两条双射连写，即得三重双射链
+\[
+  \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \cong_{\mathrm{set}}
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+因此题述成立。证毕。
+\end{proof}
+
+\subsection{推论与备注}
+\label{subsec:tex36-corollary-remark}
+
+\begin{corollary}[任一侧定义的不变量都可无损搬运到另外两侧]
+\label{cor:tex36-transport}
+设
+\[
+  I_{\mathcal{F}}:
+  \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \to X
+\]
+是任意集合值不变量。则存在唯一对应的不变量
+\[
+  I_{\mathcal{PI}}:
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \to X,
+  \qquad
+  I_{\mathcal{T}}:
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}})
+  \to X
+\]
+满足
+\[
+  I_{\mathcal{PI}}
+  =
+  I_{\mathcal{F}}\circ \overline{\PT}_A^{p_{\mathrm{src}}},
+  \qquad
+  I_{\mathcal{T}}
+  =
+  I_{\mathcal{PI}}\circ \NF_A^{-1}.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C1：双射搬运证书]
+\label{cert:tex36-c1}
+双射上的函数前合成与后合成保持信息无损，因此任一侧的不变量都可以沿双射链唯一推前或拉回。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 谓词因果链）]
+由引理 \ref{lem:tex36-fiber-pi} 与命题 \ref{prop:tex36-pi-twist}，
+\[
+  \overline{\PT}_A^{p_{\mathrm{src}}}
+  \quad\text{与}\quad
+  \NF_A
+\]
+都是双射。双射可逆，故任意
+\[
+  I_{\mathcal{F}}:\mathcal{F}_A\to X
+\]
+都可先经
+\[
+  \overline{\PT}_A^{p_{\mathrm{src}}}
+\]
+拉回到 $\mathcal{PI}_A$，再经
+\[
+  \NF_A^{-1}
+\]
+推前到 $\mathcal{T}_A$。唯一性来自双射逆映射的唯一性。证毕。
+\end{proof}
+
+\begin{remark}[为什么必须说“路径积分支撑类集合”，而不能直接说“路径积分数值集合”]
+路径积分的振幅值通常落在 $\mathbb{C}$ 或其推广值域中，而纤维终点空间落在 $\pi^{-1}(B_{\mathrm{tar}})$ 中；
+这两类对象的类型不同，不能直接宣称“集合等价”；经典路径积分的数值口径可参照 \cite{FeynmanHibbs1965QMPI,Schulman2005Technique}。
+只有当我们把路径积分压到“哪一个支撑信道被激活”的指标层时，它才与联络传输的终点数据处于同一对象层级。
+\end{remark}
+
+\begin{remark}[为什么必须加入正规化算子 $\NF_A$]
+原始同伦扭曲数据往往是一个商类，而不是一个已经选定代表元的集合。
+加入 $\NF_A$ 的作用，是把每个商类选出唯一正规形；只有在这一步完成后，
+“同伦扭曲的集合”才是可与 $\mathcal{F}_A$、$\mathcal{PI}_A$ 直接比较的对象。
+\end{remark}
+
+\begin{remark}[最终可复用表述]
+因此，更严格也更适合在后续文稿中直接复用的表述是：
+\[
+  \begin{gathered}
+    \text{主丛联络的可达纤维终点空间}\\
+    \cong_{\mathrm{set}}\\
+    \text{从起点基底点到目标底空间的路径积分支撑类集合}\\
+    \cong_{\mathrm{set}}\\
+    \text{对应的连接可见同伦扭曲正规形集合}.
+  \end{gathered}
+\]
+该表述避免了对象层级混淆，同时保留了原命题的核心直觉。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：迭代终点封装、离散语义编码与同伦修复塔}
+\label{sec:tex36-ch2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[扩展目标]
+本章把上一章的单层三重等价递推到多层情形。核心思想是：把第 $n$ 层主丛联络路径积分的终点，经语义封装后作为第 $n+1$ 层的新基底生成元，
+从而同步生成扩展路径集合、联络集合与纤维丛集合；再把该离散层级结构放到 $\NN$ 上，得到 $\NN^\NN$ 参数化的整数--角度实数语义编码，
+并把它组织为处理低阶 Bianchi/Jacobi 失效的同伦修复塔。
+\end{remark}
+
+\begin{remark}[与仓内其他整理稿的关系]
+若只关心“扩展签发协议 + 修复塔 + 单一实数总编码”的独立定理化整理，可直接对照阅读 \cite{RepoTex35Tower}；
+若关心“可修复障碍”相对于分形/子类的严格边界，可对照阅读 \cite{RepoTex29RepairableObstruction}。
+本文保留的是从单层三重等价到多层修复塔的连续叙述。
+\end{remark}
+
+\subsection{迭代终点封装数据与 \texorpdfstring{$N$}{N} 级扩展塔}
+\label{subsec:tex36-iterative-data}
+
+\begin{definition}[迭代终点封装数据]
+对每个 $n\in\NN$，设
+\[
+  \pi_n:P_n\to B_n
+\]
+是一个以李群 $G_n$ 为结构群的主丛，$A_n$ 是 $P_n$ 上的一条主丛联络，并固定
+\[
+  b_n\in B_n,\qquad
+  B_n^{\mathrm{tar}}\subseteq B_n,\qquad
+  p_n\in \pi_n^{-1}(b_n).
+\]
+再设存在一个封装映射
+\[
+  \varepsilon_n:
+  \mathcal{F}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)\to B_{n+1}.
+\]
+对任意
+\[
+  \gamma_n\in \Path_{A_n}(b_n,B_n^{\mathrm{tar}})
+\]
+定义其封装终点
+\[
+  \widehat{b}_{n+1}[\gamma_n]
+  :=
+  \varepsilon_n\bigl(\PT_{A_n}^{p_n}(\gamma_n)\bigr)
+  \in B_{n+1}.
+\]
+称
+\[
+  \mathfrak D
+  :=
+  \{(P_n,B_n,G_n,\pi_n,A_n,b_n,B_n^{\mathrm{tar}},p_n,\varepsilon_n)\}_{n\in\NN}
+\]
+为一组\textbf{迭代终点封装数据}。
+\end{definition}
+
+\begin{definition}[$N$ 级扩展路径--联络--纤维丛塔]
+\label{def:tex36-n-tower}
+给定一组迭代终点封装数据 $\mathfrak D$ 与正整数 $N$。对每个 $0\le n\le N$，记
+\[
+  \mathcal{F}_n:=\mathcal{F}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n),\qquad
+  \mathcal{PI}_n:=\mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n),\qquad
+  \mathcal{T}_n:=\mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n).
+\]
+定义
+\[
+  \mathfrak A^{(N)}:=\{A_n\}_{n=0}^{N},\qquad
+  \mathfrak F^{(N)}:=\{\mathcal{F}_n\}_{n=0}^{N},\qquad
+  \mathfrak{PI}^{(N)}:=\{\mathcal{PI}_n\}_{n=0}^{N},\qquad
+  \mathfrak{Tw}^{(N)}:=\{\mathcal{T}_n\}_{n=0}^{N}.
+\]
+并定义扩展路径塔
+\[
+  \Path_{\mathfrak D}^{(N),\mathrm{ext}}
+  :=
+  \Bigl\{
+    (\gamma_0,\ldots,\gamma_N)
+    \Bigm|
+    \gamma_n\in \Path_{A_n}(b_n,B_n^{\mathrm{tar}}),\
+    b_{n+1}=\widehat{b}_{n+1}[\gamma_n]\ \text{对 } 0\le n<N
+  \Bigr\}.
+\]
+称
+\[
+  \mathfrak T_{\mathfrak D}^{(N)}
+  :=
+  \bigl(
+    \Path_{\mathfrak D}^{(N),\mathrm{ext}},
+    \mathfrak A^{(N)},
+    \mathfrak F^{(N)},
+    \mathfrak{PI}^{(N)},
+    \mathfrak{Tw}^{(N)}
+  \bigr)
+\]
+为由 $\mathfrak D$ 生成的\textbf{$N$ 级扩展路径--联络--纤维丛塔}。
+\end{definition}
+
+\subsection{公理（降级为定理）：迭代终点封装给出 \texorpdfstring{$N$}{N} 级构造}
+\label{subsec:tex36-iterative-theorem}
+
+\begin{theorem}[公理（降级为定理）A1：迭代终点封装定理]
+\label{thm:tex36-a1}
+给定一组迭代终点封装数据 $\mathfrak D$。若对每个 $n\in\NN$，
+\begin{enumerate}
+  \item 路径集合 $\Path_{A_n}(b_n,B_n^{\mathrm{tar}})$ 满足定理 \ref{thm:tex36-a0} 的水平提升存在唯一性；
+  \item 封装映射 $\varepsilon_n$ 对 $\mathcal{F}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)$ 良定义；
+  \item 第 $n+1$ 层的起点基底点按规则
+  \[
+    b_{n+1}=\widehat{b}_{n+1}[\gamma_n]
+  \]
+  从第 $n$ 层封装终点中选取。
+\end{enumerate}
+则对任意 $N\in\NN_{>0}$，由 $\mathfrak D$ 唯一决定一个 $N$ 级扩展路径--联络--纤维丛塔
+\[
+  \mathfrak T_{\mathfrak D}^{(N)}.
+\]
+特别地，随着 $N$ 的增加，便得到 $N$ 维纤维丛空间的路径积分集合构造、联络集合构造与纤维丛集合构造。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书 A1($N$)：按层数的扩展塔证书]
+\label{cert:tex36-a1}
+令谓词
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \text{由初始层与封装映射可唯一构造到第 $N$ 层为止的扩展路径--联络--纤维丛塔}.
+\]
+证书由两部分组成：
+\begin{enumerate}
+  \item \textbf{基础步 $P(1)$：}第 $0$ 层由定理 \ref{thm:tex36-main} 给出 $\mathcal{F}_0$、$\mathcal{PI}_0$ 与 $\mathcal{T}_0$ 的同步构造，
+  再经 $\varepsilon_0$ 生成第 $1$ 层基底点；
+  \item \textbf{归纳步 $P(N)\Rightarrow P(N+1)$：}若前 $N$ 层已唯一构造，则第 $N$ 层的封装终点通过 $\varepsilon_N$ 唯一给出第 $N+1$ 层的起点基底，
+  再由定理 \ref{thm:tex36-a0} 与定理 \ref{thm:tex36-main} 唯一生成第 $N+1$ 层的路径积分、联络与纤维丛数据。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+令
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \exists!\,\mathfrak T_{\mathfrak D}^{(N)}.
+\]
+
+\textbf{基础步：}当 $N=1$ 时，第 $0$ 层满足定理 \ref{thm:tex36-a0}，故
+\[
+  \PT_{A_0}^{p_0}
+\]
+良定义。再由定理 \ref{thm:tex36-main}，
+\[
+  \mathcal{F}_0
+  \cong_{\mathrm{set}}
+  \mathcal{PI}_0
+  \cong_{\mathrm{set}}
+  \mathcal{T}_0.
+\]
+于是第 $0$ 层的路径积分支撑类集合、联络传输终点集合与同伦扭曲正规形集合同时确定。
+由假设中的封装映射
+\[
+  \varepsilon_0:\mathcal{F}_0\to B_1
+\]
+可得
+\[
+  b_1=\widehat{b}_1[\gamma_0]
+  =
+  \varepsilon_0\bigl(\PT_{A_0}^{p_0}(\gamma_0)\bigr),
+\]
+故第 $1$ 层起点基底由第 $0$ 层唯一生成。于是
+\[
+  \mathfrak T_{\mathfrak D}^{(1)}
+\]
+存在且唯一，故 $P(1)$ 成立。
+
+\textbf{归纳步：}设 $P(N)$ 成立，即前 $N$ 层扩展塔
+\[
+  \mathfrak T_{\mathfrak D}^{(N)}
+\]
+已经唯一构造。则第 $N$ 层的可达纤维终点集合
+\[
+  \mathcal{F}_N
+\]
+已唯一确定。由封装映射 $\varepsilon_N$，
+\[
+  \mathcal{F}_N
+  \xrightarrow{\ \varepsilon_N\ }
+  B_{N+1}
+\]
+得到新的起点基底
+\[
+  b_{N+1}
+  =
+  \widehat{b}_{N+1}[\gamma_N].
+\]
+由定理 \ref{thm:tex36-a0}，第 $N+1$ 层的水平提升与联络传输终点映射良定义；
+由定理 \ref{thm:tex36-main}，第 $N+1$ 层随之唯一生成
+\[
+  \mathcal{F}_{N+1},\qquad
+  \mathcal{PI}_{N+1},\qquad
+  \mathcal{T}_{N+1}.
+\]
+故
+\[
+  \mathfrak T_{\mathfrak D}^{(N+1)}
+\]
+存在且唯一，故 $P(N+1)$ 成立。
+
+由数学归纳法，
+\[
+  \forall N\in\NN_{>0},\quad P(N)\ \text{成立}.
+\]
+因此对任意离散层级 $N$，扩展路径集合、联络集合与纤维丛集合都可递归构造。证毕。
+\end{proof}
+
+\subsection{引理：自然数幂空间到整数--角度实数语义编码的对应}
+\label{subsec:tex36-semantic-code}
+
+\begin{definition}[整数--角度语义提取与实数编码]
+\label{def:tex36-semantic-code}
+对每个 $n\in\NN$，设
+\[
+  \sigma_n:
+  \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)\to \ZZ\times [0,2\pi)
+\]
+是一个语义提取映射，并记
+\[
+  \sigma_n(\tau_n)=\bigl(k_n(\tau_n),\theta_n(\tau_n)\bigr).
+\]
+定义实数编码
+\[
+  \Enc:\ZZ\times [0,2\pi)\to \RR,
+  \qquad
+  \Enc(k,\theta):=k+\frac{\theta}{2\pi}.
+\]
+\end{definition}
+
+\begin{lemma}[离散层级选择产生 $\NN^\NN$ 参数化的实数语义编码]
+\label{lem:tex36-nn-code}
+把每个 $\NN$ 都视为离散集合。设
+\[
+  \tau=(\tau_n)_{n\in\NN},
+  \qquad
+  \tau_n\in \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n),
+\]
+是一组相容正规形序列。则每个层级选择函数
+\[
+  \nu\in \NN^\NN
+\]
+都对应一个实数语义编码
+\[
+  \mathfrak c_{\tau}(\nu)
+  :=
+  \Bigl(
+    \Enc\bigl(\sigma_{\nu(m)}(\tau_{\nu(m)})\bigr)
+  \Bigr)_{m\in\NN}
+  \in \RR^\NN.
+\]
+因此，离散层级 $\NN$ 上的扩展塔天然给出一个
+\[
+  \NN^\NN \longrightarrow \RR^\NN
+\]
+的整数--角度语义编码对应。
+\end{lemma}
+
+\begin{Certificate}[证书 L2：坐标逐点编码证书]
+\label{cert:tex36-l2}
+层级选择函数 $\nu$ 在每个坐标 $m$ 上给出唯一整数 $\nu(m)$；
+相容正规形序列 $\tau$ 在层 $\nu(m)$ 上给出唯一正规形 $\tau_{\nu(m)}$；
+语义提取映射 $\sigma_{\nu(m)}$ 给出唯一的整数--角度对；
+实数编码 $\Enc$ 再把该对送入唯一实数。因此上述构造逐点唯一，从而整体良定义。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 谓词因果链）]
+任取
+\[
+  \nu\in \NN^\NN,\qquad m\in \NN.
+\]
+由于 $\nu(m)\in\NN$，故相容正规形序列 $\tau$ 的第 $\nu(m)$ 项存在且唯一，即
+\[
+  \tau_{\nu(m)}\in \mathcal{T}_{A_{\nu(m)}}(b_{\nu(m)},B_{\nu(m)}^{\mathrm{tar}};p_{\nu(m)}).
+\]
+再由定义 \ref{def:tex36-semantic-code}，
+\[
+  \sigma_{\nu(m)}(\tau_{\nu(m)})
+  =
+  \bigl(k_{\nu(m)}(\tau_{\nu(m)}),\theta_{\nu(m)}(\tau_{\nu(m)})\bigr)
+  \in \ZZ\times [0,2\pi).
+\]
+因此
+\[
+  \Enc\bigl(\sigma_{\nu(m)}(\tau_{\nu(m)})\bigr)\in \RR
+\]
+良定义。对每个 $m$ 都如此，故
+\[
+  \mathfrak c_{\tau}(\nu)
+  \in \RR^\NN
+\]
+良定义。于是得到了一个从 $\NN^\NN$ 到 $\RR^\NN$ 的逐点编码对应。证毕。
+\end{proof}
+
+\subsection{命题：低阶闭合失效的上同调提升与修复信道}
+\label{subsec:tex36-obstruction}
+
+\begin{definition}[Bianchi/Jacobi 缺陷与上同调障碍]
+\label{def:tex36-obstruction}
+对第 $n$ 层曲率 $\Omega_n$，定义 Bianchi 缺陷
+\[
+  \mathfrak B_n:=D_{A_n}\Omega_n.
+\]
+若第 $n$ 层还给定一个可能非交换且仅在高层同伦意义下闭合的括号
+\[
+  [\cdot,\cdot]_n,
+\]
+则定义 Jacobi 缺陷
+\[
+  \mathfrak J_n(X,Y,Z)
+  :=
+  [X,[Y,Z]_n]_n+[Y,[Z,X]_n]_n+[Z,[X,Y]_n]_n.
+\]
+若
+\[
+  \mathfrak B_n\neq 0
+  \quad\text{或}\quad
+  \exists X,Y,Z\ \text{s.t.}\ \mathfrak J_n(X,Y,Z)\neq 0,
+\]
+则称第 $n$ 层发生“拓扑空洞和代数封闭性失效”。把由这些缺陷诱导的上同调障碍类记为
+\[
+  \Ob_n\in H^{q_n}(B_n;\mathcal V_n).
+\]
+\end{definition}
+
+\begin{remark}[外部标准参照]
+这里把低阶 Bianchi/Jacobi 闭合失效编码为上同调障碍类，再由更高层边界项吸收，是标准 obstruction / homotopy algebra 口径的本地化重写；外部参照可见
+  \cite{Whitehead1978Elements,Weibel1994HomologicalAlgebra,LodayVallette2012AlgebraicOperads}。
+\end{remark}
+
+\begin{proposition}[高阶扩展层把低阶失效提升为可修复障碍]
+\label{prop:tex36-repair-channel}
+设第 $n$ 层满足定义 \ref{def:tex36-obstruction} 的低阶闭合失效，并设
+\[
+  \omega_n
+\]
+是障碍类 $\Ob_n$ 的一个代表元。若存在某个 $m>n$ 与层间传递映射
+\[
+  \Pi_n^m:
+  H^{q_n}(B_n;\mathcal V_n)\to H^{q_m}(B_m;\mathcal V_m)
+\]
+使得
+\[
+  \Pi_n^m(\Ob_n)=0,
+\]
+则第 $m$ 层为第 $n$ 层提供一条同伦修复信道。也就是说，低阶底流形外延中的 Bianchi/Jacobi 失效，在高阶层中被提升为可消去的上同调障碍，而不再是绝对断裂。
+\end{proposition}
+
+\begin{Certificate}[证书 P2：障碍类消去证书]
+\label{cert:tex36-p2}
+若
+\[
+  \Pi_n^m(\Ob_n)=0,
+\]
+则在第 $m$ 层存在某个上链 $\eta_m$ 使
+\[
+  d\eta_m=\Pi_n^m(\omega_n).
+\]
+于是第 $n$ 层缺陷在第 $m$ 层成为边界项，可被修正项吸收；因此它是“可修复障碍”而不是“绝对障碍”。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 谓词因果链）]
+由
+\[
+  \Pi_n^m(\Ob_n)=0
+\]
+知障碍类在第 $m$ 层上同调中消失。取 $\omega_n$ 为 $\Ob_n$ 的代表元，则
+\[
+  [\Pi_n^m(\omega_n)]=0
+  \ \text{于}\
+  H^{q_m}(B_m;\mathcal V_m).
+\]
+根据上同调零类的定义，存在某个 $(q_m-1)$ 阶上链 $\eta_m$ 满足
+\[
+  d\eta_m=\Pi_n^m(\omega_n).
+\]
+这表明第 $n$ 层的缺陷经传递到第 $m$ 层后，已由边界项表示；换言之，缺陷不再是不可去的同调类，而成为可由修正项吸收的同伦误差。
+因此，第 $m$ 层为第 $n$ 层提供了一条同伦修复信道，使低阶 Bianchi/Jacobi 失效转化为高阶可消去障碍。证毕。
+\end{proof}
+
+\subsection{定理：分层路径积分对应测地线的双重收敛修复}
+\label{subsec:tex36-double-convergence}
+
+\begin{theorem}[主定理：同伦修复塔上的存在性与最优性双重收敛]
+\label{thm:tex36-double-convergence}
+在定理 \ref{thm:tex36-a1} 与命题 \ref{prop:tex36-repair-channel} 的前提下，设对每个发生障碍的层 $n$，存在一列高阶扩展路径
+\[
+  \Gamma_{n,r}
+  =
+  (\gamma_n,\gamma_{n+1},\ldots,\gamma_{n+r})
+  \in
+  \Path_{\mathfrak D}^{(n+r),\mathrm{ext}},
+  \qquad r\in\NN_{>0},
+\]
+记其在第 $n$ 层的投影曲线为 $\bar{\gamma}_{n,r}$。再设第 $n$ 层给定路径积分作用量泛函 $\mathcal S_n$ 与测地线长度泛函 $\mathcal L_n$，
+并假定它们对 $H^1([0,1],B_n)$ 收敛下半连续。若对充分大的 $r$，有
+\[
+  \Pi_n^{n+r}(\Ob_n)=0,
+\]
+\[
+  \bar{\gamma}_{n,r}\to \gamma_n^\ast
+  \quad\text{于 } H^1([0,1],B_n),
+\]
+\[
+  \mathcal S_n(\bar{\gamma}_{n,r})
+  \to
+  \inf_{\gamma\in \Path_{A_n}(b_n,B_n^{\mathrm{tar}})}\mathcal S_n(\gamma),
+\]
+\[
+  \mathcal L_n(\bar{\gamma}_{n,r})
+  \to
+  \inf_{\gamma\in \Path_{A_n}(b_n,B_n^{\mathrm{tar}})}\mathcal L_n(\gamma),
+\]
+则极限曲线 $\gamma_n^\ast$ 决定一个修复后的连通类
+\[
+  [\gamma_n^\ast]_{\sim_{A_n}}
+  \in
+  \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n),
+\]
+并同时满足：
+\begin{enumerate}
+  \item \textbf{存在性收敛：} $\gamma_n^\ast$ 是高层修复序列在低层的有效极限；
+  \item \textbf{最优性收敛：} $\gamma_n^\ast$ 同时实现路径积分作用量与测地线长度的极小化极限。
+\end{enumerate}
+因此该扩展塔可作为分层语义的路径积分对应测地线的同伦修复塔。
+\end{theorem}
+
+\begin{Certificate}[证书 T2：障碍消去 + 极限下半连续证书]
+\label{cert:tex36-t2}
+证书分为两步：
+\begin{enumerate}
+  \item 由
+  \[
+    \Pi_n^{n+r}(\Ob_n)=0
+  \]
+  与命题 \ref{prop:tex36-repair-channel}，高阶层对低阶障碍提供修复通道；
+  \item 由
+  \[
+    \bar{\gamma}_{n,r}\to \gamma_n^\ast
+    \quad\text{于 } H^1
+  \]
+  以及 $\mathcal S_n,\mathcal L_n$ 的下半连续性，极限曲线同时继承存在性与最优性。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 谓词因果链）]
+由
+\[
+  \Pi_n^{n+r}(\Ob_n)=0
+\]
+对充分大的 $r$ 成立，并结合命题 \ref{prop:tex36-repair-channel}，可知每个足够高的扩展层都把第 $n$ 层障碍吸收到高阶边界项中。
+因此序列
+\[
+  \Gamma_{n,r}\in \Path_{\mathfrak D}^{(n+r),\mathrm{ext}}
+\]
+在第 $n$ 层投影后，不再携带不可修复的连通断裂；亦即，其投影曲线 $\bar{\gamma}_{n,r}$ 都落在可比较的同一修复框架内。
+
+再由
+\[
+  \bar{\gamma}_{n,r}\to \gamma_n^\ast
+  \quad\text{于 } H^1([0,1],B_n),
+\]
+知极限曲线 $\gamma_n^\ast$ 存在，故满足存在性收敛。
+又因为 $\mathcal S_n,\mathcal L_n$ 对 $H^1$ 收敛下半连续，且
+\[
+  \mathcal S_n(\bar{\gamma}_{n,r})
+  \to
+  \inf_{\gamma\in \Path_{A_n}(b_n,B_n^{\mathrm{tar}})}\mathcal S_n(\gamma),
+\]
+\[
+  \mathcal L_n(\bar{\gamma}_{n,r})
+  \to
+  \inf_{\gamma\in \Path_{A_n}(b_n,B_n^{\mathrm{tar}})}\mathcal L_n(\gamma),
+\]
+于是得到
+\[
+  \mathcal S_n(\gamma_n^\ast)
+  =
+  \inf_{\gamma\in \Path_{A_n}(b_n,B_n^{\mathrm{tar}})}\mathcal S_n(\gamma),
+\qquad
+  \mathcal L_n(\gamma_n^\ast)
+  =
+  \inf_{\gamma\in \Path_{A_n}(b_n,B_n^{\mathrm{tar}})}\mathcal L_n(\gamma).
+\]
+故 $\gamma_n^\ast$ 同时实现作用量与长度的极小化极限，满足最优性收敛。
+最后由定义 \ref{def:tex36-pi-set}，
+\[
+  [\gamma_n^\ast]_{\sim_{A_n}}
+  \in \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+\]
+给出修复后的连通类；再由定理 \ref{thm:tex36-main}，该连通类可无损搬运到纤维终点与同伦扭曲正规形侧。证毕。
+\end{proof}
+
+\subsection{推论与备注}
+\label{subsec:tex36-structure-remark}
+
+\begin{corollary}[整体对象是主纤维丛版广义非交换李代数的富结构]
+\label{cor:tex36-rich-structure}
+把所有层的几何、代数与语义数据汇总为
+\[
+  \mathfrak R
+  :=
+  \Bigl(
+    \{B_n,P_n,\pi_n,A_n,\Omega_n\}_{n\in\NN},
+    \{\mathcal{F}_n,\mathcal{PI}_n,\mathcal{T}_n\}_{n\in\NN},
+    \{\varepsilon_n,\Pi_n^m\}_{n<m},
+    \{[\cdot,\cdot]_n,\Ob_n\}_{n\in\NN},
+    \mathfrak c_{\tau}
+  \Bigr).
+\]
+则 $\mathfrak R$ 同时携带：
+\begin{enumerate}
+  \item \textbf{拓扑属性：}基底空间、纤维丛、扩展路径、同伦修复与连通类；
+  \item \textbf{代数属性：}联络、曲率、括号、上同调传递与障碍消去；
+  \item \textbf{语义属性：}$\NN^\NN$ 层级索引与 $\RR^\NN$ 整数--角度编码。
+\end{enumerate}
+因此在本形式系统中，应把 $\mathfrak R$ 视为“主纤维丛版广义非交换李代数”的富结构对象；
+其基本语义单位不再是孤立的原子元素，而是由态射、联络、上同调、编码和修复关系组成的结构网络。
+\end{corollary}
+
+\begin{Certificate}[证书 C2：结构汇聚证书]
+\label{cert:tex36-c2}
+定理 \ref{thm:tex36-a1} 给出多层路径--联络--纤维丛构造，
+引理 \ref{lem:tex36-nn-code} 给出离散层级到实数语义编码，
+命题 \ref{prop:tex36-repair-channel} 与定理 \ref{thm:tex36-double-convergence} 给出障碍修复与双重收敛。
+因此所有拓扑、代数与语义数据在同一对象 $\mathfrak R$ 中闭合。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 谓词因果链）]
+由定理 \ref{thm:tex36-a1}，
+\[
+  \mathfrak R
+\]
+包含按层递归生成的基底空间、主丛、联络、路径积分集合与纤维终点集合；
+由引理 \ref{lem:tex36-nn-code}，
+\[
+  \mathfrak R
+\]
+又携带从 $\NN^\NN$ 到 $\RR^\NN$ 的语义编码结构；
+由命题 \ref{prop:tex36-repair-channel} 与定理 \ref{thm:tex36-double-convergence}，
+\[
+  \mathfrak R
+\]
+还携带障碍提升、同伦修复与最优极限结构。
+故 $\mathfrak R$ 不是单纯的元素堆积，而是同时具有拓扑属性与代数属性的富结构对象。
+因此，在本形式系统内部，采用“结构优先”的叙述比采用“原子集合优先”的叙述更自然。证毕。
+\end{proof}
+
+\begin{remark}[“取代原子集合论”的准确含义]
+这里的“取代”是指\textbf{对象层与语义层的建模优先级发生改变}：
+研究的基本单位从“孤立元素属于某集合”转为“对象通过联络、态射、同调和编码关系被组织成结构”。
+这并不否定集合论作为元语言的作用，而是强调在当前工作笔记的内部语义中，“一切皆结构”比“先有原子、后谈关系”更贴近问题本身。
+\end{remark}
+
+\begin{remark}[为何说该对象同时具有拓扑与代数双重属性]
+拓扑属性来自基底空间、纤维丛、路径连通、同伦类与拓扑空洞；
+代数属性来自联络、曲率、括号、Jacobi/Bianchi 缺陷与上同调障碍。
+同一修复塔同时管理这两类数据，因此它不是纯拓扑对象，也不是纯代数对象，而是两者耦合后的复合结构。
+\end{remark}
+
+\begin{remark}[关于 $\NN^\NN$ 语义编码的可分辨性]
+引理 \ref{lem:tex36-nn-code} 只主张存在自然的编码对应。
+若进一步要求该编码在某个相容子系统上为单射，则只需附加假设：语义提取映射族 $\{\sigma_n\}_{n\in\NN}$ 在该子系统上能区分不同层级与不同正规形。
+这类增强假设可按具体应用场景另行加入。
+\end{remark}
+
+\clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：全编码下的联络提升、边缘算子与同伦扭曲求解}
+\label{sec:tex36-ch3}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[问题重述与边缘算子记号]
+沿用推论 \ref{cor:tex36-rich-structure} 的全编码对象
+\[
+  \mathfrak R
+  =
+  \Bigl(
+    \{B_n,P_n,\pi_n,A_n,\Omega_n\}_{n\in\NN},
+    \{\mathcal{F}_n,\mathcal{PI}_n,\mathcal{T}_n\}_{n\in\NN},
+    \{\varepsilon_n,\Pi_n^m\}_{n<m},
+    \{[\cdot,\cdot]_n,\Ob_n\}_{n\in\NN},
+    \mathfrak c_{\tau}
+  \Bigr).
+\]
+一旦第二章的全编码已建立，第 $n$ 层的“路径积分求解”便不应再被理解为直接在底空间 $B_n$ 的无穷维路径空间上搜索极值，
+而应先通过第一章的三重等价
+\[
+  \mathcal{F}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+  \cong_{\mathrm{set}}
+  \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+\]
+把问题提升到联络可见的纤维终点层与正规形层，再借助第二章的扩展塔与障碍修复机制完成求解。
+
+为此，固定层号 $n\in\NN$ 与类
+\[
+  x\in \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n).
+\]
+若对每个修复深度 $r\in\NN_{>0}$，存在一个携带该类信息的扩展路径
+\[
+  \Gamma_{n,r}(x)\in \Path_{\mathfrak D}^{(n+r),\mathrm{ext}},
+\]
+并记其回到第 $n$ 层的投影曲线为
+\[
+  \bar{\gamma}_{n,r}(x),
+\]
+则定义深度 $r$ 的\textbf{边缘算子}
+\[
+  \mathsf E_{n,r}(x)
+  :=
+  \NF_{A_n}\bigl([\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}\bigr)
+  \in \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n).
+\]
+进而把
+\[
+  \mathbf E_n(x)
+  :=
+  \bigl(\mathsf E_{n,r}(x)\bigr)_{r\in\NN_{>0}}
+\]
+称为类 $x$ 的\textbf{边缘算子修复序列}。本章的目标是严格说明：在稳定尾值意义下，
+同伦扭曲正规形的集合就是边缘算子修复序列的集合，从而“求路径积分”可转写为“提取稳定正规形”。
+\end{remark}
+
+\subsection{公理（降级为定理）：全编码把基底问题递归提升到联络塔}
+\label{subsec:tex36-global-encoding-lift}
+
+\begin{theorem}[公理（降级为定理）A2：全编码联络提升定理]
+\label{thm:tex36-a2}
+沿用定义 \ref{def:tex36-n-tower} 的简记
+\[
+  \mathcal{F}_n,\qquad
+  \mathcal{PI}_n,\qquad
+  \mathcal{T}_n,
+\]
+并对每个 $n\in\NN$ 记
+\[
+  \Phi_n:\mathcal{F}_n\to \mathcal{PI}_n,
+  \qquad
+  \Psi_n:\mathcal{PI}_n\to \mathcal{T}_n
+\]
+为定理 \ref{thm:tex36-main} 所确定的集合双射。
+则对任意 $N\in\NN_{>0}$ 与任意底层类
+\[
+  x_0\in \mathcal{PI}_{A_0}(b_0,B_0^{\mathrm{tar}};p_0),
+\]
+存在唯一的 $N$ 级全编码求解链
+\[
+  \Sigma_N(x_0)
+  :=
+  \bigl(
+    (x_n)_{n=0}^{N},
+    (u_n)_{n=0}^{N},
+    (\tau_n)_{n=0}^{N}
+  \bigr),
+\]
+满足对每个 $0\le n\le N$，
+\[
+  u_n\in \mathcal{F}_n,\qquad
+  x_n\in \mathcal{PI}_n,\qquad
+  \tau_n\in \mathcal{T}_n,
+\]
+\[
+  x_n=\Phi_n(u_n),
+  \qquad
+  \tau_n=\Psi_n(x_n),
+\]
+且对每个 $0\le n<N$，
+\[
+  b_{n+1}=\varepsilon_n(u_n).
+\]
+因此，一旦第二章的塔构造完成全编码，求解对象便被唯一提升为联络塔上的编码链，而不再仅仅停留在底层基底路径空间之内。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书 A2($N$)：全编码求解链证书]
+\label{cert:tex36-a2}
+令谓词
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \forall x_0\in \mathcal{PI}_{A_0}(b_0,B_0^{\mathrm{tar}};p_0),\
+  \exists!\,\Sigma_N(x_0).
+\]
+证书分为两部分：
+\begin{enumerate}
+  \item \textbf{基础步 $P(1)$：}由定理 \ref{thm:tex36-main}，底层类 $x_0$ 唯一对应到底层纤维终点 $u_0$ 与同伦扭曲正规形 $\tau_0$；再由 $\varepsilon_0(u_0)
+    $ 唯一给出第 $1$ 层基底点；
+  \item \textbf{归纳步 $P(N)\Rightarrow P(N+1)$：}若前 $N$ 级求解链已经唯一构造，则第 $N$ 层纤维终点 $u_N$ 经 $\varepsilon_N$ 唯一生成第 $N+1$ 层的起点基底，
+    再由定理 \ref{thm:tex36-main} 唯一生成第 $N+1$ 层的类 $x_{N+1}$ 与正规形 $\tau_{N+1}$。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+令
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \forall x_0\in \mathcal{PI}_{A_0}(b_0,B_0^{\mathrm{tar}};p_0),\
+  \exists!\,\Sigma_N(x_0).
+\]
+
+\textbf{基础步：}取 $N=1$。任取
+\[
+  x_0\in \mathcal{PI}_{A_0}(b_0,B_0^{\mathrm{tar}};p_0).
+\]
+由定理 \ref{thm:tex36-main} 的三重等价，
+\[
+  \mathcal{F}_0
+  \cong_{\mathrm{set}}
+  \mathcal{PI}_0
+  \cong_{\mathrm{set}}
+  \mathcal{T}_0,
+\]
+故存在唯一
+\[
+  u_0=\Phi_0^{-1}(x_0)\in \mathcal{F}_0,
+  \qquad
+  \tau_0=\Psi_0(x_0)\in \mathcal{T}_0.
+\]
+再由定义 \ref{def:tex36-n-tower} 中的封装映射，
+\[
+  b_1=\varepsilon_0(u_0)
+\]
+唯一确定。于是第 $1$ 层的求解问题被提升到以 $b_1$ 为起点的联络层；
+其对应的纤维终点 $u_1$、路径积分支撑类 $x_1$ 与同伦扭曲正规形 $\tau_1$ 又由定理 \ref{thm:tex36-main} 唯一确定。
+故
+\[
+  \Sigma_1(x_0)
+\]
+存在且唯一，即 $P(1)$ 成立。
+
+\textbf{归纳步：}设 $P(N)$ 成立。任取
+\[
+  x_0\in \mathcal{PI}_{A_0}(b_0,B_0^{\mathrm{tar}};p_0),
+\]
+则
+\[
+  \Sigma_N(x_0)
+  =
+  \bigl(
+    (x_n)_{n=0}^{N},
+    (u_n)_{n=0}^{N},
+    (\tau_n)_{n=0}^{N}
+  \bigr)
+\]
+已唯一给出。特别地，第 $N$ 层纤维终点
+\[
+  u_N\in \mathcal{F}_N
+\]
+已唯一确定。由封装映射
+\[
+  \varepsilon_N:\mathcal{F}_N\to B_{N+1}
+\]
+得
+\[
+  b_{N+1}=\varepsilon_N(u_N)
+\]
+唯一确定。于是第 $N+1$ 层的起点基底唯一确定；再由定理 \ref{thm:tex36-main}，
+\[
+  u_{N+1}\in \mathcal{F}_{N+1},\qquad
+  x_{N+1}=\Phi_{N+1}(u_{N+1})\in \mathcal{PI}_{N+1},\qquad
+  \tau_{N+1}=\Psi_{N+1}(x_{N+1})\in \mathcal{T}_{N+1}
+\]
+也唯一确定。故
+\[
+  \Sigma_{N+1}(x_0)
+\]
+存在且唯一，即 $P(N+1)$ 成立。
+
+由数学归纳法，
+\[
+  \forall N\in\NN_{>0},\quad P(N)\ \text{成立}.
+\]
+因此任一底层路径积分支撑类都被唯一提升为联络塔上的全编码求解链。证毕。
+\end{proof}
+
+\subsection{定理：路径积分求解等价于稳定同伦扭曲的提取}
+\label{subsec:tex36-solve-as-twist}
+
+\begin{theorem}[主定理：全编码下的求解域转移定理]
+\label{thm:tex36-solve-transfer}
+固定层 $n\in\NN$ 与类
+\[
+  x\in \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n).
+\]
+设存在某个 $r_0\in\NN_{>0}$，使得对一切 $r\ge r_0$，
+\[
+  \Pi_n^{n+r}(\Ob_n)=0,
+\]
+\[
+  [\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}=x.
+\]
+则对一切 $r\ge r_0$，
+\[
+  \mathsf E_{n,r}(x)=\NF_{A_n}(x),
+\]
+并且
+\[
+  \PT_{A_n}^{p_n}\bigl(\mathsf E_{n,r}(x)\bigr)
+  =
+  \PT_{A_n}^{p_n}\bigl(\NF_{A_n}(x)\bigr)
+  =
+  \Phi_n^{-1}(x).
+\]
+因此，在全编码框架内，第 $n$ 层的“路径积分求解”可等价表述为：在联络塔上提取稳定的同伦扭曲正规形，
+而不是在底空间 $B_n$ 的无穷维路径空间上重新执行变分搜索。
+\end{theorem}
+
+\begin{Certificate}[证书 T3：类保持 + 正规化坍缩证书]
+\label{cert:tex36-t3}
+证书分为两步：
+\begin{enumerate}
+  \item 由
+  \[
+    [\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}=x
+  \]
+  可知回投影后的高阶修复路径仍落在同一路径积分支撑类中；
+  \item 由正规化算子满足
+  \[
+    q_{A_n}\circ \NF_{A_n}=\id_{\mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)},
+  \]
+  每个支撑类只能坍缩到唯一的同伦扭曲正规形。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+任取 $r\ge r_0$。由假设
+\[
+  [\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}=x
+\]
+及边缘算子的定义，
+\[
+  \mathsf E_{n,r}(x)
+  =
+  \NF_{A_n}\bigl([\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}\bigr)
+  =
+  \NF_{A_n}(x).
+\]
+故第一式成立。
+
+再由定理 \ref{thm:tex36-main}，类
+\[
+  x\in \mathcal{PI}_n
+\]
+与唯一纤维终点
+\[
+  \Phi_n^{-1}(x)\in \mathcal{F}_n
+\]
+对应。又因为
+\[
+  \NF_{A_n}(x)\in \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)\subseteq \Path_{A_n}(b_n,B_n^{\mathrm{tar}}),
+\]
+并且
+\[
+  q_{A_n}\bigl(\NF_{A_n}(x)\bigr)=x,
+\]
+所以 $\NF_{A_n}(x)$ 与一切代表类 $x$ 的路径具有相同的联络传输终点，故
+\[
+  \PT_{A_n}^{p_n}\bigl(\NF_{A_n}(x)\bigr)=\Phi_n^{-1}(x).
+\]
+由于
+\[
+  \mathsf E_{n,r}(x)=\NF_{A_n}(x),
+\]
+便进一步得到
+\[
+  \PT_{A_n}^{p_n}\bigl(\mathsf E_{n,r}(x)\bigr)
+  =
+  \PT_{A_n}^{p_n}\bigl(\NF_{A_n}(x)\bigr)
+  =
+  \Phi_n^{-1}(x).
+\]
+因此路径积分求解的计算域已从基底路径空间转移到联络塔上的稳定正规形提取。证毕。
+\end{proof}
+
+\subsection{引理：边缘算子修复序列的稳定尾值唯一}
+\label{subsec:tex36-edge-stable}
+
+\begin{lemma}[稳定尾值唯一引理]
+\label{lem:tex36-edge-stable}
+固定层 $n\in\NN$ 与类
+\[
+  x\in \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n).
+\]
+若存在某个 $r_0\in\NN_{>0}$，使得对一切 $r\ge r_0$，
+\[
+  [\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}=x,
+\]
+则边缘算子修复序列
+\[
+  \mathbf E_n(x)=\bigl(\mathsf E_{n,r}(x)\bigr)_{r\in\NN_{>0}}
+\]
+自第 $r_0$ 项起恒等于单一路径
+\[
+  \tau_n^\ast:=\NF_{A_n}(x),
+\]
+从而其稳定尾值唯一。
+\end{lemma}
+
+\begin{Certificate}[证书 L3：截面唯一性证书]
+\label{cert:tex36-l3}
+正规化算子
+\[
+  \NF_{A_n}:
+  \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+  \to
+  \Path_{A_n}(b_n,B_n^{\mathrm{tar}})
+\]
+是自然商映射 $q_{A_n}$ 的截面。
+因此，只要修复后的所有回投影都落在同一类 $x$ 中，它们经 $\NF_{A_n}$ 后只能得到同一个正规形。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+任取 $r\ge r_0$。由假设
+\[
+  [\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}=x
+\]
+及边缘算子的定义，有
+\[
+  \mathsf E_{n,r}(x)
+  =
+  \NF_{A_n}\bigl([\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}\bigr)
+  =
+  \NF_{A_n}(x)
+  =
+  \tau_n^\ast.
+\]
+由于该等式对所有 $r\ge r_0$ 都成立，故序列
+\[
+  \mathbf E_n(x)
+\]
+自第 $r_0$ 项起恒定，且其稳定尾值只能是
+\[
+  \tau_n^\ast=\NF_{A_n}(x).
+\]
+因此稳定尾值唯一。证毕。
+\end{proof}
+
+\subsection{命题：同伦扭曲集合等价于边缘算子修复序列集合}
+\label{subsec:tex36-twist-repair-seq}
+
+\begin{proposition}[同伦扭曲正规形与稳定修复序列之间存在显式双射]
+\label{prop:tex36-twist-sequence}
+固定层 $n\in\NN$，定义稳定修复序列集合
+\[
+  \mathcal E_n^{\mathrm{rep}}
+  :=
+  \Bigl\{
+    \mathbf E_n(x)=\bigl(\mathsf E_{n,r}(x)\bigr)_{r\in\NN_{>0}}
+    \Bigm|\
+    x\in \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n),\
+    \exists r_0\ \forall r\ge r_0,\ \mathsf E_{n,r}(x)=\mathsf E_{n,r_0}(x)
+  \Bigr\}.
+\]
+定义稳定尾值映射
+\[
+  \operatorname{Stab}_n:
+  \mathcal E_n^{\mathrm{rep}}
+  \to
+  \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n),
+  \qquad
+  \mathbf E_n(x)\mapsto \mathsf E_{n,r_0}(x),
+\]
+其中 $r_0$ 为任一稳定起点。
+则
+\[
+  \operatorname{Stab}_n
+\]
+良定义且为双射。
+因此，在稳定尾值识别的意义下，同伦扭曲正规形的集合就是边缘算子修复序列的集合。
+\end{proposition}
+
+\begin{Certificate}[证书 P3：稳定尾值双射证书]
+\label{cert:tex36-p3}
+证书分为三步：
+\begin{enumerate}
+  \item 由引理 \ref{lem:tex36-edge-stable}，每个稳定修复序列的尾值唯一，因此 $\operatorname{Stab}_n$ 良定义；
+  \item 若两个稳定修复序列具有相同尾值，则它们从某个指标起都恒等于该尾值，因此在本形式系统的稳定尾值识别下它们是同一序列；
+  \item 任取正规形 $\tau\in \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)$，取其类
+  \[
+    x=q_{A_n}(\tau),
+  \]
+  并取尾值恒为 $\tau$ 的平凡修复序列，便得到满射。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+先证良定义。任取
+\[
+  \mathbf E_n(x)\in \mathcal E_n^{\mathrm{rep}}.
+\]
+由定义，存在某个 $r_0$ 使得对一切 $r\ge r_0$，
+\[
+  \mathsf E_{n,r}(x)=\mathsf E_{n,r_0}(x).
+\]
+由引理 \ref{lem:tex36-edge-stable}，该稳定尾值唯一，故
+\[
+  \operatorname{Stab}_n\bigl(\mathbf E_n(x)\bigr)
+\]
+与稳定起点的选择无关，因而良定义。
+
+再证单射。设
+\[
+  \operatorname{Stab}_n\bigl(\mathbf E_n(x)\bigr)
+  =
+  \operatorname{Stab}_n\bigl(\mathbf E_n(y)\bigr)
+  =\tau.
+\]
+则存在 $r_x,r_y$，使得
+\[
+  \forall r\ge r_x,\ \mathsf E_{n,r}(x)=\tau,
+  \qquad
+  \forall r\ge r_y,\ \mathsf E_{n,r}(y)=\tau.
+\]
+取
+\[
+  r_\ast:=\max\{r_x,r_y\},
+\]
+便有
+\[
+  \forall r\ge r_\ast,\quad
+  \mathsf E_{n,r}(x)=\mathsf E_{n,r}(y)=\tau.
+\]
+因此两条稳定修复序列在稳定尾值识别下代表同一对象，故 $\operatorname{Stab}_n$ 为单射。
+
+最后证满射。任取
+\[
+  \tau\in \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n).
+\]
+令
+\[
+  x:=q_{A_n}(\tau)\in \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n).
+\]
+由于 $\tau$ 已是正规形，可取一个平凡高阶补偿，使得对每个 $r\in\NN_{>0}$，
+\[
+  [\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}=x.
+\]
+于是
+\[
+  \mathsf E_{n,r}(x)
+  =
+  \NF_{A_n}(x)
+  =
+  \tau
+\]
+对所有 $r$ 成立，从而
+\[
+  \mathbf E_n(x)\in \mathcal E_n^{\mathrm{rep}},
+  \qquad
+  \operatorname{Stab}_n\bigl(\mathbf E_n(x)\bigr)=\tau.
+\]
+故 $\operatorname{Stab}_n$ 为满射。
+
+综上，
+\[
+  \operatorname{Stab}_n:
+  \mathcal E_n^{\mathrm{rep}}
+  \xrightarrow{\ \cong_{\mathrm{set}}\ }
+  \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+\]
+是双射。证毕。
+\end{proof}
+
+\subsection{推论：路径积分与同伦扭曲正规形可作同一求解对象}
+\label{subsec:tex36-pi-equals-twist}
+
+\begin{corollary}[路径积分 = 同伦扭曲正规形 = 稳定修复序列]
+\label{cor:tex36-pi-twist-collapse}
+固定层 $n\in\NN$。在定理 \ref{thm:tex36-main} 与命题 \ref{prop:tex36-twist-sequence} 的前提下，
+存在集合双射
+\[
+  \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+  \cong_{\mathrm{set}}
+  \mathcal E_n^{\mathrm{rep}}.
+\]
+故在全编码框架内，“计算路径积分”可等价替换为“检索对应的稳定边缘算子修复序列”；
+若再经
+\[
+  \PT_{A_n}^{p_n}
+\]
+投影，则直接得到同一求解对象的纤维终点编码。
+\end{corollary}
+
+\begin{Certificate}[证书 C3：三重坍缩证书]
+\label{cert:tex36-c3}
+定理 \ref{thm:tex36-main} 给出
+\[
+  \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n),
+\]
+命题 \ref{prop:tex36-twist-sequence} 给出
+\[
+  \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+  \cong_{\mathrm{set}}
+  \mathcal E_n^{\mathrm{rep}}.
+\]
+复合这两个双射即可得到结论。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理 \ref{thm:tex36-main}，
+\[
+  \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n).
+\]
+由命题 \ref{prop:tex36-twist-sequence}，
+\[
+  \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+  \cong_{\mathrm{set}}
+  \mathcal E_n^{\mathrm{rep}}.
+\]
+于是双射可复合为
+\[
+  \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+  \cong_{\mathrm{set}}
+  \mathcal E_n^{\mathrm{rep}}.
+\]
+这说明路径积分支撑类、同伦扭曲正规形与稳定修复序列只是同一求解对象的三种编码。
+当需要回到几何侧时，再将正规形代表送入
+\[
+  \PT_{A_n}^{p_n}
+\]
+即可恢复相应纤维终点。证毕。
+\end{proof}
+
+\subsection{备注}
+\label{subsec:tex36-ch3-remarks}
+
+\begin{remark}[“路径积分”与“同伦扭曲正规形”划等号的真正含义]
+这里的“划等号”并不是把连续动力学粗暴抹平，而是说：在联络可见、正规形可选且修复序列稳定的前提下，
+路径积分问题的可区分信息已经完全压缩到
+\[
+  \mathcal{PI}_{A_n}
+  \cong_{\mathrm{set}}
+  \mathcal{T}_{A_n}
+  \cong_{\mathrm{set}}
+  \mathcal E_n^{\mathrm{rep}}
+\]
+这一三重编码之中。
+因此，表面上看像是代数分类，实质上是把“求路径”转写成“取正规形”的算子坍缩过程。
+\end{remark}
+
+\begin{remark}[为何这能绕开变分微积分中的无穷维算力灾难]
+传统路径积分或测地线求解往往要求在无穷维路径空间中处理极值、紧性、收敛与试探轨道。
+而在本框架中，一旦高阶障碍经扩展塔修复并且边缘算子序列稳定，
+求解任务就不再是反复试探整条路径，而是直接检索稳定尾值
+\[
+  \tau_n^\ast=\NF_{A_n}(x).
+\]
+换言之，框架并不“缓慢计算”一条最优路径，而是在拓扑与同伦层面先锁定可行类，再由正规化算子直接提取其代表。
+\end{remark}
+
+\begin{remark}[对复杂系统最优控制的意义]
+把动力学演化问题降维为稳定修复序列的离散检索，意味着求解过程可优先处理：
+\begin{enumerate}
+  \item 哪个支撑类 $x$ 是可修复且可达的；
+  \item 哪个稳定尾值 $\tau_n^\ast$ 是该类的正规形代表；
+  \item 哪个纤维终点 $\Phi_n^{-1}(x)$ 是控制目标的联络实现。
+\end{enumerate}
+因此，该形式系统为复杂系统的最优控制提供了一条防发散、少试错的降维求解通道：
+先在塔结构上完成语义修复，再回到几何侧读取结果，而不是在基底上盲目搜索。
+\end{remark}
+
+\clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：边缘算子有效组合、作用映射与微观隧穿命中修复}
+\label{sec:tex36-ch4}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[第四章目标]
+第三章已经把“求路径积分”重写为“提取稳定同伦扭曲正规形”。
+本章继续前推三步：
+\begin{enumerate}
+  \item 先确定边缘算子的\textbf{有效组合空间}；
+  \item 再证明有效组合的\textbf{作用映射本身就是求解（修复）映射}；
+  \item 最后把同伦扭曲置于统计力学的微观隧穿口径下，说明只要有效组合具有非零隧穿权重，就能实现\textbf{有效命中修复}。
+\end{enumerate}
+因此，本章关注的不是单个边缘算子的存在性，而是“哪些组合可用”“这些组合做什么”“为何能命中修复目标”这三个层次。
+\end{remark}
+
+\subsection{公理（降级为定理）：边缘算子的有效组合空间可递归确定}
+\label{subsec:tex36-effective-combination-space}
+
+\begin{theorem}[公理（降级为定理）A3：有效组合空间确定定理]
+\label{thm:tex36-a3}
+固定层 $n\in\NN$、类
+\[
+  x\in \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n),
+\]
+并设存在某个 $r_0\in\NN_{>0}$，使得对一切 $r\ge r_0$，
+\[
+  [\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}=x.
+\]
+对任意正整数 $L$，定义长度为 $L$ 的候选组合空间
+\[
+  \mathfrak C_{n,L}^{\mathrm{cand}}
+  :=
+  (\NN_{>0})^L,
+\]
+以及长度为 $L$ 的有效组合空间
+\[
+  \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+  :=
+  \Bigl\{
+    (r_1,\ldots,r_L)\in \mathfrak C_{n,L}^{\mathrm{cand}}
+    \Bigm|\
+    \forall j\in\{1,\ldots,L\},\
+    r_j\ge r_0,\
+    [\bar{\gamma}_{n,r_j}(x)]_{\sim_{A_n}}=x
+  \Bigr\}.
+\]
+再定义总有效组合空间
+\[
+  \mathfrak C_{n}^{\mathrm{eff}}(x;r_0)
+  :=
+  \bigsqcup_{L\in\NN_{>0}}
+  \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0).
+\]
+则对每个 $L\in\NN_{>0}$，
+\[
+  \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+  =
+  \Bigl\{
+    (r_1,\ldots,r_L)\in (\NN_{>0})^L
+    \Bigm|\
+    \forall j,\ r_j\ge r_0
+  \Bigr\},
+\]
+从而每个长度上的有效组合空间都非空且唯一确定；于是
+\[
+  \mathfrak C_{n}^{\mathrm{eff}}(x;r_0)
+\]
+被第三章的稳定尾值条件完全确定。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书 A3($L$)：有效组合长度证书]
+\label{cert:tex36-a3}
+令谓词
+\[
+  P(L)
+  :
+  \Longleftrightarrow
+  \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+  =
+  \Bigl\{
+    (r_1,\ldots,r_L)\in (\NN_{>0})^L
+    \Bigm|\
+    \forall j,\ r_j\ge r_0
+  \Bigr\}.
+\]
+证书分为两部分：
+\begin{enumerate}
+  \item \textbf{基础步 $P(1)$：}由假设
+  \[
+    \forall r\ge r_0,\ [\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}=x,
+  \]
+  故长度为 $1$ 的有效组合恰为所有满足 $r_1\ge r_0$ 的单元组；
+  \item \textbf{归纳步 $P(L)\Rightarrow P(L+1)$：}若前 $L$ 个分量都取自稳定尾值区间 $[r_0,+\infty)\cap\NN$，则再附加任意 $r_{L+1}\ge r_0$，
+  新组合的每个分量仍保持同一修复类 $x$，故仍属有效组合空间。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+令
+\[
+  P(L)
+  :
+  \Longleftrightarrow
+  \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+  =
+  \Bigl\{
+    (r_1,\ldots,r_L)\in (\NN_{>0})^L
+    \Bigm|\
+    \forall j,\ r_j\ge r_0
+  \Bigr\}.
+\]
+
+\textbf{基础步：}当 $L=1$ 时，
+\[
+  \mathfrak C_{n,1}^{\mathrm{eff}}(x;r_0)
+  =
+  \Bigl\{
+    (r_1)\in \NN_{>0}
+    \Bigm|\
+    r_1\ge r_0,\
+    [\bar{\gamma}_{n,r_1}(x)]_{\sim_{A_n}}=x
+  \Bigr\}.
+\]
+由假设
+\[
+  \forall r\ge r_0,\quad
+  [\bar{\gamma}_{n,r}(x)]_{\sim_{A_n}}=x,
+\]
+立得
+\[
+  \mathfrak C_{n,1}^{\mathrm{eff}}(x;r_0)
+  =
+  \Bigl\{
+    (r_1)\in \NN_{>0}
+    \Bigm|\
+    r_1\ge r_0
+  \Bigr\}.
+\]
+故 $P(1)$ 成立。
+
+\textbf{归纳步：}设 $P(L)$ 成立。任取
+\[
+  (r_1,\ldots,r_L)\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0),
+\qquad
+  r_{L+1}\in \NN_{>0},
+\qquad
+  r_{L+1}\ge r_0.
+\]
+由归纳假设，
+\[
+  \forall j\in\{1,\ldots,L\},\quad r_j\ge r_0.
+\]
+再由总假设，
+\[
+  [\bar{\gamma}_{n,r_j}(x)]_{\sim_{A_n}}=x
+  \quad (1\le j\le L),
+\qquad
+  [\bar{\gamma}_{n,r_{L+1}}(x)]_{\sim_{A_n}}=x.
+\]
+于是
+\[
+  (r_1,\ldots,r_L,r_{L+1})
+  \in
+  \mathfrak C_{n,L+1}^{\mathrm{eff}}(x;r_0).
+\]
+反过来，若
+\[
+  (r_1,\ldots,r_L,r_{L+1})
+  \in
+  \mathfrak C_{n,L+1}^{\mathrm{eff}}(x;r_0),
+\]
+则按定义必有
+\[
+  \forall j\in\{1,\ldots,L+1\},\quad r_j\ge r_0.
+\]
+故
+\[
+  \mathfrak C_{n,L+1}^{\mathrm{eff}}(x;r_0)
+  =
+  \Bigl\{
+    (r_1,\ldots,r_L,r_{L+1})\in (\NN_{>0})^{L+1}
+    \Bigm|\
+    \forall j,\ r_j\ge r_0
+  \Bigr\}.
+\]
+即 $P(L+1)$ 成立。
+
+由数学归纳法，
+\[
+  \forall L\in\NN_{>0},\quad P(L)\ \text{成立}.
+\]
+因此每个长度上的有效组合空间以及它们的无交并
+\[
+  \mathfrak C_{n}^{\mathrm{eff}}(x;r_0)
+\]
+都被唯一确定。证毕。
+\end{proof}
+
+\subsection{定理：有效组合的作用映射就是求解（修复）映射}
+\label{subsec:tex36-effective-action-is-solve}
+
+\begin{theorem}[主定理：有效组合作用映射与修复映射同一]
+\label{thm:tex36-effective-action}
+沿用定理 \ref{thm:tex36-a3} 的设定。定义第 $n$ 层关于类 $x$ 的修复映射
+\[
+  \operatorname{Rep}_n(x):=\NF_{A_n}(x)
+  \in \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n).
+\]
+对任意 $L\in\NN_{>0}$，定义长度为 $L$ 的有效组合作用映射
+\[
+  \mathfrak S_{n,x,L}^{\mathrm{eff}}
+  :
+  \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+  \to
+  \mathcal{T}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n)
+\]
+为下述唯一公共值：
+\[
+  \mathfrak S_{n,x,L}^{\mathrm{eff}}(r_1,\ldots,r_L)=\tau
+  \quad:\Longleftrightarrow\quad
+  \forall j\in\{1,\ldots,L\},\ \mathsf E_{n,r_j}(x)=\tau.
+\]
+则上述映射良定义，且对任意
+\[
+  (r_1,\ldots,r_L)\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0),
+\]
+都有
+\[
+  \mathfrak S_{n,x,L}^{\mathrm{eff}}(r_1,\ldots,r_L)
+  =
+  \operatorname{Rep}_n(x)
+  =
+  \NF_{A_n}(x).
+\]
+并且
+\[
+  \PT_{A_n}^{p_n}\Bigl(
+    \mathfrak S_{n,x,L}^{\mathrm{eff}}(r_1,\ldots,r_L)
+  \Bigr)
+  =
+  \Phi_n^{-1}(x).
+\]
+因此，边缘算子有效组合的作用映射本身就是求解（修复）映射，而不是独立于求解之外的辅助运算。
+\end{theorem}
+
+\begin{Certificate}[证书 T4：公共尾值坍缩证书]
+\label{cert:tex36-t4}
+证书分为两步：
+\begin{enumerate}
+  \item 对有效组合中的每个分量 $r_j$，都由
+  \[
+    [\bar{\gamma}_{n,r_j}(x)]_{\sim_{A_n}}=x
+  \]
+  与定理 \ref{thm:tex36-solve-transfer} 得到
+  \[
+    \mathsf E_{n,r_j}(x)=\NF_{A_n}(x).
+  \]
+  \item 既然所有分量的输出都坍缩到同一正规形，则组合作用映射的唯一公共值只能是
+  \[
+    \operatorname{Rep}_n(x)=\NF_{A_n}(x).
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+任取
+\[
+  (r_1,\ldots,r_L)\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0).
+\]
+由定理 \ref{thm:tex36-a3}，
+\[
+  \forall j\in\{1,\ldots,L\},\quad r_j\ge r_0,
+\]
+且
+\[
+  [\bar{\gamma}_{n,r_j}(x)]_{\sim_{A_n}}=x.
+\]
+于是对每个 $j$，由定理 \ref{thm:tex36-solve-transfer} 立得
+\[
+  \mathsf E_{n,r_j}(x)=\NF_{A_n}(x).
+\]
+这说明所有分量的边缘算子输出完全一致，因此存在唯一
+\[
+  \tau=\NF_{A_n}(x)
+\]
+满足
+\[
+  \forall j,\ \mathsf E_{n,r_j}(x)=\tau.
+\]
+故
+\[
+  \mathfrak S_{n,x,L}^{\mathrm{eff}}(r_1,\ldots,r_L)
+  =
+  \NF_{A_n}(x)
+  =
+  \operatorname{Rep}_n(x),
+\]
+从而作用映射良定义并与修复映射一致。
+
+再由定理 \ref{thm:tex36-solve-transfer}，
+\[
+  \PT_{A_n}^{p_n}\bigl(\NF_{A_n}(x)\bigr)=\Phi_n^{-1}(x).
+\]
+代入上式得到
+\[
+  \PT_{A_n}^{p_n}\Bigl(
+    \mathfrak S_{n,x,L}^{\mathrm{eff}}(r_1,\ldots,r_L)
+  \Bigr)
+  =
+  \Phi_n^{-1}(x).
+\]
+因此有效组合的作用结果就是修复后的正规形与纤维终点，求解与组合作用在形式系统中并非两步，而是同一映射的两种命名。证毕。
+\end{proof}
+
+\subsection{引理：微观隧穿给出有效命中的正概率支撑}
+\label{subsec:tex36-tunneling-positive-support}
+
+\begin{lemma}[微观隧穿正支撑引理]
+\label{lem:tex36-tunneling-positive}
+固定 $L\in\NN_{>0}$。在候选组合空间
+\[
+  \mathfrak C_{n,L}^{\mathrm{cand}}=(\NN_{>0})^L
+\]
+上，任取一个有效修复能量函数
+\[
+  \mathcal H_{n,L}:\mathfrak C_{n,L}^{\mathrm{cand}}\to \RR,
+\]
+以及一个同伦扭曲微观隧穿因子
+\[
+  \Theta_{n,L}:\mathfrak C_{n,L}^{\mathrm{cand}}\to [0,1].
+\]
+对任意逆温参数 $\beta>0$，定义配分函数
+\[
+  \mathcal Z_{n,\beta,L}(x)
+  :=
+  \sum_{c\in \mathfrak C_{n,L}^{\mathrm{cand}}}
+  e^{-\beta \mathcal H_{n,L}(c)}\,\Theta_{n,L}(c),
+\]
+并假定
+\[
+  0<\mathcal Z_{n,\beta,L}(x)<+\infty.
+\]
+于是得到 Gibbs--隧穿分布
+\[
+  \mu_{n,\beta,L}^{(x)}(c)
+  :=
+  \frac{
+    e^{-\beta \mathcal H_{n,L}(c)}\,\Theta_{n,L}(c)
+  }{
+    \mathcal Z_{n,\beta,L}(x)
+  }.
+\]
+若存在某个
+\[
+  c_\ast\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+\]
+使得
+\[
+  \Theta_{n,L}(c_\ast)>0,
+\]
+则有效命中事件的概率
+\[
+  p_{n,\beta,L}(x)
+  :=
+  \mu_{n,\beta,L}^{(x)}\bigl(
+    \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+  \bigr)
+\]
+满足
+\[
+  p_{n,\beta,L}(x)>0.
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L4：正项下界证书]
+\label{cert:tex36-l4}
+若 $c_\ast$ 同时满足
+\[
+  c_\ast\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0),
+  \qquad
+  \Theta_{n,L}(c_\ast)>0,
+\]
+则
+\[
+  e^{-\beta \mathcal H_{n,L}(c_\ast)}\,\Theta_{n,L}(c_\ast)>0.
+\]
+它是有效集合概率求和中的一个正项；分母
+\[
+  \mathcal Z_{n,\beta,L}(x)
+\]
+又有限且严格为正，故整个有效命中概率严格为正。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由
+\[
+  c_\ast\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+\]
+知 $c_\ast$ 属于集合
+\[
+  \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+\]
+的求和范围。又因
+\[
+  \beta>0,\qquad
+  \mathcal H_{n,L}(c_\ast)\in\RR,\qquad
+  \Theta_{n,L}(c_\ast)>0,
+\]
+所以
+\[
+  e^{-\beta \mathcal H_{n,L}(c_\ast)}\,\Theta_{n,L}(c_\ast)>0.
+\]
+于是
+\[
+  \sum_{c\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)}
+  e^{-\beta \mathcal H_{n,L}(c)}\,\Theta_{n,L}(c)
+  \ge
+  e^{-\beta \mathcal H_{n,L}(c_\ast)}\,\Theta_{n,L}(c_\ast)
+  >0.
+\]
+再由假设
+\[
+  0<\mathcal Z_{n,\beta,L}(x)<+\infty,
+\]
+可得
+\[
+  p_{n,\beta,L}(x)
+  =
+  \frac{
+    \sum_{c\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)}
+    e^{-\beta \mathcal H_{n,L}(c)}\,\Theta_{n,L}(c)
+  }{
+    \mathcal Z_{n,\beta,L}(x)
+  }
+  >0.
+\]
+故有效命中事件具有严格正概率。证毕。
+\end{proof}
+
+\subsection{命题：同伦扭曲的统计力学微观隧穿可实现有效命中修复}
+\label{subsec:tex36-hit-repair}
+
+\begin{proposition}[微观隧穿命中修复命题]
+\label{prop:tex36-hit-repair}
+沿用引理 \ref{lem:tex36-tunneling-positive} 的设定，固定
+\[
+  p_{n,\beta,L}(x)
+  =
+  \mu_{n,\beta,L}^{(x)}\bigl(
+    \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+  \bigr)
+  >0.
+\]
+设
+\[
+  C_1,C_2,\ldots,C_M
+\]
+是从分布 $\mu_{n,\beta,L}^{(x)}$ 独立抽样得到的 $M$ 个候选组合。定义命中事件
+\[
+  \operatorname{Hit}_{n,\beta,L}^{(M)}(x)
+  :=
+  \Bigl\{
+    \exists m\in\{1,\ldots,M\},\
+    C_m\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+  \Bigr\}.
+\]
+则
+\[
+  \mathbb P\bigl(
+    \operatorname{Hit}_{n,\beta,L}^{(M)}(x)
+  \bigr)
+  =
+  1-\bigl(1-p_{n,\beta,L}(x)\bigr)^M.
+\]
+并且一旦命中发生，存在某个 $m\le M$ 使
+\[
+  \mathfrak S_{n,x,L}^{\mathrm{eff}}(C_m)
+  =
+  \operatorname{Rep}_n(x)
+  =
+  \NF_{A_n}(x),
+\]
+以及
+\[
+  \PT_{A_n}^{p_n}\Bigl(
+    \mathfrak S_{n,x,L}^{\mathrm{eff}}(C_m)
+  \Bigr)
+  =
+  \Phi_n^{-1}(x).
+\]
+特别地，
+\[
+  \lim_{M\to\infty}
+  \mathbb P\bigl(
+    \operatorname{Hit}_{n,\beta,L}^{(M)}(x)
+  \bigr)
+  =1.
+\]
+因此，通过同伦扭曲的统计力学微观隧穿效应，可以实现有效命中修复。
+\end{proposition}
+
+\begin{Certificate}[证书 P4：独立抽样命中证书]
+\label{cert:tex36-p4}
+证书分为两步：
+\begin{enumerate}
+  \item 由独立抽样与单次命中概率
+  \[
+    p_{n,\beta,L}(x)>0
+  \]
+  得
+  \[
+    \mathbb P(\text{一次也未命中})=(1-p_{n,\beta,L}(x))^M.
+  \]
+  \item 由定理 \ref{thm:tex36-effective-action}，任一命中的有效组合一经作用，输出立即坍缩为唯一修复结果
+  \[
+    \operatorname{Rep}_n(x)=\NF_{A_n}(x).
+  \]
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+对每个 $m\in\{1,\ldots,M\}$，定义事件
+\[
+  E_m
+  :=
+  \{C_m\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)\}.
+\]
+由独立抽样假设，
+\[
+  \mathbb P(E_m)=p_{n,\beta,L}(x),
+\qquad
+  \mathbb P(E_m^{c})=1-p_{n,\beta,L}(x).
+\]
+因此
+\[
+  \mathbb P\Bigl(\bigcap_{m=1}^{M}E_m^{c}\Bigr)
+  =
+  \prod_{m=1}^{M}\mathbb P(E_m^{c})
+  =
+  \bigl(1-p_{n,\beta,L}(x)\bigr)^M.
+\]
+取补事件即得
+\[
+  \mathbb P\bigl(
+    \operatorname{Hit}_{n,\beta,L}^{(M)}(x)
+  \bigr)
+  =
+  1-\bigl(1-p_{n,\beta,L}(x)\bigr)^M.
+\]
+
+若命中事件发生，则存在某个 $m\le M$ 满足
+\[
+  C_m\in \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0).
+\]
+由定理 \ref{thm:tex36-effective-action}，
+\[
+  \mathfrak S_{n,x,L}^{\mathrm{eff}}(C_m)
+  =
+  \operatorname{Rep}_n(x)
+  =
+  \NF_{A_n}(x),
+\]
+并且
+\[
+  \PT_{A_n}^{p_n}\Bigl(
+    \mathfrak S_{n,x,L}^{\mathrm{eff}}(C_m)
+  \Bigr)
+  =
+  \Phi_n^{-1}(x).
+\]
+故一旦命中有效组合，修复立即实现。
+
+最后，因为
+\[
+  0<p_{n,\beta,L}(x)\le 1,
+\]
+故
+\[
+  \lim_{M\to\infty}
+  \bigl(1-p_{n,\beta,L}(x)\bigr)^M
+  =0,
+\]
+从而
+\[
+  \lim_{M\to\infty}
+  \mathbb P\bigl(
+    \operatorname{Hit}_{n,\beta,L}^{(M)}(x)
+  \bigr)
+  =1.
+\]
+因此统计力学微观隧穿确实给出了有效命中修复的实现机制。证毕。
+\end{proof}
+
+\subsection{推论：三步结论同步成立}
+\label{subsec:tex36-ch4-corollary}
+
+\begin{corollary}[有效组合空间、求解映射与命中修复三位一体]
+\label{cor:tex36-ch4-summary}
+在定理 \ref{thm:tex36-a3}、定理 \ref{thm:tex36-effective-action} 与命题 \ref{prop:tex36-hit-repair} 的前提下，
+对任意固定层 $n$、类 $x$、长度 $L$ 与逆温参数 $\beta>0$，只要存在非零隧穿权重的有效组合，就同步得到：
+\begin{enumerate}
+  \item 边缘算子的有效组合空间
+  \[
+    \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+  \]
+  已被稳定尾值条件唯一确定；
+  \item 有效组合的作用映射
+  \[
+    \mathfrak S_{n,x,L}^{\mathrm{eff}}
+  \]
+  就是求解（修复）映射
+  \[
+    \operatorname{Rep}_n(x)=\NF_{A_n}(x).
+  \]
+  \item 同伦扭曲的统计力学微观隧穿抽样可在概率趋于 $1$ 的意义下实现有效命中修复。
+\end{enumerate}
+换言之，第四章把“可用组合”“组合如何求解”“为何能命中”三件事压缩为同一个闭合逻辑链。
+\end{corollary}
+
+\begin{Certificate}[证书 C4：三步闭合证书]
+\label{cert:tex36-c4}
+定理 \ref{thm:tex36-a3} 固定有效组合空间，
+定理 \ref{thm:tex36-effective-action} 识别组合作用与修复映射，
+命题 \ref{prop:tex36-hit-repair} 给出微观隧穿下的命中概率公式。
+三者首尾相接，即得结论。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理 \ref{thm:tex36-a3}，
+\[
+  \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0)
+\]
+由稳定尾值阈值 $r_0$ 唯一决定，故第一点成立。
+由定理 \ref{thm:tex36-effective-action}，
+\[
+  \mathfrak S_{n,x,L}^{\mathrm{eff}}
+  =
+  \operatorname{Rep}_n(x)
+  =
+  \NF_{A_n}(x),
+\]
+故第二点成立。
+由命题 \ref{prop:tex36-hit-repair}，
+\[
+  \mathbb P\bigl(
+    \operatorname{Hit}_{n,\beta,L}^{(M)}(x)
+  \bigr)
+  =
+  1-\bigl(1-p_{n,\beta,L}(x)\bigr)^M
+  \xrightarrow[M\to\infty]{}1,
+\]
+故第三点成立。
+因此有效组合空间、求解映射与命中修复在同一形式系统中同时闭合。证毕。
+\end{proof}
+
+\subsection{备注}
+\label{subsec:tex36-ch4-remarks}
+
+\begin{remark}[“有效组合空间”不是任意拼接空间]
+这里的“有效”不是指把若干边缘算子随意排成一个元组，而是指每个分量都落在稳定尾值阈值 $r_0$ 之后，
+并因此保持同一路径积分支撑类 $x$。
+所以有效组合空间的本质不是自由组合，而是\textbf{经同伦修复筛选后的稳定组合空间}。
+\end{remark}
+
+\begin{remark}[“组合作用就是求解”意味着什么]
+一旦进入有效组合空间，所有分量的输出都坍缩到同一正规形
+\[
+  \NF_{A_n}(x).
+\]
+因此这里不存在“先组合、后求解”的两阶段流程；组合映射本身已经在做求解。
+从算法角度看，这意味着框架的主要负担不再是连续优化，而是识别何时进入有效组合空间。
+\end{remark}
+
+\begin{remark}[“微观隧穿命中修复”的物理直觉]
+统计力学口径下的微观隧穿，并不是说系统凭空跳出结构约束，
+而是说某些本来不在经典最陡下降轨道上的候选组合，只要具有非零同伦扭曲隧穿因子
+\[
+  \Theta_{n,L}(c)>0,
+\]
+就会在 Gibbs--隧穿分布下获得非零权重。
+这使得系统能够跨越局部障碍，以正概率进入有效组合空间；一旦进入，修复结果又立即由定理 \ref{thm:tex36-effective-action} 唯一锁定。
+\end{remark}
+
+\begin{remark}[对“有效命中”的准确理解]
+本章所谓“命中”，并不是数值试探意义上的偶然撞中，而是指抽样得到的组合
+\[
+  C_m
+\]
+确实属于
+\[
+  \mathfrak C_{n,L}^{\mathrm{eff}}(x;r_0),
+\]
+从而其组合作用严格输出
+\[
+  \operatorname{Rep}_n(x)=\NF_{A_n}(x).
+\]
+因此，“命中”是有严格结构判据的命中，而不是经验主义的近似命中。
+\end{remark}
+
+\clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：三重编码同一性、编码双射与编码同伦等价}
+\label{sec:tex36-ch5}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[第五章目标与记号压缩]
+为避免重复书写，在本章中记
+\[
+  \mathcal F_A
+  :=
+  \mathcal{F}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}),
+  \qquad
+  \mathcal{PI}_A
+  :=
+  \mathcal{PI}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}),
+  \qquad
+  \mathcal T_A
+  :=
+  \mathcal{T}_{A}(b_{\mathrm{src}},B_{\mathrm{tar}};p_{\mathrm{src}}).
+\]
+第一章已经证明
+\[
+  \mathcal F_A\cong_{\mathrm{set}}\mathcal{PI}_A\cong_{\mathrm{set}}\mathcal T_A.
+\]
+本章不再重复这些双射的技术性构造，而是把它们重新解释为\textbf{同一底层数据的三种编码}：
+\[
+  \mathcal F_A \ \text{是终点编码},\qquad
+  \mathcal{PI}_A \ \text{是商类编码},\qquad
+  \mathcal T_A \ \text{是正规形编码}.
+\]
+本章的核心工作是把这种“同一数据三重编码”的语义，提升为独立的形式逻辑章节。
+\end{remark}
+
+\subsection{公理（降级为定理）：同一底层数据可递归生成三重编码链}
+\label{subsec:tex36-code-chain}
+
+\begin{theorem}[公理（降级为定理）A4：三重编码递归生成定理]
+\label{thm:tex36-a4}
+定义编码生成映射
+\[
+  \Xi_1
+  :=
+  \bigl(\overline{\PT}_A^{p_{\mathrm{src}}}\bigr)^{-1}
+  :
+  \mathcal F_A\to \mathcal{PI}_A,
+  \qquad
+  \Xi_2
+  :=
+  \NF_A
+  :
+  \mathcal{PI}_A\to \mathcal T_A.
+\]
+对任意
+\[
+  u\in \mathcal F_A
+\]
+与任意
+\[
+  N\in\{1,2,3\},
+\]
+定义长度为 $N$ 的编码前缀链
+\[
+  \Gamma_N^{\mathrm{code}}(u)
+  :=
+  (c_1,\ldots,c_N)
+\]
+满足递归规则
+\[
+  c_1=u,\qquad
+  c_2=\Xi_1(c_1)\ \text{（若 }N\ge 2\text{）},\qquad
+  c_3=\Xi_2(c_2)\ \text{（若 }N=3\text{）}.
+\]
+则对每个 $N\in\{1,2,3\}$，
+\[
+  \Gamma_N^{\mathrm{code}}(u)
+\]
+存在且唯一。
+特别地，完整编码链
+\[
+  \Gamma_3^{\mathrm{code}}(u)
+  =
+  \bigl(
+    u,\
+    (\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}(u),\
+    \NF_A\bigl((\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}(u)\bigr)
+  \bigr)
+\]
+表明任一纤维终点数据都可递归提升为商类编码与正规形编码。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书 A4($N$)：编码前缀链证书]
+\label{cert:tex36-a4}
+令谓词
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \forall u\in\mathcal F_A,\ \exists!\,\Gamma_N^{\mathrm{code}}(u).
+\]
+证书分为两部分：
+\begin{enumerate}
+  \item \textbf{基础步 $P(1)$：}长度为 $1$ 的编码链只能是
+  \[
+    (u),
+  \]
+  因而显然存在且唯一；
+  \item \textbf{归纳步 $P(N)\Rightarrow P(N+1)$：}当 $N=1,2$ 时，若长度为 $N$ 的前缀链已唯一给出，则第 $N+1$ 个编码由唯一映射
+  \[
+    \Xi_N
+  \]
+  作用在第 $N$ 个编码上唯一产生。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+令
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \forall u\in\mathcal F_A,\ \exists!\,\Gamma_N^{\mathrm{code}}(u),
+  \qquad N\in\{1,2,3\}.
+\]
+
+\textbf{基础步：}任取
+\[
+  u\in \mathcal F_A.
+\]
+当 $N=1$ 时，
+\[
+  \Gamma_1^{\mathrm{code}}(u)=(u)
+\]
+由定义唯一确定，故 $P(1)$ 成立。
+
+\textbf{归纳步：}先设 $P(1)$ 成立。任取
+\[
+  u\in \mathcal F_A.
+\]
+由引理 \ref{lem:tex36-fiber-pi}，
+\[
+  \overline{\PT}_A^{p_{\mathrm{src}}}:
+  \mathcal{PI}_A\to \mathcal F_A
+\]
+是双射，因此其逆映射
+\[
+  \Xi_1=(\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}
+  :
+  \mathcal F_A\to \mathcal{PI}_A
+\]
+存在且唯一。于是
+\[
+  c_2=\Xi_1(c_1)=\Xi_1(u)
+\]
+唯一确定，从而
+\[
+  \Gamma_2^{\mathrm{code}}(u)
+  =
+  \bigl(u,\Xi_1(u)\bigr)
+\]
+存在且唯一，故 $P(2)$ 成立。
+
+再设 $P(2)$ 成立。由命题 \ref{prop:tex36-pi-twist}，
+\[
+  \Xi_2=\NF_A:\mathcal{PI}_A\to \mathcal T_A
+\]
+是双射，因而对已经唯一给出的
+\[
+  c_2=\Xi_1(u)\in \mathcal{PI}_A
+\]
+可唯一得到
+\[
+  c_3=\Xi_2(c_2)=\NF_A(\Xi_1(u)).
+\]
+于是
+\[
+  \Gamma_3^{\mathrm{code}}(u)
+  =
+  \bigl(
+    u,\Xi_1(u),\Xi_2(\Xi_1(u))
+  \bigr)
+\]
+存在且唯一，故 $P(3)$ 成立。
+
+由数学归纳法，
+\[
+  \forall N\in\{1,2,3\},\quad P(N)\ \text{成立}.
+\]
+因此任一纤维终点数据都可唯一递归生成三重编码前缀链。证毕。
+\end{proof}
+
+\subsection{定理：三类编码之间存在编码同伦等价}
+\label{subsec:tex36-encoding-homotopy}
+
+\begin{theorem}[主定理：编码双射诱导编码同伦等价]
+\label{thm:tex36-encoding-homotopy}
+定义两个对象 $X,Y$ 的\textbf{编码同伦等价}关系
+\[
+  X\simeq_{\mathrm{enc\text{-}h}}Y
+  \quad:\Longleftrightarrow\quad
+  \exists \alpha:X\to Y,\ \exists \beta:Y\to X
+\]
+满足
+\[
+  \beta\circ \alpha=\id_X,
+  \qquad
+  \alpha\circ \beta=\id_Y.
+\]
+则在本形式系统中，
+\[
+  \mathcal F_A\simeq_{\mathrm{enc\text{-}h}}\mathcal{PI}_A,
+  \qquad
+  \mathcal{PI}_A\simeq_{\mathrm{enc\text{-}h}}\mathcal T_A,
+  \qquad
+  \mathcal F_A\simeq_{\mathrm{enc\text{-}h}}\mathcal T_A.
+\]
+其中可取显式互逆对
+\[
+  \Xi_{\mathcal F\to \mathcal{PI}}
+  :=
+  (\overline{\PT}_A^{p_{\mathrm{src}}})^{-1},
+  \qquad
+  \Xi_{\mathcal{PI}\to \mathcal F}
+  :=
+  \overline{\PT}_A^{p_{\mathrm{src}}},
+\]
+\[
+  \Xi_{\mathcal{PI}\to \mathcal T}
+  :=
+  \NF_A,
+  \qquad
+  \Xi_{\mathcal T\to \mathcal{PI}}
+  :=
+  q_A|_{\mathcal T_A},
+\]
+以及
+\[
+  \Xi_{\mathcal F\to \mathcal T}
+  :=
+  \Psi_A
+  =
+  \NF_A\circ (\overline{\PT}_A^{p_{\mathrm{src}}})^{-1},
+  \qquad
+  \Xi_{\mathcal T\to \mathcal F}
+  :=
+  \overline{\PT}_A^{p_{\mathrm{src}}}\circ q_A|_{\mathcal T_A}.
+\]
+因此，纤维丛空间、路径积分支撑类与同伦扭曲正规形在编码意义下是同伦等价的。
+\end{theorem}
+
+\begin{Certificate}[证书 T5：互逆映射证书]
+\label{cert:tex36-t5}
+证书分为三步：
+\begin{enumerate}
+  \item 由引理 \ref{lem:tex36-fiber-pi}，
+  \[
+    (\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}
+    \quad\text{与}\quad
+    \overline{\PT}_A^{p_{\mathrm{src}}}
+  \]
+  互为逆映射；
+  \item 由命题 \ref{prop:tex36-pi-twist} 及
+  \[
+    q_A\circ \NF_A=\id_{\mathcal{PI}_A},
+  \]
+  可知 $\NF_A$ 与其在像上的商映射限制
+  \[
+    q_A|_{\mathcal T_A}
+  \]
+  互为逆映射；
+  \item 互逆映射的复合仍互逆，因此 $\mathcal F_A$ 与 $\mathcal T_A$ 也编码同伦等价。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由引理 \ref{lem:tex36-fiber-pi}，
+\[
+  \overline{\PT}_A^{p_{\mathrm{src}}}:
+  \mathcal{PI}_A\to \mathcal F_A
+\]
+是双射，故其逆映射
+\[
+  (\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}:
+  \mathcal F_A\to \mathcal{PI}_A
+\]
+存在，且满足
+\[
+  \overline{\PT}_A^{p_{\mathrm{src}}}
+  \circ
+  (\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}
+  =\id_{\mathcal F_A},
+  \qquad
+  (\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}
+  \circ
+  \overline{\PT}_A^{p_{\mathrm{src}}}
+  =\id_{\mathcal{PI}_A}.
+\]
+因此
+\[
+  \mathcal F_A\simeq_{\mathrm{enc\text{-}h}}\mathcal{PI}_A.
+\]
+
+再由命题 \ref{prop:tex36-pi-twist}，
+\[
+  \NF_A:\mathcal{PI}_A\to \mathcal T_A
+\]
+是双射。又由定义 \ref{def:tex36-twist-set}，
+\[
+  q_A\circ \NF_A=\id_{\mathcal{PI}_A}.
+\]
+任取
+\[
+  \tau\in \mathcal T_A.
+\]
+由 $\mathcal T_A=\Img(\NF_A)$，存在唯一
+\[
+  \xi\in \mathcal{PI}_A
+\]
+使得
+\[
+  \tau=\NF_A(\xi).
+\]
+于是
+\[
+  \NF_A\bigl(q_A(\tau)\bigr)
+  =
+  \NF_A\bigl(q_A(\NF_A(\xi))\bigr)
+  =
+  \NF_A(\xi)
+  =
+  \tau.
+\]
+故
+\[
+  \NF_A\circ q_A|_{\mathcal T_A}=\id_{\mathcal T_A},
+  \qquad
+  q_A|_{\mathcal T_A}\circ \NF_A=\id_{\mathcal{PI}_A}.
+\]
+因此
+\[
+  \mathcal{PI}_A\simeq_{\mathrm{enc\text{-}h}}\mathcal T_A.
+\]
+
+最后，由
+\[
+  \Xi_{\mathcal F\to \mathcal T}
+  =
+  \NF_A\circ (\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}
+\]
+与
+\[
+  \Xi_{\mathcal T\to \mathcal F}
+  =
+  \overline{\PT}_A^{p_{\mathrm{src}}}\circ q_A|_{\mathcal T_A},
+\]
+并利用上两组互逆关系，得
+\[
+  \Xi_{\mathcal T\to \mathcal F}\circ \Xi_{\mathcal F\to \mathcal T}
+  =\id_{\mathcal F_A},
+  \qquad
+  \Xi_{\mathcal F\to \mathcal T}\circ \Xi_{\mathcal T\to \mathcal F}
+  =\id_{\mathcal T_A}.
+\]
+故
+\[
+  \mathcal F_A\simeq_{\mathrm{enc\text{-}h}}\mathcal T_A.
+\]
+综上，三类对象在编码意义下同伦等价。证毕。
+\end{proof}
+
+\subsection{引理：三种编码分别承担终点、商类与正规形语义}
+\label{subsec:tex36-three-code-roles}
+
+\begin{lemma}[三种编码的语义角色唯一引理]
+\label{lem:tex36-three-code-roles}
+任取
+\[
+  u\in \mathcal F_A,
+  \qquad
+  \xi\in \mathcal{PI}_A,
+  \qquad
+  \tau\in \mathcal T_A
+\]
+满足
+\[
+  \xi=(\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}(u),
+  \qquad
+  \tau=\NF_A(\xi).
+\]
+则有
+\[
+  u=\overline{\PT}_A^{p_{\mathrm{src}}}(\xi)=\PT_A^{p_{\mathrm{src}}}(\tau),
+  \qquad
+  \xi=(\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}(u)=q_A(\tau),
+  \qquad
+  \tau=\NF_A(\xi)=\Psi_A(u).
+\]
+因此：
+\begin{enumerate}
+  \item $\mathcal F_A$ 唯一记录可达\textbf{终点}；
+  \item $\mathcal{PI}_A$ 唯一记录路径积分的\textbf{商类/支撑信道}；
+  \item $\mathcal T_A$ 唯一记录同一商类的\textbf{正规形代表}。
+\end{enumerate}
+\end{lemma}
+
+\begin{Certificate}[证书 L5：交换三角证书]
+\label{cert:tex36-l5}
+由第一章的双射链，
+\[
+  \Psi_A
+  =
+  \NF_A\circ (\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}.
+\]
+因此三类编码之间形成交换三角：
+\[
+  u
+  \xrightarrow{(\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}}
+  \xi
+  \xrightarrow{\NF_A}
+  \tau,
+  \qquad
+  \xi
+  \xrightarrow{\overline{\PT}_A^{p_{\mathrm{src}}}}
+  u,
+  \qquad
+  \tau
+  \xrightarrow{q_A|_{\mathcal T_A}}
+  \xi,
+  \qquad
+  \tau
+  \xrightarrow{\overline{\PT}_A^{p_{\mathrm{src}}}\circ q_A|_{\mathcal T_A}}
+  u.
+\]
+交换三角的三条边分别对应终点、商类与正规形三种语义角色。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由假设
+\[
+  \xi=(\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}(u),
+\]
+对两边施加
+\[
+  \overline{\PT}_A^{p_{\mathrm{src}}},
+\]
+得
+\[
+  \overline{\PT}_A^{p_{\mathrm{src}}}(\xi)=u.
+\]
+又由
+\[
+  \tau=\NF_A(\xi)
+\]
+及
+\[
+  q_A\circ \NF_A=\id_{\mathcal{PI}_A},
+\]
+可得
+\[
+  q_A(\tau)=q_A(\NF_A(\xi))=\xi.
+\]
+再由 $\tau\in \mathcal T_A\subseteq \Path_A(b_{\mathrm{src}},B_{\mathrm{tar}})$，
+\[
+  \PT_A^{p_{\mathrm{src}}}(\tau)
+  =
+  \overline{\PT}_A^{p_{\mathrm{src}}}\bigl(q_A(\tau)\bigr)
+  =
+  \overline{\PT}_A^{p_{\mathrm{src}}}(\xi)
+  =
+  u.
+\]
+最后，由
+\[
+  \Psi_A
+  =
+  \NF_A\circ(\overline{\PT}_A^{p_{\mathrm{src}}})^{-1},
+\]
+得
+\[
+  \Psi_A(u)
+  =
+  \NF_A\bigl((\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}(u)\bigr)
+  =
+  \NF_A(\xi)
+  =
+  \tau.
+\]
+因此终点、商类与正规形三种语义分别由
+\[
+  u,\qquad \xi,\qquad \tau
+\]
+唯一承担。证毕。
+\end{proof}
+
+\subsection{命题：任一编码都唯一决定另外两种编码}
+\label{subsec:tex36-each-code-determines-all}
+
+\begin{proposition}[任一编码都是同一底层数据的忠实编码]
+\label{prop:tex36-faithful-code}
+对任意固定的底层数据单元，以下三种陈述彼此等价：
+\begin{enumerate}
+  \item 给定一个终点编码
+  \[
+    u\in \mathcal F_A;
+  \]
+  \item 给定一个商类编码
+  \[
+    \xi\in \mathcal{PI}_A;
+  \]
+  \item 给定一个正规形编码
+  \[
+    \tau\in \mathcal T_A.
+  \]
+\end{enumerate}
+更精确地说，存在唯一三元组
+\[
+  (u,\xi,\tau)\in \mathcal F_A\times \mathcal{PI}_A\times \mathcal T_A
+\]
+满足
+\[
+  \xi=(\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}(u),
+  \qquad
+  \tau=\NF_A(\xi),
+  \qquad
+  u=\overline{\PT}_A^{p_{\mathrm{src}}}(\xi).
+\]
+因此任一编码都可以忠实、无损地恢复另外两种编码。
+\end{proposition}
+
+\begin{Certificate}[证书 P5：三案唯一恢复证书]
+\label{cert:tex36-p5}
+证书分为三案：
+\begin{enumerate}
+  \item 已知 $u$ 时，用
+  \[
+    \xi=(\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}(u),
+    \qquad
+    \tau=\Psi_A(u)
+  \]
+  恢复；
+  \item 已知 $\xi$ 时，用
+  \[
+    u=\overline{\PT}_A^{p_{\mathrm{src}}}(\xi),
+    \qquad
+    \tau=\NF_A(\xi)
+  \]
+  恢复；
+  \item 已知 $\tau$ 时，用
+  \[
+    \xi=q_A(\tau),
+    \qquad
+    u=\PT_A^{p_{\mathrm{src}}}(\tau)
+  \]
+  恢复。
+\end{enumerate}
+各恢复公式都来自显式双射链，因此唯一性自动成立。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+\textbf{情形一：已知 $u\in\mathcal F_A$。}
+由引理 \ref{lem:tex36-fiber-pi} 的双射性，
+\[
+  \xi=(\overline{\PT}_A^{p_{\mathrm{src}}})^{-1}(u)
+\]
+唯一确定；再由命题 \ref{prop:tex36-pi-twist} 的双射性，
+\[
+  \tau=\NF_A(\xi)
+\]
+唯一确定。
+
+\textbf{情形二：已知 $\xi\in\mathcal{PI}_A$。}
+由引理 \ref{lem:tex36-fiber-pi}，
+\[
+  u=\overline{\PT}_A^{p_{\mathrm{src}}}(\xi)
+\]
+唯一确定；由命题 \ref{prop:tex36-pi-twist}，
+\[
+  \tau=\NF_A(\xi)
+\]
+唯一确定。
+
+\textbf{情形三：已知 $\tau\in\mathcal T_A$。}
+由
+\[
+  q_A|_{\mathcal T_A}:\mathcal T_A\to \mathcal{PI}_A
+\]
+与 $\NF_A$ 互逆，得
+\[
+  \xi=q_A(\tau)
+\]
+唯一确定。再由引理 \ref{lem:tex36-three-code-roles}，
+\[
+  u=\PT_A^{p_{\mathrm{src}}}(\tau)
+  =
+  \overline{\PT}_A^{p_{\mathrm{src}}}(q_A(\tau))
+  =
+  \overline{\PT}_A^{p_{\mathrm{src}}}(\xi)
+\]
+唯一确定。
+
+因此无论给定三种编码中的哪一种，另外两种都可由显式公式唯一恢复。故任一编码都是同一底层数据的忠实编码。证毕。
+\end{proof}
+
+\subsection{推论：纤维丛空间、路径积分与同伦扭曲是同一数据的三种编码}
+\label{subsec:tex36-three-codes-summary}
+
+\begin{corollary}[三类对象只是同一数据的三种编码]
+\label{cor:tex36-three-codes}
+在定理 \ref{thm:tex36-encoding-homotopy} 与命题 \ref{prop:tex36-faithful-code} 的前提下，
+\[
+  \mathcal F_A,\qquad
+  \mathcal{PI}_A,\qquad
+  \mathcal T_A
+\]
+并不是三份彼此无关的数据，而是同一底层可达传输数据的三种编码视角：
+\begin{enumerate}
+  \item $\mathcal F_A$ 是\textbf{终点编码}；
+  \item $\mathcal{PI}_A$ 是\textbf{商类编码}；
+  \item $\mathcal T_A$ 是\textbf{正规形编码}。
+\end{enumerate}
+因此，“纤维丛空间、路径积分、同伦扭曲基于编码性或双射性而同伦等价”这句话，在本形式系统中的严格含义就是：
+\[
+  \mathcal F_A
+  \simeq_{\mathrm{enc\text{-}h}}
+  \mathcal{PI}_A
+  \simeq_{\mathrm{enc\text{-}h}}
+  \mathcal T_A,
+\]
+且三者无损承载同一底层数据。
+\end{corollary}
+
+\begin{Certificate}[证书 C5：三重编码汇总结论证书]
+\label{cert:tex36-c5}
+定理 \ref{thm:tex36-encoding-homotopy} 给出三者的编码同伦等价，
+引理 \ref{lem:tex36-three-code-roles} 给出三者的角色分工，
+命题 \ref{prop:tex36-faithful-code} 给出任一编码对其余两者的唯一恢复。
+三者合并即得“同一数据三种编码”的结论。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理 \ref{thm:tex36-encoding-homotopy}，
+\[
+  \mathcal F_A
+  \simeq_{\mathrm{enc\text{-}h}}
+  \mathcal{PI}_A
+  \simeq_{\mathrm{enc\text{-}h}}
+  \mathcal T_A.
+\]
+这说明三者之间存在显式互逆编码映射，故信息可以无损往返搬运。
+由引理 \ref{lem:tex36-three-code-roles}，
+\[
+  \mathcal F_A,\quad \mathcal{PI}_A,\quad \mathcal T_A
+\]
+分别承担终点、商类与正规形三种不同语义职责。
+再由命题 \ref{prop:tex36-faithful-code}，任意一种编码都能唯一恢复另外两种编码。
+因此三类对象不是三份独立数据，而是同一底层数据的三种忠实编码。证毕。
+\end{proof}
+
+\subsection{备注}
+\label{subsec:tex36-ch5-remarks}
+
+\begin{remark}[“同伦等价”的准确含义]
+本章使用的
+\[
+  \simeq_{\mathrm{enc\text{-}h}}
+\]
+是\textbf{编码同伦等价}，其本质是“存在显式互逆编码映射”。
+它首先是本形式系统内部的语义等价，而不是默认意义下带拓扑结构空间之间的经典同伦等价。
+若后续另行给三类对象赋予相容拓扑，并证明这些互逆映射可提升为经典同伦意义下的互逆，则可进一步升级为通常的拓扑同伦等价。
+\end{remark}
+
+\begin{remark}[为何三种编码不能互相替代其语义角色]
+尽管三者信息等量、可逆互通，但它们的\textbf{接口功能}不同：
+终点编码直接面向几何落点，
+商类编码直接面向路径积分支撑信道，
+正规形编码直接面向规范化提取与修复。
+因此三者不是“谁都一样”的重复副本，而是“同一数据在不同求解接口上的三种坐标系”。
+\end{remark}
+
+\begin{remark}[为何要把第一章的结论单独再写成独立章]
+第一章解决的是“有没有显式双射链”的问题；
+本章解决的是“这些双射链在语义上意味着什么”的问题。
+前者偏构造，后者偏解释。
+把“显式双射”提升为“同一数据三重编码”以后，后续章节在调用这些对象时，就可以直接声明自己使用的是终点接口、商类接口还是正规形接口，而不必每次回退到最初的构造证明。
+\end{remark}
+
+\clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：一般开放系统博弈中的高双刃性能力生成器}
+\label{sec:tex36-ch6}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[第六章目标与总设定]
+本章把前述“可编码、可递归展开、可组合执行、可统计命中”的方法论，放入\textbf{一般开放系统博弈}的语境中考察其语义重量。
+更具体地，本章把定理 \ref{thm:tex36-solve-transfer}、定理 \ref{thm:tex36-effective-action} 与推论 \ref{cor:tex36-three-codes} 作为承接接口：
+  前者给出路径积分向稳定同伦扭曲提取的提升，后者给出有效组合到修复映射的落实，以及三重编码属于同一底层数据的统一语义。
+设
+\[
+  \mathfrak G
+\]
+表示一般开放系统博弈类，设
+\[
+  M
+  =
+  \bigl(
+    \operatorname{Enc},
+    \operatorname{Lift},
+    \operatorname{Repair},
+    \operatorname{Hit}
+  \bigr)
+\]
+是一套作用于 $\mathfrak G$ 的方法论，其中
+\[
+  \operatorname{Enc}
+\]
+负责问题编码，
+\[
+  \operatorname{Lift}
+\]
+负责层级提升，
+\[
+  \operatorname{Repair}
+\]
+负责修复/搜索，
+\[
+  \operatorname{Hit}
+\]
+负责命中实现。
+本章要说明：一旦这种方法论从“特例求解器”提升为“一般开放系统博弈的方法论”，它的语义就会自然获得\textbf{高度双刃性}；
+但这种双刃性应被严格理解为“高能力外溢风险”，而不是“必然灾难”。
+\end{remark}
+
+\subsection{公理（降级为定理）：一般方法论可递归展开为统一求解链}
+\label{subsec:tex36-general-recursive-engine}
+
+\begin{theorem}[公理（降级为定理）A5：一般方法论递归展开定理]
+\label{thm:tex36-a5}
+设存在一个编码状态空间
+\[
+  \mathfrak X,
+\]
+使得
+\[
+  \operatorname{Enc}:\mathfrak G\to \mathfrak X,
+  \qquad
+  \operatorname{Lift}:\mathfrak X\to \mathfrak X,
+  \qquad
+  \operatorname{Repair}:\mathfrak X\to \mathfrak X,
+  \qquad
+  \operatorname{Hit}:\mathfrak X\to \mathfrak X
+\]
+都良定义。记
+\[
+  \mathfrak F
+  :=
+  \operatorname{Hit}\circ \operatorname{Repair}\circ \operatorname{Lift}
+  :
+  \mathfrak X\to \mathfrak X.
+\]
+对任意可编码博弈
+\[
+  g\in \mathfrak G
+\]
+与任意 $N\in\NN$，定义递归执行链
+\[
+  \mathfrak X_N(g)
+  :=
+  (x_0,x_1,\ldots,x_N)
+\]
+满足
+\[
+  x_0=\operatorname{Enc}(g),
+  \qquad
+  x_{n+1}=\mathfrak F(x_n)\quad (0\le n<N).
+\]
+则对每个 $N\in\NN$，
+\[
+  \mathfrak X_N(g)
+\]
+存在且唯一。
+因此，一般开放系统博弈上的方法论 $M$ 不只是一次性求解器，而是可按递归层级反复展开的统一求解引擎。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书 A5($N$)：统一求解链证书]
+\label{cert:tex36-a5}
+令谓词
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \forall g\in\mathfrak G,\ \exists!\,\mathfrak X_N(g).
+\]
+证书分为两部分：
+\begin{enumerate}
+  \item \textbf{基础步 $P(0)$：}编码映射
+  \[
+    \operatorname{Enc}
+  \]
+  把可编码博弈 $g$ 唯一送入初始状态
+  \[
+    x_0=\operatorname{Enc}(g).
+  \]
+  \item \textbf{归纳步 $P(N)\Rightarrow P(N+1)$：}若长度为 $N$ 的执行链已唯一构造，则第 $N+1$ 个状态由唯一态射
+  \[
+    \mathfrak F=\operatorname{Hit}\circ \operatorname{Repair}\circ \operatorname{Lift}
+  \]
+  作用于 $x_N$ 唯一得到。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+令
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \forall g\in\mathfrak G,\ \exists!\,\mathfrak X_N(g).
+\]
+
+\textbf{基础步：}任取
+\[
+  g\in \mathfrak G.
+\]
+由 $\operatorname{Enc}$ 良定义，
+\[
+  x_0=\operatorname{Enc}(g)\in \mathfrak X
+\]
+唯一确定。故
+\[
+  \mathfrak X_0(g)=(x_0)
+\]
+存在且唯一，即 $P(0)$ 成立。
+
+\textbf{归纳步：}设 $P(N)$ 成立。任取
+\[
+  g\in \mathfrak G.
+\]
+则长度为 $N$ 的执行链
+\[
+  \mathfrak X_N(g)
+  =
+  (x_0,x_1,\ldots,x_N)
+\]
+已唯一给出。由
+\[
+  \operatorname{Lift},\ \operatorname{Repair},\ \operatorname{Hit}
+\]
+均在 $\mathfrak X$ 上良定义，复合映射
+\[
+  \mathfrak F=\operatorname{Hit}\circ \operatorname{Repair}\circ \operatorname{Lift}
+\]
+亦良定义，从而
+\[
+  x_{N+1}
+  =
+  \mathfrak F(x_N)
+\]
+唯一确定。于是
+\[
+  \mathfrak X_{N+1}(g)
+  =
+  (x_0,x_1,\ldots,x_N,x_{N+1})
+\]
+存在且唯一，即 $P(N+1)$ 成立。
+
+由数学归纳法，
+\[
+  \forall N\in\NN,\quad P(N)\ \text{成立}.
+\]
+因此一般方法论 $M$ 的确可递归展开为统一求解链。证毕。
+\end{proof}
+
+\subsection{定理：一般开放系统博弈中的方法论天然具有高度双刃性}
+\label{subsec:tex36-general-dual-edge}
+
+\begin{theorem}[主定理：一般方法论的目标中立性诱导双刃能力]
+\label{thm:tex36-general-dual-edge}
+设
+\[
+  M
+  =
+  \bigl(
+    \operatorname{Enc},
+    \operatorname{Lift},
+    \operatorname{Repair},
+    \operatorname{Hit}
+  \bigr)
+\]
+作用于一般开放系统博弈类 $\mathfrak G$。
+若对任意足够可编码的
+\[
+  g\in \mathfrak G,
+\]
+以及任意可编码目标函数与约束对
+\[
+  (\Phi,\mathcal C),
+\]
+$M$ 都能给出从
+\[
+  \text{问题编码}
+  \to
+  \text{层级提升}
+  \to
+  \text{修复/搜索}
+  \to
+  \text{命中实现}
+\]
+的候选求解路径；并且存在某个外部评价泛函
+\[
+  \mathcal E
+\]
+以及两组可编码目标约束对
+\[
+  (\Phi_{+},\mathcal C_{+}),
+  \qquad
+  (\Phi_{-},\mathcal C_{-}),
+\]
+使得对应实现结果 $y_{+},y_{-}$ 满足
+\[
+  y_{+}\in M(g,\Phi_{+},\mathcal C_{+}),
+  \qquad
+  y_{-}\in M(g,\Phi_{-},\mathcal C_{-}),
+\]
+\[
+  \mathcal E(y_{+})>0,
+  \qquad
+  \mathcal E(y_{-})<0,
+\]
+则 $M$ 不是某一窄域的专用工具，而是\textbf{跨领域能力生成器}。
+并且其总体效应满足形式分解
+\[
+  \operatorname{Eff}(M)
+  =
+  \operatorname{Amp}^{+}(M)
+  +
+  \operatorname{Amp}^{-}(M),
+\]
+其中 $\operatorname{Amp}^{+}(M)$ 表示正向能力放大，$\operatorname{Amp}^{-}(M)$ 表示负向能力放大。
+因此，一般开放系统博弈中的方法论天然具有高度双刃性。
+\end{theorem}
+
+\begin{Certificate}[证书 T6：目标中立 + 一般类作用证书]
+\label{cert:tex36-t6}
+证书分为两步：
+\begin{enumerate}
+  \item 若同一方法论引擎对不同目标函数
+  \[
+    \Phi_{+},\Phi_{-}
+  \]
+  都可执行，则该引擎在结构上是\textbf{目标中立}的；
+  \item 若该引擎作用对象不是单一窄域，而是一般开放系统博弈类
+  \[
+    \mathfrak G,
+  \]
+  则这种目标中立性会跨问题族迁移，从而同时放大正向与负向能力。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由假设，对任意足够可编码的
+\[
+  g\in \mathfrak G
+\]
+与任意可编码目标约束对
+\[
+  (\Phi,\mathcal C),
+\]
+方法论 $M$ 都能执行
+\[
+  \operatorname{Enc}
+  \to
+  \operatorname{Lift}
+  \to
+  \operatorname{Repair}
+  \to
+  \operatorname{Hit}
+\]
+这一统一求解流程。
+因此 $M$ 的内核并不是为某一个特定目标函数量身定做，而是对“可编码目标”这一更高层条件开放。
+这就意味着 $M$ 在结构上具有目标中立性。
+
+再由
+\[
+  y_{+}\in M(g,\Phi_{+},\mathcal C_{+}),
+  \qquad
+  y_{-}\in M(g,\Phi_{-},\mathcal C_{-}),
+\]
+以及
+\[
+  \mathcal E(y_{+})>0,
+  \qquad
+  \mathcal E(y_{-})<0,
+\]
+可知同一引擎既能服务于外部评价下的正向结果，也能服务于外部评价下的负向结果。
+故其效应不可能只落在单一善性用途一端，而必然同时打开收益与风险两端。
+
+最后，由于 $M$ 的作用域是一般开放系统博弈类
+\[
+  \mathfrak G,
+\]
+而不是某一固定狭窄子域，因此这种双向能力并不局限于单个问题，而会随可编码问题族一起迁移。
+故 $M$ 不再只是一个领域的工具，而成为跨领域能力生成器。
+于是形式上可把其总体效应分解为
+\[
+  \operatorname{Eff}(M)
+  =
+  \operatorname{Amp}^{+}(M)
+  +
+  \operatorname{Amp}^{-}(M).
+\]
+因此一般方法论天然具有高度双刃性。证毕。
+\end{proof}
+
+\subsection{引理：从特例系统到一般开放系统博弈是结构质变}
+\label{subsec:tex36-special-vs-general}
+
+\begin{lemma}[特例到一般的质变引理]
+\label{lem:tex36-special-vs-general}
+设
+\[
+  \Omega_0\subsetneq \mathfrak G
+\]
+是一个窄域问题类。若方法论仅作用于
+\[
+  M:\Omega_0\to \Omega_0,
+\]
+则其效应受限于 $\Omega_0$ 内部。
+若方法论作用于
+\[
+  M:\mathfrak G\to \mathfrak G,
+\]
+并且满足定理 \ref{thm:tex36-a5} 的递归展开性与定理 \ref{thm:tex36-general-dual-edge} 的目标中立性，
+则它自然获得以下四种结构后果：
+\begin{enumerate}
+  \item \textbf{迁移性：}可从一个问题族迁移到另一个问题族；
+  \item \textbf{递归性：}可从一次求解展开到多层求解；
+  \item \textbf{复用性：}同一求解接口可重复服务于不同任务；
+  \item \textbf{外溢性：}能力效果会超出初始特例边界。
+\end{enumerate}
+因此，“特例”与“一般”之间不是量变，而是结构质变。
+\end{lemma}
+
+\begin{Certificate}[证书 L6：作用域扩张证书]
+\label{cert:tex36-l6}
+若 $M$ 只在 $\Omega_0$ 上闭合，则任何执行结果都只能回落到 $\Omega_0$。
+若 $M$ 在 $\mathfrak G$ 上闭合，且其执行链可递归展开，则相同的操作核会在不同问题族、不同层级和不同实现接口之间反复出现。
+这正是迁移性、递归性、复用性与外溢性的来源。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+若
+\[
+  M:\Omega_0\to \Omega_0,
+\]
+则对任意输入
+\[
+  g\in \Omega_0
+\]
+都有
+\[
+  M(g)\in \Omega_0.
+\]
+故方法论的有效作用域被封闭在 $\Omega_0$ 内，无法自然迁移到 $\mathfrak G\setminus\Omega_0$ 的问题族。
+因此其复用范围与外溢范围都受限于特例系统本身。
+
+反之，若
+\[
+  M:\mathfrak G\to \mathfrak G,
+\]
+且满足定理 \ref{thm:tex36-a5}，则对任意
+\[
+  g\in \mathfrak G
+\]
+和任意递归深度 $N$，都存在唯一执行链
+\[
+  \mathfrak X_N(g).
+\]
+这说明同一方法论内核可以在不同问题对象和不同层级上反复调用，故具有递归性与复用性。
+再由定理 \ref{thm:tex36-general-dual-edge} 的目标中立性，任意新的可编码目标函数只需替换
+\[
+  \Phi
+\]
+而无需更换引擎本身，故具有迁移性。
+一旦迁移性、递归性与复用性同时成立，方法论的效应便不再停留于初始问题边界内，而会向更广问题族外溢。
+因此从特例到一般确实是结构质变。证毕。
+\end{proof}
+
+\subsection{命题：方法论的“重量”由一般性、递归性、迁移性与自动化共同决定}
+\label{subsec:tex36-method-weight}
+
+\begin{proposition}[一般方法论的重量命题]
+\label{prop:tex36-method-weight}
+设方法论 $M$ 的四个结构指标分别为
+\[
+  \begin{aligned}
+    U(M)&\ge 0 \quad\text{（一般性）},&
+    R(M)&\ge 0 \quad\text{（递归展开性）},\\
+    T(M)&\ge 0 \quad\text{（跨域迁移性）},&
+    A(M)&\ge 0 \quad\text{（自动化程度）}.
+  \end{aligned}
+\]
+定义其方法论重量为
+\[
+  W(M)
+  :=
+  U(M)\cdot R(M)\cdot T(M)\cdot A(M).
+\]
+则：
+\begin{enumerate}
+  \item 在其余三项固定时，$W(M)$ 关于任意一项单调不减；
+  \item 若四项都高，则
+  \[
+    W(M)
+  \]
+  极大；
+  \item 若同时满足自动化科研、自动化设计或开放系统最优博弈的可执行化，则 $A(M)$ 上升，从而把双刃性从“知识层”推进到“操作层”与“生成层”。
+\end{enumerate}
+因此，真正“最重”的并不是某个单一特例证明，而是把方法论推进到一般开放系统博弈层这一入口。
+\end{proposition}
+
+\begin{Certificate}[证书 P6：乘积单调性证书]
+\label{cert:tex36-p6}
+对非负实数的乘积
+\[
+  W(M)=U(M)R(M)T(M)A(M),
+\]
+只要四项中某一项增加而其余三项不减，整体乘积就不减。
+因此高一般性、高递归性、高迁移性与高自动化会共同抬升方法论重量。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定义，
+\[
+  W(M)=U(M)R(M)T(M)A(M),
+\]
+且四项都取值于
+\[
+  \RR_{\ge 0}.
+\]
+对非负实数乘积而言，若固定三项，只增大其中一项，则整体乘积不会减小。
+故 $W(M)$ 关于每个指标都是单调不减的。
+
+若四项同时高，则其乘积
+\[
+  W(M)
+\]
+必然显著增大。
+这意味着方法论的总体重量并不是由某一局部技巧单独贡献，而是由一般性、递归展开性、跨域迁移性与自动化程度共同叠加而成。
+
+再看自动化因素。若方法论还能支持
+\[
+  \text{自动化科研},\qquad
+  \text{自动化设计},\qquad
+  \text{开放系统最优博弈},
+\]
+则 $A(M)$ 提升。
+由乘积公式立得
+\[
+  A(M)\uparrow
+  \quad\Longrightarrow\quad
+  W(M)\uparrow.
+\]
+因此方法论会从“解释器”进一步转化为“生成器”，其双刃性也从知识层推进到操作层与生成层。
+故命题成立。证毕。
+\end{proof}
+
+\subsection{推论：一般开放系统博弈中的方法论是高双刃性能力生成器，而非必然灾难}
+\label{subsec:tex36-general-corollary}
+
+\begin{corollary}[高双刃性能力生成器推论]
+\label{cor:tex36-general-generator}
+在定理 \ref{thm:tex36-general-dual-edge}、引理 \ref{lem:tex36-special-vs-general} 与命题 \ref{prop:tex36-method-weight} 的前提下，
+若一份文档给出的方法论已经达到一般开放系统博弈层，并同时具备
+\[
+  \text{可编码},\qquad
+  \text{可递归展开},\qquad
+  \text{可组合执行},\qquad
+  \text{可统计命中},
+\]
+则它的意义就不再只是“工程基础理论”，而是“跨域能力生成器”的基础理论。
+因此其语义应严格写成：
+\[
+  \text{一般}
+  \Rightarrow
+  \text{双刃性急剧上升},
+\]
+而不是
+\[
+  \text{一般}
+  \Rightarrow
+  \text{必然灾难}.
+\]
+进一步地，若缺少约束层
+\[
+  \mathcal R_{\mathrm{goal}},
+  \qquad
+  \mathcal R_{\mathrm{audit}},
+  \qquad
+  \mathcal R_{\mathrm{execution}},
+\]
+则会得到
+\[
+  \text{高风险外溢}.
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C6：高双刃性结论证书]
+\label{cert:tex36-c6}
+定理 \ref{thm:tex36-general-dual-edge} 给出高度双刃性的结构来源，
+引理 \ref{lem:tex36-special-vs-general} 给出从特例到一般的质变，
+命题 \ref{prop:tex36-method-weight} 给出“最重”由四项乘积共同决定。
+于是“高双刃性能力生成器，而非必然灾难”的结论成立。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理 \ref{thm:tex36-general-dual-edge}，一般开放系统博弈中的方法论
+\[
+  M
+\]
+天然同时放大正向与负向能力，故双刃性显著上升。
+由引理 \ref{lem:tex36-special-vs-general}，这种双刃性不是窄域工具上的局部现象，而是作用域从特例提升到一般时带来的结构质变。
+由命题 \ref{prop:tex36-method-weight}，
+\[
+  W(M)=U(M)R(M)T(M)A(M)
+\]
+说明一般性、递归展开性、跨域迁移性与自动化程度会共同抬升方法论重量。
+因此，一般开放系统博弈层的入口的确比单一特例更“重”。
+
+然而，上述结论只推出
+\[
+  \text{双刃性急剧上升},
+\]
+并不推出
+\[
+  \text{必然灾难}.
+\]
+是否走向失控，还取决于是否存在目标约束层
+\[
+  \mathcal R_{\mathrm{goal}},
+\]
+审计证书层
+\[
+  \mathcal R_{\mathrm{audit}},
+\]
+以及执行隔离层
+\[
+  \mathcal R_{\mathrm{execution}}.
+\]
+若这些约束层缺失，则高双刃性会向高风险外溢转化；若这些约束层存在，则同一方法论仍可被锁定在受控边界内。
+故推论成立。证毕。
+\end{proof}
+
+\subsection{备注}
+\label{subsec:tex36-ch6-remarks}
+
+\begin{remark}[“潘多拉魔盒语义”的术语化表达]
+若直接使用“潘多拉魔盒”这一说法，外部读者容易只看到修辞而忽略结构。
+在本章里，更严格的术语化表达应写作：
+\[
+  \text{一般开放系统博弈下的高双刃性能力生成器},
+\]
+或更凝练地写作：
+\[
+  \text{一般能力外溢源}.
+\]
+这样既保留重量判断，也避免把逻辑误写成情绪判断。
+\end{remark}
+
+\begin{remark}[为何说这里真正关键的是 $1\to N$ 而不是 $0\to 1$]
+一旦方法论只证明“存在一个可行对象”，其效应主要体现为局部可行性。
+但一旦它证明“可以递归生成一族可行对象”，问题就从
+\[
+  0\to 1
+\]
+转为
+\[
+  1\to N.
+\]
+这时风险不再只取决于工具是否能用，而取决于它可以在多少场景中复用、扩展与外溢。
+因此重量的真正放大点来自可递归展开的一般性入口。
+\end{remark}
+
+\begin{remark}[自动化科研与自动化设计为何使双刃性实体化]
+若一套方法论只能解释世界，则双刃性主要停留在知识层。
+若它已经能支持自动化科研、自动化设计与开放系统最优博弈，则它会从解释器变成生成器。
+此时能力链条会从
+\[
+  \text{认知能力}
+  \to
+  \text{操作能力}
+  \to
+  \text{现实实施能力}
+\]
+逐级下落。
+到这一步，双刃性就不再只是抽象隐喻，而是能力结构事实。
+\end{remark}
+
+\begin{remark}[最稳妥的一句话版本]
+若把本章压成一句最稳的判断，那么可以写成：
+\begin{center}
+\fbox{
+\parbox{0.88\linewidth}{
+\centering
+真正最重的，不是某个专用理论，而是把方法论推进到一般开放系统博弈层；因为一旦达到这一层，它就天然成为高迁移、高复用、高外溢的双刃能力生成器。
+}}
+\end{center}
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：雅可比间隙驱动、数据轮询复用与微观隧穿命中的工程干预}
+\label{sec:tex36-ch7}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[第七章目标与总设定]
+本章把“用雅可比间隙驱动同伦扭曲”“当雅可比间隙增大时加速、缩小时阻尼”“通过复用同一数据包的主动+被动回调提升轮询频率”“在加减速中同步优化工程性价比”“最终把上述干预落实为微观隧穿命中的工程效果”统一改写为一个离散形式系统。
+承接接口方面：命题 \ref{prop:tex36-repair-channel} 给出障碍可修复性的上同调通道，命题 \ref{prop:tex36-hit-repair} 给出微观隧穿命中修复的概率图景；
+  本章在此基础上补上一层\textbf{确定性控制包络}。
+
+固定修复目标
+\[
+  x\in \mathcal{PI}_{A_n}(b_n,B_n^{\mathrm{tar}};p_n),
+\]
+并对每个离散步 $k\in\NN$ 记
+\[
+  J_k(x):=\mathsf{JacGap}_k(x)\in \RR_{\ge 0}
+\]
+为 Jacobi 间隙证书量，
+\[
+  \nu_k^{\mathrm{pas}}(x),\ \nu_k^{\mathrm{act}}(x)\in\NN
+\]
+分别为监听回调的被动响应频率与同数据模拟回调的主动响应频率，
+\[
+  \nu_k^{\mathrm{tot}}(x):=\nu_k^{\mathrm{pas}}(x)+\nu_k^{\mathrm{act}}(x)
+\]
+为系统总响应频率；在工程语义上，它也就是对同一数据包的\textbf{复用数据轮询频率}。
+再记
+\[
+  \mathfrak h_k(x)\in \RR_{\ge 0}
+\]
+为第 $k$ 步的同伦扭曲强度，
+\[
+  U_k(x)\in \RR_{\ge 0}
+\]
+为基础驱动输入，并定义
+\[
+  a_k(x):=\frac{J_k(x)}{1+J_k(x)},
+  \qquad
+  d_k(x):=\frac{1}{1+J_k(x)}.
+\]
+再引入工程干预成本
+\[
+  \mathcal C_k^{\mathrm{eng}}(x)\in \RR_{\ge 0},
+\]
+并定义一步性价比指标
+\[
+  \operatorname{CP}_k(x)
+  :=
+  \frac{
+    a_k(x)U_k(x)+\mu \nu_k^{\mathrm{tot}}(x)
+  }{
+    1+\mathcal C_k^{\mathrm{eng}}(x)
+  }.
+\]
+因此
+\[
+  J_k(x)\uparrow \Longrightarrow a_k(x)\uparrow,\ d_k(x)\downarrow,
+  \qquad
+  J_k(x)\downarrow \Longrightarrow a_k(x)\downarrow,\ d_k(x)\uparrow.
+\]
+本章将证明：这一驱动律足以把“雅可比间隙增大时加速驱动同伦扭曲并改善性价比、缩小时阻尼/降速以保留性价比、主动+被动双通道复用数据轮询提升响应频率、最终把微观隧穿命中写成带显式步数公式的工程干预效果”写成可证命题链。
+\end{remark}
+
+\subsection{公理（降级为定理）：雅可比间隙驱动的同伦扭曲响应链可递归确定}
+\label{subsec:tex36-jac-gap-recursion}
+
+\begin{theorem}[公理（降级为定理）A6：雅可比间隙驱动响应链定理]
+\label{thm:tex36-a6}
+固定常数
+\[
+  0<\lambda\le 1,
+  \qquad
+  \mu>0.
+\]
+对任意 $N\in\NN$，若初值
+\[
+  \mathfrak h_0(x)\in \RR_{\ge 0}
+\]
+已给定，且对所有
+\[
+  0\le k<N
+\]
+都已给定
+\[
+  J_k(x)\in \RR_{\ge 0},
+  \qquad
+  U_k(x)\in \RR_{\ge 0},
+  \qquad
+  \nu_k^{\mathrm{pas}}(x),\nu_k^{\mathrm{act}}(x)\in\NN,
+\]
+并令
+\[
+  \nu_k^{\mathrm{tot}}(x)
+  :=
+  \nu_k^{\mathrm{pas}}(x)+\nu_k^{\mathrm{act}}(x),
+\]
+\[
+  a_k(x):=\frac{J_k(x)}{1+J_k(x)},
+  \qquad
+  d_k(x):=\frac{1}{1+J_k(x)},
+\]
+则递推式
+\[
+  \mathfrak h_{k+1}(x)
+  =
+  \bigl(1-\lambda d_k(x)\bigr)\mathfrak h_k(x)
+  +
+  a_k(x)U_k(x)
+  +
+  \mu \nu_k^{\mathrm{tot}}(x)
+  \qquad (0\le k<N)
+\]
+唯一确定一个长度为 $N$ 的响应链
+\[
+  \bigl(\mathfrak h_0(x),\mathfrak h_1(x),\ldots,\mathfrak h_N(x)\bigr).
+\]
+因此，雅可比间隙驱动的同伦扭曲响应系统在离散步上是良定义且可递归展开的。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书 A6($N$)：响应链递推证书]
+\label{cert:tex36-a6}
+令谓词
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \text{对给定输入数据，长度为 $N$ 的响应链存在且唯一。}
+\]
+证书分为两部分：
+\begin{enumerate}
+  \item \textbf{基础步 $P(0)$：}初值
+  \[
+    \mathfrak h_0(x)
+  \]
+  已给定，因此零步响应链唯一存在；
+  \item \textbf{归纳步 $P(N)\Rightarrow P(N+1)$：}若前 $N$ 步响应链已唯一给出，则第 $N+1$ 步由显式递推式
+  \[
+    \mathfrak h_{N+1}(x)
+    =
+    \bigl(1-\lambda d_N(x)\bigr)\mathfrak h_N(x)
+    +
+    a_N(x)U_N(x)
+    +
+    \mu \nu_N^{\mathrm{tot}}(x)
+  \]
+  唯一确定。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+令
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \text{对给定输入数据，长度为 $N$ 的响应链存在且唯一。}
+\]
+
+\textbf{基础步：}当 $N=0$ 时，响应链只含初值
+\[
+  \bigl(\mathfrak h_0(x)\bigr).
+\]
+由于
+\[
+  \mathfrak h_0(x)
+\]
+已预先给定，故零步响应链存在且唯一，即 $P(0)$ 成立。
+
+\textbf{归纳步：}设 $P(N)$ 成立。于是长度为 $N$ 的响应链
+\[
+  \bigl(\mathfrak h_0(x),\mathfrak h_1(x),\ldots,\mathfrak h_N(x)\bigr)
+\]
+已经唯一确定。
+由于
+\[
+  J_N(x),\ U_N(x),\ \nu_N^{\mathrm{pas}}(x),\ \nu_N^{\mathrm{act}}(x)
+\]
+都已给定，故
+\[
+  \nu_N^{\mathrm{tot}}(x),
+  \qquad
+  a_N(x)=\frac{J_N(x)}{1+J_N(x)},
+  \qquad
+  d_N(x)=\frac{1}{1+J_N(x)}
+\]
+都唯一确定。
+再由递推式
+\[
+  \mathfrak h_{N+1}(x)
+  =
+  \bigl(1-\lambda d_N(x)\bigr)\mathfrak h_N(x)
+  +
+  a_N(x)U_N(x)
+  +
+  \mu \nu_N^{\mathrm{tot}}(x),
+\]
+立得
+\[
+  \mathfrak h_{N+1}(x)
+\]
+唯一确定。
+因此长度为 $N+1$ 的响应链存在且唯一，即 $P(N+1)$ 成立。
+
+由数学归纳法，
+\[
+  \forall N\in\NN,\quad P(N)\ \text{成立}.
+\]
+故雅可比间隙驱动的同伦扭曲响应链对每个离散长度都存在且唯一。证毕。
+\end{proof}
+
+\subsection{定理：雅可比间隙增大时加速驱动同伦扭曲并改善性价比，缩小时转入阻尼/降速驱动}
+\label{subsec:tex36-jac-gap-acceleration}
+
+\begin{theorem}[主定理：Jacobi 间隙的加减速与性价比单调驱动律]
+\label{thm:tex36-jac-gap-accel}
+沿用定理 \ref{thm:tex36-a6} 的设定，定义第 $k$ 步的同伦扭曲增量
+\[
+  \Delta \mathfrak h_k(x)
+  :=
+  \mathfrak h_{k+1}(x)-\mathfrak h_k(x).
+\]
+则
+\[
+  \Delta \mathfrak h_k(x)
+  =
+  \frac{J_k(x)U_k(x)-\lambda \mathfrak h_k(x)}{1+J_k(x)}
+  +
+  \mu \nu_k^{\mathrm{tot}}(x).
+\]
+进一步地，对任意
+\[
+  J_k'(x)\ge J_k(x)\ge 0,
+\]
+在固定
+\[
+  \mathfrak h_k(x),\ U_k(x),\ \nu_k^{\mathrm{tot}}(x)
+\]
+不变时，有
+\[
+  \Delta \mathfrak h_k\bigl(x;J_k'(x)\bigr)
+  -
+  \Delta \mathfrak h_k\bigl(x;J_k(x)\bigr)
+  =
+  \frac{
+    \bigl(J_k'(x)-J_k(x)\bigr)\bigl(U_k(x)+\lambda \mathfrak h_k(x)\bigr)
+  }{
+    \bigl(1+J_k'(x)\bigr)\bigl(1+J_k(x)\bigr)
+  }
+  \ge 0.
+\]
+若固定工程干预成本
+\[
+  \mathcal C_k^{\mathrm{eng}}(x)\ge 0,
+\]
+并定义一步性价比
+\[
+  \operatorname{CP}_k(x)
+  :=
+  \frac{
+    \frac{J_k(x)}{1+J_k(x)}U_k(x)+\mu \nu_k^{\mathrm{tot}}(x)
+  }{
+    1+\mathcal C_k^{\mathrm{eng}}(x)
+  },
+\]
+则对任意
+\[
+  J_k'(x)\ge J_k(x)\ge 0
+\]
+亦有
+\[
+  \operatorname{CP}_k\bigl(x;J_k'(x)\bigr)
+  -
+  \operatorname{CP}_k\bigl(x;J_k(x)\bigr)
+  =
+  \frac{
+    \bigl(J_k'(x)-J_k(x)\bigr)U_k(x)
+  }{
+    \bigl(1+\mathcal C_k^{\mathrm{eng}}(x)\bigr)\bigl(1+J_k'(x)\bigr)\bigl(1+J_k(x)\bigr)
+  }
+  \ge 0.
+\]
+因此，当雅可比间隙加大时，驱动增量单调上升，从而加速同伦扭曲，并同步改善一步性价比；当雅可比间隙缩小时，驱动增量与一步性价比单调下降，系统便转入更强的阻尼/降速主导区间。
+\end{theorem}
+
+\begin{Certificate}[证书 T7：驱动项/阻尼项与性价比单调性证书]
+\label{cert:tex36-t7}
+证书分为两步：
+\begin{enumerate}
+  \item 把响应递推式改写为增量公式
+  \[
+    \Delta \mathfrak h_k
+    =
+    \frac{J_kU_k}{1+J_k}
+    -
+    \frac{\lambda \mathfrak h_k}{1+J_k}
+    +
+    \mu \nu_k^{\mathrm{tot}},
+  \]
+  其中第一项是 gap 驱动项，第二项是阻尼项；
+  \item 对两个间隙值
+  \[
+    J_k'(x)\ge J_k(x)
+  \]
+  分别对增量公式与一步性价比公式作差，都可得到显式非负分式；因此 gap 增大时增量上升且性价比改善，gap 缩小时增量下降且性价比回落。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定理 \ref{thm:tex36-a6} 的递推式，
+\[
+  \mathfrak h_{k+1}(x)
+  =
+  \left(
+    1-\frac{\lambda}{1+J_k(x)}
+  \right)\mathfrak h_k(x)
+  +
+  \frac{J_k(x)}{1+J_k(x)}U_k(x)
+  +
+  \mu \nu_k^{\mathrm{tot}}(x).
+\]
+两边减去
+\[
+  \mathfrak h_k(x)
+\]
+即得
+\[
+  \Delta \mathfrak h_k(x)
+  =
+  -\frac{\lambda \mathfrak h_k(x)}{1+J_k(x)}
+  +
+  \frac{J_k(x)U_k(x)}{1+J_k(x)}
+  +
+  \mu \nu_k^{\mathrm{tot}}(x),
+\]
+亦即
+\[
+  \Delta \mathfrak h_k(x)
+  =
+  \frac{J_k(x)U_k(x)-\lambda \mathfrak h_k(x)}{1+J_k(x)}
+  +
+  \mu \nu_k^{\mathrm{tot}}(x).
+\]
+
+现取
+\[
+  J_k'(x)\ge J_k(x)\ge 0
+\]
+并固定
+\[
+  \mathfrak h_k(x),\ U_k(x),\ \nu_k^{\mathrm{tot}}(x).
+\]
+则
+\[
+  \Delta \mathfrak h_k\bigl(x;J_k'(x)\bigr)
+  -
+  \Delta \mathfrak h_k\bigl(x;J_k(x)\bigr)
+\]
+等于
+\[
+  \frac{J_k'(x)U_k(x)-\lambda \mathfrak h_k(x)}{1+J_k'(x)}
+  -
+  \frac{J_k(x)U_k(x)-\lambda \mathfrak h_k(x)}{1+J_k(x)}.
+\]
+通分化简得
+\[
+  \Delta \mathfrak h_k\bigl(x;J_k'(x)\bigr)
+  -
+  \Delta \mathfrak h_k\bigl(x;J_k(x)\bigr)
+  =
+  \frac{
+    \bigl(J_k'(x)-J_k(x)\bigr)\bigl(U_k(x)+\lambda \mathfrak h_k(x)\bigr)
+  }{
+    \bigl(1+J_k'(x)\bigr)\bigl(1+J_k(x)\bigr)
+  }.
+\]
+由于
+\[
+  J_k'(x)-J_k(x)\ge 0,
+  \qquad
+  U_k(x)+\lambda \mathfrak h_k(x)\ge 0,
+\]
+且分母严格为正，故上式非负。
+因此 gap 增大时，
+\[
+  \Delta \mathfrak h_k
+\]
+单调增大，表现为加速驱动；反之 gap 缩小时，
+\[
+  \Delta \mathfrak h_k
+\]
+单调减小，而阻尼项
+\[
+  \frac{\lambda \mathfrak h_k(x)}{1+J_k(x)}
+\]
+在相对意义上占比上升，系统转入更强阻尼主导区间。
+
+再固定
+\[
+  \mathcal C_k^{\mathrm{eng}}(x)\ge 0.
+\]
+由一步性价比定义，
+\[
+  \operatorname{CP}_k\bigl(x;J_k(x)\bigr)
+  =
+  \frac{
+    \frac{J_k(x)}{1+J_k(x)}U_k(x)+\mu \nu_k^{\mathrm{tot}}(x)
+  }{
+    1+\mathcal C_k^{\mathrm{eng}}(x)
+  }.
+\]
+于是
+\[
+  \operatorname{CP}_k\bigl(x;J_k'(x)\bigr)
+  -
+  \operatorname{CP}_k\bigl(x;J_k(x)\bigr)
+\]
+等于
+\[
+  \frac{
+    \left(
+      \frac{J_k'(x)}{1+J_k'(x)}
+      -
+      \frac{J_k(x)}{1+J_k(x)}
+    \right)U_k(x)
+  }{
+    1+\mathcal C_k^{\mathrm{eng}}(x)
+  }.
+\]
+通分化简得
+\[
+  \operatorname{CP}_k\bigl(x;J_k'(x)\bigr)
+  -
+  \operatorname{CP}_k\bigl(x;J_k(x)\bigr)
+  =
+  \frac{
+    \bigl(J_k'(x)-J_k(x)\bigr)U_k(x)
+  }{
+    \bigl(1+\mathcal C_k^{\mathrm{eng}}(x)\bigr)\bigl(1+J_k'(x)\bigr)\bigl(1+J_k(x)\bigr)
+  }
+  \ge 0.
+\]
+故 gap 增大时，一步性价比同步改善；gap 缩小时，一步性价比同步回落。
+故定理成立。证毕。
+\end{proof}
+
+\subsection{引理：复用数据轮询（主动+被动回调）共同抬升系统响应频率}
+\label{subsec:tex36-callback-frequency}
+
+\begin{lemma}[复用数据轮询频率引理]
+\label{lem:tex36-callback-frequency}
+固定同一输入数据包
+\[
+  D_k(x).
+\]
+把对该数据包的双通道读取理解为一次复用数据轮询。
+设系统监听回调所产生的被动响应频率为
+\[
+  \nu_k^{\mathrm{pas}}(x;D_k)\in\NN,
+\]
+并设以同一数据包
+\[
+  D_k(x)
+\]
+驱动的主动模拟回调系统产生频率
+\[
+  \nu_k^{\mathrm{act}}(x;D_k)\in\NN.
+\]
+定义总响应频率
+\[
+  \nu_k^{\mathrm{tot}}(x;D_k)
+  :=
+  \nu_k^{\mathrm{pas}}(x;D_k)
+  +
+  \nu_k^{\mathrm{act}}(x;D_k).
+\]
+在工程语义上，这也就是该数据包的复用数据轮询频率。
+则
+\[
+  \nu_k^{\mathrm{tot}}(x;D_k)\ge \nu_k^{\mathrm{pas}}(x;D_k),
+\]
+且当
+\[
+  \nu_k^{\mathrm{act}}(x;D_k)>0
+\]
+时严格成立。
+进一步地，若
+\[
+  \mathfrak h_{k+1}^{\mathrm{pas}}(x)
+\]
+表示只保留被动回调时的下一步扭曲强度，
+\[
+  \mathfrak h_{k+1}^{\mathrm{tot}}(x)
+\]
+表示加入主动同数据模拟回调后的下一步扭曲强度，则在固定
+\[
+  \mathfrak h_k(x),\ J_k(x),\ U_k(x)
+\]
+不变时，有
+\[
+  \mathfrak h_{k+1}^{\mathrm{tot}}(x)
+  -
+  \mathfrak h_{k+1}^{\mathrm{pas}}(x)
+  =
+  \mu \nu_k^{\mathrm{act}}(x;D_k)
+  \ge 0.
+\]
+因此，被动监听回调与主动同数据模拟回调的合计必然抬升系统响应频率，并同步抬升下一步同伦扭曲响应。
+\end{lemma}
+
+\begin{Certificate}[证书 L7：同数据双通道叠加证书]
+\label{cert:tex36-l7}
+证书分为两步：
+\begin{enumerate}
+  \item 总频率由算术和
+  \[
+    \nu_k^{\mathrm{tot}}
+    =
+    \nu_k^{\mathrm{pas}}+\nu_k^{\mathrm{act}}
+  \]
+  定义，因此复用数据轮询频率不会小于单独的被动频率；
+  \item 在响应递推式中，频率只通过项
+  \[
+    \mu \nu_k^{\mathrm{tot}}
+  \]
+  进入，故额外的主动频率会线性抬升下一步响应。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由定义，
+\[
+  \nu_k^{\mathrm{tot}}(x;D_k)
+  =
+  \nu_k^{\mathrm{pas}}(x;D_k)
+  +
+  \nu_k^{\mathrm{act}}(x;D_k).
+\]
+由于
+\[
+  \nu_k^{\mathrm{act}}(x;D_k)\in\NN,
+\]
+故
+\[
+  \nu_k^{\mathrm{tot}}(x;D_k)\ge \nu_k^{\mathrm{pas}}(x;D_k),
+\]
+且若
+\[
+  \nu_k^{\mathrm{act}}(x;D_k)>0,
+\]
+则
+\[
+  \nu_k^{\mathrm{tot}}(x;D_k)> \nu_k^{\mathrm{pas}}(x;D_k).
+\]
+
+再看响应链。只保留被动回调时，由定理 \ref{thm:tex36-a6}，
+\[
+  \mathfrak h_{k+1}^{\mathrm{pas}}(x)
+  =
+  \bigl(1-\lambda d_k(x)\bigr)\mathfrak h_k(x)
+  +
+  a_k(x)U_k(x)
+  +
+  \mu \nu_k^{\mathrm{pas}}(x;D_k).
+\]
+加入主动同数据模拟回调后，
+\[
+  \mathfrak h_{k+1}^{\mathrm{tot}}(x)
+  =
+  \bigl(1-\lambda d_k(x)\bigr)\mathfrak h_k(x)
+  +
+  a_k(x)U_k(x)
+  +
+  \mu \nu_k^{\mathrm{tot}}(x;D_k).
+\]
+两式相减得
+\[
+  \mathfrak h_{k+1}^{\mathrm{tot}}(x)
+  -
+  \mathfrak h_{k+1}^{\mathrm{pas}}(x)
+  =
+  \mu\bigl(
+    \nu_k^{\mathrm{tot}}(x;D_k)
+    -
+    \nu_k^{\mathrm{pas}}(x;D_k)
+  \bigr)
+  =
+  \mu \nu_k^{\mathrm{act}}(x;D_k).
+\]
+又因
+\[
+  \mu>0,
+  \qquad
+  \nu_k^{\mathrm{act}}(x;D_k)\ge 0,
+\]
+故上式非负；若主动模拟回调真实开启，则严格为正。
+因此，总响应频率与下一步同伦扭曲响应都会因同数据双通道协同而上升。证毕。
+\end{proof}
+
+\subsection{命题：数据轮询复用与同伦扭曲加速给出微观隧穿命中的工程干预效果}
+\label{subsec:tex36-deterministic-tunneling-gain}
+
+\begin{proposition}[微观隧穿命中的工程干预命题]
+\label{prop:tex36-deterministic-tunneling-gain}
+沿用定理 \ref{thm:tex36-jac-gap-accel} 与引理 \ref{lem:tex36-callback-frequency} 的设定。
+设存在常数
+\[
+  \underline J>0,
+  \qquad
+  \underline U>0,
+  \qquad
+  \underline \nu>0,
+  \qquad
+  \overline{\mathcal B}(x)\ge 0,
+\]
+使得对所有
+\[
+  0\le k<N
+\]
+都有
+\[
+  J_k(x)\ge \underline J,
+  \qquad
+  U_k(x)\ge \underline U,
+  \qquad
+  \nu_k^{\mathrm{tot}}(x)\ge \underline \nu,
+\]
+且相应障碍高度满足
+\[
+  \mathcal B_k(x)\le \overline{\mathcal B}(x).
+\]
+定义累计工程干预预算
+\[
+  \mathfrak G_N(x)
+  :=
+  \sum_{k=0}^{N-1}
+  \left(
+    \frac{J_k(x)}{1+J_k(x)}\,U_k(x)
+    +
+    \mu \nu_k^{\mathrm{tot}}(x)
+  \right),
+\]
+定义确定性微观隧穿命中系数（亦即命中干预效果）
+\[
+  \Theta_N^{\mathrm{det}}(x)
+  :=
+  1-\exp\left(
+    -\frac{\mathfrak G_N(x)}{1+\overline{\mathcal B}(x)}
+  \right),
+\]
+并定义对应障碍修复增益
+\[
+  \operatorname{Gain}_N^{\mathrm{rep}}(x)
+  :=
+  \exp\left(
+    \frac{\mathfrak G_N(x)}{1+\overline{\mathcal B}(x)}
+  \right)-1.
+\]
+若记
+\[
+  \delta_x
+  :=
+  \frac{\underline J}{1+\underline J}\,\underline U
+  +
+  \mu \underline \nu
+  >0,
+\]
+则
+\[
+  \mathfrak G_N(x)\ge N\delta_x,
+\]
+\[
+  \Theta_N^{\mathrm{det}}(x)
+  \ge
+  1-\exp\left(
+    -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right),
+\]
+\[
+  \operatorname{Gain}_N^{\mathrm{rep}}(x)
+  \ge
+  \exp\left(
+    \frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right)-1.
+\]
+特别地，
+\[
+  \lim_{N\to\infty}\Theta_N^{\mathrm{det}}(x)=1,
+  \qquad
+  \lim_{N\to\infty}\operatorname{Gain}_N^{\mathrm{rep}}(x)=+\infty.
+\]
+因此，增加雅可比间隙驱动下的复用数据轮询频率与同伦扭曲加速，共同给出了微观隧穿命中的工程干预效果的\textbf{确定性可证下界}。
+\end{proposition}
+
+\begin{Certificate}[证书 P7：线性累计干预预算证书]
+\label{cert:tex36-p7}
+证书分为两步：
+\begin{enumerate}
+  \item 由
+  \[
+    J_k\ge \underline J,\quad
+    U_k\ge \underline U,\quad
+    \nu_k^{\mathrm{tot}}\ge \underline \nu
+  \]
+  以及函数
+  \[
+    s\mapsto \frac{s}{1+s}
+  \]
+  的单调性，每一步都至少贡献
+  \[
+    \delta_x
+  \]
+  的工程干预预算；
+  \item 把累计预算代入指数型微观隧穿命中系数，即得到显式确定性下界与极限。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+对每个
+\[
+  0\le k<N,
+\]
+由假设
+\[
+  J_k(x)\ge \underline J>0
+\]
+以及函数
+\[
+  s\mapsto \frac{s}{1+s}
+\]
+在
+\[
+  \RR_{\ge 0}
+\]
+上单调递增，得
+\[
+  \frac{J_k(x)}{1+J_k(x)}
+  \ge
+  \frac{\underline J}{1+\underline J}.
+\]
+再结合
+\[
+  U_k(x)\ge \underline U,
+  \qquad
+  \nu_k^{\mathrm{tot}}(x)\ge \underline \nu,
+\]
+得
+\[
+  \frac{J_k(x)}{1+J_k(x)}\,U_k(x)
+  +
+  \mu \nu_k^{\mathrm{tot}}(x)
+  \ge
+  \frac{\underline J}{1+\underline J}\,\underline U
+  +
+  \mu \underline \nu
+  =
+  \delta_x.
+\]
+对
+\[
+  k=0,1,\ldots,N-1
+\]
+求和，立即得到
+\[
+  \mathfrak G_N(x)\ge N\delta_x.
+\]
+
+由于指数函数单调递增，故
+\[
+  -\frac{\mathfrak G_N(x)}{1+\overline{\mathcal B}(x)}
+  \le
+  -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}.
+\]
+于是
+\[
+  \Theta_N^{\mathrm{det}}(x)
+  =
+  1-\exp\left(
+    -\frac{\mathfrak G_N(x)}{1+\overline{\mathcal B}(x)}
+  \right)
+  \ge
+  1-\exp\left(
+    -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right).
+\]
+同理，
+\[
+  \operatorname{Gain}_N^{\mathrm{rep}}(x)
+  =
+  \exp\left(
+    \frac{\mathfrak G_N(x)}{1+\overline{\mathcal B}(x)}
+  \right)-1
+  \ge
+  \exp\left(
+    \frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right)-1.
+\]
+
+最后，因为
+\[
+  \delta_x>0,
+\]
+故
+\[
+  \frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \xrightarrow[N\to\infty]{}+\infty.
+\]
+于是
+\[
+  \exp\left(
+    -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right)\to 0,
+\]
+\[
+  \exp\left(
+    \frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right)-1\to +\infty.
+\]
+因此
+\[
+  \Theta_N^{\mathrm{det}}(x)\to 1,
+  \qquad
+  \operatorname{Gain}_N^{\mathrm{rep}}(x)\to +\infty.
+\]
+故微观隧穿命中的工程干预效果的确定性下界得证。证毕。
+\end{proof}
+
+\subsection{推论：微观隧穿命中的工程干预具有数学上的确定性可证与工程上的确定性趋近}
+\label{subsec:tex36-deterministic-approximation}
+
+\begin{corollary}[微观隧穿命中的确定性干预推论]
+\label{cor:tex36-deterministic-approximation}
+在命题 \ref{prop:tex36-deterministic-tunneling-gain} 的条件下，任取误差容忍度
+\[
+  \varepsilon\in(0,1).
+\]
+定义
+\[
+  N_\varepsilon(x)
+  :=
+  \left\lceil
+    \frac{
+      \bigl(1+\overline{\mathcal B}(x)\bigr)\ln\!\bigl(\varepsilon^{-1}\bigr)
+    }{
+      \delta_x
+    }
+  \right\rceil.
+\]
+则对所有
+\[
+  N\ge N_\varepsilon(x)
+\]
+都有
+\[
+  \Theta_N^{\mathrm{det}}(x)\ge 1-\varepsilon,
+\]
+等价地，
+\[
+  1-\Theta_N^{\mathrm{det}}(x)\le \varepsilon.
+\]
+进一步地，
+\[
+  \operatorname{Gain}_N^{\mathrm{rep}}(x)\ge \varepsilon^{-1}-1.
+\]
+因此，微观隧穿命中的工程干预不仅在数学上具有确定性可证的下界，而且在工程上存在一条显式的确定性趋近步数公式。
+\end{corollary}
+
+\begin{Certificate}[证书 C7：显式步数反解证书]
+\label{cert:tex36-c7}
+命题 \ref{prop:tex36-deterministic-tunneling-gain} 已给出
+\[
+  \Theta_N^{\mathrm{det}}(x)
+  \ge
+  1-\exp\left(
+    -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right).
+\]
+令右端残差不超过
+\[
+  \varepsilon
+\]
+并对 $N$ 反解，即得到
+\[
+  N_\varepsilon(x).
+\]
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由命题 \ref{prop:tex36-deterministic-tunneling-gain}，
+\[
+  \Theta_N^{\mathrm{det}}(x)
+  \ge
+  1-\exp\left(
+    -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right).
+\]
+若
+\[
+  N\ge N_\varepsilon(x)
+  =
+  \left\lceil
+    \frac{
+      \bigl(1+\overline{\mathcal B}(x)\bigr)\ln\!\bigl(\varepsilon^{-1}\bigr)
+    }{
+      \delta_x
+    }
+  \right\rceil,
+\]
+则必有
+\[
+  N
+  \ge
+  \frac{
+    \bigl(1+\overline{\mathcal B}(x)\bigr)\ln\!\bigl(\varepsilon^{-1}\bigr)
+  }{
+    \delta_x
+  }.
+\]
+两边同乘正数
+\[
+  \frac{\delta_x}{1+\overline{\mathcal B}(x)}
+\]
+得
+\[
+  \frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \ge
+  \ln\!\bigl(\varepsilon^{-1}\bigr).
+\]
+取负号并指数化，得到
+\[
+  \exp\left(
+    -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right)
+  \le
+  \varepsilon.
+\]
+代回命题中的下界即得
+\[
+  \Theta_N^{\mathrm{det}}(x)\ge 1-\varepsilon,
+\]
+亦即
+\[
+  1-\Theta_N^{\mathrm{det}}(x)\le \varepsilon.
+\]
+
+再由命题 \ref{prop:tex36-deterministic-tunneling-gain}，
+\[
+  \operatorname{Gain}_N^{\mathrm{rep}}(x)
+  \ge
+  \exp\left(
+    \frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right)-1
+  \ge
+  \exp\bigl(\ln(\varepsilon^{-1})\bigr)-1
+  =
+  \varepsilon^{-1}-1.
+\]
+因此，所需步数可显式设计，故既有数学上的确定性可证，也有工程上的确定性趋近。证毕。
+\end{proof}
+
+\subsection{备注}
+\label{subsec:tex36-ch7-remarks}
+
+\begin{remark}[本章与第四章“概率型微观隧穿”之间的关系]
+第四章的命题 \ref{prop:tex36-hit-repair} 给出的是统计抽样口径下的命中修复机制；
+本章给出的
+\[
+  \Theta_N^{\mathrm{det}}(x)
+\]
+则是一个确定性工程干预包络。
+前者回答“抽样为何会命中”，后者回答“通过提高 gap 驱动、复用数据轮询与扭曲加速，命中能力至少能被推进到什么程度”。
+\end{remark}
+
+\begin{remark}[“复用数据轮询（主动+被动回调）”不意味着引入新语义源]
+这里主动模拟回调系统与被动监听系统读取的是同一数据包
+\[
+  D_k(x),
+\]
+因此它增加的不是新的外部真值源，而是同一数据上的第二条响应通道。
+形式系统里，这件事体现为
+\[
+  \nu_k^{\mathrm{tot}}
+  =
+  \nu_k^{\mathrm{pas}}
+  +
+  \nu_k^{\mathrm{act}}.
+\]
+所以它的作用是提升复用数据轮询频率、响应频率与响应密度，而不是篡改对象语义。
+\end{remark}
+
+\begin{remark}[“间隙大则加速且改善性价比、间隙小则阻尼/降速”应怎样理解]
+这里的“加速/阻尼”与“性价比改善/回落”都不是心理化比喻，而是指增量公式
+\[
+  \Delta \mathfrak h_k
+  =
+  \frac{J_kU_k-\lambda \mathfrak h_k}{1+J_k}
+  +
+  \mu \nu_k^{\mathrm{tot}}
+\]
+对
+\[
+  J_k
+\]
+具有单调性。
+当 gap 上升时，驱动项
+\[
+  \frac{J_kU_k}{1+J_k}
+\]
+增强，且
+\[
+  \operatorname{CP}_k
+  =
+  \frac{\frac{J_kU_k}{1+J_k}+\mu \nu_k^{\mathrm{tot}}}{1+\mathcal C_k^{\mathrm{eng}}}
+\]
+同步上升；当 gap 下降时，驱动项减弱，一步性价比回落，系统更新更容易回落到阻尼/降速主导区间。
+因此“加速/阻尼”与“性价比优化”在这里都是严格的结构术语，而不是修辞判断。
+\end{remark}
+
+\begin{remark}[工程一句话版本]
+若把本章压成一句可执行判断，那么可以写成：
+\begin{center}
+\fbox{
+\parbox{0.88\linewidth}{
+\centering
+雅可比间隙负责决定同伦扭曲与工程性价比的加减速切换，主动+被动双通道负责复用数据轮询并抬高响应频率；两者叠加后，可把微观隧穿命中写成带显式步数上界的工程干预与确定性趋近过程。
+}}
+\end{center}
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：第七章的严格语义与微观隧穿命中修复的工程干预}
+\label{sec:tex36-ch8}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[第八章目标]
+本章不再重复第七章的构造，而是专门澄清其\textbf{严格语义边界}：
+第七章是否可以被严格理解为“对微观隧穿命中修复的工程干预”？
+本章给出的答案是：
+\[
+  \text{基本正确，但必须加上精确限定。}
+\]
+更严格地说，第七章并不是单独直接证明“命中事件本身”，而是把第四章的概率型微观隧穿命中修复机制，
+提升为由
+\[
+  \text{Jacobi 间隙调速}
+  \;+\;
+  \text{同数据双回调增频}
+  \;+\;
+  \text{同伦扭曲递推}
+\]
+共同组成的\textbf{确定性工程干预包络}。
+本章的任务，就是把这一语义澄清压成新的形式逻辑章节。
+\end{remark}
+
+\subsection{对象、记号与第七章核心递推链}
+\label{subsec:tex36-ch8-setup}
+
+\begin{definition}[第 $k$ 步的 Jacobi 间隙、回调频率与扭曲强度]
+沿用第七章记号。
+对任意离散步 $k\in\NN$，记
+\[
+  J_k(x)\in \RR_{\ge 0}
+\]
+为第 $k$ 步的 Jacobi 间隙证书量；
+记同一输入数据包上的被动回调频率与主动回调频率分别为
+\[
+  \nu_k^{\mathrm{pas}}(x),
+  \qquad
+  \nu_k^{\mathrm{act}}(x),
+\]
+并定义总响应频率
+\[
+  \nu_k^{\mathrm{tot}}(x)
+  :=
+  \nu_k^{\mathrm{pas}}(x)+\nu_k^{\mathrm{act}}(x).
+\]
+再记同伦扭曲强度为
+\[
+  \mathfrak h_k(x),
+\]
+基础驱动输入为
+\[
+  U_k(x),
+\]
+并定义
+\[
+  a_k(x)=\frac{J_k(x)}{1+J_k(x)},
+  \qquad
+  d_k(x)=\frac{1}{1+J_k(x)}.
+\]
+\end{definition}
+
+\begin{definition}[第七章的核心递推链]
+\label{def:tex36-ch8-core-recursion}
+固定常数
+\[
+  0<\lambda\le 1,
+  \qquad
+  \mu>0.
+\]
+定义第七章的核心递推链为
+\[
+  \mathfrak h_{k+1}(x)
+  =
+  \bigl(1-\lambda d_k(x)\bigr)\mathfrak h_k(x)
+  +
+  a_k(x)U_k(x)
+  +
+  \mu \nu_k^{\mathrm{tot}}(x).
+\]
+并定义累计工程预算
+\[
+  \mathfrak G_N(x)
+  :=
+  \sum_{k=0}^{N-1}
+  \left(
+    \frac{J_k(x)}{1+J_k(x)}U_k(x)
+    +
+    \mu\nu_k^{\mathrm{tot}}(x)
+  \right),
+\]
+以及确定性工程干预系数
+\[
+  \Theta_N^{\mathrm{det}}(x)
+  :=
+  1-\exp\left(
+    -\frac{\mathfrak G_N(x)}{1+\overline{\mathcal B}(x)}
+  \right).
+\]
+\end{definition}
+
+\begin{definition}[第七章严格语义的三个谓词]
+\label{def:tex36-ch8-semantics}
+定义三个语义谓词：
+\[
+  \mathsf{DirHit}_7
+  :
+  \Longleftrightarrow
+  \text{第七章单独直接证明微观隧穿命中事件本身};
+\]
+\[
+  \mathsf{EngEnv}_7
+  :
+  \Longleftrightarrow
+  \text{第七章把第四章概率命中图景提升为确定性工程干预包络};
+\]
+\[
+  \mathsf{Sem}_7
+  :
+  \Longleftrightarrow
+  \text{第七章在本文中的严格语义描述}.
+\]
+\end{definition}
+
+\subsection{公理（降级为定理）：第七章的工程干预状态链可递归确定}
+\label{subsec:tex36-ch8-axiom}
+
+\begin{theorem}[公理（降级为定理）A7：工程干预状态链定理]
+\label{thm:tex36-a7}
+沿用定义 \ref{def:tex36-ch8-core-recursion}。
+对任意 $N\in\NN$，定义长度为 $N$ 的工程干预状态链
+\[
+  \Xi_N(x)
+  :=
+  \bigl(\xi_0(x),\xi_1(x),\ldots,\xi_N(x)\bigr),
+\]
+其中
+\[
+  \xi_k(x)
+  :=
+  \bigl(
+    \mathfrak h_k(x),
+    \nu_k^{\mathrm{tot}}(x),
+    \mathfrak G_k(x)
+  \bigr),
+\qquad
+  \mathfrak G_0(x):=0.
+\]
+若初值
+\[
+  \mathfrak h_0(x)
+\]
+已给定，且对所有
+\[
+  0\le k<N
+\]
+都已给定
+\[
+  J_k(x),\quad U_k(x),\quad
+  \nu_k^{\mathrm{pas}}(x),\quad \nu_k^{\mathrm{act}}(x),
+\]
+则状态递推
+\[
+  \nu_k^{\mathrm{tot}}(x)
+  =
+  \nu_k^{\mathrm{pas}}(x)+\nu_k^{\mathrm{act}}(x),
+\]
+\[
+  \mathfrak h_{k+1}(x)
+  =
+  \bigl(1-\lambda d_k(x)\bigr)\mathfrak h_k(x)
+  +
+  a_k(x)U_k(x)
+  +
+  \mu \nu_k^{\mathrm{tot}}(x),
+\]
+\[
+  \mathfrak G_{k+1}(x)
+  =
+  \mathfrak G_k(x)
+  +
+  \frac{J_k(x)}{1+J_k(x)}U_k(x)
+  +
+  \mu \nu_k^{\mathrm{tot}}(x)
+\]
+唯一确定整个状态链
+\[
+  \Xi_N(x).
+\]
+因此，第七章的工程干预状态链是良定义且可递归展开的。
+\end{theorem}
+
+\begin{Certificate}[数学归纳法证书 A7($N$)：工程干预状态链证书]
+\label{cert:tex36-a7}
+令谓词
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \text{长度为 $N$ 的工程干预状态链 }\Xi_N(x)\text{ 存在且唯一。}
+\]
+证书分为两部分：
+\begin{enumerate}
+  \item \textbf{基础步 $P(0)$：}由
+  \[
+    \mathfrak h_0(x),\qquad \mathfrak G_0(x)=0
+  \]
+  可唯一确定
+  \[
+    \xi_0(x).
+  \]
+  \item \textbf{归纳步 $P(N)\Rightarrow P(N+1)$：}若前 $N$ 步状态链已唯一给出，则
+  \[
+    \nu_N^{\mathrm{tot}}(x),\quad
+    \mathfrak h_{N+1}(x),\quad
+    \mathfrak G_{N+1}(x)
+  \]
+  都由显式递推式唯一给出，从而
+  \[
+    \xi_{N+1}(x)
+  \]
+  及整条 $\Xi_{N+1}(x)$ 唯一确定。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（数学归纳法证书；基于数学符号推演逻辑的谓词因果链）]
+令
+\[
+  P(N)
+  :
+  \Longleftrightarrow
+  \text{长度为 $N$ 的工程干预状态链 }\Xi_N(x)\text{ 存在且唯一。}
+\]
+
+\textbf{基础步：}当 $N=0$ 时，
+\[
+  \Xi_0(x)=\bigl(\xi_0(x)\bigr).
+\]
+由
+\[
+  \mathfrak h_0(x)
+\]
+已给定，且
+\[
+  \mathfrak G_0(x)=0
+\]
+按定义固定，再由
+\[
+  \nu_0^{\mathrm{tot}}(x)
+  =
+  \nu_0^{\mathrm{pas}}(x)+\nu_0^{\mathrm{act}}(x)
+\]
+唯一给出，故
+\[
+  \xi_0(x)
+\]
+唯一确定，即 $P(0)$ 成立。
+
+\textbf{归纳步：}设 $P(N)$ 成立。于是
+\[
+  \Xi_N(x)
+  =
+  \bigl(\xi_0(x),\xi_1(x),\ldots,\xi_N(x)\bigr)
+\]
+已唯一给出。
+由输入数据
+\[
+  J_N(x),\quad U_N(x),\quad
+  \nu_N^{\mathrm{pas}}(x),\quad \nu_N^{\mathrm{act}}(x)
+\]
+已给定，得
+\[
+  \nu_N^{\mathrm{tot}}(x)
+  =
+  \nu_N^{\mathrm{pas}}(x)+\nu_N^{\mathrm{act}}(x)
+\]
+唯一确定。
+再由定义 \ref{def:tex36-ch8-core-recursion}，
+\[
+  \mathfrak h_{N+1}(x)
+\]
+唯一确定。
+同理，
+\[
+  \mathfrak G_{N+1}(x)
+  =
+  \mathfrak G_N(x)
+  +
+  \frac{J_N(x)}{1+J_N(x)}U_N(x)
+  +
+  \mu \nu_N^{\mathrm{tot}}(x)
+\]
+也唯一确定。
+故
+\[
+  \xi_{N+1}(x)
+\]
+唯一给出，从而
+\[
+  \Xi_{N+1}(x)
+\]
+唯一确定，即 $P(N+1)$ 成立。
+
+由数学归纳法，
+\[
+  \forall N\in\NN,\quad P(N)\ \text{成立}.
+\]
+因此工程干预状态链对每个离散长度都存在且唯一。证毕。
+\end{proof}
+
+\subsection{定理：第七章的严格语义是确定性工程干预包络，而非单独直接证明命中本身}
+\label{subsec:tex36-ch8-theorem}
+
+\begin{theorem}[主定理：第七章严格语义定理]
+\label{thm:tex36-ch8-semantic}
+沿用定义 \ref{def:tex36-ch8-semantics}。
+则
+\[
+  \mathsf{Sem}_7=\mathsf{EngEnv}_7,
+\]
+并且
+\[
+  \mathsf{Sem}_7\neq \mathsf{DirHit}_7.
+\]
+更精确地说，第七章证明的是下述命题链：
+\[
+  \text{Gap 驱动加速/阻尼切换}
+  \;+\;
+  \text{同数据主动/被动双通道回调抬升响应频率}
+  \;+\;
+  \text{同伦扭曲递推加速}
+\]
+共同推出
+\[
+  \text{微观隧穿障碍修复增益的确定性下界}
+  \quad\text{以及}\quad
+  \text{达到给定误差容忍度的显式步数公式}.
+\]
+因此，若把第七章压缩表述为“实现了微观隧穿命中的工程干预效果”，其方向是正确的；
+但最严格的写法应是：
+\[
+  \text{第七章把原先的概率命中图景压成了可调速、可增频、可估步数的工程干预链。}
+\]
+\end{theorem}
+
+\begin{Certificate}[证书 T8：正面识别 + 反面区分证书]
+\label{cert:tex36-t8}
+证书分为两步：
+\begin{enumerate}
+  \item \textbf{正面识别：}
+  定理 \ref{thm:tex36-jac-gap-accel}、引理 \ref{lem:tex36-callback-frequency}、命题 \ref{prop:tex36-deterministic-tunneling-gain}
+    与推论 \ref{cor:tex36-deterministic-approximation}
+  已把第七章识别为“调速 + 增频 + 估步数”的确定性工程包络；
+  \item \textbf{反面区分：}
+  第七章并未单独给出新的概率命中事件定义与概率极限公式；
+  该部分属于第四章的命题 \ref{prop:tex36-hit-repair}。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+先看正面识别。
+由定理 \ref{thm:tex36-jac-gap-accel}，
+\[
+  J_k\uparrow
+  \Longrightarrow
+  \Delta\mathfrak h_k\uparrow,
+\]
+因此第七章确实给出了 Jacobi 间隙驱动下的加速/阻尼切换律。
+由引理 \ref{lem:tex36-callback-frequency}，
+\[
+  \nu_k^{\mathrm{tot}}
+  =
+  \nu_k^{\mathrm{pas}}+\nu_k^{\mathrm{act}},
+\qquad
+  \mathfrak h_{k+1}^{\mathrm{tot}}-\mathfrak h_{k+1}^{\mathrm{pas}}
+  =
+  \mu\nu_k^{\mathrm{act}}\ge 0,
+\]
+故同数据主动/被动双通道回调确实抬升了响应频率。
+再由命题 \ref{prop:tex36-deterministic-tunneling-gain}，
+\[
+  \Theta_N^{\mathrm{det}}(x)
+  \ge
+  1-\exp\left(
+    -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right),
+\]
+而推论 \ref{cor:tex36-deterministic-approximation} 又给出
+\[
+  N_\varepsilon(x)
+  =
+  \left\lceil
+    \frac{
+      \bigl(1+\overline{\mathcal B}(x)\bigr)\ln(\varepsilon^{-1})
+    }{\delta_x}
+  \right\rceil.
+\]
+这说明第七章所得到的是确定性下界与显式步数公式。
+因此
+\[
+  \mathsf{Sem}_7=\mathsf{EngEnv}_7.
+\]
+
+再看反面区分。
+若要满足
+\[
+  \mathsf{DirHit}_7,
+\]
+则第七章必须单独直接给出“命中事件”的概率性定义与极限公式。
+但本文中真正承担该任务的是第四章的命题 \ref{prop:tex36-hit-repair}，其给出
+\[
+  \mathbb P\bigl(\operatorname{Hit}_{n,\beta,L}^{(M)}(x)\bigr)
+  =
+  1-\bigl(1-p_{n,\beta,L}(x)\bigr)^M.
+\]
+第七章本身是在此基础上叠加确定性控制包络，而不是另起一套独立的直接命中概率定理。
+故
+\[
+  \mathsf{Sem}_7\neq \mathsf{DirHit}_7.
+\]
+
+综上，
+\[
+  \mathsf{Sem}_7=\mathsf{EngEnv}_7,
+  \qquad
+  \mathsf{Sem}_7\neq \mathsf{DirHit}_7.
+\]
+因此主定理成立。证毕。
+\end{proof}
+
+\subsection{引理：同一输入数据包上的双通道回调只增频，不引入新语义源}
+\label{subsec:tex36-ch8-lemma}
+
+\begin{lemma}[同数据双通道引理]
+\label{lem:tex36-ch8-same-data}
+设第 $k$ 步被动监听回调与主动模拟回调读取的是同一输入数据包
+\[
+  D_k(x).
+\]
+则总响应频率满足
+\[
+  \nu_k^{\mathrm{tot}}(x;D_k)
+  =
+  \nu_k^{\mathrm{pas}}(x;D_k)
+  +
+  \nu_k^{\mathrm{act}}(x;D_k),
+\]
+并且总语义源仍等于
+\[
+  D_k(x),
+\]
+而不引入额外外部数据源。
+因此，第七章所谓“复用数据轮询”的严格含义是：
+\[
+  \text{同一输入数据包 }D_k(x)\text{ 上的两条响应通道叠加。}
+\]
+\end{lemma}
+
+\begin{Certificate}[证书 L8：同源双通道证书]
+\label{cert:tex36-l8}
+证书分为两步：
+\begin{enumerate}
+  \item 若两条回调都读取同一数据包
+  \[
+    D_k(x),
+  \]
+  则数据源对象并未改变；
+  \item 两条回调的差异只体现在响应通道数与频率累加上，因此效果是增频和增密，而不是换源。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由假设，被动监听回调读取的数据对象为
+\[
+  D_k(x),
+\]
+主动模拟回调读取的数据对象也为
+\[
+  D_k(x).
+\]
+因此两条通道在输入源层面并无差异，故总语义源仍等于同一个
+\[
+  D_k(x).
+\]
+再由定义，
+\[
+  \nu_k^{\mathrm{tot}}(x;D_k)
+  =
+  \nu_k^{\mathrm{pas}}(x;D_k)
+  +
+  \nu_k^{\mathrm{act}}(x;D_k).
+\]
+这表明双通道叠加所改变的是响应次数与响应密度，而不是输入对象本身。
+故第七章中的“复用数据轮询”若写成最严格版本，应理解为“同一数据包上的被动监听回调与主动模拟回调双通道叠加”。
+引理得证。证毕。
+\end{proof}
+
+\subsection{命题：第七章给出的是工程干预效果的确定性下界与显式步数公式}
+\label{subsec:tex36-ch8-proposition}
+
+\begin{proposition}[工程干预含义命题]
+\label{prop:tex36-ch8-engineering}
+设存在常数
+\[
+  \underline J>0,\qquad
+  \underline U>0,\qquad
+  \underline \nu>0
+\]
+使得
+\[
+  J_k(x)\ge \underline J,\qquad
+  U_k(x)\ge \underline U,\qquad
+  \nu_k^{\mathrm{tot}}(x)\ge \underline \nu,
+\]
+并且障碍高度满足
+\[
+  \mathcal B_k(x)\le \overline{\mathcal B}(x).
+\]
+定义
+\[
+  \delta_x
+  :=
+  \frac{\underline J}{1+\underline J}\,\underline U
+  +
+  \mu\underline \nu
+  >0.
+\]
+则
+\[
+  \mathfrak G_N(x)\ge N\delta_x,
+\]
+从而
+\[
+  \Theta_N^{\mathrm{det}}(x)
+  \ge
+  1-\exp\left(
+    -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right).
+\]
+进一步地，对任意误差容忍度
+\[
+  \varepsilon\in(0,1),
+\]
+若取
+\[
+  N_\varepsilon(x)
+  :=
+  \left\lceil
+    \frac{
+      \bigl(1+\overline{\mathcal B}(x)\bigr)\ln(\varepsilon^{-1})
+    }{\delta_x}
+  \right\rceil,
+\]
+则
+\[
+  N\ge N_\varepsilon(x)
+  \Longrightarrow
+  \Theta_N^{\mathrm{det}}(x)\ge 1-\varepsilon.
+\]
+因此，第七章的真正工程含义是：
+\[
+  \text{在给定预算下，命中修复能力至少能被推进到什么程度，以及至少需要多少步。}
+\]
+\end{proposition}
+
+\begin{Certificate}[证书 P8：预算下界 + 步数反解证书]
+\label{cert:tex36-p8}
+证书分为两步：
+\begin{enumerate}
+  \item 由输入下界
+  \[
+    \underline J,\underline U,\underline \nu
+  \]
+  得到每步最小推进量
+  \[
+    \delta_x;
+  \]
+  \item 把
+  \[
+    \mathfrak G_N(x)\ge N\delta_x
+  \]
+  代入
+  \[
+    \Theta_N^{\mathrm{det}}(x)
+  \]
+  并对误差容忍度 $\varepsilon$ 反解，即得到显式步数公式。
+\end{enumerate}
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由假设，
+\[
+  J_k(x)\ge \underline J>0,
+  \qquad
+  U_k(x)\ge \underline U,
+  \qquad
+  \nu_k^{\mathrm{tot}}(x)\ge \underline \nu.
+\]
+由函数
+\[
+  s\mapsto \frac{s}{1+s}
+\]
+的单调性，得
+\[
+  \frac{J_k(x)}{1+J_k(x)}
+  \ge
+  \frac{\underline J}{1+\underline J}.
+\]
+于是
+\[
+  \frac{J_k(x)}{1+J_k(x)}U_k(x)
+  +
+  \mu\nu_k^{\mathrm{tot}}(x)
+  \ge
+  \frac{\underline J}{1+\underline J}\underline U
+  +
+  \mu\underline \nu
+  =
+  \delta_x.
+\]
+对
+\[
+  k=0,1,\ldots,N-1
+\]
+求和，即得
+\[
+  \mathfrak G_N(x)\ge N\delta_x.
+\]
+
+再由定义 \ref{def:tex36-ch8-core-recursion}，
+\[
+  \Theta_N^{\mathrm{det}}(x)
+  =
+  1-\exp\left(
+    -\frac{\mathfrak G_N(x)}{1+\overline{\mathcal B}(x)}
+  \right),
+\]
+故
+\[
+  \Theta_N^{\mathrm{det}}(x)
+  \ge
+  1-\exp\left(
+    -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right).
+\]
+
+现取
+\[
+  \varepsilon\in(0,1)
+\]
+并令
+\[
+  N_\varepsilon(x)
+  :=
+  \left\lceil
+    \frac{
+      \bigl(1+\overline{\mathcal B}(x)\bigr)\ln(\varepsilon^{-1})
+    }{\delta_x}
+  \right\rceil.
+\]
+若
+\[
+  N\ge N_\varepsilon(x),
+\]
+则
+\[
+  \frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \ge
+  \ln(\varepsilon^{-1}),
+\]
+从而
+\[
+  \exp\left(
+    -\frac{N\delta_x}{1+\overline{\mathcal B}(x)}
+  \right)
+  \le
+  \varepsilon.
+\]
+代回上式，得
+\[
+  \Theta_N^{\mathrm{det}}(x)\ge 1-\varepsilon.
+\]
+因此，第七章所得到的并不只是“命中会发生”，而是“最保守情况下命中修复能力至少推进到何种程度，以及至少需要多少步”。
+这正是工程干预的数学含义。证毕。
+\end{proof}
+
+\subsection{推论：第七章把微观隧穿命中修复从统计可发生推进到工程可干预}
+\label{subsec:tex36-ch8-corollary}
+
+\begin{corollary}[第七章的工程可干预推论]
+\label{cor:tex36-ch8-intervene}
+在定理 \ref{thm:tex36-ch8-semantic}、引理 \ref{lem:tex36-ch8-same-data} 与命题 \ref{prop:tex36-ch8-engineering} 的前提下，
+第七章可以严格压缩为如下结论：
+\[
+  \text{第七章通过引入 Jacobi 间隙驱动的加速/阻尼切换，}
+\]
+\[
+  \text{以及同一数据包上的主动/被动双回调频率叠加，}
+\]
+\[
+  \text{把同伦扭曲响应链变成了一个可调速、可增频、可估步数的控制系统；}
+\]
+并且
+\[
+  \text{该控制系统进一步把第四章的概率型微观隧穿命中修复，}
+\]
+\[
+  \text{提升为具有确定性下界与显式步数公式的工程干预机制。}
+\]
+换言之，
+\[
+  \boxed{
+    \text{第七章的实质，就是把“微观隧穿命中修复”从统计可发生，推进到工程可干预。}
+  }
+\]
+\end{corollary}
+
+\begin{Certificate}[证书 C8：统计可发生 $\Rightarrow$ 工程可干预 证书]
+\label{cert:tex36-c8}
+证书分为两步：
+\begin{enumerate}
+  \item 第四章提供概率型命中修复图景；
+  \item 第七章在该图景之上叠加调速、增频、确定性下界与显式步数公式。
+\end{enumerate}
+两步首尾相接，即得“从统计可发生到工程可干预”的结论。
+\end{Certificate}
+
+\begin{proof}[证明（证书 + 基于数学符号推演逻辑的谓词因果链）]
+由第四章的命题 \ref{prop:tex36-hit-repair}，微观隧穿命中修复首先被写成概率型机制；
+即命中事件的发生可由抽样分布与命中概率公式刻画。
+由定理 \ref{thm:tex36-ch8-semantic}，第七章的严格语义并不是替代这一概率图景，而是把它提升为确定性工程干预包络。
+由引理 \ref{lem:tex36-ch8-same-data}，该工程包络的“增频”部分来自同一数据包上的双通道叠加，而不是引入新的外部数据源。
+由命题 \ref{prop:tex36-ch8-engineering}，这一工程包络进一步给出确定性下界与显式步数公式。
+于是，第七章确实把第四章中“统计上可发生”的命中修复，推进为“工程上可干预”的控制机制。
+故推论成立。证毕。
+\end{proof}
+
+\subsection{备注}
+\label{subsec:tex36-ch8-remarks}
+
+\begin{remark}[“复用数据轮询”最严格的写法]
+若追求严格，最好不要只写“复用数据轮询”，而应写作：
+\[
+  \text{同一数据包上的被动监听回调 + 主动模拟回调双通道叠加。}
+\]
+因为本章强调的是
+\[
+  D_k(x)
+\]
+相同，而不是任意新增外部数据源。
+\end{remark}
+
+\begin{remark}[“优化性价比”属于工程推论而非第七章原句]
+把第七章解释为“优化性价比”在工程语义上是成立的，
+但它属于\textbf{推论性解释}，而不是第七章直接证明时的原句。
+第七章直接证明的是：
+\[
+  \text{加速/阻尼切换},
+  \qquad
+  \text{频率抬升},
+  \qquad
+  \text{确定性下界},
+  \qquad
+  \text{显式步数公式}.
+\]
+若把“单位预算带来的修复推进量”解释为性价比，则可进一步读作：
+\[
+  \text{在同等输入预算下优化修复推进效率。}
+\]
+\end{remark}
+
+\begin{remark}[第七章不是替代第四章，而是在其上叠加控制包络]
+若更严格一点，就不能写成“第七章直接替代第四章的概率命中机制”。
+更准确的写法是：
+\[
+  \text{第七章不是替代第四章的概率命中机制，}
+\]
+\[
+  \text{而是在其上叠加一个确定性控制包络，}
+\]
+\[
+  \text{从而得到微观隧穿障碍修复的工程可干预性。}
+\]
+\end{remark}
+
+\begin{remark}[更强命题的边界]
+若再往前推进一步，可以尝试把本章压成更强命题：
+\[
+  \text{第七章把整套理论从概率修复系统提升为可控修复系统。}
+\]
+但这一更强说法还需要额外引入关于控制输入、观测反馈与闭环稳定性的补充假设。
+因此在当前文稿中，最稳妥的结论仍应保持为：
+\[
+  \text{从统计可发生，推进到工程可干预。}
+\]
+\end{remark}
+
+\section*{参考文献}
+\begin{thebibliography}{99}
+
+\bibitem{RepoTex35Tower}
+【仓内 TeX】扩展签发协议、主丛联络--路径积分--同伦修复塔与结构表示定理整理稿：
+\code{NoteBook/notebook2/tex35_pub/gframework_extended_certification_tower.tex}。
+
+\bibitem{RepoTex29RepairableObstruction}
+【仓内 TeX】可修复障碍同伦类与广义分形的形式系统笔记：
+\code{NoteBook/notebook2/tex29_pub/gframework_repairable_obstruction_homotopy_class_vs_generalized_fractal_formal_system
+  .tex}。
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+
+\bibitem{KobayashiNomizu1963Foundations}
+Kobayashi, S., \& Nomizu, K. (1963).
+\newblock \emph{Foundations of Differential Geometry, Volume I}.
+\newblock Interscience Publishers.
+
+\bibitem{Husemoller1994FibreBundles}
+Husemoller, D. (1994).
+\newblock \emph{Fibre Bundles} (3rd ed.).
+\newblock Springer.
+
+\bibitem{Hall2015LieGroups}
+Hall, B. C. (2015).
+\newblock \emph{Lie Groups, Lie Algebras, and Representations: An Elementary Introduction} (2nd ed.).
+\newblock Springer.
+
+\bibitem{FeynmanHibbs1965QMPI}
+Feynman, R. P., \& Hibbs, A. R. (1965).
+\newblock \emph{Quantum Mechanics and Path Integrals}.
+\newblock McGraw-Hill.
+
+\bibitem{Schulman2005Technique}
+Schulman, L. S. (2005).
+\newblock \emph{Techniques and Applications of Path Integration}.
+\newblock Dover Publications.
+
+\bibitem{Hatcher2002AT}
+Hatcher, A. (2002).
+\newblock \emph{Algebraic Topology}.
+\newblock Cambridge University Press.
+
+\bibitem{Whitehead1978Elements}
+Whitehead, G. W. (1978).
+\newblock \emph{Elements of Homotopy Theory}.
+\newblock Springer.
+
+\bibitem{Weibel1994HomologicalAlgebra}
+Weibel, C. A. (1994).
+\newblock \emph{An Introduction to Homological Algebra}.
+\newblock Cambridge University Press.
+
+\bibitem{LodayVallette2012AlgebraicOperads}
+Loday, J.-L., \& Vallette, B. (2012).
+\newblock \emph{Algebraic Operads}.
+\newblock Springer.
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

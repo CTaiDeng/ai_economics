@@ -1,0 +1,2693 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\refname}{参考文献}
+
+% 基本定理环境（工作笔记：形式系统风格）
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+% 记号（仅用于本笔记自洽引用，避免依赖主稿宏定义）
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+
+\hfuzz=700pt
+\hbadness=10000
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{语义函子：正则生成、裁决与规范化接口\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-01-14}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是单独讨论语义函子、正则生成、裁决或规范化接口，而是在
+\GFramework{} 的语义工程链条中，把表达输入、标准正则、MDQ 分割、外包证书、
+粒度审计、多次扫描与固定点收敛组织成一个可复验的语义规范化系统。若这些对象
+分散出现，语义函子容易被看成抽象映射，正则生成容易被看成字符串技巧，可信性也
+容易停留在主观判断；本文将其改写为可裁决、可留痕、可回放的工程接口。
+
+本文的第一层立场是语义函子的工程落地。语义函子在本文中不只是从表达到意义的
+抽象箭头，而是从自然语言或半结构表达进入标准正则、候选同伦类与验证接口的
+可调用组件。它把“表达是否合格”转化为“能否生成可裁决的标准表示并进入证书流”的
+问题。
+
+本文的第二层立场是可信性的降级。本文不把“可信”作为不可再分的整体标签，而是
+把它分解为 MDQ 粒度、外包证书、复验日志、扫描历史与固定点判据。由此，可信性
+不再依赖单次判断，而依赖可追溯的最小单元、可重复的验证路径与候选集合的单调
+收缩。
+
+本文的第三层立场是规范化的鲁棒收敛。多次扫描不是重复劳动，而是让候选同伦类
+集合逐步收缩，直到达到固定点或暴露出不可判定边界。规范化因此不仅产生标准文本，
+还产生一个“为什么当前标准足够稳定”的证书过程。
+
+本文的第四层立场是 LLM 与确定性裁决的分工。LLM 可以作为候选生成器，但不能成为
+最终正确性的口头担保。本文把生成与裁决分离：生成阶段负责提出候选正则或候选
+解释，裁决阶段通过编译、样例验证、复杂度阈值、变形测试和回归日志决定其是否
+进入标准集。
+
+本文的第五层立场是 MDQ 的可移植层意义。MDQ 将表达拆成最小可审计单元，使外包
+证书、复验、同伦类归属和语义迁移都能在细粒度上发生。由此，语义函子不再依赖
+整体句子的不可分判断，而可以把复杂表达分解为可复验的小块，再通过组合恢复整体。
+
+本文的第六层立场是多次扫描的单调收缩。候选集合如果每轮都可能任意扩大，就无法
+形成稳定规范；本文要求扫描过程在证书规则下呈现单调收缩或受控更新，直到达到固定
+点。固定点不是绝对真理，而是给定规则、样例和复杂度边界下的稳定规范化状态。
+
+本文的第七层立场是为后续命中和治理提供语义入口。无论是开放系统治理、策略簇
+生成还是 PDE 残差命中，都需要可靠输入表达。本文将这种输入可靠性前置为语义函子
+和正则规范化问题，使后续数学或工程系统不必直接承受未经裁决的自然语言不确定性。
+
+因此，本文在整体 \GFramework{} 中承担的是“语义函子到正则规范化接口”的作用。
+它向前连接语义规范场与边缘算子，向中间连接 MDQ、外包证书与固定点扫描，向后
+为开放系统治理、同伦命中和 PDE 残差范式提供语义输入的可裁决前端。概括地说，
+本文把“表达是否可信”推进为“语义函子生成、正则规范化、证书复验与鲁棒固定点”的
+形式系统。
+
+更具体地说，本文把“自然语言表达”降级为需要通过接口的输入对象。输入可以由模型
+生成，也可以由人给出，但进入系统之前必须经过规范化、验证和鲁棒性测试。这样，
+后续形式系统不再直接承受表达歧义，而只接收已裁决的标准正则或明确失败符号。
+
+从方法论上看，本文给出了语义工程中的“确定性层”。不确定生成负责提出候选，确定性
+检测负责裁决候选，扫描收敛负责稳定候选集合，证书日志负责追溯每一次接受或拒绝。
+这正是后续统计命中中“随机生成--确定性判定”结构在语义输入层的提前出现。
+
+从整体谱系看，本文把 \GFramework{} 的语义入口工程化。没有这个入口，后续开放系统
+治理、策略簇构造和 PDE 残差命中都可能被含混表达污染。本文的意义在于先把表达
+收束为可裁决对象，再让形式系统在此基础上运行。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{把“语义函子”落到工程：从表达输入到可裁决的标准正则}
+\label{sec:semantic-functor-regex-interface}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（工程化接口）]
+把您说的“语义函子”落到工程里，本质上就是做一个可复用映射器：
+\begin{itemize}
+  \item 输入：一段表达（通常是自然语言描述、字段含义描述、或一类输入样例）；
+  \item 输出：要么失败符号 $\bot$（表示：在您定义的规则边界内，无法给出安全、确定的正则），
+  要么返回一个已归一化的标准正则 $r$（表示：可给出、且已规范化为您认可的“标准形式”）。
+\end{itemize}
+关键在于：LLM 负责“生成候选”，但“是否可接受、是否鲁棒”必须由确定性的校验/测试框架裁决，
+而不是继续让 LLM 口头保证。
+这体现了一种“专注于可控”的工程取向：把不确定的生成收敛为可复验的裁决与回归闭环，而非把正确性外包给模型叙述\cite{gaozheng-analytic-ai}。
+\end{remark}
+
+下面给出一套可直接落地的构造方案，并在第\ref{subsec:examples-true-false-boundary}小节给出“\code{ok:true}+标准正则 / \code{ok:false}”的边界示例。
+
+\begin{remark}[备注：LLM API 快速构造与鲁棒性检测闭环]
+在实现层，可将 LLM 的 API 用作候选生成器，从而快速构造语义函子接口：输入表达 $x$，
+输出要么为失败（\code{ok:false}，对应失败符号 $\bot$），要么为通过并返回规范化后的标准正则（\code{ok:true} 且携带 \code{regex}）。
+但对外接口的“可信”必须由确定性的检测机制给出：通过白名单/编译/样例验证/复杂度阈值与变形测试回归（第\ref{subsec:metamorphic-testing}小节），
+检验该语义函子在语义等价改写与噪声扰动下的稳定性与可控边界。
+\end{remark}
+
+\subsection{合同：把通过域/失败域写死}
+\label{subsec:contract}
+
+\begin{definition}[语义函子接口（判定 + 标准化正则）]
+令 $\mathsf{Expr}$ 为输入表达域。令 $\mathsf{Re}_{\mathrm{safe}}$ 为目标正则语言的“安全子集”，并令
+$\mathsf{Re}_{\mathrm{can}}\subseteq \mathsf{Re}_{\mathrm{safe}}$ 为其规范形集合（canonical forms）。
+称映射
+\[
+F:\mathsf{Expr}\to \mathsf{Re}_{\mathrm{can}}\sqcup\{\bot\}
+\]
+为本章的“语义函子接口”，并约定：
+\begin{enumerate}
+  \item $F(x)=\bot$ 当且仅当：输入表达 $x$ 的语义不确定、范围过大、或需要超出安全正则子集的表达能力
+  （例如需要上下文相关约束、跨字段依赖、或需要 \emph{lookbehind/backreference} 等高风险特性）；
+  \item $F(x)=r$（其中 $r\in\mathsf{Re}_{\mathrm{can}}$）当且仅当：能给出一个属于 $\mathsf{Re}_{\mathrm{safe}}$ 的正则，
+  且该正则已通过规范化（canonicalization）被归一到您认可的标准形式。
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[强烈建议：限定“安全正则子集”】【工程可控性】]
+为了让“鲁棒性测试”与运行时资源消耗可控，建议把 $\mathsf{Re}_{\mathrm{safe}}$ 明确限定为 \textsf{RE2} 风格（或等价子集）\cite{cox-re2,cox-regex}，并禁止下列高风险特性：
+\begin{itemize}
+  \item backreference（如 \verb|\1| 等）；
+  \item 任意 lookaround（尤其是负向 lookbehind）；
+  \item 可能导致灾难性回溯的结构（例如嵌套可变长量词）。
+\end{itemize}
+在该约束下，“标准正则”对应真正意义上的正则语言，测试与运行更稳定。
+\end{remark}
+
+\subsection{输出格式：固定为机器可检验的 JSON 合同}
+\label{subsec:json-contract}
+
+外部接口建议采用严格 JSON\cite{rfc8259} 作为序列化格式，并且只承认 \code{ok} 与 \code{regex} 两个字段（其余字段仅作内部调试与回归辅助）。
+
+\paragraph{成功：}
+\begin{verbatim}
+{"ok": true, "regex": "^(?:...)$"}
+\end{verbatim}
+
+\paragraph{失败：}
+\begin{verbatim}
+{"ok": false}
+\end{verbatim}
+
+\begin{remark}[允许扩展字段（不影响外部合同）]
+为便于“可调试”与“可做鲁棒性证书”，内部可以允许扩展字段（外部只认 \code{ok} 与 \code{regex}）：
+\begin{verbatim}
+{
+  "ok": true,
+  "regex": "^(?:...)$",
+  "positive_examples": ["...","..."],
+  "negative_examples": ["...","..."],
+  "notes": "简短说明：哪些边界被排除"
+}
+\end{verbatim}
+\end{remark}
+
+\subsection{两段式流水线：LLM 生成候选 + 确定性校验器裁决}
+\label{subsec:two-stage-pipeline}
+
+\begin{definition}[两段式组合接口]
+将系统拆分为：
+\begin{enumerate}
+  \item 候选生成器 $G_{\mathrm{LLM}}$：给定 $x\in\mathsf{Expr}$，生成候选 JSON（可能包含候选正则与自证样例）；
+  \item 确定性校验器 $V$：对候选进行白名单扫描、编译与样例验证，并在通过时做规范化。
+\end{enumerate}
+最终对外的语义函子接口可被实现为复合：
+\[
+F(x):=V(G_{\mathrm{LLM}}(x))\in \mathsf{Re}_{\mathrm{can}}\sqcup\{\bot\}.
+\]
+\end{definition}
+
+\subsubsection{LLM 侧：生成候选（受控）}
+
+让 LLM 严格做三件事（缺一不可）：
+\begin{enumerate}
+  \item 给出候选正则（限制在您规定的安全子集内）；
+  \item 给出若干正例/反例（用于自证一致性与后续回归）；
+  \item 在不确定时必须输出 \code{"ok": false}（而不是硬编）。
+\end{enumerate}
+
+为了减少漂移并提升可控性，实践上建议：
+\begin{itemize}
+  \item 温度设为 $0$ 或极低；
+  \item 强制 JSON 输出（结构固定）；
+  \item 在提示词中明确写出“失败条件”（什么时候必须返回失败）。
+\end{itemize}
+
+\subsubsection{确定性校验器：您真正的“裁决机制”}
+
+校验器只做机器可判定的事情，例如：
+\begin{itemize}
+  \item JSON 可解析；
+  \item \code{regex} 可编译；
+  \item 正则仅使用允许的语法（白名单扫描）；
+  \item 必须带 \verb|^| 与 \verb|$|（强制全匹配，防止“局部匹配误过”）；
+  \item 对 \code{positive_examples} 必须全部匹配；
+  \item 对 \code{negative_examples} 必须全部不匹配；
+  \item 长度/复杂度阈值（避免过长正则造成维护困难或资源风险）。
+\end{itemize}
+任一检查失败：直接判 $F(x)=\bot$，并记录失败原因（用于迭代提示词或补充训练样例/回归集）。
+
+\subsection{鲁棒性：用变形测试（metamorphic testing）做自动化回归}
+\label{subsec:metamorphic-testing}
+
+您要的“测试是否满足该语义函子的鲁棒性”，可用不依赖人工大规模标注的变形测试（metamorphic testing）\cite{chen-metamorphic}构造自动回归。
+下面给出三类常用测试口径。
+
+\subsubsection{语义等价输入的稳定性：同义改写不应改变输出}
+
+对同一语义表达 $x$，生成一组等价变体 $\{x_i\}$（例如同义替换、中文/英文混写、标点/空白扰动、口语化/正式化改写等），
+比较 $F(x_i)$ 的一致性。可用从严到宽的分档判据：
+\begin{itemize}
+  \item 强鲁棒：规范化后输出正则字符串完全一致；
+  \item 中鲁棒：字符串不完全一致，但在抽样集上行为等价（见下小节）；
+  \item 弱鲁棒：至少都返回通过，且都能通过自给例子验证（适合早期）。
+\end{itemize}
+
+\subsubsection{噪声不敏感性：输入样本扰动，输出应稳定}
+
+若输入表达为“样本驱动”（例如给几条样例让系统归纳正则），则可对样本施加扰动：
+大小写、前后空格、全角半角、常见 OCR 错误（\code{O/0}、\code{l/1}）等，
+观察 $F$ 的输出是否稳定，或是否以可解释方式收敛到同一规范形。
+
+\subsubsection{行为等价性：用抽样集近似检验两个 regex 的等价}
+
+严格证明两个正则等价可诉诸自动机最小化\cite{hopcroft-ullman}；工程上通常用“抽样近似判据”足够实用。
+对两个输出正则 $r_1,r_2$，构造测试字符串集合 $S$（随机串 + 边界串 + 生成串），检查：
+\[
+\forall s\in S,\quad \mathrm{match}(r_1,s)=\mathrm{match}(r_2,s).
+\]
+集合 $S$ 的构造建议分层：
+\begin{itemize}
+  \item 边界：最短、最长、临界字符（如 \code{-}、\code{_}、\code{.}、\code{@} 等）；
+  \item 随机：按字符集与长度分布采样；
+  \item 对抗：注入容易误判的串（例如在邮箱里插入两个 \code{@}，或在日期里插入 \code{13} 月）。
+\end{itemize}
+该方法可快速捕捉“提示词/模型/规则集变更”导致的语义漂移。
+
+\subsection{规范化（canonicalization）：让“标准正则”真正标准}
+\label{subsec:canonicalization}
+
+\begin{definition}[规范化算子]
+定义一个规范化算子
+\[
+\mathrm{can}:\mathsf{Re}_{\mathrm{safe}}\to \mathsf{Re}_{\mathrm{can}},
+\]
+把等价但写法不同的正则统一到可比较、可回归的标准形式。
+\end{definition}
+
+可选的规范化规则例如：
+\begin{itemize}
+  \item 强制全匹配：统一补齐 \verb|^...$|；
+  \item 强制使用非捕获组：统一为 \verb|(?:...)|；
+  \item 字符类排序：把 \verb|[A-Za-z0-9_]| 之类字符类排成固定顺序；
+  \item 统一替代写法：例如 \verb|\d| 与 \verb|[0-9]| 统一选一种；
+  \item 去掉冗余括号、冗余分支；
+  \item 限定量词风格：统一用 \verb|{m,n}| 或统一用 \verb|+|/\verb|*|（二选一并固化）。
+\end{itemize}
+完成规范化后，“同义输入稳定性”更容易达到“强鲁棒”（字符串一致）。
+
+\subsection{最小可落地路径：从白名单到 CI 的六步}
+\label{subsec:minimal-implementation-path}
+
+\begin{enumerate}
+  \item 选定目标正则方言与白名单（推荐 \textsf{RE2} 子集）；
+  \item 定义输出 JSON 合同：只对外承诺 \code{ok} + \code{regex}；
+  \item 编写提示词：强制 JSON；明确失败条件；要求给正反例；
+  \item 实现校验器：编译、白名单、例子验证、复杂度阈值；
+  \item 实现鲁棒性测试器：生成等价变体 $\{x_i\}$、调用 $F(x_i)$、做规范化与一致性/行为等价抽样检验；
+  \item 接入 CI：每次改提示词、换模型、或改规则集，都跑回归并输出“鲁棒性报告”（通过率、漂移样例、失败原因聚类）。
+\end{enumerate}
+
+\subsection{边界示例：对齐 “True+标准正则 / False”}
+\label{subsec:examples-true-false-boundary}
+
+\subsubsection{例 A：语义明确且可正则化（返回通过）}
+
+\paragraph{输入表达：}
+\begin{quote}
+匹配标准 UUID（含连字符）
+\end{quote}
+
+\paragraph{输出（示例）：}
+\begin{verbatim}
+{"ok": true, "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"}
+\end{verbatim}
+
+\subsubsection{例 B：语义超出正则能力或高度依赖上下文（返回失败）}
+
+\paragraph{输入表达：}
+\begin{quote}
+匹配一个合法的 JSON（任意嵌套深度）；
+
+匹配括号完全配对且层数无限的表达式。
+\end{quote}
+
+\paragraph{输出（示例）：}
+\begin{verbatim}
+{"ok": false}
+\end{verbatim}
+
+\begin{remark}[原因]
+上述约束对应典型的非正则语言（需要栈/递归能力）。按第\ref{subsec:contract}小节合同，应直接判定失败而非给出“看似能用”的脆弱正则。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MDQ 分割与外包证书化：把语义函子作为 HACA-PACER 的可调用微分基底}
+\label{sec:mdq-outsourcing-haca-pacer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（最快、不训练的关键等价）]
+把“语义函子 = 生成可检验的标准化判别器（\code{ok:true}+标准形式 / \code{ok:false}）”这条工程路线，
+可直接解释为“MDQ（微分动力量子）的分割与外包证书化”，并把这些证书作为 HACA-PACER 的可调用基础件。
+其中：速度来自 LLM 的候选生成；可信来自确定性校验器的裁决与回归测试；复用来自证书化与版本化。
+\end{remark}
+
+本章将上述等价关系写成可执行的构造链：先把语义函子严格化为部分函子，
+再把 MDQ 分割写成“局部结构变化单元”的序列输出，
+最后把每个单元的判别器与标准化规则封装为可外包复验的证书，并对齐到 HACA 的五层结构与 PACER 的确定性驱动闭环。
+
+\subsection{形式化等价：语义函子（部分函子）与 MDQ 分割}
+\label{subsec:mdq-equivalence}
+
+\begin{definition}[语义函子（一般化：标准化判别器）]
+在第\ref{subsec:contract}小节中，我们将“通过时返回标准正则”作为值域。
+为容纳更一般的可判别结构（例如安全有限自动机/小解析器/约束集合），本章引入一个抽象的标准化判别器空间 $\mathsf{CanonDet}$，
+并把语义函子写成部分函子：
+\[
+F:\mathsf{Expr}\to \{\bot\}\sqcup \mathsf{CanonDet}.
+\]
+约定 $\bot$ 对应 \code{ok:false}；而 $\mathsf{CanonDet}$ 中的元素对应 \code{ok:true} 且携带一个可执行、可规范化的判别器负载。
+\end{definition}
+
+\begin{remark}[从正则到三类 witness（仍然可验证、且不需要训练）]
+为了降低 $\bot$ 的比例，同时保持确定性可复验，工程上可将 $\mathsf{CanonDet}$ 的 witness 设计为三档（由快到强）：
+\begin{enumerate}
+  \item 安全正则（\textsf{RE2} 子集，见第\ref{subsec:contract}小节）；
+  \item 有限自动机/约束组合（仍属正则语言，但实现上更可控）；
+  \item 小解析器（限定语法、限定深度、可证明终止）。
+\end{enumerate}
+无论 witness 选哪一档，对外合同仍保持为“通过 + 标准形式 / 失败”。
+\end{remark}
+
+\begin{definition}[MDQ 分割算子与 MDQ 单元]
+令 $\mathsf{MDQ}$ 表示“微分动力量子”（Micro-Differential Quantum）的结构空间。
+MDQ 分割的目标是：把输入表达分解成一串“最小可验证的局部结构变化单元”。
+形式上给出分割算子
+\[
+\mathsf{MDQSeg}:\mathsf{Expr}\to (\mathsf{MDQ})^{*},
+\]
+并约定每个输出单元可写为四元组
+\[
+\mathsf{MDQ}_i=(\mathrm{span}_i,\ \mathrm{type}_i,\ \mathrm{det}_i,\ \mathrm{canon}_i),
+\]
+其中 $\mathrm{span}_i$ 是局部作用范围，$\mathrm{type}_i$ 是类型标签，
+$\mathrm{det}_i$ 是局部判别器（witness），$\mathrm{canon}_i$ 是与之配套的标准化重写（canonicalization）。
+\end{definition}
+
+\begin{remark}[等价点（工程实现）]
+“最快方式、不训练”的等价点可被落实为三条硬约束：
+\begin{enumerate}
+  \item LLM 只负责为 $\mathrm{det}_i$ 与 $\mathrm{canon}_i$ 提供候选（提案）；
+  \item 确定性校验器裁决候选是否可接受，并在通过时将其固化为标准形式；
+  \item 一旦通过，即签发证书并进入可复用库，供 HACA-PACER 反复调用（外包）。
+\end{enumerate}
+\end{remark}
+
+\begin{proposition}[“标准判别器”作为 MDQ 的微分基底（接口化表述）]
+设 $\mathcal{B}\subseteq \mathsf{CanonDet}$ 为一组已证书化、可调用的标准判别器集合。
+将表达的变化投影到该集合上，可视为对 $\mathcal{B}$ 的“坐标化”：
+\[
+\Pi_{\mathcal{B}}:\mathsf{Expr}\to \mathcal{B}^{*},
+\]
+其中 $\Pi_{\mathcal{B}}(x)$ 输出的是一串可复验的局部判别器调用与标准化重写（即 MDQ 单元的可执行载荷）。
+在该口径下：
+\begin{itemize}
+  \item 语义函子 $F$ 输出的“标准判别器”可被理解为 MDQ 的微分基底元；
+  \item MDQ 分割 $\mathsf{MDQSeg}$ 则是把输入表达的结构变化拆解并投影到这一组基底上的过程。
+\end{itemize}
+\end{proposition}
+
+\subsection{证书外包：把判别器封装为可验证三元组}
+\label{subsec:mdq-certificate}
+
+\begin{definition}[可外包证书（Spec--Witness--Verifier）]
+称一个 MDQ 判别器的外包证书为三元组
+\[
+\mathsf{Cert}=(\mathsf{Spec},\ \mathsf{Witness},\ \mathsf{Verify}),
+\]
+其中：
+\begin{itemize}
+  \item $\mathsf{Spec}$（声明）刻画该判别器所覆盖的语义边界；
+  \item $\mathsf{Witness}$（见证）给出具体判别器（正则/自动机/小解析器）与标准化规则；
+  \item $\mathsf{Verify}$（验证器）是一段确定性程序，用于检查 witness 是否满足 spec，并输出可审计结果。
+\end{itemize}
+\end{definition}
+
+工程上可将证书回包设计为：外部只认 \code{ok} 与 \code{payload}，其余字段用于回归、审计与版本治理。
+
+\paragraph{通过（示例）：}
+\begin{verbatim}
+{
+  "ok": true,
+  "mdq_type": "UUID",
+  "payload": {
+    "detector_kind": "regex",
+    "detector": "^[0-9a-fA-F]{8}-...$",
+    "canonicalize": "lowercase"
+  },
+  "test_digest": "sha256:...",
+  "version": "mdq.uuid.v1"
+}
+\end{verbatim}
+
+\paragraph{失败（示例）：}
+\begin{verbatim}
+{"ok": false, "mdq_type": "UUID"}
+\end{verbatim}
+
+\begin{remark}[外包的含义]
+外包的含义是：HACA-PACER 不需要知道 witness 从何而来（LLM 提案、人工编写或迁移复用），
+它只信任 $\mathsf{Verify}$ 能在本地或可信服务中对证书进行确定性复验并给出一致结论。
+\end{remark}
+
+\subsection{“最快、不训练”的闭环：LLM 提案，系统裁决，证书入库}
+\label{subsec:fast-loop-no-training}
+
+速度来自 LLM 的候选生成；可信来自裁决器；复用来自证书库。一个最小闭环为：
+\begin{enumerate}
+  \item \textbf{LLM 提案：}输出候选 witness（正则/自动机/小解析器）与候选标准化规则，并给出正例/反例与失败条件；
+  \item \textbf{校验器裁决：}执行白名单、编译、例子验证、随机与对抗测试、复杂度上限等（参见第\ref{subsec:two-stage-pipeline}与第\ref{subsec:metamorphic-testing}
+    小节）；
+  \item \textbf{签发证书：}通过则版本化入库，并固定回归用的 \code{test_digest}；不通过则返回失败并记录原因聚类。
+\end{enumerate}
+
+\begin{remark}[为何不应把 witness 固定为正则]
+正则是最快的一类 witness，但 MDQ 分割迟早会遇到“正则不够表达”的结构（嵌套、配对、跨段依赖等）。
+把 witness 设计为“正则/自动机/小解析器”三档，可显著减少 \code{ok:false}，且仍保持可验证与不训练。
+\end{remark}
+
+\subsection{与 HACA 的五层结构对齐：MDQ 类型分层与状态表达}
+\label{subsec:align-haca}
+
+HACA 的（词法/语法/句法/文法/语义）五层结构可直接作为 MDQ 类型分层的口径：
+\begin{itemize}
+  \item $\mathsf{MDQ}^{(1)}$：词法量子（token/字符类/编码与空白/标点）；
+  \item $\mathsf{MDQ}^{(2)}$：语法量子（局部结构：短语、限定词、数量、比较）；
+  \item $\mathsf{MDQ}^{(3)}$：句法量子（依存关系、主谓宾框架的可判别片段）；
+  \item $\mathsf{MDQ}^{(4)}$：文法量子（风格/格式约束：模板、字段协议、接口契约）；
+  \item $\mathsf{MDQ}^{(5)}$：语义量子（实体类型、单位制、时空约束、域内本体）。
+\end{itemize}
+
+在证书化口径下，可将输入表达 $x$ 的“分层状态”写为：
+\[
+\mathsf{State}(x)=\bigl(\Pi_1(x),\Pi_2(x),\Pi_3(x),\Pi_4(x),\Pi_5(x)\bigr),
+\]
+其中 $\Pi_k$ 由 $\mathsf{MDQSeg}$ 的聚合与标准化产生，并以证书链作为可审计解释。
+
+\subsection{PACER：规划--调用--检查--导出--修复（确定性驱动）}
+\label{subsec:pacer}
+
+在“不训练”约束下，PACER 更像一个确定性的“规划--检查--修复”驱动器：
+\begin{itemize}
+  \item P（Plan）：基于当前分层状态与目标接口契约，规划下一步需要补齐/修复的 MDQ；
+  \item A（Act）：调用对应的 MDQ 证书（或触发新证书生成闭环）；
+  \item C（Check）：检查是否消除了歧义/冲突（可将其记账为“表达上同调障碍”的受控版本）；
+  \item E（Explain/Export）：输出可解释的标准化表达与证书链；
+  \item R（Repair）：若失败，则提升到更高层 witness（或改写输入以回到可验证边界）。
+\end{itemize}
+
+\begin{remark}[用“新增边缘算子（新证书）”杀掉障碍]
+当检查阶段出现不可控歧义/冲突时，PACER 的动作不是“继续猜”，而是引入新的可证书化判别器与标准化重写，
+把障碍逼到系统设定的边界之外，从而将输入拉回可验证的标准表达域。
+\end{remark}
+
+\subsection{起步基底：一组高频 MDQ 证书（建议）}
+\label{subsec:bootstrap-basis}
+
+为了尽快让 HACA-PACER 获得可调用的“微分基底”，可先选一组小而高频的 MDQ 证书集合：
+\begin{itemize}
+  \item 数字/单位/区间（含货币、百分比、时间范围）；
+  \item UUID/邮箱/URL/IP/日期时间；
+  \item API 字段名与允许字符集（字段协议）；
+  \item 常见自然语言约束词：至少/至多/介于/不超过/必须/可选。
+\end{itemize}
+
+\begin{remark}[扩展策略]
+一旦起步基底建立起来，后续扩展主要是“补基底 + 回归测试 + 版本治理”，而非训练；
+系统的可控性由证书复验与鲁棒性回归给出，系统的覆盖面由证书库规模给出。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MDQ 粒度审计：把“可信”降解为可复验、可追溯、可回放的最小单元}
+\label{sec:mdq-granular-audit}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（稳妥的起步路径）]
+先把审计做到 MDQ（微分动力量子）这一层，等价于把“系统是否可信”的问题，
+从“整段自然语言是否可信”降解为“每个可验证的微小结构单元是否可复验、可追溯、可回放”。
+其原因在于：MDQ 的产物本质是“证书化的判别器 + 标准化重写”，天然具备审计所需的三要素——可记录、可复验、可对比。
+\end{remark}
+
+本章给出一套不依赖训练的 MDQ 粒度审计方案：以追加写、不可变的事件流承载审计证据，
+并以三条主线组织审计能力（证书链审计、决策可回放审计、差分审计），从而为后续 HACA-PACER 的每一步调用提供天然的证书链与回归基线。
+
+\subsection{审计对象：MDQ 片段、证书指纹与策略快照}
+\label{subsec:audit-objects}
+
+\begin{definition}[MDQ 审计事件（最小可复验记录）]
+一次请求在 MDQ 粒度的审计记录可抽象为事件
+\[
+e=\bigl(\mathrm{req},\ \mathrm{ts},\ \mathrm{pipe},\ d_{\mathrm{in}},\ \mathsf{Seg},\ d_{\mathrm{out}},\ \mathsf{Policy}
+  \bigr),
+\]
+其中：
+\begin{itemize}
+  \item $\mathrm{req}$ 为 \code{request\_id}，$\mathrm{ts}$ 为时间戳；
+  \item $\mathrm{pipe}$ 为流水线版本（\code{pipeline_version}）；
+  \item $d_{\mathrm{in}}$ 为输入摘要（\code{input_digest}，对原始输入做哈希；原文可选采样留存并脱敏/加密）；
+  \item $\mathsf{Seg}$ 为 MDQ 分割结果列表（见下定义）；
+  \item $d_{\mathrm{out}}$ 为输出摘要（\code{output_digest}，对标准化表达/标准正则等做哈希）；
+  \item $\mathsf{Policy}$ 为策略快照（\code{policy_snapshot}：白名单规则版本、复杂度阈值版本等）。
+\end{itemize}
+\end{definition}
+
+\begin{definition}[MDQ 分割条目（segment）]
+将一次 MDQ 分割得到的条目写为
+\[
+s=\bigl(\mathrm{mdq\_type},\ d_{\mathrm{span}},\ \mathrm{cert\_id},\ \mathsf{Hash},\ \mathrm{ver},\ \mathrm{ok},\
+  \mathrm{reason}\bigr),
+\]
+其中 $\mathrm{mdq\_type}$ 为类型，$d_{\mathrm{span}}$ 为片段摘要（\code{span_digest}），
+$\mathrm{cert\_id}$ 与 $\mathrm{ver}$ 表示证书 ID/版本（如 \code{mdq.uuid.v1}），
+$\mathsf{Hash}$ 为证书指纹（\code{spec_hash}、\code{witness_hash}、\code{verifier_version}、\code{test_digest}），
+$\mathrm{ok}$ 为验证结果，$\mathrm{reason}$ 为失败原因码（白名单违规、编译失败、对抗测试失败、复杂度超阈值等）。
+\end{definition}
+
+\begin{remark}[事件流形态]
+推荐将审计日志实现为“追加写、不可变”的事件流：一旦写入，任何更改都必须以新事件形式追加并留下链式指纹，
+从而支持追责、对比与回放；同时将隐私风险控制在“digest-first”的最小留存策略之下（见第\ref{subsec:privacy-min-retention}小节）。
+\end{remark}
+
+\subsection{审计主线 I：证书链审计（可追溯）}
+\label{subsec:certificate-chain-audit}
+
+证书链审计回答审计的核心问题：\emph{这次判定依赖了哪些证书？这些证书当时是否通过确定性验证？之后是否被替换或升级？}
+
+建议至少记录以下信息（均可由第\ref{subsec:audit-objects}小节的事件结构覆盖）：
+\begin{itemize}
+  \item 分割得到的 MDQ 列表：\code{mdq_type}、\code{span_digest}、顺序与层级；
+  \item 每个 MDQ 绑定的证书 ID/版本：\code{cert_id}；
+  \item 证书指纹：\code{spec_hash}、\code{witness_hash}、\code{verifier_version}、\code{test_digest}；
+  \item 验证结果与失败原因码：\code{ok}、\code{reason_code}。
+\end{itemize}
+
+\begin{remark}[可追溯性的判据]
+若任意一次输出都能在事件流中回溯到一条有限的证书链，并能以相同的 \code{verifier_version} 复验出相同的 \code{ok/reason_code}，
+则该输出在证书层面是可追溯的；反之若证书版本、验证器版本或策略快照缺失，则追溯断裂，审计结论不成立。
+\end{remark}
+
+\subsection{审计主线 II：决策可回放审计（可复验）}
+\label{subsec:replay-audit}
+
+\begin{definition}[提案--裁决分离记录]
+将一次判定拆分为两类可审计产物：
+\begin{enumerate}
+  \item LLM 提案：候选判别器（如正则）、正反例、模型与提示词版本；
+  \item 确定性裁决：校验器输出（通过/拒绝）与拒绝原因码，以及通过时的规范化结果与证书指纹。
+\end{enumerate}
+审计口径规定：\emph{只信任确定性裁决的输出}；LLM 提案仅作为可追责的输入材料与回归样例来源。
+\end{definition}
+
+\begin{definition}[回放算子与一致性]
+给定一条历史事件 $e$，记其裁决所用验证器版本为 $\mathrm{ver}(e)$，策略快照为 $\mathsf{Policy}(e)$。
+用相同版本验证器与相同策略快照对同一输入摘要（或其受控可复原输入）执行复验，称为回放（replay）。
+若回放得到的 MDQ 级结果（每个条目的 \code{ok/reason_code} 与规范化输出摘要）与原事件一致，则称该事件满足回放一致性。
+\end{definition}
+
+\begin{remark}[漂移与篡改检测]
+回放一致性使得“事后重放”成为可能：抽样选取历史输入，拉起当时的 \code{verifier_version} 与 \code{policy_snapshot} 复验，
+即可检测语义漂移、验证器变更、策略篡改或证书库污染等问题。
+\end{remark}
+
+\subsection{审计主线 III：差分审计（可对比、可定位）}
+\label{subsec:differential-audit}
+
+当升级某类 MDQ 证书（例如从 \code{mdq.uuid.v1} 到 \code{mdq.uuid.v2}）时，建议做 MDQ 级差分，而非只看“整条输入通过率”。
+差分审计关注可定位的指标：
+\begin{itemize}
+  \item 哪些 \code{mdq_type} 的通过率变化最大；
+  \item 哪些标准判别器发生了结构变化（规范化后仍不同）；
+  \item 行为等价是否保持（同一批测试串上 \code{match} 结果是否一致）；
+  \item 漂移集中在哪些语义表达变体上（同义改写、噪声扰动、对抗样例）。
+\end{itemize}
+
+\begin{definition}[MDQ 差分报告（摘要口径）]
+对固定回归集与固定策略快照，比较版本 $\mathrm{v1}$ 与 $\mathrm{v2}$ 的事件集合，输出按 \code{mdq_type} 聚合的差分摘要：
+通过率变化、典型失败原因码分布、规范化输出变化摘要，以及行为等价抽样检验统计。
+\end{definition}
+
+\begin{remark}[定位粒度]
+差分审计能把问题定位到“某一个 \code{mdq\_type} + 某一个证书版本 + 某一类输入形态”，显著降低排查成本。
+\end{remark}
+
+\subsection{事件日志建议字段（最小但可复验）}
+\label{subsec:log-schema-minimal}
+
+工程上建议每次调用至少落以下字段（尽量少，但足够复验）：
+\begin{itemize}
+  \item \code{request_id}、\code{timestamp}、\code{pipeline_version}；
+  \item \code{input_digest}（必要时额外保存脱敏/加密原文的引用指针）；
+  \item \code{mdq_segments}：\code{[(mdq_type, span_digest, cert_id, cert_hashes, verifier_version, ok, reason_code)]}；
+  \item \code{output_digest}；
+  \item \code{policy_snapshot}（白名单规则版本、复杂度阈值版本等）。
+\end{itemize}
+
+\subsection{隐私与安全：digest-first 的最小留存策略}
+\label{subsec:privacy-min-retention}
+
+\begin{remark}[默认只存摘要]
+隐私与安全上，可默认只存 digest，不存原文；需要可解释性时再对少量样本做脱敏留存或加密留存。
+这样既能审计（复验、对比、回放），又能降低敏感数据长期留存风险。
+\end{remark}
+
+\subsection{上线门槛：两条硬指标（建议）}
+\label{subsec:audit-gates}
+
+若要将 MDQ 粒度审计作为“可上线”的模块，建议至少设置两条门槛指标：
+\begin{itemize}
+  \item \textbf{可回放一致性：}抽样重放历史请求，MDQ 级结果一致率接近 $100\%$（允许极少数来自外部依赖的例外，但必须可解释并可审计）；
+  \item \textbf{证书漂移可解释性：}任何 \code{mdq_type} 的版本升级，必须产出一份 MDQ 级差分报告（通过率变化、典型失败样例、规范化变化摘要、行为等价统计）。
+\end{itemize}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MDQ 作为“可移植层”：同伦类归属的提案--复验拆分与留痕审计}
+\label{sec:mdq-portable-layer-homotopy-membership}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（可移植层）]
+把 MDQ 做成“可移植层”的关键，是把“同伦类归属的判定”拆成两部分：
+\begin{itemize}
+  \item LLM 只负责提出提案：它认为输入属于哪个表达同伦类/对应哪个标准谓词；
+  \item MDQ 负责用确定性的标准谓词复验，并把偏差留痕（可追溯、可回放、可对比）。
+\end{itemize}
+于是更换任何 LLM（不同厂商、不同版本、不同上下文长度）都不会破坏审计闭环；
+差异只体现在提案质量与速度上，而不会影响最终裁决的可复验性。
+\end{remark}
+
+本章用最少符号把上述逻辑写成可执行的接口，并给出 MDQ 粒度需要落盘的审计字段（与第\ref{sec:mdq-granular-audit}节一致且更聚焦于“同伦类归属”问题）。
+
+\subsection{表达同伦类与标准谓词：从 \texorpdfstring{$[E]$}{[E]} 到可执行判别器}
+\label{subsec:homotopy-class-predicate}
+
+\begin{definition}[表达同伦类与标准谓词]
+令 $\mathsf{Expr}$ 为表达域，并令 $\mathsf{H}$ 表示其“表达同伦类”的集合（或选定口径下的等价类集合）。
+对每个类 $h\in\mathsf{H}$（也记作 $[E]$），固定绑定一个标准逻辑谓词 $P_h$，并要求其可落为一个可执行判别器：
+\[
+r_h\in \mathsf{CanonDet},
+\]
+其中 $\mathsf{CanonDet}$ 见第\ref{subsec:mdq-equivalence}小节。
+在“正则起步”口径下，可取 $r_h$ 为安全正则（\textsf{RE2} 子集）或与之等价的有限自动机。
+\end{definition}
+
+\begin{definition}[标准化函数]
+给定一个标准化函数
+\[
+C:\mathsf{Expr}\to \mathsf{Expr}_c,
+\]
+其中 $\mathsf{Expr}_c\subseteq \mathsf{Expr}$ 表示标准化后的表达空间（规范形空间），$C$ 将输入归一到标准形（例如统一空白、大小写、全半角、符号别名等）。
+\end{definition}
+
+\begin{definition}[确定性归属判定（指示函数）]
+记 $L(r)$ 为判别器 $r$ 接受的语言（其可判定字符串集合）。
+对任意 $h\in\mathsf{H}$ 与 $x\in\mathsf{Expr}$，定义确定性归属判定：
+\[
+\mathrm{In}_h(x):=\mathbf{1}\bigl[C(x)\in L(r_h)\bigr]\in\{0,1\}.
+\]
+\end{definition}
+
+\begin{remark}[工程解释]
+式中 $C(x)$ 把输入先拉回标准形，再由 $r_h$ 判定其是否落入类 $h$ 的可接受域。
+因此“同伦类 $\leftrightarrow$ 标准谓词/判别器”的体系一旦证书化（见第\ref{subsec:mdq-certificate}小节），
+归属判定就不再依赖 LLM 的口头解释，而只依赖可复验的确定性谓词。
+\end{remark}
+
+\subsection{LLM 提案与 MDQ 复验：裁决以确定性为准}
+\label{subsec:proposal-vs-verification}
+
+\begin{definition}[LLM 提案（proposal）]
+LLM 对输入 $x$ 给出一个提案对
+\[
+(\hat{h}(x),\hat{y}(x))\in \mathsf{H}\times\{0,1\},
+\]
+其中 $\hat{h}(x)$ 表示其认为 $x$ 归属的同伦类，$\hat{y}(x)$ 表示其对“属于/不属于”的布尔判断。
+（实现中也可允许返回候选类集合 $\widehat{H}(x)\subseteq\mathsf{H}$，再由 MDQ 逐个复验。）
+\end{definition}
+
+\begin{definition}[MDQ 复验（verification）]
+给定 LLM 的提案 $\hat{h}(x)$，MDQ 侧计算确定性结果
+\[
+y^\ast(x):=\mathrm{In}_{\hat{h}(x)}(x).
+\]
+系统的最终裁决以 $y^\ast(x)$ 为准，并将 $(\hat{h}(x),\hat{y}(x))$ 仅作为可审计的提案元数据保留。
+\end{definition}
+
+\begin{remark}[可移植性的来源]
+由于最终裁决由 $\mathrm{In}_h$（确定性谓词）给出，LLM 只提供提案；
+因此更换模型只会改变 $\hat{h},\hat{y}$ 的分布与质量，不会改变裁决机制本身的可复验性。
+这正是“MDQ 作为可移植层”的含义。
+\end{remark}
+
+\subsection{分歧类型：误识别与漏识别的最小逻辑刻画}
+\label{subsec:discrepancy-types}
+
+\begin{definition}[分歧事件与分歧类型]
+对输入 $x$，若 $\hat{y}(x)\neq y^\ast(x)$，称发生分歧事件。
+分歧可分为两类：
+\begin{enumerate}
+  \item \textbf{误识别（不属于却判成属于）.}
+  \[
+  \hat{y}(x)=1\ \wedge\ y^\ast(x)=0;
+  \]
+  \item \textbf{漏识别（属于却判成不属于）.}
+  \[
+  \hat{y}(x)=0\ \wedge\ y^\ast(x)=1.
+  \]
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[留痕即审计]
+只要把上述两类分歧写入审计日志（并带上证书指纹与策略快照），就完成了“留痕即审计”：
+换一个模型跑同一批输入，分歧比例、分布以及集中在哪些同伦类上，都可直接量化为“提案质量与容错率由 LLM 决定”。
+\end{remark}
+
+\subsection{MDQ 粒度审计字段：提案、标准化、谓词指纹与复验结果}
+\label{subsec:homotopy-audit-fields}
+
+为使审计可复验且可对比，建议在 MDQ 粒度至少记录以下字段（轻量但足够回放）：
+\begin{itemize}
+  \item \code{input_digest}：原始输入哈希（必要时再存脱敏原文或其加密引用）；
+  \item \code{canon_digest}：标准化后 $C(x)$ 的哈希，以及标准化步骤摘要（便于解释“为何判定改变”）；
+  \item \code{llm_proposal}：$\hat{h},\hat{y}$、模型版本与 \code{prompt_version}；
+  \item \code{predicate_id}：被调用的标准谓词/判别器 $r_h$ 的 \code{predicate_version} 与哈希（防止事后被悄然替换）；
+  \item \code{verify_result}：确定性验证结果 $y^\ast$；
+  \item \code{discrepancy}：是否分歧、分歧类型（第\ref{subsec:discrepancy-types}小节两类之一）与 \code{reason_code}
+  （如白名单不通过、对抗测试失败、复杂度超阈值、或“仅差一步标准化”等）。
+\end{itemize}
+
+\begin{remark}[与证书外包的对齐]
+若要把“同伦类 $\leftrightarrow$ 标准谓词/判别器”的体系做成证书外包，
+建议为每个同伦类引入稳定的 \code{class_id}，并规定：系统最终输出以 MDQ 复验为准；
+同时保留 LLM 原始提案作为日志字段。这样审计既不丢信息，也不会让系统被 LLM 的偶发漂移拖着走。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{多次扫描的收敛：候选同伦类集合的单调收缩与固定点判据}
+\label{sec:multi-scan-convergence}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（收敛过程）]
+“多次扫描后语义就明确”可以理解为一个可复验的收敛过程：每一次扫描都把不确定性往外挤，
+把表达逐步压到某个同伦类所对应的标准逻辑谓词（标准正则/标准判别器）上，直到结果稳定为止。
+更具体地，若把“语义”视为一个候选同伦类集合，那么每扫一遍就可将候选集合收缩一次，
+并最终达到一个不再变化的固定点。
+\end{remark}
+
+本章在第\ref{sec:mdq-portable-layer-homotopy-membership}节“提案--复验拆分”的基础上，
+把多轮扫描写成一个单调迭代过程，并给出三类终止判据（单点、标准化稳定、分层稳定），以及证书基底不足时的两种残余收敛状态（歧义固定点与空集合）。
+
+\subsection{候选集合与扫描算子：单调收缩的形式化}
+\label{subsec:candidate-set-scan-operator}
+
+\begin{definition}[候选同伦类集合]
+令 $\mathsf{H}_{\mathrm{lib}}\subseteq \mathsf{H}$ 为当前证书库可覆盖的同伦类集合（即存在可复验谓词 $P_h$ 与判别器 $r_h$ 的类）。
+对固定输入 $x\in\mathsf{Expr}$，定义第 $t$ 轮扫描后的候选集合为
+\[
+\mathsf{Cand}_t(x)\subseteq \mathsf{H}_{\mathrm{lib}}.
+\]
+一种最保守的初始化是 $\mathsf{Cand}_0(x):=\mathsf{H}_{\mathrm{lib}}$（先允许一切，再逐步排除）；也可用轻量规则先粗筛得到较小初值。
+\end{definition}
+
+\begin{definition}[第 $t$ 轮提案与可证伪剔除]
+第 $t$ 轮中，LLM 给出候选类集合 $\widehat{H}_t(x)\subseteq \mathsf{Cand}_t(x)$（可由多模型/多提示聚合得到），
+MDQ 对其中每个 $h\in \widehat{H}_t(x)$ 计算确定性复验值 $\mathrm{In}_h(x)$（见第\ref{subsec:homotopy-class-predicate}小节）。
+定义第 $t$ 轮被证伪的候选集合为
+\[
+\mathsf{Elim}_t(x):=\{h\in \widehat{H}_t(x):\mathrm{In}_h(x)=0\}.
+\]
+并定义一次扫描更新为
+\[
+\mathsf{Cand}_{t+1}(x):=\mathsf{Cand}_t(x)\setminus \mathsf{Elim}_t(x).
+\]
+\end{definition}
+
+\begin{proposition}[单调性（候选集合不增）]
+对任意 $t\ge 0$，有
+\[
+\mathsf{Cand}_{t+1}(x)\subseteq \mathsf{Cand}_t(x).
+\]
+\end{proposition}
+
+\begin{remark}[速度与完备性的权衡]
+若每轮只验证少量 $h$（即 $\widehat{H}_t(x)$ 很小），则每轮剔除有限，但成本低；
+若接近穷举验证 $\mathsf{Cand}_t(x)$，则收缩更快但成本高。
+工程上通常选“提案引导的稀疏验证”，并用差分审计与回归驱动提案质量提升（见第\ref{subsec:differential-audit}小节）。
+\end{remark}
+
+\subsection{固定点与终止条件：语义明确的三类判据}
+\label{subsec:fixed-point-termination}
+
+\begin{definition}[固定点]
+若存在 $T$ 使得
+\[
+\mathsf{Cand}_{T+1}(x)=\mathsf{Cand}_T(x),
+\]
+则称 $\mathsf{Cand}_T(x)$ 为在当前证书基底与策略快照下的固定点候选集合。
+\end{definition}
+
+\begin{remark}[三类终止判据（任一满足即可停机）]
+在工程口径下，通常采用如下三类终止判据（满足其一即可宣告“语义在当前基底下已明确/已封闭”）：
+\begin{enumerate}
+  \item \textbf{单点判据：}候选集合收缩为单点，即 $|\mathsf{Cand}_T(x)|=1$。
+  此时唯一剩余的 $h^\ast\in\mathsf{Cand}_T(x)$ 的谓词 $P_{h^\ast}$（以及判别器 $r_{h^\ast}$）就是标准语义锚点。
+  \item \textbf{标准化稳定判据：}连续两轮或三轮扫描后，标准化输出不再变化，且已启用的 MDQ 证书均复验通过。
+  该判据表达“再怎么扫也不会产生新的结构信息”，语义在当前证书基底下已经封闭。
+  \item \textbf{分层稳定判据：}从 $\mathsf{MDQ}^{(1)}$ 到 $\mathsf{MDQ}^{(5)}$ 的分层输出均稳定（见下小节），
+  等价于“语义从形式到含义的各层都锁定了”。
+\end{enumerate}
+\end{remark}
+
+\subsection{分层稳定：\texorpdfstring{$\mathsf{MDQ}^{(1)}\sim \mathsf{MDQ}^{(5)}$}{MDQ(1)\textasciitilde MDQ(5)} 的稳定通过}
+\label{subsec:layerwise-stability}
+
+沿用第\ref{subsec:align-haca}小节的五层分解，记 $\Pi_k(x)$ 为第 $k$ 层的聚合与标准化输出（由 $\mathsf{MDQSeg}$ 产生）。
+将“分层稳定”具体化为：连续多轮扫描后，下列现象均不再发生（或其摘要不再变化），且对应证书复验持续通过：
+\begin{itemize}
+  \item $\mathsf{MDQ}^{(1)}$：词法层不再出现新的 token 切分或编码/空白差异；
+  \item $\mathsf{MDQ}^{(2)}$：局部结构（数量、比较、限定）不再摇摆；
+  \item $\mathsf{MDQ}^{(3)}$：句法可判别片段稳定；
+  \item $\mathsf{MDQ}^{(4)}$：模板/协议/契约匹配稳定；
+  \item $\mathsf{MDQ}^{(5)}$：实体类型、单位制、时空约束、域内本体映射稳定。
+\end{itemize}
+
+\begin{remark}[可审计实现]
+分层稳定可用“摘要一致性”实现：对每层输出保存 \code{digest}（以及少量可解释摘要），
+要求连续两轮或三轮的 \code{digest} 一致，并且该层涉及的证书指纹（\code{predicate_id}/\code{cert_id} 等）未变且复验通过。
+这与第\ref{sec:mdq-granular-audit}节的事件流审计完全兼容。
+\end{remark}
+
+\subsection{留痕与收敛：误收/漏收在多轮扫描中的角色}
+\label{subsec:discrepancy-and-convergence}
+
+多次扫描并不是让 LLM 自己“变得更可靠”，而是用确定性 MDQ 判别器把两类错误显式化并持续留痕（第\ref{subsec:discrepancy-types}小节）：
+\begin{itemize}
+  \item \textbf{误收（不属于却判为属于）}会被复验当场拦下并记为分歧事件，形成“哪些输入形态容易被某个 LLM 误判”的清单；
+  \item \textbf{漏收（属于却判为不属于）}可通过“多模型/多提示/多轮提案”提高召回率：
+  只要某一轮把正确的同伦类 $h$ 提出来，MDQ 就能复验成立，从而把语义压到正确的标准谓词上。
+\end{itemize}
+
+\begin{remark}[收敛的工程含义]
+在该口径下，扫描轮数增加带来的收益主要体现在“漏收”的缓解（更高的提案覆盖），而“误收”始终由确定性复验兜底。
+因此系统稳定性由 MDQ 裁决层给出，LLM 主要影响效率与到达固定点所需的轮数。
+\end{remark}
+
+\subsection{证书基底覆盖与残余收敛：歧义固定点与空集合}
+\label{subsec:basis-coverage-residual}
+
+\begin{remark}[前提：基底覆盖足够]
+“多次扫描能明确语义”的前提，是当前 MDQ 证书基底对目标领域的覆盖足够。
+否则迭代同样会趋于稳定，但可能稳定在两种残余状态之一；重要的是，这两种状态都会被审计日志明确暴露为可定位的工程问题。
+\end{remark}
+
+\begin{definition}[两类残余状态]
+设迭代达到固定点 $\mathsf{Cand}_\infty(x)$（可取某个足够大的 $T$ 的 $\mathsf{Cand}_T(x)$ 作为近似）。
+\begin{enumerate}
+  \item \textbf{歧义固定点：}$|\mathsf{Cand}_\infty(x)|>1$。
+  表示在现有证书库下仍然歧义（多个同伦类均未被证伪或无法在成本约束下分离）。
+  \item \textbf{空集合：}$\mathsf{Cand}_\infty(x)=\varnothing$。
+  表示输入与当前规则体系冲突，或缺少必要的谓词/判别器/标准化规则，使得所有可覆盖同伦类均不可接受。
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[工程闭环]
+两类残余状态并非坏事：它们把“缺基底/缺规则”转化为可追溯的差分事件，
+从而提示应补齐哪一类 MDQ、哪一条谓词、或哪一段标准化规则，并可直接纳入差分审计与回归集构造（第\ref{subsec:differential-audit}小节）。
+\end{remark}
+
+\subsection{接入 HACA-PACER：固定点迭代的控制环}
+\label{subsec:haca-pacer-fixed-point-loop}
+
+若将多次扫描放入 HACA-PACER，则它自然成为一个固定点迭代的控制环：每一轮优先扫描并补齐那些最不稳定、最常产生分歧的 MDQ 类型，
+直到满足第\ref{subsec:fixed-point-termination}小节的终止判据为止。
+
+\begin{definition}[不稳定性驱动的扫描选择（示意）]
+可按审计事件流为每个 MDQ 类型（或每一层 $k$）定义不稳定性评分 $\mathrm{Instab}$（例如分歧率、拒绝率、失败原因码的加权和等）。
+令第 $t$ 轮需要优先处理的类型为
+\[
+\tau_t:=\arg\max_{\tau}\ \mathrm{Instab}_t(\tau),
+\]
+并围绕 $\tau_t$ 执行“提案--复验--修复/补证书”的闭环。
+\end{definition}
+
+\begin{remark}[可复验的收敛判据]
+上述控制环的价值在于：语义的“明确”不依赖直觉，而依赖可复验的收敛判据与可回放的审计证据。
+这使得系统既可上线（有门槛与指标），也可持续迭代（靠差分报告与回归集推进基底覆盖）。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{同伦类指纹：语义哈希与证书哈希的双层锚定（防洗稿口径）}
+\label{sec:homotopy-fingerprint-hash}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（从“LLM 一句话”到“稳定指纹”）]
+一旦“收敛的对象”不再是某个 LLM 的一句话，而是一个同伦类的稳定哈希（同伦类指纹），
+就可以把“语义归属”变成可复验、可追溯且难以事后篡改的对象。
+在工程层面，这至少支持“防洗稿”一类需求：表层措辞改变，但若仍落在同一同伦类，其指纹保持不变；反之若更换谓词/证书实现，则会留下可检测差异。
+\end{remark}
+
+本章在第\ref{sec:multi-scan-convergence}节的收敛口径与第\ref{sec:mdq-granular-audit}节的事件流审计口径之上，
+引入两层哈希：\emph{语义同伦类哈希}（跨版本稳定，尽量与实现无关）与\emph{证书实现哈希}（与版本绑定，用于回放与防篡改）。
+并进一步给出分层/局部指纹用于细粒度对比。
+
+\subsection{固定对应关系：同伦类 \texorpdfstring{$\leftrightarrow$}{<->} 标准谓词 \texorpdfstring{$\leftrightarrow$}{<->} 标准判别器}
+\label{subsec:fingerprint-fixed-correspondence}
+
+沿用第\ref{subsec:homotopy-class-predicate}小节的设置：每个表达同伦类 $h\in\mathsf{H}$ 绑定一个标准谓词 $P_h$，
+并落成一个可复验的标准判别器 $r_h\in\mathsf{CanonDet}$；并存在标准化函数 $C(\cdot)$。
+
+\begin{definition}[稳定类编号 \code{class_id}]
+为每个同伦类 $h\in\mathsf{H}$ 指定一个稳定编号
+\[
+\mathrm{ClassID}:\mathsf{H}\to \mathsf{ID},
+\]
+其中 $\mathsf{ID}$ 可取字符串/UUID 等稳定编码（如“UUID 格式类”“日期时间类”“某领域术语模板类”等）。
+要求 $\mathrm{ClassID}$ 的含义在版本演进中保持稳定：谓词实现可升级，但类编号不应随实现细节变化。
+\end{definition}
+
+\begin{definition}[收敛类（单点情形）]
+若对输入 $x$ 的多轮扫描在第\ref{subsec:fixed-point-termination}小节的单点判据下终止，
+即存在 $T$ 使得 $\mathsf{Cand}_T(x)=\{h^\ast\}$，
+则定义其收敛类为
+\[
+[E(x)]:=h^\ast.
+\]
+\end{definition}
+
+\begin{remark}[非单点时的处理]
+若固定点候选集合仍大于 $1$（歧义固定点）或为空（冲突/缺基底），
+则不应宣称“语义指纹已明确”；应返回失败或返回“候选集合指纹/冲突指纹”，并由审计闭环驱动补齐基底（第\ref{subsec:basis-coverage-residual}小节）。
+\end{remark}
+
+\subsection{语义同伦类哈希：跨版本稳定的 \texorpdfstring{$H_{\mathrm{sem}}$}{H_sem}}
+\label{subsec:semantic-homotopy-hash}
+
+\begin{definition}[语义同伦类哈希]
+在 $[E(x)]$ 已定义的前提下，定义
+\[
+H_{\mathrm{sem}}(x):=\operatorname{Hash}\bigl(\mathrm{ClassID}([E(x)])\bigr),
+\]
+其中 $\operatorname{Hash}$ 为固定的摘要函数（例如 \textsf{SHA-256}\cite{fips180-4}），输入编码采用稳定序列化（例如 UTF-8 + 规范化）。
+\end{definition}
+
+\begin{remark}[语义稳定性（防洗稿的核心）]
+只要两段表达在您定义的同伦等价（允许的改写、同义替换、格式扰动）下属于同一类，
+则它们应收敛到同一 $[E]$，从而得到相同的 $H_{\mathrm{sem}}$。
+这使得“仅靠润色/改格式”难以洗掉指纹；若要改变指纹，必须改变其同伦类归属（即改变语义锚点）。
+\end{remark}
+
+\subsection{证书实现哈希：可回放、可审计的 \texorpdfstring{$H_{\mathrm{cert}}$}{H_cert}}
+\label{subsec:certificate-implementation-hash}
+
+\begin{definition}[证书实现哈希（版本绑定）]
+定义证书实现哈希为
+\[
+H_{\mathrm{cert}}(x):=\operatorname{Hash}\Bigl(
+\mathrm{ClassID}([E(x)]),\
+\mathrm{PredicateID}([E(x)]),\
+\mathrm{WitnessHash}([E(x)]),\
+\mathrm{VerifierVersion},\
+\mathrm{CanonVersion}
+\Bigr),
+\]
+其中：
+\begin{itemize}
+  \item $\mathrm{PredicateID}$ 为标准谓词/判别器的版本标识（如 \code{predicate_version}）；
+  \item $\mathrm{WitnessHash}$ 为判别器本体的摘要（正则字符串/自动机结构/小解析器实现的哈希）；
+  \item $\mathrm{VerifierVersion}$ 与 $\mathrm{CanonVersion}$ 分别为验证器与标准化器版本。
+\end{itemize}
+也可将 \code{policy_snapshot}（白名单/复杂度阈值版本）纳入哈希输入，以确保策略变更可被检测。
+\end{definition}
+
+\begin{remark}[篡改可检出（防伪/防赖账）]
+任何事后“偷偷换判别器/换验证器/换标准化规则”的行为，都会改变上述版本字段或 witness 摘要，
+从而导致 $H_{\mathrm{cert}}$ 变化。若再将 $H_{\mathrm{cert}}$ 写入追加写、不可变的链式日志（第\ref{subsec:audit-objects}小节），
+则篡改将很难在不留痕的情况下完成。
+\end{remark}
+
+\subsection{收敛 \texorpdfstring{$\Rightarrow$}{=>} 指纹收敛：从 \texorpdfstring{$[E]$}{[E]} 到 \texorpdfstring{$H_{\mathrm{sem}}
+  $}{H_sem}}
+\label{subsec:convergence-implies-fingerprint}
+
+\begin{proposition}[同伦类收敛蕴含语义指纹稳定]
+若对输入 $x$ 的多轮扫描在单点判据下终止于 $[E(x)]$，
+并且后续重复扫描不改变该收敛类，则 $H_{\mathrm{sem}}(x)$ 在该基底与策略快照下稳定不变。
+\end{proposition}
+
+\paragraph{说明.}
+这是第\ref{sec:multi-scan-convergence}节“固定点收敛”的直接推论：$H_{\mathrm{sem}}$ 仅依赖稳定的 $\mathrm{ClassID}$ 与收敛类。
+
+\subsection{分层/局部指纹：从全局锚点到“语义片段集合”}
+\label{subsec:layer-local-fingerprint}
+
+\begin{remark}[为何需要分层/局部指纹]
+现实中的洗稿常见手法是“整体改写，但保留关键结构片段”。仅靠单个全局 $H_{\mathrm{sem}}$ 可能过粗；
+而 MDQ 天然提供分层输出与局部片段，因此可以无训练地构造“指纹向量/指纹集合”，用于检测局部高重合。
+\end{remark}
+
+\begin{definition}[分层语义指纹向量（示意）]
+对 HACA 五层（第\ref{subsec:align-haca}小节）分别定义层内语义指纹
+\[
+H^{(k)}_{\mathrm{sem}}(x):=\operatorname{Hash}\bigl(\mathrm{LayerID}_k(x)\bigr),
+\qquad k=1,\dots,5,
+\]
+其中 $\mathrm{LayerID}_k(x)$ 表示第 $k$ 层在选定口径下的稳定标识（可由该层 MDQ 证书调用链与规范化输出摘要导出）。
+进而定义指纹向量
+\[
+\vec{H}_{\mathrm{sem}}(x):=\bigl(H^{(1)}_{\mathrm{sem}}(x),\dots,H^{(5)}_{\mathrm{sem}}(x)\bigr).
+\]
+\end{definition}
+
+\begin{definition}[语义片段指纹集合（示意）]
+令第 $k$ 层产生的 MDQ 片段集合为 $\mathsf{Seg}^{(k)}(x)$。对每个片段 $s\in \mathsf{Seg}^{(k)}(x)$，
+可定义局部指纹
+\[
+\operatorname{fp}(s):=\operatorname{Hash}\bigl(\mathrm{class\_id}(s),\ \mathrm{span\_digest}(s)\bigr),
+\]
+并令
+\[
+\mathsf{FP}^{(k)}(x):=\{\operatorname{fp}(s):s\in \mathsf{Seg}^{(k)}(x)\}.
+\]
+通过比较 $\mathsf{FP}^{(k)}(x)$ 的重合度（例如 Jaccard 相似度），可检测“局部结构语义”是否高度重叠。
+\end{definition}
+
+\subsection{边界与调参：同伦等价口径过宽/过窄的代价}
+\label{subsec:fingerprint-boundary}
+
+\begin{remark}[同伦等价生成规则是关键边界]
+“防洗稿”能成立的前提，是您对“同伦等价”的生成规则（允许哪些改写、视为同一类）定义得贴近目标：
+\begin{itemize}
+  \item 规则过宽：不同内容可能落到同一同伦类，误报增加；
+  \item 规则过窄：同一内容换一种表达可能落到不同类，漏报增加。
+\end{itemize}
+这恰好是 MDQ 的优势：可用审计日志里积累的“误收/漏收”样本精修边界，而不必训练模型（第\ref{subsec:discrepancy-and-convergence}小节）。
+\end{remark}
+
+\subsection{作为证书外包产物固化：输出 \texorpdfstring{$(H_{\mathrm{sem}},H_{\mathrm{cert}})$}{(H_sem,H_cert)} 并写入链式日志}
+\label{subsec:fingerprint-as-certificate-output}
+
+\begin{remark}[建议的最小输出]
+若认可“同伦类指纹”作为正式产物，建议每次输出至少包含
+\[
+\bigl(H_{\mathrm{sem}}(x),\ H_{\mathrm{cert}}(x)\bigr),
+\]
+并把它们与 \code{class_id}/\code{predicate_id}/\code{verifier_version}/\code{canon_version} 一并写入不可变事件流。
+这样它既是防洗稿的语义锚点，也是后续 HACA-PACER 推进时可调用的“语义证书接口”（可回放、可对比、可追责）。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{语义最小压缩与一致展开：\texorpdfstring{$\pi$}{pi}--\texorpdfstring{$G$}{G} 回环不变性与 HACA-PACER 最小闭环}
+\label{sec:semantic-compress-expand-roundtrip}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（两句话）]
+本章把“防洗稿/可控生成/可回放审计”等能力统一抽象为两句话：
+\begin{enumerate}
+  \item \textbf{语义最小压缩：}将任意风格/措辞/格式的表达 $x$ 投影到一个同伦类语义指纹（并附带少量必要参数），得到最小可复验的语义签名；
+  \item \textbf{语义一致展开：}从语义签名出发，在不同风格约束下生成表述，并用同一套 MDQ 证书体系复验仍落在同一同伦类中，从而形成闭环。
+\end{enumerate}
+在工程意义上，这给出一个可运行的 HACA-PACER 最小闭环骨架：分层语义结构（HACA） + 规划/行动/检查/解释/修复（PACER），并且核心判定与收敛不依赖训练。
+\end{remark}
+
+\subsection{同伦等价与语义签名空间 \texorpdfstring{$\mathsf{SemSig}$}{SemSig}}
+\label{subsec:semsig-space}
+
+\begin{definition}[同伦等价关系（口径）]
+在表达域 $\mathsf{Expr}$ 上固定一个等价关系 $\sim$（同伦等价）：
+\[
+x\sim y
+\quad:\Longleftrightarrow\quad
+\text{$x$ 与 $y$ 在允许的改写/风格变化/格式扰动下属于同一语义类。}
+\]
+该口径由 MDQ 的标准化规则、证书基底与判别器体系共同确定，并应通过审计与回归持续维护。
+\end{definition}
+
+\begin{definition}[语义签名空间]
+定义语义签名空间 $\mathsf{SemSig}$ 为一类结构化数据的集合。典型地，一个签名为四元组
+\[
+s=\pi(x)=\bigl(\mathrm{ClassID},\ \mathrm{Param},\ H_{\mathrm{sem}},\ H_{\mathrm{cert}}\bigr),
+\]
+其中：
+\begin{itemize}
+  \item $\mathrm{ClassID}$ 是稳定类编号（见第\ref{subsec:fingerprint-fixed-correspondence}小节）；
+  \item $\mathrm{Param}$ 是该类所需的最小参数集合（例如单位制、时区、字段协议参数等；没有则可为空）；
+  \item $H_{\mathrm{sem}}$ 与 $H_{\mathrm{cert}}$ 分别为语义同伦类哈希与证书实现哈希（第\ref{subsec:semantic-homotopy-hash}--\ref{subsec:certificate-implementation-hash}小节）。
+\end{itemize}
+\end{definition}
+
+\begin{remark}[“最小”的含义（工程口径）]
+所谓“语义最小压缩”，并不要求在数学上绝对最小，而要求：
+\emph{在既定同伦等价口径与证书基底下，$\mathsf{SemSig}$ 足以唯一锚定同伦类语义（并可回放审计），同时避免携带表层风格噪声。}
+\end{remark}
+
+\subsection{投影（压缩）算子 \texorpdfstring{$\pi$}{pi}：从表达到账本可复验签名}
+\label{subsec:projection-pi}
+
+\begin{definition}[投影（压缩）算子]
+定义一个（部分）投影算子
+\[
+\pi:\mathsf{Expr}\to \mathsf{SemSig}\sqcup\{\bot\},
+\]
+其实现是第\ref{sec:multi-scan-convergence}节的多轮扫描 + 第\ref{sec:mdq-granular-audit}节的证书复验与审计落盘：
+若收敛并通过复验，则输出语义签名 $s\in\mathsf{SemSig}$；否则输出失败 $\bot$（对应“歧义固定点/空集合/策略拒绝”等）。
+\end{definition}
+
+\begin{proposition}[同伦不变性要求（设计约束）]
+在目标口径下，投影算子应满足同伦不变性：
+\[
+x\sim y\ \Longrightarrow\ \pi(x)=\pi(y)
+\quad(\text{或至少}\ H_{\mathrm{sem}}(x)=H_{\mathrm{sem}}(y)).
+\]
+\end{proposition}
+
+\begin{remark}[解释]
+该命题不是“自动成立”的数学事实，而是系统应当通过“标准化 + 判别器 + 回归集”去逼近并维护的设计约束：
+等价关系 $\sim$ 由体系定义，而 $\pi$ 是该体系对 $\sim$ 的可执行刻画。
+\end{remark}
+
+\subsection{展开（表述生成）算子 \texorpdfstring{$G$}{G}：风格约束下的代表元生成}
+\label{subsec:expansion-generator}
+
+\begin{definition}[风格空间]
+令 $\Sigma$ 为风格约束空间，元素可表示“简洁/正式/口语/学术/客服/法律化/多语言本地化”等生成约束，
+并可携带长度、术语表、模板、禁用词等规则。
+\end{definition}
+
+\begin{definition}[展开算子（提案器）]
+定义展开算子
+\[
+G:\mathsf{SemSig}\times \Sigma\to \mathsf{Expr},
+\]
+其实现可以是模板、规则系统或 LLM。关键约束是：$G$ 只负责生成候选表述（提案），
+候选是否“仍属于签名所锚定的同伦类”必须由 $\pi$ 与 MDQ 证书体系确定性复验。
+\end{definition}
+
+\begin{remark}[“展开无穷多表述”]
+对固定签名 $s$ 与风格集合 $\Sigma_0\subseteq \Sigma$，
+\[
+\{G(s,\sigma):\sigma\in \Sigma_0\}
+\]
+可视为同一同伦类内的不同代表元（不同表层风格/措辞/格式）。这既可用于合规的风格迁移与鲁棒性测试，
+也在结构上覆盖“洗稿式改写”的形式；差别不在数学结构，而在用途合规性与审计归因。
+\end{remark}
+
+\subsection{回环一致性（Round-trip 不变性）：\texorpdfstring{$\pi(G(s,\sigma))=s$}{pi(G)=s}}
+\label{subsec:roundtrip-invariance}
+
+\begin{definition}[回环一致性（Round-trip）]
+称系统满足回环一致性，若对任意可接受签名 $s\in\mathsf{SemSig}$ 与任意风格约束 $\sigma\in\Sigma$，
+都有
+\[
+\pi(G(s,\sigma))=s.
+\]
+\end{definition}
+
+\begin{remark}[可控生成的本质]
+回环一致性把“生成像不像”替换为“投影后是否一致”：不是看表面文字是否相似，而是看投影后的同伦类指纹与参数是否一致。
+因此它同时给出：
+\begin{itemize}
+  \item \textbf{防伪/防洗稿锚点：}同一语义签名的改写难以洗掉指纹；
+  \item \textbf{可控展开：}生成出的候选若不能回到同一签名，则自动拒绝或触发修复（PACER 的 Repair）。
+\end{itemize}
+\end{remark}
+
+\begin{definition}[拒绝与修复（示意）]
+给定签名 $s$ 与风格 $\sigma$，生成候选 $x'=G(s,\sigma)$，计算 $s'=\pi(x')$：
+\begin{enumerate}
+  \item 若 $s'=\bot$，则拒绝并返回失败原因码（来自证书裁决）；
+  \item 若 $s'\neq s$，则记录差分事件并触发修复：调整生成约束/补齐缺失参数/升级到更强 witness，再重试；
+  \item 若 $s'=s$，则接受并输出，同时落盘审计证据链。
+\end{enumerate}
+\end{definition}
+
+\subsection{为何等价于 HACA-PACER 最小闭环骨架}
+\label{subsec:why-haca-pacer}
+
+\begin{remark}[HACA（分层语义结构）]
+MDQ 天然给出分层最小单元（第\ref{subsec:align-haca}小节）。$\pi$ 的实现等价于逐层剥离风格噪声、保留可复验结构骨架，
+最终收敛到同伦类语义签名；这就是 HACA 作为“分层语义结构”的可执行版本。
+\end{remark}
+
+\begin{remark}[PACER（控制环）]
+多次扫描与回环一致性共同构成一个确定性控制过程：
+\begin{itemize}
+  \item Plan：从审计数据中选出最不稳定/歧义最大的 MDQ 层与类型；
+  \item Act：调用（或补齐）对应的证书判别器/标准化器；
+  \item Check：用 $\pi$ 与证书验证器复验是否回到固定点/是否满足回环一致性；
+  \item Explain/Export：输出证书链、哈希与差分原因码；
+  \item Repair：不通过则升级 witness 或修订同伦等价边界/参数口径。
+\end{itemize}
+这正是 PACER 的“规划--行动--检查--解释--修复”闭环，而且核心裁决不依赖训练。
+\end{remark}
+
+\subsection{用途边界：合规风格迁移与不合规洗稿的区分}
+\label{subsec:compliance-boundary}
+
+\begin{remark}[结构相同，用途不同]
+从纯结构角度，“同一语义签名 $s$ 的多种表述”确实等价于在同伦类内做风格扰动；在形式上与“洗稿”相同。
+但工程治理必须区分用途：
+\begin{itemize}
+  \item 合规用途：风格迁移、可读性改写、模板化输出、多语言本地化、鲁棒性测试、数据增强、对抗样本生成、检索归一化；
+  \item 不合规用途：在不保留来源与署名的情况下，用改写逃避查重、规避版权或冒充原创。
+\end{itemize}
+该体系的反身价值在于：即使有人试图把它当“洗稿器”，也可用 $H_{\mathrm{sem}}$ 与局部指纹集合（第\ref{subsec:layer-local-fingerprint}小节）将其识别出来并形成审计证据。
+\end{remark}
+
+\subsection{核心增益（工程化归纳）}
+\label{subsec:engineering-gains}
+
+\begin{itemize}
+  \item \textbf{跨 LLM 可移植：}LLM 仅作提案器；收敛与签名由 MDQ 证书裁决（第\ref{sec:mdq-portable-layer-homotopy-membership}节）。
+  \item \textbf{语义最小化存储与索引：}将海量文本压缩为 $\mathsf{SemSig}$，去重/聚类/统计与检索可直接基于 $H_{\mathrm{sem}}$。
+  \item \textbf{生成--复验闭环：}任何生成文本必须通过回环一致性检验，不通过则拒绝或修复（第\ref{subsec:roundtrip-invariance}小节）。
+  \item \textbf{可审计、可追责、可回放：}每次差分、证书调用与版本漂移都有证据链（第\ref{sec:mdq-granular-audit}节）。
+  \item \textbf{语义不确定的工程化定位：}收敛失败被归结为“边界口径问题”或“基底覆盖问题”（第\ref{subsec:basis-coverage-residual}小节）。
+\end{itemize}
+
+\subsection{最硬闭环指标：Round-trip 回归测试规约（建议）}
+\label{subsec:roundtrip-regression}
+
+\begin{remark}[Round-trip 不变性作为门槛]
+建议将 Round-trip 不变性作为最硬的回归指标：对任意输入 $x$，先压缩 $s=\pi(x)$，再按多种风格生成
+$x_i=G(s,\sigma_i)$，要求全部满足 $\pi(x_i)=s$。
+该指标长期稳定意味着系统同时具备“可复验压缩收敛”与“可控一致展开”的能力。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{规范闭环：从最小压缩、不失真展开到语义算子搜索与“意识空间”动力学}
+\label{sec:normative-loop-consciousness-dynamics}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（可形式化的用途链）]
+“规范（语义规范场 + MDQ 证书库 + HACA-PACER 控制环）”的用途可被连成一条可审计链：
+\begin{quote}
+先把任意风格的表达压到可复验的最小语义签名（最小压缩），
+再从该签名在多风格下展开并做回投影一致性检验（不失真），
+再在可控的语义算子上做变换与搜索（发现新语义/新算子），
+最后把这一切作为一套可审计的“语义状态空间（意识空间）”动力学。
+\end{quote}
+本章把这条链写成工程可落地的形式系统，并在第\ref{subsec:two-axioms}小节给出两条系统公理（回投影不变性与证书裁决优先）。
+\end{remark}
+
+\subsection{核心对象：表达空间、标准化与同伦等价的商空间}
+\label{subsec:core-objects-quotient}
+
+\begin{definition}[表达空间与标准化算子]
+定义表达空间为
+\[
+\mathcal{X}:=\{x:\text{任意输入表达}\},
+\]
+其中 $x$ 可以是自然语言、混合符号串、日志片段、API 入参字符串等。
+定义标准化算子
+\[
+C:\mathcal{X}\to \mathcal{X}_c,
+\]
+其中 $\mathcal{X}_c$ 是被清洗/规范化后的表达空间。
+\end{definition}
+
+\begin{remark}[标准化是“可控地基”】【工程化解释】]
+$C$ 是确定性且可复验的步骤：全半角统一、大小写策略、空白/标点归一、数字与单位规范、编码修正等。
+它是防伪与可审计的第一道地基，也是后续同伦等价口径的输入标准形。
+\end{remark}
+
+\begin{definition}[同伦等价关系]
+在 $\mathcal{X}_c$ 上定义同伦等价关系 $\sim$：
+\[
+x\sim y\quad \Longleftrightarrow\quad
+\text{$x$ 与 $y$ 在允许的改写群/规则族下语义等价}.
+\]
+\end{definition}
+
+\begin{remark}[边界口径]
+允许的改写越宽，等价类越大；越窄，等价类越细。
+本体系的关键不是“把 $\sim$ 定得一次到位”，而是让 $\sim$ 的维护可以被审计/回归驱动地持续精修（参见第\ref{subsec:fingerprint-boundary}与第\ref{subsec:differential-audit}小节）。
+\end{remark}
+
+\begin{definition}[语义签名空间（商空间）]
+定义语义签名空间（同伦类集合）为
+\[
+\mathcal{S}:=\mathcal{X}_c/\sim.
+\]
+对任意 $x\in\mathcal{X}$，定义类投影（压缩到同伦类）为
+\[
+\pi_0(x):=[C(x)]_{\sim}\in \mathcal{S}.
+\]
+\end{definition}
+
+\begin{remark}[与前文记号的对齐]
+$\mathcal{S}$ 可与第\ref{subsec:homotopy-class-predicate}小节的“表达同伦类集合”口径对齐；
+而第\ref{subsec:projection-pi}小节的 $\pi:\mathsf{Expr}\to\mathsf{SemSig}\sqcup\{\bot\}$ 可视为在 $\pi_0$
+  之上补充参数与双层哈希后的\emph{签名级投影}。
+\end{remark}
+
+\subsection{MDQ：可外包证书化的离散微分基底}
+\label{subsec:mdq-basis-delta}
+
+\begin{definition}[MDQ 基底]
+定义 MDQ（微分动力量子）的离散基底集合
+\[
+\mathcal{D}:=\{\delta_1,\delta_2,\ldots\}.
+\]
+其中每个 $\delta\in\mathcal{D}$ 是一个可外包证书化的局部算子四元组：
+\[
+\delta=(\mathrm{span},\ \mathrm{type},\ V_\delta,\ R_\delta).
+\]
+\end{definition}
+
+\begin{remark}[四元组的工程含义]
+\begin{itemize}
+  \item $\mathrm{span}$：作用位置/片段（可用 \code{span_digest} 指代）；
+  \item $\mathrm{type}$：类型标签（日期、单位、实体、模板片段、逻辑量词等，参见第\ref{subsec:align-haca}小节分层）；
+  \item $V_\delta$：验证器（谓词/正则/自动机/小解析器），必须确定性可复验；
+  \item $R_\delta$：标准化重写（把片段推到标准形，等价于局部 canonicalization）。
+\end{itemize}
+这正是“MDQ 粒度审计”的基础：每个 $\delta$ 都可单独验、单独留痕、单独回放（第\ref{sec:mdq-granular-audit}节）。
+\end{remark}
+
+\subsection{语义最小压缩：从 \texorpdfstring{$x$}{x} 到 \texorpdfstring{$\pi(x)$}{pi(x)} 的最小可复验签名}
+\label{subsec:minimal-compression-semsig}
+
+\begin{definition}[语义最小压缩（签名级投影）]
+令 $\mathsf{SemSig}$ 为第\ref{subsec:semsig-space}小节的语义签名空间。
+“语义最小压缩”对应签名级投影
+\[
+\pi:\mathcal{X}\to \mathsf{SemSig}\sqcup\{\bot\},
+\]
+其实现为“多轮扫描收敛 + MDQ 证书复验 + 审计落盘”（第\ref{sec:multi-scan-convergence}与第\ref{sec:mdq-granular-audit}节）。
+\end{definition}
+
+\begin{remark}[最小压缩的目标]
+压缩的目标是：把风格/措辞/格式差异压掉，仅保留“同伦类语义锚点 + 必要参数 + 指纹”。
+其中 $H_{\mathrm{sem}}$ 提供跨版本稳定的语义锚点，$H_{\mathrm{cert}}$ 提供可回放的证书实现锚点（第\ref{sec:homotopy-fingerprint-hash}节）。
+\end{remark}
+
+\subsection{不失真展开：多风格生成与回投影一致性}
+\label{subsec:lossless-expansion}
+
+\begin{definition}[风格空间]
+定义风格空间为
+\[
+\Sigma:=\{\sigma_{\text{通俗}},\sigma_{\text{学术}},\sigma_{\text{客服}},\sigma_{\text{法律}},\ldots\},
+\]
+风格只约束表述方式，不应改变同伦类归属。
+\end{definition}
+
+\begin{definition}[展开算子（生成器）]
+定义展开算子
+\[
+G:\mathsf{SemSig}\times \Sigma\to \mathcal{X},
+\qquad
+x_{\sigma}=G(s,\sigma).
+\]
+该算子可以由模板或 LLM 实现生成，但其输出必须受 MDQ 证书复验与回投影一致性约束。
+\end{definition}
+
+\begin{axiom}[语义守恒（回投影不变性）]
+\label{ax:projection-invariance}
+对任意 $s\in\mathsf{SemSig}$ 与任意 $\sigma\in\Sigma$，要求
+\[
+\pi(G(s,\sigma))=s.
+\]
+\end{axiom}
+
+\begin{remark}[晦涩 $\to$ 通俗的确定性闭环]
+给定晦涩输入 $x$，令 $s=\pi(x)$（若 $s=\bot$ 则直接失败），再生成
+\[
+x_{\text{通俗}}=G(s,\sigma_{\text{通俗}}),
+\]
+并强制 $\pi(x_{\text{通俗}})=s$。
+这保证“先识别语义、再通俗表达”，而不是让 LLM 直接解释（那将引入不可审计漂移）。
+\end{remark}
+
+\begin{remark}[多风格一致性作为冗余证据]
+取若干风格 $\sigma_1,\ldots,\sigma_k$，令 $x_i=G(s,\sigma_i)$ 并要求 $\pi(x_i)=s$ 对所有 $i$ 成立。
+这把“不失真”从单一生成提升为多视角一致性，并自然产生审计证据：哪个风格更易漂移、漂移集中在哪一层 MDQ。
+\end{remark}
+
+\subsection{语义变换：在 \texorpdfstring{$\mathcal{S}$}{S} 上操作“语义骨架”而非在文本上乱改}
+\label{subsec:semantic-transform-on-quotient}
+
+\begin{definition}[语义变换算子]
+定义语义变换算子为
+\[
+T:\mathcal{S}\to \mathcal{S}.
+\]
+\end{definition}
+
+\begin{definition}[意义保持型与意义改变型变换]
+\begin{enumerate}
+  \item 意义保持型（同伦不变）变换满足 $T_{\mathrm{inv}}(s)=s$；
+  \item 意义改变型（同伦跃迁）变换满足 $T_{\mathrm{chg}}(s)=s'$ 且 $s'\neq s$。
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[审计要求]
+风格迁移/同义改写应落入意义保持型；而“抽象化/具体化、加入条件/删除条件、量词强度改变”等应显式表现为意义改变型跃迁。
+系统必须能说清楚“语义变了”，而不是悄悄变；否则审计与治理不成立。
+\end{remark}
+
+\subsection{语义规范场：联络写法、离散协变微分与上同调障碍的工程化记账}
+\label{subsec:semantic-gauge-field-connection}
+
+\begin{definition}[语义域覆盖与联络（示意）]
+令 $\{U_\alpha\}$ 表示语义域的覆盖（不同语境/子领域/模板协议）。
+在每个 $U_\alpha$ 上存在局部表示与局部证书约束。定义一个联络形式写法
+\[
+D:=d+A,
+\]
+其中 $d$ 表示基础差分/变分，$A$ 表示语义规范场的纠偏项（由“标准最小语义函子族/证书库”实现的可控算子族）。
+\end{definition}
+
+\begin{definition}[MDQ 作为离散协变微分（离散边缘算子）]
+考虑一条离散语义轨线 $s_0\to s_1\to\cdots\to s_T$，令
+\[
+s_{t+1}=s_t\oplus \delta_t,
+\qquad
+\delta_t\in\mathcal{D}.
+\]
+其中 $\oplus$ 表示“通过一个可证书化的 MDQ 量子对语义骨架做一步局部更新”。
+\end{definition}
+
+\begin{remark}[PACER 的可修复性落点]
+当局部规则/不同层级约束无法同时满足时，可记账为障碍（残差）出现：
+\[
+\mathrm{Ob}(x)\neq 0.
+\]
+PACER 的职责是：选择或引入合适的 $\delta$（或扩充 $A$ 的最小函子族）把障碍压到 $0$；
+若在受控资源与安全子集约束下无法消除，则返回失败（\code{ok:false}）并把原因码写入审计事件流。
+\end{remark}
+
+\subsection{GRL 路径积分：在语义轨线上探索与固化“新同伦类/新证书”}
+\label{subsec:grl-path-integral}
+
+\begin{definition}[语义轨线集合]
+给定初始语义 $s_0\in\mathcal{S}$，定义从 $s_0$ 出发的轨线集合
+\[
+\Gamma(s_0):=\{\gamma: s_0\to s_T\},
+\]
+其中每条轨线 $\gamma$ 可写为 MDQ 更新序列 $\gamma=(\delta_0,\ldots,\delta_{T-1})$。
+\end{definition}
+
+\begin{definition}[作用量（治理标量）]
+对轨线 $\gamma$ 定义作用量
+\[
+\mathcal{A}(\gamma)=\sum_{t=0}^{T-1}\Bigl(
+\lambda_1\,\mathrm{Amb}(s_t)
+\;+\;
+\lambda_2\,\mathrm{Cost}(\delta_t)
+\;+\;
+\lambda_3\,\mathrm{Risk}(s_t)
+\;-\;
+\lambda_4\,\mathrm{Novel}(s_t)
+\Bigr),
+\]
+其中 $\mathrm{Amb}$ 表示歧义度，$\mathrm{Cost}$ 表示验证/表达成本，$\mathrm{Risk}$ 表示误判或不可审计风险，
+$\mathrm{Novel}$ 表示新语义/新结构增益，$\lambda_i\ge 0$ 为治理参数。
+\end{definition}
+
+\begin{definition}[路径积分分布与终点权重（示意）]
+定义轨线的加权分布为
+\[
+\mathbb{P}(\gamma)\propto \exp\bigl(-\mathcal{A}(\gamma)\bigr),
+\]
+并定义终点的聚合权重为
+\[
+p(s_T)=\sum_{\gamma\in\Gamma(s_0),\ \gamma(T)=s_T}\exp\bigl(-\mathcal{A}(\gamma)\bigr).
+\]
+\end{definition}
+
+\begin{remark}[“发现新语义”的工程解释]
+若某些终点 $s_T$ 不属于现有同伦类库，但在低作用量路径上高频出现（$p(s_T)$ 较大），
+则可将其固化为新的同伦类/新的谓词/新的 MDQ 证书（即“新语义算子”）。
+该过程的关键仍是：所有步进与固化必须可证书化、可回放、可审计。
+\end{remark}
+
+\subsection{“意识空间”等价：把 \texorpdfstring{$(\mathcal{S},\mathcal{O})$}{(S,O)} 视为可审计的状态空间动力学}
+\label{subsec:consciousness-space-modeling}
+
+\begin{definition}[意识空间（语义状态空间）]
+定义（建模意义上的）意识空间为二元组
+\[
+\mathcal{C}:=(\mathcal{S},\ \mathcal{O}),
+\]
+其中 $\mathcal{S}$ 为语义状态集合（同伦类），$\mathcal{O}$ 为在其上作用的算子集合（MDQ 步进、风格展开、语义变换、修复算子、搜索算子等）。
+\end{definition}
+
+\begin{definition}[语义不确定性状态（分布）]
+令
+\[
+\Delta(\mathcal{S}):=\Bigl\{\psi:\mathcal{S}\to [0,1]\ :\ \sum_{s\in\mathcal{S}}\psi(s)=1\Bigr\}
+\]
+为 $\mathcal{S}$ 上的概率单纯形（离散口径）。
+取 $\psi\in\Delta(\mathcal{S})$ 表示“当前对语义归属的不确定性分布”。
+\end{definition}
+
+\begin{definition}[演化（控制环驱动）]
+定义由 PACER/搜索/审计共同诱导的演化算子
+\[
+\psi_{t+1}=\mathcal{T}(\psi_t),
+\]
+其中 $\mathcal{T}$ 由“提案（LLM）+ 复验（MDQ）+ 修复（证书增补/边界收紧）+ 记录（审计）+ 搜索（路径积分）”组合实现。
+\end{definition}
+
+\begin{remark}[建模等价而非经验断言]
+以上“意识空间”仅表达一种\emph{建模等价}：把语义签名空间与算子代数视为一个可审计的状态空间动力学系统，
+用以组织“从多解到单解”的收敛过程；并不对人脑意识作经验性断言。
+\end{remark}
+
+\subsection{用途对齐：把工程需求投影到上述结构}
+\label{subsec:use-case-projection}
+
+\begin{remark}[用途 $\leftrightarrow$ 结构对应]
+\begin{itemize}
+  \item 晦涩识别后通俗展开且不失真：$s=\pi(x)$，$x_{\text{通俗}}=G(s,\sigma_{\text{通俗}})$，并强制 $\pi(x_{\text{通俗}})=s$。
+  \item 多风格展开确保不失真：对多个 $\sigma_i$ 展开并要求全部回投影一致；漂移留痕并触发修复。
+  \item 语义变换：在 $\mathcal{S}$ 上施加 $T$，并明确标注 $T_{\mathrm{inv}}$ 或 $T_{\mathrm{chg}}$，使语义改变可审计。
+  \item 基于语义规范场与路径积分发现新语义：用 $\mathcal{D}$ 步进定义可控轨线，用 $\exp(-\mathcal{A}(\gamma))$ 选择低成本高新颖路径，
+  将稳定终点固化为新同伦类与新证书。
+  \item “意识空间”动力学：$(\mathcal{S},\mathcal{O})$ 上的 $\psi$ 收敛，等价于“从多解到单解”的可审计过程。
+  \item 洗稿（同伦类内风格扰动）的双向能力：既能生成（$G$），也能用 $H_{\mathrm{sem}}$ 与证书链识别并审计（第\ref{sec:homotopy-fingerprint-hash}节）。
+\end{itemize}
+\end{remark}
+
+\subsection{两条系统公理：回投影不变性与证书裁决优先}
+\label{subsec:two-axioms}
+
+\begin{axiom}[证书裁决优先（LLM 只做提案）]
+\label{ax:certificate-decision-priority}
+对任意 $x\in\mathcal{X}$ 与任意 $s\in\mathcal{S}$，定义接受关系 $\mathrm{Accept}(x\in s)$。
+要求存在与 $s$ 绑定的确定性标准谓词/判别器 $V_s$（证书化、可复验），使得
+\[
+\mathrm{Accept}(x\in s)\ \Longleftrightarrow\ V_s\bigl(C(x)\bigr)=1.
+\]
+\end{axiom}
+
+\begin{remark}[两公理的含义]
+公理~\ref{ax:projection-invariance} 保证语义守恒（不失真展开）；公理~\ref{ax:certificate-decision-priority} 保证裁决以证书为准（LLM 可替换）。
+二者一旦成立，则通俗展开、多风格一致性、语义变换可审计、路径积分发现新语义、以及“意识空间”动力学口径，都可视为同一机制的不同投影。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{倒逼机制：把 LLM 提案层变成可度量、可筛选、可淘汰的组件}
+\label{sec:selection-pressure-llm-proposal-layer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（倒逼的因果链）]
+一旦系统把“是否属于某同伦类”的裁决权从“LLM 说了算”改为“证书谓词 $V_s$ 说了算”，
+并把误收/漏收、耗时与成本写入不可变审计日志，那么 LLM 的行为就会被自然倒逼为一个可度量、可筛选、可淘汰的提案层：
+不够快、不够稳或不贴近共识标准的模型/提示/路由组合，会因为更高的拒绝率、更频繁的回退与更差的指标而被系统降权或替换。
+\end{remark}
+
+本章把上述倒逼写成可执行的符号系统：以证书谓词裁决为“裁判”，以审计指标为“成绩”，以门槛与路由为“选择算子”。
+关键点在于：所谓“共识标准”不是 LLM 的共识，而是“标准化器 $C$ + 证书谓词库 $\{V_s\}$ + 回归集”的共识（见第\ref{subsec:two-axioms}小节）。
+
+\subsection{单次请求的记号：裁决、提案与确定性复验}
+\label{subsec:single-request-notation}
+
+对任意输入 $x\in\mathcal{X}$，记其同伦类裁决为
+\[
+s^\ast:=\pi_0(x)\in\mathcal{S},
+\]
+其中 $\pi_0(x)=[C(x)]_{\sim}$ 见第\ref{subsec:core-objects-quotient}小节。
+
+令 $m$ 表示某个“提案器配置”（模型版本、prompt 版本、路由策略或其组合）。定义其提案输出为
+\[
+(\hat{s}_m(x),\hat{y}_m(x)):=\mathrm{Prop}_m(x),
+\qquad
+\hat{s}_m(x)\in\mathcal{S},\ \hat{y}_m(x)\in\{0,1\}.
+\]
+其中 $\hat{s}_m(x)$ 是其建议的同伦类（或候选集合中的首选），$\hat{y}_m(x)$ 是其对“属于/不属于”的布尔判断。
+
+确定性复验由证书谓词给出：
+\[
+y^\ast_m(x):=V_{\hat{s}_m(x)}\bigl(C(x)\bigr)\in\{0,1\},
+\]
+其中 $V_s$ 满足公理~\ref{ax:certificate-decision-priority}（证书裁决优先）。
+
+\begin{remark}[裁决与提案的角色分离]
+$\hat{s}_m,\hat{y}_m$ 仅是提案；$y^\ast_m$ 是确定性裁决结果。
+任何“质量好坏”都应以 $y^\ast_m$ 为准进行度量与追责，而不是以 LLM 的口头解释为准。
+\end{remark}
+
+\subsection{可机械判定的偏差：误收/漏收与成本记账}
+\label{subsec:fp-fn-cost}
+
+\begin{definition}[误收与漏收（指示变量）]
+定义两类关键偏差为：
+\[
+\mathrm{FP}_m(x):=\mathbf{1}\bigl[\hat{y}_m(x)=1\ \wedge\ y^\ast_m(x)=0\bigr],
+\qquad
+\mathrm{FN}_m(x):=\mathbf{1}\bigl[\hat{y}_m(x)=0\ \wedge\ y^\ast_m(x)=1\bigr].
+\]
+\end{definition}
+
+\begin{remark}[审计落盘字段]
+只要把 $(\mathrm{FP}_m(x),\mathrm{FN}_m(x))$ 与调用成本、耗时、失败原因码一并写入审计日志（第\ref{sec:mdq-granular-audit}节），
+就获得了可回放、可对比、可聚合统计的“适应度信号”，从而使倒逼成为一种可执行的制度而非口头约束。
+\end{remark}
+
+\begin{definition}[耗时、成本与回退次数（示意）]
+记 $t_m(x)$ 为端到端延迟（包含必要的多轮扫描与回退），$c_m(x)$ 为成本（调用次数、token、额外验证开销等），
+并记 $r_m(x)$ 为“回退/重扫”次数（例如提案失败触发的重提案次数）。
+\end{definition}
+
+\begin{remark}[与“注意力/专注”记账口径的对齐]
+将 $t_m,c_m,r_m$ 作为路由代价项，本质上是在工程层面对“计算注意力/专注预算”做可观测化与可治理化；
+其思想与 Vol3 中用占用测度刻画“语义注意力/时间/频率”分配的口径一致\cite{GaoZhengAppVol3}。
+\end{remark}
+
+\subsection{倒逼的抓手：在真实分布上的损失函数与选择规则}
+\label{subsec:loss-and-selection}
+
+\begin{definition}[请求分布与损失函数]
+令 $D$ 为请求分布。对任意提案器配置 $m$，定义其总体损失为
+\[
+\mathcal{L}(m)=
+\lambda_{\mathrm{FP}}\ \mathbb{E}_{x\sim D}[\mathrm{FP}_m(x)]
+\;+\;
+\lambda_{\mathrm{FN}}\ \mathbb{E}_{x\sim D}[\mathrm{FN}_m(x)]
+\;+\;
+\lambda_t\ \mathbb{E}_{x\sim D}[t_m(x)]
+\;+\;
+\lambda_c\ \mathbb{E}_{x\sim D}[c_m(x)]
+\;+\;
+\lambda_r\ \mathbb{E}_{x\sim D}[r_m(x)],
+\]
+其中 $\lambda_{\mathrm{FP}},\lambda_{\mathrm{FN}},\lambda_t,\lambda_c,\lambda_r\ge 0$ 为治理参数。
+\end{definition}
+
+\begin{remark}[权重的治理含义]
+安全/合规场景通常取 $\lambda_{\mathrm{FP}}>\lambda_{\mathrm{FN}}$（宁可漏判也不误判）；
+召回优先场景可相反。无论权重如何取，倒逼的核心是：把“好坏”落实为可复验的统计量，而非口头偏好。
+\end{remark}
+
+\begin{definition}[选择规则（最朴素版本）]
+若候选提案器集合为 $\mathcal{M}$，则可取
+\[
+m^\ast=\arg\min_{m\in\mathcal{M}}\ \mathcal{L}(m).
+\]
+也可在门槛约束下做受限选择，例如要求 $\mathbb{E}[\mathrm{FP}_m]\le \alpha$、$\mathbb{E}[t_m]\le T_{\max}$ 等。
+\end{definition}
+
+\begin{proposition}[倒逼成立（度量 $\Rightarrow$ 淘汰）]
+在固定证书标准 $\{V_s\}$、固定标准化器 $C$ 与固定审计口径下，
+若系统按上述损失函数与门槛规则进行路由选择，则任何导致更高误收/漏收、更高回退次数或更高成本/延迟的提案器配置，
+都会在统计意义上被降权或淘汰。
+\end{proposition}
+
+\subsection{为何会更快：候选集合上限、早停缓存与回退罚分}
+\label{subsec:faster-pressure}
+
+\begin{definition}[候选集合大小约束（示意）]
+允许提案器输出候选集合 $\widehat{S}_m(x)\subseteq\mathcal{S}$，并施加硬约束
+\[
+|\widehat{S}_m(x)|\le K.
+\]
+若超限，则直接拒绝或计入罚分（体现为 $c_m(x)$ 或 $r_m(x)$ 上升）。
+\end{definition}
+
+\begin{remark}[为何能加速]
+候选集合越大，验证成本近似线性上升；强制 $|\widehat{S}|\le K$ 会倒逼提案器做更聚焦的提案，
+否则它会在 $c_m,t_m,r_m$ 指标上持续吃亏。
+\end{remark}
+
+\begin{remark}[早停与缓存（系统能力）]
+若命中语义指纹缓存（第\ref{sec:homotopy-fingerprint-hash}节），可采用早停策略：
+\begin{quote}
+若 $H_{\mathrm{sem}}(x)$ 命中缓存，则跳过提案器，直接复用已审计的签名/证书链。
+\end{quote}
+这会把“快”从模型能力提升为系统能力：系统运行越久、缓存越大，整体越快。
+\end{remark}
+
+\subsection{为何会更稳：同义变体一致性与提案漂移率}
+\label{subsec:stability-pressure}
+
+\begin{definition}[同义变体集合与漂移率（示意）]
+对同一语义输入 $x$，令 $\mathcal{V}(x)=\{x_1,\ldots,x_n\}$ 为其同义改写/噪声扰动集合（第\ref{subsec:metamorphic-testing}小节）。
+定义提案漂移率为
+\[
+\mathrm{Drift}(m):=\mathbb{E}_{x\sim D}\Bigl[\mathbf{1}\bigl(\exists i,j,\ \hat{s}_m(x_i)\neq \hat{s}_m(x_j)\bigr)\Bigr]
+  .
+\]
+\end{definition}
+
+\begin{remark}[稳定的含义]
+“稳”在本体系中等价于：在同义改写、风格扰动与噪声扰动下，提案与裁决的一致性更高；
+漂移率高的提案器会导致更多回退与不一致审计事件，从而在路由上被降权。
+\end{remark}
+
+\subsection{为何会更符合共识标准：裁判是 \texorpdfstring{$(C,\{V_s\},\text{回归集})$}{(C,Vs,regression)}}
+\label{subsec:consensus-pressure}
+
+\begin{remark}[“共识标准”被固化为证书体系]
+由于接受关系由公理~\ref{ax:certificate-decision-priority} 固化为 $V_s(C(x))$，
+提案器只有两条路：
+\begin{itemize}
+  \item 学会“按标准提案”：更准确预测哪些 $V_s$ 会通过，并给出更贴近 $C$ 的调用顺序；
+  \item 持续制造 $\mathrm{FP}/\mathrm{FN}$ 与回退事件，在审计中不断暴露并被路由系统替换。
+\end{itemize}
+因此，“更符合共识”不是道德约束，而是带裁判的竞技场：裁判是证书谓词库，成绩是审计指标。
+\end{remark}
+
+\subsection{边界条件：共识标准的治理与双层指纹的作用}
+\label{subsec:governance-boundary}
+
+\begin{remark}[避免“把错误标准执行得很一致”】【治理要求】]
+倒逼成立的前提是：共识标准本身具备治理机制，否则可能出现“把错误标准执行得很一致”。
+工程上通常用双层指纹保证可解释性：
+\begin{itemize}
+  \item $H_{\mathrm{sem}}$ 尽量跨版本稳定，用于长期索引、防洗稿与聚类；
+  \item $H_{\mathrm{cert}}$ 明确绑定谓词/验证器/标准化器版本，用于回放复验与漂移归因。
+\end{itemize}
+这样即使标准更新，也能区分“标准变了”与“提案器变差了”，并将变化落到可审计证据链上。
+\end{remark}
+
+\subsection{可上线的最小 KPI 门槛（建议）}
+\label{subsec:min-kpi-gates}
+
+\begin{remark}[从理念到制度]
+若要把倒逼机制“坐实”为可上线制度，可设置一组最小 KPI 与门槛（仅示意）：
+\begin{itemize}
+  \item $\mathbb{E}[\mathrm{FP}_m]\le \alpha_{\mathrm{FP}}$，$\mathbb{E}[\mathrm{FN}_m]\le \alpha_{\mathrm{FN}}$；
+  \item $\mathbb{E}[t_m]\le T_{\max}$，$\mathbb{E}[c_m]\le C_{\max}$；
+  \item $|\widehat{S}_m(x)|\le K$（硬约束），$\mathbb{E}[r_m]\le R_{\max}$；
+  \item $\mathrm{Drift}(m)\le \delta_{\max}$（稳健性门槛）。
+\end{itemize}
+门槛触发即降权或淘汰，并由差分审计输出解释（第\ref{subsec:differential-audit}小节）。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{标准先行、多实现：OS+JVM 范式下的 MDQ 可移植语义层}
+\label{sec:os-jvm-paradigm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（结构骨架一致）]
+将“MDQ 证书外包 + HACA-PACER 收敛裁决 + 同伦类哈希”的体系类比为 \textsf{OS+JVM}（或“标准先行、厂商多实现”）范式，
+关键不在于“像不像”，而在于共享同一条工程骨架：
+\begin{itemize}
+  \item 标准定义一个稳定的中间层（IR/指令集/可验证格式）；
+  \item 多厂商实现可自由优化上层（编译器/JIT/调度器），但必须通过标准验证与一致性测试；
+  \item 最终保证可移植与可审计：实现可变，语义锚点不变。
+\end{itemize}
+本章给出一个一一对应的形式化映射，并把一致性条件写成可执行合同。
+\end{remark}
+
+\subsection{稳定中间层：MDQ 调用序列作为可验证 IR}
+\label{subsec:mdq-as-ir}
+
+沿用第\ref{subsec:mdq-basis-delta}小节：$\mathcal{D}$ 为 MDQ 基底集合。
+记 $\mathcal{D}^{\ast}$ 为 MDQ 序列集合（Kleene 星），并把一条序列写为
+\[
+\gamma=(\delta_0,\ldots,\delta_{T-1})\in\mathcal{D}^{\ast}.
+\]
+
+\begin{definition}[MDQ 调用序列（IR）的可验证性]
+称一条 MDQ 序列 $\gamma$ \emph{可验证}，若其每个 $\delta_t$ 的证书谓词与标准化重写均可被确定性复验，
+并且全序列在策略快照（白名单、复杂度阈值等）下通过一致性检查。
+\end{definition}
+
+\begin{remark}[类比]
+这对应 \textsf{JVM} 中“字节码格式 + bytecode verifier”：
+生成字节码的人可以很多，但进入运行时之前必须能被验证与执行，且语义明确。
+在本体系中，LLM/路由/提示都可以生成不同的 MDQ 调用序列，但进入裁决层之前必须通过证书复验与审计约束（参见 \cite{jvms}）。
+\end{remark}
+
+\subsection{多实现的“编译产物”与标准执行器：\texorpdfstring{$\mathrm{Comp}_m$}{Comp_m} 与 \texorpdfstring{$\mathrm{Eval}$}{Eval}}
+\label{subsec:comp-eval-contract}
+
+令表达空间为 $\mathcal{X}$，标准化为 $C:\mathcal{X}\to\mathcal{X}_c$，同伦等价为 $\sim$，
+并令语义签名空间为 $\mathcal{S}=\mathcal{X}_c/\sim$（第\ref{subsec:core-objects-quotient}小节）。
+记 $\pi_0(x)=[C(x)]_{\sim}\in\mathcal{S}$ 为同伦类投影。
+
+\begin{definition}[多厂商编译器：从表达生成 MDQ 序列]
+对任意实现/厂商/模型配置 $m$（不同 LLM、不同 prompt、不同推理引擎或其组合），定义其“编译器”为
+\[
+\mathrm{Comp}_m:\mathcal{X}\to \mathcal{D}^{\ast},
+\]
+其输出 $\gamma=\mathrm{Comp}_m(x)$ 可理解为对输入 $x$ 的一条“MDQ 调用提案序列”（类比字节码/IR）。
+\end{definition}
+
+\begin{definition}[标准执行与裁决：确定性评估器]
+定义确定性评估器（标准执行器）为一个（部分）函数
+\[
+\mathrm{Eval}:\mathcal{D}^{\ast}\to \mathcal{S}\sqcup\{\bot\},
+\]
+其作用是：对输入 MDQ 序列做白名单/一致性检查，并按证书谓词与标准化重写确定性执行；
+若序列可验证并收敛，则输出语义签名 $s\in\mathcal{S}$；否则输出失败 $\bot$ 并给出原因码（在实现层落盘审计）。
+\end{definition}
+
+\begin{proposition}[可移植性合同：\texorpdfstring{$\mathrm{Eval}\circ \mathrm{Comp}_m=\pi_0$}{Eval∘Comp=pi0}]
+\label{prop:portability-contract}
+对任意 $m$ 与任意 $x\in\mathcal{X}$，若 $\mathrm{Eval}(\mathrm{Comp}_m(x))\neq \bot$，则必须满足
+\[
+\mathrm{Eval}\bigl(\mathrm{Comp}_m(x)\bigr)=\pi_0(x).
+\]
+\end{proposition}
+
+\begin{remark}[文字解释]
+不管 $m$ 如何实现、如何加速、如何优化，只要它产出的 MDQ 调用能被标准执行器复验并收敛，
+最终就必须回到同一个语义签名 $\pi_0(x)$。这就是“可移植”：上层实现可变，裁决结果（语义锚点）不变。
+若某实现频繁导致 $\bot$（不可验证/不收敛/超策略约束），则会在第\ref{sec:selection-pressure-llm-proposal-layer}节的倒逼机制下被降权或淘汰。
+\end{remark}
+
+\subsection{路径不同、同伦类相同：多实现差异的工程版同伦}
+\label{subsec:path-homotopy-osjvm}
+
+\begin{remark}[工程版含义]
+不同实现可能给出不同的 MDQ 路径（$\gamma_1\neq \gamma_2$），但在标准执行与复验下收敛到同一终点：
+\[
+\mathrm{Eval}(\gamma_1)=\mathrm{Eval}(\gamma_2)=s.
+\]
+这可被视为“路径不同、同伦类相同”的工程版含义：差异存在于提案路径与优化策略，
+而语义等价由标准裁决层给出。
+\end{remark}
+
+\begin{remark}[类比]
+这类似于：不同编译器/JIT/调度器可以采取不同优化与执行路径，但只要通过验证与一致性测试，
+它们就必须实现同一个被标准承诺的语义结果。
+\end{remark}
+
+\subsection{OS+JVM 对应表：证书库、语义锚点、PACER 调度与审计回放}
+\label{subsec:osjvm-mapping}
+
+\begin{remark}[部件级对应（要点）]
+\begin{enumerate}
+  \item \textbf{MDQ 证书/谓词库 $\approx$ 字节码规范 + Verifier 规则.}
+  关键不是“谁来生成”，而是“产物必须可验证、可执行、语义明确”。
+  \item \textbf{语义签名 $\mathcal{S}$ 与 $H_{\mathrm{sem}}$ $\approx$ 平台无关语义锚点.}
+  任意风格改写只要同伦等价，就应落到同一 $H_{\mathrm{sem}}$（第\ref{sec:homotopy-fingerprint-hash}节）。
+  \item \textbf{PACER 调度/回退 $\approx$ OS 调度器 + JVM 运行时（解释/JIT/缓存/早停）.}
+  在满足合同（命题~\ref{prop:portability-contract}）的前提下追求提速与降本。
+  \item \textbf{审计留痕与 $H_{\mathrm{cert}}$ $\approx$ 运行时日志/堆栈/崩溃转储 + 可回放一致性.}
+  可定位到“哪个 MDQ、哪个证书版本、哪个验证器、哪次提案导致分歧”，并支持事后重放（第\ref{subsec:replay-audit}小节）。
+\end{enumerate}
+\end{remark}
+
+\subsection{标准化基础设施：Spec、参考验证器与一致性测试套件（TCK 类比）}
+\label{subsec:spec-verifier-tck}
+
+\begin{remark}[三件套]
+要获得类似 \textsf{JVM} 生态的“多实现可互换”效果，通常需要三类标准化基础设施（在本体系中均有直接对应）：
+\begin{enumerate}
+  \item \textbf{规范文档（Spec）.}
+  为每个同伦类/MDQ 类型写清边界、允许的标准化、失败条件（何时必须返回 \code{ok:false}）。
+  \item \textbf{参考验证器（Reference Verifier）.}
+  确定性执行器/校验器是“唯一裁判”，并随版本发布其白名单与回归策略快照。
+  \item \textbf{一致性测试集（Conformance Suite / TCK）.}
+  用固定回归集与指标门槛比较不同实现的 $\mathrm{FP}/\mathrm{FN}$、漂移率、延迟与成本，并规定最低合格线。
+\end{enumerate}
+（TCK 的工程口径可参见 \cite{java-tck}。）
+\end{remark}
+
+\begin{remark}[与倒逼效应的连接]
+当一致性测试套件成为“准入门槛”，并与路由权重/预算约束绑定时，
+系统就会自然产生倒逼效应：实现为了通过测试并获得更高权重，必须输出更贴近标准、更精简、更高命中率的 MDQ 提案（第\ref{sec:selection-pressure-llm-proposal-layer}节）。
+\end{remark}
+
+\subsection{工程口号（摘要）}
+\label{subsec:osjvm-slogan}
+
+\begin{remark}[口号]
+\textsf{JVM}: \emph{Write once, run anywhere.}\\
+本体系更像：\emph{Write any style, verify to one semantics} —— 任意风格输入都能被压到同一可复验语义锚点；
+任意厂商 LLM 都可以参与提案，但必须接受同一裁决与审计。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{微型模型生态：围绕 MDQ/HACA-PACER 的专用提案器、策略器与渲染器}
+\label{sec:micro-model-ecosystem}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心判断（自然产物）]
+在“标准化语义中间层（MDQ / HACA-PACER）+ 证书裁决（Verifier）+ 一致性测试（Conformance Suite）”的结构下，
+出现专门迎合该体系的微型 LLM（或小型 Transformer/策略网络）是高度可能的，且几乎是自然产物。
+原因在于：一旦语义系统被压成可复验的中间表示（同伦类签名 / MDQ 调用序列），
+对提案器的要求从“生成整段正确文本”收窄为“提出正确的 MDQ 调用与候选同伦类”。
+这更接近编译器前端/路由器/标注器，天然适配更小、更专用的模型。
+\end{remark}
+
+\subsection{为何会出现“迎合 MDQ/HACA-PACER”的微型模型}
+\label{subsec:why-micro-models}
+
+在第\ref{sec:os-jvm-paradigm}节中，我们已将多实现结构写成
+\[
+\mathrm{Comp}_m:\mathcal{X}\to \mathcal{D}^{\ast},
+\qquad
+\mathrm{Eval}:\mathcal{D}^{\ast}\to \mathcal{S}\sqcup\{\bot\},
+\]
+并以命题~\ref{prop:portability-contract} 给出“可验证时必须回到同一语义签名”的合同。
+在第\ref{sec:selection-pressure-llm-proposal-layer}节中，我们进一步把提案器配置 $m$ 的好坏度量为
+$\mathrm{FP}/\mathrm{FN}$、延迟、成本、回退次数与漂移率等可统计指标，并通过路由/门槛形成选择压力。
+
+\begin{remark}[输出空间收窄 $\Rightarrow$ 小模型优势]
+当竞争目标被固化为：
+\begin{itemize}
+  \item 更小的候选集合上限 $K$（更少无用验证）；
+  \item 更低的 $\mathrm{FP}/\mathrm{FN}$（更少误收/漏收）；
+  \item 更少回退（更少重扫）；
+  \item 更低延迟、更低成本；
+\end{itemize}
+且输出空间主要由 \code{class_id}/\code{span}/\code{mdq_type}/调用顺序等标准化结构构成时，
+大模型擅长的长篇生成能力反而不是瓶颈；小模型更容易在固定预算内做出高性价比的“编译式提案”。
+\end{remark}
+
+\subsection{微型模型会长什么样：四类专用形态}
+\label{subsec:micro-model-types}
+
+\begin{definition}[A 类：MDQ 路由器（Router）]
+MDQ 路由器的目标是把“全库扫描”降为“少量候选复验”。可形式化为
+\[
+\mathsf{Route}:\mathcal{X}\to \mathcal{P}_{\le K}(\mathcal{S})\times [0,1]^K,
+\]
+输出 top-$K$ 候选语义签名（或同伦类）及其置信度排序，从而优先触发高收益的证书复验。
+\end{definition}
+
+\begin{definition}[B 类：MDQ 片段标注器（Span Tagger）]
+MDQ 片段标注器在字符/token 级标出 $\mathrm{span}$ 并给出 $\mathrm{type}$：
+\[
+\mathsf{Tag}:\mathcal{X}\to (\mathsf{Span}\times \mathsf{Type})^{\ast}.
+\]
+其价值在于减少 PACER 的探索空间，使“修复”更像确定性流水线而不是盲搜。
+\end{definition}
+
+\begin{definition}[C 类：PACER 策略模型（Policy / Scheduler）]
+PACER 策略器根据当前状态（哪些 MDQ 已通过、哪里失败、歧义度/成本指标等）选择下一步动作：
+\[
+\mathsf{Pol}:\mathsf{State}\to \mathsf{Action},
+\]
+例如“下一步调用哪个 MDQ/是否回退/是否升级 witness 档位”。该模型甚至不必是 LLM；
+小型策略网络或规则系统即可，但用小 Transformer 往往更能覆盖多样表达。
+\end{definition}
+
+\begin{definition}[D 类：风格展开器（Style Realizer）]
+在语义签名 $s$ 已确定的前提下，风格展开器实现
+\[
+G(s,\sigma)\in\mathcal{X},
+\]
+并通过公理~\ref{ax:projection-invariance} 的回投影约束（$\pi(G(s,\sigma))=s$）形成闭环。
+由于失败可被复验器拦下并触发修复，该展开器可做得更小：它不需要“理解世界”，只需“在固定语义下做风格渲染”。
+\end{definition}
+
+\begin{remark}[“迎合”的含义]
+所谓“迎合”并非迎合自由对话能力，而是迎合标准裁决体系：只要它能在审计指标上更好地逼近
+\[
+\mathrm{Eval}(\mathrm{Comp}_m(x))\approx \pi_0(x),
+\]
+并在 $K$、$\mathrm{FP}/\mathrm{FN}$、回退率与成本/延迟上更优，它就能在路由层获得更高权重。
+这与第\ref{sec:os-jvm-paradigm}节的 OS+JVM 生态类比一致：很多厂商会去做更好的编译器/JIT/工具链，而不是“最强语言”。
+\end{remark}
+
+\subsection{数据来源：审计留痕与证书回放天然形成监督信号}
+\label{subsec:micro-model-data}
+
+本体系已将两类错误（$\mathrm{FP}/\mathrm{FN}$）与失败原因码机械化并写入审计事件流（第\ref{subsec:fp-fn-cost}小节）。
+因此每次请求都会产生可监督样本：
+\begin{itemize}
+  \item 输入：原始表达 $x$ 或标准化表达 $C(x)$（可配合脱敏/摘要策略）；
+  \item 标签：通过复验的同伦类（$s^\ast=\pi_0(x)$ 或其 \code{class_id}）、
+  以及可验证的 MDQ 序列/片段（$\gamma=\mathrm{Comp}_m(x)$ 在通过时的版本化记录）与失败原因码。
+\end{itemize}
+
+\begin{remark}[运行时蒸馏的自然性]
+即便早期坚持“不训练也能跑”，系统一旦上线，日志就会自动积累训练集；
+随后围绕 Router/Tagger/Policy/Realizer 的蒸馏与小模型训练将变得非常自然。
+关键在于：监督标签由证书裁决层给出，而非由 LLM 自述给出，因此更贴近共识标准。
+\end{remark}
+
+\subsection{需要提前防的一点：防止“为测试而优化”的伪稳健}
+\label{subsec:anti-gaming}
+
+\begin{remark}[风险：刷分与过拟合]
+若出现微型模型生态，常见风险是“为测试而优化”：对一致性测试集或某类输入分布过拟合，
+导致表面通过但对真实扰动脆弱。此时第\ref{subsec:metamorphic-testing}小节的变形测试从“建议”变成刚需：
+\begin{itemize}
+  \item 对同一语义的变体集合 $\{x_i\}$，要求收敛一致（$\pi(x_i)$ 相同）；
+  \item 对对抗扰动与噪声扰动，要求 $\mathrm{FP}/\mathrm{FN}$ 不显著恶化；
+  \item 对新出现表达形态，允许返回失败并触发补证书，而不是硬猜（保持 $\bot$ 的语义边界清晰）。
+\end{itemize}
+通过动态回归集、对抗样本与多风格 round-trip（第\ref{subsec:roundtrip-regression}小节），可抑制刷分并维持真实稳健性。
+\end{remark}
+
+\subsection{总体路线意义：标准先行生态与多小模型协同竞争}
+\label{subsec:ecosystem-meaning}
+
+\begin{remark}[对 Vol3 论证的反向强化]
+微型模型生态反而会强化 Vol3 的论证：Vol3 给出抽象严谨的语义几何与算子体系；
+工程实现层则自然产生“专用前端/专用策略/专用渲染”的分工生态。
+系统不需要一个万能模型，而可以让多个小模型围绕同一套证书裁决与语义签名标准协同竞争，
+这正是“标准先行、多实现一致”的长期形态（第\ref{sec:os-jvm-paradigm}节）。
+\end{remark}
+
+\subsection{把生态导向正确方向：三条强约束（建议）}
+\label{subsec:steering-constraints}
+
+\begin{remark}[三条强约束]
+若希望生态演进不破坏语义收敛与可审计性，最有效的做法不是指定某个模型，而是把三样东西做成强约束：
+\begin{enumerate}
+  \item 证书谓词与验证器的参考实现（裁判不可替换）；
+  \item 回投影不变性与变形测试构成的 conformance suite（测试不可被刷分）；
+  \item 审计指标（$\mathrm{FP}/\mathrm{FN}$、延迟、回退率、覆盖率）作为路由权重依据（选择压力可执行）。
+\end{enumerate}
+在该约束下，即便出现大量“迎合 MDQ/HACA-PACER”的微型模型，它们也只能在您定义的标准下竞争，而不会破坏体系的可移植性与治理闭环。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{白盒 AI 的程序回归：从端到端生成到“软提案 + 硬裁决”的谓词程序模式}
+\label{sec:whitebox-program-regression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述（结构必然）]
+在“LLM 只提案、MDQ 证书裁决、同伦类签名收敛”的结构下，白盒 AI 很可能出现一个明显的回归趋势：
+从“端到端生成答案”回到“逻辑（谓词）驱动的程序模式”，但它不是回到早期手写规则的专家系统，
+而是回到一种更现代、更可扩展的形态——\emph{模型负责提出候选程序，运行时负责验证与裁决}。
+这不是口头约束，而是由可复验的裁判（证书谓词库 + 标准化器 + 参考执行器）与审计指标共同倒逼的结构结果（第\ref{sec:selection-pressure-llm-proposal-layer}节）。
+\end{remark}
+
+\subsection{最简结构：\texorpdfstring{$\mathrm{Comp}_m$}{Comp\_m} 产出候选“程序”，\texorpdfstring{$\mathrm{Eval}$}{Eval} 与
+  \texorpdfstring{$V_s$}{V\_s} 裁决}
+\label{subsec:program-minimal-structure}
+
+沿用第\ref{subsec:comp-eval-contract}小节的记号：
+\[
+\mathrm{Comp}_m(x)\ \to\ \gamma\in\mathcal{D}^{\ast},
+\qquad
+\mathrm{Eval}(\gamma)\ \to\ s\in\mathcal{S}\sqcup\{\bot\}.
+\]
+其中 $\gamma$ 是一串 MDQ 调用（可理解为候选程序/候选证明链/候选编译产物），$\mathrm{Eval}$ 是确定性评估器。
+对给定输入 $x$，最终“属于/不属于”由逻辑谓词输出，而非模型口头结论：
+\[
+\mathrm{Accept}(x\in s)\ \Longleftrightarrow\ V_s\bigl(C(x)\bigr)=1
+\quad(\text{公理~\ref{ax:certificate-decision-priority}}).
+\]
+
+\begin{remark}[白盒的硬边界]
+在该结构下，LLM 的自由度被显著收窄：它可以提不同的 $\gamma$，但只要进入裁决层，
+就必须接受确定性复验与审计；任何不符合标准谓词边界的提案都会被拒绝并留痕（$\mathrm{FP}/\mathrm{FN}$，第\ref{subsec:fp-fn-cost}小节）。
+\end{remark}
+
+\subsection{语义本体压缩为可执行谓词：从同伦类到“组合谓词程序”}
+\label{subsec:predicate-program}
+
+\begin{definition}[MDQ 原子谓词]
+对每个 MDQ 原子 $\delta=(\mathrm{span},\mathrm{type},V_\delta,R_\delta)\in\mathcal{D}$，定义其原子谓词为
+\[
+P_\delta:=V_\delta:\mathcal{X}_c\to\{0,1\}.
+\]
+\end{definition}
+
+\begin{definition}[类谓词（同伦类谓词）]
+对每个语义签名（同伦类）$s\in\mathcal{S}$，定义其类谓词为
+\[
+P_s:=V_s:\mathcal{X}_c\to\{0,1\}.
+\]
+\end{definition}
+
+\begin{remark}[组合谓词的工程口径]
+在工程层面，许多同伦类谓词可被理解为若干原子谓词的组合（此处用“近似”强调：具体组合口径由证书库定义）：
+\[
+P_s\ \approx\ \bigwedge_{i=1}^{k} P_{\delta_i}.
+\]
+组合方式不仅可以是合取，也可以包含析取、阈值化、约束组合与参数化谓词；关键是：它仍然是可复验的程序结构，而不是口头解释。
+\end{remark}
+
+\subsection{白盒解释的含义：从“能解释一句话”到“能回放一条证书链”}
+\label{subsec:whitebox-as-replay}
+
+\begin{definition}[证书链回放（最小口径）]
+对白盒系统而言，一次接受/拒绝的最小解释证据是可回放证书链：
+记录每一步调用了哪个 $\delta$（或哪个 $V_s$）、使用了哪个版本的验证器与标准化器、为何通过/失败、失败原因码是什么，
+并可在同一 \code{verifier_version}/\code{policy_snapshot} 下复验出同结果（第\ref{subsec:replay-audit}小节）。
+\end{definition}
+
+\begin{remark}[更“硬”的白盒]
+相比“用自然语言解释为什么”，证书链解释更硬：它可复验、可回放、可对比版本漂移（$H_{\mathrm{cert}}$，第\ref{subsec:certificate-implementation-hash}小节），
+并且直接落在审计事件流上（第\ref{sec:mdq-granular-audit}节）。
+\end{remark}
+
+\subsection{LLM 的角色回归为“编译器前端/调度器”：优势在于更快找到可通过的 \texorpdfstring{$\gamma$}{gamma}}
+\label{subsec:llm-as-frontend}
+
+\begin{remark}[角色迁移]
+在该体系中，LLM 的优势不再是“更会说”，而是“更快找到正确的 $\gamma$”：更小候选集、更少回退、更低成本、更低延迟。
+系统会通过倒逼机制迫使提案器输出更贴合标准的 MDQ 调用：
+不贴合就会在 $V_s(C(x))$ 处被拒绝并留痕，长期指标（$\mathrm{FP}/\mathrm{FN}$、回退率、延迟）会把它降权（第\ref{sec:selection-pressure-llm-proposal-layer}节）
+  。
+\end{remark}
+
+\subsection{硬裁决并不等于只剩硬规则：稳定分工是“硬裁决 + 软提案”}
+\label{subsec:hard-soft-separation}
+
+\begin{remark}[工程平衡]
+逻辑驱动并不等于“只剩硬规则”，而是形成稳定分工：
+\begin{itemize}
+  \item \textbf{硬的部分：}裁决与审计（$C$、$V_s$、$\mathrm{Eval}$）必须确定性、可复验、可治理；
+  \item \textbf{软的部分：}提案与搜索（$\mathrm{Comp}_m$、PACER 策略、GRL 启发式）可以用模型，也可以迭代替换。
+\end{itemize}
+这使系统同时具备程序模式的稳定性与对任意风格输入的覆盖能力。
+\end{remark}
+
+\subsection{三值/部分逻辑：\texorpdfstring{$\{\mathrm{true},\mathrm{false},\bot\}$}{\{true,false,⊥\}} 更贴近工程事实}
+\label{subsec:three-valued-logic}
+
+\begin{definition}[部分裁决值域]
+在工程实践中，严格的二值（true/false）往往不够表达“应当拒绝判定”的状态。
+因此可将裁决值域扩展为三值：
+\[
+\{\mathrm{true},\ \mathrm{false},\ \bot\},
+\]
+其中 $\bot$ 表示“在当前证书基底与安全约束下不可判定/不应判定”。
+\end{definition}
+
+\begin{remark}[\texorpdfstring{$\bot$}{⊥} 的治理意义]
+$\bot$ 避免模型硬猜，并把失败变成可治理信号：PACER 可将其解释为“需要补证书/需要升级 witness 档位/需要人工介入”，
+并把原因码写入审计事件流，而不是把错误塞进 true/false（参见第\ref{subsec:basis-coverage-residual}小节的残余状态记账）。
+\end{remark}
+
+\subsection{与 OS+JVM 类比在此处更强：标准成为“逻辑运行时”，厂商竞争在提案器与优化器}
+\label{subsec:osjvm-stronger}
+
+\begin{remark}[生态形态]
+当 Vol3 提供抽象规范（Spec），而本次讨论补齐运行时与一致性测试（Reference Runtime + TCK），
+白盒 AI 的生态就会呈现出类似“语言/编译器/运行时/验证器/测试套件”的结构：
+标准就是逻辑运行时（$C,V_s,\mathrm{Eval}$），厂商竞争在提案器与优化器（$\mathrm{Comp}_m$、PACER 策略），
+并由同一裁判与 conformance suite 约束（第\ref{sec:os-jvm-paradigm}节）。
+\end{remark}
+
+\subsection{结构必然性：两条运行时公理立住后，“回归程序模式”不是趋势判断}
+\label{subsec:structural-necessity}
+
+\begin{remark}[两条公理作为落点]
+若将以下两条运行时公理视为系统不变约束：
+\begin{enumerate}
+  \item \textbf{语义守恒（回投影不变性）：}公理~\ref{ax:projection-invariance}；
+  \item \textbf{证书裁决优先：}公理~\ref{ax:certificate-decision-priority}；
+\end{enumerate}
+则系统中心就必然从“生成文本”迁移到“生成并通过验证的程序（证书调用序列）”：
+因为任何可接受输出都必须能被 $\pi$ 回投影与 $V_s(C(x))$ 复验支撑，白盒性由可回放证书链给出。
+因此“白盒回归程序模式”不再只是趋势判断，而是由结构约束推出的必然结果。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{对 Vol3 的增益评估：补齐运行时标准层与多实现一致裁决}
+\label{sec:vol3-impact-evaluation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心评价（对 Vol3 的直接意义）]
+对 \code{docs/AppMathVol3/Pub_GFramework_AppMath_Vol3.tex}（Vol3）而言，本次讨论的意义非常直接：
+它把 Vol3 已经出现的“语义规范场 / 语义函子场 / MDQ / HACA-PACER / 证书体系 / 治理与审计”主线，
+补上一个\emph{可执行、可移植、可度量}的运行时标准层。换句话说：在不改变 Vol3 的理论骨架前提下，
+把“语义地板”以工程方式抬上去，并给出一套能在多模型、多实现之间保持一致的裁决机制。
+\end{remark}
+
+本章按“Vol3 已有内容 $\rightarrow$ 本次讨论新增关键增益 $\rightarrow$ 可对接到 Vol3 的哪一块”来归纳与评价。
+
+\subsection{增益 1：为 PACER 固化可执行最小合同——压缩/展开/回投影不变}
+\label{subsec:vol3-gain-1-roundtrip}
+
+Vol3 的 PACER 叙事以“压缩/展开推理”为主线。本次讨论将其固化为一个硬条件（可作为系统公理与一致性测试）：
+\[
+s=\pi(x),\qquad x_\sigma = G(s,\sigma),\qquad \pi(x_\sigma)=s\ \ (\forall \sigma).
+\]
+其中 $\pi$ 是语义投影/同伦类裁决（由 MDQ 证书体系确定），$G$ 是按风格 $\sigma$ 展开。
+这正是公理~\ref{ax:projection-invariance} 的运行时化表达：把“不失真”从写作主张升级为可测规范，
+并天然支持“多风格冗余展开”作为不失真证据（第\ref{subsec:lossless-expansion}小节）。
+
+\subsection{增益 2：把 MDQ 具体化为证书化可调用单元，从而支持 MDQ 粒度审计}
+\label{subsec:vol3-gain-2-mdq-cert}
+
+Vol3 已引入 MDQ（differential dynamical quanta）用于路径积分与引擎结构。本次讨论的关键补强是把每个 MDQ 具体化为可外包证书：
+\[
+\delta = (\mathrm{span},\mathrm{type},V_\delta,R_\delta).
+\]
+其中 $V_\delta$ 是确定性验证器（正则/自动机/小解析器等的受限子集），$R_\delta$ 是标准化重写；
+$\mathrm{span}/\mathrm{type}$ 把责任定位到最小片段与类型（第\ref{subsec:mdq-basis-delta}小节）。
+因此审计可下沉到“哪个 $\delta$ 出错、哪条证书版本漂移、哪个 verifier 失败”，而不是停留在整段文本层面的模糊追责（第\ref{sec:mdq-granular-audit}节）。
+
+\subsection{增益 3：LLM 只提案，证书来裁决——把语义正确性从概率叙事变成可复验事实}
+\label{subsec:vol3-gain-3-llm-propose}
+
+对 Vol3 的工程意义在于：把 LLM 放在正确位置——不是裁判，而是编译器/提案器。
+设提案为 $(\hat{s},\hat{y})$，确定性复验为
+\[
+y^\ast = V_{\hat{s}}(C(x)).
+\]
+则两类核心错误可机械定义并留痕：
+误收（$\hat{y}=1 \wedge y^\ast=0$）与漏收（$\hat{y}=0 \wedge y^\ast=1$），对应第\ref{subsec:fp-fn-cost}小节的 $\mathrm{FP}/\mathrm{FN}$
+  记账。
+这使 Vol3 的“证书 + 解释 + 治理”不再依赖模型自觉，而依赖可复验谓词裁决（公理~\ref{ax:certificate-decision-priority}），
+从而直接补强“版本对比/审计证据/回滚决策”等管线的可信度（第\ref{subsec:replay-audit}小节）。
+
+\subsection{增益 4：“多次扫描后语义明确”的严格含义——对同伦类（语义签名）收敛}
+\label{subsec:vol3-gain-4-convergence}
+
+本次讨论将“收敛”明确为：候选同伦类集合单调收缩并达到固定点（第\ref{subsec:candidate-set-scan-operator}小节）。
+工程上这意味着：
+\begin{itemize}
+  \item 收敛到单点：语义明确（标准语义锚点成立）；
+  \item 固定点 $>1$ 或空集：不是玄学，而是“证书基底覆盖不足/同伦边界定义不足”的可定位缺口（第\ref{subsec:basis-coverage-residual}小节）。
+\end{itemize}
+因此 Vol3 中“语义规范场可修复表达上同调障碍”的叙事获得工程化判据：障碍可被记账为“固定点不存在/不稳定”，从而可被 PACER 的修复策略系统化处理。
+
+\subsection{增益 5：同伦类哈希与证书链哈希——把证书治理升级为防伪锚点（并带出防洗稿能力）}
+\label{subsec:vol3-gain-5-hash}
+
+Vol3 已讨论证书/合规/治理。本次讨论补出的关键资产是稳定语义指纹与可回放实现指纹：
+\[
+H_{\mathrm{sem}}(x)=\operatorname{Hash}\bigl(\mathrm{ClassID}(\pi_0(x))\bigr),
+\qquad
+H_{\mathrm{cert}}(x)=\operatorname{Hash}\bigl(\mathrm{ClassID},\mathrm{PredicateID},\mathrm{WitnessHash},
+  \mathrm{VerifierVer},\mathrm{CanonVer}\bigr).
+\]
+$H_{\mathrm{sem}}$ 解决“语义层稳定索引/防伪/聚类/去重”；$H_{\mathrm{cert}}$ 解决“版本漂移解释、证书篡改不可否认”（第\ref{sec:homotopy-fingerprint-hash}节）。
+在该口径下，“洗稿式改写”在数学上就是同伦类内的风格扰动；您既能在同一 $\pi(x)$ 内展开多风格表达，也能用 $H_{\mathrm{sem}}$ 与局部指纹把它识别出来并审计（第\ref{subsec:layer-local-fingerprint}小节）。
+
+\subsection{增益 6：OS+JVM 类比不是修辞——把 Vol3 推向“标准—多实现—一致性测试”的生态形态}
+\label{subsec:vol3-gain-6-osjvm}
+
+Vol3 若要走向“多实现可互换”的生态形态，需要一个类似 \textsf{JVM TCK} 的一致性测试框架。
+本次讨论把该生态层写成形式合同：对任意实现 $m$，令其生成 MDQ 调用序列 $\mathrm{Comp}_m(x)$，由参考执行器裁决 $\mathrm{Eval}$，
+则必须满足命题~\ref{prop:portability-contract} 所刻画的可移植性合同（可验证时回到同一 $\pi_0(x)$）：
+\[
+\mathrm{Eval}\bigl(\mathrm{Comp}_m(x)\bigr)=\pi_0(x).
+\]
+配合 “Spec + Reference Verifier + Conformance Suite”（第\ref{subsec:spec-verifier-tck}小节），该表达显著增强 Vol3 对工程读者（系统/语言/平台/合规）
+  的可理解度与可采纳度。
+
+\subsection{增益 7：对 GRL 路径积分“发现新语义/意识空间”的意义——把探索空间离散化为可证书化轨线}
+\label{subsec:vol3-gain-7-grl}
+
+Vol3 的 GRL path integral 已把学习写成路径积分。本次讨论补强的是：轨线每一步是 MDQ 证书化步进 $\delta_t$，
+因此“探索新语义”不再是不可审计生成，而是可重放的路径搜索：
+\[
+s_{t+1}=s_t \oplus \delta_t,\qquad \delta_t\in\mathcal{D}.
+\]
+再配合作用量（歧义/成本/风险/新颖性）对路径加权（第\ref{subsec:grl-path-integral}小节），即可把“稳定出现的新终点”固化为新同伦类与新证书。
+于是“意识空间”（建模意义）具备：状态（语义签名/分布）+ 算子（MDQ/变换）+ 可审计轨线（证书链）（第\ref{subsec:consciousness-space-modeling}小节）。
+
+\subsection{对接点：建议落到 Vol3 的三处文本块（点名对齐）}
+\label{subsec:vol3-docking-points}
+
+\begin{remark}[三处集中对接点]
+从文本对接角度，本次讨论最有价值的落点可集中在三处（不要求立即改稿，但便于定位意义）：
+\begin{itemize}
+  \item \textbf{语义规范场与 triple-layer connection 的联络/曲率叙事处：}
+  本次讨论提供“离散协变微分 = MDQ 证书调用”的工程释义（第\ref{subsec:semantic-gauge-field-connection}小节）。
+  \item \textbf{Law-Space Certificates \& MDQ-Based Evaluation 与 System Architectures/Safety/Governance：}
+  本次讨论补上“误收/漏收留痕 + 哈希指纹 + conformance suite + 多厂商一致性”的可执行框架（第\ref{sec:mdq-granular-audit}、\ref{sec:homotopy-fingerprint-hash}、\ref{sec:os-jvm-paradigm}节）。
+  \item \textbf{PACER 的压缩/展开主线：}
+  本次讨论给出回投影不变性作为硬验收标准，使“通俗展开、多风格展开、语义不失真”从叙事升级为可验证条件（公理~\ref{ax:projection-invariance}）。
+\end{itemize}
+\end{remark}
+
+\subsection{综合评价（摘要）}
+\label{subsec:vol3-summary}
+
+\begin{remark}[一句话总结]
+本次讨论把 Vol3 的核心思想从“描述一个可治理的语义体系”，推进到“给出一套可被多方实现、用一致性测试约束、并通过哈希与证书链实现可审计与防伪的运行时标准”：
+学术上增强可检验性，工程上增强可落地性与可移植性，生态上给出清晰的标准化路径。
+\end{remark}
+
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{分层结论：Vol3 作为 Spec，本次讨论作为 Reference Runtime + Conformance Suite}
+\label{sec:spec-vs-runtime-layering}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心划分（写作与落地更干净）]
+将体系分为“应用数学规范层（Vol3）”与“工程运行时标准层（本次讨论）”，对后续写作与落地更有利：
+\begin{itemize}
+  \item \textbf{Vol3 的主任务：}给出“语义规范场 / 语义函子 / MDQ / HACA-PACER / GRL 路径积分”的抽象对象、等价关系、算子结构与推导链条，
+  强调定义严谨性、可证明性、可复用的抽象接口（应用数学层面的规范/定理系统）。
+  \item \textbf{本次讨论的主任务：}把抽象对象落成一套“能跑、能审计、能版本治理、能多厂商实现”的工程机制，
+  强调可执行合同、裁决闭环、性能与容错指标、实现可移植性（工程层面的运行时/参考实现/一致性测试体系）。
+\end{itemize}
+\end{remark}
+
+\subsection{工程化对应：Spec 与 Reference Runtime 的分工}
+\label{subsec:spec-runtime-roles}
+
+\begin{remark}[对应关系]
+\begin{itemize}
+  \item Vol3 更像 \textbf{规范（Spec）}：规定语义对象是什么、等价是什么、算子如何作用、收敛/修复应满足什么性质；
+  \item 本次讨论更像 \textbf{参考运行时（Reference Runtime）+ 一致性测试（Conformance Suite）}：
+  规定如何把 $\pi$、$V_s$、MDQ、审计、哈希、回投影不变性等条件做成可执行裁判与可回放证据链。
+\end{itemize}
+\end{remark}
+
+\subsection{OS+JVM 类比在分层处的落点}
+\label{subsec:osjvm-layering}
+
+\begin{remark}[类比成立的原因]
+在第\ref{sec:os-jvm-paradigm}节的 OS+JVM 类比下：
+\begin{itemize}
+  \item Vol3 负责把“语义中间层”的语义规范写清楚（类似字节码语义规范）；
+  \item 本次讨论负责把“验证器 + 审计 + 测试套件 + 多实现一致”补齐（类似 bytecode verifier + TCK + 多实现生态）。
+\end{itemize}
+因此该类比不是修辞，而是对“标准—多实现—一致性测试”生态结构的分层说明。
+\end{remark}
+
+\subsection{运行时要件清单：本次讨论为 Vol3 补齐的不可缺部件}
+\label{subsec:runtime-requirements}
+
+\begin{remark}[七类运行时要件（与前文一一对应）]
+纯应用数学写法通常不会展开运行时细节；本次讨论为工程实现层补齐了至少七类不可缺部件：
+\begin{enumerate}
+  \item \textbf{裁决机制：}LLM 只提案，证书谓词 $V_s$ 裁决（公理~\ref{ax:certificate-decision-priority}）；
+  \item \textbf{MDQ 证书化：}把 MDQ 落成可调用、可版本化、可回放的最小单元（第\ref{subsec:mdq-basis-delta}小节）；
+  \item \textbf{收敛判据：}多次扫描等价于对同伦类签名（及其哈希）达到固定点（第\ref{sec:multi-scan-convergence}节）；
+  \item \textbf{审计体系：}$\mathrm{FP}/\mathrm{FN}$ 机械可判定、可留痕、可统计（第\ref{subsec:fp-fn-cost}小节）；
+  \item \textbf{防伪锚点：}$H_{\mathrm{sem}}$（语义指纹）与 $H_{\mathrm{cert}}$（证书链指纹）（第\ref{sec:homotopy-fingerprint-hash}节）；
+  \item \textbf{一致性测试：}把回投影不变性做成工程验收标准（公理~\ref{ax:projection-invariance} 与第\ref{subsec:roundtrip-regression}小节）；
+  \item \textbf{多实现可移植：}不同模型/厂商可优化提案策略，但必须通过同一裁判与测试套件（命题~\ref{prop:portability-contract} 与第\ref{subsec:spec-verifier-tck}
+    小节）。
+\end{enumerate}
+\end{remark}
+
+\subsection{写作与发布建议：理论—工程的互相加固闭环}
+\label{subsec:publishing-suggestion}
+
+\begin{remark}[建议]
+若保持该分层，后续写作会更干净：Vol3 保持抽象与严谨；工程部分可作为独立的
+\code{Implementation Spec / Reference Runtime} 文档或伴随仓库发布，并反过来用一致性测试与审计数据去验证 Vol3 的关键公理（例如回投影不变性与收敛性），形成理论—工程互相加固的闭环。
+\end{remark}
+
+\clearpage
+
+\appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{附录A：可对外调用的证书接口（MDQ Certificate API）}
+\label{app:mdq-certificate-api}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[附录目标]
+本附录给出一份\emph{可对外调用}且\emph{可复验}的证书接口合同，用于把本文的核心结构落到工程实现：
+外部系统只需调用该接口即可获得“证书化的判别器 + 标准化重写 + 指纹与审计字段”，并可用参考验证器复验其有效性。
+\end{remark}
+
+\subsection{接口定位：对外只提供“证书裁决”，不提供口头解释}
+\label{subsec:api-positioning}
+
+\begin{definition}[信任模型（最小口径）]
+对外接口的信任模型为：
+\begin{enumerate}
+  \item 客户端\emph{不需要}信任 LLM 的自然语言解释；
+  \item 客户端\emph{只需要}信任确定性裁决链：标准化器 $C$、证书谓词 $V$（或 $V_s,V_\delta$）与参考执行/校验器；
+  \item 任何返回为 \code{ok:true} 的结果，都必须携带足以复验的版本字段与摘要字段（第\ref{sec:homotopy-fingerprint-hash}节）。
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[对齐本文公理]
+对外接口的“接受”语义由公理~\ref{ax:certificate-decision-priority} 给出：
+\[
+\mathrm{Accept}(x\in s)\Longleftrightarrow V_s(C(x))=1,
+\]
+并在通过时返回可复验证书；不通过则返回 $\bot$（实现上为 \code{ok:false}）。
+\end{remark}
+
+\subsection{传输与版本：HTTP+JSON、版本化与幂等}
+\label{subsec:api-transport-versioning}
+
+\begin{definition}[传输约定（建议）]
+外部调用采用 \textbf{HTTP(S)+JSON}：
+\begin{itemize}
+  \item \code{Content-Type: application/json; charset=utf-8}；
+  \item JSON 语义以 RFC~8259 为准\cite{rfc8259}；
+  \item 所有哈希摘要以 \textsf{SHA-256} 为推荐默认\cite{fips180-4}（以 \code{sha256:...} 表示）。
+\end{itemize}
+\end{definition}
+
+\begin{definition}[版本字段（必须）]
+每次返回必须携带以下最小版本字段，以支持回放与漂移解释：
+\begin{itemize}
+  \item \code{api_version}：接口版本（如 \code{"mdq-cert-api.v1"}）；
+  \item \code{verifier_version}：参考验证器版本；
+  \item \code{canon_version}：标准化/规范化规则版本（含 $C$ 与 canonicalization）；
+  \item \code{policy_snapshot_id}：白名单与复杂度阈值策略快照标识（第\ref{subsec:audit-objects}小节）。
+\end{itemize}
+\end{definition}
+
+\begin{definition}[幂等与关联字段（建议）]
+建议客户端为每次调用提供：
+\begin{itemize}
+  \item \code{request_id}：请求幂等键（用于重试与去重）；
+  \item \code{trace_id}：跨系统链路追踪标识（可选）；
+  \item \code{input_digest}：输入摘要（可选；若未提供，服务端可返回其计算值）。
+\end{itemize}
+\end{definition}
+
+\subsection{核心数据结构：\texorpdfstring{$\mathsf{SemSig}$}{SemSig}、证书与证书链}
+\label{subsec:api-core-objects}
+
+\begin{definition}[\texorpdfstring{$\mathsf{SemSig}$}{SemSig}（对外签名对象）]
+对外的语义签名对象建议采用：
+\begin{verbatim}
+{
+  "class_id": "mdq.uuid",
+  "params": { },
+  "h_sem":  "sha256:...",
+  "h_cert": "sha256:..."
+}
+\end{verbatim}
+其中 \code{class_id} 对应 $\mathrm{ClassID}$，\code{h_sem} 与 \code{h_cert} 分别对应 $H_{\mathrm{sem}}$ 与 $H_{\mathrm{cert}}$
+（第\ref{sec:homotopy-fingerprint-hash}节）。
+\end{definition}
+
+\begin{definition}[证书对象（最小可复验口径）]
+对外证书对象建议封装为三元组（Spec/Witness/Verifier）在实现层的投影：
+\begin{verbatim}
+{
+  "cert_id": "mdq.uuid.v1",
+  "mdq_type": "UUID",
+  "spec_hash": "sha256:...",
+  "witness": {
+    "kind": "regex",
+    "payload": "^[0-9a-fA-F]{8}-...$"
+  },
+  "witness_hash": "sha256:...",
+  "verifier_version": "verifier.v3",
+  "canon_version": "canon.v2",
+  "test_digest": "sha256:..."
+}
+\end{verbatim}
+其中：
+\begin{itemize}
+  \item \code{spec_hash} 固化语义边界（Spec）的摘要；
+  \item \code{witness} 为判别器本体（正则/自动机/小解析器三档之一，见第\ref{subsec:mdq-equivalence}小节）；
+  \item \code{witness_hash} 固化判别器实现；
+  \item \code{test_digest} 固化回归/对抗测试集的摘要（用于审计回放）。
+\end{itemize}
+\end{definition}
+
+\begin{definition}[证书链（链式输出）]
+若一次裁决涉及多个 MDQ 单元，则返回证书链：
+\begin{verbatim}
+"cert_chain": [ {cert_1}, {cert_2}, ... ]
+\end{verbatim}
+并要求链中每个证书都可独立复验；链整体用于定位失败点、做差分审计与回放（第\ref{sec:mdq-granular-audit}节）。
+\end{definition}
+
+\subsection{接口 1：签发/裁决（\texorpdfstring{\texttt{POST /v1/certify}}{POST /v1/certify}）}
+\label{subsec:api-certify}
+
+\begin{definition}[请求：\code{CertifyRequest}]
+请求体（示意）：
+\begin{verbatim}
+{
+  "api_version": "mdq-cert-api.v1",
+  "request_id": "uuid-...",
+  "input": { "expr": "...", "lang": "zh-CN" },
+  "policy_snapshot_id": "policy.safe-re2.v1",
+  "options": { "return_examples": false, "return_audit": true }
+}
+\end{verbatim}
+\end{definition}
+
+\begin{definition}[响应：\code{CertifyResponse}]
+响应体满足二值输出合同（\code{ok:true}+证书 / \code{ok:false}）：
+\begin{verbatim}
+// ok:true
+{
+  "ok": true,
+  "api_version": "mdq-cert-api.v1",
+  "request_id": "uuid-...",
+  "semsig": { ... },
+  "certificate": { ... },
+  "cert_chain": [ ... ],
+  "verifier_version": "verifier.v3",
+  "canon_version": "canon.v2",
+  "policy_snapshot_id": "policy.safe-re2.v1"
+}
+
+// ok:false
+{
+  "ok": false,
+  "api_version": "mdq-cert-api.v1",
+  "request_id": "uuid-...",
+  "reason_code": "WHITELIST_VIOLATION",
+  "policy_snapshot_id": "policy.safe-re2.v1"
+}
+\end{verbatim}
+\end{definition}
+
+\begin{remark}[失败原因码（建议枚举）]
+建议将失败原因码限定为稳定枚举，便于审计聚合与回归定位，例如：
+\code{JSON_INVALID}、\code{REGEX_COMPILE_FAIL}、\code{WHITELIST_VIOLATION}、
+\code{MISSING_ANCHORS}、\code{EXAMPLE_CONTRADICTION}、
+\code{COMPLEXITY_LIMIT}、\code{METAMORPHIC_REGRESSION_FAIL}、
+\code{POLICY_REJECT}、\code{NON_REGULAR_SEMANTICS} 等。
+\end{remark}
+
+\subsection{接口 2：复验（\texorpdfstring{\texttt{POST /v1/verify}}{POST /v1/verify}）}
+\label{subsec:api-verify}
+
+\begin{definition}[请求：\code{VerifyRequest}]
+\begin{verbatim}
+{
+  "api_version": "mdq-cert-api.v1",
+  "request_id": "uuid-...",
+  "input": { "expr": "...", "lang": "zh-CN" },
+  "certificate": { ... },
+  "policy_snapshot_id": "policy.safe-re2.v1"
+}
+\end{verbatim}
+\end{definition}
+
+\begin{definition}[响应：\code{VerifyResponse}]
+\begin{verbatim}
+{
+  "ok": true,
+  "request_id": "uuid-...",
+  "verify_result": true,
+  "reason_code": "OK",
+  "verifier_version": "verifier.v3",
+  "policy_snapshot_id": "policy.safe-re2.v1"
+}
+\end{verbatim}
+\end{definition}
+
+\begin{remark}[验证语义]
+复验接口必须是确定性的：在固定 \code{verifier_version} 与 \code{policy_snapshot_id} 下，
+同一 \code{certificate} 与同一输入应产生一致的 \code{verify_result}；
+这对应第\ref{subsec:replay-audit}小节的“可回放一致性”要求。
+\end{remark}
+
+\subsection{最小对外保证：可移植、可回放、可对比}
+\label{subsec:api-min-guarantees}
+
+\begin{proposition}[对外可复验性（合同）]
+若 \code{CertifyResponse.ok=true}，则客户端可以在相同的 \code{verifier_version}、\code{canon_version} 与 \code{policy_snapshot_id} 下，
+通过 \code{POST /v1/verify} 复验通过（\code{verify_result=true}），并且该结果与证书链指纹 $H_{\mathrm{cert}}$ 一致。
+\end{proposition}
+
+\begin{remark}[对齐“标准先行、多实现”】【工程解释】]
+该附录接口为“标准先行、多实现”（第\ref{sec:os-jvm-paradigm}节）提供一个最小可执行落点：
+上层可以有多种提案实现（不同 LLM/不同策略），但一旦对外输出为 \code{ok:true}，
+其证据必须能被同一参考验证器复验成立，从而实现可移植与可审计。
+\end{remark}
+
+\begin{thebibliography}{99}
+\addcontentsline{toc}{section}{\refname}
+
+\bibitem{rfc8259}
+T.~Bray.
+\emph{The JavaScript Object Notation (JSON) Data Interchange Format}.
+RFC~8259, IETF, 2017.
+\url{https://www.rfc-editor.org/rfc/rfc8259}
+
+\bibitem{cox-re2}
+R.~Cox.
+\emph{RE2: a fast, safe, thread-friendly regular expression engine}.
+Google.
+\url{https://github.com/google/re2}
+
+\bibitem{cox-regex}
+R.~Cox.
+\emph{Regular Expression Matching Can Be Simple And Fast}.
+2007.
+\url{https://swtch.com/~rsc/regexp/regexp1.html}
+
+\bibitem{chen-metamorphic}
+T.~Y.~Chen, S.~C.~Cheung, S.~M.~Yiu.
+\emph{Metamorphic Testing: a New Approach for Generating Next Test Cases}.
+Technical Report HKUST-CS98-01, 1998.
+
+\bibitem{hopcroft-ullman}
+J.~E.~Hopcroft, R.~Motwani, J.~D.~Ullman.
+\emph{Introduction to Automata Theory, Languages, and Computation}.
+3rd~ed., Addison-Wesley, 2006.
+
+\bibitem{fips180-4}
+NIST.
+\emph{FIPS PUB 180-4: Secure Hash Standard (SHS)}.
+2015.
+\url{https://csrc.nist.gov/publications/detail/fips/180/4/final}
+
+\bibitem{jvms}
+T.~Lindholm, F.~Yellin, G.~Bracha, A.~Buckley.
+\emph{The Java Virtual Machine Specification, Java SE 8 Edition}.
+Addison-Wesley, 2015.
+
+\bibitem{java-tck}
+Oracle.
+\emph{Java SE Technology Compatibility Kit (TCK)}.
+\url{https://www.oracle.com/java/technologies/javase-tck.html}
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+
+\bibitem{gaozheng-analytic-ai}
+GaoZheng.
+\emph{基于主纤维丛版广义非交换李代数的解析解AI系统设计}.
+内部文档，2025。
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

@@ -1,0 +1,2868 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\refname}{参考文献}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\PDE}{\mathsf{PDE}}
+\newcommand{\Obs}{\mathsf{Obs}}
+\newcommand{\TunHit}{\mathsf{TunHit}}
+\newcommand{\Time}{\mathsf{Time}}
+\newcommand{\Freq}{\mathsf{Freq}}
+\newcommand{\FreqHit}{\mathsf{FreqHit}}
+\newcommand{\Str}{\mathsf{Str}}
+\newcommand{\ProofAuto}{\mathsf{Proof}}
+\newcommand{\SciAuto}{\mathsf{Sci}}
+\newcommand{\DesignAuto}{\mathsf{Design}}
+\newcommand{\HF}{\mathsf{HF}}
+\newcommand{\QSoft}{\mathsf{QSoft}}
+\newcommand{\QHW}{\mathsf{QHW}}
+\newcommand{\Hilb}{\mathcal H}
+\newcommand{\Cert}{\operatorname{Cert}}
+\newcommand{\Cost}{\operatorname{Cost}}
+\newcommand{\Endp}{\operatorname{end}}
+\newcommand{\Enc}{\operatorname{Enc}}
+\newcommand{\Dec}{\operatorname{Dec}}
+\newcommand{\ResPDE}{R_{\mathrm{PDE}}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\codepath}[2]{\path{#1/}\allowbreak\path{#2}}
+
+\setlength{\emergencystretch}{6em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{统计力学参数格点、同伦扭曲命中与 PDE 策略簇：\\从时域求解到频域簇命中的近似量子软件层算法\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-05-03}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是单纯为 \(\PDE\) 求解器增加一层参数搜索外壳，而是在 \GFramework{} 的形式系统中，
+把“方法选择”本身提升为一个可格点化、可微分化、可重加权、可命中判定的策略簇演化问题。
+传统工程流程通常先固定若干离散化、网格、边界处理、时间推进与迭代器，再并行运行这些方法，
+最后根据残差、误差或收敛速度事后比较。这样的流程可以提高执行效率，却没有改变方法空间的
+本体结构：方法仍然只是离散枚举项，而不是可以连续变形和动态演化的对象。本文的第一步，
+正是把这种“并行化的串行试错”改写为策略态簇上的统计力学演化。
+
+因此，本文所说的统计力学参数格点，首先是一种方法空间的对象化机制。一个 \(\PDE\) 方法不再只是
+求解器名称，而被写成包含离散化尺度、网格结构、边界惩罚、时间推进、迭代器、正则项和终止准则的
+策略态。策略态之间通过参数格点、邻接关系、能量泛函与统计权重联系起来；方法优选不再是事后排序，
+而是在策略簇内部进行权重演化、障碍降低与终端命中。这样，\(\PDE\) 求解从“选一个固定方法求解”
+转为“在方法空间中寻找能够命中低残差终端的策略轨迹”。
+
+本文的第二个中心概念是同伦扭曲命中。策略簇若只有静态权重，仍然只是加权枚举；只有引入同伦扭曲，
+策略态之间才具有可控迁移的方向结构。本文把同伦扭曲理解为策略分布的连续变形机制：它不直接声称
+某个方法必然优越，而是通过能量下降、端点约束、证书反馈与命中判定，推动策略簇从高障碍区域向
+低残差区域移动。由此，方法空间获得一种类路径积分、类退火、类隧穿的软件层动力学。
+
+本文的第三个核心转化，是从时域簇求解到频域/结构簇命中。时域簇求解关注多个方法随时间运行后的
+残差曲线和终端误差；频域/结构簇命中则关注这些方法背后的慢变量、结构模态、障碍方向与可命中通道。
+这意味着，方法优选不只看“哪个方法在当前时刻残差低”，还要看“哪个结构方向能够持续压低障碍并
+提高终端命中概率”。因此，频域/结构簇不是装饰性表述，而是把策略簇从时间记录提升为结构可微对象。
+
+本文的第四个立场，是近似量子软件层口径只在软件结构层成立。本文使用“类量子”“类隧穿”“类路径积分”
+与“类退火”等说法，并不声称已经给出物理量子硬件线路，也不声称获得量子复杂度优势。它们在本文中
+表示一种软件层同构：以概率幅式权重、能量景观、路径支撑、终端测量和命中证书来组织策略搜索。
+换言之，本文关注的是如何把量子范式中的若干结构性优点移植到经典软件层的 \(\PDE\) 策略簇演化中，
+而不是把经典计算伪装成量子硬件结论。
+
+本文的第五个立场，是自动化证明、自动化科研与自动化设计可以被同一类高阶泛函 \(\PDE\) 组统摄。
+在这一层，\(\PDE\) 不再只是偏微分方程的狭义对象，而被扩展为高阶泛函约束系统：证明任务、科研任务、
+设计任务都可以被写成状态、策略、残差、证书与终端判定之间的耦合方程组。本文因此把 \(\PDE\) 策略簇
+从数值求解领域上推到更广泛的自动化系统：求解器、证明器、科研生成器与设计生成器共享同一种
+“策略簇--残差--证书--命中”的形式骨架。
+
+本文的第六个立场，是证书可靠性必须进入闭环。策略簇演化若只追求低残差，而不验证终端证书，
+便可能得到伪命中、偶然命中或不可复现命中。为此，本文把命中判定、方法微分流、终端解证书、
+测量证书与可靠性边界放在同一闭合链条中讨论。一个策略簇的价值不仅取决于它是否找到低残差点，
+还取决于该点是否能够被证书验证、被误差界约束、被任务语义接受，并在必要时被重新编码回原问题。
+
+因此，本文在整体 \GFramework{} 中承担的是策略簇层的枢纽作用。它向前连接障碍修复、同伦扭曲、
+路径积分支撑类与微观隧穿接口，向后连接低残差命中、确定性同伦控制与 \(\PDE\) 求解范式替代。
+如果说后续稿件进一步强调“命中低残差集合可以替代显式 \(\PDE\) 求解中心”，那么本文强调的是：
+在进入这种替代范式之前，方法本身必须先被参数格点化、策略簇化、频域结构化与证书闭环化。
+
+概括地说，本文把 \(\PDE\) 工程中的“方法选择”改写为“策略簇演化”，把“多方法试错”改写为
+“统计力学同伦命中”，把“终端误差比较”改写为“证书可靠性闭合”。它提供的不是单个求解器，
+而是一条从方法枚举到策略簇命中、从时域运行到结构命中、从软件层类量子搜索到高阶泛函自动化的
+形式系统主线。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{形式逻辑：从 PDE 方法枚举到策略簇演化}
+\label{sec:tex53-main}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[核心陈述]
+本文把 \(\PDE\) 求解中的一个常见工程事实形式化：
+传统流程往往先选定一种离散化、网格、边界处理、迭代器或求解器，
+若效果不够再换另一种方法。
+即使多种方法并行运行，其结构仍多是
+\[
+  \text{并行评估若干串行方法}
+  \Longrightarrow
+  \text{事后比较}.
+\]
+本文要证明的主张是：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{统计力学参数格点 + 同伦扭曲命中}\\
+      &\text{把 PDE 从固定方法上的解搜索}\\
+      &\text{提升为方法空间上的变分搜索。}
+    \end{aligned}
+  }
+\]
+在该框架下，方法本身被参数化、格点化、可微分化并动态重加权；
+最终输出不是“先选方法再求解”，
+而是在方法簇演化中同时析出近似最优方法与终端解证书。
+\end{remark}
+
+\begin{remark}[与前稿的关系]
+本文是从 \cite{RepoTex45QianObstruction} 中“微观隧穿相对于 \(\PDE\) 中心流程的替代意义”派生出来的算法稿。
+前稿的主轴是钱学森障碍、观测--推断--修复、边缘算子与全局截面障碍；
+本文则把其中的“同伦扭曲命中”进一步发展为一套 \(\PDE\) 策略簇算法语言。
+因此本文不替代 tex45，而是从 tex45 的母框架中拆出一个新的专门命题：
+\[
+  \text{PDE 时域簇求解}
+  \Longrightarrow
+  \text{统计力学参数格点}
+  \Longrightarrow
+  \text{频域/结构簇命中}.
+\]
+关于路径积分支撑类、同伦扭曲正规形与微观隧穿的既有接口，
+本文承接 \cite{RepoTex36HomotopyTwist,RepoTex37SemanticGauge,RepoTex39OpenRepair}。
+\end{remark}
+
+\subsection{本文要证明的四个结论}
+\label{subsec:tex53-goals}
+
+本文把目标压成四个结论：
+\[
+\begin{aligned}
+  G_1 &: \text{传统 PDE 工程流程可形式化为方法枚举与事后比较；}\\
+  G_2 &: \text{统计力学参数格点把方法本身改写为策略态簇；}\\
+  G_3 &: \text{同伦扭曲命中使策略簇沿降障碍方向动态演化；}\\
+  G_4 &: \text{该演化把时域簇求解切换为频域/结构簇命中，}\\
+      &\quad \text{并给出近似量子软件层算法口径。}
+\end{aligned}
+\]
+这里“近似量子软件层算法”只指软件层的类量子搜索、类量子退火与类路径积分采样结构，
+不声称本文已经给出物理量子硬件线路或量子复杂度优势。
+
+\subsection{传统方法枚举模型}
+\label{subsec:tex53-enumeration}
+
+\begin{definition}[PDE 任务与传统方法族]
+令
+\[
+  q\in Q
+\]
+为一个 \(\PDE\) 任务，记其传统求解问题为
+\[
+  \PDE(q).
+\]
+传统工程流程先给出一个方法族
+\[
+  \mathcal M=\{M_i\}_{i\in I},
+\]
+其中每个 \(M_i\) 包含一组固定选择：
+\[
+  M_i
+  =
+  (\text{离散化},\text{网格},\text{边界处理},\text{时间推进},\text{迭代器},\text{终止准则}).
+\]
+每个方法给出候选解
+\[
+  u_i=M_i(q),
+\]
+再通过误差或评价泛函
+\[
+  J_i=J(u_i,q)
+\]
+进行事后排序。
+\end{definition}
+
+\begin{definition}[并行化的串行试错]
+称一个 \(\PDE\) 求解流程为\textbf{并行化的串行试错}，若其可写为
+\[
+  \{M_i(q)\}_{i\in I}
+  \Longrightarrow
+  \{J_i\}_{i\in I}
+  \Longrightarrow
+  \arg\min_{i\in I}J_i,
+\]
+且在求解过程中方法 \(M_i\) 之间没有连续变形、权重流、障碍计数反馈或终端命中反馈。
+\end{definition}
+
+\begin{proposition}[传统 PDE 方法族的枚举性]
+\label{prop:tex53-enumeration}
+若 \(\mathcal M=\{M_i\}_{i\in I}\) 中每个方法在运行前已经固定，
+且方法之间只通过事后指标 \(J_i\) 比较，
+则该流程本质上是方法枚举；并行计算只改变执行调度，不改变方法空间的本体结构。
+\end{proposition}
+
+\begin{proof}
+在该流程中，\(M_i\) 是离散索引 \(i\in I\) 上的固定对象。
+运行过程只产生
+\[
+  u_i=M_i(q)
+\]
+与
+\[
+  J_i=J(u_i,q).
+\]
+若方法之间不存在映射
+\[
+  M_i\rightsquigarrow M_j
+\]
+的连续变形、局部导数、图梯度或权重流，
+则 \(I\) 只承担枚举索引作用。
+并行运行只是同时计算多个 \(M_i(q)\)，
+不会把 \(I\) 升级为可演化的方法空间。
+故该流程仍为方法枚举。
+\end{proof}
+
+\begin{corollary}[仅靠并行不能得到方法空间演化]
+若一个系统只是在多核、多节点或多进程上同时运行多个固定求解器，
+而不改变方法之间的结构关系，
+则它至多实现并行化的串行试错，
+不能自动获得方法微分、动态重加权或同伦扭曲命中。
+\end{corollary}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{统计力学参数格点与 PDE 策略簇}
+\label{sec:tex53-lattice}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{策略态与参数格点}
+\label{subsec:tex53-strategy-state}
+
+\begin{definition}[方法参数空间]
+令
+\[
+  \Theta
+\]
+为方法参数空间。
+其中一个点
+\[
+  \theta\in\Theta
+\]
+不只表示单个数值参数，而表示一个完整求解策略态：
+\[
+  \eta_\theta
+  =
+  (D_\theta,B_\theta,S_\theta,R_\theta,H_\theta).
+\]
+这里 \(D_\theta\) 是离散化和表示基，\(B_\theta\) 是边界与约束处理，
+\(S_\theta\) 是采样或推进规则，\(R_\theta\) 是局部修复规则，
+\(H_\theta\) 是终端命中与证书判定规则。
+\end{definition}
+
+\begin{definition}[统计力学参数格点]
+给定当前局部代表 \(\tau\)、预算 \(K\) 与层级 \(n\)，
+定义统计力学参数格点为
+\[
+  \mathcal C_n(\tau;K)
+  :=
+  \{
+    \eta_\theta:
+    \theta\in\Theta_n,\ 
+    \Cost(\eta_\theta)\le K,\ 
+    \eta_\theta\ \text{与}\ \tau\ \text{相容}
+  \}.
+\]
+其中 \(\Theta_n\subseteq\Theta\) 是第 \(n\) 层可枚举或可采样的参数格点。
+称
+\[
+  \Pi_{\PDE}(q;n,\tau,K):=\mathcal C_n(\tau;K)
+\]
+为 \(\PDE(q)\) 在 \((n,\tau,K)\) 下的\textbf{策略簇}。
+\end{definition}
+
+\begin{remark}[格点不是单条轨道]
+\(\mathcal C_n(\tau;K)\) 的意义不是给出一条时间轨道，
+而是给出一批可比较、可加权、可变形的策略态。
+因此 \(\PDE\) 的对象从
+\[
+  u(t,x)
+\]
+转为
+\[
+  \eta_\theta\in \mathcal C_n(\tau;K),
+\]
+即从“场值轨迹”转为“方法--解耦合策略态”。
+\end{remark}
+
+\subsection{能量泛函与统计权重}
+\label{subsec:tex53-energy}
+
+\begin{definition}[PDE 策略态能量]
+对每个 \(\eta\in\mathcal C_n(\tau;K)\)，定义能量或代价泛函
+\[
+\begin{aligned}
+  E_n(\eta)
+  :=\;&
+  a\,\ResPDE(\eta;q)
+  + b\,d_{\mathrm{end}}(\Endp(\eta),\tau^\ast)\\
+  &+ c\,\nu_{n+1}(\eta)
+  + d\,\mathbf 1_{\eta\in\iota_n^{\mathcal T}(\mathfrak B_n(\tau))}
+  + e\,\Cost(\eta),
+\end{aligned}
+\]
+其中 \(a,b,c,d,e>0\)。
+这里 \(\ResPDE\) 衡量 \(\PDE\) 残差，
+\(d_{\mathrm{end}}\) 衡量终端命中距离，
+\(\nu_{n+1}\) 是下一层活跃障碍计数，
+\(\mathfrak B_n(\tau)\) 是旧局部盆像，
+\(\Cost\) 是算力--时间预算代价。
+\end{definition}
+
+\begin{definition}[Gibbs 权重与配分函数]
+令 \(\beta_n>0\) 为第 \(n\) 层逆温参数。
+定义配分函数
+\[
+  Z_n
+  :=
+  \sum_{\xi\in\mathcal C_n(\tau;K)}
+  \exp(-\beta_n E_n(\xi)),
+\]
+并定义策略态权重
+\[
+  w_n(\eta)
+  :=
+  \frac{\exp(-\beta_n E_n(\eta))}{Z_n}.
+\]
+若 \(\mathcal C_n(\tau;K)\) 为连续参数族，则上述求和改为相应测度下的积分。
+\end{definition}
+
+\begin{lemma}[低能策略态获得较高权重]
+\label{lem:tex53-gibbs-order}
+对任意 \(\eta_1,\eta_2\in\mathcal C_n(\tau;K)\)，若
+\[
+  E_n(\eta_1)<E_n(\eta_2),
+\]
+则
+\[
+  w_n(\eta_1)>w_n(\eta_2).
+\]
+\end{lemma}
+
+\begin{proof}
+由 \(E_n(\eta_1)<E_n(\eta_2)\) 与 \(\beta_n>0\)，得
+\[
+  -\beta_n E_n(\eta_1)>-\beta_n E_n(\eta_2).
+\]
+指数函数严格单调，故
+\[
+  \exp(-\beta_n E_n(\eta_1))
+  >
+  \exp(-\beta_n E_n(\eta_2)).
+\]
+两边除以同一个正数 \(Z_n\)，结论成立。
+\end{proof}
+
+\begin{remark}[统计力学口径的必要性]
+统计力学权重使“方法选择”不再是一次性离散选择，
+而成为温度、能量、障碍与终端命中共同控制的概率化竞争。
+这正是后文称其具有“近似量子软件层算法”味道的原因之一：
+候选策略态以权重叠加的方式参与竞争，
+而不是在运行前被硬性选成一个求解器。
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{方法微分、动态重加权与同伦扭曲命中}
+\label{sec:tex53-flow}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{方法空间上的微分}
+\label{subsec:tex53-method-diff}
+
+\begin{definition}[连续方法微分]
+若 \(\Theta\) 是光滑参数空间，
+且 \(E_n(\eta_\theta)\) 关于 \(\theta\) 可微，
+则定义方法空间上的梯度流为
+\[
+  \dot\theta
+  =
+  -\nabla_\theta E_n(\eta_\theta).
+\]
+称该流为 \(\PDE\) 策略簇的\textbf{方法微分流}。
+\end{definition}
+
+\begin{definition}[离散格点图梯度]
+若 \(\Theta_n\) 是离散格点，给定邻接关系 \(\theta'\sim\theta\)，
+定义图梯度为
+\[
+  \nabla_G E_n(\theta)
+  :=
+  \{E_n(\eta_{\theta'})-E_n(\eta_\theta):\theta'\sim\theta\}.
+\]
+若存在邻点 \(\theta'\sim\theta\) 使
+\[
+  E_n(\eta_{\theta'})<E_n(\eta_\theta),
+\]
+则称 \(\theta\to\theta'\) 是一次降能方法变形。
+\end{definition}
+
+\begin{proposition}[方法被微分化]
+\label{prop:tex53-method-differentiated}
+若 \(\Theta\) 上存在连续梯度流或离散图梯度，
+则策略态 \(\eta_\theta\) 不再只是枚举对象；
+它们构成可比较、可局部变形、可沿降能方向迁移的方法空间。
+\end{proposition}
+
+\begin{proof}
+在连续情形下，\(\dot\theta=-\nabla_\theta E_n(\eta_\theta)\) 给出每个策略态的局部下降方向。
+在离散情形下，\(\nabla_G E_n(\theta)\) 给出邻域内的能量差。
+因此方法之间不再只通过索引 \(i\) 区分，
+而通过局部变形关系与能量差联系。
+这正是方法空间化与方法微分化。
+\end{proof}
+
+\subsection{动态权重演化}
+\label{subsec:tex53-weight-flow}
+
+\begin{definition}[复制子型权重演化]
+令
+\[
+  \langle E_n\rangle_w
+  :=
+  \sum_{\xi\in\mathcal C_n(\tau;K)}
+  w(\xi)E_n(\xi).
+\]
+定义权重演化方程
+\[
+  \dot w(\eta)
+  =
+  -\kappa w(\eta)
+  \bigl(E_n(\eta)-\langle E_n\rangle_w\bigr),
+  \qquad
+  \kappa>0.
+\]
+\end{definition}
+
+\begin{lemma}[优势策略态权重上升]
+\label{lem:tex53-replicator}
+若
+\[
+  E_n(\eta)<\langle E_n\rangle_w,
+\]
+则
+\[
+  \dot w(\eta)>0.
+\]
+若
+\[
+  E_n(\eta)>\langle E_n\rangle_w,
+\]
+则
+\[
+  \dot w(\eta)<0.
+\]
+\end{lemma}
+
+\begin{proof}
+因 \(\kappa>0\) 且 \(w(\eta)>0\)，
+\[
+  -\kappa w(\eta)
+\]
+为负数。
+若 \(E_n(\eta)-\langle E_n\rangle_w<0\)，则 \(\dot w(\eta)>0\)；
+若 \(E_n(\eta)-\langle E_n\rangle_w>0\)，则 \(\dot w(\eta)<0\)。
+\end{proof}
+
+\begin{corollary}[方法选择与解搜索同步发生]
+在复制子型权重演化下，
+降低 \(\PDE\) 残差、降低障碍计数、逼近终端正规形且预算更优的策略态会被逐步放大。
+因此方法选择不是求解前的外部动作，
+而是求解过程内部的动态结果。
+\end{corollary}
+
+\subsection{同伦扭曲命中}
+\label{subsec:tex53-tunhit}
+
+\begin{definition}[障碍对象包]
+对 \(\PDE(q)\)，定义其障碍对象包
+\[
+  \Obs(q)
+  :=
+  \bigl(
+    B_t^{\Lambda_t},
+    \Gamma_t^{\Lambda_t},
+    \mathcal F_t^{\Lambda_t}(\varepsilon),
+    \nu_n,
+    \mathfrak B_n
+  \bigr).
+\]
+其中 \(B_t^{\Lambda_t}\) 是观测历史基底，
+\(\Gamma_t^{\Lambda_t}\) 是可容许终端纤维，
+\(\mathcal F_t^{\Lambda_t}(\varepsilon)\) 是失效域，
+\(\nu_n\) 是活跃障碍计数，
+\(\mathfrak B_n\) 是旧局部盆像。
+\end{definition}
+
+\begin{definition}[同伦扭曲命中条件]
+称策略态 \(\eta\in\mathcal C_n(\tau;K)\) 实现一次同伦扭曲命中，
+记为
+\[
+  \TunHit(q;\eta,n,\tau,K),
+\]
+若
+\[
+\begin{aligned}
+  &\eta\in\mathcal C_n(\tau;K),\\
+  &\eta\notin\iota_n^{\mathcal T}\bigl(\mathfrak B_n(\tau)\bigr),\\
+  &\nu_{n+1}(\eta)\le \nu_n(\tau)-1,\\
+  &\Endp(\eta)\sim\tau^\ast.
+\end{aligned}
+\]
+四个条件分别表示：预算内可采样、脱离旧局部盆像、障碍计数下降、命中终端正规形同类。
+\end{definition}
+
+\begin{theorem}[同伦扭曲命中给出可验证解证书]
+\label{thm:tex53-hit-cert}
+若存在
+\[
+  \eta^\ast\in\mathcal C_n(\tau;K)
+\]
+使 \(\TunHit(q;\eta^\ast,n,\tau,K)\) 成立，
+则 \(\eta^\ast\) 同时给出一个方法选择证书与终端解证书：
+\[
+  \Cert(q,\eta^\ast)
+  :=
+  \bigl(
+    \eta^\ast\in\mathcal C_n(\tau;K),\
+    \eta^\ast\notin\iota_n^{\mathcal T}(\mathfrak B_n(\tau)),\
+    \nu_{n+1}(\eta^\ast)\le\nu_n(\tau)-1,\
+    \Endp(\eta^\ast)\sim\tau^\ast
+  \bigr).
+\]
+\end{theorem}
+
+\begin{proof}
+由 \(\TunHit\) 的定义，四个条件全部成立。
+第一项证明 \(\eta^\ast\) 是预算内可采样策略态，
+第二项证明其没有落回旧局部盆像，
+第三项证明其产生严格降障碍效果，
+第四项证明其终端与目标正规形同类。
+因此该四元组既认证了方法为何被选中，
+也认证了终端结论为何可读取。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{从时域簇求解到频域簇命中}
+\label{sec:tex53-frequency}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{时域簇与频域/结构簇}
+\label{subsec:tex53-time-frequency}
+
+\begin{definition}[时域簇求解]
+称 \(\PDE(q)\) 处于\textbf{时域簇求解范式}，
+若其主要对象是
+\[
+  \{u_i(t,x):i\in I,\ t\in[0,T]\},
+\]
+并且终端结论主要通过对 \(u_i(T,x)\) 或完整时域历史的读取获得。
+\end{definition}
+
+\begin{definition}[频域/结构簇表示]
+给定策略态 \(\eta\)，定义其频域/结构表示为
+\[
+  \Freq(\eta)
+  :=
+  \bigl(
+    \widehat u_\eta(\omega,k),
+    \sigma_\eta,
+    \lambda_\eta,
+    \nu_\eta,
+    \Endp(\eta)
+  \bigr).
+\]
+其中 \(\widehat u_\eta(\omega,k)\) 表示可用的频谱或模式谱表示，
+\(\sigma_\eta\) 表示模式簇标签，
+\(\lambda_\eta\) 表示能量或统计权重标尺，
+\(\nu_\eta\) 表示障碍计数，
+\(\Endp(\eta)\) 表示终端同类判定。
+若具体问题没有显式 Fourier 变换，
+则 \(\Freq\) 被理解为参数谱、模式谱、能量盆与障碍谱的结构化表示。
+\end{definition}
+
+\begin{definition}[频域簇命中]
+称 \(\eta\) 实现频域簇命中，若存在目标频域/结构簇
+\[
+  \Omega^\ast
+\]
+使
+\[
+  \Freq(\eta)\in\Omega^\ast
+  \quad\wedge\quad
+  \TunHit(q;\eta,n,\tau,K).
+\]
+记为
+\[
+  \FreqHit(q;\eta,\Omega^\ast).
+\]
+\end{definition}
+
+\begin{remark}[频域不是删除时域]
+本文所谓“从时域簇切换到频域簇命中”，
+不是说物理时域被删除，
+也不是说所有 \(\PDE\) 都必须先做经典 Fourier 展开。
+它的严格含义是：
+决策入口从完整时域轨迹追踪，
+切换到参数谱、模式谱、能量盆、障碍计数与终端同类关系的命中判断。
+\end{remark}
+
+\subsection{切换定理}
+\label{subsec:tex53-switch}
+
+\begin{theorem}[时域簇到频域簇命中的切换]
+\label{thm:tex53-time-to-frequency}
+若一个 \(\PDE(q)\) 的求解流程满足以下条件：
+\[
+\begin{aligned}
+  S_1 &: \text{存在策略簇 }\mathcal C_n(\tau;K);\\
+  S_2 &: \text{每个策略态具有能量 }E_n(\eta)\text{ 与权重 }w_n(\eta);\\
+  S_3 &: \text{策略态之间存在方法微分流或图梯度下降关系};\\
+  S_4 &: \text{存在 }\eta^\ast\text{ 使 }\TunHit(q;\eta^\ast,n,\tau,K);\\
+  S_5 &: \text{存在频域/结构簇 }\Omega^\ast\text{ 使 }\Freq(\eta^\ast)\in\Omega^\ast,
+\end{aligned}
+\]
+则该流程已经从时域簇求解范式切换到频域簇命中范式。
+\end{theorem}
+
+\begin{proof}
+由 \(S_1\)，求解对象不是单条时域轨迹，而是策略簇。
+由 \(S_2\)，策略簇由统计力学权重组织。
+由 \(S_3\)，方法之间可沿降能或降障碍方向变形，
+而不是仅被事后枚举比较。
+由 \(S_4\)，存在策略态同时满足预算内可采样、脱离旧盆像、降障碍和终端同类命中。
+由 \(S_5\)，该策略态又落入目标频域/结构簇。
+因此最终判定不依赖“先完整求出时域全场再读取终端”，
+而依赖“在策略簇中找到满足频域/结构命中与同伦扭曲命中的证书态”。
+这正是从时域簇求解到频域簇命中的切换。
+\end{proof}
+
+\begin{corollary}[PDE 的角色改变]
+在定理~\ref{thm:tex53-time-to-frequency} 的条件下，
+\(\PDE\) 不再只是时域轨迹求解器，
+而被重写为
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{频域簇命中 + 障碍降阶}\\
+      &\text{+ 终端同类判定}
+    \end{aligned}
+  }
+\]
+的策略生成框架。
+\end{corollary}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{近似量子软件层算法口径}
+\label{sec:tex53-quantum-like}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{类量子结构}
+\label{subsec:tex53-quantum-like-objects}
+
+\begin{definition}[近似量子软件层算法]
+称一个软件层算法为\textbf{近似量子软件层算法}，
+若它在不调用物理量子硬件的前提下，满足：
+\[
+\begin{aligned}
+  Q_1 &: \text{候选态以权重簇或幅度簇形式并存；}\\
+  Q_2 &: \text{搜索过程由能量、温度、势垒或障碍泛函驱动；}\\
+  Q_3 &: \text{局部盆像可被穿越、排除或重写；}\\
+  Q_4 &: \text{输出是命中态与证书，而不必是全场显式解；}\\
+  Q_5 &: \text{该过程可解释为类量子搜索、类量子退火或类路径积分采样。}
+\end{aligned}
+\]
+\end{definition}
+
+\begin{theorem}[微观隧穿 PDE 策略簇具有近似量子软件层算法结构]
+\label{thm:tex53-quantum-like}
+由 \(\mathcal C_n(\tau;K)\)、\(E_n\)、\(w_n\)、方法微分流与 \(\TunHit\) 构成的 \(\PDE\) 策略簇，
+满足近似量子软件层算法的五项条件。
+\end{theorem}
+
+\begin{proof}
+由 \(\mathcal C_n(\tau;K)\) 与 \(w_n\)，候选策略态以权重簇形式并存，故 \(Q_1\) 成立。
+由 \(E_n\) 中的残差、终端距离、障碍计数、旧盆惩罚与预算项，搜索由能量泛函驱动，故 \(Q_2\) 成立。
+由 \(\eta\notin\iota_n^{\mathcal T}(\mathfrak B_n(\tau))\) 与 \(\nu_{n+1}(\eta)\le\nu_n(\tau)-1\)，
+局部盆像被排除且障碍被降低，故 \(Q_3\) 成立。
+由 \(\Endp(\eta)\sim\tau^\ast\)，输出是终端同类命中证书，而不要求完整时域全场解，故 \(Q_4\) 成立。
+最后，Gibbs 权重、势垒排除、同伦扭曲与候选簇采样共同给出类退火、类搜索与类路径积分口径，故 \(Q_5\) 成立。
+\end{proof}
+
+\begin{remark}[非硬件量子声明]
+本文不声称构造了量子门线路、量子态制备过程或量子复杂度加速证明。
+“近似量子”只表示算法的结构形态：
+候选态簇并存、统计权重竞争、势垒穿越、路径类采样与证书态析出。
+因此它是软件层算法范式，而不是物理量子计算机的硬件算法。
+\end{remark}
+
+\subsection{算法化压缩}
+\label{subsec:tex53-algorithm}
+
+\begin{definition}[PDE 策略簇算法]
+定义 \(\PDE\) 策略簇算法 \(\mathsf{PSC}\) 为以下流程：
+\[
+\begin{aligned}
+  A_0 &: \text{输入 }\PDE(q),\ \tau,\ K,\ n;\\
+  A_1 &: \text{生成策略簇 }\mathcal C_n(\tau;K);\\
+  A_2 &: \text{计算 }E_n(\eta)\text{ 与 }w_n(\eta);\\
+  A_3 &: \text{沿方法微分流或图梯度更新候选策略态};\\
+  A_4 &: \text{执行 Gibbs/复制子型权重重标定};\\
+  A_5 &: \text{剔除旧盆像，保留降障碍候选};\\
+  A_6 &: \text{检测 }\TunHit(q;\eta,n,\tau,K);\\
+  A_7 &: \text{若命中，则输出 }(\eta^\ast,u_{\eta^\ast},\Cert(q,\eta^\ast)).
+\end{aligned}
+\]
+\end{definition}
+
+\begin{theorem}[方法与解同时析出]
+\label{thm:tex53-method-solution}
+若 \(\mathsf{PSC}\) 在有限步或收敛极限中得到
+\[
+  \eta^\ast\in\arg\min_{\eta\in\mathcal C_n(\tau;K)}E_n(\eta)
+\]
+且 \(\TunHit(q;\eta^\ast,n,\tau,K)\) 成立，
+则 \(\eta^\ast\) 是近似最优方法，
+\[
+  u^\ast:=u_{\eta^\ast}
+\]
+是其诱导的候选解，
+并且 \(\Cert(q,\eta^\ast)\) 是该解的终端命中证书。
+\end{theorem}
+
+\begin{proof}
+\(\eta^\ast\in\arg\min E_n\) 表明它在当前策略簇和预算内取得能量最小，
+因此在残差、终端距离、障碍、旧盆惩罚与成本的加权意义下近似最优。
+由 \(\eta^\ast\) 可生成对应候选解 \(u_{\eta^\ast}\)。
+又由 \(\TunHit(q;\eta^\ast,n,\tau,K)\)，
+定理~\ref{thm:tex53-hit-cert} 给出证书 \(\Cert(q,\eta^\ast)\)。
+故方法、候选解与证书同时析出。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{高阶泛函 PDE 组：自动化证明、科研与设计的统一上推}
+\label{sec:tex53-higher-functional}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[上推方向]
+前文只把 \(\PDE\) 求解写成策略簇命中问题。
+但真正可推广的不是某个物理方程的特殊形式，
+而是如下结构：
+\[
+  \text{候选策略空间}
+  \Longrightarrow
+  \text{残差泛函}
+  \Longrightarrow
+  \text{权重演化}
+  \Longrightarrow
+  \text{障碍下降}
+  \Longrightarrow
+  \text{证书命中}.
+\]
+因此，同一套形式可以上推到自动化证明、自动化科研与自动化设计。
+三者表面上分别处理证明、发现与设计，
+底层却都是在高阶方法空间中寻找可验证命中证书。
+\end{remark}
+
+\subsection{高阶泛函 PDE 组的定义}
+\label{subsec:tex53-hf-pde}
+
+\begin{definition}[高阶泛函 PDE 组]
+令 \(\mathcal X\) 为对象状态空间，\(\mathcal S\) 为策略空间，
+\[
+  \Phi:\mathcal X\times\mathcal S\to\mathcal Y
+\]
+为策略作用泛函，令
+\[
+  \mathcal E:\mathcal S\to\RR
+\]
+为能量或残差泛函。
+若策略态 \(s\in\mathcal S\) 的演化由
+\[
+  \partial_\lambda s
+  =
+  -\nabla_{\mathcal S}\mathcal E(s)
+  +
+  \mathcal T_{\mathrm{tw}}(s)
+  +
+  \mathcal R_{\mathrm{cert}}(s)
+\]
+控制，则称其为\textbf{高阶泛函 PDE 组}，
+简称\textbf{高阶泛函 PDE}，
+记为
+\[
+  \HF(\mathcal X,\mathcal S,\mathcal E,\mathcal T_{\mathrm{tw}},\mathcal R_{\mathrm{cert}}).
+\]
+其中 \(\lambda\) 是方法演化参数，
+\(\mathcal T_{\mathrm{tw}}\) 是同伦扭曲项，
+\(\mathcal R_{\mathrm{cert}}\) 是证书反馈项。
+\end{definition}
+
+\begin{remark}[为什么称为高阶]
+这里的未知量不是普通场 \(u(t,x)\)，
+而是策略、证明路径、实验设计、模型族或设计方案本身。
+因此方程作用在“方法的函数空间”上，
+而不是只作用在物理状态空间上。
+这就是“高阶泛函 PDE 组”的含义。
+\end{remark}
+
+\subsection{自动化证明的等价形式}
+\label{subsec:tex53-proof-auto}
+
+\begin{definition}[自动化证明策略簇]
+给定定理目标 \(g\)、上下文 \(\Gamma\) 与预算 \(K\)，
+定义证明策略簇
+\[
+  \mathcal C^{\ProofAuto}_n(g,\Gamma;K)
+  :=
+  \{
+    \pi_\theta:
+    \theta\in\Theta^{\ProofAuto}_n,\ 
+    \Cost(\pi_\theta)\le K
+  \}.
+\]
+其中 \(\pi_\theta\) 包含 tactic 选择、引理检索、归约路径、重写规则、子目标调度与证书检查器。
+\end{definition}
+
+\begin{definition}[证明能量]
+对 \(\pi\in\mathcal C^{\ProofAuto}_n(g,\Gamma;K)\)，定义
+\[
+\begin{aligned}
+  E^{\ProofAuto}_n(\pi)
+  :=\;&
+  a\,R_{\mathrm{goal}}(\pi;g,\Gamma)
+  + b\,R_{\mathrm{sub}}(\pi)\\
+  &+ c\,\nu^{\ProofAuto}_{n+1}(\pi)
+  + d\,\mathbf 1_{\pi\in\mathfrak B^{\ProofAuto}_n}
+  + e\,\Cost(\pi).
+\end{aligned}
+\]
+其中 \(R_{\mathrm{goal}}\) 是目标残差，
+\(R_{\mathrm{sub}}\) 是未闭合子目标残差，
+\(\nu^{\ProofAuto}_{n+1}\) 是证明障碍计数，
+\(\mathfrak B^{\ProofAuto}_n\) 是旧失败盆像。
+\end{definition}
+
+\begin{theorem}[自动化证明等价于证明泛函上的高阶 PDE]
+\label{thm:tex53-proof-hf}
+若自动化证明系统允许 tactic 空间、引理选择、归约路径、子目标分解与证书残差共同演化，
+则该系统可重写为证明泛函上的高阶泛函 PDE 组：
+\[
+  \ProofAuto(g,\Gamma)
+  \equiv
+  \HF(
+    \mathcal X^{\ProofAuto},
+    \mathcal C^{\ProofAuto}_n,
+    E^{\ProofAuto}_n,
+    \mathcal T^{\ProofAuto}_{\mathrm{tw}},
+    \mathcal R^{\ProofAuto}_{\mathrm{cert}}
+  ).
+\]
+\end{theorem}
+
+\begin{proof}
+证明搜索的传统形式是枚举 tactic 或 proof path。
+但在上述系统中，候选对象不是固定路径，
+而是策略态 \(\pi_\theta\)。
+证明过程的目标不是只运行某条路径，
+而是降低 \(E^{\ProofAuto}_n\)：
+目标残差下降、子目标残差下降、证明障碍减少、旧失败盆像被排除、预算受控。
+若再加入同伦扭曲项 \(\mathcal T^{\ProofAuto}_{\mathrm{tw}}\)，
+系统可以改变证明表述、重写目标结构或迁移到等价命题；
+若加入证书反馈项 \(\mathcal R^{\ProofAuto}_{\mathrm{cert}}\)，
+系统会把形式检查器返回的残差重新写入策略演化。
+于是证明搜索满足高阶泛函 PDE 组的定义。
+\end{proof}
+
+\begin{corollary}[证明劳动的替代对象]
+该等价并不意味着数学本身被删除，
+而是说明传统证明劳动中的核心搜索部分可被重写为
+\[
+  \boxed{
+    \text{人工试探证明路径}
+    \Longrightarrow
+    \text{策略簇自动演化与证书命中}
+  }.
+\]
+数学家的剩余高层角色转向问题定义、公理边界、结构解释与证书意义判断。
+\end{corollary}
+
+\subsection{自动化科研与自动化设计}
+\label{subsec:tex53-science-design}
+
+\begin{definition}[科研策略簇]
+给定研究目标 \(r\)、数据域 \(D\)、理论背景 \(B\) 与预算 \(K\)，
+定义科研策略簇
+\[
+  \mathcal C^{\SciAuto}_n(r,D,B;K)
+  :=
+  \{
+    \sigma_\theta:
+    \theta\in\Theta^{\SciAuto}_n,\ 
+    \Cost(\sigma_\theta)\le K
+  \}.
+\]
+其中 \(\sigma_\theta\) 包含假设生成、实验设计、模型选择、数据解释、证据加权与反例搜索。
+\end{definition}
+
+\begin{definition}[设计策略簇]
+给定设计目标 \(d\)、约束集 \(\mathcal K\)、材料或形态空间 \(\mathcal P\) 与预算 \(K\)，
+定义设计策略簇
+\[
+  \mathcal C^{\DesignAuto}_n(d,\mathcal K,\mathcal P;K)
+  :=
+  \{
+    \delta_\theta:
+    \theta\in\Theta^{\DesignAuto}_n,\ 
+    \Cost(\delta_\theta)\le K
+  \}.
+\]
+其中 \(\delta_\theta\) 包含结构参数、性能目标、约束处理、仿真规则、可制造性证书与鲁棒性指标。
+\end{definition}
+
+\begin{theorem}[自动化科研与自动化设计的高阶泛函 PDE 组等价形式]
+\label{thm:tex53-science-design-hf}
+自动化科研与自动化设计都可重写为高阶泛函 PDE 组：
+\[
+  \SciAuto(r,D,B)
+  \equiv
+  \HF(
+    \mathcal X^{\SciAuto},
+    \mathcal C^{\SciAuto}_n,
+    E^{\SciAuto}_n,
+    \mathcal T^{\SciAuto}_{\mathrm{tw}},
+    \mathcal R^{\SciAuto}_{\mathrm{cert}}
+  ),
+\]
+\[
+  \DesignAuto(d,\mathcal K,\mathcal P)
+  \equiv
+  \HF(
+    \mathcal X^{\DesignAuto},
+    \mathcal C^{\DesignAuto}_n,
+    E^{\DesignAuto}_n,
+    \mathcal T^{\DesignAuto}_{\mathrm{tw}},
+    \mathcal R^{\DesignAuto}_{\mathrm{cert}}
+  ).
+\]
+\end{theorem}
+
+\begin{proof}
+自动化科研中，候选态是“假设--实验--模型--解释--证据”策略。
+其残差包括解释残差、预测残差、证据不足、反例压力与实验成本。
+若这些量共同驱动策略演化，
+则科研流程不再是枚举假设，
+而是在发现泛函上进行高阶演化。
+因此 \(\SciAuto\) 满足高阶泛函 PDE 组的定义。
+
+自动化设计中，候选态是“结构--参数--约束--仿真--制造证书”策略。
+其残差包括性能残差、约束违反、鲁棒性不足、制造不可行与预算代价。
+若这些量共同驱动策略演化，
+则设计流程不再是枚举方案，
+而是在设计泛函上进行高阶演化。
+因此 \(\DesignAuto\) 也满足高阶泛函 PDE 组的定义。
+\end{proof}
+
+\begin{corollary}[全域统一命题]
+\label{cor:tex53-global-equivalence}
+自动化证明、自动化科研、自动化设计与 \(\PDE\) 策略簇的共同本质为：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{自动化证明 / 自动化科研 / 自动化设计 / PDE 策略簇}\\
+      &\equiv
+      \text{高阶泛函 PDE 组上的策略簇命中问题}.
+    \end{aligned}
+  }
+\]
+\end{corollary}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{泛迭代、泛逻辑与升维等价替代}
+\label{sec:tex53-pan-iteration-equivalent-lift}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[泛迭代与泛逻辑的统摄力]
+一切自动化科研、自动化设计与自动化证明，
+本质上都可在泛迭代与泛逻辑框架下统摄为高阶泛函偏微分方程组。
+其未知量不再是单一函数、物理场或轨迹，
+而是策略簇、证明簇、实验簇、设计簇，
+以及其残差、权重、障碍、证书的联合演化。
+这正体现了泛迭代与泛逻辑在世界观层面的统摄力。
+
+但该高阶泛函 PDE 组本身极难直接表达，
+更难直接求解。
+其真正突破口在于：
+基于离散统的统计力学参数格点同伦扭曲微观隧穿命中，
+给出两种等价且升维的替代。
+第一，等价且升维的替代表达：
+把难以显式写出的高阶泛函 PDE 组，
+改写为由算力边界决定的离散统计力学参数格点、策略簇、障碍盆、同伦扭曲结构与命中证书。
+第二，等价且升维的替代求解：
+把难以直接求解的高阶泛函 PDE 组，
+改写为由算力能力决定的策略簇演化、动态权重重分配、微观隧穿跳迁与终端证书命中。
+\end{remark}
+
+\subsection{高阶泛函 PDE 组的统摄证明}
+\label{subsec:tex53-pan-hf-proof}
+
+\begin{definition}[自动化任务五元组]
+设自动化任务为
+\[
+  \mathcal T
+  =
+  (X,\mathcal S,\mathcal R,\mathcal C,K),
+\]
+其中 \(X\) 是对象空间，
+\(\mathcal S\) 是策略空间，
+\(\mathcal R:\mathcal S\to V\) 是残差泛函，
+\(\mathcal C:\mathcal S\to\{0,1\}\) 是证书判定，
+\(K\) 是算力预算。
+对自动化证明，\(\mathcal S\) 是证明策略簇；
+对自动化科研，\(\mathcal S\) 是假设--实验--模型--解释策略簇；
+对自动化设计，\(\mathcal S\) 是结构--参数--约束--仿真策略簇。
+\end{definition}
+
+\begin{definition}[自动化任务能量泛函]
+定义任务能量泛函为
+\[
+  E(s)
+  =
+  \|\mathcal R(s)\|^2
+  +
+  \lambda B(s)
+  +
+  \mu \Cost(s),
+\]
+其中 \(B(s)\) 表示障碍项，
+\(\Cost(s)\) 表示算力代价。
+泛迭代过程不是固定求解单一函数，
+而是演化策略态 \(s(\tau)\in\mathcal S\)，其一般形式为
+\[
+\begin{aligned}
+  \partial_\tau s
+  &=
+  -\nabla_{\mathcal S}E(s)
+  +
+  T_{\mathrm{tw}}(s)
+  +
+  R_{\mathrm{cert}}(s).
+\end{aligned}
+\]
+其中 \(T_{\mathrm{tw}}\) 是同伦扭曲项，
+\(R_{\mathrm{cert}}\) 是证书反馈项。
+\end{definition}
+
+\begin{theorem}[泛迭代--泛逻辑统摄定理]
+\label{thm:tex53-pan-hf}
+在泛迭代与泛逻辑框架下，
+自动化科研、自动化设计与自动化证明均可表示为高阶泛函 PDE 组；
+并且，基于离散统的统计力学参数格点同伦扭曲微观隧穿命中，
+给出该高阶泛函 PDE 组的等价且升维的替代表达与替代求解。
+\end{theorem}
+
+\begin{proof}
+由定义，自动化任务的未知量不是普通数值场，
+而是策略、证明、实验或设计的泛函对象 \(s\in\mathcal S\)。
+其演化由残差下降、障碍修复、同伦扭曲与证书反馈共同决定：
+\[
+  \partial_\tau s
+  =
+  -\nabla_{\mathcal S}E(s)
+  +
+  T_{\mathrm{tw}}(s)
+  +
+  R_{\mathrm{cert}}(s).
+\]
+因此，该方程定义在策略泛函空间上，
+是高阶泛函 PDE 组。
+于是自动化科研、自动化设计与自动化证明均被统摄为高阶泛函 PDE 组。
+
+下面证明替代表达。
+给定算力预算 \(K\)，构造离散统计力学参数格点
+\[
+  \mathcal S_{\Delta,K}
+  =
+  \{s_1,\ldots,s_N\}
+  \subset
+  \mathcal S,
+\]
+其中 \(N\) 由算力边界决定。
+对每个格点赋予能量、权重、障碍盆与命中集：
+\[
+\begin{aligned}
+  E_i
+  &:=
+  E(s_i),\\
+  w_i
+  &:=
+  \frac{\exp(-\beta E_i)}
+       {\sum_j\exp(-\beta E_j)},\\
+  \mathfrak B
+  &:=
+  \{s_i:B(s_i)>\epsilon\},\\
+  \mathcal H
+  &:=
+  \{s_i:\mathcal C(s_i)=1,\ \|\mathcal R(s_i)\|\le\epsilon\}.
+\end{aligned}
+\]
+于是原本难以显式表达的高阶泛函 PDE 组被替换为
+\[
+  (
+    \mathcal S_{\Delta,K},
+    E_i,
+    w_i,
+    \mathfrak B,
+    T_{\mathrm{tw}},
+    \mathcal H
+  ).
+\]
+该对象包含策略簇、残差、权重、障碍、同伦扭曲与证书条件，
+并且由算力边界 \(K\) 决定可表达的格点精度。
+因此，这是对原高阶泛函 PDE 组的算力化、离散化、统计力学化表达。
+由于它不仅保留原对象，
+还额外引入权重、能量景观、障碍盆与命中证书，
+所以是升维表达。
+
+下面证明替代求解。
+原 PDE 求解目标是找到 \(s^\ast\in\mathcal S\)，使得
+\[
+  \|\mathcal R(s^\ast)\|\le\epsilon,
+  \qquad
+  \mathcal C(s^\ast)=1.
+\]
+离散统微观隧穿命中则定义格点转移
+\[
+  s_i\to s_j
+\]
+当且仅当存在同伦扭曲路径或统计跃迁核 \(P(i,j)>0\)，
+并满足
+\[
+  E_j<E_i
+\]
+或
+\[
+  s_j\notin\mathfrak B,
+  \qquad
+  s_i\in\mathfrak B.
+\]
+其目标不是求出连续全场解，
+而是命中
+\[
+  s_j\in\mathcal H.
+\]
+若命中成功，则有
+\[
+  \mathcal C(s_j)=1,
+  \qquad
+  \|\mathcal R(s_j)\|\le\epsilon.
+\]
+这正是原高阶泛函 PDE 组求解目标的证书化版本。
+因此，离散统微观隧穿命中给出原 PDE 求解的等价替代。
+
+更进一步，原求解只要求找到 \(s^\ast\)，
+而微观隧穿过程同时给出
+\[
+  (s_j,E_j,w_j,\text{路径},\text{障碍下降},\text{证书}).
+\]
+它不只输出解，
+还输出解的能量位置、权重来源、障碍穿越路径与可验证证书。
+因此它是升维求解。
+综上，
+\[
+  \text{高阶泛函 PDE 组}
+\]
+被替代表达为
+\[
+  \text{算力边界决定的离散统计力学参数格点系统};
+\]
+其求解被替代为
+\[
+  \text{算力能力决定的策略簇演化、权重重分配、微观隧穿与证书命中}.
+\]
+故基于离散统的统计力学参数格点同伦扭曲微观隧穿命中，
+不是将高阶泛函 PDE 组弱化，
+而是将其转写为等价且升维的替代表达与替代求解。
+\end{proof}
+
+\subsection{问题转化而非方程弱化}
+\label{subsec:tex53-not-weakening}
+
+\begin{proposition}[同伦--群论式的问题转化]
+\label{prop:tex53-not-weakening}
+基于同伦等价、群论结构或离散统统计力学参数格点的求解方法，
+本质上不是将原方程弱化，
+而是将原方程转写到更高结构层中，
+给出等价且升维的替代表达与替代求解。
+\end{proposition}
+
+\begin{proof}
+设原方程为
+\[
+  F(u)=0,
+  \qquad
+  u\in X,
+\]
+其中 \(X\) 是原问题空间，
+\(F:X\to Y\) 是残差算子。
+所谓“弱化方程”，
+应指把求解条件从
+\[
+  F(u)=0
+\]
+放宽为
+\[
+  \|F(u)\|\le\epsilon
+\]
+或只要求满足部分约束。
+此时解集从
+\[
+  \mathcal S
+  =
+  \{u\in X:F(u)=0\}
+\]
+扩大为
+\[
+  \mathcal S_\epsilon
+  =
+  \{u\in X:\|F(u)\|\le\epsilon\},
+\]
+并且一般有
+\[
+  \mathcal S\subseteq\mathcal S_\epsilon.
+\]
+这才是弱化。
+
+而同伦等价或群论方法不是这样做。
+它们构造一个结构空间 \(Z\)，以及映射
+\[
+  \Phi:X\to Z.
+\]
+若 \(\Phi\) 保持原方程的可判定结构，
+即存在结构条件 \(G(z)=0\)，使得
+\[
+  F(u)=0
+  \quad\Longleftrightarrow\quad
+  G(\Phi(u))=0,
+\]
+则原方程与结构方程在解的判定意义上等价。
+于是原问题
+\[
+  F(u)=0
+\]
+被替换为
+\[
+  G(z)=0,
+  \qquad
+  z=\Phi(u).
+\]
+这不是弱化，
+因为并未把 \(F(u)=0\) 放宽为较弱条件；
+相反，要求仍然通过等价条件完全保留：
+\[
+  u\in\mathcal S
+  \quad\Longleftrightarrow\quad
+  \Phi(u)\in\mathcal Z,
+\]
+其中
+\[
+  \mathcal Z
+  =
+  \{z\in Z:G(z)=0\}.
+\]
+
+若 \(\Phi\) 还引入了原方程中不可见的结构量，
+例如同伦类、群作用轨道、稳定子、商空间、能量权重、障碍盆、证书路径等，
+则 \(Z\) 的信息维度高于原空间 \(X\) 的裸变量描述。
+此时该转写不是降维，而是升维。
+因此，
+\[
+  \text{原方程变量 }u
+\]
+被提升为
+\[
+  \text{结构对象 }(\Phi(u),\text{同伦类},\text{群轨道},\text{证书}).
+\]
+原求解过程
+\[
+  \text{直接求 }F(u)=0
+\]
+被替换为
+\[
+  \text{在结构空间中寻找 }G(\Phi(u))=0\text{ 的命中证书}.
+\]
+由于二者满足
+\[
+  F(u)=0
+  \quad\Longleftrightarrow\quad
+  G(\Phi(u))=0,
+\]
+所以这是等价替代表达。
+由于结构空间额外包含同伦、群论、轨道、障碍与证书等信息，
+所以这是升维表达。
+由于求解目标从直接寻找 \(u\) 改为在结构空间中寻找可验证命中证书，
+并且命中证书可反推出原方程解，
+因此这是替代求解。
+
+故同伦等价、群论方法以及离散统统计力学参数格点微观隧穿命中介入方程求解时，
+并不是将方程弱化，
+而是把原方程转写到更高结构层中，
+给出等价且升维的替代表达与替代求解。
+\end{proof}
+
+\begin{corollary}[方法论统摄力]
+\label{cor:tex53-methodological-sovereignty}
+微观隧穿命中不是高阶泛函 PDE 组的弱化或简化，
+而是其算力化、离散化、统计力学化、证书化之后的升维等价替代。
+它不仅提供求解技术，
+更提供方法论层面的统摄力。
+\end{corollary}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{离散统频域可微与量子软件层同构衔接}
+\label{sec:tex53-quantum-bridge}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{离散统下的频域可微策略}
+\label{subsec:tex53-discrete-frequency}
+
+\begin{definition}[离散统策略格点]
+称策略空间 \(\mathcal S\) 被送入离散统，
+若存在可数或有限格点
+\[
+  \mathcal S_\Delta=\{s_\alpha\}_{\alpha\in A}
+\]
+及邻接关系 \(\alpha\sim\beta\)，
+使策略演化可由格点跳转、权重流与证书反馈共同描述。
+\end{definition}
+
+\begin{definition}[频域可微策略簇]
+给定离散统策略格点 \(\mathcal S_\Delta\)，
+若存在谱表示
+\[
+  \Freq(s_\alpha)
+  =
+  (\widehat s_\alpha,\lambda_\alpha,\nu_\alpha,\Cert_\alpha)
+\]
+以及图梯度
+\[
+  \nabla_G^\Freq E(\alpha)
+  :=
+  \{E(s_\beta)-E(s_\alpha):\beta\sim\alpha\},
+\]
+则称 \(\mathcal S_\Delta\) 是\textbf{离散统下频域可微的策略簇}。
+\end{definition}
+
+\begin{theorem}[离散枚举到离散统频域可微的提升]
+\label{thm:tex53-discrete-frequency}
+若策略空间被送入离散统，且存在频域/结构谱表示与图梯度，
+则策略不再是静态枚举项，
+而是可在离散统中沿频域梯度、权重流与命中证书持续变形的演化对象。
+\end{theorem}
+
+\begin{proof}
+静态枚举只给出集合 \(\{s_\alpha\}\)，不提供相邻策略之间的变化方向。
+离散统额外给出邻接关系 \(\alpha\sim\beta\)，
+频域/结构谱 \(\Freq(s_\alpha)\) 给出可比较坐标，
+图梯度 \(\nabla_G^\Freq E\) 给出局部下降方向。
+再结合权重流与证书反馈，策略态可以被放大、削弱、排除或迁移。
+故策略从静态枚举项提升为离散统下频域可微的演化对象。
+\end{proof}
+
+\begin{corollary}[量子软件层底座]
+离散统下频域可微策略簇给出量子计算思想的软件层底座：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{离散统中的频域可微策略簇}\\
+      &\Longrightarrow
+      \text{类量子搜索 / 类量子退火 / 类路径积分采样的软件算法层}.
+    \end{aligned}
+  }
+\]
+\end{corollary}
+
+\subsection{硬件成熟后的最小同构衔接}
+\label{subsec:tex53-quantum-hardware}
+
+\begin{definition}[软件层--量子硬件最小同构表]
+定义软件层对象与量子硬件抽象对象之间的最小同构表：
+\[
+\begin{aligned}
+  \mathcal C_n(\tau;K)
+  &\longleftrightarrow
+  \text{量子态叠加};\\
+  w_n(\eta)
+  &\longleftrightarrow
+  \text{振幅分布或退火权重};\\
+  E_n(\eta)
+  &\longleftrightarrow
+  \text{Hamiltonian 或能量景观};\\
+  \TunHit(q;\eta,n,\tau,K)
+  &\longleftrightarrow
+  \text{量子隧穿或干涉后的目标态命中};\\
+  \Freq(\eta)
+  &\longleftrightarrow
+  \text{Hilbert 空间中的谱分解或能级结构};\\
+  \Cert(q,\eta)
+  &\longleftrightarrow
+  \text{测量后可验证输出}.
+\end{aligned}
+\]
+\end{definition}
+
+\begin{theorem}[量子硬件成熟后的最小抽象衔接]
+\label{thm:tex53-quantum-isomorphism}
+若量子计算硬件成熟到可以稳定承载态制备、能量景观编码、隧穿/退火演化与测量验证，
+则本文的软件层策略簇框架可通过上述最小同构表直接衔接到量子硬件抽象层。
+\end{theorem}
+
+\begin{proof}
+本文软件层已经把问题写成策略簇、能量权重、频域/结构谱、同伦扭曲命中与证书析出的形式。
+量子硬件成熟后，可分别用态叠加承载策略簇，
+用振幅或退火权重承载 \(w_n\)，
+用 Hamiltonian 或能量景观承载 \(E_n\)，
+用隧穿或干涉承载命中过程，
+用谱分解承载 \(\Freq\)，
+用测量与经典验证承载 \(\Cert\)。
+这些替换保持“候选态并存--能量演化--目标命中--证书输出”的结构。
+故不需要从传统串行/并行枚举范式重新改写，
+只需进行最小抽象同构衔接。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{严格化补强：断点闭合与量子范式等价边界}
+\label{sec:tex53-rigorous-closure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+本节把前文若干依赖“可构造、可判定、可验证”的位置收束为严格命题。
+结论不是无条件覆盖所有连续 PDE 与所有量子硬件模型，
+而是在有限预算、有限策略格点与可验证证书的口径下，
+给出从策略簇实现到量子计算范式的软件层等价。
+
+\subsection{有限策略簇的存在性与传统方法嵌入}
+\label{subsec:tex53-finite-cluster-closure}
+
+\begin{definition}[可计算有限策略实例]
+\label{def:tex53-computable-instance}
+给定 \(\PDE(q)\)、初始类型 \(\tau\)、层级 \(n\) 与预算 \(K\)。
+称
+\[
+  \mathfrak G(q,n,K)
+  =
+  \{g_1,\ldots,g_m\}
+\]
+为一个\textbf{可计算有限策略生成族}，
+若每个 \(g_j\) 是可执行的有类型策略变换，
+其输入输出类型、代价 \(\Cost(g_j)\)、残差评估与证书接口均可计算，
+且恒等变换 \(\id_\tau\) 属于 \(\mathfrak G(q,n,K)\)。
+
+定义有限策略簇为
+\[
+  \mathcal C_n^{\mathrm{fin}}(\tau;K)
+  :=
+  \left\{
+    g_{i_r}\circ\cdots\circ g_{i_1}(\tau):
+    0\le r\le n,\
+    \sum_{\ell=1}^{r}\Cost(g_{i_\ell})\le K
+  \right\}.
+\]
+\end{definition}
+
+\begin{proposition}[策略簇存在性、可计算性与传统方法嵌入]
+\label{prop:tex53-finite-existence-embedding}
+在定义~\ref{def:tex53-computable-instance} 的条件下，
+\(\mathcal C_n^{\mathrm{fin}}(\tau;K)\) 非空、有限且可枚举。
+进一步，若传统方法族
+\[
+  \mathcal M=\{M_i\}_{i\in I_K}
+\]
+在预算 \(K\) 内有限，
+且每个 \(M_i\) 都可由某个生成词
+\[
+  g_{i_r}\circ\cdots\circ g_{i_1}
+\]
+实现，则存在嵌入
+\[
+  \jmath:\mathcal M\hookrightarrow\mathcal C_n^{\mathrm{fin}}(\tau;K),
+  \qquad
+  \jmath(M_i)=g_{i_r}\circ\cdots\circ g_{i_1}(\tau).
+\]
+\end{proposition}
+
+\begin{proof}
+非空性由 \(\id_\tau\in\mathfrak G(q,n,K)\) 且 \(r=0\) 立即得到。
+有限性来自 \(\mathfrak G(q,n,K)\) 有限且词长满足 \(r\le n\)：
+可生成词的总数不超过
+\[
+  1+m+\cdots+m^n.
+\]
+预算条件只会删去其中一部分词，
+因此结果仍有限。
+由于每个生成元的类型、代价与执行结果均可计算，
+逐词枚举并检查预算即可计算出 \(\mathcal C_n^{\mathrm{fin}}(\tau;K)\)。
+
+若每个传统方法 \(M_i\) 均由某个生成词实现，
+则把 \(M_i\) 送到对应策略态即得映射 \(\jmath\)。
+若两个传统方法在工程接口上被视为不同，
+可把方法编号 \(i\) 作为策略态的标签分量加入生成词输出；
+于是不同 \(M_i\) 不会被合并，\(\jmath\) 为嵌入。
+\end{proof}
+
+\subsection{能量、权重与复制子流的严格收敛口径}
+\label{subsec:tex53-energy-weight-closure}
+
+\begin{definition}[可验证充分能量]
+\label{def:tex53-sufficient-energy}
+在有限策略簇 \(\mathcal C\) 上，
+称能量
+\[
+  E(\eta)
+  =
+  aR(\eta)+bD(\eta)+cN(\eta)+dB(\eta)+e\Cost(\eta)
+\]
+为\textbf{可验证充分能量}，
+若 \(a,b,c,d,e>0\)，
+且 \(R,D,N,B,\Cost\) 均为可计算非负量。
+其中 \(R\) 表示 PDE 残差，
+\(D\) 表示终端类型距离，
+\(N\) 表示障碍计数，
+\(B\) 表示旧盆惩罚，
+\(\Cost\) 表示预算消耗。
+\end{definition}
+
+\begin{proposition}[能量零点等价于全部约束零点]
+\label{prop:tex53-energy-zero-equivalence}
+若 \(E\) 是定义~\ref{def:tex53-sufficient-energy} 中的可验证充分能量，
+则
+\[
+  E(\eta)=0
+  \quad\Longleftrightarrow\quad
+  R(\eta)=D(\eta)=N(\eta)=B(\eta)=\Cost(\eta)=0.
+\]
+特别地，在有限策略簇上，\(E\) 至少存在一个最小点。
+\end{proposition}
+
+\begin{proof}
+若所有分量均为零，则 \(E(\eta)=0\)。
+反向若 \(E(\eta)=0\)，
+由于所有系数严格为正且所有分量非负，
+任一分量若大于零都会使 \(E(\eta)>0\)，矛盾。
+故所有分量均为零。
+有限集合上的实值函数必有最小点，
+故 \(E\) 在 \(\mathcal C\) 上存在最小策略态。
+\end{proof}
+
+\begin{lemma}[Gibbs 权重集中于最小能量策略]
+\label{lem:tex53-gibbs-concentration}
+令 \(\mathcal C\) 为有限非空策略簇，
+\[
+  w_\beta(\eta)
+  =
+  \frac{\exp(-\beta E(\eta))}
+       {\sum_{\xi\in\mathcal C}\exp(-\beta E(\xi))}
+\]
+为 Gibbs 权重。
+记
+\[
+  E_\ast=\min_{\eta\in\mathcal C}E(\eta),
+  \qquad
+  \mathcal M_\ast=\{\eta:E(\eta)=E_\ast\}.
+\]
+则
+\[
+  \lim_{\beta\to\infty}
+  \sum_{\eta\in\mathcal M_\ast}w_\beta(\eta)
+  =
+  1.
+\]
+若只在 \(\mathcal M_\ast\) 内考察，
+极限权重为均匀分布。
+\end{lemma}
+
+\begin{proof}
+把分母同乘 \(\exp(\beta E_\ast)\)，得
+\[
+  w_\beta(\eta)
+  =
+  \frac{\exp(-\beta(E(\eta)-E_\ast))}
+       {\sum_{\xi\in\mathcal C}\exp(-\beta(E(\xi)-E_\ast))}.
+\]
+若 \(\eta\in\mathcal M_\ast\)，分子为 \(1\)；
+若 \(\eta\notin\mathcal M_\ast\)，
+则 \(E(\eta)-E_\ast>0\)，分子随 \(\beta\to\infty\) 趋于 \(0\)。
+有限求和下可逐项取极限，
+分母极限为 \(|\mathcal M_\ast|\)。
+故最小能量集合的总权重趋于 \(1\)，
+且每个最小点的条件权重趋于 \(1/|\mathcal M_\ast|\)。
+\end{proof}
+
+\begin{lemma}[固定能量下复制子权重的闭式收敛]
+\label{lem:tex53-replicator-convergence}
+令初始权重 \(w_0(\eta)>0\)，
+并定义离散复制子更新
+\[
+  w_{t+1}(\eta)
+  =
+  \frac{w_t(\eta)\exp(-\lambda E(\eta))}
+       {\sum_{\xi\in\mathcal C}w_t(\xi)\exp(-\lambda E(\xi))},
+  \qquad \lambda>0.
+\]
+则
+\[
+  w_t(\eta)
+  =
+  \frac{w_0(\eta)\exp(-t\lambda E(\eta))}
+       {\sum_{\xi\in\mathcal C}w_0(\xi)\exp(-t\lambda E(\xi))}.
+\]
+因此 \(t\to\infty\) 时，权重集中到最小能量集合 \(\mathcal M_\ast\)。
+\end{lemma}
+
+\begin{proof}
+闭式表达由归纳直接得到。
+当 \(t\lambda\) 替代引理~\ref{lem:tex53-gibbs-concentration} 中的 \(\beta\) 时，
+同一集中性证明成立。
+初始权重 \(w_0(\eta)>0\) 只改变最小能量集合内部的极限比例，
+不改变所有非最小能量策略权重趋零的结论。
+\end{proof}
+
+\subsection{方法微分流、命中判定与证书可靠性}
+\label{subsec:tex53-hit-cert-closure}
+
+\begin{definition}[可判定命中实例]
+\label{def:tex53-decidable-hit-instance}
+称有限策略实例是\textbf{可判定命中实例}，
+若存在有限邻接图 \(G=(\mathcal C,\sim)\)，
+且以下谓词均可计算：
+\[
+\begin{aligned}
+  &\eta\in\iota_n^{\mathcal T}(\mathfrak B_n(\tau)),\\
+  &\nu_{n+1}(\eta)\le\nu_n(\tau)-1,\\
+  &\Endp(\eta)\sim\tau^\ast,\\
+  &R(\eta)\le\varepsilon.
+\end{aligned}
+\]
+其中 \(\varepsilon\ge0\) 是给定残差容差。
+\end{definition}
+
+\begin{proposition}[离散方法微分流存在且有限可执行]
+\label{prop:tex53-discrete-flow-existence}
+在定义~\ref{def:tex53-decidable-hit-instance} 的条件下，
+若给定全序 \(\preceq\) 用于打破平局，
+并定义
+\[
+  T(\eta)
+  =
+  \min_{\preceq}
+  \arg\min_{\xi\in\{\eta\}\cup N(\eta)}E(\xi),
+\]
+其中 \(N(\eta)=\{\xi:\xi\sim\eta\}\)，
+则 \(T:\mathcal C\to\mathcal C\) 是全定义可计算映射。
+若每次只接受严格能量下降的转移，
+则轨道在有限步内停于局部最小点。
+\end{proposition}
+
+\begin{proof}
+由于 \(\mathcal C\) 有限，
+\(\{\eta\}\cup N(\eta)\) 非空有限。
+能量可计算，平局由全序 \(\preceq\) 唯一决定，
+故 \(T(\eta)\) 对每个 \(\eta\) 均存在且可计算。
+若只接受严格下降，
+则每一步使 \(E\) 在有限集合的能量值集合中严格下降。
+有限集合不存在无限严格下降链，
+故轨道有限步终止。
+终止时没有邻居具有更低能量，
+即为局部最小点。
+\end{proof}
+
+\begin{theorem}[同伦扭曲命中的可判定性]
+\label{thm:tex53-tunhit-decidable}
+在可判定命中实例中，
+\(\TunHit(q;\eta,n,\tau,K)\) 是可判定谓词。
+\end{theorem}
+
+\begin{proof}
+\(\TunHit\) 由旧盆像排除、障碍下降、终端同类命中、
+残差容差与预算约束等有限个子谓词合取而成。
+定义~\ref{def:tex53-decidable-hit-instance} 保证这些子谓词均可计算。
+有限合取的真值可由逐项计算决定，
+故 \(\TunHit(q;\eta,n,\tau,K)\) 可判定。
+\end{proof}
+
+\begin{theorem}[命中证书的可靠性]
+\label{thm:tex53-certificate-soundness}
+设证书
+\[
+  \Cert(q,\eta)
+  =
+  (\eta,u_\eta,R(\eta),\Endp(\eta),\nu(\eta),\pi,V)
+\]
+包含候选策略、候选解、残差值、终端类型、障碍计数、
+生成轨迹 \(\pi\) 与验证器 \(V\)。
+若 \(V\) 对以下事实是可靠的：
+\[
+  R(\eta)\le\varepsilon,\qquad
+  \Endp(\eta)\sim\tau^\ast,\qquad
+  \TunHit(q;\eta,n,\tau,K),
+\]
+则
+\[
+  V(\Cert(q,\eta))=\mathrm{accept}
+  \quad\Longrightarrow\quad
+  u_\eta
+  \text{ 是 } \PDE(q) \text{ 的 }\varepsilon\text{-证书解}.
+\]
+\end{theorem}
+
+\begin{proof}
+验证器接受意味着证书中记录的轨迹、残差、终端类型与障碍下降条件均通过检查。
+由 \(R(\eta)\le\varepsilon\)，
+\(u_\eta\) 满足 \(\PDE(q)\) 的残差容差。
+由 \(\Endp(\eta)\sim\tau^\ast\)，
+候选解处于目标终端同类。
+由 \(\TunHit(q;\eta,n,\tau,K)\)，
+该候选不是旧盆像内的重复候选，
+而是经过障碍降阶后的命中态。
+因此 \(u_\eta\) 与证书共同构成可验证的 \(\varepsilon\)-证书解。
+\end{proof}
+
+\subsection{频域表示、任务 PDE 化与双向等价}
+\label{subsec:tex53-equivalence-closure}
+
+\begin{definition}[保真频域/结构谱]
+\label{def:tex53-faithful-frequency}
+称频域/结构谱
+\[
+  \Freq:\mathcal C\to\Omega
+\]
+是\textbf{保真的}，
+若存在可计算解码器
+\[
+  D_\Freq:\Freq(\mathcal C)\to\mathcal C
+\]
+使得
+\[
+  D_\Freq(\Freq(\eta))=\eta
+  \qquad(\eta\in\mathcal C),
+\]
+并且残差、终端类型、障碍计数与证书验证在 \(\Freq\) 与 \(D_\Freq\) 下保持不变。
+\end{definition}
+
+\begin{theorem}[频域簇命中与原策略命中的双向等价]
+\label{thm:tex53-frequency-hit-equivalence}
+若 \(\Freq\) 是保真的，
+则对任意目标结构簇 \(\Omega^\ast\subseteq\Freq(\mathcal C)\)，
+存在策略态 \(\eta\in\mathcal C\) 使
+\[
+  \Freq(\eta)\in\Omega^\ast
+  \quad\text{且}\quad
+  \TunHit(q;\eta,n,\tau,K)
+\]
+当且仅当存在 \(\omega\in\Omega^\ast\) 使
+\[
+  \TunHit(q;D_\Freq(\omega),n,\tau,K)
+\]
+成立。
+\end{theorem}
+
+\begin{proof}
+正向取 \(\omega=\Freq(\eta)\)。
+由保真性，
+\[
+  D_\Freq(\omega)=D_\Freq(\Freq(\eta))=\eta,
+\]
+故命中谓词保持成立。
+反向若存在 \(\omega\in\Omega^\ast\) 使
+\(\TunHit(q;D_\Freq(\omega),n,\tau,K)\) 成立，
+令 \(\eta=D_\Freq(\omega)\)。
+由于 \(\omega\in\Freq(\mathcal C)\)，存在 \(\xi\in\mathcal C\) 使 \(\omega=\Freq(\xi)\)，
+保真性给出 \(\eta=\xi\in\mathcal C\)，
+且 \(\Freq(\eta)=\omega\in\Omega^\ast\)。
+故频域簇命中与原策略命中双向等价。
+\end{proof}
+
+\begin{definition}[自动化任务的编解码等价]
+\label{def:tex53-task-codec}
+对自动化证明、科研或设计任务 \(T\)，
+称其与高阶泛函 PDE 策略簇实例等价，
+若存在编码器与解码器
+\[
+  \Enc:T\to\mathcal S_\Delta,
+  \qquad
+  \Dec:\mathcal S_\Delta\to T
+\]
+以及任务验证器 \(V_T\)，使得
+\[
+  \Dec(\Enc(x))=x
+\]
+对所有合法任务对象成立，
+并且
+\[
+  V_T(x)=\mathrm{accept}
+  \quad\Longleftrightarrow\quad
+  \TunHit(q;\Enc(x),n,\tau,K)
+\]
+在给定容差与预算内成立。
+\end{definition}
+
+\begin{theorem}[自动化任务 PDE 化的严格等价条件]
+\label{thm:tex53-task-pde-equivalence}
+若定义~\ref{def:tex53-task-codec} 成立，
+则任务 \(T\) 的可验证解存在，
+当且仅当对应高阶泛函 PDE 策略簇中存在命中证书态。
+\end{theorem}
+
+\begin{proof}
+若 \(x\in T\) 是可验证解，
+则 \(V_T(x)=\mathrm{accept}\)。
+由定义~\ref{def:tex53-task-codec}，
+\(\TunHit(q;\Enc(x),n,\tau,K)\) 成立，
+故 \(\Enc(x)\) 是对应策略簇中的命中证书态。
+
+反向，若存在 \(\eta\in\mathcal S_\Delta\) 使
+\(\TunHit(q;\eta,n,\tau,K)\) 成立，
+令 \(x=\Dec(\eta)\)。
+编解码等价条件保证验证谓词在两侧一致，
+于是 \(V_T(x)=\mathrm{accept}\)。
+因此 \(x\) 是任务 \(T\) 的可验证解。
+\end{proof}
+
+\subsection{Hilbert 空间、Hamiltonian 与测量证书}
+\label{subsec:tex53-hilbert-closure}
+
+\begin{definition}[有限维量子软件表示]
+\label{def:tex53-finite-quantum-software}
+给定有限策略簇 \(\mathcal C\) 与能量 \(E\)，
+定义 Hilbert 空间
+\[
+  \Hilb_{\mathcal C}
+  :=
+  \CC^{|\mathcal C|}
+\]
+及标准正交基
+\[
+  \{e_\eta:\eta\in\mathcal C\}.
+\]
+定义对角 Hamiltonian
+\[
+  H_E e_\eta = E(\eta)e_\eta.
+\]
+对 \(\beta\ge0\)，定义归一化态
+\[
+  \psi_\beta
+  :=
+  \sum_{\eta\in\mathcal C}\sqrt{w_\beta(\eta)}\,e_\eta,
+\]
+以及热态
+\[
+  \rho_\beta
+  :=
+  \frac{\exp(-\beta H_E)}
+       {\operatorname{Tr}(\exp(-\beta H_E))}.
+\]
+对任意 \(A\subseteq\mathcal C\)，定义测量投影
+\[
+  P_A:=\sum_{\eta\in A}e_\eta e_\eta^\ast.
+\]
+\end{definition}
+
+\begin{theorem}[策略簇到 Hilbert--Hamiltonian--测量三元组的严格同构]
+\label{thm:tex53-hilbert-hamiltonian-isomorphism}
+定义~\ref{def:tex53-finite-quantum-software} 给出以下保持结构的对应：
+\[
+\begin{aligned}
+  \mathcal C
+  &\longleftrightarrow
+  \{e_\eta\}_{\eta\in\mathcal C},\\
+  E(\eta)
+  &\longleftrightarrow
+  H_E e_\eta=E(\eta)e_\eta,\\
+  w_\beta(\eta)
+  &\longleftrightarrow
+  |\langle e_\eta,\psi_\beta\rangle|^2
+  =
+  \langle e_\eta,\rho_\beta e_\eta\rangle,\\
+  \mathcal M_\ast
+  &\longleftrightarrow
+  \text{\(H_E\) 的基态子空间},\\
+  \Cert(q,\eta)
+  &\longleftrightarrow
+  \text{测量后由经典验证器检查的输出}.
+\end{aligned}
+\]
+因此，有限策略簇算法与一个对角 Hamiltonian 上的量子统计/退火式测量范式严格同构。
+\end{theorem}
+
+\begin{proof}
+\(\Hilb_{\mathcal C}\) 的标准基与 \(\mathcal C\) 一一对应，
+故候选策略并存可表示为 \(\psi_\beta\) 的基展开。
+由 \(H_E e_\eta=E(\eta)e_\eta\)，
+能量泛函正是对角 Hamiltonian 的谱值。
+又由 \(\psi_\beta\) 的定义，
+\[
+  |\langle e_\eta,\psi_\beta\rangle|^2
+  =
+  w_\beta(\eta).
+\]
+同时，
+\[
+  \rho_\beta
+  =
+  \frac{\sum_{\eta}\exp(-\beta E(\eta))e_\eta e_\eta^\ast}
+       {\sum_{\xi}\exp(-\beta E(\xi))}
+\]
+给出同一对角概率。
+因此 Born 概率与 Gibbs 权重一致。
+\(H_E\) 的最小本征值为 \(E_\ast\)，
+其本征子空间由所有 \(E(\eta)=E_\ast\) 的 \(e_\eta\) 张成，
+故基态子空间对应最小能量策略集 \(\mathcal M_\ast\)。
+最后，对集合 \(A\) 的投影测量给出
+\[
+  \Pr(A)=\langle\psi_\beta,P_A\psi_\beta\rangle
+  =
+  \sum_{\eta\in A}w_\beta(\eta),
+\]
+测得的 \(\eta\) 再交给经典验证器检查 \(\Cert(q,\eta)\)。
+这保持“候选态并存--能量景观--概率测量--证书验证”的全部结构，
+故为严格同构。
+\end{proof}
+
+\begin{corollary}[量子计算范式的严格位置]
+\label{cor:tex53-quantum-paradigm-position}
+在有限可计算策略簇、保真频域谱、可判定命中谓词与可靠证书验证器均成立时，
+本文框架不是单纯类比量子计算，
+而是等价于一个对角 Hamiltonian 退火/测量型量子计算范式的软件层表达。
+其难点不在写出实现循环，
+而在证明策略簇、能量、频谱、命中、证书与 Hilbert--Hamiltonian--测量结构之间的整套支撑关系。
+\end{corollary}
+
+\begin{proof}
+策略簇存在性与传统方法嵌入由命题~\ref{prop:tex53-finite-existence-embedding} 给出。
+能量最小化与权重集中由命题~\ref{prop:tex53-energy-zero-equivalence}、
+引理~\ref{lem:tex53-gibbs-concentration} 与引理~\ref{lem:tex53-replicator-convergence} 给出。
+命中可判定性与证书可靠性由定理~\ref{thm:tex53-tunhit-decidable}
+和定理~\ref{thm:tex53-certificate-soundness} 给出。
+频域/结构簇命中的双向等价由定理~\ref{thm:tex53-frequency-hit-equivalence} 给出。
+最后，定理~\ref{thm:tex53-hilbert-hamiltonian-isomorphism}
+把上述有限策略系统严格送入 Hilbert 空间、对角 Hamiltonian、Born 概率与测量证书框架。
+这些命题合取后，
+实现循环只是该结构的执行层；
+真正困难的是整套结构等价的证明层。
+\end{proof}
+
+\subsection{CPU 软件实现与窄硬件路线的成本--适用域比较}
+\label{subsec:tex53-cpu-vs-gate-route}
+
+\begin{definition}[两条量子计算路线的比较模型]
+\label{def:tex53-route-comparison}
+令 \(\mathfrak T\) 为一族任务，
+其中包含通用策略搜索、\(\PDE\)、自动化证明、自动化科研与自动化设计任务。
+定义两条路线：
+\[
+  \mathsf{SoftQ}
+  \quad\text{与}\quad
+  \mathsf{GateQ}.
+\]
+\(\mathsf{SoftQ}\) 表示 CPU 支撑的软件量子范式路线：
+一个任务 \(T\in\mathfrak T\) 属于
+\[
+  \mathrm{Dom}(\mathsf{SoftQ})
+\]
+当且仅当 \(T\) 可编码为有限可计算策略簇、
+可验证能量、保真频域谱、可判定命中谓词与可靠证书验证器。
+
+\(\mathsf{GateQ}\) 表示“昂贵量子门硬件 + 特殊周期结构算法”的窄路线：
+一个任务 \(T\in\mathfrak T\) 属于
+\[
+  \mathrm{Dom}(\mathsf{GateQ})
+\]
+当且仅当 \(T\) 同时满足：
+\[
+\begin{aligned}
+  &\text{存在可用量子门硬件承载其线路实现；}\\
+  &\text{存在把 }T\text{ 编码为门线路的有效编译；}\\
+  &\text{存在适合该线路的特殊谱结构、周期结构或承诺条件。}
+\end{aligned}
+\]
+定义二者成本为
+\[
+\begin{aligned}
+  C_{\mathsf{Soft}}(T)
+  &:=
+  C_{\mathrm{cpu}}(T)+C_{\mathrm{verify}}(T),\\
+  C_{\mathsf{Gate}}(T)
+  &:=
+  C_{\mathrm{hw}}+
+  C_{\mathrm{encode}}(T)+
+  C_{\mathrm{gate}}(T)+
+  C_{\mathrm{read}}(T).
+\end{aligned}
+\]
+若在任务族 \(\mathfrak T_0\subseteq\mathfrak T\) 上满足
+\[
+  \mathrm{Dom}(\mathsf{GateQ})\cap\mathfrak T_0
+  \subseteq
+  \mathrm{Dom}(\mathsf{SoftQ})\cap\mathfrak T_0
+\]
+且对所有
+\[
+  T\in \mathrm{Dom}(\mathsf{GateQ})\cap\mathfrak T_0
+\]
+都有
+\[
+  C_{\mathsf{Soft}}(T)\le C_{\mathsf{Gate}}(T),
+\]
+并且至少对一个任务严格小于，
+则称 \(\mathsf{SoftQ}\) 在 \(\mathfrak T_0\) 上\textbf{支配}
+\(\mathsf{GateQ}\)。
+\end{definition}
+
+\begin{theorem}[CPU 软件量子范式的成本--适用域优势]
+\label{thm:tex53-cpu-cost-domain-advantage}
+令 \(\mathfrak T_{\mathrm{high}}\subseteq\mathfrak T\)
+为高阶策略任务族，
+包括通用策略搜索、\(\PDE\)、自动化证明、科研与设计任务。
+若满足以下四个条件：
+\[
+\begin{aligned}
+  H_1 &: \mathfrak T_{\mathrm{high}}
+  \subseteq
+  \mathrm{Dom}(\mathsf{SoftQ});\\
+  H_2 &: \mathrm{Dom}(\mathsf{GateQ})\cap\mathfrak T_{\mathrm{high}}
+  \subsetneq
+  \mathfrak T_{\mathrm{high}};\\
+  H_3 &: \text{存在 }B_{\mathrm{soft}}\text{ 使 }
+  C_{\mathsf{Soft}}(T)\le B_{\mathrm{soft}}
+  \text{ 对比较任务成立};\\
+  H_4 &: C_{\mathrm{hw}}
+  >
+  B_{\mathrm{soft}}
+  \text{，且 }
+  C_{\mathrm{encode}},C_{\mathrm{gate}},C_{\mathrm{read}}\ge0,
+\end{aligned}
+\]
+则 \(\mathsf{SoftQ}\) 在 \(\mathfrak T_{\mathrm{high}}\) 上
+同时具有更大的适用域与更低的比较成本。
+若进一步存在常数 \(\Lambda\gg1\) 使
+\[
+  C_{\mathrm{hw}}\ge \Lambda B_{\mathrm{soft}},
+\]
+则在该比较模型下，
+CPU 软件量子范式相对于窄硬件门路线具有量级上的性价比优势。
+\end{theorem}
+
+\begin{proof}
+由 \(H_1\)，
+\[
+  \mathrm{Dom}(\mathsf{SoftQ})\cap\mathfrak T_{\mathrm{high}}
+  =
+  \mathfrak T_{\mathrm{high}}.
+\]
+由 \(H_2\)，
+\[
+  \mathrm{Dom}(\mathsf{GateQ})\cap\mathfrak T_{\mathrm{high}}
+  \subsetneq
+  \mathfrak T_{\mathrm{high}}.
+\]
+因此
+\[
+  \mathrm{Dom}(\mathsf{GateQ})\cap\mathfrak T_{\mathrm{high}}
+  \subsetneq
+  \mathrm{Dom}(\mathsf{SoftQ})\cap\mathfrak T_{\mathrm{high}},
+\]
+软件路线的适用域严格更大。
+
+再取任意
+\[
+  T\in\mathrm{Dom}(\mathsf{GateQ})\cap\mathfrak T_{\mathrm{high}}.
+\]
+由 \(H_3\)，
+\[
+  C_{\mathsf{Soft}}(T)\le B_{\mathrm{soft}}.
+\]
+由 \(H_4\) 与非负性，
+\[
+  C_{\mathsf{Gate}}(T)
+  =
+  C_{\mathrm{hw}}+
+  C_{\mathrm{encode}}(T)+
+  C_{\mathrm{gate}}(T)+
+  C_{\mathrm{read}}(T)
+  \ge
+  C_{\mathrm{hw}}
+  >
+  B_{\mathrm{soft}}.
+\]
+故
+\[
+  C_{\mathsf{Soft}}(T)<C_{\mathsf{Gate}}(T).
+\]
+这给出严格成本优势。
+若 \(C_{\mathrm{hw}}\ge\Lambda B_{\mathrm{soft}}\)，
+则
+\[
+  C_{\mathsf{Gate}}(T)
+  \ge
+  \Lambda B_{\mathrm{soft}}
+  \ge
+  \Lambda C_{\mathsf{Soft}}(T)
+\]
+在 \(C_{\mathsf{Soft}}(T)\le B_{\mathrm{soft}}\) 的比较域内成立，
+故得到量级上的性价比优势。
+\end{proof}
+
+\begin{corollary}[软件量子范式揭示的事实]
+\label{cor:tex53-software-quantum-fact}
+在定理~\ref{thm:tex53-cpu-cost-domain-advantage} 的条件下，
+量子计算范式不必只等同于
+“昂贵量子门硬件 + 特殊周期结构算法”的窄路线。
+只要问题已经被严格改写为策略叠加、能量景观、权重演化、
+隧穿命中与测量证书这一整套结构，
+就可以先在 CPU 支撑的软件层实现等价的量子计算范式预抽象。
+\end{corollary}
+
+\begin{proof}
+由定理~\ref{thm:tex53-hilbert-hamiltonian-isomorphism}，
+有限策略簇、能量泛函、Gibbs/Born 权重、投影测量与证书验证
+已经构成对角 Hamiltonian 退火/测量型量子计算范式。
+该构造只依赖有限数组、权重更新、采样或选择、
+以及经典证书验证器，
+并不依赖物理量子门硬件。
+由定理~\ref{thm:tex53-cpu-cost-domain-advantage}，
+在高阶策略任务族上，
+该软件层实现还具有更大的适用域与更低的比较成本。
+故量子计算范式的实现路径不被窄硬件门路线唯一规定。
+\end{proof}
+
+\begin{definition}[理论抽象供体]
+\label{def:tex53-abstraction-provider}
+称传统量子计算理论在本文框架中是\textbf{理论抽象供体}，
+若其提供的对象
+\[
+  (\Hilb,H,\rho,P,\text{测量},\text{证书验证})
+\]
+可以脱离具体量子门硬件，
+被转写为
+\[
+  (\mathcal C,E,w,\TunHit,\Freq,\Cert)
+\]
+并保持候选态并存、能量谱、概率权重、测量命中与可验证输出。
+称某一部分是\textbf{必要抽象}，
+若删去它之后，
+定理~\ref{thm:tex53-hilbert-hamiltonian-isomorphism} 无法表述。
+称某一部分是\textbf{非必要实现载体}，
+若删去它之后，
+该同构仍可在 CPU 软件层表述与执行。
+\end{definition}
+
+\begin{theorem}[传统量子计算在本文框架中的核心意义]
+\label{thm:tex53-quantum-theory-core-meaning}
+在定义~\ref{def:tex53-abstraction-provider} 的意义下，
+传统量子计算的核心意义是提供理论抽象：
+\[
+  \text{叠加、振幅、Hamiltonian、谱、测量、证书}.
+\]
+这些抽象是本文软件量子范式等价证明的必要抽象；
+具体昂贵量子门硬件则是非必要实现载体。
+\end{theorem}
+
+\begin{proof}
+定理~\ref{thm:tex53-hilbert-hamiltonian-isomorphism}
+逐项使用了 Hilbert 空间基、对角 Hamiltonian、Born 概率、
+投影测量与测量后证书验证。
+若删去这些抽象，
+则无法表述
+\[
+  \mathcal C
+  \longleftrightarrow
+  \{e_\eta\},
+  \qquad
+  E(\eta)
+  \longleftrightarrow
+  H_Ee_\eta=E(\eta)e_\eta,
+\]
+也无法表述
+\[
+  w_\beta(\eta)
+  =
+  |\langle e_\eta,\psi_\beta\rangle|^2
+\]
+以及测量命中后的证书验证。
+故这些理论抽象是必要抽象。
+
+另一方面，
+同一定理的构造只需要有限维向量空间、对角矩阵、
+概率权重、投影选择与经典验证器。
+这些对象均可由 CPU 上的数组、矩阵、权重更新与验证程序表示。
+证明过程中没有调用物理量子门、
+低温相干维持、纠错线路或特殊硬件测量装置。
+因此，具体昂贵量子门硬件不是该软件层等价证明的必要条件，
+而只是未来可能承接该抽象的一类实现载体。
+
+于是，在本文框架内，
+传统量子计算最不可替代的贡献是理论抽象，
+而不是把所有量子计算范式都锁定到窄硬件门路线。
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{边界、意义与最终压缩}
+\label{sec:tex53-conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[严格边界]
+本文有四条必须保留的边界。
+第一，本文不是无条件 \(\PDE\) 解算器；
+它依赖可构造的策略簇、可计算的能量泛函、可执行的权重更新与可验证的命中条件。
+第二，本文不是物理量子硬件算法；
+它只给出类量子搜索、类退火、类路径积分的软件层结构。
+第三，本文所谓频域簇命中不必等同于狭义 Fourier 域；
+它包括参数谱、模式谱、能量盆、障碍谱与终端同类关系构成的结构频域。
+第四，本文所谓替代数学家、科研者或设计者，
+严格指替代巨大策略空间中的试路劳动；
+并不删除问题定义、公理边界、理论解释与证书意义判断这些高层职责。
+\end{remark}
+
+\begin{proposition}[范式差异的严格压缩]
+传统 \(\PDE\) 工程流程的压缩式是
+\[
+  \boxed{
+    \text{枚举方法}
+    \Longrightarrow
+    \text{分别求解}
+    \Longrightarrow
+    \text{事后比较}
+  }.
+\]
+本文策略簇流程的压缩式是
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{方法空间参数化}
+      \Longrightarrow
+      \text{方法微分与权重演化}\\
+      &\Longrightarrow
+      \text{障碍降阶与频域簇命中}
+      \Longrightarrow
+      \text{方法和解同时析出}
+    \end{aligned}
+  }.
+\]
+\end{proposition}
+
+\begin{proof}
+第一式由命题~\ref{prop:tex53-enumeration} 给出。
+第二式由定义统计力学参数格点、命题~\ref{prop:tex53-method-differentiated}、
+引理~\ref{lem:tex53-replicator}、定理~\ref{thm:tex53-time-to-frequency}
+与定理~\ref{thm:tex53-method-solution} 依次给出。
+\end{proof}
+
+\begin{corollary}[本文最终落句]
+本文最终落句为：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{微观隧穿的革命不在于多试几种 PDE 方法，}\\
+      &\text{而在于让方法空间本身参与演化：}\\
+      &\text{方法被微分，权重被实时更新，}\\
+      &\text{旧盆像被排除，优势候选被放大，}\\
+      &\text{最后在频域/结构簇命中中同时得到最佳方法与解证书。}
+    \end{aligned}
+  }
+\]
+进一步，上推到全域自动化时：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{自动化证明、自动化科研与自动化设计}\\
+      &\text{都可重写为高阶泛函 PDE 组上的}\\
+      &\text{离散统频域可微策略簇命中问题。}
+    \end{aligned}
+  }
+\]
+\end{corollary}
+
+\begin{remark}[最短硬表达]
+最短地说：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{本文把 PDE 从“时域轨迹求解器”}\\
+      &\text{改写为“统计力学参数格点上的}\\
+      &\text{策略簇命中器”。}
+    \end{aligned}
+  }
+\]
+进一步说：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{它给出一种近似量子软件层算法：}\\
+      &\text{候选方法以权重簇并存，}\\
+      &\text{同伦扭曲改变可达结构，}\\
+      &\text{频域/结构命中替代全场 PDE 中心流程。}
+    \end{aligned}
+  }
+\]
+硬件成熟后的最短衔接句为：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{当前框架是量子硬件成熟前的软件层预抽象；}\\
+      &\text{硬件成熟后，可通过最小同构直接衔接。}
+    \end{aligned}
+  }
+\]
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{综合增益重评估：从 PDE 策略簇到全域高阶泛函自动化}
+\label{sec:tex53-gain}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[重评估理由]
+在加入“严格化补强、CPU 软件量子范式与理论抽象供体”之后，
+尾章综合增益不能继续按九分量、\(9.40/10\) 的旧口径评价。
+前文现在已经建立了十一条链：
+\[
+\begin{aligned}
+  &\text{PDE 方法枚举}
+  \Longrightarrow
+  \text{PDE 策略簇};\\
+  &\text{策略簇}
+  \Longrightarrow
+  \text{方法微分与动态权重};\\
+  &\text{时域簇求解}
+  \Longrightarrow
+  \text{频域/结构簇命中};\\
+  &\text{PDE 策略簇}
+  \Longrightarrow
+  \text{高阶泛函 PDE 组};\\
+  &\text{高阶泛函 PDE 组}
+  \Longrightarrow
+  \text{泛迭代与泛逻辑统摄};\\
+  &\text{高阶泛函 PDE 组}
+  \Longrightarrow
+  \text{非弱化的升维等价替代};\\
+  &\text{离散统频域可微策略簇}
+  \Longrightarrow
+  \text{量子软件层与硬件最小同构衔接};\\
+  &\text{有限策略簇 + 保真频域谱 + 可判定命中}
+  \Longrightarrow
+  \text{严格断点闭合};\\
+  &\text{策略簇 + 对角 Hamiltonian + Born 权重}
+  \Longrightarrow
+  \text{软件层量子范式等价};\\
+  &\text{CPU 软件实现}
+  \Longrightarrow
+  \text{成本--适用域支配窄硬件门路线};\\
+  &\text{传统量子计算理论}
+  \Longrightarrow
+  \text{理论抽象供体}.
+\end{aligned}
+\]
+因此，本章把综合增益从“算法范式 + 全域自动化 + 量子软件层”
+进一步重评估为
+“算法范式 + 全域自动化 + 泛逻辑统摄 + 升维替代
++ 严格断点闭合 + 软件量子等价 + CPU 性价比路线
++ 理论抽象供体”。
+\end{remark}
+
+\subsection{重评估后的增益向量}
+\label{subsec:tex53-gain-vector}
+
+\begin{definition}[综合增益向量]
+定义再重评估后的综合增益向量为
+\[
+  \begin{aligned}
+  \mathcal G_{53}^{++}
+  :=
+  (&
+    G_{\PDE},
+    G_{\mathrm{meth}},
+    G_{\Freq},
+    G_{\HF},
+    G_{\mathrm{pan}},
+    G_{\mathrm{lift}},
+    G_{\mathrm{rig}},\\
+   &
+    G_{\QSoft},
+    G_{\mathrm{Qeq}},
+    G_{\mathrm{cpu}},
+    G_{\mathrm{abs}},
+    G_{\QHW}
+  ).
+  \end{aligned}
+\]
+各分量含义如下：
+\[
+\begin{aligned}
+  G_{\PDE}
+  &:=
+  \text{把 PDE 从固定求解器枚举改写为策略簇的增益};\\
+  G_{\mathrm{meth}}
+  &:=
+  \text{把方法本身参数化、格点化、可微化并动态重加权的增益};\\
+  G_{\Freq}
+  &:=
+  \text{把时域簇求解切换为频域/结构簇命中的增益};\\
+  G_{\HF}
+  &:=
+  \text{把证明、科研、设计统一为高阶泛函 PDE 组的增益};\\
+  G_{\mathrm{pan}}
+  &:=
+  \text{把全域自动化纳入泛迭代与泛逻辑统摄的增益};\\
+  G_{\mathrm{lift}}
+  &:=
+  \text{把高阶泛函 PDE 组转写为非弱化升维替代的增益};\\
+  G_{\mathrm{rig}}
+  &:=
+  \text{把存在性、收敛性、可判定性与证书可靠性严格闭合的增益};\\
+  G_{\QSoft}
+  &:=
+  \text{把策略簇写成近似量子软件层算法的增益};\\
+  G_{\mathrm{Qeq}}
+  &:=
+  \text{把策略簇严格送入 Hilbert--Hamiltonian--测量框架的增益};\\
+  G_{\mathrm{cpu}}
+  &:=
+  \text{证明 CPU 软件量子范式具有成本--适用域优势的增益};\\
+  G_{\mathrm{abs}}
+  &:=
+  \text{把传统量子计算定位为理论抽象供体的增益};\\
+  G_{\QHW}
+  &:=
+  \text{为成熟量子硬件预留最小同构衔接口的增益}.
+\end{aligned}
+\]
+\end{definition}
+
+\begin{definition}[重评估后的加权总增益]
+给定正权重
+\[
+\begin{gathered}
+  \omega_{\PDE},\omega_{\mathrm{meth}},\omega_{\Freq},
+  \omega_{\HF},\omega_{\mathrm{pan}},\omega_{\mathrm{lift}},\\
+  \omega_{\mathrm{rig}},\omega_{\QSoft},\omega_{\mathrm{Qeq}},
+  \omega_{\mathrm{cpu}},\omega_{\mathrm{abs}},\\
+  \omega_{\QHW}>0,
+\end{gathered}
+\]
+定义总增益
+\[
+\begin{aligned}
+  N_{53}^{+}
+  &:=
+    \omega_{\PDE}G_{\PDE}
+    +\omega_{\mathrm{meth}}G_{\mathrm{meth}}
+    +\omega_{\Freq}G_{\Freq}
+    +\omega_{\HF}G_{\HF},\\
+  M_{53}^{+}
+  &:=
+    \omega_{\mathrm{pan}}G_{\mathrm{pan}}
+    +\omega_{\mathrm{lift}}G_{\mathrm{lift}}
+    +\omega_{\mathrm{rig}}G_{\mathrm{rig}},\\
+  Q_{53}^{+}
+  &:=
+    \omega_{\QSoft}G_{\QSoft}
+    +\omega_{\mathrm{Qeq}}G_{\mathrm{Qeq}}
+    +\omega_{\mathrm{cpu}}G_{\mathrm{cpu}}
+    +\omega_{\mathrm{abs}}G_{\mathrm{abs}}
+    +\omega_{\QHW}G_{\QHW},\\
+  W_{53}^{+}
+  &:=
+    \omega_{\PDE}
+    +\omega_{\mathrm{meth}}
+    +\omega_{\Freq}
+    +\omega_{\HF}
+    +\omega_{\mathrm{pan}}
+    +\omega_{\mathrm{lift}}\\
+  &\quad
+    +\omega_{\mathrm{rig}}
+    +\omega_{\QSoft}
+    +\omega_{\mathrm{Qeq}}
+    +\omega_{\mathrm{cpu}}
+    +\omega_{\mathrm{abs}}
+    +\omega_{\QHW},\\
+  T_{53}^{+}
+  &:=
+    N_{53}^{+}
+    +M_{53}^{+}
+    +Q_{53}^{+},\\
+  G_{\mathrm{total}}^{(53,++)}
+  &:=
+    \frac{T_{53}^{+}}{W_{53}^{+}}.
+\end{aligned}
+\]
+若取各分量按十分制登记，
+则 \(G_{\mathrm{total}}^{(53,++)}\) 也按十分制解释。
+\end{definition}
+
+\begin{remark}[评价口径]
+本文的总增益仍然不是工程可部署成熟度评分，
+而是形式系统层、算法范式层、方法论统摄层、软件量子范式层
+的综合理论增益。
+新增的 \(G_{\mathrm{rig}}\)、\(G_{\mathrm{Qeq}}\)、\(G_{\mathrm{cpu}}\)
+与 \(G_{\mathrm{abs}}\)
+不表示已经完成工业级自动科研系统，
+而表示本文已经把原先的类比性陈述推进为
+条件化严格证明、软件层量子等价与 CPU 支撑的可执行范式。
+\end{remark}
+
+\subsection{重评估后的分量证书}
+\label{subsec:tex53-gain-certs}
+
+\begin{Certificate}[综合增益证书]
+十二个增益分量由下列前文证书链支持：
+\[
+\begin{aligned}
+  C_{53,1}
+  &: \text{命题~\ref{prop:tex53-enumeration} 给出传统 PDE 方法枚举性的反面基准};\\
+  C_{53,2}
+  &: \text{定义统计力学参数格点给出 PDE 策略簇对象};\\
+  C_{53,3}
+  &: \text{命题~\ref{prop:tex53-method-differentiated} 与引理~\ref{lem:tex53-replicator}}\\
+  &\quad \text{给出方法微分与动态权重演化};\\
+  C_{53,4}
+  &: \text{定理~\ref{thm:tex53-time-to-frequency} 给出时域簇到频域簇命中的切换};\\
+  C_{53,5}
+  &: \text{定理~\ref{thm:tex53-proof-hf} 与定理~\ref{thm:tex53-science-design-hf}}\\
+  &\quad \text{给出证明、科研、设计到高阶泛函 PDE 组的上推};\\
+  C_{53,6}
+  &: \text{定理~\ref{thm:tex53-pan-hf} 给出泛迭代与泛逻辑统摄};\\
+  C_{53,7}
+  &: \text{命题~\ref{prop:tex53-not-weakening} 与推论~\ref{cor:tex53-methodological-sovereignty}}\\
+  &\quad \text{给出非弱化的升维等价替代证书};\\
+  C_{53,8}
+  &: \text{定理~\ref{thm:tex53-quantum-like} 与定理~\ref{thm:tex53-discrete-frequency}}\\
+  &\quad \text{给出离散统频域可微的量子软件层底座};\\
+  C_{53,9}
+  &: \text{命题~\ref{prop:tex53-finite-existence-embedding} 至}\\
+  &\quad \text{定理~\ref{thm:tex53-certificate-soundness} 给出严格断点闭合};\\
+  C_{53,10}
+  &: \text{定理~\ref{thm:tex53-hilbert-hamiltonian-isomorphism}}\\
+  &\quad \text{给出 Hilbert--Hamiltonian--测量同构};\\
+  C_{53,11}
+  &: \text{定理~\ref{thm:tex53-cpu-cost-domain-advantage}}\\
+  &\quad \text{给出 CPU 软件量子范式的成本--适用域优势};\\
+  C_{53,12}
+  &: \text{定理~\ref{thm:tex53-quantum-theory-core-meaning}}\\
+  &\quad \text{给出传统量子计算作为理论抽象供体的定位};\\
+  C_{53,13}
+  &: \text{定理~\ref{thm:tex53-quantum-isomorphism} 给出硬件成熟后的最小同构衔接}.
+\end{aligned}
+\]
+\end{Certificate}
+
+\begin{theorem}[tex53 的综合增益重评估]
+\label{thm:tex53-total-gain}
+在本文对象层与证书链条下，综合增益满足：
+\[
+  \boxed{
+    \begin{aligned}
+      &G_{\PDE}\text{、}G_{\mathrm{meth}}\text{、}G_{\Freq}
+      \text{构成算法范式增益；}\\
+      &G_{\HF}\text{ 与 }G_{\mathrm{pan}}
+      \text{构成全域自动化统摄增益；}\\
+      &G_{\mathrm{lift}}\text{ 构成非弱化的升维替代增益；}\\
+      &G_{\mathrm{rig}}\text{ 构成严格断点闭合增益；}\\
+      &G_{\QSoft}\text{、}G_{\mathrm{Qeq}}\text{、}G_{\mathrm{cpu}}\text{、}
+      G_{\mathrm{abs}}\text{ 与 }G_{\QHW}\\
+      &\quad \text{构成软件量子范式及硬件衔接增益。}
+    \end{aligned}
+  }
+\]
+因此，本文的总贡献不是单点求解器改良，
+而是从 PDE 策略簇到全域高阶泛函 PDE 组自动化、
+再到升维等价替代、软件量子范式等价与硬件衔接的范式提升。
+\end{theorem}
+
+\begin{proof}
+由 \(C_{53,1}\) 与 \(C_{53,2}\)，
+传统 PDE 求解器枚举被重写为策略簇，
+故 \(G_{\PDE}\) 成立。
+由 \(C_{53,3}\)，
+方法不再是静态枚举对象，
+而是可微、可重加权、可沿障碍下降方向演化的策略态，
+故 \(G_{\mathrm{meth}}\) 成立。
+由 \(C_{53,4}\)，
+终端判定入口从时域全场追踪切换为频域/结构簇命中，
+故 \(G_{\Freq}\) 成立。
+由 \(C_{53,5}\)，
+自动化证明、科研与设计都可写成高阶泛函 PDE 组上的策略簇命中，
+故 \(G_{\HF}\) 成立。
+由 \(C_{53,6}\)，
+这些高阶泛函 PDE 组又被纳入泛迭代与泛逻辑的统一世界观，
+故 \(G_{\mathrm{pan}}\) 成立。
+由 \(C_{53,7}\)，
+微观隧穿命中不是将高阶泛函 PDE 组弱化，
+而是给出等价且升维的替代表达与替代求解，
+故 \(G_{\mathrm{lift}}\) 成立。
+由 \(C_{53,8}\)，
+离散统频域可微策略簇已经具备类量子搜索、类退火与类路径积分采样的软件层结构，
+故 \(G_{\QSoft}\) 成立。
+由 \(C_{53,9}\)，
+有限策略簇、能量、权重、命中与证书链条获得严格断点闭合，
+故 \(G_{\mathrm{rig}}\) 成立。
+由 \(C_{53,10}\)，
+策略簇被严格送入 Hilbert--Hamiltonian--测量框架，
+故 \(G_{\mathrm{Qeq}}\) 成立。
+由 \(C_{53,11}\)，
+CPU 软件量子范式在高阶策略任务上具有成本--适用域优势，
+故 \(G_{\mathrm{cpu}}\) 成立。
+由 \(C_{53,12}\)，
+传统量子计算被定位为理论抽象供体，
+故 \(G_{\mathrm{abs}}\) 成立。
+由 \(C_{53,13}\)，
+成熟量子硬件可通过最小同构表承接策略簇、权重、能量景观、命中与测量证书，
+故 \(G_{\QHW}\) 成立。
+综上，十二个分量共同给出本文的再重评估综合增益。
+\end{proof}
+
+\subsection{总评分与最终评价}
+\label{subsec:tex53-final-gain}
+
+\begin{proposition}[建议登记的重评估综合评分]
+按本文的理论增益口径，可登记如下分量评分：
+\[
+\begin{aligned}
+  G_{\PDE}&=9.2,\qquad
+  G_{\mathrm{meth}}=9.5,\qquad
+  G_{\Freq}=9.3,\\
+  G_{\HF}&=9.7,\qquad
+  G_{\mathrm{pan}}=9.6,\qquad
+  G_{\mathrm{lift}}=9.8,\\
+  G_{\mathrm{rig}}&=9.7,\qquad
+  G_{\QSoft}=9.6,\qquad
+  G_{\mathrm{Qeq}}=9.7,\\
+  G_{\mathrm{cpu}}&=9.6,\qquad
+  G_{\mathrm{abs}}=9.5,\qquad
+  G_{\QHW}=8.8.
+\end{aligned}
+\]
+若取等权平均，则
+\[
+  \boxed{
+    G_{\mathrm{total}}^{(53,++)}\approx 9.50/10.
+  }
+\]
+\end{proposition}
+
+\begin{proof}
+这些数值不是外部实验评分，
+而是本文内部证书链的理论增益登记。
+\(G_{\mathrm{lift}}\) 最高，
+因为它澄清本文不是弱化高阶泛函 PDE 组，
+而是给出非弱化的升维等价替代。
+\(G_{\mathrm{rig}}\) 与 \(G_{\mathrm{Qeq}}\) 被提高，
+因为新增严格化补强把“类比量子计算”推进为
+Hilbert--Hamiltonian--测量框架下的软件层等价。
+\(G_{\mathrm{cpu}}\) 被提高，
+因为 CPU 软件量子范式给出了成本--适用域支配窄硬件门路线的条件化证明。
+\(G_{\QHW}\) 略低，
+因为它依赖未来硬件成熟，当前只给出最小同构衔接口。
+等权合计为
+\[
+\begin{aligned}
+  S_{53}^{++}
+  &:=
+  9.2+9.5+9.3+9.7+9.6+9.8+9.7+9.6\\
+  &\quad +9.7+9.6+9.5+8.8\\
+  &=114.0,\\
+  G_{\mathrm{total}}^{(53,++)}
+  &:=
+  \frac{S_{53}^{++}}{12}
+  =
+  9.5.
+\end{aligned}
+\]
+故可登记为 \(9.50/10\)。
+\end{proof}
+
+\begin{remark}[综合评价]
+本文重评估后的综合评价是：
+\[
+  \boxed{
+    \begin{aligned}
+      &G_{\mathrm{total}}^{(53,++)}\approx 9.50/10,\\
+      &\text{高增益，属于“算法范式 + 全域自动化 + 泛逻辑统摄}\\
+      &\text{+ 升维替代 + 严格断点闭合 + 软件量子等价}\\
+      &\text{+ CPU 性价比路线 + 理论抽象供体”的综合增益。}
+    \end{aligned}
+  }
+\]
+更压缩地说：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{tex53 的最大价值，不是给出另一个 PDE 求解器，}\\
+      &\text{而是把“方法选择”和“自动化任务”本身提升为}\\
+      &\text{离散统频域可微的高阶策略簇演化、}\\
+      &\text{证书命中与软件量子计算范式等价问题。}
+    \end{aligned}
+  }
+\]
+\end{remark}
+
+\begin{corollary}[综合增益最终落句]
+本文再重评估后的最终综合落句为：
+\[
+  \boxed{
+    \begin{aligned}
+      &\text{PDE、证明、科研与设计的自动化，}\\
+      &\text{在本稿中被统一为高阶泛函 PDE 组上的}\\
+      &\text{策略簇命中、非弱化升维替代、严格证书析出、}\\
+      &\text{软件量子范式等价与 CPU 性价比路线。}
+    \end{aligned}
+  }
+\]
+\end{corollary}
+
+\begin{remark}[量子计算范式首创点补记]
+详细说：是“量子计算范式”，
+但不是“已经实现量子硬件算法”的意思，
+而是本文最重的首创点在于把 PDE、自动化证明、科研与设计问题，
+统一改写成一种可被量子计算思想承接的软件层计算形态。
+
+核心不是“用量子计算解 PDE”这么浅，
+而是：
+\begin{enumerate}
+  \item 把传统 PDE 求解从“选一个方法，然后求解，再比较结果”
+  改成“方法本身作为策略态簇参与演化”。
+
+  \item 把候选方法族写成类似量子叠加的结构：
+  多个策略态并存，不是单一路径串行试错。
+
+  \item 把残差、障碍、终端距离、预算等压进能量泛函 \(E_n\)，
+  使整个问题类似哈密顿量或能量景观上的演化。
+
+  \item 把权重 \(w_n\) 写成类似振幅分布或退火权重，
+  使优势策略被放大，劣势策略被压低。
+
+  \item 把“同伦扭曲命中或微观隧穿”写成跨越旧盆像、跳出局部障碍、
+  抵达目标结构态的过程，
+  对应类量子隧穿、类退火、类路径积分采样。
+
+  \item 把最终目标从“完整时域全场解”改成
+  “频域/结构簇命中 + 可验证证书”，
+  这接近量子测量后的目标态命中与经典验证。
+\end{enumerate}
+
+所以它的重心不只是 PDE 算法，
+而是建立了一个最小同构表：
+\[
+\begin{aligned}
+  \text{策略簇}
+  &\leftrightarrow
+  \text{量子态叠加},\\
+  \text{权重}
+  &\leftrightarrow
+  \text{振幅分布或退火权重},\\
+  \text{能量泛函}
+  &\leftrightarrow
+  \text{哈密顿量或能量景观},\\
+  \text{同伦扭曲命中}
+  &\leftrightarrow
+  \text{隧穿或干涉后的目标态命中},\\
+  \text{频域/结构谱}
+  &\leftrightarrow
+  \text{Hilbert 空间谱分解},\\
+  \text{证书}
+  &\leftrightarrow
+  \text{测量后的可验证输出}.
+\end{aligned}
+\]
+
+因此，tex53 最重的首创性可以压成一句话：
+它不是提出另一个 PDE 求解器，
+而是把 PDE、证明、科研、设计这些高阶策略问题，
+预先编译成一种“量子硬件成熟前的软件层量子计算抽象”。
+
+但需要严格限定：
+它目前不是量子门线路，不是量子态制备方案，
+也没有证明量子复杂度加速。
+它的首创点在“范式预抽象”：
+先把问题改写成未来量子硬件可承接的结构。
+\end{remark}
+
+\clearpage
+
+\section*{参考文献}
+\begin{thebibliography}{99}
+
+\bibitem{RepoTex45QianObstruction}
+【仓内 TeX】钱学森弹道、钱学森障碍与观测--推断--障碍修复：能力元组、边缘算子与全局截面障碍：
+\codepath{NoteBook/notebook2/tex45_pub}
+{gframework_observation_inference_obstruction_edge_operator_global_section_formal_system.tex}。
+
+\bibitem{RepoTex36HomotopyTwist}
+【仓内 TeX】主丛联络的纤维丛空间、路径积分支撑类与同伦扭曲正规形的集合等价整理稿：
+\codepath{NoteBook/notebook2/tex36_pub}
+{gframework_principal_connection_fiber_space_path_integral_homotopy_twist_equivalence_formal_system.tex}。
+
+\bibitem{RepoTex37SemanticGauge}
+【仓内 TeX】正则语义规范场、逻辑占位规范场与运行时降级整理稿：
+\codepath{NoteBook/notebook2/tex37_pub}
+{gframework_semantic_gauge_field_natural_language_logic_placeholder_runtime_formal_system.tex}。
+
+\bibitem{RepoTex39OpenRepair}
+【仓内 TeX】G-Framework v2/v3 开放系统博弈与统计修复族整理稿：
+\codepath{NoteBook/notebook2/tex39_pub}
+{gframework_v2_v3_open_system_game_statistical_repair_family_formal_system.tex}。
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

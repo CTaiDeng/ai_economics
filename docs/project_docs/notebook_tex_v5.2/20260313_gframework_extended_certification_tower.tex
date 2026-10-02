@@ -1,0 +1,1038 @@
+% !TEX program = pdflatex
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+
+\newcommand{\Jac}{\operatorname{Jac}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsc{G-Framework}}
+\newcommand{\Ob}{\operatorname{Ob}}
+\newcommand{\Cert}{\operatorname{Cert}}
+\newcommand{\Loss}{\mathcal{L}}
+\newcommand{\Flow}{\operatorname{Flow}}
+\newcommand{\Upd}{\operatorname{Upd}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\Hist}{\operatorname{Hist}}
+\newcommand{\Crit}{\operatorname{Crit}}
+\newcommand{\Enc}{\operatorname{Enc}}
+\newcommand{\Code}{\operatorname{Code}}
+\newcommand{\Src}{\mathrm{Src}}
+\newcommand{\Ext}{\mathrm{Ext}}
+\newcommand{\Unproved}{\mathrm{Unproved}}
+\newcommand{\FalseTag}{\mathrm{False}}
+\newcommand{\Verdict}{\operatorname{Verdict}}
+\newcommand{\Car}{\operatorname{Car}}
+\newcommand{\Img}{\operatorname{Im}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\pr}{\operatorname{pr}}
+
+\setlength{\emergencystretch}{6em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{基于扩展签发协议的主丛联络--路径积分--同伦修复塔\\与结构表示定理}
+\newcommand{\CertificateAuthorCN}{Gao Zheng（高政）}
+\author{\CertificateAuthorCN}
+\date{2026-03-13}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是孤立地给出一套扩展签发协议，而是在 \GFramework{} 的整体链条中，
+把来源直签发、补证后签发、主丛联络、路径积分支撑类、同伦修复塔与结构表示定理
+组织成一个可追踪的认证系统。若这些对象分散出现，它们容易只表现为若干独立的
+证明技巧；本文将其压合为一条从命题来源、证书生成、障碍上升、修复递归到结构
+编码的形式链条。
+
+本文的第一层立场是签发语义的分层化。一个命题并不因为被写下就自动进入可用
+知识库；它必须通过来源接口、补证接口或未证边界中的某一类判定。由此，签发不再
+只是“承认结论”，而是将命题放入可审计的来源--证书--判定结构中。来源直签发给出
+基础语义，补证后签发给出修复语义，未证保留给出边界语义，三者共同构成本文的
+扩展签发协议。
+
+本文的第二层立场是把“可用命题”与“可恢复证书”分开。来源命题若已有直接证书，
+可以进入来源直签发；若只有目标陈述而缺少关键链条，则必须进入补证过程；若补证
+仍不足，则只能保留为未证边界。这个分层避免把叙述性可信误写为证明性可信，也
+避免把暂未补齐的命题直接并入后续定理调用。由此，本文提供的是一种证书治理机制：
+每个结论不仅要有陈述，还要有来源、证书、判定值与可回放的推理位置。
+
+本文的第三层立场是把修复塔写成认证动力学。主丛联络、路径积分与同伦扭曲在
+本文中不是彼此松散的比喻，而是认证对象沿层级递归上升时的三种接口：联络给出
+传输规则，路径积分给出支撑类聚合，同伦修复给出障碍吸收与正规形。于是，修复塔
+不只是“补充证明”，而是一个逐层消化障碍、逐层生成证书、逐层恢复可签发性的
+递归系统。
+
+本文的第四层立场是主丛联络与路径积分的认证角色。主丛联络负责说明证书如何沿
+对象层、性质层或路径层被传输；路径积分支撑类负责将多条可行路径的贡献压缩为
+可比较的支撑对象；同伦扭曲则负责在遇到障碍时改变路径或结构的代表形。三者合在
+一起，使签发协议不再只处理静态命题，而能够处理“命题在修复塔中如何被传输、
+聚合、变形并重新获得证书”的动态过程。
+
+本文的第五层立场是结构表示的可恢复性。单一实数总编码并不用于把数学对象压扁为
+不可解释的数值，而是用于证明整座认证塔可以被无选择、可恢复、可追溯地表示。
+因此，“一切皆结构”的弱版本在本文中被理解为：只要给定足够的生成元、投影、
+证书链与恢复规则，集合元素就可以作为同调结构中的生成位置或投影位置被忠实追踪。
+
+本文的第六层立场是把结构表示与签发协议闭合起来。若某个对象只能被编码而不能被
+恢复，它就不能承担证书角色；若某个证书只能被局部验证而不能在塔中传递，它也不能
+支撑扩展签发。本文因此同时要求编码、恢复、投影、证书与判定值相容。这样，结构
+表示定理不只是附录式编码结果，而是整座扩展签发塔能够被机器化复验、跨层调用与
+后续继承的基础条件。
+
+本文的第七层立场是为后续同伦命中与 PDE 残差范式提供证书层接口。后续稿件中的
+低残差命中、雅可比间隙下降、高阶正交方向与确定性极限，都需要知道哪些命题可以
+作为已签发事实调用，哪些命题只能作为待补证边界保留。本文给出的扩展签发协议，
+正是把“可调用事实”从叙述中剥离出来、放入证书系统的前置工作。
+
+因此，本文在整体 \GFramework{} 中承担的是“签发--修复--结构表示”的认证锚定作用。
+它向前连接可修复障碍与同伦类边界，向中间连接主丛联络、路径积分与递归修复塔，
+向后为统计修复、同伦命中与 PDE 残差范式提供证书层接口。概括地说，本文把
+“命题是否可用”这一问题，从口头可信性推进为可签发、可补证、可递归修复、可编码
+恢复的形式系统。
+
+更具体地说，本文给出的不是一份“证明已完成”的列表，而是一种管理证明状态的
+协议。它允许命题处于来源直签发、补证后签发、未证保留等不同状态，并要求每一种
+状态都有可追溯的判定值。这使得 \GFramework{} 后续文章在调用结论时，不必重新
+猜测其证明强度，而可以直接沿签发塔找到证书来源。
+
+从方法论上看，本文把“证书”从静态附件提升为动态对象。证书可以沿联络传输，可以
+在路径积分支撑类中聚合，可以被障碍阻断，也可以通过同伦修复塔重新获得可签发性。
+因此，扩展签发协议本身就是一种微型修复系统：它不只保存正确结论，也记录结论从
+不可用到可用、从局部可证到全局可调用的路径。
+
+从整体谱系看，本文处在基础修复与后续命中范式之间。前面的稿件说明障碍可以被
+定义和修复；后面的稿件说明低残差集合可以被命中、轨迹可以被控制。本文则回答：
+这些修复和命中过程中产生的命题，如何进入可复用知识库。这个位置使它成为
+\GFramework{} 的证书流通层。
+
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{2}
+\tableofcontents
+\clearpage
+
+\section{总述}
+
+本文把此前讨论中得到的结果整理为一份自洽的定理化文稿。核心目标有四项：
+
+其一，形式化 ``扩展签发'' 认证协议，并把来源直签发与补证后签发统一到同一框架之内；
+
+其二，给出主丛联络、路径积分、障碍上升与同伦修复之间的递归塔式构造；
+
+其三，证明整座塔存在显式、无选择、可恢复的单一实数总编码；
+
+其四，证明集合元素可被忠实表示为同调结构中的生成元或投影，并据此给出 ``一切皆结构'' 的严格弱版本。
+
+全文中，``严格'' 的含义是：每一结论都必须被写成对象明确、证书明确、推理链明确的数学命题；若某一结论尚缺关键基础证书，则只在备注中标出边界，而不把它并入定理结论。
+
+\begin{remark}[阅读导航：仓内文稿与外部参照]
+本文聚焦扩展签发协议、递归修复塔与结构表示定理。若读者需要单层“纤维终点空间--路径积分支撑类--同伦扭曲正规形”三重等价的前置形式化，可参照仓内笔记 \cite{RepoTex36Formal}；
+若需要把“可修复障碍”作为对象层边界再向前追溯，可参照 \cite{RepoTex29RepairableObstruction}；
+更系统的 law-space、主丛联络、路径积分与 Jacobiator-gap 背景，可参照本仓库卷册主稿 \cite{GaoZhengAppVol3}。
+
+外部标准参照方面，主丛、联络、分类空间与联络存在性可参照 \cite{KobayashiNomizu1963Foundations,Husemoller1994FibreBundles}；
+路径积分与半经典驻相写法可参照 \cite{FeynmanHibbs1965QMPI,Schulman2005Technique}；
+同伦/同调与高阶障碍吸收的标准背景可参照 \cite{Hatcher2002AT,Whitehead1978Elements,Weibel1994HomologicalAlgebra,
+  LodayVallette2012AlgebraicOperads}。
+\end{remark}
+
+\section{扩展签发认证协议}
+\label{sec:tex35-protocol}
+
+\subsection{命题空间与判定值}
+
+\begin{definition}[命题空间与判定值]
+记一切待判定命题构成集合
+\[
+\mathfrak P.
+\]
+对任意
+\[
+\Phi\in\mathfrak P,
+\]
+定义其判定值
+\[
+\Verdict(\Phi)\in\{\Src,\Ext,\Unproved\}.
+\]
+其中：
+\[
+\Src=\text{来源直签发},\qquad
+\Ext=\text{扩展签发},\qquad
+\Unproved=\text{未证明}.
+\]
+\end{definition}
+
+\begin{definition}[来源直签发域]
+定义
+\[
+\Sigma_{\mathrm{src}}\subseteq\mathfrak P
+\]
+为满足下述条件的命题集：存在只使用来源接口、来源定义、来源定理及类型一致直接推演链的证明
+\[
+\Pi_{\mathrm{src}}(\Phi)
+\]
+使得
+\[
+\Pi_{\mathrm{src}}(\Phi)\vdash \Phi.
+\]
+\end{definition}
+
+\begin{definition}[扩展签发域]
+定义
+\[
+\Sigma_{\mathrm{ext}}\subseteq\mathfrak P
+\]
+为满足下述条件的命题集：存在对象降型映射
+\[
+\mathfrak D_{\Phi},
+\]
+来源接口集
+\[
+\mathcal I_{\Phi},
+\]
+缺口集
+\[
+\mathcal G_{\Phi},
+\]
+新增证书包
+\[
+\mathcal C_{\Phi},
+\]
+以及补齐后的证明链
+\[
+\Pi_{\mathrm{ext}}(\Phi),
+\]
+使得
+\[
+(\mathfrak D_{\Phi},\mathcal I_{\Phi},\mathcal C_{\Phi},\Pi_{\mathrm{ext}}(\Phi))\vdash \Phi.
+\]
+\end{definition}
+
+\begin{definition}[对象降型]
+对象降型是把原句中的对象统一改写为同类型、可比较、可进证明链的对象。典型例子如下：
+\[
+P\rightsquigarrow \mathcal H_A(b_0,b_1),
+\]
+即把主丛总空间降为由联络 $A$ 筛出的可容许纤维演化类；
+\[
+\mathcal K_A\rightsquigarrow \Car(\mathcal K_A)=\mathcal P_A^{\mathrm{adm}},
+\]
+即把路径积分值降为其承载的可容许历史空间；
+\[
+\text{同伦扭曲}\rightsquigarrow \mathcal T_{A,H}^{\mathrm{eff}},
+\]
+即把模糊修辞降为有效同伦扭曲正规形证书类。
+\end{definition}
+
+\begin{theorem}[签发分层定理]
+有
+\[
+\Sigma_{\mathrm{src}}\subseteq\Sigma_{\mathrm{ext}}.
+\]
+\end{theorem}
+
+\begin{proof}
+若 $\Phi\in\Sigma_{\mathrm{src}}$，则 $\Phi$ 已存在一条只用来源接口的证明链。此时取新增证书包为空：
+\[
+\mathcal C_{\Phi}=\varnothing.
+\]
+则 $\Phi$ 显然也满足扩展签发的定义条件，因此
+\[
+\Phi\in\Sigma_{\mathrm{ext}}.
+\]
+故
+\[
+\Sigma_{\mathrm{src}}\subseteq\Sigma_{\mathrm{ext}}.
+\]
+\end{proof}
+
+\begin{proposition}[标准判定流程]
+对任意新命题 $\Phi$，统一按如下流程判定：
+\[
+\Phi
+\to
+\mathfrak D_{\Phi}
+\to
+\mathcal I_{\Phi}
+\to
+\mathcal G_{\Phi}
+\to
+\mathcal C_{\Phi}
+\to
+\Pi(\Phi)
+\to
+\Verdict(\Phi).
+\]
+\end{proposition}
+
+\begin{proof}
+此流程只是把扩展签发定义展开。首先用对象降型消去类型不齐；随后抽取来源接口；然后定位剩余缺口；再以新增证书补齐；最后把完整证明链压缩成单一判定值。若任一步失败，则命题不能进入 $\Sigma_{\mathrm{ext}}$，只能标记为
+  $\Unproved$。
+\end{proof}
+
+\section{来源接口的公理化摘录}
+
+本节不引用对话叙述，而直接把后文所需的来源接口写成假设。它们不是新增结论，而是后续定理的输入。
+
+\begin{assumption}[路径积分承载对象]\label{ass:path}
+在 law-space 层上，存在可容许历史空间
+\[
+\Hist_n^{\mathrm{adm}}
+\]
+与作用量 $S_n$，使路径积分写作
+\[
+\mathcal K_n=
+\int_{\Hist_n^{\mathrm{adm}}}
+\exp\!\Bigl(\frac{i}{\hbar}S_n[\Gamma_n]\Bigr)\,\mathcal D\Gamma_n.
+\]
+并且 ordinary path integrals 可视为该 law-space 路径积分的投影。
+这里保留的是经典路径积分的记号骨架及其“历史空间 + 作用量”表达，标准参照可见 \cite{FeynmanHibbs1965QMPI,Schulman2005Technique}；本文的 law-space 化重写与仓内递推语境可结合
+  \cite{RepoTex36Formal,GaoZhengAppVol3} 一并理解。
+\end{assumption}
+
+\begin{assumption}[驻相历史]\label{ass:crit}
+在半经典极限下，路径积分由驻相历史主导，即
+\[
+\Crit_n:=
+\left\{[\Gamma_n]\in\Hist_n^{\mathrm{adm}}\;\middle|\;\frac{\delta S_n[\Gamma_n]}{\delta\Gamma_n}=0\right\}
+\]
+构成第 $n$ 阶路径积分的骨架。
+\end{assumption}
+
+\begin{assumption}[$n$ 阶 law-bundle]\label{ass:bundle}
+对每一层级 $n\in\NN$，存在到第 $n$ 层可见的 law-bundle
+\[
+\pi_n:\mathcal E_n\to B_n,
+\]
+其水平提升尊重 $l_n$-可见不变量。
+\end{assumption}
+
+\begin{assumption}[总联络与统一 Bianchi]\label{ass:bianchi}
+每一阶上允许几何层、参数层、法则层组成总联络
+\[
+\omega_{\mathrm{tot}}=\pr_{\mathrm{geom}}^*\omega_{\mathrm{geom}}+\pr_{\mathrm{par}}^*\omega_{\mathrm{par}}
+  +\pr_{\mathrm{law}}^*\omega_{\mathrm{law}},
+\]
+其总曲率
+\[
+\mathcal F_{\mathrm{tot}}=\dd\omega_{\mathrm{tot}}+\frac12[\omega_{\mathrm{tot}}\wedge\omega_{\mathrm{tot}}]
+\]
+满足统一 Bianchi 恒等式
+\[
+D_{\mathcal A}\mathcal F_{\mathrm{tot}}=0.
+\]
+\end{assumption}
+
+\begin{assumption}[障碍闭性与高阶修复]\label{ass:obstruction}
+对每一阶 $n$ 与每一层级 $k$，若低阶括号
+\[
+l_1^{(n)},\dots,l_k^{(n)}
+\]
+已定义，则下一阶障碍
+\[
+\Ob_{k+1}^{(n)}
+\]
+满足
+\[
+\delta\Ob_{k+1}^{(n)}=0.
+\]
+若同调类
+\[
+[\Ob_{k+1}^{(n)}]=0,
+\]
+则存在某个边界型修复数据 $B_{k+1}^{(n)}$ 使
+\[
+\delta B_{k+1}^{(n)}=-\Ob_{k+1}^{(n)},
+\]
+从而可取
+\[
+l_{k+1}^{(n)}:=B_{k+1}^{(n)}
+\]
+完成高阶延拓与修复。
+\end{assumption}
+
+\begin{assumption}[法则层优先于表示层]\label{ass:prior}
+原始 law-level 代数结构先于对象层 bundle 几何；对象层主丛解释与低维标量语义只是更高层 law-space 结构的表示或投影。
+\end{assumption}
+
+\section{后继封装、障碍上升与修复塔}
+\label{sec:tex35-tower}
+
+\subsection{基本定义}
+
+\begin{definition}[后继基底]
+在第 $n$ 阶上，取终点--语义等价关系 $\approx_n$，定义
+\[
+B_{n+1}:=\Crit_n/\!\approx_n.
+\]
+称 $B_{n+1}$ 为第 $n$ 阶驻相历史类的后继基底。
+\end{definition}
+
+\begin{definition}[后继联络]
+若 $B_{n+1}$ 可赋予可接受的拓扑与光滑结构，并取结构群 $G_{n+1}$ 的分类映射
+\[
+c_{n+1}:B_{n+1}\to BG_{n+1},
+\]
+则定义主丛
+\[
+E_{n+1}:=c_{n+1}^*(EG_{n+1})\to B_{n+1}.
+\]
+若在该主丛上选定联络 $A_{n+1}$，则称 $(E_{n+1},A_{n+1})$ 为后继联络数据。
+\end{definition}
+
+\begin{definition}[第 $n$ 阶修复指数]
+若对每个阶段 $n$ 存在最小的修复阶
+\[
+m_n:=\min\Bigl\{k\ge 1\;\Bigm|\;[\Ob_{k+1}^{(n)}]=0\ \text{且由}\ l_{k+1}^{(n)}\ \text{完成修复}\Bigr\},
+\]
+则称 $m_n$ 为第 $n$ 阶的修复指数。
+\end{definition}
+
+\subsection{三张证书}
+
+\begin{proposition}[后继基底可定义证书 $C_{\mathrm{succ}}(n)$]\label{prop:succ}
+若第 $n$ 阶驻相历史类 $\Crit_n$ 非空，且商空间
+\[
+B_{n+1}=\Crit_n/\!\approx_n
+\]
+可赋予 Hausdorff、paracompact、smooth 结构，则存在后继主丛
+\[
+E_{n+1}\to B_{n+1}
+\]
+与其联络 $A_{n+1}$。
+\end{proposition}
+
+\begin{proof}
+商空间 $B_{n+1}$ 按定义存在。若它满足 Hausdorff、paracompact、smooth 条件，则可使用分类空间构造：选定分类映射
+\[
+c_{n+1}:B_{n+1}\to BG_{n+1},
+\]
+并令
+\[
+E_{n+1}:=c_{n+1}^*(EG_{n+1}).
+\]
+由于 paracompact 主丛上存在联络，故可取
+\[
+A_{n+1}\in\Omega^1(E_{n+1},\mathfrak g_{n+1}).
+\]
+这里用到的分类空间与主丛联络存在性，是标准纤维丛理论中的常见结论，可参照 \cite{KobayashiNomizu1963Foundations,Husemoller1994FibreBundles}。
+于是后继主丛与后继联络同时存在。
+\end{proof}
+
+\begin{proposition}[障碍上升证书 $C_{\mathrm{obs}}(n,k)$]\label{prop:obs}
+在第 $n$ 阶上，若前 $k$ 阶结构
+\[
+l_1^{(n)},\dots,l_k^{(n)}
+\]
+已定义，则下一阶残差形成障碍类
+\[
+\Ob_{k+1}^{(n)},
+\]
+并满足：
+\[
+\delta\Ob_{k+1}^{(n)}=0,
+\qquad
+[\Ob_{k+1}^{(n)}]=0\Longrightarrow \exists\, l_{k+1}^{(n)}\ \text{吸收该残差}.
+\]
+\end{proposition}
+
+\begin{proof}
+由假设 \ref{ass:obstruction}，障碍闭性是来源接口的一部分。其意义是：低阶 Stasheff/Jacobi 关系若只在截断层成立，则下一阶偏差自动成为 $\delta$-闭的候选障碍；这种“低阶失效
+  $\Rightarrow$ 高阶障碍类 $\Rightarrow$ 边界吸收”的口径，与标准同伦代数/障碍论写法一致，可参照 \cite{Whitehead1978Elements,
+  Weibel1994HomologicalAlgebra,LodayVallette2012AlgebraicOperads}。若该障碍类为零，则存在边界型修复数据 $B_{k+1}^{(n)}$ 使
+\[
+\delta B_{k+1}^{(n)}=-\Ob_{k+1}^{(n)}.
+\]
+定义
+\[
+l_{k+1}^{(n)}:=B_{k+1}^{(n)}
+\]
+即可把残差吸收到更高层结构中。这正是同伦修复塔的逐层上升规则。
+\end{proof}
+
+\begin{proposition}[逐阶编码证书 $C_{\mathrm{enc}}$]\label{prop:encn}
+若每一阶存在修复指数 $m_n\in\NN$，则整座塔自动给出离散编码
+\[
+m=(m_n)_{n\in\NN}\in\NN^\NN.
+\]
+若再选定角变量
+\[
+\theta_n\in[0,2\pi),
+\]
+则逐阶定义
+\[
+r_n:=m_n+\frac{\theta_n}{2\pi}\in\RR,
+\]
+从而得到
+\[
+r=(r_n)_{n\in\NN}\in\RR^\NN.
+\]
+并且每一阶映射
+\[
+(m_n,\theta_n)\mapsto r_n
+\]
+为单射。
+\end{proposition}
+
+\begin{proof}
+第一部分是直接的：每个阶段给出一个自然数修复指数 $m_n$，故得到一个自然数序列
+\[
+(m_n)_{n\in\NN}\in\NN^\NN.
+\]
+第二部分中，由
+\[
+r_n=m_n+\frac{\theta_n}{2\pi}
+\]
+可恢复
+\[
+m_n=\lfloor r_n\rfloor,
+\qquad
+\theta_n=2\pi(r_n-\lfloor r_n\rfloor).
+\]
+因此逐阶映射是单射。于是可同时得到 $\NN^\NN$ 码与 $\RR^\NN$ 码。
+\end{proof}
+
+\subsection{主定理}
+
+\begin{theorem}[主丛联络--路径积分--同伦修复塔定理 $T_{\mathrm{tower}}$]\label{thm:tower}
+设初始阶段给定
+\[
+(B_0,E_0\to B_0,A_0,S_0),
+\]
+并满足假设 \ref{ass:path}--\ref{ass:obstruction}。若对每个 $n\in\NN$：
+
+\begin{itemize}
+  \item 第 $n$ 阶可容许历史空间 $\Hist_n^{\mathrm{adm}}$ 可定义；
+  \item 第 $n$ 阶驻相集 $\Crit_n$ 非空；
+  \item 证书 $C_{\mathrm{succ}}(n)$ 与所有相关的 $C_{\mathrm{obs}}(n,k)$ 成立；
+\end{itemize}
+则存在一列递归构造的结构
+\[
+\mathfrak T=
+\bigl(B_n,E_n\to B_n,A_n,\Hist_n^{\mathrm{adm}},\mathcal K_n,\{l_k^{(n)}\}_{k\ge 3}\bigr)_{n\in\NN}
+\]
+满足：
+\[
+\text{(i)}\quad B_{n+1}=\Crit_n/\!\approx_n,
+\]
+\[
+\text{(ii)}\quad \mathcal K_n=
+\int_{\Hist_n^{\mathrm{adm}}}\exp\!\Bigl(\frac{i}{\hbar}S_n[\Gamma_n]\Bigr)\,\mathcal D\Gamma_n,
+\]
+\[
+\text{(iii)}\quad D_{A_n}\mathcal F_n=0,
+\]
+\[
+\text{(iv)}\quad \text{任一低阶表观残差若障碍类为零，则可由某个更高 }l_{k+1}^{(n)}\text{ 吸收},
+\]
+从而 $\mathfrak T$ 构成以 $\NN$ 为离散指标的主丛联络--路径积分--同伦修复塔。
+\end{theorem}
+
+\begin{proof}
+对 $n$ 作归纳。
+
+基础步 $n=0$：由假设 \ref{ass:path}，第 $0$ 阶路径积分
+\[
+\mathcal K_0=
+\int_{\Hist_0^{\mathrm{adm}}}\exp\!\Bigl(\frac{i}{\hbar}S_0[\Gamma_0]\Bigr)\,\mathcal D\Gamma_0
+\]
+存在；由假设 \ref{ass:crit}，驻相集 $\Crit_0$ 为其骨架。由命题 \ref{prop:succ} 得到
+\[
+B_1=\Crit_0/\!\approx_0,
+\qquad
+E_1\to B_1,
+\qquad
+A_1.
+\]
+若低阶截断出现残差，则由命题 \ref{prop:obs} 把它吸收到更高的 $l_{k+1}^{(0)}$ 中。因此第 $1$ 阶存在。
+
+归纳步：设第 $n$ 阶已构成。由假设 \ref{ass:path} 与 \ref{ass:crit}，第 $n$ 阶的路径积分与驻相集存在。由命题 \ref{prop:succ} 构造
+\[
+B_{n+1},\ E_{n+1}\to B_{n+1},\ A_{n+1}.
+\]
+由假设 \ref{ass:bianchi}，总联络满足统一 Bianchi：
+\[
+D_{A_n}\mathcal F_n=0.
+\]
+若在低阶可见层上出现表观残差，则由命题 \ref{prop:obs} 上升到某个更高 $l_{k+1}^{(n)}$ 完成修复。于是第 $n+1$ 阶成立。
+
+由数学归纳法，对一切 $n\in\NN$ 成立，定理得证。
+\end{proof}
+
+\begin{remark}[关于层级与维数]
+定理 \ref{thm:tower} 中的 $n$ 是层级索引，不是流形维数。本文中 ``$n$ 阶'' 的含义是 ``到第 $n$ 层可见''，而不是 ``$n$ 维''。
+\end{remark}
+
+\section{单一实数总编码定理}
+\label{sec:tex35-realcode}
+
+本节承接主定理 \ref{thm:tower} 与逐阶编码证书 \ref{prop:encn}，把修复塔的逐层数据压缩为单一实数编码。
+
+\begin{definition}[归一化映射]
+定义
+\[
+\nu:\RR\to(0,1),\qquad
+\nu(x)=\frac12+\frac{1}{\pi}\arctan x.
+\]
+则 $\nu$ 为双射，逆映射为
+\[
+\nu^{-1}(u)=\tan\bigl(\pi(u-\tfrac12)\bigr).
+\]
+\end{definition}
+
+\begin{definition}[规范二进制展开]
+对任意 $u\in(0,1)$，取其不以无限尾随 $1$ 结尾的二进制展开
+\[
+u=
+\sum_{m=1}^{\infty} b_m(u)2^{-m},
+\qquad
+b_m(u)\in\{0,1\}.
+\]
+此约定保证展开唯一。
+\end{definition}
+
+\begin{definition}[Cantor 配对]
+定义
+\[
+\langle n,m\rangle:=\frac12(n+m)(n+m+1)+m,
+\qquad n,m\in\NN.
+\]
+它是 $\NN\times\NN\to\NN$ 的双射。
+\end{definition}
+
+\begin{theorem}[显式单一实数总编码定理]\label{thm:realcode}
+存在一个显式、无选择、可恢复的单射
+\[
+\Enc_{\mathrm{tot}}:\RR^\NN\hookrightarrow \RR.
+\]
+更具体地，对任意
+\[
+x=(x_n)_{n\in\NN}\in\RR^\NN,
+\]
+令
+\[
+u_n:=\nu(x_n)=\sum_{m=1}^{\infty}b_{n,m}2^{-m},
+\]
+并定义
+\[
+\Enc_{\mathrm{tot}}(x):=
+\sum_{n=0}^{\infty}\sum_{m=1}^{\infty}
+ b_{n,m}\,2^{-(\langle n,m\rangle+1)}.
+\]
+则 $\Enc_{\mathrm{tot}}$ 为显式、无选择、可恢复的单一实数总编码。
+\end{theorem}
+
+\begin{proof}
+先证定义良好。因为每个 $b_{n,m}\in\{0,1\}$，且
+\[
+\sum_{k\ge 1}2^{-k}\le 1,
+\]
+故双重级数绝对收敛，因此 $\Enc_{\mathrm{tot}}(x)\in[0,1]\subset \RR$。
+
+再证单射。设
+\[
+\Enc_{\mathrm{tot}}(x)=\Enc_{\mathrm{tot}}(y).
+\]
+由二进制位的唯一性，在固定的规范展开约定下，所有编码位都相等：
+\[
+b_{n,m}(x)=b_{n,m}(y),\qquad \forall n,m.
+\]
+由 Cantor 配对函数的可逆性，可逐位恢复所有 $b_{n,m}$。于是对每个 $n$，有
+\[
+\nu(x_n)=\sum_{m\ge 1}b_{n,m}(x)2^{-m}=
+\sum_{m\ge 1}b_{n,m}(y)2^{-m}=\nu(y_n).
+\]
+再由 $\nu$ 的可逆性得到
+\[
+x_n=y_n,\qquad \forall n.
+\]
+故 $x=y$。
+
+最后证 ``无选择''。整个构造只使用显式公式 $\arctan$、规范二进制展开规则及 Cantor 配对函数，不调用选择公理，也不调用外部挑选函数。因此该编码是显式、无选择、可恢复的。
+\end{proof}
+
+\begin{corollary}[塔的单一实数总编码]\label{cor:towercode}
+若修复塔 $\mathfrak T$ 已经由命题 \ref{prop:encn} 产生逐阶实数序列
+\[
+r(\mathfrak T)=(r_n)_{n\in\NN}\in\RR^\NN,
+\]
+则定义
+\[
+\Code(\mathfrak T):=\Enc_{\mathrm{tot}}(r(\mathfrak T))\in\RR.
+\]
+于是整座塔存在单一实数总编码。
+\end{corollary}
+
+\begin{proof}
+直接把定理 \ref{thm:realcode} 应用于序列 $r(\mathfrak T)$ 即得。
+\end{proof}
+
+\begin{theorem}[拓扑自然编码不可能定理]\label{thm:notop}
+若把 ``自然'' 解释为 ``保持原生拓扑结构的同胚编码''，则不存在
+\[
+\RR^\NN\cong \RR
+\]
+的拓扑自然总编码。
+\end{theorem}
+
+\begin{proof}
+$\RR$ 是局部紧空间；而带乘积拓扑的 $\RR^\NN$ 不是局部紧空间。事实上，任取一点 $x=(x_n)$ 及其任意基本邻域
+\[
+U=\prod_{n\in\NN}U_n,
+\]
+其中除有限多个 $n$ 外均有 $U_n=\RR$。其闭包
+\[
+\overline U=\prod_{n\in\NN}\overline{U_n}
+\]
+仍含有无限多个非紧因子 $\RR$，故 $\overline U$ 不是紧的。因此 $\RR^\NN$ 的每个点都没有紧闭包邻域，所以 $\RR^\NN$ 不是局部紧空间。局部紧性在同胚下保持，故 $\RR^\NN$ 不可能与 $\RR$
+  同胚。
+\end{proof}
+
+\begin{remark}[编码结论的边界]
+定理 \ref{thm:realcode} 与推论 \ref{cor:towercode} 证明的是：存在显式、无选择、可恢复的单一实数总编码；定理 \ref{thm:notop} 同时说明：若把 ``自然'' 理解为
+  ``保持原生拓扑的同胚''，则该要求不可满足。
+\end{remark}
+
+\section{结构表示定理：整数、同伦类与同调投影}
+\label{sec:tex35-structure}
+
+\begin{theorem}[整数 $1$ 的同伦--同调结构表示]\label{thm:one}
+存在空间 $S^1$，使得
+\[
+[S^1,S^1]_*\cong \ZZ,
+\qquad
+H_1(S^1;\ZZ)\cong \ZZ,
+\]
+并且整数 $1$ 对应于基点保持同伦类中的度数为 $1$ 的元素，以及第一同调群中的标准生成元。
+\end{theorem}
+
+\begin{proof}
+考虑覆盖映射
+\[
+p:\RR\to S^1,
+\qquad
+p(t)=e^{2\pi i t}.
+\]
+对任意基点保持映射 $f:(S^1,1)\to(S^1,1)$，存在唯一提升
+\[
+\widetilde f:\RR\to\RR,
+\qquad
+p\circ\widetilde f=f\circ p,
+\qquad
+\widetilde f(0)=0.
+\]
+由于 $p(t+1)=p(t)$，故
+\[
+p(\widetilde f(t+1))=p(\widetilde f(t)).
+\]
+于是
+\[
+\widetilde f(t+1)-\widetilde f(t)\in\ZZ.
+\]
+连续性迫使该差为常数，记作 $\deg(f)\in\ZZ$。由同伦提升性质可知，$\deg(f)$ 只依赖于同伦类。映射
+\[
+[f]_*\mapsto \deg(f)
+\]
+给出
+\[
+[S^1,S^1]_*\cong \ZZ.
+\]
+恒等映射 $\id_{S^1}$ 的提升是 $\widetilde f(t)=t$，因此其度数为 $1$。
+
+再看同调。把 $S^1$ 看成一个含一个 $0$-胞腔和一个 $1$-胞腔的 CW 复形，则胞腔链群满足
+\[
+0\to C_1\cong \ZZ\xrightarrow{\partial_1}C_0\cong \ZZ\to 0,
+\]
+且两端附着到同一个 $0$-胞腔，故
+\[
+\partial_1=0.
+\]
+又无 $2$-胞腔，因此
+\[
+\operatorname{im}\partial_2=0.
+\]
+从而
+\[
+H_1(S^1;\ZZ)=\ker\partial_1/\operatorname{im}\partial_2\cong \ZZ.
+\]
+其标准 $1$-胞腔类即为生成元，对应整数 $1$。
+\end{proof}
+
+\begin{theorem}[任意集合元素的同调结构表示]\label{thm:allstructure}
+对任意集合 $A$，存在拓扑空间
+\[
+X_A:=\bigvee_{a\in A}S_a^1,
+\]
+使得
+\[
+H_1(X_A;\ZZ)\cong \bigoplus_{a\in A}\ZZ.
+\]
+并且对每个 $a\in A$，同时存在：
+\[
+j_A(a)=e_a\in H_1(X_A;\ZZ),
+\]
+即对应的坐标生成元，以及
+\[
+\pi_a:H_1(X_A;\ZZ)\to \ZZ,
+\qquad
+\pi_a\Bigl(\sum_{b\in A}n_be_b\Bigr)=n_a,
+\]
+即对应的坐标投影。映射
+\[
+j_A:A\hookrightarrow H_1(X_A;\ZZ)
+\]
+与
+\[
+\iota_A:A\hookrightarrow \operatorname{Hom}(H_1(X_A;\ZZ),\ZZ),
+\qquad
+\iota_A(a)=\pi_a,
+\]
+均为单射。
+\end{theorem}
+
+\begin{proof}
+构造
+\[
+X_A=\bigvee_{a\in A}S_a^1,
+\]
+即以一个公共基点把以 $A$ 为指标的一族圆粘接而成的花束空间。它有一个 $0$-胞腔和对每个 $a\in A$ 的一个 $1$-胞腔 $e_a$，因此胞腔链群为
+\[
+C_1(X_A;\ZZ)\cong \bigoplus_{a\in A}\ZZ e_a,
+\qquad
+C_0(X_A;\ZZ)\cong \ZZ.
+\]
+因为每个 $1$-胞腔的两个端点都附着到同一个公共基点，所以
+\[
+\partial_1(e_a)=0,
+\qquad \forall a\in A.
+\]
+又由于没有 $2$-胞腔，故
+\[
+\operatorname{im}\partial_2=0.
+\]
+于是
+\[
+H_1(X_A;\ZZ)=\ker\partial_1/\operatorname{im}\partial_2\cong \bigoplus_{a\in A}\ZZ e_a.
+\]
+定义
+\[
+j_A(a):=e_a.
+\]
+若 $a\neq b$，则 $e_a\neq e_b$，故 $j_A$ 为单射。
+
+再定义坐标投影
+\[
+\pi_a\Bigl(\sum_{b\in A}n_be_b\Bigr)=n_a.
+\]
+若 $a\neq b$，则
+\[
+\pi_a(e_a)=1,\qquad \pi_b(e_a)=0,
+\]
+所以 $\pi_a\neq\pi_b$，从而
+\[
+\iota_A(a):=\pi_a
+\]
+也是单射。故任意集合元素都可被忠实表示为某个同调结构中的生成元或投影。
+\end{proof}
+
+\begin{corollary}[``一切皆结构'' 的严格弱版本]\label{cor:weakstructure}
+任意集合 $A$ 的任意元素 $a\in A$，都不必作为空壳原子处理；它总可以被忠实表示为某个富结构中的可区分对象。更精确地说，存在某个结构对象 $S_A$ 及单射
+\[
+\iota_A:A\hookrightarrow \mathcal O(S_A)
+\]
+使得 $a$ 被表示为 $\mathcal O(S_A)$ 中的生成元、投影或其他结构性可区分对象。
+\end{corollary}
+
+\begin{proof}
+由定理 \ref{thm:allstructure}，可取
+\[
+S_A:=H_1(X_A;\ZZ),
+\]
+并令 $\mathcal O(S_A)$ 取为其生成元族或投影族。于是集合元素被忠实嵌入到结构对象中。故 ``一切皆结构'' 在 ``忠实结构表示'' 的意义下成立。
+\end{proof}
+
+\begin{remark}[边界]
+推论 \ref{cor:weakstructure} 证明的是 ``元素可被结构忠实表示''，而不是 ``元素与某一唯一结构绝对同一''。后者需要额外的唯一性与自然性证书，不是本文结论的一部分。
+\end{remark}
+
+\section{相对结构基础定理与边界}
+\label{sec:tex35-foundation}
+
+本节承接定理 \ref{thm:allstructure} 与推论 \ref{cor:weakstructure}，讨论该结构表述何时可以上升为基础层结论，以及其严格边界。
+
+\begin{theorem}[相对结构基础定理]\label{thm:relativefoundation}
+在假设 \ref{ass:prior} 下，主丛联络--路径积分--同伦修复塔至少可作为来源框架内部的相对结构基础。更具体地：法则层结构是原像，对象层主丛几何与低维标量语义是其表示或投影，因此塔式结构在来源框架内部具有统摄性的上层地位。
+\end{theorem}
+
+\begin{proof}
+由假设 \ref{ass:prior}，原始 law-level 结构先于对象层 bundle 几何；因此对象层主丛只是在更高法则空间中的表示。又由同一假设，低维标量语义只是更高 law-space 结构的扁平投影，而非第一性对象。
+
+于是，在来源框架内部，具有逻辑先行地位的是法则层与修复塔式结构，而非对象层几何或标量语义。换言之，bundle 几何与 scalar semantics 都由更高结构统一生成、统一约束、统一解释。因此该塔至少可作为来源框架内部的相对结构基础。
+
+\end{proof}
+
+\begin{definition}[全局基础替代所需证书]
+若某理论 $T$ 要被认证为 ``已全局替代集合论作为全部基础''，则至少需要给出如下证书包：
+\[
+F_1:\ \text{内部宇宙或对象域构造};
+\]
+\[
+F_2:\ \text{元素关系或等价的类型归属/子对象机制};
+\]
+\[
+F_3:\ \text{空、对、并、函数、幂对象或等价闭包机制};
+\]
+\[
+F_4:\ \text{自然数对象与无穷机制};
+\]
+\[
+F_5:\ \text{分离、替换、归纳或等价构造原则};
+\]
+\[
+F_6:\ \text{将通常数学解释进 }T\text{ 的解释定理或保守性定理}.
+\]
+\end{definition}
+
+\begin{proposition}[全局基础替代的必要条件]\label{prop:foundationneed}
+若理论 $T$ 尚未给出上述 $F_1$--$F_6$，则不能把 ``$T$ 已全局替代集合论作为全部基础'' 认证为已证明结论。
+\end{proposition}
+
+\begin{proof}
+所谓 ``全局替代集合论作为全部基础''，并不是只要求结构丰富，而是要求 $T$ 足以承载 ordinary mathematics 的全部基础功能。若缺少内部宇宙、子对象机制、基本闭包、自然数对象、替换或解释定理中的任意关键一项，
+  就无法证明普通数学能被完全解释进 $T$。因此在缺少 $F_1$--$F_6$ 的情况下，不能把该结论视为已证明。
+\end{proof}
+
+\begin{corollary}[当前边界]
+在本文范围内，可以严格签发的结论是：
+\[
+\text{该塔在来源框架内部构成相对结构基础。}
+\]
+而下述更强命题仍不并入正文定理结论：
+\[
+\text{该塔已全局替代集合论或 ZFC 作为全部基础。}
+\]
+\end{corollary}
+
+\begin{proof}
+前半句由定理 \ref{thm:relativefoundation} 给出；后半句由命题 \ref{prop:foundationneed} 限定其边界。
+\end{proof}
+
+\section{结论}
+\label{sec:tex35-conclusion}
+
+本文完成了以下几项严格结果。
+
+第一，在第 \ref{sec:tex35-protocol} 节建立了扩展签发认证协议。它把 ``来源直签发'' 与 ``新增证书后签发'' 统一到同一判定机制中，并给出对象降型、来源接口、缺口集、证书包与证明链的标准流程。
+
+第二，在第 \ref{sec:tex35-tower} 节基于假设 \ref{ass:path}、\ref{ass:bianchi} 与 \ref{ass:obstruction} 构造了以 $\NN$
+  为离散指标的主丛联络--路径积分--同伦修复塔，并由定理 \ref{thm:tower} 给出主结论。
+
+第三，在第 \ref{sec:tex35-realcode} 节由定理 \ref{thm:realcode} 与推论 \ref{cor:towercode} 证明了该塔存在显式、无选择、可恢复的单一实数总编码；同时由定理 \ref{thm:notop} 说明：若把 ``自然'' 理解为 ``保持原生拓扑的同胚''，则此类编码不可能存在。
+
+第四，在第 \ref{sec:tex35-structure} 节由定理 \ref{thm:one}、定理 \ref{thm:allstructure} 与推论 \ref{cor:weakstructure} 证明了整数 $1$
+  可以由度数为 $1$ 的同伦类或第一同调群中的标准生成元表示；更一般地，任意集合元素都可被忠实表示为某个同调结构中的生成元或投影，从而得到 ``一切皆结构'' 的严格弱版本。
+
+第五，在第 \ref{sec:tex35-foundation} 节由定理 \ref{thm:relativefoundation} 证明了该塔在来源框架内部构成相对结构基础；同时由命题 \ref{prop:foundationneed}
+  明确指出，若要把它升级为全局基础替代，还需要补齐内部宇宙、子对象机制、基本闭包、自然数对象、替换原理及解释定理等基础证书。
+
+\section*{参考文献}
+\begin{thebibliography}{99}
+
+\bibitem{RepoTex36Formal}
+【仓内 TeX】主丛联络的纤维终点空间、路径积分支撑类与同伦扭曲正规形三重等价的形式系统笔记：
+\code{NoteBook/notebook2/tex36_pub/gframework_principal_connection_fiber_space_path_integral_homotopy_twist_equivalence_
+  formal_system.tex}。
+
+\bibitem{RepoTex29RepairableObstruction}
+【仓内 TeX】可修复障碍同伦类与广义分形的形式系统笔记：
+\code{NoteBook/notebook2/tex29_pub/gframework_repairable_obstruction_homotopy_class_vs_generalized_fractal_formal_system
+  .tex}。
+
+\bibitem{GaoZhengAppVol3}
+Gao, Z. (2025).
+\newblock GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI.
+\newblock In \emph{GaoZheng G-Framework and GaoZheng G-Algebra: Applied Mathematics Volume III – HACA, PACER, and
+  Certificate-Based AI (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17762295}.
+
+
+\bibitem{KobayashiNomizu1963Foundations}
+Kobayashi, S., \& Nomizu, K. (1963).
+\newblock \emph{Foundations of Differential Geometry, Volume I}.
+\newblock Interscience Publishers.
+
+\bibitem{Husemoller1994FibreBundles}
+Husemoller, D. (1994).
+\newblock \emph{Fibre Bundles} (3rd ed.).
+\newblock Springer.
+
+\bibitem{FeynmanHibbs1965QMPI}
+Feynman, R. P., \& Hibbs, A. R. (1965).
+\newblock \emph{Quantum Mechanics and Path Integrals}.
+\newblock McGraw-Hill.
+
+\bibitem{Schulman2005Technique}
+Schulman, L. S. (2005).
+\newblock \emph{Techniques and Applications of Path Integration}.
+\newblock Dover Publications.
+
+\bibitem{Hatcher2002AT}
+Hatcher, A. (2002).
+\newblock \emph{Algebraic Topology}.
+\newblock Cambridge University Press.
+
+\bibitem{Whitehead1978Elements}
+Whitehead, G. W. (1978).
+\newblock \emph{Elements of Homotopy Theory}.
+\newblock Springer.
+
+\bibitem{Weibel1994HomologicalAlgebra}
+Weibel, C. A. (1994).
+\newblock \emph{An Introduction to Homological Algebra}.
+\newblock Cambridge University Press.
+
+\bibitem{LodayVallette2012AlgebraicOperads}
+Loday, J.-L., \& Vallette, B. (2012).
+\newblock \emph{Algebraic Operads}.
+\newblock Springer.
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}

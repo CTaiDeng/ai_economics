@@ -1,0 +1,983 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=20mm,
+  right=20mm
+}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\Urlmuskip=0mu plus 2mu
+\sloppy
+\usepackage{tocloft}
+
+% 目录中 section 条目使用点线填充到页码
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% 基本定理环境（工作笔记：形式系统风格）
+\newtheorem{definition}{定义}[section]
+\newtheorem{axiom}{公理}[section]
+\newtheorem{assumption}{假设}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}{命题}[section]
+\newtheorem{corollary}{推论}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{remark}{备注}[section]
+\newtheorem{Certificate}{证书}[section]
+
+% 记号（仅用于本笔记自洽引用，避免依赖主稿宏定义）
+\newcommand{\Ob}{\ensuremath{\mathsf{Ob}}}
+\newcommand{\code}[1]{\path{#1}}
+\newcommand{\GFramework}{\textsf{G-Framework}}
+\newcommand{\PLPIMMT}{\textsf{PL-PI MMT}}
+\newcommand{\GZLS}{\ensuremath{\mathfrak{L}_{\mathrm{GZ}}}}
+\newcommand{\GZTLC}{\ensuremath{\mathcal{A}}}
+\newcommand{\GZLT}{\ensuremath{M_{!w}}}
+\newcommand{\GZLOC}{\ensuremath{A_M}}
+\newcommand{\GZLCurv}{\ensuremath{\mathcal{F}_{\mathrm{law}}}}
+\newcommand{\GZCBT}{\textsf{GZ-CBT}}
+\newcommand{\GZOHU}{\textsf{GZ-OHU}}
+\newcommand{\CBTOHU}{\textsf{CBT-OHU}}
+
+% 避免少量不可控的换行溢出（尤其是混排 CJK 与等宽字体时）
+
+\hfuzz=700pt
+\hbadness=10000
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+
+\title{性质代数与同伦代数的封闭证书、障碍类与拓扑修复\\（工作笔记：形式系统版）}
+\author{Gao Zheng（高政）}
+\date{2026-01-12}
+\maketitle
+
+\section*{前言}
+\addcontentsline{toc}{section}{前言}
+
+本文的目标不是单独罗列性质代数、同伦代数、障碍类与拓扑修复，而是在
+\GFramework{} 的代数--同伦基础中，把性质闭包、同伦闭包、法空间、连续统崩溃、
+离散统修复与对象层提升组织成一个可执行的语义工作流。若这些对象分散出现，
+代数闭包容易只被看成形式等式，同伦修复容易只被看成拓扑类比；本文将二者统一为
+“规则、性质与障碍如何在同伦代数中闭合并被修复”的问题。
+
+本文的第一层立场是从状态点到规则点。系统分析不应只停留在状态空间中的点，而要
+把规则、法空间和变换也作为一等对象。性质代数描述局部性质如何组合，同伦代数
+描述这些组合在高阶一致性下如何闭合；当闭合失败时，障碍类就成为修复塔的输入。
+
+本文的第二层立场是连续统崩溃与离散统修复。连续结构在某些层级上会出现不可直接
+处理的崩溃或上同调障碍；离散统并不只是粗糙近似，而是提供可执行的修复骨架。
+通过同伦塔、边缘算子与证书接口，连续统中的失闭合可以被转写为离散统中的可修复
+障碍。
+
+本文的第三层立场是四条核心证书的接口化。性质闭包、同伦闭包、对象层提升与法
+几何结构不是彼此平行的命题，而是后续 G-Framework 文章反复调用的基础证书。
+本文通过形式逻辑链条将它们组织为可复用接口，使后续修复、治理、命中与残差求解
+可以共享同一语义底座。
+
+本文的第四层立场是障碍类的代数化。拓扑障碍并不只是空间中的孔洞，也可以表现为
+性质组合无法闭合、边缘算子无法突破、同伦塔无法继续吸收的代数失败。本文将这些
+失败写成障碍类，使它们可以被同调、同伦与变分算子共同处理。
+
+本文的第五层立场是新增性质与新增边缘算子的等价接口。当现有性质闭包不足以吸收
+障碍时，引入新的性质等价于引入新的性变算子；在同调语义中，这又等价于引入新的
+边缘算子或态射。这个接口说明，修复不是外加补丁，而是通过扩展性质代数本身来改变
+可闭合边界。
+
+本文的第六层立场是拓扑修复的工作流化。障碍出现后，系统并不直接跳到结论，而是
+经历定位、上升、引入新性质、改变同伦塔结构、验证闭合等步骤。本文将这些步骤写成
+语义工作流，为后续更工程化的修复塔、语义规范化和统计命中提供模板。
+
+本文的第七层立场是对象层提升。G-Framework 后续稿件反复把规则、路径、算子、分布
+和轨迹都提升为对象；本文提供了较早的代数理由：只有当规则点和性质闭包成为一等
+对象时，障碍类和修复塔才有明确的作用对象。
+
+因此，本文在整体 \GFramework{} 中承担的是“性质代数与同伦代数闭包”的基础作用。
+它向前连接同伦同一性与单子集合论，向中间连接法空间、障碍类与修复塔，向后为
+JacGap 动力、语义规范化和统计力学命中提供代数闭合证书。概括地说，本文把
+“性质如何闭合、闭合失败如何修复”推进为可调用的同伦代数形式系统。
+
+更具体地说，本文把“性质”从描述词提升为运算对象。性质可以组合、闭合、失闭合、
+产生障碍，也可以通过新增性变算子进入新的同伦塔。这个提升使后续系统不必把性质
+当作不可处理的标签，而可以把它放入代数和修复流程中。
+
+从方法论上看，本文给出的是修复的代数工作流。它先判断性质闭包是否成立，再定位
+上同调障碍，再通过新增边缘算子或性变态射改变同伦塔结构，最后检查闭合是否恢复。
+这条链条是后续许多形式系统“公理降级、证书化、修复化”的早期模板。
+
+从整体谱系看，本文连接了基础身份论和后续工程修复。前者说明对象与性质如何构成
+同类，后者需要知道当这些性质无法闭合时如何处理。本文正好位于二者之间，将基础
+同一性转化为可执行的同伦代数修复流程。
+
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{性质代数与同伦代数：封闭证书、障碍类与修复塔}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{remark}[命题链（严谨性润色）]
+同伦代数等价于性质代数，以满足接口证书封闭性的性质闭包为一个同伦代数或同伦类；当出现上同调类拓扑障碍时，等价于改同调代数的边界，即意味着其边缘算子无法突破或修复该上同调障碍；这时引入新的性质，即引入新的性变算子，即等级于引入新的边缘算子，
+  等价于引入新的性变态射；通过改变面对该上同调障碍的同伦塔结构，实现对上同调障碍的拓扑修复，而性变算子或边缘算子的形式则表现为基于变分法的可计算泛函算子。
+\end{remark}
+
+\subsection{命题链的最小闭环（概览）}
+\label{subsec:tex18-minimal-loop}
+
+\begin{remark}[一句话概括]
+在形式系统口径下，“封闭性证书”可被压缩为一条平方为零条件 $Q^2=0$；
+“上同调障碍”可被压缩为某一层残差 $\Ob_n$ 仅是 $\delta$-闭而非 $\delta$-边界。
+当障碍类非零时，必须通过扩展性质、扩展算子、扩展同伦塔（必要时同时改变边界数据）
+把该障碍变为边界，从而完成拓扑修复；同时，性变算子或边缘算子的可计算形态可在变分语言中由主方程统一生成。
+四条可复用的严格形式化证书接口见附录A。
+\end{remark}
+
+\subsection{性质代数与同伦代数：以接口证书封闭性刻画}
+\label{subsec:tex18-property-algebra}
+
+\begin{definition}[性质空间与多线性组合算子]
+设 $\mathcal{P}=\bigoplus_{k\in\mathbb{Z}}\mathcal{P}^k$ 为分次向量空间；
+其齐次元的次数记为 $|\cdot|$。
+给定一族多线性算子
+\[
+  l_n:\wedge^n\mathcal{P}\to \mathcal{P},
+  \qquad \deg(l_n)=2-n,
+  \qquad n\ge 1.
+\]
+该族算子可被解释为“性质的可组合接口规则”，亦可被读作同伦结构的多元括号。
+\end{definition}
+
+\begin{definition}[余导子打包与接口证书封闭性]
+令 $s\mathcal{P}$ 表示悬移（次数整体 $+1$），令 $S^c(s\mathcal{P})$ 为其上的共自由对称余代数。
+由 $\{l_n\}_{n\ge 1}$ 可唯一诱导出一个次数 $+1$ 的余导子 $Q$（其 $n$ 线性分量对应 $l_n$）。
+称“接口证书封闭性”成立，若
+\begin{equation}
+\tag{A0}
+\label{eq:A0-Q-square}
+  Q^2=0.
+\end{equation}
+（旁注：\eqref{eq:A0-Q-square} 等价于一整族高阶一致性方程，即同伦雅可比/同伦结合律的统一表达。）
+对应的证书化接口见附录A的 Certificate（A0）。
+\end{definition}
+
+\begin{proposition}[性质闭包与同伦代数的等价表述]
+“性质闭包满足接口证书封闭性”与“$\left(\mathcal{P},\{l_n\}\right)$ 构成同伦代数结构”在公理层面等价：
+\[
+  \text{性质闭包的全部一致性约束成立}
+  \quad\Longleftrightarrow\quad
+  Q^2=0
+  \quad\Longleftrightarrow\quad
+  (\mathcal{P},\{l_n\})\ \text{是一个同伦代数（例如 }L_\infty\text{ 结构）。}\cite{LadaStasheff1993,LadaMarkl1995}
+\]
+因此，把满足封闭证书的性质闭包视为一个“同伦对象”是严格可定义的；其同伦类可取准同构（quasi-isomorphism）类，
+即在上同调层面等价的同伦结构类。
+\end{proposition}
+
+\subsection{上同调障碍：残差 $\Ob_n$ 的闭性与不可解性}
+\label{subsec:tex18-obstruction}
+
+\begin{definition}[边界与上同调]
+将 $l_1$ 视为边界算子（微分），并要求
+\begin{equation}
+\tag{A1}
+\label{eq:A1-diff}
+  l_1^2=0.
+\end{equation}
+于是上同调 $H(\mathcal{P},l_1)$ 可定义。
+\end{definition}
+
+\begin{definition}[$\delta$：由 $l_1$ 诱导的多线性边界算子]
+对次数为 $2-n$ 的 $n$ 线性映射 $f:\wedge^n\mathcal{P}\to\mathcal{P}$，定义
+\begin{equation}
+\tag{A2}
+\label{eq:A2-delta}
+  (\delta f)(x_1,\dots,x_n)
+  :=
+  l_1 f(x_1,\dots,x_n)
+  +
+  \sum_{r=1}^n (-1)^{|x_1|+\cdots+|x_{r-1}|}\,
+  f(x_1,\dots,l_1x_r,\dots,x_n).
+\end{equation}
+（旁注：$\delta$ 可理解为“把 $l_1$ 同时作用在输出与逐个输入”的标准提升。）
+\end{definition}
+
+\begin{definition}[逐层一致性方程与第 $n$ 阶残差/障碍项]
+设已构造到 $(l_1,\dots,l_{n-1})$，并且低阶一致性方程均成立。
+第 $n$ 阶一致性可写成一条线性方程
+\begin{equation}
+\tag{A3}
+\label{eq:A3-level-n}
+  \delta l_n + \Ob_n = 0.
+\end{equation}
+其中 $\Ob_n$ 为仅由低于 $n$ 阶的算子拼出的残差/障碍项；它完全由 $(l_1,\dots,l_{n-1})$ 决定。
+\end{definition}
+
+\begin{proposition}[低阶封闭性 $\Rightarrow$ 障碍闭性]
+在低阶一致性成立的前提下，$\Ob_n$ 满足
+\begin{equation}
+\tag{A3a}
+\label{eq:A3a-ob-closed}
+  \delta \Ob_n = 0.
+\end{equation}
+因此可定义障碍类
+\[
+  [\Ob_n]\in H\!\left(\mathrm{Hom}(\wedge^n\mathcal{P},\mathcal{P}),\delta\right),
+\]
+并在“闭输入”口径下与 $H(\mathcal{P},l_1)$ 的自然像相联系（依赖具体记账复形的选取）。
+\end{proposition}
+
+\begin{theorem}[“无法突破/修复”与障碍类非零的等价判据]
+在性质空间 $\mathcal{P}$ 与边界 $l_1$ 不变的前提下，存在 $l_n$ 使得
+\begin{equation}
+\tag{A4}
+\label{eq:A4-delta-ln}
+  \delta l_n = -\Ob_n
+\end{equation}
+当且仅当障碍类为零：
+\begin{equation}
+\tag{A6}
+\label{eq:A6-ob-vanish}
+  [\Ob_n]=0.
+\end{equation}
+因此若
+\begin{equation}
+\tag{A7}
+\label{eq:A7-ob-nonzero}
+  [\Ob_n]\neq 0,
+\end{equation}
+则不存在任何仅在原 $\mathcal{P}$ 上添加的 $l_n$ 可以完成该层封闭。
+\end{theorem}
+
+\subsection{拓扑修复：扩展性质、扩展算子与扩展同伦塔（必要时改变边界）}
+\label{subsec:tex18-topological-repair}
+
+\subsubsection{扩展性质空间以杀死障碍类}
+\label{subsubsec:tex18-extend-space}
+
+\begin{definition}[扩展性质空间]
+当障碍类非零时，可引入新的性质空间 $W$（作为额外自由度/新接口性质），并定义扩展
+\begin{equation}
+\tag{B1}
+\label{eq:B1-extend}
+  \mathcal{P}' := \mathcal{P}\oplus W.
+\end{equation}
+\end{definition}
+
+\begin{definition}[扩展后的边界数据]
+在扩展空间上选取新的边界
+\begin{equation}
+\tag{B2}
+\label{eq:B2-diff-prime}
+  l_1':\mathcal{P}'\to\mathcal{P}',\qquad (l_1')^2=0,
+\end{equation}
+并由 $l_1'$ 诱导新的 $\delta'$。
+\end{definition}
+
+\begin{remark}[拓扑直觉]
+通过 \eqref{eq:B1-extend}--\eqref{eq:B2-diff-prime} 的扩展，可使原本非零的障碍类在扩展后变为边界：
+\begin{equation}
+\label{eq:B3-ob-killed}
+  [\Ob_n]'=0\quad\text{于}\quad H\!\left(\mathrm{Hom}(\wedge^n\mathcal{P}',\mathcal{P}'),\delta'\right).
+\end{equation}
+该操作在拓扑直觉上对应“添加生成元/胞腔以消去上同调类”。
+\end{remark}
+
+\subsubsection{引入新的高阶算子并改变同伦塔结构}
+\label{subsubsec:tex18-add-operators}
+
+\begin{proposition}[扩展系统中的可解性]
+在扩展系统 $(\mathcal{P}',l_1')$ 中，通过引入新的高阶算子 $l_n'$，
+可使第 $n$ 阶方程变为可解：
+\begin{equation}
+\tag{B4}
+\label{eq:B4-level-n-prime}
+  \delta' l_n' = -\Ob_n'.
+\end{equation}
+由此同伦塔从 $(l_1,\dots,l_{n-1})$ 延拓为 $(l_1',\dots,l_{n-1}',l_n')$，
+其“面对障碍的分辨率”发生提升，从而实现拓扑修复。
+\end{proposition}
+
+\subsubsection{性变态射：同伦态射的严格对应}
+\label{subsubsec:tex18-morphisms}
+
+\begin{definition}[$L_\infty$-态射的分量形式]
+将性质体系视为同伦对象时，“性质变化”可被编码为一个同伦态射（例如 $L_\infty$-morphism）
+\begin{equation}
+\tag{B5}
+\label{eq:B5-linfty-morphism}
+  F=\{f_k\}_{k\ge 1},
+  \qquad
+  f_k:\wedge^k\mathcal{P}\to \mathcal{P}',
+  \qquad
+  \deg(f_k)=1-k.
+\end{equation}
+\end{definition}
+
+\begin{proposition}[态射一致性方程]
+以余导子表述，$F$ 的同伦一致性可写为
+\begin{equation}
+\tag{B6}
+\label{eq:B6-morphism-compat}
+  F\circ Q = Q'\circ F.
+\end{equation}
+其中高阶分量 $f_n$ 可在“低阶不够用”时携带并吸收障碍信息。
+因此，“引入新的性变态射”与“改变同伦塔结构以修复障碍”可被视为同一机制的两种语法。
+\end{proposition}
+
+\subsection{变分生成：主方程、可解性与可计算泛函算子形态}
+\label{subsec:tex18-variational}
+
+\begin{definition}[BV 生成算子与主方程]
+给定作用量/泛函 $S$ 与 BV 括号 $\{\cdot,\cdot\}$，定义\cite{BV1981}
+\begin{equation}
+\tag{V1}
+\label{eq:V1-Q}
+  Q:=\{S,\cdot\}.
+\end{equation}
+称 BV 主方程成立，若
+\begin{equation}
+\tag{V2}
+\label{eq:V2-master}
+  \{S,S\}=0.
+\end{equation}
+\end{definition}
+
+\begin{proposition}[主方程 $\Rightarrow$ 封闭证书]
+由 BV 括号的 Jacobi 恒等式，有
+\begin{equation}
+\tag{V3}
+\label{eq:V3-Q-square}
+  \{S,S\}=0
+  \quad\Longrightarrow\quad
+  Q^2=0.
+\end{equation}
+从而 \eqref{eq:V2-master} 可作为接口证书封闭性的可检验证书。
+\end{proposition}
+
+\begin{remark}[逐层一致性与“加项修复”]
+若把 $S$ 作分级展开
+\begin{equation}
+\tag{V4}
+\label{eq:V4-S-expand}
+  S=S_2+S_3+\cdots,
+\end{equation}
+则主方程按阶展开产生逐层一致性条件：
+\begin{equation}
+\tag{V5}
+\label{eq:V5-master-level}
+  \sum_{i+j=n}\{S_i,S_j\}=0,\qquad n=4,5,\dots
+\end{equation}
+当已满足到某一阶时，下一阶出现的残差可被读作“闭但未必为边界”的障碍项；
+其能否通过加入新项 $S_{n+1}$ 抵消，取决于相应障碍类是否为零。
+该判据与 $\delta l_n=-\Ob_n$ 的可解性在形式上同构。
+\end{remark}
+
+\begin{corollary}[可计算形态的来源]
+在变分语境中：
+\begin{itemize}
+  \item 扩展性质空间 $\mathcal{P}\to\mathcal{P}'$ 可对应为“加入新场/新伴随变量/新约束对”，以使障碍类变为边界；
+  \item 引入新的边缘算子/性变算子 $l_n$ 可对应为“在 $S$ 中加入新的高阶项”，其导出括号（derived brackets）给出 $l_n$ 的显式可计算公式；
+  \item 封闭性由主方程 \eqref{eq:V2-master} 证书化，修复由“加项/加变量”把障碍类变成边界实现。
+\end{itemize}
+\end{corollary}
+
+\clearpage
+\section{从状态点到规则点：法空间作为一等对象的同伦闭包}
+\label{sec:tex18-law-space-as-first-class-object}
+
+\subsection{对象转换：以“法/规则”作为对象}
+\label{subsec:tex18-object-shift}
+
+在 \PLPIMMT\ 的口径下，“法（laws）”并非被视为固定不变的公理文本，
+而被明确表述为“动态生成并可迭代的 procedures”。
+这一对象观在几何化实现中体现为：\GFramework\ 并非先固定状态空间再附加若干规则，
+而是首先引入一个法空间（law-space）$\GZLS$，并配套连接与曲率数据，
+用以约束“法在法空间中的可行流动路径”
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L101--L106）。\cite{GaoZheng2025GFramework}
+本小节所用的“规则作为对象”证书接口见附录B：Certificate~\ref{cert:tex18-ch2-law-as-first-class-objects}。
+
+\begin{remark}[与经典同伦代数的对象层差异]
+在经典 $L_\infty/A_\infty$ 的第一性定义中，对象通常是链复形/分次空间 $V$，
+而 $\{l_n\}$ 是附加在 $V$ 上的结构。
+在法空间主线中，规则本身被提升为对象（law-objects），
+并且“同伦/曲率/障碍”的发生域被提升到规则层；
+state 更像是规则作用到其上的影子层或投影端。
+\end{remark}
+
+\subsection{Pan-Iteration 与 Pan-Logic：法空间的第一性定义}
+\label{subsec:tex18-pip-plp}
+
+\begin{definition}[泛迭代问题（PIP）]
+给定一族异构迭代系统 $\mathfrak{S}=\{S_i\}_{i\in I}$，
+泛迭代问题要求构造一个总法空间
+\[
+  \mathcal{L}_{\mathrm{tot}}
+\]
+及一个泛迭代机制
+\[
+  \Pi:\mathcal{L}_{\mathrm{tot}}\times\mathsf{State}_{\mathrm{tot}}
+  \longrightarrow \mathsf{State}_{\mathrm{tot}},
+\]
+使得每个 $S_i$ 都可作为 $(\mathcal{L}_{\mathrm{tot}},\Pi)$ 的某种 restriction/quotient/projection 出现。
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L329--L343）
+\end{definition}
+
+\begin{definition}[泛逻辑问题（PLP）]
+泛逻辑问题要求在同一法空间 $\mathcal{L}_{\mathrm{tot}}$ 上定义：
+\begin{itemize}
+  \item 适用于不同系统 law fragments 的逻辑谓词（truth/admissibility/equivalence）；
+  \item 不依赖任何具体 state space 的 logicality metrics，用于衡量一致性、解释力、结构接近性等。
+\end{itemize}
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L351--L360）
+\end{definition}
+
+\paragraph{对象层含义.}
+PIP/PLP 的定义把“规则/法”确立为主对象：$\mathcal{L}_{\mathrm{tot}}$ 的元素是 laws，
+$\Pi$ 仅描述 law 对 state 的外部作用；
+逻辑谓词与度量也被要求直接定义在 law-space 上，而非绑定在某个固定状态集上。
+
+\subsection{GZ Law Suite：法对象的一阶分解}
+\label{subsec:tex18-gz-law-suite}
+
+在 \GFramework\ 的法空间实现中，GZ Law Suite 被用于实例化 PIP/PLP：
+\[
+  (\GZLS,\GZLT,\GZLOC,\GZLCurv;\ \text{pan-logic/pan-iteration strata and constraints}).
+\]
+其高层意图可概括为（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L491--L512）：
+\begin{itemize}
+  \item $\GZLS$：承载 law-objects 的法空间；
+  \item $\GZTLC$：组织 law-objects 在参数空间中的变化；
+  \item $\GZLT$：类连接机制，用于在法空间不同区域之间搬运与比较 law-objects；
+  \item $\GZLOC$：描述可允的 law-level transformations，刻画“法的态射（morphisms of laws）”；
+  \item $\GZLCurv$：度量 law-level evolution 的路径依赖与不相容（回路障碍）。
+\end{itemize}
+
+\begin{remark}[差异落地：connection/curvature 的发生域]
+在该对象化口径中，connection/curvature 并非仅被定义在 state manifold 上再附带解释，
+而是明确落在 law-space 的结构部件上（尤其是 $\GZLOC$ 与 $\GZLCurv$），
+其语义是“法如何沿流动被搬运、以及法为何出现路径依赖/不相容”。
+对应的证书接口见附录B：Certificate~\ref{cert:tex18-ch2-gzloc-law-connection} 与 Certificate~\ref{cert:tex18-ch2-gzlcurv-loop-obstruction}。
+\end{remark}
+
+\subsection{法空间 $\GZLS$ 的结构性定义：规则点的几何承载}
+\label{subsec:tex18-gzls-definition}
+
+\begin{definition}[GaoZheng Law-Space $\GZLS$（示意）]
+定义
+\[
+  \GZLS=(\mathfrak{L};J,\mathrm{Loc},\Sigma),
+\]
+其中 $\mathfrak{L}$ 为 law-objects 及其组合规则的语义宇宙，
+$J,\mathrm{Loc}$ 编码度量与局部化数据，
+$\Sigma$ 为触发连续/离散机制切换的一族阈值。
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L966--L974）
+\end{definition}
+
+\begin{remark}[法空间作为 object-level theories 的语义目标]
+在后续发展中，principal bundles、connections 以及 generalized Lie structures
+可被视为 object-level 几何；而 $\GZLS$ 的角色是语义目标：
+把这些 object-level 几何以 law-objects 的形式呈现，并附带显式的
+composition/metric/threshold 数据 $(J,\mathrm{Loc},\Sigma)$
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L979--L985）。
+\end{remark}
+
+\paragraph{一句话钉死差异.}
+当 object-level 几何被“送入” $\GZLS$ 成为 law-objects 时，
+研究对象从“几何空间中的点”迁移为“规则空间中的点（law-objects）”；
+传统同伦代数的 $V$-点在此更像是外部作用端，而非体系首要对象。
+
+\subsection{对象级几何到法对象：规则化函子 $\Phi_{\mathrm{geom}}$}
+\label{subsec:tex18-phi-geom}
+
+\begin{proposition}[Object-level geometry $\to$ law-objects（示意）]
+存在一个函子式指派
+\[
+  \Phi_{\mathrm{geom}}:\mathsf{GeomObj}\longrightarrow \GZLS,
+\]
+把某个合适范畴 $\mathsf{GeomObj}$ 中的 object-level 几何对象
+（例如带 connection/curvature 的 principal bundle）映射为 $\GZLS$ 中的 law-object，使得：
+\begin{enumerate}
+  \item 几何对象的 parallel transport/holonomy/curvature
+        在对应 law-object 中被编码为 composition 与 metric 数据；
+  \item gauge 等价的几何数据被映为 $\GZLS$ 中同构的 law-objects。
+\end{enumerate}
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L988--L1007）
+\end{proposition}
+
+\paragraph{本节功能.}
+该命题给出一个对象层提升机制：同伦/曲率等传统发生在 object-level 的结构，
+可被函子化到法空间成为 law-object 的内部可组合信息；
+从而第1章的“性质闭包/证书闭包”可自然落在 law-objects 上。
+该对象层提升的证书接口见附录B：Certificate~\ref{cert:tex18-ch2-phi-geom-functorial}。
+
+\subsection{法对象的双内容与“法的态射”}
+\label{subsec:tex18-law-object-morphisms}
+
+法对象被设定为同时携带两类内容：
+\begin{enumerate}
+  \item iterative content：状态如何被更新；
+  \item logical content：truth/admissibility/equivalence 如何被评估。
+\end{enumerate}
+此外，$\GZTLC$ 组织 law-objects 在参数空间中的变化，
+而 $\GZLOC$ 与 $\GZLCurv$ 分别编码 law-level transformations 与 law-level curvature data
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L491--L512）。
+
+\begin{remark}[态射层的差异点]
+在该体系中，态射首先是“法到法的变换”（morphisms of laws），而非“点到点的状态转移”。
+因此，同伦、障碍与修复可先发生在规则之间的变换层面，
+state 只是其投影/影子（例如由 $\Pi$ 给出外部作用）。
+\end{remark}
+
+\subsection{与第1章的接口：在 law-objects 上做性质闭包（同伦闭包）}
+\label{subsec:tex18-interface-to-chap1}
+
+\paragraph{最短接口.}
+第1章把“接口证书封闭性”抽象为 $Q^2=0$（附录A：Certificate（A0）），
+把“上同调障碍”抽象为某阶残差 $\Ob_n$ 的非平凡上同调类（附录A：Certificate（A4/B3））。
+
+\paragraph{对象化落点.}
+当性质对象承载在 law-space 的语义宇宙 $\mathfrak{L}$（或其可计算子层）上时，
+$l_n$ 的输入输出可被解释为 law-objects（规则点），从而
+\[
+  Q^2=0
+  \quad\text{表达的不是“状态点运算封闭”，而是“规则点运算（证书组合）封闭”。}
+\]
+同时，障碍/修复的几何含义可与 $\GZLCurv$ 所度量的“不可平坦化/不可平凡化的回路障碍”对照。
+（回路障碍的证书接口见附录B：Certificate~\ref{cert:tex18-ch2-gzlcurv-loop-obstruction}。）
+
+\subsection{可计算的规则点：variable functional--operator 版本的定位}
+\label{subsec:tex18-variable-functional-operator}
+
+在 variable functional--operator 版本中，参数方向被升级为 operator-valued law-functionals
+（例如 $A_M$），从而使“laws of evolution”成为一等几何对象；
+同时也为经典微分动力学与 law-space 上的广义 path integral 提供容器
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L117--L128 与 L121--L124）。
+更进一步的 original version 将 redefined connections 与 higher corrections
+直接编码在 rules of construction 的层面上（同引）。
+
+\clearpage
+\section{连续统崩溃与离散统同伦修复：上同调障碍的可执行消解}
+\label{sec:tex18-discrete-homotopy-repair}
+
+\subsection{两层命题：固定对象域下的不可解性与修复范式差异}
+\label{subsec:tex18-two-layer-claims}
+
+“传统无能”可被拆解为两层可判定命题：
+\begin{enumerate}
+  \item \textbf{不可解性层}：在固定对象域（固定同一性质空间/链复形）与固定边界 $l_1$ 的前提下，
+        若某层障碍类 $[\Ob_n]$ 非零，则内部延拓方程 $\delta l_n=-\Ob_n$ 无解；
+        因而无法仅通过在同一对象上补充高阶边缘算子把障碍类消掉。
+  \item \textbf{范式层}：传统框架通常把上同调障碍当作分类不变量与“孔洞记账”，
+        同伦塔主要承担“编码失配与测度缺陷”的表征功能；
+        而差异路线将“修复”内生化为 law-space 上可执行的重写与完成过程，
+        使离散（乃至超限）递归的障碍消解成为体系动作的一部分。
+\end{enumerate}
+下文分别给出两层命题的严格落点。
+
+\subsection{固定对象域下的严格不可解性：$\delta l_n=-\Ob_n$ 的无解判据}
+\label{subsec:tex18-fixed-domain-impossibility}
+
+\begin{proposition}[固定对象域下的不可解性（障碍类非零）]
+在固定 $\mathcal{P}$ 与边界 $l_1$ 的前提下，若
+\[
+  [\Ob_n]\neq 0\in H\!\left(\mathrm{Hom}(\wedge^n\mathcal{P},\mathcal{P}),\delta\right),
+\]
+则不存在 $n$ 线性算子 $l_n$ 使得第 $n$ 阶封闭方程 \eqref{eq:A4-delta-ln} 成立。
+\paragraph{证明.}
+由附录A的 Certificate~\ref{cert:tex18-A4-obstruction-iff-ln}，方程 \eqref{eq:A4-delta-ln} 可解当且仅当 $[\Ob_n]=0$。证毕。
+\end{proposition}
+
+\begin{remark}[“仅靠加边缘算子修复”意味着换对象或换边界]
+上述不可解性并非源于“缺少技巧”，而是结构性不可能：左端 $\delta l_n$ 永远是 $\delta$-边界，
+而当 $[\Ob_n]\neq 0$ 时右端代表非零上同调类。
+因此若仍要“消去障碍”，必然需要改变问题所在的复形结构（例如扩展对象域、附加生成元或调整边界数据），
+从而进入一个新的同伦对象（在适当意义下可与原对象保持准同构/同伦关系）。
+附录A的 Certificate~\ref{cert:tex18-B3-extend-kill-obstruction} 给出一种最小“加生成元使障碍成边界”的模板。
+\end{remark}
+
+\subsection{传统障碍理论的定位：表示、分类与同伦塔的角色}
+\label{subsec:tex18-traditional-obstruction-role}
+
+在经典同伦代数语境中，上同调常被视为分类理论的核心对象：非零障碍类对应不可消的“拓扑孔洞”，
+其作用是区分同伦类型而非在原对象内部被消去。
+因此，“同伦塔”在传统口径下的典型用途是：
+\begin{itemize}
+  \item 逐层编码低阶一致性失败所产生的残差（Jacobiator/associator 等）；
+  \item 把残差提升为可追踪的闭类（obstruction classes），从而形成分类不变量；
+  \item 通过更换模型（扩展/扭曲/最小模型等）获得与原对象同伦等价的新结构，但并不宣称在固定对象域内消除非零类。
+\end{itemize}
+这与上一小节的不可解性层命题一致：在固定对象域与固定边界下，所谓“内部修复”并无数学意义上的可行空间。
+
+\subsection{连续统崩溃与语义收缩：把修复内生化为 law-space 的离散改写}
+\label{subsec:tex18-continuum-breakdown-discrete}
+
+差异路线把“连续统问题”内生化为法空间（law-space）中的几何/同伦现象：
+通过 CH-layering 与 \GZCBT\ 机制，将 continuum questions 重新表述为 law-space 中可被诊断与重写的结构事件
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L132--L134）。
+
+在对象层面，法空间 $\GZLS=(\mathfrak{L};J,\mathrm{Loc},\Sigma)$ 的定义把连续/离散切换写入结构数据：
+$\Sigma$ 被定义为触发连续与离散机制切换的一族阈值（参见：L966--L974）。
+因此，“离散统”可被理解为：在同一 law-space 内部，允许离散跃迁式的 law-level rewrites，
+并把其与连续 flow 统一置于同一套 connection/curvature/homotopy 约束之下。
+
+语义收缩的一个典型范式，是在外延层 $\mathrm{CH}^{(l_2)}$ 为假时，
+仍可在更高层 $l_{\ge3}$ 进入“语义上的 CH-like regime”：
+例如在强 forcing axioms 的子区域中，
+\[
+  \mathrm{CH}^{(l_2)}\ \text{为假，但}\ \mathrm{CH}^{(l_{\ge3})}\ \text{可在语义意义下被视为真，}
+\]
+其特征包括 definability hierarchies collapse 与 determinacy 在宽片段成立
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L9907--L9918）。
+在 \GZCBT\ 的叙述中，这对应于通过重写把系统导入一个“尽可能规则”的语义区域，
+并用可观测指标（例如 $\Delta_{\mathrm{CH}}(t)$ 的稳定化）刻画重写的收敛与稳态
+（参见：L9899--L9928）。
+
+\subsection{离散与超限：\CBTOHU\ schemes 与 \GZOHU\ 的超限完成}
+\label{subsec:tex18-transfinite-discrete-repair}
+
+为了把“修复”落实为可执行过程，差异路线强调离散的改写流程与超限递归的完成机制。
+
+\paragraph{离散改写：\CBTOHU\ 交错方案.}
+在 law-space 的重写侧，连续图像可由梯度流给出，其中参数 $s$ 被明确解释为“algorithmic time for rewriting”
+（参见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L9591--L9611）。
+但实践上更常用离散方案：交错执行 law-level rewrites（\GZCBT\ steps）与 operator-level homotopy completions（\GZOHU\ steps），
+并将该交错流程命名为 \CBTOHU\ schemes（参见：L9633--L9644）。
+
+\paragraph{超限完成：small-object argument 的修复模板.}
+在 operator-level 的同伦完成侧，\GZOHU\ 的证明草图明确采用
+“transfinite completion and small-object argument”：
+把 Jacobi 缺陷编码为生成映射并附加 correcting operators，
+以 pushouts 在后继阶段推进，并在极限阶段取 colimits，
+从而在某个序数阶段稳定并得到 $L^{\mathrm{OHU}}$（参见：L11402--L11453）；
+其后验证每个残余缺陷都能被有限序列的 correcting homotopies 消去（参见：L11459--L11463）。
+
+上述两条路线共同给出“上同调超限递归离散修复”的形式化原型：
+障碍不再仅被动记录为分类不变量，而被编码为可迭代消解的缺陷清单；
+通过离散改写与超限完成，使同伦代数的“修复”成为体系内生的可执行过程。
+
+\subsection{小结：离散统同伦代数的可执行修复含义}
+\label{subsec:tex18-discrete-summary}
+
+在固定对象域与固定边界的传统口径下，非零障碍类的不可解性使上同调更像分类用的“孔洞记账”；
+而在 law-space 的对象化与 \GZCBT/\GZOHU\ 的工作流中，
+连续统的崩溃—重写与语义收缩—稳态被内生化为离散过程，
+并进一步通过超限递归完成机制提供可证书化的“修复到稳定阶段”的结构结论。
+
+\clearpage
+\appendix
+
+% ============================================================
+% 附录A：四条核心证书（A0/A4/B3/V2）
+% ============================================================
+\section{性质闭包与同伦闭包：四条核心证书（A0/A4/B3/V2）}
+\label{sec:tex18-prop-vs-homotopy-certificates}
+
+本附录将正文的命题链压缩为四条可复用的证书接口：
+\begin{itemize}
+  \item （A0）封闭性证书 $\Longleftrightarrow Q^2=0$；
+  \item （A4）障碍类为零 $\Longleftrightarrow$ 存在新边缘算子以完成该层封闭；
+  \item （B3）若障碍类非零，则需扩展（引入新性质/新自由度/新结构）以把障碍变为边界；
+  \item （V2）若来源于变分主方程，则同伦塔由可计算的泛函生成。
+\end{itemize}
+
+\begin{Certificate}[（A0）性质闭包的接口证书等价于同伦闭包：$Q^2=0$]
+\label{cert:tex18-A0-closure-Q2}
+在 \eqref{eq:A0-Q-square} 的记号下，
+\[
+\text{（接口证书封闭性 / 性质闭包）}\quad\Longleftrightarrow\quad Q^2=0
+\quad\Longleftrightarrow\quad (\mathcal{P},\{l_n\})\ \text{构成同伦代数（例如 }L_\infty\text{）。}
+\]
+\paragraph{证明.}
+对 $Q^2=0$ 的多线性分量逐阶展开，得到全部高阶一致性方程；反之，将全部一致性方程打包即得 $Q^2=0$。证毕。
+\end{Certificate}
+
+\begin{Certificate}[（A4）障碍类为零当且仅当存在新边缘算子：$\lbrack \Ob_n\rbrack =0\ \Leftrightarrow\ \exists\,l_n$]
+\label{cert:tex18-A4-obstruction-iff-ln}
+在 \eqref{eq:A2-delta} 的记号下，若 $\Ob_n$ 满足 $\delta\Ob_n=0$（例如由 \eqref{eq:A3a-ob-closed} 给出），则
+\[
+[\Ob_n]=0\ \text{于}\ H\!\left(\mathrm{Hom}(\wedge^n\mathcal{P},\mathcal{P}),\delta\right)
+\quad\Longleftrightarrow\quad
+\exists\,l_n\ \text{使}\ \delta l_n=-\Ob_n,
+\]
+其中 $\delta l_n=-\Ob_n$ 即第 $n$ 阶封闭方程 \eqref{eq:A4-delta-ln}。
+\paragraph{证明.}
+\eqref{eq:A4-delta-ln} 可解当且仅当 $\Ob_n$ 为 $\delta$-边界；而“为 $\delta$-边界”当且仅当 $[\Ob_n]=0$。证毕。
+\end{Certificate}
+
+\begin{Certificate}[（B3）扩展以“杀死”障碍类：把非零上同调类变为边界]
+\label{cert:tex18-B3-extend-kill-obstruction}
+若在当前复形上 $[\Ob_n]\neq 0$，则仅在原结构内无法解 \eqref{eq:A4-delta-ln}。
+取一个新生成元 $\eta$ 并将障碍复形扩展为
+\[
+\mathrm{Hom}(\wedge^n\mathcal{P},\mathcal{P})'
+:=
+\mathrm{Hom}(\wedge^n\mathcal{P},\mathcal{P})\oplus \langle \eta\rangle,
+\]
+并规定扩展边界为
+\begin{equation}
+\tag{B3}
+\label{eq:B3-attach-cell}
+  \delta'|_{\mathrm{Hom}(\wedge^n\mathcal{P},\mathcal{P})}=\delta,
+  \qquad
+  \delta'\eta:=\Ob_n.
+\end{equation}
+则在扩展后有 $\Ob_n=\delta'\eta$，从而 $[\Ob_n]'=0$；因此按 Certificate~\ref{cert:tex18-A4-obstruction-iff-ln}（在 $\delta'$ 上的版本），
+  扩展后存在相应的封闭解 $l_n'$。
+\paragraph{证明.}
+由 \eqref{eq:B3-attach-cell} 直接得 $\Ob_n$ 是 $\delta'$-边界，故 $[\Ob_n]'=0$；再调用 Certificate~\ref{cert:tex18-A4-obstruction-iff-ln} 得可解性。证毕。
+\end{Certificate}
+
+\begin{Certificate}[（V2）变分主方程生成同伦塔：边缘算子呈现为可计算泛函算子]
+\label{cert:tex18-V2-variational-generates}
+若 BV 主方程 \eqref{eq:V2-master} 成立，并以 \eqref{eq:V1-Q} 定义 $Q:=\{S,\cdot\}$，则由 \eqref{eq:V3-Q-square} 得 $Q^2=0$；
+从而由 Certificate~\ref{cert:tex18-A0-closure-Q2} 得到同伦闭包。
+同时，$Q$ 的多阶展开系数可被组织为一族 $\{l_n\}$，其一致性由 $Q^2=0$ 的分量方程逐层保证，因而给出“可计算的泛函算子形态”。
+\paragraph{证明.}
+\eqref{eq:V2-master}$\Rightarrow$\eqref{eq:V3-Q-square}；再由 Certificate~\ref{cert:tex18-A0-closure-Q2} 得封闭性。证毕。
+\end{Certificate}
+
+\clearpage
+
+% ============================================================
+% 附录B：四个差异点的证书接口（law-space 作为对象域）
+% ============================================================
+\section{对象层提升与法几何结构：四个差异点的证书接口}
+\label{sec:tex18-lawspace-difference-certificates}
+
+本附录把正文第2章中“从状态点到规则点”的四个差异点，
+落成可被后续证明纯调用的证书接口。
+
+\begin{Certificate}[规则作为一等对象：law-space 的点为 law-objects]
+\label{cert:tex18-ch2-law-as-first-class-objects}
+% Source: docs/PureMath/Pub_GFramework_PureMath.tex L101--L106, L329--L343, L491--L498, L966--L974
+在 \PLPIMMT\ 语境下，“laws”被表述为可生成、可迭代的 procedures，而非固定公理
+（见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L101--L102）。
+由此，统一化目标不是先固定某个状态点集再外加规则，而是构造一个法空间并把规则作为对象元素：
+\[
+  \mathcal{L}_{\mathrm{tot}}
+  \quad\text{以及}\quad
+  \Pi:\mathcal{L}_{\mathrm{tot}}\times \mathsf{State}_{\mathrm{tot}}
+  \longrightarrow \mathsf{State}_{\mathrm{tot}},
+\]
+使异构系统都可在同一 law-space 中出现为 restriction/quotient/projection（PIP，见 L329--L343）。
+
+在 \GFramework\ 的实现中，这一对象层选择由 $\GZLS$ 具体化：
+\[
+  \GZLS=(\mathfrak{L};J,\mathrm{Loc},\Sigma),
+\]
+其中 $\mathfrak{L}$ 是 law-objects 及其组合规则的语义宇宙，$\Sigma$ 用于触发连续/离散机制的切换（见 L966--L974）。
+并且 $\GZLS$ 被设计为承载 law-objects；每个 law-object 同时携带 iterative content 与 logical content（见 L491--L495）。
+\paragraph{证明.}
+直接由上述原文的对象化表述、PIP 定义与 $\GZLS$ 的结构性定义得出。证毕。
+\end{Certificate}
+
+\begin{Certificate}[$\Phi_{\mathrm{geom}}$ 的函子性：对象级几何以 law-objects 形式进入 $\GZLS$]
+\label{cert:tex18-ch2-phi-geom-functorial}
+% Source: docs/PureMath/Pub_GFramework_PureMath.tex L988--L1007
+存在一个函子式指派
+\[
+  \Phi_{\mathrm{geom}}:\mathsf{GeomObj}\longrightarrow \GZLS,
+\]
+把适当范畴 $\mathsf{GeomObj}$ 中的对象级几何（例如带 connection 与 curvature 数据的 principal bundles）
+映射为 $\GZLS$ 中的 law-objects，并满足：
+\begin{enumerate}
+  \item parallel transport、holonomy 与 curvature 被编码为对应 law-object 的 composition/metric 数据；
+  \item gauge 等价的几何数据映为 $\GZLS$ 中同构的 law-objects。
+\end{enumerate}
+\paragraph{证明.}
+直接采用 \code{docs/PureMath/Pub_GFramework_PureMath.tex} 中的 Proposition（L988--L1007）作为证书陈述。证毕。
+\end{Certificate}
+
+\begin{Certificate}[$\GZLOC$ 作为 law-connection：morphisms of laws 的连接型搬运]
+\label{cert:tex18-ch2-gzloc-law-connection}
+% Source: docs/PureMath/Pub_GFramework_PureMath.tex L904--L906, L508--L509
+在集成 law-level 结构中，$\GZLOC$ 被表述为 law-connection，
+用于规定如何沿 underlying object-level geometries（如 principal bundles）中的 flows 来 transport laws（见 L904--L906）。
+同时，$\GZLOC$ 也被描述为刻画 admissible law-level transformations、捕捉 ``morphisms of laws'' 的 operators（见 L508--L509）。
+
+因此可以将其抽象为：对任意可组合的 flow/path（记为 $\gamma$），存在对应的 law-transport
+\[
+  \mathrm{PT}^{\GZLOC}_\gamma:\ \text{(law-objects)}\to \text{(law-objects)},
+\]
+并满足连接型的一致性（恒等与复合）：
+\[
+  \mathrm{PT}^{\GZLOC}_{\mathrm{id}}=\mathrm{id},\qquad
+  \mathrm{PT}^{\GZLOC}_{\gamma_2\circ \gamma_1}
+  =\mathrm{PT}^{\GZLOC}_{\gamma_2}\circ \mathrm{PT}^{\GZLOC}_{\gamma_1}.
+\]
+\paragraph{证明.}
+由 $\GZLOC$ 的 law-connection 定义与 ``morphisms of laws'' 的算子解释直接抽象得到。证毕。
+\end{Certificate}
+
+\begin{Certificate}[$\GZLCurv$ 作为回路障碍度量：闭合回路上的平凡化阻碍与路径依赖]
+\label{cert:tex18-ch2-gzlcurv-loop-obstruction}
+% Source: docs/PureMath/Pub_GFramework_PureMath.tex L907--L909, L510--L512, L919--L922
+$\GZLCurv$ 被表述为与 $\GZLOC$ 相关联的一族 law-curvatures，
+用于度量 laws 沿闭合回路的平凡化障碍；并且该“闭合回路”同时允许发生在 state space 与 law-space（见 L907--L909）。
+同时，$\GZLCurv$ 被描述为刻画 law-level evolution 的 path-dependence 与 incompatibility 的 curvature-like quantities（见 L510--L512）。
+
+此外，若在某段 law-space 区域上 $\GZLOC$ 为 flat 且 $\GZLCurv$ 在相关 flows 上消失，
+则 law-level evolution 可被忽略，体系退化到静态 rigid architecture 的情形（见 L919--L922）。
+\paragraph{证明.}
+由 $\GZLCurv$ 的定义性陈述与 rigid architecture 的退化判据直接得出。证毕。
+\end{Certificate}
+
+\clearpage
+
+% ============================================================
+% 附录C：离散统同伦修复——传统不可解性与 G-Framework 可执行修复的证书接口
+% ============================================================
+\section{离散统同伦修复：传统不可解性与 \GFramework\ 可执行修复的证书接口}
+\label{sec:tex18-discrete-repair-certificates}
+
+本附录把正文中关于
+“在固定对象域与固定边界口径下，非零上同调障碍类只能被记录为分类不变量而无法在体系内部被消解”
+以及
+“\GFramework\ 通过 law-space 的对象化、连续统崩溃与语义收缩下的重建、并配套离散—超限完成工作流，
+使修复成为体系内生的可执行过程”
+压缩为若干条可被后续证明\emph{纯调用}的外部证书接口。
+
+\begin{Certificate}[（C0）固定对象域下的内生不可修复：非零障碍类 $\Rightarrow$ 延拓方程无解]
+\label{cert:tex18-C0-fixed-domain-no-repair}
+在固定对象域（固定同一复形/同一底空间）与固定边界数据 $l_1$ 的前提下，
+第 $n$ 阶封闭方程 \eqref{eq:A4-delta-ln} 可解当且仅当 $[\Ob_n]=0$；
+因此若 $[\Ob_n]\neq 0$，则\emph{不存在任何}仅在原对象域内引入的高阶边缘算子 $l_n$
+能够消去该层上同调障碍。
+换言之：在不改变对象域与边界口径时，上同调类作为分类不变量呈现为“内生不可修复”的孔洞。
+\paragraph{证明.}
+由附录A的 Certificate~\ref{cert:tex18-A4-obstruction-iff-ln} 直接得出。证毕。
+\end{Certificate}
+
+\begin{Certificate}[（C1）连续统崩溃与重写：continuum questions 在 law-space 中被几何/同伦化]
+\label{cert:tex18-C1-continuum-breakdown-lawspace}
+% Source: docs/PureMath/Pub_GFramework_PureMath.tex L132--L134
+在 \GFramework\ 的 \PLPIMMT\ 语境下，引入 CH-layering 与 \GZCBT\ （Continuum Breakdown and Rewriting）机制，
+使连续统问题（continuum questions）被\emph{重述}为 law-space 中的几何与同伦现象
+（见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L132--L134）。
+因此，“连续统假设/连续统复杂度”不再仅是外部公理背景，而成为可在 law-space 内被操作与追踪的结构对象。
+\paragraph{证明.}
+由原文对 CH-layering 与 \GZCBT\ 的定义性陈述直接得出。证毕。
+\end{Certificate}
+
+\begin{Certificate}[（C2）语义收缩下的连续统重建：semantic CH regime 与可定义性层级崩塌]
+\label{cert:tex18-C2-semantic-CH-regime}
+% Source: docs/PureMath/Pub_GFramework_PureMath.tex L9899--L9901, L9907--L9918, L9921--L9928
+在 forcing-axiom 场景下，即便在外延基数意义上 $\mathrm{CH}^{(l_2)}$ 取否（continuum ``too large''），\cite{Jech2003}
+仍可在 $l_{\ge 3}$ 的语义层上进入新的 ``semantic CH regime''：
+continuum 在可定义性意义下尽可能规则（as regularly as possible），并出现 ``definability hierarchies collapse''
+与大范围片段 determinacy 的稳定现象
+（见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L9899--L9901, L9907--L9918）。
+同时，可用指标 $\Delta_{\mathrm{CH}}(t)$ 在 $t\gg 0$ 时趋小刻画该语义稳态的收敛/稳定化
+（见 L9921--L9928）。
+\paragraph{证明.}
+由原文对 semantic CH、definability collapse、以及 $\Delta_{\mathrm{CH}}(t)$ 指标的描述直接得出。证毕。
+\end{Certificate}
+
+\begin{Certificate}[（C3）\CBTOHU\ 离散工作流：连续导航 + 离散迭代的可执行修复原型]
+\label{cert:tex18-C3-CBTOHU-scheme}
+% Source: docs/PureMath/Pub_GFramework_PureMath.tex L9591--L9605, L9613--L9625, L9633--L9644
+\GFramework\ 给出把 rewriting 解释为算法过程的时间参数 $s$（algorithmic time parameter for rewriting），
+并将 CH-gradient flow 作为 law-space 上的连续导航机制（见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：L9591--L9611）；
+同时给出离散时间版本的推进公式（见 L9613--L9625）。
+在实践层面，更常用的实现是离散 scheme：交错执行 \GZCBT\ （law-level rewrites）与 \GZOHU\ （operator-level homotopy completions），
+并将该交错流程命名为 \CBTOHU\ schemes（见 L9633--L9644）。
+\paragraph{证明.}
+由原文对 CH-gradient flow、离散推进式与 \CBTOHU\ schemes 的定义性陈述直接得出。证毕。
+\end{Certificate}
+
+\begin{Certificate}[（C4）\GZOHU\ 的超限完成：small-object argument 给出序数阶段稳定的修复]
+\label{cert:tex18-C4-OHU-transfinite-completion}
+% Source: docs/PureMath/Pub_GFramework_PureMath.tex L11402--L11406, L11408--L11414, L11434--L11440, L11442--L11446,
+% L11448--L11453, L11459--L11463
+\GZOHU\ 被明确通过 ``transfinite completion and small-object argument'' 构造（见 \code{docs/PureMath/Pub_GFramework_PureMath.tex}：
+  L11402--L11406）：\cite{Quillen1967}
+将 Jacobi 缺陷编码为 generating cofibrations，并为每个缺陷引入 correcting operator $h_{a,b,c}$（见 L11408--L11414）；
+随后进行超限迭代：对每个序数 $\alpha$ 构造 $L^{(\alpha)}$，后继阶段做 pushout，极限阶段取 colimit（见 L11434--L11440）；
+并证明该过程在某个序数 $\alpha_*$ 处稳定（见 L11442--L11446），定义 $L^{\mathrm{OHU}}:=L^{(\alpha_*)}$（见 L11448--L11453）；
+最终验证每个残余缺陷都能被有限序列的 correcting homotopies 消去（见 L11459--L11463）。
+\paragraph{证明.}
+由原文对 \GZOHU\ 构造步骤与稳定性结论的证明性叙述直接得出。证毕。
+\end{Certificate}
+
+\begin{Certificate}[（C5）离散统同伦修复的外部接口：从“不可解性”到“可执行完成”]
+\label{cert:tex18-C5-discrete-homotopy-repair-interface}
+在固定对象域口径下，若 $[\Ob_n]\neq 0$，则由 Certificate~\ref{cert:tex18-C0-fixed-domain-no-repair}
+知第 $n$ 阶封闭方程无解，从而障碍仅能作为分类孔洞被记录。
+而在 \GFramework\ 中：
+law-space 对象化（附录B：Certificate~\ref{cert:tex18-ch2-law-as-first-class-objects}）与 continuum breakdown
+  的内生化（Certificate~\ref{cert:tex18-C1-continuum-breakdown-lawspace}）
+使连续统复杂度可被重写流程操控；
+语义收缩下的稳态重建（Certificate~\ref{cert:tex18-C2-semantic-CH-regime}）提供“可定义性层级收敛”的语义稳定背景；
+并通过 \CBTOHU\ 离散工作流（Certificate~\ref{cert:tex18-C3-CBTOHU-scheme}）与 \GZOHU\ 的超限完成（Certificate~\ref{cert:tex18-C4-OHU-transfinite-completion}），
+将缺陷从“被动不变量”转化为“可迭代消解的缺陷清单”，从而得到序数阶段稳定的修复对象 $L^{\mathrm{OHU}}$。
+因此，本体系允许把“上同调障碍的出现”视为触发离散—超限修复流程的输入，并以稳定阶段产物作为封闭证书的输出端。
+\paragraph{证明.}
+由 Certificate~\ref{cert:tex18-C0-fixed-domain-no-repair}（不可解性）与
+Certificate~\ref{cert:tex18-C3-CBTOHU-scheme}、Certificate~\ref{cert:tex18-C4-OHU-transfinite-completion}
+（可执行离散/超限完成）联立；并以附录B中 law-space 对象化证书提供对象域支撑。证毕。
+\end{Certificate}
+
+\clearpage
+
+\renewcommand{\refname}{\texorpdfstring{参考文献}{References}}
+\begin{thebibliography}{99}
+
+\bibitem{GaoZheng2025GFramework}
+Gao, Z. (2025).
+\newblock Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra).
+\newblock In \emph{Meta-Mathematical Theory based on Pan-Logic Analysis and
+Pan-Iterative Analysis (GaoZheng G-Framework) and the
+Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra): An Integrated Construction (v1.0)}.
+\newblock Zenodo.
+\newblock \url{https://doi.org/10.5281/zenodo.17651584}.
+
+
+\bibitem{LadaStasheff1993}
+Tom Lada and Jim Stasheff,
+\emph{Introduction to SH Lie algebras for physicists},
+International Journal of Theoretical Physics, 1993.
+\\ \url{https://doi.org/10.1007/bf00671791}
+
+\bibitem{LadaMarkl1995}
+Tom Lada and Martin Markl,
+\emph{Strongly homotopy Lie algebras},
+Communications in Algebra, 1995.
+\\ \url{https://doi.org/10.1080/00927879508825335}
+
+\bibitem{BV1981}
+I.\ A.\ Batalin and G.\ A.\ Vilkovisky,
+\emph{Gauge algebra and quantization},
+Physics Letters B, 1981.
+\\ \url{https://doi.org/10.1016/0370-2693(81)90205-7}
+
+\bibitem{Quillen1967}
+Daniel Quillen,
+\emph{Homotopical Algebra},
+Lecture Notes in Mathematics, 1967.
+\\ \url{https://doi.org/10.1007/BFb0097438}
+
+\bibitem{Jech2003}
+Thomas Jech,
+\emph{Set Theory},
+Springer Monographs in Mathematics, 2003.
+\\ \url{https://doi.org/10.1007/3-540-44761-X}
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}
