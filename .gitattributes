@@ -56,6 +56,12 @@ data/downloaded_digital_assets/** -text -eol -diff linguist-generated=true
 data/downloaded_digital_assets/**/*.bin filter=lfs diff=lfs merge=lfs -text -eol linguist-generated=true
 # END downloaded digital assets
 
+
+# Auto-added non-UTF-8 exclusions for upstream/vendor files.
+*.ttf   -text -working-tree-encoding
+*.woff   -text -working-tree-encoding
+*.woff2   -text -working-tree-encoding
+
 # BEGIN git_update.ps1 review whitelist
 # Default: exclude everything from text normalization and review diffs.
 # Allowed paths below are review/diff whitelist entries; git_update.ps1 stages all paths by default.
@@ -75,8 +81,3 @@ src/godot3d/scripts/** text eol=lf working-tree-encoding=UTF-8 diff linguist-gen
 src/godot3d/data/godot_domain/resources/** text eol=lf working-tree-encoding=UTF-8 diff linguist-generated=false
 src/godot3d/data/godot_domain/fixtures/** text eol=lf working-tree-encoding=UTF-8 diff linguist-generated=false
 # END git_update.ps1 review whitelist
-
-# Auto-added non-UTF-8 exclusions for upstream/vendor files.
-*.ttf   -text -working-tree-encoding
-*.woff   -text -working-tree-encoding
-*.woff2   -text -working-tree-encoding

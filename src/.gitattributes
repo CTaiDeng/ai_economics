@@ -1,0 +1,11 @@
+# BEGIN git_update.ps1 review whitelist
+# Default inside src: exclude third-party and generated trees from review diffs.
+* -text -diff linguist-generated=true
+.gitattributes text eol=lf working-tree-encoding=UTF-8 diff linguist-generated=false
+godot3d/project.godot text eol=lf working-tree-encoding=UTF-8 diff linguist-generated=false
+godot3d/scenes/** text eol=lf working-tree-encoding=UTF-8 diff linguist-generated=false
+godot3d/scripts/** text eol=lf working-tree-encoding=UTF-8 diff linguist-generated=false
+godot3d/data/godot_domain/resources/** text eol=lf working-tree-encoding=UTF-8 diff linguist-generated=false
+godot3d/data/godot_domain/fixtures/** text eol=lf working-tree-encoding=UTF-8 diff linguist-generated=false
+openra/** -text -diff linguist-generated=true
+# END git_update.ps1 review whitelist
