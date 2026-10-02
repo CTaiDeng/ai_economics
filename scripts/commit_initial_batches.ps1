@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 <#
   按文件批量提交，并默认把远端缺失提交从旧到新逐个 fast-forward 推送。
   若 push 中途失败，可重跑本脚本继续推送尚未到达远端的提交。

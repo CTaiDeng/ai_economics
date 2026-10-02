@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 """Check that book synchronization writes only the combined Markdown document.
 
 Run through scripts/pycache_customize/run_python_with_config.ps1 with -B.

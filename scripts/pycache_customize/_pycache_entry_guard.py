@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 from __future__ import annotations
 
 import sys

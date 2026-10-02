@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 <#
 .SYNOPSIS
 从百转千回分章目录生成同目录的百转千回.md合订本。

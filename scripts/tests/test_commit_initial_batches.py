@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 """Integration checks using disposable Git repositories and a local bare remote.
 
 Run with: python -B scripts/tests/test_commit_initial_batches.py

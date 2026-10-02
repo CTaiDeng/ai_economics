@@ -1,4 +1,8 @@
 #!/usr/bin/env pwsh
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 <#
   Clean workspace generated files:
   - clear out/ while keeping out/pycache (the governed PYTHONPYCACHEPREFIX),

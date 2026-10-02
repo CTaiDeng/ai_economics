@@ -1,4 +1,8 @@
 @echo off
+REM SPDX-FileCopyrightText: 2026 GaoZheng
+REM SPDX-License-Identifier: MIT
+REM Full license: LICENSES/MIT.txt (repository root)
+
 setlocal
 
 set "SCRIPT_DIR=%~dp0"

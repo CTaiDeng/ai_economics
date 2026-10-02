@@ -1,4 +1,8 @@
 #!/usr/bin/env pwsh
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 <#
   Install a one-line .pth startup hook into the governed virtual environment.
   The hook sets sys.pycache_prefix before user modules or py_compile execute.
@@ -65,4 +69,3 @@ $hookPath = Join-Path $sitePackages "workshare_pycache_governance.pth"
 
 Write-Host "[pycache_governance] installed=$hookPath"
 Write-Host "[pycache_governance] prefix=$env:PYTHONPYCACHEPREFIX"
-

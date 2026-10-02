@@ -1,4 +1,8 @@
 #!/usr/bin/env pwsh
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 <#
   Load pycache governance from this directory before Python starts.
   PYTHONPYCACHEPREFIX is therefore active during interpreter initialization.

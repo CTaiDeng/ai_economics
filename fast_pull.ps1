@@ -1,4 +1,8 @@
 #!/usr/bin/env pwsh
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 <#
   从远程仓库拉取最新代码（git pull）。
 

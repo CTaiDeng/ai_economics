@@ -1,0 +1,54 @@
+docs/tex 目录许可 / Directory License
+
+Copyright (C) 2026 GaoZheng（高政）
+SPDX-License-Identifier: CC-BY-NC-ND-4.0
+
+中文说明
+
+除另有独立许可声明外，本许可仅适用于本仓库 docs/tex/ 目录及其
+子目录中由 GaoZheng 持有著作权或有权许可的原创文稿，包括 TeX
+文稿源文件、对应 PDF，以及文稿中的原创文字、图表和说明材料。
+
+上述材料采用知识共享-署名-非商业性使用-禁止演绎 4.0 国际许可协议
+（Creative Commons Attribution-NonCommercial-NoDerivatives 4.0
+International，CC BY-NC-ND 4.0）进行许可。
+
+本许可不延伸至 docs/tex/ 之外的任何目录或文件，不作为整个仓库的
+统一许可。小说、Zenodo 来源资料、分析文章、程序代码和脚本等其他
+目录中的材料，仍按各自的来源及许可声明处理。
+
+引用内容及第三方材料不因纳入文稿而改变其原有权利和许可状态。
+已有独立许可声明的材料遵循其声明；本文件不替换或撤回既有授权。
+程序代码和可执行脚本不属于本许可的适用材料。
+
+本声明界定许可的适用范围，不修改标准 CC BY-NC-ND 4.0 条款。
+具体权利、条件、例外、免责和终止规则以完整法律条款为准。
+
+English notice
+
+Unless a separate license is stated, the original manuscripts and related
+documentary materials within docs/tex/ and its subdirectories, to the extent
+that GaoZheng owns or is authorized to license the relevant rights, are
+licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives
+4.0 International License (CC BY-NC-ND 4.0). This includes TeX manuscript
+sources, their corresponding PDFs, and original text, figures, tables, and
+explanatory materials forming part of those documents.
+
+This license does not apply to files outside docs/tex/ and is not a
+repository-wide license. Quotations and third-party materials retain their
+own rights and license terms. Separately licensed materials retain their
+stated licenses; this notice does not replace or revoke existing grants.
+Software code and executable scripts are excluded from this license.
+
+This notice identifies the covered materials without modifying the standard
+CC BY-NC-ND 4.0 terms. The full legal code governs the rights, conditions,
+exceptions, disclaimers, and termination provisions.
+
+许可链接 / License URL:
+https://creativecommons.org/licenses/by-nc-nd/4.0/
+
+完整法律条款（简体中文） / Full legal code (Simplified Chinese):
+https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.zh-hans
+
+Full legal code (English):
+https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.en

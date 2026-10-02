@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 param(
     [Parameter(Position = 0, Mandatory = $true, ValueFromRemainingArguments = $true)]
     [Alias('TexFile', 'TexFiles')]

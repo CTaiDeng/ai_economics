@@ -1,4 +1,8 @@
 #!/usr/bin/env pwsh
+# SPDX-FileCopyrightText: 2026 GaoZheng
+# SPDX-License-Identifier: MIT
+# Full license: LICENSES/MIT.txt (repository root)
+
 <#
   Load the repository pycache policy into the current PowerShell process.
   Environment-variable changes survive normal (&) script invocation because
@@ -169,4 +173,3 @@ if (-not $Quiet) {
     Write-Host "[pycache_governance] config=$resolvedConfig"
     Write-Host "[pycache_governance] prefix=$pycachePrefix"
 }
-
