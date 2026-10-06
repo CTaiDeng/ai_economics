@@ -1,0 +1,13 @@
+{
+  "output_path": "../../res/ai_economics.txt",
+  "order": "json",
+  "files": [
+    "../../docs/tex/tex1/market_participation_formal_system.tex",
+    "../../src/markdown/1790969921625_市场参与的形式系统的问题发现与方案建构：认识论价值及其条件边界.md",
+    "../../src/markdown/1791203682598_AI 的工具边界：人格自主、逻辑审计与证据比较.md",
+    "../../docs/book/book1/百转千回.md",
+    "../../docs/book/book1/小说命名表.json",
+    "../../docs/book/book1/星原世界设定.md",
+    "../../docs/book/book1/章节题名考据.md"
+  ]
+}
