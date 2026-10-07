@@ -1,5 +1,12 @@
 # 市场参与的形式系统
 
+## 原仓库与镜像声明
+
+- 原仓库（GitHub）：[https://github.com/CTaiDeng/ai_economics](https://github.com/CTaiDeng/ai_economics)
+- 镜像仓库（Gitee）：[https://gitee.com/qwe2018/ai_economics](https://gitee.com/qwe2018/ai_economics)
+
+镜像仓库可能存在同步延迟或内容差异；如两者不一致，请以 GitHub 原仓库为准。
+
 ## 仓库目的
 
 本仓库围绕后 AI 条件下的市场参与、价值形成与收入分配开展形式化经济研究，整理研究文稿及其配套参考资料。核心问题是：当部分产品的生产能力约束松弛、传统生产—就业—劳动收入—消费的传导减弱时，如何通过有效参与、贡献激励与底线保障，维持有真实资金来源、可持续且可核验的市场循环。
