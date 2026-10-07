@@ -34,6 +34,22 @@
 
 名称与内容说明：起点中文网使用书名《动力涌现：城市的呼吸》，本仓库使用《百转千回》，两者对应同一作品；上述在线链接对应本地目录 `docs/book/book1/`。本地分章稿与合订本内容保持同步；在线发布稿与本地稿尚未完成全文逐章一致性核验，不能据此声明两个版本逐字一致。
 
+## HTML 可视化页面
+
+[docs/html/](docs/html/) 存放市场参与机制、小说思想实验及 G 框架配套资料的可视化图示，使用 HTML 与内嵌 SVG 展示机制循环、人物关系和理论架构。下载到本地后，可用浏览器直接打开对应的 `.html` 文件离线查看，无须启动服务器。
+
+### AI 经济与小说图示：[docs/html/ai_economics/](docs/html/ai_economics/)
+
+- [市场参与形式系统：闭环循环与三项核心功能](docs/html/ai_economics/market_participation_closed_cycle.html)：展示九步闭环、注意力与收入传导、参与式分配、贡献激励、坐标最小救济及治理实施链。
+- [《百转千回》人物关系与情节架构图](docs/html/ai_economics/baizhuan_qianhui_characters_plot.html)：展示五组人物关系、四条叙事主线、十卷情节时间线及贯穿全书的经济机制。
+
+### G 框架配套图示：[docs/html/G_Framework/](docs/html/G_Framework/)
+
+- [GaoZheng G-Framework 分层架构图](docs/html/G_Framework/g_framework_architecture.html)：梳理 G 框架、G 代数及应用层的结构关系。
+- [G-Framework 双轨架构：英文专著与中文率-商形式系统](docs/html/G_Framework/g_framework_dual_track.html)：对照英文专著与中文形式系统的组织结构及关联。
+- [G-Framework 中文工作笔记综合：障碍谱系全景图](docs/html/G_Framework/obstruction_spectrum.html)：汇总障碍来源、阶数谱系及修复机制。
+- [LHTS–TPH–G-HIT 统一泛化PDE求解替代方法论](docs/html/G_Framework/lhts_tph_ghit_methodology.html)：展示相关工作笔记中的方法结构、形式见证与衔接关系。
+
 ## 分析文章
 
 [src/markdown/](src/markdown/) 存放围绕本项目研究文稿的 Markdown 分析文章，讨论问题诊断、机制建构、认识论价值及条件边界，并区分原文的形式结论、文章的理论评价与需要经验检验的判断。
