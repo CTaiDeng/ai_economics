@@ -1,0 +1,343 @@
+<html style="margin:0;padding:0;">
+<title>LHTS–TPH–G-HIT 统一泛化PDE求解替代方法论</title>
+<div style="width:100%;box-sizing:border-box;font-family:'Georgia','Noto Sans SC','Microsoft YaHei',serif;background:#f0ede5;padding:20px 12px 28px;">
+
+<svg viewBox="0 0 1400 2200" width="100%" style="display:block;max-width:1400px;margin:0 auto;" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="gTitle" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#0d2137"/><stop offset="100%" stop-color="#1a3a5c"/></linearGradient>
+  <linearGradient id="gParadigm" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#5c1a1a"/><stop offset="100%" stop-color="#8c2a2a"/></linearGradient>
+  <linearGradient id="gExpr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a4a6b"/><stop offset="100%" stop-color="#0d3350"/></linearGradient>
+  <linearGradient id="gSolve" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6b4a1a"/><stop offset="100%" stop-color="#50380d"/></linearGradient>
+  <linearGradient id="gEquiv" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2a6b4a"/><stop offset="100%" stop-color="#1a5035"/></linearGradient>
+  <linearGradient id="gEngine" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3a1a5c"/><stop offset="100%" stop-color="#5c2a8c"/></linearGradient>
+  <linearGradient id="gLHTS" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b8860b"/><stop offset="100%" stop-color="#8b6508"/></linearGradient>
+  <linearGradient id="gTPH" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2a7a5a"/><stop offset="100%" stop-color="#1a5a40"/></linearGradient>
+  <linearGradient id="gMech" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a4a6a"/><stop offset="100%" stop-color="#2a2a4a"/></linearGradient>
+  <linearGradient id="gProof" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1a3a3a"/><stop offset="100%" stop-color="#2a5a5a"/></linearGradient>
+  <marker id="aD" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#666"/></marker>
+  <marker id="aR" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#888"/></marker>
+  <marker id="aRgold" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#b8860b"/></marker>
+  <filter id="sh" x="-2%" y="-2%" width="104%" height="108%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/></filter>
+</defs>
+
+<!-- ===== TITLE ===== -->
+<g filter="url(#sh)">
+<rect x="30" y="20" width="1340" height="60" rx="8" fill="url(#gTitle)"/>
+</g>
+<text x="700" y="46" text-anchor="middle" font-size="20" font-weight="bold" fill="#ffe9a8">专题 · LHTS – TPH – G-HIT（有限图命中）</text>
+<text x="700" y="68" text-anchor="middle" font-size="13" fill="#c0d8f0">G框架提供的统一泛化PDE求解代替证明的统一方法论 · 综合5篇工作笔记（2026-05-03 至 2026-05-18）+《率与商》Ch.5形式见证</text>
+
+<!-- ===== PARADIGM SHIFT ===== -->
+<g transform="translate(30, 96)">
+  <g filter="url(#sh)">
+  <rect x="0" y="0" width="1340" height="72" rx="8" fill="url(#gParadigm)"/>
+  </g>
+  <text x="16" y="22" font-size="13" font-weight="bold" fill="#ffe9a8">核心范式转移：PDE 求解中心的迁移</text>
+  <g font-size="11">
+    <rect x="16" y="30" width="380" height="32" rx="4" fill="#fff" fill-opacity="0.1" stroke="#c06060" stroke-width="0.8"/>
+    <text x="206" y="44" text-anchor="middle" font-weight="bold" fill="#ffd0d0">传统：显式求解方程</text>
+    <text x="206" y="58" text-anchor="middle" font-size="9.5" fill="#f0c0c0">微分算子→离散化→求解代数系统→恢复函数近似</text>
+    <line x1="396" y1="46" x2="430" y2="46" stroke="#ffe9a8" stroke-width="2" marker-end="url(#aRgold)"/>
+    <rect x="434" y="30" width="420" height="32" rx="4" fill="#fff" fill-opacity="0.15" stroke="#ffd700" stroke-width="1.2"/>
+    <text x="644" y="44" text-anchor="middle" font-weight="bold" fill="#ffe9a8">新范式：命中低残差集合</text>
+    <text x="644" y="58" text-anchor="middle" font-size="9.5" fill="#fff0c0">构造统计力学分布律+同伦扭曲轨迹+命中泛函→可控命中</text>
+    <line x1="854" y1="46" x2="888" y2="46" stroke="#ffe9a8" stroke-width="2" marker-end="url(#aRgold)"/>
+    <rect x="892" y="30" width="432" height="32" rx="4" fill="#fff" fill-opacity="0.1" stroke="#c06060" stroke-width="0.8"/>
+    <text x="1108" y="44" text-anchor="middle" font-weight="bold" fill="#ffd0d0">PDE 角色降级</text>
+    <text x="1108" y="58" text-anchor="middle" font-size="9.5" fill="#f0c0c0">从求解层中心→残差语义层 + 保真性证书层（不删除PDE理论）</text>
+  </g>
+</g>
+
+<!-- ===== DOCUMENT CHAIN ===== -->
+<g transform="translate(30, 184)">
+  <text x="0" y="0" font-size="13" font-weight="bold" fill="#333">方法论演进链（5篇工作笔记 + 形式见证）</text>
+  <g font-size="9.5">
+    <rect x="0" y="10" width="248" height="64" rx="5" fill="#fff" stroke="#ccc"/>
+    <text x="124" y="28" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a5c">① PDE策略簇</text>
+    <text x="124" y="42" text-anchor="middle" font-size="8.5" fill="#555">2026-05-03 · 方法枚举→策略簇演化</text>
+    <text x="124" y="55" text-anchor="middle" font-size="8.5" fill="#555">时域求解→频域簇命中</text>
+    <text x="124" y="68" text-anchor="middle" font-size="8" fill="#888" font-style="italic">方法空间对象化·类量子软件层</text>
+    <line x1="248" y1="42" x2="268" y2="42" stroke="#888" stroke-width="1.2" marker-end="url(#aR)"/>
+    <rect x="268" y="10" width="248" height="64" rx="5" fill="#fff" stroke="#ccc"/>
+    <text x="392" y="28" text-anchor="middle" font-size="10" font-weight="bold" fill="#5c1a1a">② PDE求解范式替代</text>
+    <text x="392" y="42" text-anchor="middle" font-size="8.5" fill="#555">2026-05-13 · 高阶正交确定性收敛</text>
+    <text x="392" y="55" text-anchor="middle" font-size="8.5" fill="#555">统计力学同伦命中范式锚定</text>
+    <text x="392" y="68" text-anchor="middle" font-size="8" fill="#888" font-style="italic">正厚度孔洞↔穿墙芯线同伦等价</text>
+    <line x1="516" y1="42" x2="536" y2="42" stroke="#888" stroke-width="1.2" marker-end="url(#aR)"/>
+    <rect x="536" y="10" width="248" height="64" rx="5" fill="#fff" stroke="#b8860b" stroke-width="1.5"/>
+    <text x="660" y="28" text-anchor="middle" font-size="10" font-weight="bold" fill="#8b6508">③ LHTS 运动内核</text>
+    <text x="660" y="42" text-anchor="middle" font-size="8.5" fill="#555">2026-05-14 · 格点同伦扭曲评分</text>
+    <text x="660" y="55" text-anchor="middle" font-size="8.5" fill="#555">延迟信用分配·命中证书体系</text>
+    <text x="660" y="68" text-anchor="middle" font-size="8" fill="#888" font-style="italic">从"可命中"→"可评分"→"可证书化"</text>
+    <line x1="784" y1="42" x2="804" y2="42" stroke="#888" stroke-width="1.2" marker-end="url(#aR)"/>
+    <rect x="804" y="10" width="248" height="64" rx="5" fill="#fff" stroke="#2a7a5a" stroke-width="1.5"/>
+    <text x="928" y="28" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a5a40">④ TPH 外层控制</text>
+    <text x="928" y="42" text-anchor="middle" font-size="8.5" fill="#555">2026-05-15 · 轨迹函数参数同伦选择</text>
+    <text x="928" y="55" text-anchor="middle" font-size="8.5" fill="#555">广义分形轨迹族·D结构递归</text>
+    <text x="928" y="68" text-anchor="middle" font-size="8" fill="#888" font-style="italic">LHTS=运动内核, TPH=动力加速控制层</text>
+    <line x1="1052" y1="42" x2="1072" y2="42" stroke="#888" stroke-width="1.2" marker-end="url(#aR)"/>
+    <rect x="1072" y="10" width="268" height="64" rx="5" fill="#fff" stroke="#ccc"/>
+    <text x="1206" y="28" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a3a">⑤ L-测度微观隧穿</text>
+    <text x="1206" y="42" text-anchor="middle" font-size="8.5" fill="#555">2026-05-18 · 表达替代+求解替代+解释等价</text>
+    <text x="1206" y="55" text-anchor="middle" font-size="8.5" fill="#555">PDE残差下降→L-路径测度命中</text>
+    <text x="1206" y="68" text-anchor="middle" font-size="8" fill="#888" font-style="italic">三层替代结构·C_L解释函子严格等价</text>
+  </g>
+  <text x="670" y="92" text-anchor="middle" font-size="10" fill="#666" font-style="italic">+ 《率与商》(2026-09-12) Ch.5：LHTS同伦扭曲-偏微下降见证 · TPH-LHTS分形递归收敛见证 · 有限图形式证明层</text>
+</g>
+
+<!-- ===== THREE-LAYER SUBSTITUTION ===== -->
+<g transform="translate(30, 296)">
+  <text x="0" y="0" font-size="14" font-weight="bold" fill="#333">三层替代结构（L-测度文档核心结论）</text>
+
+  <!-- Layer 1: Expression -->
+  <g filter="url(#sh)">
+  <rect x="0" y="12" width="430" height="155" rx="8" fill="url(#gExpr)"/>
+  </g>
+  <text x="215" y="36" text-anchor="middle" font-size="13" font-weight="bold" fill="#a0d0f0">第一层 · 表达替代</text>
+  <text x="215" y="56" text-anchor="middle" font-size="11" fill="#d0e8f0">PDE 局部微分表达 ⇒ L-积分/测度表达</text>
+  <g font-size="9.5">
+    <text x="16" y="78" fill="#c0d8f0">设 D_Lu 是 u 的 L-变化测度，∂_Lu = dD_Lu/dμ_L</text>
+    <text x="16" y="94" fill="#c0d8f0">→ 偏微分 = L-测度变化的局部密度</text>
+    <text x="16" y="114" fill="#a0c0e0" font-weight="bold">关键：不是 L₀ 裸差分对 PDE 的粗糙替代</text>
+    <text x="16" y="130" fill="#a0c0e0">而是把 PDE 局部偏微分表达提升为 Law-Space 中的</text>
+    <text x="16" y="144" fill="#a0c0e0">L-积分/测度弱表达（保留全部语义信息）</text>
+    <text x="16" y="160" fill="#80a0c0" font-size="8.5" font-style="italic">P[u]=0, B[u]=0 → E(u)=½‖P[u]‖²+λ/2‖B[u]‖²</text>
+  </g>
+  <line x1="215" y1="167" x2="215" y2="183" stroke="#666" stroke-width="1.8" marker-end="url(#aD)"/>
+
+  <!-- Layer 2: Solving -->
+  <g filter="url(#sh)">
+  <rect x="0" y="183" width="430" height="155" rx="8" fill="url(#gSolve)"/>
+  </g>
+  <text x="215" y="207" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffe0a0">第二层 · 求解替代</text>
+  <text x="215" y="227" text-anchor="middle" font-size="11" fill="#f0e0c0">PDE 函数求解 ⇒ L-路径测度低作用量命中</text>
+  <g font-size="9.5">
+    <text x="16" y="249" fill="#e8d8b0">求解对象从函数空间 → 路径空间</text>
+    <text x="16" y="265" fill="#e8d8b0">寻找使残差下降+JacGap下降+风险受控+目标兑现</text>
+    <text x="16" y="279" fill="#e8d8b0">的有效变分路径（而非逐点解析延拓）</text>
+    <text x="16" y="299" fill="#f0d890" font-weight="bold">命中泛函：J_{T,L}(Γ) = Prob(τ^Γ_{ε,L} ≤ T)</text>
+    <text x="16" y="315" fill="#e8d8b0">衡量有限时间内命中低残差集合的概率</text>
+    <text x="16" y="331" fill="#c8b880" font-size="8.5" font-style="italic">微观隧穿=路径空间搜索，不是有限差分法</text>
+  </g>
+  <line x1="215" y1="338" x2="215" y2="354" stroke="#666" stroke-width="1.8" marker-end="url(#aD)"/>
+
+  <!-- Layer 3: Equivalence -->
+  <g filter="url(#sh)">
+  <rect x="0" y="354" width="430" height="155" rx="8" fill="url(#gEquiv)"/>
+  </g>
+  <text x="215" y="378" text-anchor="middle" font-size="13" font-weight="bold" fill="#a0f0c0">第三层 · 解释等价</text>
+  <text x="215" y="398" text-anchor="middle" font-size="11" fill="#d0f0e0">二者在解释函子 C_L 下严格解释等价</text>
+  <g font-size="9.5">
+    <text x="16" y="420" fill="#c0e8d0">PDE 解集合 ↔ Law-Space 工程解释</text>
+    <text x="16" y="436" fill="#c0e8d0">在表达域和方法搜索能力上形成优化</text>
+    <text x="16" y="456" fill="#a0d8b8" font-weight="bold">问题转化 vs 极限保真（严格分层）</text>
+    <text x="16" y="472" fill="#c0e8d0">· 转化=构造层命题：定义离散状态/残差/命中集</text>
+    <text x="16" y="486" fill="#c0e8d0">  合/分布律/命中泛函即完成（不依赖极限）</text>
+    <text x="16" y="500" fill="#c0e8d0">· 保真=需残差相容+紧性+闭性+一致收敛+Jac稳定</text>
+  </g>
+
+  <!-- Right side: G-HIT engine -->
+  <g transform="translate(470, 0)">
+    <g filter="url(#sh)">
+    <rect x="0" y="12" width="870" height="497" rx="8" fill="url(#gEngine)"/>
+    </g>
+    <text x="435" y="38" text-anchor="middle" font-size="15" font-weight="bold" fill="#ffe9a8">G-HIT 引擎 · 有限图命中统一方法论</text>
+    <text x="435" y="58" text-anchor="middle" font-size="10.5" fill="#d0b8f0">G-Framework Hitting on Finite Graphs · LHTS（内核）+ TPH（外层）+ 六大命中机制</text>
+
+    <!-- LHTS inner core -->
+    <g filter="url(#sh)">
+    <rect x="24" y="72" width="390" height="200" rx="8" fill="url(#gLHTS)"/>
+    </g>
+    <text x="219" y="94" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">LHTS · 运动内核</text>
+    <text x="219" y="112" text-anchor="middle" font-size="10" fill="#ffe9a8">Lattice Homotopy Twist Scoring</text>
+    <text x="219" y="128" text-anchor="middle" font-size="9.5" fill="#fff0c0">格点同伦扭曲评分与命中证书体系</text>
+    <g font-size="9">
+      <rect x="36" y="138" width="170" height="56" rx="4" fill="#fff" fill-opacity="0.1" stroke="#e0c060" stroke-width="0.7"/>
+      <text x="121" y="154" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffe9a8">单坐标同伦扭曲</text>
+      <text x="121" y="168" text-anchor="middle" font-size="8.5" fill="#f0e0a0">δ_i^∂(z;α)=G(z)-G(H_{i,α}(z))</text>
+      <text x="121" y="182" text-anchor="middle" font-size="8.5" fill="#f0e0a0">格点调用→可证明的同伦扭曲试探</text>
+      <text x="121" y="194" text-anchor="middle" font-size="8" fill="#e0d080">延迟信用分配最小可证语义</text>
+      <rect x="216" y="138" width="182" height="56" rx="4" fill="#fff" fill-opacity="0.1" stroke="#e0c060" stroke-width="0.7"/>
+      <text x="307" y="154" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffe9a8">证书张量评分</text>
+      <text x="307" y="168" text-anchor="middle" font-size="8.5" fill="#f0e0a0">D维残差向量G(z)·分量JacGap矩阵</text>
+      <text x="307" y="182" text-anchor="middle" font-size="8.5" fill="#f0e0a0">J_D^∂(z;α)·持久分值张量S_D(t)</text>
+      <text x="307" y="194" text-anchor="middle" font-size="8" fill="#e0d080">标量分值只允许投影使用</text>
+      <rect x="36" y="200" width="362" height="62" rx="4" fill="#fff" fill-opacity="0.1" stroke="#e0c060" stroke-width="0.7"/>
+      <text x="217" y="216" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffe9a8">A/B/C 完整性闭合 + 组织同伦扩展</text>
+      <text x="44" y="230" font-size="8.5" fill="#f0e0a0">A: 工程组合空间覆盖/枚举/下界排除完备性</text>
+      <text x="44" y="244" font-size="8.5" fill="#f0e0a0">B: 连续/L∞几何闭合与极限提升</text>
+      <text x="44" y="258" font-size="8.5" fill="#f0e0a0">C: 带非零支持的探索动力（不摧毁遍历性）</text>
+    </g>
+
+    <!-- Arrow LHTS -> TPH -->
+    <line x1="414" y1="172" x2="446" y2="172" stroke="#ffe9a8" stroke-width="2" marker-end="url(#aRgold)"/>
+    <text x="430" y="164" text-anchor="middle" font-size="8" fill="#ffe9a8">回填</text>
+
+    <!-- TPH outer control -->
+    <g filter="url(#sh)">
+    <rect x="456" y="72" width="390" height="200" rx="8" fill="url(#gTPH)"/>
+    </g>
+    <text x="651" y="94" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">TPH · 外层动力控制</text>
+    <text x="651" y="112" text-anchor="middle" font-size="10" fill="#a0f0c0">Trajectory-Parameter Homotopy Selection</text>
+    <text x="651" y="128" text-anchor="middle" font-size="9.5" fill="#c0f0d8">轨迹函数参数同伦选择与确定性收敛控制层</text>
+    <g font-size="9">
+      <rect x="468" y="138" width="170" height="56" rx="4" fill="#fff" fill-opacity="0.1" stroke="#60c090" stroke-width="0.7"/>
+      <text x="553" y="154" text-anchor="middle" font-size="9" font-weight="bold" fill="#a0f0c0">轨迹函数升维</text>
+      <text x="553" y="168" text-anchor="middle" font-size="8.5" fill="#c0e8d0">对象从Γ→H(参数同伦路径)</text>
+      <text x="553" y="182" text-anchor="middle" font-size="8.5" fill="#c0e8d0">→高阶候选路径对象</text>
+      <text x="553" y="194" text-anchor="middle" font-size="8" fill="#a0d0b8">[P^β_Γ]_prob + [T_∞]_frac + Γ</text>
+      <rect x="648" y="138" width="182" height="56" rx="4" fill="#fff" fill-opacity="0.1" stroke="#60c090" stroke-width="0.7"/>
+      <text x="739" y="154" text-anchor="middle" font-size="9" font-weight="bold" fill="#a0f0c0">广义分形轨迹族</text>
+      <text x="739" y="168" text-anchor="middle" font-size="8.5" fill="#c0e8d0">T_{k+1}=F(T_k), T_∞=∪T_k</text>
+      <text x="739" y="182" text-anchor="middle" font-size="8.5" fill="#c0e8d0">递归自相似选择结构</text>
+      <text x="739" y="194" text-anchor="middle" font-size="8" fill="#a0d0b8">JacGap梯度下降方向覆盖证书</text>
+      <rect x="468" y="200" width="362" height="62" rx="4" fill="#fff" fill-opacity="0.1" stroke="#60c090" stroke-width="0.7"/>
+      <text x="649" y="216" text-anchor="middle" font-size="9" font-weight="bold" fill="#a0f0c0">D结构嵌入 · 分工重写</text>
+      <text x="476" y="230" font-size="8.5" fill="#c0e8d0">LHTS=定制运动内核（能怎么动）：格点扭曲·延迟信用·评分·运动算子</text>
+      <text x="476" y="244" font-size="8.5" fill="#c0e8d0">TPH=外层控制器（往哪里动·为什么·如何证明下降）：轨迹枚举·JacGap评分·选择·回填</text>
+      <text x="476" y="258" font-size="8.5" fill="#c0e8d0">随机样本路径 vs 确定性选择算子 —— 严格分层</text>
+    </g>
+
+    <!-- Six mechanisms -->
+    <text x="435" y="294" text-anchor="middle" font-size="12" font-weight="bold" fill="#ffe9a8">六大命中机制（G-HIT 统一方法论的操作层）</text>
+    <g font-size="9">
+      <rect x="24" y="304" width="270" height="88" rx="5" fill="url(#gMech)"/>
+      <text x="159" y="322" text-anchor="middle" font-size="10" font-weight="bold" fill="#d0d0f0">① 同伦扭曲命中</text>
+      <text x="32" y="338" font-size="8.5" fill="#b0b0d0">策略分布连续变形机制</text>
+      <text x="32" y="352" font-size="8.5" fill="#b0b0d0">能量下降+端点约束+证书反馈</text>
+      <text x="32" y="366" font-size="8.5" fill="#b0b0d0">+命中判定→高障碍→低残差</text>
+      <text x="32" y="382" font-size="8" fill="#9090b0" font-style="italic">类路径积分·类退火·类隧穿软件层</text>
+
+      <rect x="304" y="304" width="270" height="88" rx="5" fill="url(#gMech)"/>
+      <text x="439" y="322" text-anchor="middle" font-size="10" font-weight="bold" fill="#d0d0f0">② 微观隧穿</text>
+      <text x="312" y="338" font-size="8.5" fill="#b0b0d0">正厚度孔洞↔穿墙芯线同伦等价</text>
+      <text x="312" y="352" font-size="8.5" fill="#b0b0d0">MicroTunnel_ρ(W) ≃ CrossWall_ρ(W)</text>
+      <text x="312" y="366" font-size="8.5" fill="#b0b0d0">障碍穿透→收缩为可控通路</text>
+      <text x="312" y="382" font-size="8" fill="#9090b0" font-style="italic">从拓扑空间推广到算法空间</text>
+
+      <rect x="584" y="304" width="270" height="88" rx="5" fill="url(#gMech)"/>
+      <text x="719" y="322" text-anchor="middle" font-size="10" font-weight="bold" fill="#d0d0f0">③ 高阶正交</text>
+      <text x="592" y="338" font-size="8.5" fill="#b0b0d0">递归提取剩余命中增益</text>
+      <text x="592" y="352" font-size="8.5" fill="#b0b0d0">第k阶=目标扭曲与已用空间正交补</text>
+      <text x="592" y="366" font-size="8.5" fill="#b0b0d0">中取命中梯度残差</text>
+      <text x="592" y="382" font-size="8" fill="#9090b0" font-style="italic">正交补中一阶命中增益耗尽→收敛</text>
+
+      <rect x="24" y="400" width="270" height="88" rx="5" fill="url(#gMech)"/>
+      <text x="159" y="418" text-anchor="middle" font-size="10" font-weight="bold" fill="#d0d0f0">④ JacGap 工程判据</text>
+      <text x="32" y="434" font-size="8.5" fill="#b0b0b0">实际扭曲方向 vs 理想正交方向差距</text>
+      <text x="32" y="448" font-size="8.5" fill="#b0b0b0">每阶扭曲是否真正有效的判据</text>
+      <text x="32" y="462" font-size="8.5" fill="#b0b0b0">Φ(D_t)=½‖JacGap(D_t)‖²</text>
+      <text x="32" y="478" font-size="8" fill="#9090b0" font-style="italic">不泄漏回已用方向空间→收敛指引</text>
+
+      <rect x="304" y="400" width="270" height="88" rx="5" fill="url(#gMech)"/>
+      <text x="439" y="418" text-anchor="middle" font-size="10" font-weight="bold" fill="#d0d0f0">⑤ 频域/结构簇命中</text>
+      <text x="312" y="434" font-size="8.5" fill="#b0b0b0">路径事件而非单点状态事件</text>
+      <text x="312" y="448" font-size="8.5" fill="#b0b0b0">F_T(z_{0:T}) ∈ B_{ω,ε}</text>
+      <text x="312" y="462" font-size="8.5" fill="#b0b0b0">谱窗·相位·幅值·模态耦合·非线性混频</text>
+      <text x="312" y="478" font-size="8" fill="#9090b0" font-style="italic">从时域残差曲线→结构可微对象</text>
+
+      <rect x="584" y="400" width="270" height="88" rx="5" fill="url(#gMech)"/>
+      <text x="719" y="418" text-anchor="middle" font-size="10" font-weight="bold" fill="#d0d0f0">⑥ 变分算子扩展</text>
+      <text x="592" y="434" font-size="8.5" fill="#b0b0b0">从能量泛函极值→命中指数极值</text>
+      <text x="592" y="448" font-size="8.5" fill="#b0b0b0">哪条同伦轨迹使未命中生存概率下降</text>
+      <text x="592" y="462" font-size="8.5" fill="#b0b0b0">残差能量+命中指数+正交残差+JacGap变分</text>
+      <text x="592" y="478" font-size="8" fill="#9090b0" font-style="italic">BV/BRST作为变分生成形态来源</text>
+    </g>
+  </g>
+</g>
+
+<!-- ===== FINITE GRAPH FORMAL PROOFS ===== -->
+<g transform="translate(30, 970)">
+  <g filter="url(#sh)">
+  <rect x="0" y="0" width="1340" height="180" rx="8" fill="url(#gProof)"/>
+  </g>
+  <text x="670" y="26" text-anchor="middle" font-size="14" font-weight="bold" fill="#a0f0f0">有限图形式证明层（《率与商》Ch.2–5 · G-HIT 的严格数学基础）</text>
+  <text x="670" y="46" text-anchor="middle" font-size="10.5" fill="#b0d8d8">G-HIT 不只是算法层骨架，而是在有限图上有严格同伦见证、积分映射和保持定理的形式系统</text>
+
+  <g font-size="9.5">
+    <rect x="16" y="56" width="310" height="110" rx="5" fill="#fff" fill-opacity="0.08" stroke="#40a0a0" stroke-width="0.8"/>
+    <text x="171" y="74" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#a0f0f0">有限图积分与同伦回缩</text>
+    <text x="24" y="92" fill="#c0e0e0">有限图上的积分、插值和同伦回缩</text>
+    <text x="24" y="108" fill="#c0e0e0">逐边验证：IW = id（投影-插值复合）</text>
+    <text x="24" y="124" fill="#c0e0e0">id - WI = dH + Hd（同伦算子等式）</text>
+    <text x="24" y="140" fill="#c0e0e0">非零内部见证的显式构造</text>
+    <text x="24" y="158" font-size="8.5" fill="#80b0b0" font-style="italic">Ch.2 · 两类微积分的共同承载与积分映射</text>
+
+    <rect x="336" y="56" width="310" height="110" rx="5" fill="#fff" fill-opacity="0.08" stroke="#40a0a0" stroke-width="0.8"/>
+    <text x="491" y="74" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#a0f0f0">棱柱同伦见证与任务商下降</text>
+    <text x="344" y="92" fill="#c0e0e0">棱柱算子构造两种实现间的显式同伦</text>
+    <text x="344" y="108" fill="#c0e0e0">逐单形 Stokes 公式证明微分交换</text>
+    <text x="344" y="124" fill="#c0e0e0">任务商核条件同时控制映射和见证下降</text>
+    <text x="344" y="140" fill="#c0e0e0">非平凡商与非零同伦同时成立的二维实例</text>
+    <text x="344" y="158" font-size="8.5" fill="#80b0b0" font-style="italic">Ch.3 · 同伦见证、任务商下降与积分保持</text>
+
+    <rect x="656" y="56" width="310" height="110" rx="5" fill="#fff" fill-opacity="0.08" stroke="#40a0a0" stroke-width="0.8"/>
+    <text x="811" y="74" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#a0f0f0">主定理：微分/积分/执行/回读保持</text>
+    <text x="664" y="92" fill="#c0e0e0">定理 comparison-main：共同定义域+任务观察</text>
+    <text x="664" y="108" fill="#c0e0e0">+动作响应相容 → 微分·规定积分·有限执行</text>
+    <text x="664" y="124" fill="#c0e0e0">·合法回读 全部保持</text>
+    <text x="664" y="140" fill="#c0e0e0">观察保持·执行保持·高阶结构保持</text>
+    <text x="664" y="158" font-size="8.5" fill="#80b0b0" font-style="italic">Ch.4 · 同伦映射的执行保持、高阶相容与主定理</text>
+
+    <rect x="976" y="56" width="348" height="110" rx="5" fill="#fff" fill-opacity="0.08" stroke="#40a0a0" stroke-width="0.8"/>
+    <text x="1150" y="74" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#a0f0f0">LHTS/TPH 实例化层级</text>
+    <text x="984" y="92" fill="#c0e0e0">LHTS 同伦扭曲-偏微下降见证（棱柱积分）</text>
+    <text x="984" y="108" fill="#c0e0e0">TPH-LHTS 分形递归收敛见证（三层见证）</text>
+    <text x="984" y="124" fill="#c0e0e0">有限局部见证组合 → 参数同伦递归</text>
+    <text x="984" y="140" fill="#c0e0e0">→ 广义分形见证族 → 哲学闭合</text>
+    <text x="984" y="158" font-size="8.5" fill="#80b0b0" font-style="italic">Ch.5 · 同伦见证的实例化层级</text>
+  </g>
+</g>
+
+<!-- ===== GENERALIZATION & CONCLUSIONS ===== -->
+<g transform="translate(30, 1176)">
+  <text x="0" y="0" font-size="14" font-weight="bold" fill="#333">泛化：从 PDE 求解到自动化证明/科研/设计的统一方法论</text>
+
+  <g font-size="10">
+    <rect x="0" y="12" width="430" height="130" rx="8" fill="#fff" stroke="#ccc"/>
+    <text x="215" y="32" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#1a3a5c">泛化方向一：高阶泛函PDE组</text>
+    <text x="16" y="52" fill="#444">PDE 不再只是偏微分方程狭义对象</text>
+    <text x="16" y="68" fill="#444">→ 扩展为高阶泛函约束系统</text>
+    <text x="16" y="84" fill="#444">证明任务·科研任务·设计任务</text>
+    <text x="16" y="100" fill="#444">都可写成状态/策略/残差/证书/终端判定</text>
+    <text x="16" y="116" fill="#444">的耦合方程组</text>
+    <text x="16" y="134" font-size="9" fill="#888" font-style="italic">求解器·证明器·科研生成器·设计生成器共享同一形式骨架</text>
+
+    <rect x="450" y="12" width="430" height="130" rx="8" fill="#fff" stroke="#ccc"/>
+    <text x="665" y="32" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#5c1a1a">泛化方向二：证书可靠性闭环</text>
+    <text x="466" y="52" fill="#444">策略簇演化不只追求低残差</text>
+    <text x="466" y="68" fill="#444">→ 必须验证终端证书</text>
+    <text x="466" y="84" fill="#444">防止伪命中·偶然命中·不可复现命中</text>
+    <text x="466" y="100" fill="#444">命中判定+方法微分流+终端解证书</text>
+    <text x="466" y="116" fill="#444">+测量证书+可靠性边界 → 闭合链条</text>
+    <text x="466" y="134" font-size="9" fill="#888" font-style="italic">策略簇价值=低残差点 × 可证书验证 × 可误差界约束 × 可语义接受</text>
+
+    <rect x="900" y="12" width="440" height="130" rx="8" fill="#fff" stroke="#b8860b" stroke-width="1.5"/>
+    <text x="1120" y="32" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#8b6508">核心结论：统一方法论</text>
+    <text x="916" y="52" fill="#444" font-weight="bold">G-HIT = 有限图上的统一命中方法论</text>
+    <text x="916" y="68" fill="#444">LHTS（运动内核）+ TPH（外层控制）</text>
+    <text x="916" y="84" fill="#444">+ 六大命中机制 + 有限图形式证明层</text>
+    <text x="916" y="100" fill="#444">= 把"显式PDE求解"替代为"低残差集合命中"</text>
+    <text x="916" y="116" fill="#444">= 把"函数解搜索"升级为"全局命中路径搜索"</text>
+    <text x="916" y="134" font-size="9" fill="#888" font-style="italic">可审计·可兑现·可控风险·战略工程降维优势</text>
+  </g>
+
+  <!-- Key distinctions box -->
+  <g filter="url(#sh)">
+  <rect x="0" y="158" width="1340" height="80" rx="8" fill="#2a2a3e"/>
+  </g>
+  <text x="670" y="180" text-anchor="middle" font-size="12" font-weight="bold" fill="#ffe9a8">方法论的关键区分（避免过度声称）</text>
+  <g font-size="9.5">
+    <text x="20" y="200" fill="#d0d0e0">✓ 跳跃=候选生成与频域加速机制，须通过接受准则/避障同伦/统计更优/微观隧穿/工程全局证书取得有效性</text>
+    <text x="20" y="216" fill="#d0d0e0">✓ 工程全局 ≠ 数学全局：有限工程空间覆盖→工程全局证书；进一步L∞闭合+紧性+闭性+保真性→数学极限命题</text>
+    <text x="20" y="232" fill="#d0d0e0">✓ "替代"≠删除PDE理论：PDE从求解层中心→残差语义层+保真性证书层；随机命中通过经验泛函+JacGap下降→确定性极限</text>
+  </g>
+</g>
+
+<!-- ===== FOOTER ===== -->
+<text x="700" y="1490" text-anchor="middle" font-size="10" fill="#999" font-style="italic">综合5篇工作笔记：PDE策略簇(05-03) · PDE求解范式替代(05-13) · LHTS(05-14) · TPH-LHTS(05-15) · L-测度替代(05-18) + 《率与商》Ch.2-5形式见证(09-12)</text>
+
+</svg>
+</div>
+</html>
+<!-- （注：内容由AI生成） -->

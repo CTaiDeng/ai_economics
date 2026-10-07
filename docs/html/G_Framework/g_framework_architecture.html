@@ -1,0 +1,312 @@
+<html style="margin:0;padding:0;">
+<title>GaoZheng G-Framework 分层架构图</title>
+<div style="width:100%;box-sizing:border-box;font-family:'Georgia','Times New Roman',serif;background:#f7f5f0;padding:24px 16px 32px;">
+
+<svg viewBox="0 0 1160 1720" width="100%" style="display:block;max-width:1160px;margin:0 auto;" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- gradients -->
+  <linearGradient id="gFoundation" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#1a3a5c"/><stop offset="100%" stop-color="#2c5f8a"/>
+  </linearGradient>
+  <linearGradient id="gFramework" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#2e6b4f"/><stop offset="100%" stop-color="#3d8a68"/>
+  </linearGradient>
+  <linearGradient id="gAlgebra" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#7a4a1e"/><stop offset="100%" stop-color="#a06830"/>
+  </linearGradient>
+  <linearGradient id="gCH" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#5c2e5c"/><stop offset="100%" stop-color="#8a4a8a"/>
+  </linearGradient>
+  <linearGradient id="gApps" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#4a4a4a"/><stop offset="100%" stop-color="#6a6a6a"/>
+  </linearGradient>
+  <marker id="arrowDown" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#555"/>
+  </marker>
+  <marker id="arrowDownGreen" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#3d8a68"/>
+  </marker>
+  <marker id="arrowDownPurple" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#8a4a8a"/>
+  </marker>
+  <filter id="shadow" x="-2%" y="-2%" width="104%" height="108%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+  </filter>
+</defs>
+
+<!-- ==================== TITLE ==================== -->
+<text x="580" y="38" text-anchor="middle" font-size="22" font-weight="bold" fill="#1a1a2e" font-family="Georgia,serif">GaoZheng G-Framework 分层架构总览</text>
+<text x="580" y="62" text-anchor="middle" font-size="13" fill="#555" font-family="Georgia,serif">PL-PI 元数学理论 · GZ 法则套件 · PFB-GNLA 四层构造 · CH 分层 · 应用域</text>
+<line x1="200" y1="76" x2="960" y2="76" stroke="#ccc" stroke-width="1"/>
+
+<!-- ==================== LAYER 0: PL-PI MMT FOUNDATION ==================== -->
+<g filter="url(#shadow)">
+<rect x="80" y="96" width="1000" height="120" rx="10" fill="url(#gFoundation)"/>
+</g>
+<text x="100" y="124" font-size="15" font-weight="bold" fill="#fff">Layer 0 · 元数学基础</text>
+<text x="100" y="146" font-size="17" font-weight="bold" fill="#ffe9a8">PL-PI MMT — 泛逻辑与泛迭代元数学理论</text>
+<text x="100" y="168" font-size="12" fill="#d0e0f0" font-style="italic">Pan-Logic Analysis &amp; Pan-Iterative Analysis Meta-Mathematical Theory</text>
+
+<!-- PIP box -->
+<rect x="560" y="120" width="230" height="76" rx="6" fill="#fff" fill-opacity="0.12" stroke="#a0c4e0" stroke-width="1"/>
+<text x="675" y="144" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffe9a8">PIP · 泛迭代问题</text>
+<text x="675" y="164" text-anchor="middle" font-size="10.5" fill="#d0e0f0">异构迭代系统的统一</text>
+<text x="675" y="180" text-anchor="middle" font-size="10.5" fill="#d0e0f0">法则空间 + 泛迭代机制 Π</text>
+
+<!-- PLP box -->
+<rect x="810" y="120" width="250" height="76" rx="6" fill="#fff" fill-opacity="0.12" stroke="#a0c4e0" stroke-width="1"/>
+<text x="935" y="144" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffe9a8">PLP · 泛逻辑问题</text>
+<text x="935" y="164" text-anchor="middle" font-size="10.5" fill="#d0e0f0">统一逻辑谓词与逻辑度量</text>
+<text x="935" y="180" text-anchor="middle" font-size="10.5" fill="#d0e0f0">一致性 · 解释力 · 结构邻近度</text>
+
+<!-- arrow down -->
+<line x1="580" y1="216" x2="580" y2="248" stroke="#555" stroke-width="2" marker-end="url(#arrowDown)"/>
+
+<!-- ==================== LAYER 1: G-FRAMEWORK / GZ LAW SUITE ==================== -->
+<g filter="url(#shadow)">
+<rect x="80" y="252" width="1000" height="175" rx="10" fill="url(#gFramework)"/>
+</g>
+<text x="100" y="280" font-size="15" font-weight="bold" fill="#fff">Layer 1 · G-Framework 几何实现</text>
+<text x="100" y="302" font-size="16" font-weight="bold" fill="#d4f0d4">GZ Law Suite — 高政法则套件</text>
+
+<!-- 5 component boxes -->
+<g font-size="11" fill="#e8f5e8">
+  <!-- GZ-LS -->
+  <rect x="100" y="318" width="180" height="88" rx="6" fill="#fff" fill-opacity="0.1" stroke="#88c8a0" stroke-width="1"/>
+  <text x="190" y="340" text-anchor="middle" font-size="13" font-weight="bold" fill="#d4f0d4">GZ-LS</text>
+  <text x="190" y="358" text-anchor="middle" font-size="10.5" fill="#c8e8c8">法则空间 𝔏_GZ</text>
+  <text x="190" y="376" text-anchor="middle" font-size="10" fill="#b8d8b8">Law-Space</text>
+  <text x="190" y="394" text-anchor="middle" font-size="10" fill="#b8d8b8">法则对象的承载流形</text>
+
+  <!-- GZ-TLC -->
+  <rect x="296" y="318" width="180" height="88" rx="6" fill="#fff" fill-opacity="0.1" stroke="#88c8a0" stroke-width="1"/>
+  <text x="386" y="340" text-anchor="middle" font-size="13" font-weight="bold" fill="#d4f0d4">GZ-TLC</text>
+  <text x="386" y="358" text-anchor="middle" font-size="10.5" fill="#c8e8c8">三层联络 𝒜</text>
+  <text x="386" y="376" text-anchor="middle" font-size="10" fill="#b8d8b8">Triple-Layer Connection</text>
+  <text x="386" y="394" text-anchor="middle" font-size="10" fill="#b8d8b8">几何/参数/法则层</text>
+
+  <!-- GZ-LT -->
+  <rect x="492" y="318" width="180" height="88" rx="6" fill="#fff" fill-opacity="0.1" stroke="#88c8a0" stroke-width="1"/>
+  <text x="582" y="340" text-anchor="middle" font-size="13" font-weight="bold" fill="#d4f0d4">GZ-LT</text>
+  <text x="582" y="358" text-anchor="middle" font-size="10.5" fill="#c8e8c8">法则变换 M_!w</text>
+  <text x="582" y="376" text-anchor="middle" font-size="10" fill="#b8d8b8">Law-Transformation</text>
+  <text x="582" y="394" text-anchor="middle" font-size="10" fill="#b8d8b8">法则级规范变换</text>
+
+  <!-- GZ-LOC -->
+  <rect x="688" y="318" width="180" height="88" rx="6" fill="#fff" fill-opacity="0.1" stroke="#88c8a0" stroke-width="1"/>
+  <text x="778" y="340" text-anchor="middle" font-size="13" font-weight="bold" fill="#d4f0d4">GZ-LOC</text>
+  <text x="778" y="358" text-anchor="middle" font-size="10.5" fill="#c8e8c8">法则算子联络 A_M</text>
+  <text x="778" y="376" text-anchor="middle" font-size="10" fill="#b8d8b8">Law-Operator Connection</text>
+  <text x="778" y="394" text-anchor="middle" font-size="10" fill="#b8d8b8">演化定律=几何对象</text>
+
+  <!-- GZ-LCurv -->
+  <rect x="884" y="318" width="180" height="88" rx="6" fill="#fff" fill-opacity="0.1" stroke="#88c8a0" stroke-width="1"/>
+  <text x="974" y="340" text-anchor="middle" font-size="13" font-weight="bold" fill="#d4f0d4">GZ-LCurv</text>
+  <text x="974" y="358" text-anchor="middle" font-size="10.5" fill="#c8e8c8">法则曲率 𝓕_law</text>
+  <text x="974" y="376" text-anchor="middle" font-size="10" fill="#b8d8b8">Law-Curvature</text>
+  <text x="974" y="394" text-anchor="middle" font-size="10" fill="#b8d8b8">控制可容许流的偏差</text>
+</g>
+
+<!-- arrows down from framework -->
+<line x1="400" y1="427" x2="400" y2="458" stroke="#555" stroke-width="2" marker-end="url(#arrowDown)"/>
+<line x1="760" y1="427" x2="760" y2="458" stroke="#3d8a68" stroke-width="2" marker-end="url(#arrowDownGreen)"/>
+
+<!-- ==================== LAYER 2: G-ALGEBRA / PFB-GNLA ==================== -->
+<g filter="url(#shadow)">
+<rect x="80" y="462" width="1000" height="200" rx="10" fill="url(#gAlgebra)"/>
+</g>
+<text x="100" y="490" font-size="15" font-weight="bold" fill="#fff">Layer 2 · G-Algebra 代数构造</text>
+<text x="100" y="512" font-size="16" font-weight="bold" fill="#ffe0b0">PFB-GNLA — 主丛广义非交换李代数（四个版本）</text>
+
+<!-- 4 version boxes -->
+<g>
+  <!-- Strict -->
+  <rect x="100" y="528" width="230" height="115" rx="6" fill="#fff" fill-opacity="0.1" stroke="#d4a060" stroke-width="1"/>
+  <text x="215" y="552" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffe0b0">① 严格版本</text>
+  <text x="215" y="570" text-anchor="middle" font-size="10.5" fill="#f0d8b0">Strict PFB-GNLA</text>
+  <line x1="120" y1="578" x2="310" y2="578" stroke="#c09050" stroke-width="0.5"/>
+  <text x="215" y="594" text-anchor="middle" font-size="10" fill="#e8d0a8">Jacobi 恒等式精确成立</text>
+  <text x="215" y="610" text-anchor="middle" font-size="10" fill="#e8d0a8">曲率=对平坦性的受控偏离</text>
+  <text x="215" y="626" text-anchor="middle" font-size="10" fill="#e8d0a8">近李代数算子结构</text>
+  <text x="215" y="640" text-anchor="middle" font-size="9.5" fill="#d8c098" font-style="italic">Ch.4</text>
+
+  <!-- Homotopy -->
+  <rect x="348" y="528" width="230" height="115" rx="6" fill="#fff" fill-opacity="0.1" stroke="#d4a060" stroke-width="1"/>
+  <text x="463" y="552" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffe0b0">② 同伦版本</text>
+  <text x="463" y="570" text-anchor="middle" font-size="10.5" fill="#f0d8b0">Homotopy PFB-GNLA</text>
+  <line x1="368" y1="578" x2="558" y2="578" stroke="#c09050" stroke-width="0.5"/>
+  <text x="463" y="594" text-anchor="middle" font-size="10" fill="#e8d0a8">闭 3-形式 H + 三元运算 l₃</text>
+  <text x="463" y="610" text-anchor="middle" font-size="10" fill="#e8d0a8">2-term L∞ 代数</text>
+  <text x="463" y="626" text-anchor="middle" font-size="10" fill="#e8d0a8">Jacobiator-gap 不变量</text>
+  <text x="463" y="640" text-anchor="middle" font-size="9.5" fill="#d8c098" font-style="italic">Ch.5</text>
+
+  <!-- Variable Functional-Operator -->
+  <rect x="596" y="528" width="230" height="115" rx="6" fill="#fff" fill-opacity="0.1" stroke="#d4a060" stroke-width="1"/>
+  <text x="711" y="552" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffe0b0">③ 变分泛函-算子版</text>
+  <text x="711" y="570" text-anchor="middle" font-size="10.5" fill="#f0d8b0">Variable Functional–Operator</text>
+  <line x1="616" y1="578" x2="806" y2="578" stroke="#c09050" stroke-width="0.5"/>
+  <text x="711" y="594" text-anchor="middle" font-size="10" fill="#e8d0a8">参数方向→算子值法则泛函</text>
+  <text x="711" y="610" text-anchor="middle" font-size="10" fill="#e8d0a8">混合曲率 + 法则动力学</text>
+  <text x="711" y="626" text-anchor="middle" font-size="10" fill="#e8d0a8">GZ-LSPI 法则空间路径积分</text>
+  <text x="711" y="640" text-anchor="middle" font-size="9.5" fill="#d8c098" font-style="italic">Ch.6</text>
+
+  <!-- Original -->
+  <rect x="844" y="528" width="220" height="115" rx="6" fill="#fff" fill-opacity="0.1" stroke="#d4a060" stroke-width="1"/>
+  <text x="954" y="552" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffe0b0">④ 元数学原版</text>
+  <text x="954" y="570" text-anchor="middle" font-size="10.5" fill="#f0d8b0">Meta-Mathematical Original</text>
+  <line x1="864" y1="578" x2="1044" y2="578" stroke="#c09050" stroke-width="0.5"/>
+  <text x="954" y="594" text-anchor="middle" font-size="10" fill="#e8d0a8">PL-PI 法则空间内重建</text>
+  <text x="954" y="610" text-anchor="middle" font-size="10" fill="#e8d0a8">构造规则级的联络与修正</text>
+  <text x="954" y="626" text-anchor="middle" font-size="10" fill="#e8d0a8">四版本对齐 (Ch.8)</text>
+  <text x="954" y="640" text-anchor="middle" font-size="9.5" fill="#d8c098" font-style="italic">Ch.7</text>
+</g>
+
+<!-- dependency arrows between versions -->
+<line x1="330" y1="585" x2="348" y2="585" stroke="#ffe0b0" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+<line x1="578" y1="585" x2="596" y2="585" stroke="#ffe0b0" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+<text x="339" y="578" text-anchor="middle" font-size="8" fill="#ffe0b0">依赖</text>
+<text x="587" y="578" text-anchor="middle" font-size="8" fill="#ffe0b0">依赖</text>
+
+<!-- arrow down from algebra -->
+<line x1="580" y1="662" x2="580" y2="694" stroke="#555" stroke-width="2" marker-end="url(#arrowDown)"/>
+
+<!-- ==================== LAYER 3: CH-LAYERING & GZ-CBT ==================== -->
+<g filter="url(#shadow)">
+<rect x="80" y="698" width="1000" height="165" rx="10" fill="url(#gCH)"/>
+</g>
+<text x="100" y="726" font-size="15" font-weight="bold" fill="#fff">Layer 3 · 连续统语义与证书不变量</text>
+<text x="100" y="748" font-size="16" font-weight="bold" fill="#f0d0f0">CH-Layering &amp; GZ-CBT</text>
+
+<!-- CH-layering box -->
+<rect x="100" y="764" width="470" height="82" rx="6" fill="#fff" fill-opacity="0.1" stroke="#c080c0" stroke-width="1"/>
+<text x="335" y="788" text-anchor="middle" font-size="13" font-weight="bold" fill="#f0d0f0">CH 分层方案</text>
+<text x="335" y="808" text-anchor="middle" font-size="10.5" fill="#e0c0e0">CH/GCH → 二元法则层 ℓ₂（基数度量）</text>
+<text x="335" y="826" text-anchor="middle" font-size="10.5" fill="#e0c0e0">高阶层 ℓ_≥3 → 同伦 · 曲率 · 语义度量</text>
+<text x="335" y="842" text-anchor="middle" font-size="9.5" fill="#d0b0d0" font-style="italic">Ch.9</text>
+
+<!-- GZ-CBT box -->
+<rect x="590" y="764" width="470" height="82" rx="6" fill="#fff" fill-opacity="0.1" stroke="#c080c0" stroke-width="1"/>
+<text x="825" y="788" text-anchor="middle" font-size="13" font-weight="bold" fill="#f0d0f0">GZ-CBT · 连续统崩溃与重写</text>
+<text x="825" y="808" text-anchor="middle" font-size="10.5" fill="#e0c0e0">连续统问题→法则空间中的几何/同伦现象</text>
+<text x="825" y="826" text-anchor="middle" font-size="10.5" fill="#e0c0e0">证书型不变量: JacGap · CH-breakdown 指标</text>
+<text x="825" y="842" text-anchor="middle" font-size="9.5" fill="#d0b0d0" font-style="italic">Ch.10</text>
+
+<!-- arrow down -->
+<line x1="580" y1="863" x2="580" y2="894" stroke="#555" stroke-width="2" marker-end="url(#arrowDown)"/>
+
+<!-- ==================== LAYER 4: APPLICATIONS ==================== -->
+<g filter="url(#shadow)">
+<rect x="80" y="898" width="1000" height="430" rx="10" fill="url(#gApps)"/>
+</g>
+<text x="100" y="926" font-size="15" font-weight="bold" fill="#fff">Layer 4 · 应用域（法则空间投影）</text>
+<text x="100" y="948" font-size="14" fill="#d0d0d0" font-style="italic">主丛/规范场/引力/QFT/重整化群 → 法则空间几何的切片与水平流</text>
+
+<!-- Application grid: 3 rows x 3 cols -->
+<g font-size="11">
+  <!-- Row 1 -->
+  <!-- Physics -->
+  <rect x="100" y="964" width="310" height="90" rx="6" fill="#fff" fill-opacity="0.08" stroke="#888" stroke-width="1"/>
+  <text x="255" y="988" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#e0e0e0">理论物理</text>
+  <text x="255" y="1006" text-anchor="middle" font-size="10" fill="#c0c0c0">规范场 · 引力 · QFT</text>
+  <text x="255" y="1022" text-anchor="middle" font-size="10" fill="#c0c0c0">重整化群=GZ-TLC 水平流</text>
+  <text x="255" y="1038" text-anchor="middle" font-size="10" fill="#c0c0c0">反常/障碍=法则曲率分量</text>
+  <text x="255" y="1050" text-anchor="middle" font-size="9" fill="#999" font-style="italic">Ch.11 · Part V</text>
+
+  <!-- Math Physics -->
+  <rect x="425" y="964" width="310" height="90" rx="6" fill="#fff" fill-opacity="0.08" stroke="#888" stroke-width="1"/>
+  <text x="580" y="988" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#e0e0e0">数学物理与场论</text>
+  <text x="580" y="1006" text-anchor="middle" font-size="10" fill="#c0c0c0">GR 与量子理论的法则空间协调</text>
+  <text x="580" y="1022" text-anchor="middle" font-size="10" fill="#c0c0c0">GZ-代数重构规范与引力</text>
+  <text x="580" y="1038" text-anchor="middle" font-size="10" fill="#c0c0c0">法则空间路径积分表述</text>
+  <text x="580" y="1050" text-anchor="middle" font-size="9" fill="#999" font-style="italic">Part VI</text>
+
+  <!-- RL -->
+  <rect x="750" y="964" width="310" height="90" rx="6" fill="#fff" fill-opacity="0.08" stroke="#888" stroke-width="1"/>
+  <text x="905" y="988" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#e0e0e0">强化学习 (GRL)</text>
+  <text x="905" y="1006" text-anchor="middle" font-size="10" fill="#c0c0c0">经典 RL → 法则空间 RL</text>
+  <text x="905" y="1022" text-anchor="middle" font-size="10" fill="#c0c0c0">GRL 路径积分表述</text>
+  <text x="905" y="1038" text-anchor="middle" font-size="10" fill="#c0c0c0">证书型 AI 与法则空间学习</text>
+  <text x="905" y="1050" text-anchor="middle" font-size="9" fill="#999" font-style="italic">Part VII</text>
+
+  <!-- Row 2 -->
+  <!-- Quantum Computing -->
+  <rect x="100" y="1068" width="310" height="90" rx="6" fill="#fff" fill-opacity="0.08" stroke="#888" stroke-width="1"/>
+  <text x="255" y="1092" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#e0e0e0">量子计算</text>
+  <text x="255" y="1110" text-anchor="middle" font-size="10" fill="#c0c0c0">量子系统=法则空间中的法则对象</text>
+  <text x="255" y="1126" text-anchor="middle" font-size="10" fill="#c0c0c0">法则空间路径积分量子计算</text>
+  <text x="255" y="1142" text-anchor="middle" font-size="10" fill="#c0c0c0">混合经典-量子 GRL 架构</text>
+  <text x="255" y="1154" text-anchor="middle" font-size="9" fill="#999" font-style="italic">Part VIII</text>
+
+  <!-- Condensed Matter / Superconductivity -->
+  <rect x="425" y="1068" width="310" height="90" rx="6" fill="#fff" fill-opacity="0.08" stroke="#888" stroke-width="1"/>
+  <text x="580" y="1092" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#e0e0e0">凝聚态与超导</text>
+  <text x="580" y="1110" text-anchor="middle" font-size="10" fill="#c0c0c0">凝聚态系统的法则空间建模</text>
+  <text x="580" y="1126" text-anchor="middle" font-size="10" fill="#c0c0c0">室温超导的法则空间理论</text>
+  <text x="580" y="1142" text-anchor="middle" font-size="10" fill="#c0c0c0">材料设计原则</text>
+  <text x="580" y="1154" text-anchor="middle" font-size="9" fill="#999" font-style="italic">Part IX</text>
+
+  <!-- Life Sciences / LBOPB -->
+  <rect x="750" y="1068" width="310" height="90" rx="6" fill="#fff" fill-opacity="0.08" stroke="#888" stroke-width="1"/>
+  <text x="905" y="1092" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#e0e0e0">生命科学 (LBOPB)</text>
+  <text x="905" y="1110" text-anchor="middle" font-size="10" fill="#c0c0c0">生命全算子主丛 + 全息宇宙</text>
+  <text x="905" y="1126" text-anchor="middle" font-size="10" fill="#c0c0c0">生命科学算子幺半群公理系统</text>
+  <text x="905" y="1142" text-anchor="middle" font-size="10" fill="#c0c0c0">LBOPB 上的 GRL 路径积分</text>
+  <text x="905" y="1154" text-anchor="middle" font-size="9" fill="#999" font-style="italic">Part X–XI</text>
+
+  <!-- Row 3 -->
+  <!-- Chemistry -->
+  <rect x="100" y="1172" width="310" height="90" rx="6" fill="#fff" fill-opacity="0.08" stroke="#888" stroke-width="1"/>
+  <text x="255" y="1196" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#e0e0e0">生成化学与分子模拟</text>
+  <text x="255" y="1214" text-anchor="middle" font-size="10" fill="#c0c0c0">分子对接/动力学=LBOPB 坐标</text>
+  <text x="255" y="1230" text-anchor="middle" font-size="10" fill="#c0c0c0">生成化学=幺半群程序</text>
+  <text x="255" y="1246" text-anchor="middle" font-size="10" fill="#c0c0c0">模拟人体=巨时间依赖动力系统</text>
+  <text x="255" y="1258" text-anchor="middle" font-size="9" fill="#999" font-style="italic">Part XII</text>
+
+  <!-- Precision Medicine -->
+  <rect x="425" y="1172" width="310" height="90" rx="6" fill="#fff" fill-opacity="0.08" stroke="#888" stroke-width="1"/>
+  <text x="580" y="1196" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#e0e0e0">精准医学 (GRL-SAC)</text>
+  <text x="580" y="1214" text-anchor="middle" font-size="10" fill="#c0c0c0">离散 GRL-SAC + rlsac 决策引擎</text>
+  <text x="580" y="1230" text-anchor="middle" font-size="10" fill="#c0c0c0">自举与虚拟临床试验</text>
+  <text x="580" y="1246" text-anchor="middle" font-size="10" fill="#c0c0c0">知识压缩与编译器型 LBOPB 引擎</text>
+  <text x="580" y="1258" text-anchor="middle" font-size="9" fill="#999" font-style="italic">Part XIII</text>
+
+  <!-- AI / HACA / PACER -->
+  <rect x="750" y="1172" width="310" height="90" rx="6" fill="#fff" fill-opacity="0.08" stroke="#888" stroke-width="1"/>
+  <text x="905" y="1196" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#e0e0e0">AI 架构与可解释性</text>
+  <text x="905" y="1214" text-anchor="middle" font-size="10" fill="#c0c0c0">HACA 法则对象 + 语义规范场</text>
+  <text x="905" y="1230" text-anchor="middle" font-size="10" fill="#c0c0c0">KAT 动作幺半群 + PACER 架构</text>
+  <text x="905" y="1246" text-anchor="middle" font-size="10" fill="#c0c0c0">证书型 AI · 可解释性 · 治理</text>
+  <text x="905" y="1258" text-anchor="middle" font-size="9" fill="#999" font-style="italic">Part XIV–XVI</text>
+</g>
+
+<!-- ==================== BOTTOM: CONCEPTUAL LOOP ==================== -->
+<g filter="url(#shadow)">
+<rect x="80" y="1350" width="1000" height="70" rx="10" fill="#2a2a3e"/>
+</g>
+<text x="580" y="1378" text-anchor="middle" font-size="14" font-weight="bold" fill="#ffe9a8">概念闭环</text>
+<text x="580" y="1400" text-anchor="middle" font-size="11.5" fill="#d0d0e0">Parts I–II: 从几何到法则对象  →  Part III: 从 PL-PI 法则对象回到 G-Algebra 与 PFB-GNLA  →  Parts IV–V+: 法则空间结构投影到各学科</text>
+<text x="580" y="1416" text-anchor="middle" font-size="10.5" fill="#999" font-style="italic">PL-PI 元数学起源 ↔ 经典主丛几何 ↔ 高阶同伦结构 ↔ 数学物理应用</text>
+
+<!-- ==================== LEGEND ==================== -->
+<g transform="translate(80, 1445)">
+  <text x="0" y="0" font-size="12" font-weight="bold" fill="#333">图例</text>
+  <rect x="0" y="12" width="16" height="12" rx="2" fill="url(#gFoundation)"/>
+  <text x="22" y="22" font-size="10.5" fill="#444">元数学基础层</text>
+  <rect x="130" y="12" width="16" height="12" rx="2" fill="url(#gFramework)"/>
+  <text x="152" y="22" font-size="10.5" fill="#444">G-Framework 几何层</text>
+  <rect x="290" y="12" width="16" height="12" rx="2" fill="url(#gAlgebra)"/>
+  <text x="312" y="22" font-size="10.5" fill="#444">G-Algebra 代数层</text>
+  <rect x="430" y="12" width="16" height="12" rx="2" fill="url(#gCH)"/>
+  <text x="452" y="22" font-size="10.5" fill="#444">CH 分层/证书层</text>
+  <rect x="570" y="12" width="16" height="12" rx="2" fill="url(#gApps)"/>
+  <text x="592" y="22" font-size="10.5" fill="#444">应用域层</text>
+  <line x1="700" y1="18" x2="730" y2="18" stroke="#555" stroke-width="2" marker-end="url(#arrowDown)"/>
+  <text x="736" y="22" font-size="10.5" fill="#444">依赖/投影方向</text>
+</g>
+
+<text x="580" y="1500" text-anchor="middle" font-size="10" fill="#999" font-style="italic">基于 GaoZheng《Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis (G-Framework)》v1.1, 2025</text>
+
+</svg>
+</div>
+</html>
+<!-- （注：内容由AI生成） -->
