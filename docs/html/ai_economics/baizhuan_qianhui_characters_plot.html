@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="GaoZheng（高政）">
+  <meta name="description" content="《百转千回》人物关系与情节架构图：创始团队、家庭与导师、星原参与者、千礁危机、商业赞助，以及四条主线交织的十卷情节。">
+  <meta name="color-scheme" content="light">
+  <title>《百转千回》人物关系与情节架构图</title>
+  <style>
+    :root {
+      --paper: #f4f1ea;
+      --ink: #243044;
+      --muted: #5d6878;
+      --navy: #1a1a3e;
+      --blue: #286da0;
+      --green: #2c7956;
+      --orange: #b46924;
+      --gold: #ffe9a8;
+      --line: #dedbd4;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    h1, h2, h3, p, figure { margin: 0; }
+    h1, h2, h3 { line-height: 1.45; }
+    a { color: #245e8b; text-underline-offset: 4px; }
+    a:hover { color: #513d76; }
+    a:focus-visible, .diagram-scroll:focus-visible {
+      outline: 3px solid #b8860b;
+      outline-offset: 4px;
+    }
+    .skip-link {
+      position: absolute; z-index: 2; top: -100px; left: 16px;
+      padding: 8px 14px; background: #fff; border: 1px solid var(--navy);
+    }
+    .skip-link:focus { top: 12px; }
+    .page { max-width: 1240px; margin: 0 auto; padding: 26px 24px 30px; }
+    .hero {
+      text-align: center; padding: 25px 24px 22px; border-radius: var(--radius);
+      color: #e3e2f0; background: linear-gradient(110deg, #1a1a3e, #3a2a5e);
+      box-shadow: 0 3px 12px rgb(26 26 62 / 12%);
+    }
+    .eyebrow { color: #d1c6e2; font: 12px Georgia, serif; letter-spacing: 2px; }
+    h1 { margin: 7px 0; color: var(--gold); font-size: clamp(28px, 3vw, 40px); letter-spacing: 8px; }
+    .hero-subtitle { font-size: clamp(15px, 1.7vw, 19px); font-weight: 600; letter-spacing: 1px; }
+    .hero-meta { margin-top: 8px; color: #d0c8df; font-size: 13px; }
+    .hero-motif { margin-top: 5px; color: #d0c8df; font-size: 12px; }
+    .nav {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 22px;
+      padding: 14px 10px 0; font-size: 13px;
+    }
+    .section { margin-top: 22px; scroll-margin-top: 16px; }
+    .section-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .section-number {
+      flex: 0 0 30px; display: grid; place-items: center; height: 30px;
+      border-radius: 6px; background: #252344; color: var(--gold); font: bold 13px Georgia, serif;
+    }
+    h2 { color: #282846; font-size: 19px; }
+    .section-note { margin-left: auto; font-size: 12px; color: var(--muted); text-align: right; }
+    .panel { border: 1px solid var(--line); border-radius: var(--radius); background: #fffdf9; }
+    .diagram-panel { padding: 16px 18px 14px; }
+    .diagram-scroll { overflow-x: auto; border-radius: 6px; }
+    .character-map { display: block; width: 100%; min-width: 1000px; height: auto; margin: 0 auto; }
+    .character-map text { font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; }
+    .relation-legend {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px;
+      list-style: none; margin: 12px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line);
+      color: var(--muted); font-size: 12px;
+    }
+    .relation-legend li { display: flex; align-items: center; gap: 7px; }
+    .line-sample { display: inline-block; width: 28px; border-top: 2px solid; }
+    .line-gray { color: #516376; }
+    .line-red-dash { color: #872f30; border-top-style: dashed; }
+    .line-blue { color: var(--blue); }
+    .line-green-dash { color: var(--green); border-top-style: dashed; }
+    .line-red { color: #872f30; }
+    .line-purple { color: #674466; }
+    figcaption { margin-top: 10px; text-align: center; color: var(--muted); font-size: 12px; }
+    .plot-panel { padding: 20px 22px; }
+    .threads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 22px; }
+    .thread { padding: 10px 13px; border: 1px solid; border-radius: 7px; font-size: 12px; }
+    .thread strong { display: block; margin-bottom: 2px; font-size: 13px; }
+    .thread-startup { background: #e8e0f0; border-color: #ccb6db; color: #49365f; }
+    .thread-economy { background: #eaf2f8; border-color: #c3d6e6; color: #225d89; }
+    .thread-emotion { background: #fbf1e5; border-color: #e6cfb5; color: #8f531c; }
+    .thread-growth { background: #eaf3ed; border-color: #c4dece; color: #286445; }
+    .timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+    .timeline::before {
+      content: ""; position: absolute; left: 56px; top: 16px; bottom: 22px; width: 3px;
+      background: linear-gradient(to bottom, #1a1a3e, #1a3a5c 45%, #2a6a4a); border-radius: 2px;
+    }
+    .volume { display: grid; grid-template-columns: 114px minmax(0, 1fr); gap: 17px; position: relative; margin-bottom: 14px; }
+    .volume:last-child { margin-bottom: 0; }
+    .volume-marker { text-align: center; z-index: 1; }
+    .volume-marker h3 {
+      padding: 9px 5px; background: var(--volume-color); color: #fff;
+      border-radius: 8px; font-size: 14px;
+    }
+    .volume-marker h3 span { display: block; margin-bottom: 2px; color: #fff2ca; font-size: 12px; }
+    .story-date {
+      display: inline-block; padding: 0 5px; margin-top: 3px; color: var(--muted);
+      background: #fffdf9; font-size: 11px; font-variant-numeric: tabular-nums;
+    }
+    .volume-body {
+      min-width: 0; padding: 12px 15px; background: #fff; border-radius: 8px;
+      border-left: 3px solid var(--thread-color); overflow-wrap: anywhere;
+    }
+    .volume-body p { font-size: 13px; line-height: 1.95; }
+    .thread-label { color: var(--thread-ink); }
+    .mechanism-panel {
+      padding: 20px 22px; background: #fffdf9;
+    }
+    .mechanism-chain { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; }
+    .mechanism {
+      padding: 8px 17px; border: 1.5px solid; border-radius: 8px; background: #fff;
+      font-size: 14px; font-weight: 700;
+    }
+    .mechanism-base { color: #286445; background: #eaf3ed; }
+    .mechanism-contribution { color: #795719; background: #fcf4e6; }
+    .mechanism-relief { color: #503462; background: #efebf4; }
+    .operator { color: #85818a; font-size: 19px; }
+    .mechanism-result { background: linear-gradient(110deg, #1a3a5c, #2a5a8c); color: #e0eaf6; border-color: #1a3a5c; }
+    .mechanism-note { margin-top: 15px; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.9; }
+    .footer { margin-top: 20px; color: var(--muted); text-align: center; font-size: 12px; }
+    .footer-meta { margin-top: 5px; font-size: 11px; }
+    @media (max-width: 700px) {
+      .page { padding: 16px 12px 22px; }
+      .hero { padding: 20px 14px 18px; }
+      h1 { letter-spacing: 5px; }
+      .hero-meta { font-size: 12px; }
+      .section-heading { flex-wrap: wrap; gap: 8px; }
+      h2 { font-size: 17px; }
+      .section-note { flex-basis: 100%; margin-left: 38px; text-align: left; }
+      .diagram-panel { padding: 12px 10px; }
+      .plot-panel, .mechanism-panel { padding: 14px 12px; }
+      .threads { grid-template-columns: 1fr; margin-bottom: 18px; }
+      .timeline::before { left: 41px; }
+      .volume { grid-template-columns: 84px minmax(0, 1fr); gap: 10px; margin-bottom: 12px; }
+      .volume-marker h3 { font-size: 12px; padding: 9px 3px; }
+      .volume-marker h3 span { font-size: 11px; }
+      .story-date { font-size: 10px; padding: 0 2px; }
+      .volume-body { padding: 9px 10px; }
+      .volume-body p { font-size: 12px; }
+      .relation-legend { justify-content: flex-start; gap: 7px 16px; font-size: 11px; }
+      .mechanism { font-size: 13px; padding: 7px 12px; }
+      .mechanism-result { flex-basis: 100%; text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    @media print {
+      @page { size: A4 portrait; margin: 12mm; }
+      html { scroll-behavior: auto; }
+      body { background: #fff; font-size: 10pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      .nav, .skip-link { display: none; }
+      .hero { box-shadow: none; padding: 14px; }
+      h1 { font-size: 24pt; }
+      h2 { font-size: 13pt; }
+      .section { margin-top: 16px; }
+      .section-heading { break-after: avoid; }
+      .section-note { font-size: 9pt; }
+      .diagram-scroll { overflow: visible; }
+      .character-map { min-width: 0; width: 100%; }
+      .diagram-panel, .mechanism-panel { break-inside: avoid; }
+      .volume, .thread { break-inside: avoid; }
+      .threads { gap: 8px; }
+      .volume { grid-template-columns: 92px minmax(0, 1fr); }
+      .timeline::before { left: 45px; }
+      .volume-body p { font-size: 9pt; line-height: 1.8; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#characters">跳至人物关系图</a>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow" lang="en">BAIZHUAN QIANHUI · STORY ATLAS</p>
+      <h1>百转千回</h1>
+      <p class="hero-subtitle">人物关系与情节架构图</p>
+      <p class="hero-meta">后AI时代 · 参与式分配经济实验 · 十卷百章 · 故事时间：2026.1—2027.6</p>
+      <p class="hero-motif">围棋与武侠意象贯穿全书：破门出宗、参与即分配、能者多得、坐标最小救济</p>
+    </header>
+    <nav class="nav" aria-label="页面目录">
+      <a href="#characters">人物关系</a>
+      <a href="#plot">十卷情节</a>
+      <a href="#mechanism">核心经济机制</a>
+    </nav>
+
+    <section class="section" id="characters" aria-labelledby="characters-heading">
+      <div class="section-heading">
+        <span class="section-number" aria-hidden="true">01</span>
+        <h2 id="characters-heading">人物关系架构</h2>
+        <p class="section-note">以程砚舟为中心 · 五组人物</p>
+      </div>
+      <figure class="panel diagram-panel">
+        <div class="diagram-scroll" role="region" aria-label="人物关系图，可横向滚动" tabindex="0">
+<svg viewBox="0 0 1080 690" class="character-map" role="img" aria-labelledby="map-title map-description" xmlns="http://www.w3.org/2000/svg">
+    <title id="map-title">《百转千回》人物关系架构图</title>
+    <desc id="map-description">以程砚舟为中心，连接创始团队、家庭与导师、星原参与者、千礁危机和商业赞助五组人物。线条区分制度与同事、情感越界、家庭、顾问与成长、冲突与追查、商业赞助六类关系。</desc>
+    <defs>
+      <linearGradient id="center-fill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a3a5c"/><stop offset="1" stop-color="#2d527b"/></linearGradient>
+      <marker id="arrR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#872f30"/></marker>
+      <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2c7956"/></marker>
+      <marker id="arrB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#286da0"/></marker>
+      <filter id="glowC" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+
+    <!-- Cluster labels -->
+    <text x="130" y="130" text-anchor="middle" font-size="11" font-weight="700" fill="#286da0">创始团队·破门六子</text>
+    <text x="540" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="#b46924">家庭与导师</text>
+    <text x="960" y="130" text-anchor="middle" font-size="11" font-weight="700" fill="#2c7956">星原参与者</text>
+    <text x="350" y="678" text-anchor="middle" font-size="11" font-weight="700" fill="#872f30">千礁危机</text>
+    <text x="750" y="678" text-anchor="middle" font-size="11" font-weight="700" fill="#674466">商业赞助</text>
+
+    <!-- ===== Connection lines (drawn first, behind nodes) ===== -->
+    <!-- Cheng to founders -->
+    <line x1="460" y1="330" x2="210" y2="200" stroke="#516376" stroke-width="1.2"/>
+    <line x1="455" y1="350" x2="170" y2="290" stroke="#516376" stroke-width="1.2"/>
+    <line x1="455" y1="370" x2="170" y2="390" stroke="#516376" stroke-width="1.2"/>
+    <line x1="465" y1="385" x2="210" y2="490" stroke="#516376" stroke-width="1.2"/>
+    <line x1="490" y1="395" x2="280" y2="545" stroke="#516376" stroke-width="1.2"/>
+    <!-- Cheng to family -->
+    <line x1="510" y1="295" x2="490" y2="95" stroke="#286da0" stroke-width="1.5"/>
+    <line x1="530" y1="295" x2="580" y2="95" stroke="#286da0" stroke-width="1.2"/>
+    <line x1="500" y1="295" x2="370" y2="95" stroke="#2c7956" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <!-- Cheng to participants -->
+    <line x1="620" y1="330" x2="870" y2="200" stroke="#516376" stroke-width="1.2"/>
+    <line x1="625" y1="350" x2="910" y2="290" stroke="#516376" stroke-width="1.2"/>
+    <line x1="625" y1="370" x2="890" y2="390" stroke="#516376" stroke-width="1.2"/>
+    <line x1="615" y1="385" x2="850" y2="490" stroke="#516376" stroke-width="1.2"/>
+    <line x1="590" y1="395" x2="800" y2="545" stroke="#516376" stroke-width="1.2"/>
+    <!-- Cheng to crisis -->
+    <line x1="500" y1="400" x2="400" y2="600" stroke="#872f30" stroke-width="1.3" stroke-dasharray="5,3"/>
+    <line x1="560" y1="400" x2="570" y2="600" stroke="#872f30" stroke-width="1.3" stroke-dasharray="5,3"/>
+    <!-- Cheng to business -->
+    <line x1="590" y1="395" x2="720" y2="600" stroke="#674466" stroke-width="1.2"/>
+    <line x1="600" y1="390" x2="810" y2="600" stroke="#674466" stroke-width="1.2"/>
+
+    <!-- Key inter-character relationships -->
+    <!-- Cheng-Xu affair -->
+    <path d="M 460,320 Q 340,260 220,210" fill="none" stroke="#872f30" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#arrR)"/>
+    <text x="330" y="248" text-anchor="middle" font-size="9.5" fill="#872f30" font-weight="600">合伙人·越界</text>
+    <!-- Shen-Cheng marriage tension -->
+    <path d="M 490,95 Q 470,200 475,295" fill="none" stroke="#286da0" stroke-width="1.8"/>
+    <text x="445" y="195" text-anchor="middle" font-size="9.5" fill="#286da0" font-weight="600">夫妻·守势</text>
+    <!-- Ye-Shuqian informant -->
+    <path d="M 670,80 V 126 H 550 V 80" fill="none" stroke="#b46924" stroke-width="1.2" stroke-dasharray="3,2"/>
+    <text x="610" y="119" text-anchor="middle" font-size="8.5" fill="#b46924">告密</text>
+    <!-- Chen Chi enforcement -> Zhuang -->
+    <path d="M 900,215 Q 650,350 390,600" fill="none" stroke="#872f30" stroke-width="1.5" marker-end="url(#arrR)"/>
+    <text x="640" y="420" text-anchor="middle" font-size="9" fill="#872f30" font-weight="600">刑堂追查</text>
+    <!-- Zhuang -> victims -->
+    <path d="M 400,624 H 412 V 664 H 532 V 624 H 540" fill="none" stroke="#872f30" stroke-width="1.3" marker-end="url(#arrR)"/>
+    <text x="470" y="659" text-anchor="middle" font-size="8.5" fill="#872f30">诈骗</text>
+    <!-- Cen name borrowed -->
+    <text x="485" y="595" text-anchor="middle" font-size="8.5" fill="#872f30" font-style="italic">名义被冒用</text>
+    <!-- Liu Jinghe key contribution -->
+    <line x1="870" y1="510" x2="910" y2="410" stroke="#2c7956" stroke-width="1" stroke-dasharray="3,2"/>
+    <!-- Xu Jiarong growth -->
+    <text x="830" y="590" text-anchor="middle" font-size="8.5" fill="#2c7956" font-style="italic">成长→议事代表→卸任</text>
+    <!-- He Jingshan mentor -->
+    <text x="370" y="115" text-anchor="middle" font-size="8.5" fill="#2c7956" font-style="italic">顾问·避嫌</text>
+
+    <!-- ===== CENTER: Cheng Yanzhou ===== -->
+    <g filter="url(#glowC)">
+      <rect x="455" y="305" width="170" height="80" rx="12" fill="url(#center-fill)" stroke="#1a3a5c" stroke-width="2"/>
+      <text x="540" y="335" text-anchor="middle" font-size="16" font-weight="800" fill="#ffe9a8">程砚舟</text>
+      <text x="540" y="355" text-anchor="middle" font-size="10.5" fill="#e0eaf6">霁岳联合创始人→破阵网络</text>
+      <text x="540" y="372" text-anchor="middle" font-size="10" fill="#d0dfef">星原设计者·最终交权隐退</text>
+    </g>
+
+    <!-- ===== FOUNDING TEAM (left) ===== -->
+    <!-- Xu Zhiyan -->
+    <rect x="100" y="175" width="130" height="52" rx="8" fill="#eaf2f8" stroke="#286da0" stroke-width="1.5"/>
+    <text x="165" y="197" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1a3a5c">许知妍</text>
+    <text x="165" y="214" text-anchor="middle" font-size="9.5" fill="#596d81">机制设计·有夫有子</text>
+    <!-- Lin Jingwei -->
+    <rect x="55" y="270" width="130" height="52" rx="8" fill="#eaf2f8" stroke="#286da0" stroke-width="1.5"/>
+    <text x="120" y="292" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1a3a5c">林静薇</text>
+    <text x="120" y="309" text-anchor="middle" font-size="9.5" fill="#596d81">核心架构·权责边界</text>
+    <!-- Du Qihang -->
+    <rect x="55" y="370" width="130" height="52" rx="8" fill="#eaf2f8" stroke="#286da0" stroke-width="1.5"/>
+    <text x="120" y="392" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1a3a5c">杜启航</text>
+    <text x="120" y="409" text-anchor="middle" font-size="9.5" fill="#596d81">底层网络·刚直</text>
+    <!-- Zhou Shenheng -->
+    <rect x="100" y="470" width="130" height="52" rx="8" fill="#eaf2f8" stroke="#286da0" stroke-width="1.5"/>
+    <text x="165" y="492" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1a3a5c">周慎衡</text>
+    <text x="165" y="509" text-anchor="middle" font-size="9.5" fill="#596d81">财务账房·铁算盘</text>
+    <!-- Gu Chengan -->
+    <rect x="185" y="525" width="120" height="52" rx="8" fill="#eaf2f8" stroke="#286da0" stroke-width="1.5"/>
+    <text x="245" y="547" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1a3a5c">顾承安</text>
+    <text x="245" y="564" text-anchor="middle" font-size="9.5" fill="#596d81">技术勘验·议事席</text>
+
+    <!-- ===== FAMILY & MENTOR (top) ===== -->
+    <!-- He Jingshan -->
+    <rect x="310" y="50" width="110" height="48" rx="8" fill="#fbf1e5" stroke="#b46924" stroke-width="1.5"/>
+    <text x="365" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#8f531c">贺敬山</text>
+    <text x="365" y="88" text-anchor="middle" font-size="9.5" fill="#675942">贺老·宏观学者</text>
+    <!-- Shen Wanheng -->
+    <rect x="440" y="50" width="110" height="48" rx="8" fill="#fbf1e5" stroke="#b46924" stroke-width="1.5"/>
+    <text x="495" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#8f531c">沈婉衡</text>
+    <text x="495" y="88" text-anchor="middle" font-size="9.5" fill="#675942">程妻·产业基金</text>
+    <!-- Xiaoxi -->
+    <rect x="565" y="50" width="90" height="48" rx="8" fill="#fbf1e5" stroke="#b46924" stroke-width="1.5"/>
+    <text x="610" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#8f531c">小溪</text>
+    <text x="610" y="88" text-anchor="middle" font-size="9.5" fill="#675942">程女·8→9岁</text>
+    <!-- Ye Shuqian -->
+    <rect x="670" y="50" width="100" height="48" rx="8" fill="#fbf1e5" stroke="#b46924" stroke-width="1.5"/>
+    <text x="720" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="#8f531c">叶舒倩</text>
+    <text x="720" y="88" text-anchor="middle" font-size="9.5" fill="#675942">沈婉衡闺蜜</text>
+
+    <!-- ===== KEY PARTICIPANTS (right) ===== -->
+    <!-- Chen Chi -->
+    <rect x="855" y="175" width="130" height="52" rx="8" fill="#eaf3ed" stroke="#2c7956" stroke-width="1.5"/>
+    <text x="920" y="197" text-anchor="middle" font-size="12.5" font-weight="700" fill="#286445">陈驰</text>
+    <text x="920" y="214" text-anchor="middle" font-size="9.5" fill="#596d81">测试工程师→刑堂主</text>
+    <!-- Fang Wanyin -->
+    <rect x="895" y="270" width="130" height="52" rx="8" fill="#eaf3ed" stroke="#2c7956" stroke-width="1.5"/>
+    <text x="960" y="292" text-anchor="middle" font-size="12.5" font-weight="700" fill="#286445">方婉音</text>
+    <text x="960" y="309" text-anchor="middle" font-size="9.5" fill="#596d81">音效师·母带授权</text>
+    <!-- Tang Zihao -->
+    <rect x="875" y="370" width="130" height="52" rx="8" fill="#eaf3ed" stroke="#2c7956" stroke-width="1.5"/>
+    <text x="940" y="392" text-anchor="middle" font-size="12.5" font-weight="700" fill="#286445">唐梓豪</text>
+    <text x="940" y="409" text-anchor="middle" font-size="9.5" fill="#596d81">突入指挥·最高差异</text>
+    <!-- Liu Jinghe -->
+    <rect x="830" y="470" width="130" height="52" rx="8" fill="#eaf3ed" stroke="#2c7956" stroke-width="1.5"/>
+    <text x="895" y="492" text-anchor="middle" font-size="12.5" font-weight="700" fill="#286445">刘景和</text>
+    <text x="895" y="509" text-anchor="middle" font-size="9.5" fill="#596d81">刘大哥·通信判断</text>
+    <!-- Xu Jiarong -->
+    <rect x="770" y="525" width="120" height="52" rx="8" fill="#eaf3ed" stroke="#2c7956" stroke-width="1.5"/>
+    <text x="830" y="547" text-anchor="middle" font-size="12.5" font-weight="700" fill="#286445">许嘉榕</text>
+    <text x="830" y="564" text-anchor="middle" font-size="9.5" fill="#596d81">通信席→议事→卸任</text>
+
+    <!-- ===== CRISIS (bottom-left) ===== -->
+    <rect x="290" y="600" width="110" height="48" rx="8" fill="#f7e9e7" stroke="#872f30" stroke-width="1.5"/>
+    <text x="345" y="622" text-anchor="middle" font-size="12" font-weight="700" fill="#872f30">庄承裕</text>
+    <text x="345" y="638" text-anchor="middle" font-size="9.5" fill="#5d6878">中介·千礁案推手</text>
+    <rect x="420" y="600" width="100" height="48" rx="8" fill="#f7e9e7" stroke="#872f30" stroke-width="1.5"/>
+    <text x="470" y="622" text-anchor="middle" font-size="12" font-weight="700" fill="#872f30">岑绍庭</text>
+    <text x="470" y="638" text-anchor="middle" font-size="9.5" fill="#5d6878">大豪·名义被冒用</text>
+    <rect x="540" y="600" width="100" height="48" rx="8" fill="#f7e9e7" stroke="#872f30" stroke-width="1.5"/>
+    <text x="590" y="622" text-anchor="middle" font-size="12" font-weight="700" fill="#872f30">吴秀榕</text>
+    <text x="590" y="638" text-anchor="middle" font-size="9.5" fill="#5d6878">数据标注员·受害者</text>
+
+    <!-- ===== BUSINESS (bottom-right) ===== -->
+    <rect x="680" y="600" width="100" height="48" rx="8" fill="#efebf4" stroke="#674466" stroke-width="1.5"/>
+    <text x="730" y="622" text-anchor="middle" font-size="12" font-weight="700" fill="#503462">罗振业</text>
+    <text x="730" y="638" text-anchor="middle" font-size="9.5" fill="#674466">极轴品牌代表</text>
+    <rect x="795" y="600" width="100" height="48" rx="8" fill="#efebf4" stroke="#674466" stroke-width="1.5"/>
+    <text x="845" y="622" text-anchor="middle" font-size="12" font-weight="700" fill="#503462">宋振峰</text>
+    <text x="845" y="638" text-anchor="middle" font-size="9.5" fill="#674466">凌拓品牌代表</text>
+  </svg>
+        </div>
+        <ul class="relation-legend" aria-label="关系线图例">
+          <li><span class="line-sample line-gray" aria-hidden="true"></span>制度 / 同事</li>
+          <li><span class="line-sample line-red-dash" aria-hidden="true"></span>情感越界</li>
+          <li><span class="line-sample line-blue" aria-hidden="true"></span>家庭</li>
+          <li><span class="line-sample line-green-dash" aria-hidden="true"></span>顾问 / 成长</li>
+          <li><span class="line-sample line-red" aria-hidden="true"></span>冲突 / 追查</li>
+          <li><span class="line-sample line-purple" aria-hidden="true"></span>商业赞助</li>
+        </ul>
+        <figcaption>人物关系与情节节点示意。窄屏可在图内横向滚动查看。</figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="plot" aria-labelledby="plot-heading">
+      <div class="section-heading">
+        <span class="section-number" aria-hidden="true">02</span>
+        <h2 id="plot-heading">十卷情节架构</h2>
+        <p class="section-note">四条主线交织 · 按故事时间展开</p>
+      </div>
+      <div class="panel plot-panel">
+        <div class="threads" aria-label="四条情节主线">
+          <p class="thread thread-startup"><strong>创业线</strong>破门出宗 → 星原首试 → 制度化 → 交权</p>
+          <p class="thread thread-economy"><strong>经济实验线</strong>参与即分配 → 品牌竞争 → 保障 → 千礁危机 → 治理</p>
+          <p class="thread thread-emotion"><strong>情感线</strong>程许越界 → 沈婉衡守势 → 坦白 → 家庭后果</p>
+          <p class="thread thread-growth"><strong>人物成长线</strong>陈驰 / 许嘉榕 / 唐梓豪 / 刘景和</p>
+        </div>
+        <ol class="timeline" aria-label="十卷情节时间线">
+          <li class="volume" style="--volume-color: #1a1a3e; --thread-color: #674466; --thread-ink: #503462;">
+            <div class="volume-marker">
+              <h3><span>卷一</span>山雨欲来</h3>
+              <p class="story-date">2026.1</p>
+            </div>
+            <div class="volume-body">
+              <p><strong class="thread-label">【创业】</strong>霁岳裁员186人→程砚舟许知妍深夜越界→沈婉衡察觉而不摊牌→六人破门出宗、放弃期权→城北工坊立约《开发者同盟》→星原双桥首战，南桥失守、刘景和通信判断救北桥</p>
+            </div>
+          </li>
+          <li class="volume" style="--volume-color: #1a3a5c; --thread-color: #286da0; --thread-ink: #225d89;">
+            <div class="volume-marker">
+              <h3><span>卷二</span>行到水穷</h3>
+              <p class="story-date">2026.2—3</p>
+            </div>
+            <div class="volume-body">
+              <p><strong class="thread-label">【经济】</strong>第二有偿窗口3万元→名实之辨：空报名、托管冒领被清查→刘景和1000元争议款经独立复核补付→许嘉榕从练习到正式通信席→回声夜会声音创作授权→参与款银行实付到账，无须回购赞助商品</p>
+            </div>
+          </li>
+          <li class="volume" style="--volume-color: #966b14; --thread-color: #b46924; --thread-ink: #8f531c;">
+            <div class="volume-marker">
+              <h3><span>卷三</span>春潮带雨</h3>
+              <p class="story-date">2026.4—6</p>
+            </div>
+            <div class="volume-body">
+              <p><strong class="thread-label">【情感·坦白】</strong>海岬山城开放→罗启锋关振海泵站演练"借灯看路"→贡献股份确权→潮汐站守方失设施但麦振铮获最高收入→极轴重金投入反亏→<strong>程砚舟向沈婉衡坦白越界</strong>→六月经营账首次转正</p>
+            </div>
+          </li>
+          <li class="volume" style="--volume-color: #2a5a8c; --thread-color: #286da0; --thread-ink: #225d89;">
+            <div class="volume-marker">
+              <h3><span>卷四</span>云帆济海</h3>
+              <p class="story-date">2026.7—9</p>
+            </div>
+            <div class="volume-body">
+              <p><strong class="thread-label">【经济·扩张】</strong>南离工坊独立入局→许嘉榕赴新牌桌远游→邱庭舟离开四海仍携履历→极轴调整后反转正回报→四海以连续值守胁迫玩家被查处→<strong>二十户保障试点启动（不以参战为条件）</strong>→本草堂取消窗口退款→崇远资本6万分投三项目</p>
+            </div>
+          </li>
+          <li class="volume" style="--volume-color: #872f30; --thread-color: #872f30; --thread-ink: #872f30;">
+            <div class="volume-marker">
+              <h3><span>卷五</span>浮云蔽日</h3>
+              <p class="story-date">2026.10</p>
+            </div>
+            <div class="volume-body">
+              <p><strong class="thread-label">【千礁危机】</strong>NPC托管被包装成真人功劳→虚假"固定收益凭证"出售→截取岑绍庭真实到账记录作背书→千礁停付引发退场混乱→陈驰刑堂斩断引流接口→顾承安技术勘验揭出东欧服务器NPC代打→吴秀榕潘俊棠购买同一笔已付收入（一子两售）→破阵停止全部虚假承接路径</p>
+            </div>
+          </li>
+          <li class="volume" style="--volume-color: #674466; --thread-color: #b46924; --thread-ink: #8f531c;">
+            <div class="volume-marker">
+              <h3><span>卷六</span>风雨如晦</h3>
+              <p class="story-date">2026.11—12</p>
+            </div>
+            <div class="volume-body">
+              <p><strong class="thread-label">【清偿·后果】</strong>残灯复盘分开情报与错误命令→沿款追责：介绍费/关联划转/冻结余额逐项查清→规则版本差异不追溯抹去旧贡献→<strong>破阵出资2万+追回款完成首批7.2万清偿</strong>→崇远三局盈亏分别结清→归雁6千元虚假拖延款归还原参与者→<strong>许知妍面对丈夫与儿子的家庭后果</strong>→保障继续、新双桥行动从当前历史接续</p>
+            </div>
+          </li>
+          <li class="volume" style="--volume-color: #2a6a4a; --thread-color: #2c7956; --thread-ink: #286445;">
+            <div class="volume-marker">
+              <h3><span>卷七</span>澄江如练</h3>
+              <p class="story-date">2027.1—2</p>
+            </div>
+            <div class="volume-body">
+              <p><strong class="thread-label">【治理·制度化】</strong>六人议事组成立（四票普通决议+利益回避）→登记/评价/付款/申诉职责分离→母带履历公司财产权利边界→有限项目资本自愿出资→一月双桥合同分项结算→陈绍武申诉取得同档同酬→规则版本更新不倒改旧战绩→取消合并总榜、各有江湖→<strong>程砚舟止住代办冲动、松风留白</strong></p>
+            </div>
+          </li>
+          <li class="volume" style="--volume-color: #3a7a5a; --thread-color: #2c7956; --thread-ink: #286445;">
+            <div class="volume-marker">
+              <h3><span>卷八</span>柳暗花明</h3>
+              <p class="story-date">2027.2—4</p>
+            </div>
+            <div class="volume-body">
+              <p><strong class="thread-label">【复苏·成长】</strong>一月耳机净回报结清（极轴+600/凌拓-600）→两岸回声连续行动5万经营→苏怀青文字协作被字幕延迟误判后恢复→<strong>许嘉榕拒绝长期独占合约、承担放弃预付款代价</strong>→"借灯看路"声望还原失败版本→罗启锋麦振铮战术较量→春灯观战会因邻里代价提前散场退款→锦川筹划本地牌桌→首届议事组到期卸任</p>
+            </div>
+          </li>
+          <li class="volume" style="--volume-color: #2a5a8c; --thread-color: #286da0; --thread-ink: #225d89;">
+            <div class="volume-marker">
+              <h3><span>卷九</span>海内知己</h3>
+              <p class="story-date">2027.4—5</p>
+            </div>
+            <div class="volume-body">
+              <p><strong class="thread-label">【扩展·收官】</strong>第二届议事组接任、创始人无额外表决权→<strong>钟厚良无游戏技能仍获独立支持（寒门有托）</strong>→八名讲解者无须夺魁均有基础份额→私下核验文字辅助并存→<strong>千礁案最后6千元追回、7.8万净本金全部清偿</strong>→治理成本4.5万单独核算→既有作品交易与未来融资分别审查→锦川首窗3600元完成护送→拒绝缺少资金依据的扩张承诺</p>
+            </div>
+          </li>
+          <li class="volume" style="--volume-color: #3a2a5e; --thread-color: #674466; --thread-ink: #503462;">
+            <div class="volume-marker">
+              <h3><span>卷十</span>江流天地</h3>
+              <p class="story-date">2027.6</p>
+            </div>
+            <div class="volume-body">
+              <p><strong class="thread-label">【终局·交权】</strong>夜间托管留下真实战损、早班接续→许嘉榕离开有偿席、余暇自主→八老友核对创业承诺后自愿演练→程砚舟许知妍各自面对孩子与伴侣（然诺如山）→刘景和自愿练习不求收入→参与款/组织利润/资本回报/保障/游戏资产各归其主→24户保障第二季度结清→<strong>程砚舟交出例行特批权、脱剑归常</strong>→承认经验边界→<strong>世界继续运转，不再等他拔刀</strong></p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" id="mechanism" aria-labelledby="mechanism-heading">
+      <div class="section-heading">
+        <span class="section-number" aria-hidden="true">03</span>
+        <h2 id="mechanism-heading">全书核心经济机制</h2>
+        <p class="section-note">贯穿十卷</p>
+      </div>
+      <div class="panel mechanism-panel">
+        <div class="mechanism-chain" aria-label="参与即分配，加能者多得，加坐标最小救济，形成竞技主导、组织分配、消费回流、利润再投入的闭环">
+          <span class="mechanism mechanism-base">参与即分配</span>
+          <span class="operator" aria-hidden="true">+</span>
+          <span class="mechanism mechanism-contribution">能者多得</span>
+          <span class="operator" aria-hidden="true">+</span>
+          <span class="mechanism mechanism-relief">坐标最小救济</span>
+          <span class="operator" aria-hidden="true">→</span>
+          <span class="mechanism mechanism-result">竞技主导 · 组织分配 · 消费回流 · 利润再投入 闭环</span>
+        </div>
+        <div class="mechanism-note">
+          <p><strong>实施基础：</strong>资格 → 计量 → 核验 → 合同确权 → 实际支付 → 复算 → 申诉（七层治理链）</p>
+          <p><strong>演化选择：</strong>制度机制绩效𝒥(G)的可比较竞争 ｜ <strong>边界：</strong>条件性持续，不宣称全局最优或历史必然</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>示意图 · 基于《百转千回》十卷百章正文及星原世界设定重构 · 人物关系与情节节点</p>
+      <p class="footer-meta">GaoZheng（高政） · AI 辅助整理与图示表达 · 页面版本 v1.0.0 · 2026-10-08</p>
+    </footer>
+  </main>
+</body>
+</html>
