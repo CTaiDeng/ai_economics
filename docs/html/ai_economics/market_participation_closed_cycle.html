@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="GaoZheng（高政）">
+  <meta name="description" content="市场参与形式系统的九步闭环、注意力与收入双通道、三项核心功能、治理实施链及制度机制竞争绩效。">
+  <meta name="color-scheme" content="light">
+  <title>市场参与形式系统：闭环循环与三项核心功能</title>
+  <style>
+    :root {
+      --paper: #f4f1ea;
+      --ink: #243044;
+      --muted: #5d6878;
+      --line: #dedbd4;
+      --blue: #286da0;
+      --green: #2c7956;
+      --orange: #b46924;
+      --gold: #ffe9a8;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+    a { color: #245e8b; text-underline-offset: 3px; }
+    a:hover { color: #513d76; }
+    a:focus-visible, summary:focus-visible, .diagram-scroll:focus-visible {
+      outline: 3px solid #b8860b;
+      outline-offset: 4px;
+    }
+    h1, h2, h3, p, figure { margin: 0; }
+    h1, h2, h3 { line-height: 1.4; }
+    .page { max-width: 1400px; padding: 26px 24px 30px; margin: 0 auto; }
+    .hero {
+      padding: 25px 32px 23px;
+      border-radius: var(--radius);
+      text-align: center;
+      background: linear-gradient(110deg, #1a1a3e, #3a2a5e);
+      box-shadow: 0 3px 12px rgb(26 26 62 / 12%);
+      color: #e3e2f0;
+    }
+    .eyebrow { font: 12px Georgia, serif; letter-spacing: 2px; color: #d1c6e2; }
+    h1 { margin: 9px 0 8px; color: var(--gold); font-size: clamp(21px, 2.3vw, 32px); letter-spacing: 1px; }
+    .hero-subtitle { font-size: 14px; letter-spacing: 1px; }
+    .hero-meta { margin-top: 12px; color: #d0c8df; font-size: 12px; }
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      padding: 16px;
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf9;
+    }
+    .overview-item { position: relative; padding: 10px 16px; border-radius: 6px; }
+    .overview-item:not(:last-child)::after {
+      content: "→"; position: absolute; right: -15px; top: 17px; color: #85818a; font-size: 19px;
+    }
+    .overview-item:nth-child(1) { background: #e8e0f0; color: #49365f; }
+    .overview-item:nth-child(2) { background: #dce9f3; color: #245575; }
+    .overview-item:nth-child(3) { background: #e1eee5; color: #275c41; }
+    .overview-item:nth-child(4) { background: #f1e8d4; color: #775713; }
+    .overview-item strong { display: block; font-size: 14px; }
+    .overview-item span { display: block; margin-top: 3px; font-size: 12px; }
+    .section { margin-top: 22px; }
+    .section-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; }
+    .section-number {
+      flex: 0 0 30px; display: grid; place-items: center; height: 30px;
+      border-radius: 6px; background: #252344; color: var(--gold); font: bold 13px Georgia, serif;
+    }
+    h2 { font-size: 19px; color: #282846; }
+    .section-note { margin-left: auto; color: var(--muted); font-size: 12px; text-align: right; }
+    .panel { border: 1px solid var(--line); border-radius: var(--radius); background: #fffdf9; }
+    .diagram-panel { padding: 18px 22px 20px; }
+    .diagram-intro { text-align: center; color: var(--muted); font-size: 13px; }
+    .diagram-scroll { overflow-x: auto; border-radius: 6px; }
+    .cycle-svg { display: block; width: 100%; max-width: 1120px; min-width: 760px; height: auto; margin: 0 auto; }
+    .cycle-svg text { font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; }
+    .cycle-svg .node-box { fill: #fff; stroke: #bcc8d4; stroke-width: 1.4; }
+    .cycle-svg .node-number { fill: #213d60; }
+    .cycle-svg .node-index { fill: #fff; font-size: 12px; font-weight: 700; text-anchor: middle; }
+    .cycle-svg .node-title { fill: #243044; font-size: 15px; font-weight: 700; }
+    .cycle-svg .node-detail { fill: #596d81; font-size: 11.5px; }
+    .cycle-svg .badge-blue { fill: var(--blue); }
+    .cycle-svg .badge-green { fill: var(--green); }
+    .cycle-svg .badge-orange { fill: var(--orange); }
+    figcaption { margin: 3px auto 17px; text-align: center; color: var(--muted); font-size: 12px; }
+    .path-grid, .core-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .path-card { padding: 15px 17px; border-radius: 7px; border: 1px solid; }
+    .path-card h3 { font-size: 15px; }
+    .path-card p { margin-top: 7px; font-size: 12px; }
+    .path-blue { background: #eaf2f8; border-color: #c3d6e6; color: #225d89; }
+    .path-green { background: #eaf3ed; border-color: #c4dece; color: #286445; }
+    .path-orange { background: #fbf1e5; border-color: #e6cfb5; color: #8f531c; }
+    .dot { display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 50%; background: currentColor; }
+    .formula { font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif; line-height: 1.8; overflow-wrap: anywhere; }
+    sub, sup { line-height: 0; font-size: .72em; }
+    .core-card { padding: 21px 22px 19px; border-radius: var(--radius); color: #f5f7f3; }
+    .core-card h3 { margin: 7px 0 10px; font-size: 20px; color: #fff; }
+    .core-kicker { font-size: 12px; color: #f2e1b3; letter-spacing: 1px; }
+    .core-card p { color: #e1eadf; font-size: 13px; }
+    .core-card .formula { margin: 14px 0 11px; padding: 9px 12px; background: rgb(255 255 255 / 9%); border-radius: 5px; color: #fff2ca; font-size: 16px; }
+    .core-card .core-boundary { padding-top: 10px; border-top: 1px solid rgb(255 255 255 / 20%); font-size: 12px; }
+    .core-participation { background: linear-gradient(150deg, #2a6a4a, #1a4a30); }
+    .core-contribution { background: linear-gradient(150deg, #966b14, #6d4e0d); }
+    .core-relief { background: linear-gradient(150deg, #674466, #482d4b); }
+    .governance { padding: 22px; background: linear-gradient(110deg, #1a3a5c, #2a5a8c); color: #e0eaf6; border: 0; }
+    .governance-chain { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 19px; list-style: none; margin: 0; padding: 0; }
+    .governance-step { position: relative; text-align: center; padding: 13px 8px 11px; border-radius: 6px; background: rgb(255 255 255 / 8%); border: 1px solid #7396b7; }
+    .governance-step:not(:last-child)::after { content: "→"; position: absolute; right: -18px; top: 20px; color: #bed1e7; }
+    .governance-step strong { display: block; font-size: 15px; color: #fff; }
+    .governance-step span { display: block; font: 11px/1.7 Georgia, serif; color: #d0dfef; }
+    .governance-step:nth-child(4), .governance-step:nth-child(5) { border-color: #dbc491; background: rgb(255 233 168 / 10%); }
+    .governance-step:nth-child(6), .governance-step:nth-child(7) { border-color: #86baae; background: rgb(138 204 170 / 10%); }
+    .layer-grid { display: grid; grid-template-columns: 3fr 2fr 2fr; gap: 19px; margin-top: 13px; text-align: center; }
+    .layer-grid p { border-top: 1px solid rgb(255 255 255 / 22%); padding-top: 9px; font-size: 12px; }
+    .layer-grid strong { color: var(--gold); }
+    .governance-footnote { margin-top: 15px; font-size: 12px; color: #e0e7f1; }
+    .performance { padding: 22px; }
+    .performance-title { display: flex; align-items: center; flex-wrap: wrap; gap: 9px 22px; margin-bottom: 16px; }
+    .performance-title h3 { color: #51345d; font-size: 18px; }
+    .performance-title p { font-size: 12px; color: var(--muted); }
+    .metric-row { display: grid; grid-template-columns: 82px minmax(0, 1fr); align-items: start; gap: 12px; }
+    .metric-row + .metric-row { margin-top: 12px; }
+    .metric-label { padding-top: 5px; font-weight: 700; font-size: 13px; }
+    .metric-list { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+    .metric-list li { padding: 5px 13px; border: 1px solid; border-radius: 5px; font-size: 13px; }
+    .gain .metric-label { color: #286445; }
+    .gain li { background: #eaf3ed; border-color: #c5dace; color: #286445; }
+    .loss .metric-label { color: #872f30; }
+    .loss li { background: #f7e9e7; border-color: #e6c9c5; color: #872f30; }
+    .selection { display: grid; grid-template-columns: 1fr 1.15fr; gap: 24px; padding-top: 17px; margin-top: 18px; border-top: 1px solid var(--line); }
+    .selection-formula { padding: 11px 16px; border-radius: 6px; background: #efebf4; color: #503462; font-size: 16px; }
+    .selection-formula p + p { margin-top: 10px; font-size: 14px; }
+    .fraction { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; margin-left: 3px; }
+    .fraction span:first-child { padding: 0 6px 5px; border-bottom: 1px solid currentColor; }
+    .fraction span:last-child { padding: 5px 6px 0; }
+    .selection-note { align-self: center; color: var(--muted); font-size: 13px; }
+    .selection-note strong { color: #51345d; }
+    .conditions { padding: 19px 22px; background: #fcf4e6; border-color: #e4d0a8; }
+    .conditions h3 { margin-bottom: 11px; color: #795719; font-size: 16px; }
+    .condition-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .condition-grid p { color: #675942; font-size: 12px; }
+    .condition-grid strong { display: block; color: #72521b; font-size: 13px; margin-bottom: 4px; }
+    .source { margin-top: 20px; padding-top: 17px; border-top: 1px solid #d8d3ca; color: var(--muted); font-size: 12px; }
+    .source p + p { margin-top: 7px; }
+    .source code { font-size: 11px; overflow-wrap: anywhere; }
+    .source details { margin-top: 9px; }
+    .source summary { cursor: pointer; color: #245e8b; }
+    .source ul { margin: 8px 0; padding-left: 22px; }
+    .footer-meta { margin-top: 13px; text-align: center; color: #696470; font-size: 11px; }
+    .mobile-hint { display: none; }
+    @media (max-width: 900px) {
+      .page { padding: 18px 16px 24px; }
+      .path-grid { grid-template-columns: 1fr; gap: 10px; }
+      .core-grid { grid-template-columns: 1fr; }
+      .core-card { padding: 18px 21px; }
+      .core-card .formula { margin: 11px 0; }
+      .core-card h3 { font-size: 19px; }
+      .governance-chain { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+      .governance-step::after { display: none; }
+      .layer-grid { grid-template-columns: 1fr; gap: 2px; text-align: left; }
+      .selection { grid-template-columns: 1fr; gap: 14px; }
+      .condition-grid { grid-template-columns: 1fr; gap: 12px; }
+      .diagram-panel { padding: 15px; }
+      .mobile-hint { display: block; text-align: center; font-size: 11px; color: var(--muted); margin: 8px 0; }
+    }
+    @media (max-width: 560px) {
+      .page { padding: 12px 10px 20px; }
+      .hero { padding: 22px 16px 19px; }
+      .hero-subtitle { font-size: 12px; letter-spacing: 0; }
+      .overview { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 10px; gap: 10px; }
+      .overview-item { padding: 9px 10px; }
+      .overview-item::after { display: none; }
+      .overview-item span { font-size: 11px; }
+      .section-heading { flex-wrap: wrap; }
+      h2 { font-size: 17px; }
+      .section-note { width: 100%; margin: -3px 0 0 40px; text-align: left; }
+      .governance, .performance, .conditions { padding: 17px; }
+      .governance-chain { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .governance-step:last-child { grid-column: 1 / -1; }
+      .metric-row { grid-template-columns: 1fr; gap: 6px; }
+      .selection-formula { padding: 11px; font-size: 14px; }
+      .selection-formula p + p { font-size: 13px; }
+      .metric-list li { font-size: 12px; padding: 4px 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    @media print {
+      @page { size: A3 portrait; margin: 12mm; }
+      body { background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .page { max-width: none; padding: 0; }
+      .hero { box-shadow: none; }
+      .diagram-scroll { overflow: visible; }
+      .cycle-svg { min-width: 0; }
+      .mobile-hint { display: none; }
+      .hero, .overview, .core-card, .governance, .performance, .conditions, .path-card { break-inside: avoid; }
+      .section-heading { break-after: avoid; }
+      .source details { display: none; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">MARKET PARTICIPATION · POST-AI ECONOMICS</p>
+      <h1>市场参与形式系统：闭环循环与三项核心功能</h1>
+      <p class="hero-subtitle">后 AI 条件下 · 竞技主导 · 组织分配 · 消费回流 · 利润再投入</p>
+      <p class="hero-meta">GaoZheng（高政） · 机制结构示意 · 基于《市场参与的形式系统》</p>
+    </header>
+
+    <div class="overview" aria-label="闭环的四个阶段">
+      <div class="overview-item"><strong>① 竞技与注意力</strong><span>真实参与汇聚产品偏好</span></div>
+      <div class="overview-item"><strong>② 赞助与分配</strong><span>竞争注资覆盖基本与差异份额</span></div>
+      <div class="overview-item"><strong>③ 购买与回款</strong><span>收入与偏好共同连接商品需求</span></div>
+      <div class="overview-item"><strong>④ 利润与再投入</strong><span>成本分账 · 现金支持下一期</span></div>
+    </div>
+
+    <section class="section" aria-labelledby="cycle-heading">
+      <div class="section-heading">
+        <span class="section-number" aria-hidden="true">01</span>
+        <h2 id="cycle-heading">九步闭环循环</h2>
+        <p class="section-note">资金流、偏好传导与跨期再投入</p>
+      </div>
+      <figure class="panel diagram-panel">
+        <p class="diagram-intro">生产利润提供资金起点；参与收入形成购买力，竞技注意力引导赞助产品的选择方向。</p>
+        <p class="mobile-hint">可左右滑动查看完整循环图；下方保留三条传导路径的文字说明。</p>
+        <div class="diagram-scroll" tabindex="0" role="region" aria-label="九步闭环图，可横向滚动">
+          <svg class="cycle-svg" viewBox="0 0 1000 675" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cycle-title cycle-desc">
+            <title id="cycle-title">市场参与形式系统的九步闭环与三项核心功能</title>
+            <desc id="cycle-desc">按箭头顺序：一，已实现生产净利润；二，竞争性广告赞助；三，竞技组织与注意力汇聚；四，资金池覆盖基本和差异分配；五，参与收入与产品偏好；六，商品购买与销售回款；七，产品成本覆盖与销售利润；八，营销成本覆盖与新增净利润；九，下一期生产与竞争性赞助，再回到已实现利润。中心为参与式分配、能者多得、坐标最小救济。蓝色代表注意力桥接，绿色代表分配消费，橙色代表有预算条件的救济稳定路径。</desc>
+            <defs>
+              <linearGradient id="center-fill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a3a5c"/><stop offset="1" stop-color="#2d527b"/></linearGradient>
+              <filter id="node-shadow" x="-10%" y="-15%" width="120%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#183c5a" flood-opacity=".09"/></filter>
+              <marker id="arrow-main" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#516376"/></marker>
+              <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#286da0"/></marker>
+              <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#2c7956"/></marker>
+              <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#b46924"/></marker>
+            </defs>
+
+            <!-- 辅助轨迹用于区分传导路径，经济含义见图下说明。 -->
+            <ellipse cx="500" cy="333" rx="353" ry="270" fill="none" stroke="#d4d9dd" stroke-dasharray="4 5"/>
+            <path d="M500 116 C737 118 812 363 625 535 C530 615 317 570 251 420 C192 283 292 135 481 118" fill="none" stroke="#286da0" stroke-width="2.4" opacity=".37" marker-end="url(#arrow-blue)"/>
+            <path d="M693 210 Q746 332 696 420 Q660 499 609 533 Q528 561 445 539" fill="none" stroke="#2c7956" stroke-width="2.8" opacity=".48" marker-end="url(#arrow-green)"/>
+            <path d="M500 193 C760 193 760 470 500 470 C240 470 240 193 485 193" fill="none" stroke="#b46924" stroke-width="2" stroke-dasharray="6 5" opacity=".53" marker-end="url(#arrow-orange)"/>
+            <text x="500" y="219" text-anchor="middle" font-size="13" font-weight="700" fill="#9a591f">救济稳定路径 · 底线与真实接入</text>
+            <text x="500" y="241" text-anchor="middle" font-size="12" fill="#9a591f">(Π⁺, Kᴿ, Qᴿ) → R* → (Dᴾ, N)</text>
+
+            <g fill="none" stroke="#516376" stroke-width="2" marker-end="url(#arrow-main)">
+              <path d="M614 80 Q654 92 678 121"/>
+              <path d="M810 209 Q842 233 851 266"/>
+              <path d="M858 354 Q850 390 825 421"/>
+              <path d="M745 509 Q716 532 690 546"/>
+              <path d="M515 590 Q500 597 485 590"/>
+              <path d="M305 546 Q268 529 255 509"/>
+              <path d="M175 421 Q150 390 142 354"/>
+              <path d="M150 266 Q156 232 190 209"/>
+              <path d="M323 121 Q350 92 386 80"/>
+            </g>
+
+            <g filter="url(#node-shadow)">
+              <rect x="337" y="270" width="326" height="131" rx="12" fill="url(#center-fill)" stroke="#436a91"/>
+              <text x="500" y="296" text-anchor="middle" font-size="14" font-weight="700" fill="#ffe9a8" letter-spacing="2">三项核心功能</text>
+              <line x1="368" y1="307" x2="632" y2="307" stroke="#6c8bac" opacity=".6"/>
+              <text x="500" y="333" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">参与式分配</text>
+              <text x="500" y="360" text-anchor="middle" font-size="18" font-weight="700" fill="#d7e8f4">+ 能者多得 + 坐标最小救济</text>
+              <text x="500" y="383" text-anchor="middle" font-size="11.5" fill="#d2e0ec">正基本份额 · 已验证贡献差异 · 生存与市场接入</text>
+            </g>
+            <text x="500" y="429" text-anchor="middle" font-size="12" fill="#65758a">治理提供可执行、可复算、可申诉的实施基础</text>
+
+            <!-- 节点圆点：蓝＝注意力桥接，绿＝分配消费，橙＝救济稳定。 -->
+            <g class="cycle-node" transform="translate(390 25)" filter="url(#node-shadow)">
+              <rect class="node-box" width="220" height="80" rx="8"/>
+              <circle class="node-number" cx="22" cy="26" r="12"/><text class="node-index" x="22" y="30">1</text>
+              <text class="node-title" x="44" y="29">已实现生产净利润</text>
+              <text class="node-detail" x="44" y="52">Πᵗᴾ · 可用现金 Lᵗᶜᵃˢʰ</text>
+              <circle class="badge-blue" cx="198" cy="66" r="4"/><circle class="badge-orange" cx="210" cy="66" r="4"/>
+            </g>
+            <g class="cycle-node" transform="translate(650 125)" filter="url(#node-shadow)">
+              <rect class="node-box" width="220" height="80" rx="8"/>
+              <circle class="node-number" cx="22" cy="26" r="12"/><text class="node-index" x="22" y="30">2</text>
+              <text class="node-title" x="44" y="29">竞争性广告赞助</text>
+              <text class="node-detail" x="44" y="52">Iᵗᴮ · 生产者注意力投入</text>
+              <circle class="badge-blue" cx="198" cy="66" r="4"/><circle class="badge-green" cx="210" cy="66" r="4"/>
+            </g>
+            <g class="cycle-node" transform="translate(750 270)" filter="url(#node-shadow)">
+              <rect class="node-box" width="220" height="80" rx="8"/>
+              <circle class="node-number" cx="22" cy="26" r="12"/><text class="node-index" x="22" y="30">3</text>
+              <text class="node-title" x="44" y="27">竞技组织与</text>
+              <text class="node-title" x="44" y="47">注意力汇聚</text>
+              <text class="node-detail" x="44" y="67">aᵃᵗᵗ · 相对注意力</text>
+              <circle class="badge-blue" cx="210" cy="66" r="4"/>
+            </g>
+            <g class="cycle-node" transform="translate(675 425)" filter="url(#node-shadow)">
+              <rect class="node-box" width="220" height="80" rx="8"/>
+              <circle class="node-number" cx="22" cy="26" r="12"/><text class="node-index" x="22" y="30">4</text>
+              <text class="node-title" x="44" y="27">资金池覆盖</text>
+              <text class="node-title" x="44" y="47">基本与差异分配</text>
+              <text class="node-detail" x="44" y="67">Bᵗᴮ · βᵇᵃˢᵉ + Dᵈⁱᶠᶠλ</text>
+              <circle class="badge-green" cx="210" cy="66" r="4"/>
+            </g>
+            <g class="cycle-node" transform="translate(525 550)" filter="url(#node-shadow)">
+              <rect class="node-box" width="220" height="80" rx="8"/>
+              <circle class="node-number" cx="22" cy="26" r="12"/><text class="node-index" x="22" y="30">5</text>
+              <text class="node-title" x="44" y="29">参与收入与产品偏好</text>
+              <text class="node-detail" x="44" y="52">y · ϑᴾ · 消费传导 Cᴾ</text>
+              <circle class="badge-blue" cx="198" cy="66" r="4"/><circle class="badge-green" cx="210" cy="66" r="4"/>
+            </g>
+            <g class="cycle-node" transform="translate(255 550)" filter="url(#node-shadow)">
+              <rect class="node-box" width="220" height="80" rx="8"/>
+              <circle class="node-number" cx="22" cy="26" r="12"/><text class="node-index" x="22" y="30">6</text>
+              <text class="node-title" x="44" y="29">商品购买与销售回款</text>
+              <text class="node-detail" x="44" y="52">Dᵗᴾ · 有效需求与销售 Sᴾ</text>
+              <circle class="badge-blue" cx="186" cy="66" r="4"/><circle class="badge-green" cx="198" cy="66" r="4"/><circle class="badge-orange" cx="210" cy="66" r="4"/>
+            </g>
+            <g class="cycle-node" transform="translate(105 425)" filter="url(#node-shadow)">
+              <rect class="node-box" width="220" height="80" rx="8"/>
+              <circle class="node-number" cx="22" cy="26" r="12"/><text class="node-index" x="22" y="30">7</text>
+              <text class="node-title" x="44" y="27">产品成本覆盖</text>
+              <text class="node-title" x="44" y="47">与销售利润</text>
+              <text class="node-detail" x="44" y="67">P(ϑ⁰, Y¹) ≥ 0 · 基础利润</text>
+              <circle class="badge-blue" cx="210" cy="66" r="4"/>
+            </g>
+            <g class="cycle-node" transform="translate(30 270)" filter="url(#node-shadow)">
+              <rect class="node-box" width="220" height="80" rx="8"/>
+              <circle class="node-number" cx="22" cy="26" r="12"/><text class="node-index" x="22" y="30">8</text>
+              <text class="node-title" x="44" y="27">营销成本覆盖</text>
+              <text class="node-title" x="44" y="47">与新增净利润</text>
+              <text class="node-detail" x="44" y="67">Γᵐᵏᵗ &gt; 0 · Πⁿᵉᵗ = P + Γ</text>
+              <circle class="badge-blue" cx="198" cy="66" r="4"/><circle class="badge-orange" cx="210" cy="66" r="4"/>
+            </g>
+            <g class="cycle-node" transform="translate(130 125)" filter="url(#node-shadow)">
+              <rect class="node-box" width="220" height="80" rx="8"/>
+              <circle class="node-number" cx="22" cy="26" r="12"/><text class="node-index" x="22" y="30">9</text>
+              <text class="node-title" x="44" y="27">下一期生产</text>
+              <text class="node-title" x="44" y="47">与竞争性赞助</text>
+              <text class="node-detail" x="44" y="67">再投入 · xₜ₊₁ = F(xₜ, ηₜ)</text>
+              <circle class="badge-blue" cx="198" cy="66" r="4"/><circle class="badge-orange" cx="210" cy="66" r="4"/>
+            </g>
+            <text x="500" y="660" text-anchor="middle" font-size="12" fill="#647285">九步相接：竞技汇聚注意力 → 广告竞争注资 → 组织分配 → 消费回流 → 利润再投入</text>
+          </svg>
+        </div>
+        <figcaption>箭头表示跨主体、跨结算期的机制顺序；彩色圆点标识节点参与的传导路径。图形距离、弧长与面积不表示经济量。</figcaption>
+        <div class="path-grid" aria-label="三条传导路径图例">
+          <article class="path-card path-blue">
+            <h3><span class="dot" aria-hidden="true"></span>注意力桥接路径</h3>
+            <p class="formula">Π<sup>P</sup> → I<sup>B</sup> → a<sup>att</sup> → ϑ<sup>P</sup> → D<sup>P</sup> → Π<sup>P</sup></p>
+            <p>竞技与支持网络汇聚注意力，改变赞助产品的选择偏好；实际回款形成可再投入利润。</p>
+          </article>
+          <article class="path-card path-green">
+            <h3><span class="dot" aria-hidden="true"></span>分配消费路径</h3>
+            <p class="formula">I<sup>B</sup> → B<sup>B</sup> → y → C<sup>P</sup> → D<sup>P</sup></p>
+            <p>赞助进入组织资金池，覆盖基本与差异份额；参与者实际到账收入连接商品购买力。</p>
+          </article>
+          <article class="path-card path-orange">
+            <h3><span class="dot" aria-hidden="true"></span>救济稳定路径</h3>
+            <p class="formula">(Π<sup>P,+</sup>, K<sup>R</sup>, Q<sup>R</sup>) → R* → (D<sup>P</sup>, N)</p>
+            <p>在底线、预算、储备与正剩余激励条件下，补足生存和真实市场接入，支持需求与参与。</p>
+          </article>
+        </div>
+      </figure>
+    </section>
+
+    <section class="section" aria-labelledby="core-heading">
+      <div class="section-heading">
+        <span class="section-number" aria-hidden="true">02</span>
+        <h2 id="core-heading">三项核心功能</h2>
+        <p class="section-note">广泛正份额 · 贡献差异激励 · 全员底线接入</p>
+      </div>
+      <div class="core-grid">
+        <article class="core-card core-participation">
+          <p class="core-kicker">01 · 有效参与取得正基本份额</p>
+          <h3>参与式分配</h3>
+          <p>每名被接纳、通过核验并完成约定的有效参与者，均取得资金覆盖的正基本份额。</p>
+          <p class="formula">T<sub>it</sub><sup>B</sup> = β<sub>t</sub><sup>base</sup> + D<sub>t</sub><sup>diff</sup>λ<sub>it</sub> ≥ β<sub>t</sub><sup>base</sup> &gt; 0</p>
+          <p class="core-boundary">事前覆盖人数上限与差异池；应付额和实际到账分别核验。</p>
+        </article>
+        <article class="core-card core-contribution">
+          <p class="core-kicker">02 · 已验证贡献形成差异激励</p>
+          <h3>能者多得</h3>
+          <p>在同一期、同一可比规则域内，更高的已验证贡献对应更高分配，保留能力与协作投入的回报。</p>
+          <p class="formula">c<sub>it</sub> &gt; c<sub>jt</sub> ⇒ T<sub>it</sub><sup>B</sup> &gt; T<sub>jt</sub><sup>B</sup></p>
+          <p class="core-boundary">使用公开贡献规则与正差异池；真实贡献存在核验误差时，排序依相应期望与概率界陈述。</p>
+        </article>
+        <article class="core-card core-relief">
+          <p class="core-kicker">03 · 生存与真实市场接入</p>
+          <h3>坐标最小救济</h3>
+          <p>逐人补齐市场收入与底线束之间的缺口；底线包含最低生存支出和真实市场接入成本。</p>
+          <p class="formula">R<sub>ht</sub>* = max{0, F<sub>ht</sub> − Y<sub>ht</sub><sup>m</sup>}</p>
+          <p class="core-boundary">资金、储备与跨期预算可持续，缴款后保留正剩余激励；底线以上收入仍由市场选择形成。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="governance-heading">
+      <div class="section-heading">
+        <span class="section-number" aria-hidden="true">03</span>
+        <h2 id="governance-heading">治理基础设施：实施保障链</h2>
+        <p class="section-note">事实确认 → 权利履行 → 复核纠错</p>
+      </div>
+      <div class="panel governance">
+        <ol class="governance-chain">
+          <li class="governance-step"><strong>① 资格</strong><span lang="en">Eligible</span></li>
+          <li class="governance-step"><strong>② 计量</strong><span lang="en">Measured</span></li>
+          <li class="governance-step"><strong>③ 核验</strong><span lang="en">Verified</span></li>
+          <li class="governance-step"><strong>④ 合同确权</strong><span lang="en">Entitled</span></li>
+          <li class="governance-step"><strong>⑤ 实际支付</strong><span lang="en">Paid</span></li>
+          <li class="governance-step"><strong>⑥ 复算</strong><span lang="en">Auditable</span></li>
+          <li class="governance-step"><strong>⑦ 申诉</strong><span lang="en">Appealable</span></li>
+        </ol>
+        <div class="layer-grid">
+          <p><strong>事实层</strong> · 资格、计量、真实性核验</p>
+          <p><strong>权利层</strong> · 合同确权、实际支付</p>
+          <p><strong>纠错层</strong> · 独立复算、申诉修复</p>
+        </div>
+        <p class="governance-footnote">三层共同保障三项核心功能的可实施与可纠错。生产自动化状态 A 与治理自动化状态 A<sub>G</sub> 分别记录，规模化运行另行核验治理成本与判定质量。</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="performance-heading">
+      <div class="section-heading">
+        <span class="section-number" aria-hidden="true">04</span>
+        <h2 id="performance-heading">制度机制竞争绩效与条件性选择</h2>
+        <p class="section-note">可审计绩效 𝒥(G)</p>
+      </div>
+      <div class="panel performance">
+        <div class="performance-title">
+          <h3>七项增益 − 三项损失</h3>
+          <p>各项事先规范到共同量纲，权重 ω<sub>k</sub> ≥ 0，按共同观测口径估计。</p>
+        </div>
+        <div class="metric-row gain">
+          <p class="metric-label">加权增益</p>
+          <ul class="metric-list" aria-label="七项绩效增益">
+            <li>+ 福利 W(G)</li><li>+ 参与覆盖</li><li>+ 贡献激励</li><li>+ 底线接入</li>
+            <li>+ 文化选择</li><li>+ 需求稳定</li><li>+ 创新</li>
+          </ul>
+        </div>
+        <div class="metric-row loss">
+          <p class="metric-label">加权损失</p>
+          <ul class="metric-list" aria-label="三项绩效损失">
+            <li>− 操纵</li><li>− 集中</li><li>− 治理成本</li>
+          </ul>
+        </div>
+        <div class="selection">
+          <div class="selection-formula formula" aria-label="机制份额等于本期份额乘正适应度，再除以全部候选的份额与适应度乘积之和">
+            <p>s<sub>t+1</sub>(G) = <span class="fraction"><span>s<sub>t</sub>(G) · Φ<sub>t</sub>(G)</span><span>Σ<sub>H</sub> s<sub>t</sub>(H) · Φ<sub>t</sub>(H)</span></span></p>
+            <p>Φ<sub>t</sub>(G) = 𝒥<sub>t</sub>(G) − min<sub>H</sub> 𝒥<sub>t</sub>(H) + ε，ε &gt; 0</p>
+          </div>
+          <p class="selection-note">当 <strong class="formula">g<sup>core</sup>(G) = (1, 1, 1)</strong> 通过实施核验，且功能增益严格超过新增治理成本、操纵与集中损失，使其绩效高于可进入的比较机制时，份额比获得条件性扩张动力。结论保留共同适用域和可比较证据的前提。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel conditions" aria-labelledby="conditions-heading">
+      <h3 id="conditions-heading">闭环核验的关键条件</h3>
+      <div class="condition-grid">
+        <p><strong>资金覆盖与实际支付</strong>基本与差异分配由已到账资金预留，逐人核对支付回执；下一期营销支出满足 M ≤ L<sup>cash</sup> ≤ Π<sup>net</sup>，可用现金已扣除承诺用途。</p>
+        <p><strong>产品账与营销账</strong>产品回款覆盖生产成本；偏好增量销售利润扣除赞助及配套营销成本后，Γ<sup>mkt</sup> &gt; 0。新增净利润相对于同窗口反事实确认。</p>
+        <p><strong>声明状态域与结论边界</strong>跨期持续闭环须核验允许冲击下的前向不变性。动态稳定、宏观规模与经验成立分别使用对应前提、证明与数据。</p>
+      </div>
+    </section>
+
+    <footer class="source">
+      <p>内容依据：Gao Zheng（高政），<a href="../../tex/tex1/market_participation_formal_system.tex">《市场参与的形式系统：参与式分配、能者多得与最小救济的演化机制》</a>（文稿日期：2026-09-29）。<a href="../../tex/tex1/market_participation_formal_system.pdf">阅读 PDF</a></p>
+      <p>本页重绘所提供的机制示意；图示用于说明结构关系，非精确测量。形式结论依声明适用域成立，参数估计、因果识别、规模验证和外部有效性另行核验。</p>
+      <details>
+        <summary>查看源文稿中的稳定定位标签</summary>
+        <ul>
+          <li>参与与贡献：<code>def:base-differential-distribution</code>、<code>thm:base-differential-coverage</code>。</li>
+          <li>底线救济：<code>thm:minimal-sufficient-relief</code>。</li>
+          <li>分账与营销回报：<code>prop:sales-marketing-accounting</code>、<code>def:closed-cycle-ledgers</code>。</li>
+          <li>演化选择：<code>prop:core-functions-evolutionary-advantage</code>。</li>
+          <li>闭环与逐期验收：<code>sec:competition-closed-cycle</code>、<code>thm:competition-closed-cycle</code>、<code>cert:competition-closed-cycle</code>。</li>
+        </ul>
+      </details>
+      <p class="footer-meta">GaoZheng（高政）的研究构想 · AI 辅助整理与图示表达 · 页面版本 v1.0.0 · 2026-10-08</p>
+    </footer>
+  </main>
+</body>
+</html>
