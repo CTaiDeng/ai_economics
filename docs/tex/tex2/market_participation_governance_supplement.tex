@@ -1,0 +1,1965 @@
+% !TEX program = pdflatex
+\documentclass[12pt,a4paper,openany]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{geometry}
+\geometry{top=25mm,bottom=25mm,left=20mm,right=20mm}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[scaled=0.84]{beramono}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Consolas}
+  \setsansfont{Consolas}
+  \setmonofont{Consolas}
+\fi
+\usepackage[unicode,colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{needspace}
+\usepackage{etoolbox}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\usepackage{longtable}
+\usepackage{tocloft}
+% 楷体中文无独立斜体字形；显式使用同一正体，保留原稿实际显示。
+\makeatletter
+\input{c70gkai.fd}
+\DeclareFontShape{C70}{gkai}{m}{it}{<-> CJK * gkaiu}{\CJKnormal}
+\DeclareFontShape{C70}{gkai}{bx}{it}{<-> CJKb * gkaiu}{\CJKbold}
+% 部分 TeX 发行版的 gkai 个别字形含异常度量；仅对异常字形使用
+% 标准 CJK 宋体后备，正文及其余字形仍用原稿楷体。不修改字体文件。
+\newbox\MPG@CJKglyphbox
+\DeclareRobustCommand{\CJKsymbol}[1]{%
+  \leavevmode
+  \begingroup
+  \setbox\MPG@CJKglyphbox=\hbox{%
+    \symbol{#1}%
+    \ifCJK@bold@
+      \hbox to \CJKboldshift{\hss\symbol{#1}}%
+      \hbox to \CJKboldshift{\hss\symbol{#1}}%
+    \fi}%
+  \ifdim\ht\MPG@CJKglyphbox>1.2em
+    \fontfamily{gbsn}\fontshape{n}\selectfont
+    \setbox\MPG@CJKglyphbox=\hbox{%
+      \symbol{#1}%
+      \ifCJK@bold@
+        \hbox to \CJKboldshift{\hss\symbol{#1}}%
+        \hbox to \CJKboldshift{\hss\symbol{#1}}%
+      \fi}%
+  \fi
+  \box\MPG@CJKglyphbox
+  \endgroup}
+\let\CJKpunctsymbol\CJKsymbol
+% 防止 CJK 的 Unicode 平面映射误附着到新加载的西文字体。
+\ifPDFTeX
+  \let\MPG@original@addcmap\CJK@addcmap
+  \def\CJK@addcmap#1{%
+    \begingroup
+    \edef\MPG@fontencoding{\f@encoding}%
+    \def\MPG@CJKencoding{C70}%
+    \ifx\MPG@fontencoding\MPG@CJKencoding
+      \MPG@original@addcmap{#1}%
+    \fi
+    \endgroup}
+  \input{glyphtounicode}
+  \pdfgentounicode=1
+\fi
+\makeatother
+
+\Urlmuskip=0mu plus 1mu
+\def\UrlFont{\ttfamily\small}
+\DeclareRobustCommand{\urlunderscore}{\raisebox{-0.35ex}{\rule{0.55em}{0.35pt}}}
+\makeatletter
+\g@addto@macro\UrlSpecials{\do\_{\urlunderscore}}
+\makeatother
+\DeclareUrlCommand{\codeurl}{\urlstyle{tt}}
+\DeclareRobustCommand{\code}[1]{\ifmmode\text{\codeurl{#1}}\else\codeurl{#1}\fi}
+\sloppy
+
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\bibname}{参考文献}
+\newtheorem{definition}{定义}[chapter]
+\newtheorem{assumption}{假设}[chapter]
+\newtheorem{axiom}{公理}[chapter]
+\newtheorem{theorem}{定理}[chapter]
+\newtheorem{lemma}{引理}[chapter]
+\newtheorem{proposition}{命题}[chapter]
+\newtheorem{corollary}{推论}[chapter]
+\newtheorem{remark}{备注}[chapter]
+\newtheorem{Certificate}{核验记录}[chapter]
+
+\newcommand{\NN}{\mathbb N}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\EE}{\mathbb E}
+\newcommand{\DeltaN}{\Delta^{n-1}}
+\newcommand{\Gov}{\mathcal G}
+\newcommand{\Law}{\mathcal L}
+\newcommand{\Mech}{\mathcal M}
+\newcommand{\Feas}{\mathcal F}
+\newcommand{\Part}{\mathcal P}
+\newcommand{\Act}{\mathcal A}
+\newcommand{\Goods}{\mathcal J}
+\newcommand{\Rules}{\mathcal R}
+\newcommand{\States}{\mathcal X}
+\newcommand{\Budget}{\mathcal B}
+\newcommand{\Info}{\mathcal I}
+\newcommand{\DefEq}{\coloneqq}
+\newcommand{\Abs}[1]{\left\lvert #1\right\rvert}
+\newcommand{\Norm}[1]{\left\lVert #1\right\rVert}
+\newcommand{\Tuple}[1]{\left\langle #1\right\rangle}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\CapacitySlack}{CapacitySlack}
+\DeclareMathOperator{\AsymptoticSlack}{AsymptoticSlack}
+\DeclareMathOperator{\PostAI}{PostAI}
+\DeclareMathOperator{\Binding}{Binding}
+\DeclareMathOperator{\Eligible}{Eligible}
+\DeclareMathOperator{\Measured}{Measured}
+\DeclareMathOperator{\Verified}{Verified}
+\DeclareMathOperator{\Valued}{Valued}
+\DeclareMathOperator{\Entitled}{Entitled}
+\DeclareMathOperator{\Paid}{Paid}
+\DeclareMathOperator{\Auditable}{Auditable}
+\DeclareMathOperator{\Appealable}{Appealable}
+\DeclareMathOperator{\BudgetBalanced}{BudgetBalanced}
+\DeclareMathOperator{\IC}{IC}
+\DeclareMathOperator{\IR}{IR}
+\DeclareMathOperator{\DuplicateClaimResistant}{DuplicateClaimResistant}
+\DeclareMathOperator{\CollusionResistant}{CollusionResistant}
+\DeclareMathOperator{\OpportunityFair}{OpportunityFair}
+\DeclareMathOperator{\RuleTransparent}{RuleTransparent}
+\DeclareMathOperator{\LedgerConsistent}{LedgerConsistent}
+\DeclareMathOperator{\ExecutionConsistent}{ExecutionConsistent}
+\DeclareMathOperator{\GovernanceFair}{GovernanceFair}
+\DeclareMathOperator{\Sustainable}{Sustainable}
+\DeclareMathOperator{\PrimaryDominant}{PrimaryDominant}
+\DeclareMathOperator{\Financialized}{Financialized}
+\DeclareMathOperator{\RuleSensitive}{RuleSensitive}
+\DeclareMathOperator{\Falsifiable}{Falsifiable}
+
+\setlength{\emergencystretch}{8em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{3}
+
+
+% 独立补充稿。推荐 pdfLaTeX；无需原稿、外部 .bib 或图片文件。
+% 原稿快照 SHA-256:
+% 5287da9597df78884454b8c467e8d5da506578160fa16eca7e0b603e796e8f15
+\pretocmd{\section}{\Needspace{10\baselineskip}}{}{}
+\AtBeginEnvironment{definition}{\Needspace{5\baselineskip}}
+\AtBeginEnvironment{theorem}{\Needspace{5\baselineskip}}
+\AtBeginEnvironment{lemma}{\Needspace{5\baselineskip}}
+\AtBeginEnvironment{proposition}{\Needspace{5\baselineskip}}
+\AtBeginEnvironment{corollary}{\Needspace{5\baselineskip}}
+\AtBeginEnvironment{Certificate}{\Needspace{4\baselineskip}}
+\AtBeginEnvironment{remark}{\Needspace{4\baselineskip}}
+\newcommand{\ind}{\mathbf 1}
+\newcommand{\PP}{\mathbb P}
+\newcommand{\Core}{\mathfrak C}
+\newcommand{\Original}{原稿}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\diag}{diag}
+\hypersetup{
+  pdftitle={后AI转型中的分配传导失灵与可核验治理},
+  pdfauthor={Gao Zheng（高政）},
+  pdfsubject={参与式分配、贡献激励、纠错、真实退出与最小救济的条件性扩展},
+  pdfkeywords={市场参与,分配传导,激励相容,可核验治理,最小救济,任务商}
+}
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+\raggedbottom
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\title{后 AI 转型中的分配传导失灵\\与可核验治理\\[0.6em]
+\large 参与式分配、贡献激励、真实退出与最小救济的条件性扩展\\[0.5em]
+\normalsize 《市场参与的形式系统》的独立补充稿}
+\author{Gao Zheng（高政）}
+\date{2026-10-13}
+\pagenumbering{roman}
+\maketitle
+\setcounter{page}{2}
+
+\chapter*{摘要与研究范围}
+\addcontentsline{toc}{chapter}{摘要与研究范围}
+
+本文研究生产能力约束松弛而收入传导、贡献承认或支付执行仍然失灵的经济状态。
+研究对象不是以历史年代命名的秩序变化，而是技术可行集与制度传导机制之间的可识别失配。
+有效行动、真实贡献、证据信号、依约应付、实际到账和可保留收入分别定义；任一环节的正向变化，
+均不自动保证整个链条的正向变化。在共同计价、共同窗口和固定比较域中，本文给出分配传导的
+乘积与有限差分分解，证明名义贡献奖励可被承认或履约概率的下降抵消，甚至发生反向激励。
+
+在此基础上，本文把合理纠错写为具有私人成本、风险及外部效果的行动，分别检验社会净收益与
+个人最优回应。公开规则、证据可追踪、相对公正、独立审计和实际修复具有不同职责；
+准确执行既定条款不充分推出条款公正，发现偏差也不充分推出纠错或威慑。对一个有界可执行责任模型，
+本文求出抑制机会主义的最低审计强度；对独立的社会损失模型，求出最优核验强度及其比较静态。
+因此，分配失灵加深时治理需求上升是带条件的经济结论，不是无限增加监督、公开全部个体数据或
+扩大任意干预的授权。
+
+本稿保持\Original\cite{SourceMarket}的三项核心功能：
+\[
+\boxed{\text{参与式分配}+\text{能者多得}+\text{坐标最小救济}}.
+\]
+治理是这些功能的实施基础，而不是替代它们的第四项分配目标。正基本份额约束已完成合同者的
+最低应付；差异份额在共同贡献域内保留次序；独立、可信且可融资的救济缓解退出后的生存约束。
+同时，完全同步扣减救济可能使底线以下的新增市场收入不能转化为新增可支配收入；
+本稿将静态坐标最小性、收入保留率和跨期参与激励分开处理，避免以最低保障自动证明全部激励。
+
+本文进一步给出固定经济观察下的任务商、随机转移相容和机制参数同伦。
+这些结构只运输已保留的经济观察与有限行为分布，不由形式相似推出资金、福利或现实制度相同。
+分配修复改变失灵状态，不要求把失败结果作为不变量保留。最后，本文提出可复算的有限策略实例、
+不重复计价的资金账本、条件性动态保持、经验识别设计、拒绝签发条件及原稿接续位置。
+
+\paragraph{结论性质。}
+本文的新增结果属于明示结构方程下的数学推导和构造性机制分析。构造数值不是调查数据，
+模型最优不代表全域福利最优；来源文稿中已有的需求回流、文化沉积、宏观规模和稳定性结论
+仍须使用各自完整前提。本稿没有新增关于某一国家、行业或年代的经验断言。
+
+\paragraph{来源与新增内容。}
+\Original 的基本加差异分配、实际支付分层、相对公正、职责分离、剩余激励、坐标最小救济及
+有限状态链在本稿中必要时重新陈述并证明。分配传导逆序的分解、合理纠错的私人激励、
+机会主义威慑阈值、治理强度比较静态和联合构造实例是本稿新增模型；其假设不追溯写成\Original
+已取得的经验结果。任务观察因子化与有限执行保持的形式接口来自
+\cite{SourceGFramework}，具体经济承载在本文中另行构造。
+
+\paragraph{关键词。}
+后 AI 转型；分配传导失灵；参与式分配；贡献排序；激励相容；可核验治理；
+实际履约；真实退出；坐标最小救济；机制演化。
+
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\chapter{经济对象、比较域与技术--制度失配}
+\label{chap:scope}
+
+\section{原稿接口与结论分层}
+
+\Original 将后 AI 适用域限定于通过产能松弛核验的产品域，并要求具体失灵另经确认，
+才从有限候选族选择最小兼容的制度变更；技术名称或日期不替代这些条件
+\cite[章节“后 AI 条件触发后的最小兼容适用路径”]{SourceMarket}。
+本稿沿用这一范围：局部分配命题可适用于一般组织合同，但称为后 AI 转型修复时，必须再合取
+产品域与传统传导失灵的核验记录。
+
+\begin{definition}[共同经济比较域]
+\label{def:domain}
+固定有限主体集合 $\mathcal I$、规则版本 $G$、时间窗 $[0,T]$、货币计价时点、合法行动集
+$\Act_i$、外生状态 $\zeta$ 和贡献比较关系。记共同域为
+\[
+ \mathcal D=(\mathcal I,G,[0,T],\Act,\zeta,\succeq,\epsilon).
+\]
+$\epsilon$ 汇集测量、支付、时间和风险容限。跨个体比较固定声明的合法补偿维度；
+跨规则反事实固定未由规则处理的技术、价格、外部冲击和来源窗口，或明确列出它们的内生响应。
+风险中性结论使用准线性效用；需要风险厌恶时改用完整期望效用，不以期望收入代替。
+\end{definition}
+
+\begin{definition}[行动、贡献、证据与支付的类型]
+\label{def:objects}
+主体选择 $a_i\in\Act_i$。任务结果由结构方程 $v_i=V_i(a_i,a_{-i},\zeta)$ 生成，
+合同贡献为 $c_i=C_i(v_i,a_i;\mathcal D)$，观测证据为 $z_i=M_G(a_i,\zeta,\varepsilon_i)$。
+资格、核验、估值、确权、结算分别产生
+\[
+ a_i\longrightarrow e_i\longrightarrow z_i\longrightarrow\widehat z_i
+ \longrightarrow w_i\longrightarrow b_i\longrightarrow y_i.
+\]
+$b_i$ 为依约收益权，$y_i\ge0$ 为声明窗口内经最终性回执确认的向参与者实际支付。
+费用、反向负债和其他合同另行记账，不能以不明净额掩盖未履行的收益权。
+可保留收入 $y_i^{\rm ret}$ 在实际支付基础上再按已声明税费、救济调整与其他负担计算。
+\end{definition}
+
+\begin{remark}[贡献不是全部社会价值的单一度量]
+$c_i$ 可以是多维向量及其偏序，也可以是在公开规则下形成的可比得分。
+除非另有证明，能力标签、工时、表达强度、市场收入或他人认可均不等于真实贡献；
+合同贡献也不等于净社会剩余的全部来源。资本、组织、协作、风险与需求的贡献分开核验。
+本稿中的标量化结果只在事前声明、可以比较的子域内适用。
+\end{remark}
+
+\begin{definition}[接纳与履约集合]
+在行为发生前确定接纳规则与规模上限，接纳集合记为 $\mathcal U$。
+完成约定、真实性通过且满足资格者构成 $\mathcal E\subseteq\mathcal U$。
+独立事实复核确认应属于 $\mathcal E$、却被错误拒绝者计入履约失灵调查；
+未被接纳且没有成立合同者，不因提交申请就自动取得本期基本份额。
+进入机会、接纳公正与已成立合同履行是三个不同任务。
+\end{definition}
+
+\begin{definition}[四层证据状态]
+\label{def:status}
+数学结论记录结构方程与推导；构造结论记录具体输入、行为回应与预算；
+经验结论记录可识别数据及误差；外推结论记录目标域与可运输条件。
+核验状态取 $\{1,0,\bot\}$，分别为通过、发现违反、资料不足。
+$\bot$ 不作为零值估计，不记为经验通过。规范目标单独登记，不能从会计恒等式推出。
+\end{definition}
+
+\section{分配传导失灵的可识别坐标}
+
+\begin{definition}[分配失灵向量]
+\label{def:failure}
+在同一域内定义
+\[
+ \mathbf d_G=(d^{\rm access},d^{\rm due},d^{\rm pay},
+ d^{\rm order},d^{\rm net},d^{\rm floor},d^{\rm repair}).
+\]
+各分量分别测量真实入口受阻、已完成合同未确权、到期未支付、声明贡献次序逆转、
+所需行动的私人净激励不足、生存--接入底线缺口、已确认错误未修复。
+每个分量由金额、发生率、概率或可计算约束残差单独定义；单位不同的分量不直接相加。
+若使用总指标，必须先登记量纲化、权重和接受阈值。
+\end{definition}
+
+\begin{proposition}[生产可行与分配有效的逻辑独立性]
+\label{prop:independence}
+产能约束松弛不单独推出 $\mathbf d_G=0$；某个分配机制在其合同域内通过核验，
+也不单独推出全经济产能约束松弛。
+\end{proposition}
+\begin{Certificate}[两个允许状态]
+第一状态取某产品产能上限严格高于有限最优需求，组织已具有应付 $b_i=1$，但到期实际支付 $y_i=0$。
+第二状态取所有已成立参与合同均按资金覆盖规则履行，而某产品的产能约束仍在边际上绑定。
+\end{Certificate}
+\begin{proof}[证明（独立反例）]
+第一状态满足产能松弛但 $d^{\rm pay}>0$；第二状态满足局部分配履约但不满足全域产能松弛。
+两个允许状态分别否定对应的裸蕴含。证毕。
+\end{proof}
+
+\begin{definition}[技术--制度失配及修复触发]
+\label{def:mismatch}
+令 $A^P$ 为生产技术状态，$A^G$ 为治理技术状态。后 AI 适用域通过，且至少一个
+与劳动收入传导或新型参与收入有关的失灵坐标超出预注册阈值时，称该域存在已识别的
+技术--制度失配。修复仍须满足资金、资源、权利、可执行性与最小兼容约束。
+$A^P$ 上升不被定义为 $A^G$ 上升；两者成本函数分别登记。
+\end{definition}
+
+\begin{remark}[历史用语的经济学转换]
+“繁荣而分配失序”在本文仅表示产能状态与分配状态可以分离；“必须清醒”转换为事实可识别、
+激励可检验和错误可修复。本文不把战争、和平、繁荣或衰退当作分配系数的符号，
+不由历史名称推出治理效果，也不假定技术转型必然引起社会失序。
+\end{remark}
+
+\section{公理降级与有限核验可靠性}
+
+\begin{theorem}[有限核验依赖图的可靠性]
+\label{thm:certificate-induction}
+给定有限无环核验图，叶结论在声明模型内有输入见证，每条非叶边使用保真的推理规则。
+按拓扑序验收，则所有通过结点的结论在同一域内成立；存在未解决必需父结点时，不签发其后继。
+\end{theorem}
+\begin{Certificate}[数学归纳法证书]
+记录拓扑序 $v_1,\ldots,v_m$、父索引、域引用、公式与版本。
+归纳谓词为 $P(k)=\bigwedge_{j\le k}S_j$，并逐结点检查
+$\bigwedge_{i\in\operatorname{Par}(v_j)}S_i\Rightarrow S_j$。
+\end{Certificate}
+\begin{proof}[证明（拓扑前缀归纳）]
+空前缀成立。若前 $k$ 个结点成立，第 $k+1$ 个为叶时调用输入见证；为非叶时全部父结点已在前缀，
+保真推理给出新结论。因此 $P(k)\Rightarrow P(k+1)$，有限归纳得到结论。
+缺少必需叶时不能满足推理前件，故保持 $\bot$。证毕。
+\end{proof}
+
+\begin{remark}[不把行为假设改写成定理]
+有限生成和规则保持可以通过归纳成为定理；偏好、成本、支付概率、竞争强度与数据可识别性
+仍是模型前提或经验对象。数学基础按经典实数与有限概率空间使用，不能以期望结论倒推前件已经成立。
+\end{remark}
+
+\chapter{贡献到实际收入的传导、逆序与成本}
+\label{chap:transmission}
+
+\section{应付、到账与可保留收入的分离}
+
+\begin{definition}[截止窗口内的实际支付]
+\label{def:cash}
+对固定合同，已确认应付为 $b_i$，在时点 $\tau_{ik}\le T$ 的到账额为 $y_{ik}$，
+按事前折现规则计得 $Y_i=\sum_{k:\tau_{ik}\le T}\delta_{ik}y_{ik}$。
+欠付本金、迟延利息或争议请求权在权利账本继续记录，不因窗口内 $Y_i=0$ 自动消灭。
+下列简化模型把折现、部分履行和最终性吸收到条件支付额，且不计未确认未来款项为当期现金。
+\end{definition}
+
+\begin{definition}[分阶段传导的条件概率]
+\label{def:pipeline}
+固定可比贡献 $c$ 和外生条件。令 $A_1,\ldots,A_K$ 表示注册、核验、估值、确权和到期结算等
+必要事件，$A=\bigcap_{k=1}^K A_k$。记
+\[
+ p_G(c)=\PP(A\mid c,\mathcal D),\qquad
+ p_{G,k}(c)=\PP(A_k\mid A_1\cap\cdots\cap A_{k-1},c,\mathcal D).
+\]
+当前件事件有正概率时，$p_G(c)=\prod_kp_{G,k}(c)$。
+这是条件概率链式分解，不要求各环节独立。只有 $p_G(c)$ 已由结构反事实识别时，
+其关于 $c$ 的导数才具有因果传导解释；一般条件均值导数仅为描述关系。
+\end{definition}
+
+\begin{lemma}[一般支付分解]
+\label{lem:payment-decomposition}
+令成功事件下的条件期望支付为 $t_G(c)$，其他事件下为 $u_G(c)$。
+则
+\[
+ \overline Y_G(c)=p_G(c)t_G(c)+(1-p_G(c))u_G(c).
+\]
+在三者可微的区间内，
+\begin{equation}\label{eq:payment-derivative}
+ \overline Y_G'(c)=p_Gt_G'+(1-p_G)u_G'+p_G'(t_G-u_G).
+\end{equation}
+\end{lemma}
+\begin{Certificate}[全概率与导数记录]
+保存成功事件、备选支付、条件期望定义、共同窗口以及参数固定项。
+\end{Certificate}
+\begin{proof}[证明（全期望与乘积法则）]
+按 $A,A^c$ 分解 $\EE[Y\mid c,\mathcal D]$ 得第一式；逐项求导，
+$-p_G'u_G$ 与 $p_G't_G$ 合并得第二式。证毕。
+\end{proof}
+
+\begin{theorem}[名义奖励被传导下降反转的充要条件]
+\label{thm:reversal}
+在 $u_G=0$、$p_G>0$、$t_G>0$ 且可微的分支中，
+\[
+ \overline Y_G'<0
+ \quad\Longleftrightarrow\quad
+ -\frac{p_G'}{p_G}>\frac{t_G'}{t_G}.
+\]
+若各 $p_{G,k}>0$，还可写为
+\[
+ \frac{\overline Y_G'}{\overline Y_G}
+ =\frac{t_G'}{t_G}+\sum_{k=1}^K\frac{p_{G,k}'}{p_{G,k}}.
+\]
+因此 $t_G'>0$ 不充分推出 $\overline Y_G'>0$。
+\end{theorem}
+\begin{Certificate}[逐阶段相对变化记录]
+记录正值域、各条件概率的来源及导数、条件支付导数；概率为零的点改用有限差分，不取对数。
+\end{Certificate}
+\begin{proof}[证明（正量除法与链式分解）]
+由式~\eqref{eq:payment-derivative}，$\overline Y_G'=p_Gt_G'+p_G't_G$。
+两边除以正数 $p_Gt_G$ 得符号判据。对定义~\ref{def:pipeline} 的乘积取对数再求导即得分阶段式。
+若右侧之和为负而 $t_G'>0$，便构成反向实际支付。证毕。
+\end{proof}
+
+\begin{proposition}[有限贡献差的支付逆序判据]
+\label{prop:finite-reversal}
+在零备选支付分支中，取 $c_H>c_L$ 且 $p_L,p_H,t_L,t_H>0$。
+即使 $t_H>t_L$，仍有
+\[
+ \overline Y_H<\overline Y_L
+ \quad\Longleftrightarrow\quad
+ \frac{p_H}{p_L}<\frac{t_L}{t_H}.
+\]
+\end{proposition}
+\begin{Certificate}[双输入反事实]
+固定除贡献与其已声明后果外的全部比较条件，登记四个正值与两项实际期望支付。
+\end{Certificate}
+\begin{proof}[证明（有限乘积比较）]
+$\overline Y_H<\overline Y_L$ 等价于 $p_Ht_H<p_Lt_L$。
+除以正数 $p_Lt_H$ 得结论。证毕。
+\end{proof}
+
+\begin{proposition}[非空逆序构造与未付款的负债归属]
+\label{prop:reversal-example}
+取两个已完成合同者，另一人的贡献固定为 $1$，基本份额 $\beta=1$，差异池 $D=1$，$g(c)=c$。
+则自身应付为
+\[
+ t(c)=1+\frac{c}{1+c},\qquad c\in[0,1].
+\]
+另一人的应付为 $1+1/(1+c)$，两人合计应付恒为 $3$。
+若自身本窗口成功支付概率为 $p(c)=e^{-2c}$、其余状态本窗口支付为零，则
+$t'(c)>0$ 而 $\overline Y'(c)<0$ 在整个区间成立。
+\end{proposition}
+\begin{Certificate}[有资金覆盖但履约失败的构造]
+预留可支付现金 $3$；未支付部分记为到期负债并保留对应资金，不能改记为自由利润。
+该构造通过应付与资金算术，不通过实际履约核验。
+\end{Certificate}
+\begin{proof}[证明（显式导数）]
+$t'(c)=1/(1+c)^2>0$，且
+\[
+ \overline Y'(c)=e^{-2c}
+ \left[\frac1{(1+c)^2}-2\left(1+\frac c{1+c}\right)\right]<0,
+\]
+因为方括号首项不大于 $1$，第二项不小于 $2$。总应付的恒等式由直接相加得到。证毕。
+\end{proof}
+
+\section{三类失败与真实贡献误差}
+
+\begin{definition}[无足额回报、零边际回报与反向回报]
+声明正的足额标准 $r^{\rm ref}$ 后，$0<\Delta\overline Y<r^{\rm ref}$ 表示正但未达标准的回报；
+$\Delta\overline Y=0$ 表示零边际回报；$\Delta\overline Y<0$ 表示反向回报。
+正部缺口 $[r^{\rm ref}-\Delta\overline Y]_+$ 可记录前一类，但不能据此推定负号。
+未设足额标准时，只报告支付差，不使用“相应回报不足”的定量结论。
+\end{definition}
+
+\begin{remark}[误差与有选择的排斥分别识别]
+\Original 的双人噪声模型已经证明：真实努力为 $(1,0)$、独立二元核验误差为 $\varepsilon$ 时，
+反向实际支付概率为 $\varepsilon^2$，平额概率为 $2\varepsilon(1-\varepsilon)$
+\cite[章节“核验误差、组织合同与有限接纳规模”]{SourceMarket}。
+本稿不把这一已有误差分析重新标记为新增。新增问题是：保持合法事实与合同条件可比时，
+承认、输入呈送、接纳续约或实际支付是否随某种有益行动系统性下降。
+相关性不能区分真实性误差、合理任务变化与有选择的排斥；须使用第~\ref{chap:empirical}章的识别记录。
+\end{remark}
+
+\begin{lemma}[有界误差下的真实支付次序]
+\label{lem:order-error}
+设真实得分 $c_H-c_L>2\epsilon_c$，两个评分满足
+$|\widehat c_i-c_i|\le\epsilon_c$。
+在 $g$ 严格递增、公共分母相同且正、$D>0$ 的基本加差异合同中，依评分计算的应付满足 $b_H>b_L$。
+若实际支付误差满足 $|y_i-b_i|\le\epsilon_y$，且 $b_H-b_L>2\epsilon_y$，则 $y_H>y_L$。
+\end{lemma}
+\begin{Certificate}[双裕量]
+保存得分误差界、公共比较域、应付差和支付误差界；每个界必须来自独立核验，而不是从最终排序倒推。
+\end{Certificate}
+\begin{proof}[证明（最坏误差界）]
+$\widehat c_H-\widehat c_L\ge c_H-c_L-2\epsilon_c>0$，严格递增分配给出 $b_H>b_L$。
+再有 $y_H-y_L\ge b_H-b_L-2\epsilon_y>0$。证毕。
+\end{proof}
+
+\section{私人净回报与合同剩余}
+
+\begin{definition}[私人净激励]
+在准线性、共同计价的模型中，行动净效用为
+\[
+ U_i(a;G)=\EE[Y_i^{\rm ret}(a;G)]+H_i(a)-C_i(a)-L_i(a),
+\]
+其中 $H_i$ 为已声明的私人非货币效用的货币等价项，$C_i$ 为真实努力和机会成本，
+$L_i$ 为未在收入或成本中扣除的风险损失。不同主体的货币等价不自动构成社会福利加总标准。
+\end{definition}
+
+\begin{proposition}[正实际收入增量不充分保证正投入]
+\label{prop:net-incentive}
+若两个可行行动满足 $\Delta\EE[Y_i^{\rm ret}]>0$，但
+$\Delta C_i+\Delta L_i>\Delta\EE[Y_i^{\rm ret}]+\Delta H_i$，
+则高投入行动的净效用更低。
+\end{proposition}
+\begin{Certificate}[完整成本差]
+收入、成本、风险与私人效用分别记录来源，费用不得重复扣减。
+\end{Certificate}
+\begin{proof}[证明（效用差）]
+两侧效用相减后代入严格不等式，得到 $\Delta U_i<0$。证毕。
+\end{proof}
+
+\begin{proposition}[正剩余与分配逆序没有恒等关系]
+\label{prop:surplus-separation}
+即使总可分配额分解为 $N(c)=W(c)+S(c)$ 且 $S(c)>0$，也不能由此推出 $W'(c)\le0$。
+在剩余反馈型准线性合同 $U(e)=\omega+\rho R(e)-C(e)$ 中，若内点最优具有
+$R'(e^*)>0$、$C'(e^*)>0$，则必要条件为 $\rho R'(e^*)=C'(e^*)>0$；正 $\rho$ 本身仍不充分。
+\end{proposition}
+\begin{Certificate}[反例与一阶条件]
+第一项取 $N(c)=2c,W(c)=c,S(c)=c$，$c>0$。
+第二项记录可微、内点性；零投入反例取 $R(e)=1+e$、$\rho=1/2$、$C(e)=2e$，$e\in[0,1]$。
+\end{Certificate}
+\begin{proof}[证明（分离）]
+首例同时满足 $S>0,W'=1>0$。内点最优的必要一阶条件为 $\rho R'-C'=0$，
+正导数使 $\rho>0$。末例中 $U'(e)=1/2-2<0$，即使正份额也只选择零投入。证毕。
+\end{proof}
+
+\begin{remark}[本稿不改变剩余索取的原稿口径]
+\Original 区分合同剩余、风险承担与非市场强制占有；本稿修复的是违反已声明目标和权利的传导失败，
+不是把利润、租金、能力溢价或所有收入差异归零。也不把某一思想体系中的剩余价值概念与上述
+会计分解直接视为定义相同\cite[章节“共同形成的剩余、价值归属及其与规范治理的分离”]{SourceMarket}。
+\end{remark}
+
+\chapter{有益纠错、私人激励与组织机会主义}
+\label{chap:correction}
+
+\section{私人最优与社会净收益分别判定}
+
+\begin{definition}[有益纠错的行动比较]
+\label{def:correction}
+给定他人行动和外生状态，$a^C$ 表示有事实依据、使用允许程序的纠错行动，$a^N$ 表示不实施。
+独立任务核验确认 $\Delta V=V(a^C)-V(a^N)>0$，并记录实际资源成本与外部效果。
+私人效用差为
+\begin{equation}\label{eq:correction-private}
+ M_i=\Delta\EE[Y_i^{\rm ret}]+\Delta H_i-\Delta C_i-\Delta L_i.
+\end{equation}
+社会净收益另以 $\Delta W$ 表示；支付、税费、罚款等纯转移不因转移次数增加而计作新增资源收益。
+只有已声明福利权重或可转移效用条件成立时，才按相应规则加总私人效用。
+\end{definition}
+
+\begin{theorem}[有益纠错的二元激励相容条件]
+\label{thm:correction-ic}
+在定义~\ref{def:correction} 的二元行动域和准线性效用下，纠错是最优回应当且仅当 $M_i\ge0$，
+严格最优当且仅当 $M_i>0$。$\Delta V>0$ 或 $\Delta W>0$ 均不单独推出 $M_i\ge0$。
+\end{theorem}
+\begin{Certificate}[两个净收益账本]
+记录 $U_i(a^C),U_i(a^N)$ 与独立的社会成本收益账本。
+反例取社会资源收益 $1$、真实纠错成本 $1/5$，而私人新增收入为 $0$、额外风险损失为 $1/10$、
+其他私人收益为 $0$；则 $\Delta W=4/5>0$、$M_i=-3/10<0$。
+\end{Certificate}
+\begin{proof}[证明（逐偏离比较）]
+二元域中唯一偏离是从 $a^C$ 改为 $a^N$，故最优回应恰要求两者效用差非负。
+反例的社会收益与私人成本、风险代入式~\eqref{eq:correction-private}，得到相反符号。
+因此社会有益性不能替代私人激励记录。证毕。
+\end{proof}
+
+\begin{remark}[“激励相容”的本稿范围]
+这里证明给定他人行为下的行动最优回应，沿用\Original 的用法。
+它不自动证明私人类型的如实申报、全部多维行动的占优策略、抗合谋或全局均衡。
+扩展行动集时必须增加遗漏偏离的约束；把核验报告作为可操纵行动时，必须另证诚实报告条件。
+\end{remark}
+
+\begin{proposition}[错误代价进入私人效用时的阈值]
+\label{prop:loss-threshold}
+设私人实际承担错误损失的份额为 $\theta_i\ge0$，纠错可避免的错误代价为 $D\ge0$，
+其余效用差固定为 $M_i^0$。若 $M_i(D)=M_i^0+\theta_iD$，则 $M_i$ 关于 $D$ 弱增。
+当 $M_i^0<0$、$\theta_i>0$ 时，严格纠错阈值为 $D>-M_i^0/\theta_i$。
+若 $\theta_i=0$，单独提高外部错误代价不改变私人行动排序。
+\end{proposition}
+\begin{Certificate}[损失承担结构]
+明确 $D$ 的损失对象、私人份额与外部份额，避免把同一避免损失同时计入 $\Delta H_i$ 和 $\theta_iD$。
+\end{Certificate}
+\begin{proof}[证明（线性比较静态）]
+$\partial M_i/\partial D=\theta_i\ge0$。在正 $\theta_i$ 下解 $M_i(D)>0$ 得阈值；
+零份额时 $M_i(D)=M_i^0$。证毕。
+\end{proof}
+
+\begin{remark}[真实任务约束与奖惩条件]
+错误代价增大可以提高纠错需求，但是否提高个人纠错意愿，取决于谁承担损失与谁决定回报。
+因此不能用“任务紧迫”直接替代收入激励、损失承担和反排斥约束，
+也不能把制度所需的纠错长期建立在未计价的个人牺牲之上。
+\end{remark}
+
+\section{有资金来源的纠错激励}
+
+\begin{definition}[真实纠错与虚假报告的奖励菜单]
+\label{def:reward-menu}
+相对不报告的零基线，真实纠错的私人基础收益为 $b_C$，完整成本与风险为 $k_C$；
+虚假报告的对应量为 $b_F,k_F$。奖励额 $z\ge0$ 只在独立核验通过后支付，真实通过概率为 $q_C>0$，
+虚假通过概率为 $q_F\ge0$，奖励的边际保留率为 $\omega>0$。两种报告的效用差为
+\[
+ M_C(z)=b_C-k_C+\omega q_Cz,\qquad
+ M_F(z)=b_F-k_F+\omega q_Fz.
+\]
+至多 $n_R^{\max}$ 个可获奖事件，独立奖励资金 $B_R$ 已实际到账；核验成本为 $C_R$。
+该资金从原有池划出时，必须同步扣减其可用余额，不与基本份额重复承诺。
+\end{definition}
+
+\begin{theorem}[纠错奖励的可行区间]
+\label{thm:reward-feasibility}
+若 $q_F>0$，使真实纠错弱优于不报告、虚假报告不严格有利且资金逐状态覆盖的奖励存在，当且仅当
+\[
+ z_{\min}:=\max\left\{0,\frac{k_C-b_C}{\omega q_C}\right\}
+ \le
+ \min\left\{\frac{k_F-b_F}{\omega q_F},\frac{B_R-C_R}{n_R^{\max}}\right\}
+ =:z_{\max},
+\]
+其中 $n_R^{\max}\ge1$。当 $q_F=0$ 时，第一项上界改为条件 $b_F\le k_F$；
+若 $b_F>k_F$，任何非负奖励均不能排除虚假报告。
+\end{theorem}
+\begin{Certificate}[激励、反操纵与最坏支付三约束]
+保存真实与虚假报告的定义、概率校准、成本、奖励金额、独立核验权限、资金来源和最大获奖人数。
+严格诱导还须让真实纠错效用严格为正；边界相等可能存在不报告的并列最优回应。
+\end{Certificate}
+\begin{proof}[证明（区间交集）]
+$M_C(z)\ge0$ 给出下界，$M_F(z)\le0$ 在正 $q_F$ 下给出上界，
+$n_R^{\max}z+C_R\le B_R$ 给出预算上界。三者与 $z\ge0$ 的交集非空当且仅当所列不等式成立。
+零 $q_F$ 时，$M_F=b_F-k_F$ 与奖励无关，得到相应条件。证毕。
+\end{proof}
+
+\begin{remark}[奖励不是纠错的唯一实现]
+减少报复风险、改善输入完整性、降低报告成本、提高核验质量或改善退出条件，也可能使 $M_i$ 非负。
+本定理只求解一个声明菜单，不证明必须为每一项意见支付奖金，也不许可用奖励替代事实质量与资金约束。
+可行区间为空时，应报告模型不支持该奖励方案，而不是把不相容约束删去。
+\end{remark}
+
+\section{审计、执行与机会主义威慑}
+
+\begin{definition}[有界责任下的组织机会主义]
+\label{def:opportunism}
+控制者可选择遵守规则或实施一次违反已声明义务的行为。相对遵守的私人净增益为 $g>0$，
+其中已扣除其行动成本；违法或违约收益不记为正当剩余。
+审计强度 $r\ge0$ 下发现概率为 $d(r)$，发现后实现责任的条件概率为 $s\in[0,1]$，
+可执行责任的货币等价为 $K\in[0,\overline K]$。责任可以含可追回利益与另外成立的责任负担，
+但不得把同一损失重复计入。责任权限、可执行财产与正当复核是独立前件。
+机会主义的期望净增益为
+\[
+ U^{\rm opp}(r)=g-d(r)sK.
+\]
+\end{definition}
+
+\begin{theorem}[发现与执行联合决定威慑]
+\label{thm:deterrence}
+在定义~\ref{def:opportunism} 的两行动、风险中性模型中，遵守规则是最优回应当且仅当
+$d(r)sK\ge g$，是唯一严格最优回应当且仅当 $d(r)sK>g$。
+若 $sK=0$，即使 $d(r)=1$ 也不能抑制正 $g$ 的机会主义。
+\end{theorem}
+\begin{Certificate}[可执行责任核验]
+记录 $g$ 的比较基线、发现概率、责任实现概率、责任额度上限、独立裁决与可执行财产。
+资金不足或权限不成立时，不能把名义责任额当成实际 $K$。
+\end{Certificate}
+\begin{proof}[证明（控制者的逐偏离约束）]
+遵守的相对收益归一为零，故最优回应条件为 $U^{\rm opp}\le0$，严格条件为 $U^{\rm opp}<0$。
+当 $sK=0$ 时，$U^{\rm opp}=g>0$。证毕。
+\end{proof}
+
+\begin{corollary}[指数发现技术下的最低审计强度]
+\label{cor:rmin}
+设 $d(r)=1-e^{-\lambda r}$，$\lambda>0$，可行强度 $r\in[0,\overline r]$。
+对 $g>0$，存在有限弱威慑强度，当且仅当
+\[
+ sK>g,\qquad
+ \overline r\ge r_{\min}:=\frac1\lambda\log\frac{sK}{sK-g}.
+\]
+严格威慑要求 $r>r_{\min}$；在固定参数下
+\[
+ \frac{\partial r_{\min}}{\partial g}=\frac1{\lambda(sK-g)}>0.
+\]
+\end{corollary}
+\begin{Certificate}[阈值与能力上限]
+保留指数技术的独立校准、$sK>g$ 的裕量及审计预算决定的 $\overline r$。
+边界 $sK=g$ 只能在 $r\to\infty$ 时接近弱威慑，不是有限实现。
+\end{Certificate}
+\begin{proof}[证明（解不等式）]
+$(1-e^{-\lambda r})sK\ge g$ 等价于
+$e^{-\lambda r}\le1-g/(sK)$。右侧必须严格正，取对数给出下界。
+再与可行区间求交，得到充要条件；对显式公式求导得到比较静态。证毕。
+\end{proof}
+
+\begin{remark}[公开披露与有界权力的关系]
+本节表明审计可以发现问题，却不自动产生实际责任；追偿可以建立责任，也不自动提供事实识别。
+提高治理能力应同时检验 $d,s,K$ 与权力边界，不能仅以增加记录数量或提高名义惩处额度证明有效。
+责任不受约束地扩大可能违反合法性或产生新的操纵，本稿不把它作为可行修复。
+\end{remark}
+
+\chapter{透明、公开、相对公正与治理成本}
+\label{chap:governance}
+
+\section{信息可识别性与独立核验}
+
+\begin{definition}[可核验治理的功能坐标]
+\label{def:governance-vector}
+固定声明域，治理记录为
+\[
+ \mathbf g_G=(g^{\rm rule},g^{\rm trace},g^{\rm truth},g^{\rm fair},
+ g^{\rm audit},g^{\rm appeal},g^{\rm execute},g^{\rm power}).
+\]
+它们分别表示事前可得规则、完整可追踪来源、事实核验、声明域内相对公正、独立复算、
+独立申诉、实际修复执行和有界修改权限。相对公正同时记录可比贡献次序、等价处理与真实机会；
+它不等于收入平均化。事实真实性与计算一致性单列，复算错误数据所得一致结果不能替代事实核验。
+\end{definition}
+
+\begin{lemma}[同证据异正确结果的不可能性]
+\label{lem:information-necessity}
+令 $Z(x)$ 为治理可见证据，$D^*(x)$ 为相对于已声明规则的正确处理结果。
+若存在 $x_1,x_2$，使 $Z(x_1)=Z(x_2)$ 而 $D^*(x_1)\ne D^*(x_2)$，
+则仅依赖 $Z$ 的确定性处理函数不能同时正确处理二者。
+\end{lemma}
+\begin{Certificate}[不可识别状态对]
+记录相同证据、不同合法结果的具体状态，以及哪些被省略字段造成无法区分。
+\end{Certificate}
+\begin{proof}[证明（函数单值性）]
+相同输入只能产生相同输出，而正确结果要求不同，故至少一项错误。证毕。
+\end{proof}
+
+\begin{proposition}[有限信号下的判别误差下界]
+\label{prop:signal-error}
+在上述两个正确结果不同的状态等先验出现时，证据信号分布分别为有限分布 $P_1,P_2$。
+任意基于信号的随机判别规则，其平均错误率至少为
+\[
+ \frac12\sum_z\min\{P_1(z),P_2(z)\}.
+\]
+若 $P_1=P_2$，下界为 $1/2$。
+\end{proposition}
+\begin{Certificate}[有限概率表]
+保存两状态先验、完整信号概率表和正确结果；此处比较的是两个结果的分类，不推断金额损失大小。
+\end{Certificate}
+\begin{proof}[证明（逐信号最优分类）]
+对每个 $z$，选择第一状态结果时错误概率质量为 $P_2(z)/2$，选择第二状态结果时为 $P_1(z)/2$。
+随机化只是两者的凸组合，选择其他结果更差。因此每项错误质量不小于两者较小值，求和得到下界。证毕。
+\end{proof}
+
+\begin{proposition}[免费信息细化的决策值弱增加]
+\label{prop:information-value}
+设较细信息为 $Z'$，旧信息可写为 $Z=h(Z')$。行动集合、结果分布与成本不因信息变化而改变，
+且决策者可以忽略新增信息。则使用 $Z'$ 的最大期望效用不低于只使用 $Z$ 的最大期望效用。
+\end{proposition}
+\begin{Certificate}[策略嵌入]
+任取旧策略 $\pi(Z)$，构造新策略 $\pi'(Z')=\pi(h(Z'))$。
+\end{Certificate}
+\begin{proof}[证明（策略集合包含）]
+新策略逐状态复现旧动作及其收益，故所有旧可达收益均包含于新策略集合。
+在集合包含下取上确界，得到结论。证毕。
+\end{proof}
+
+\begin{remark}[透明不等于无限公开]
+信息取得、保存与披露具有资源成本、隐私成本、安全风险及竞争影响时，前一命题的免费条件不成立。
+公开对象首先是规则、理由、权限和必要汇总；个体证据可以按授权分层提供给当事人及独立核验者。
+只要仍能核验所需任务，就不要求把全部个体原始数据交给公众。
+能否由更少信息完成同一核验，可用第~\ref{chap:quotient}章的任务商判据检查。
+\end{remark}
+
+\section{规则内一致性不替代分配公正}
+
+\begin{proposition}[透明、执行一致与相对公正的分离]
+\label{prop:fairness-separation}
+规则公开、账本准确和合同执行一致的合取，不充分推出声明的等价参与一致处理、有效申诉或有界规则权力。
+\end{proposition}
+\begin{Certificate}[公开偏置规则]
+两个主体在全部合法补偿维度上相同，公开规则却把正资金池全部分给指定身份，并关闭独立申诉。
+执行记录与该公开规则完全一致。
+\end{Certificate}
+\begin{proof}[证明（反例）]
+证书满足公开与执行一致，却违反等价参与的一致处理，且没有申诉修复路径。
+因此前件不能推出相对公正。该反例重述\Original 的对应分离结论。证毕。
+\end{proof}
+
+\begin{definition}[同事实的非相关身份不干扰]
+\label{def:nuisance}
+令 $c$ 包含全部合法补偿事实，$n$ 为与这些事实无关的身份、呈送来源或报告者标签。
+固定同一来源完整性、合法性与规则版本，非干扰要求
+\[
+ \mathcal L(Y,b,e^{\rm future}\mid c,n;G)
+ =\mathcal L(Y,b,e^{\rm future}\mid c,n';G)
+\]
+对声明不相关的 $n,n'$ 成立。$e^{\rm future}$ 表示后续真实可进入资格。
+若标签携带合法风险或能力信息，必须先移入 $c$ 并解释其相关性，不能未经登记把全部差异商去。
+\end{definition}
+
+\begin{theorem}[职责分离与完整输入下的结果不干扰]
+\label{thm:separation}
+若原始合格输入集由不可静默改写的来源记录固定，登记者不能删除、插入、替换或通过排序改变结果；
+独立评价仅使用 $c$；确权与支付仅使用认证评价、公共资金池与固定规则；
+后续资格也仅使用已声明相关事实，则改变不相关标签 $n$ 不改变这些结果的联合分布。
+\end{theorem}
+\begin{Certificate}[输入完整性与权限交换]
+记录每一步的输入、输出、随机源分布、权限边界与规则承诺；对应输入使用相同随机源的耦合。
+伪随机种子变化若影响分配，必须按其预注册分布比较，不能选择有利种子。
+\end{Certificate}
+\begin{proof}[证明（有限复合归纳）]
+输入完整性使改变 $n$ 后保留的相关事实与公共输入相同。
+首个评价算子不读取 $n$，在相同随机源下输出相同；假定前 $k$ 步相同，下一步也只读取相同的
+认证输出和固定规则，故结果相同。归纳至后续资格，得到逐耦合结果相同，进而联合分布相同。证毕。
+\end{proof}
+
+\begin{remark}[反排斥不是意见自动有奖]
+本定理保护相同合法事实不因不相关身份被区别处理，不要求奖励不真实、无任务价值或违反程序的行为。
+反排斥保护必须与事实核验、比例适当的责任、申诉和未来入口一起检查。
+原稿已有登记--评价--分配职责分离；本稿把同事实不干扰明确扩展到后续资格与联合支付分布。
+\end{remark}
+
+\section{治理强度的收益、成本与比较静态}
+
+\begin{definition}[有限能力下的治理选择]
+\label{def:audit-choice}
+设可避免的真实社会损失规模为 $\Lambda\ge0$，剩余错误损失函数为 $\Lambda q(r)$，
+核验资源成本为 $C(r)$，隐私和安全等其他真实成本为 $P(r)$。
+可行选择为 $r\in[0,\overline r]$，其中能力上限来自实际预算、人员、资源及合法性约束。
+社会损失目标为
+\[
+ J(r;\Lambda)=\Lambda q(r)+C(r)+P(r).
+\]
+纯转移本身不重复计入真实损失；分配福利权重另行声明。$q(r)$ 必须与所分析的行为回应相容，
+不能在策略已经改变时仍无依据地沿用旧误差函数。
+\end{definition}
+
+\begin{theorem}[指数残余损失下的最优核验强度]
+\label{thm:audit-optimum}
+设 $q(r)=e^{-\lambda r}$、$C(r)+P(r)=kr$，$\lambda,k>0$。
+当 $\Lambda>0$ 时，唯一最优强度为
+\[
+ r^*(\Lambda)=\min\left\{\overline r,
+ \max\left\{0,\frac1\lambda\log\frac{\Lambda\lambda}{k}\right\}\right\}.
+\]
+当 $\Lambda=0$ 时，唯一最优为零。$r^*$ 关于 $\Lambda$ 弱增；在非约束内点，
+\[
+ \frac{\partial r^*}{\partial\Lambda}=\frac1{\lambda\Lambda}>0.
+\]
+\end{theorem}
+\begin{Certificate}[损失规模、成本与可行域]
+保存 $\Lambda,\lambda,k,\overline r$ 的单位、来源与固定项；$k$ 包含治理导致的全部已声明边际真实成本。
+\end{Certificate}
+\begin{proof}[证明（凸目标与截断最优）]
+当 $\Lambda>0$ 时，$J'=-\Lambda\lambda e^{-\lambda r}+k$，
+$J''=\Lambda\lambda^2e^{-\lambda r}>0$，故严格凸。
+无约束一阶条件给出对数解，限制到闭区间得到截断表达。
+零 $\Lambda$ 时目标为严格递增的 $kr$。对内点解求导得比较静态，截断保持弱单调性。证毕。
+\end{proof}
+
+\begin{corollary}[同时满足威慑下界的治理选择]
+\label{cor:constrained-audit}
+若第~\ref{cor:rmin}条的威慑约束与本节残余损失模型在同一行为模型中相容，且
+$r_{\min}\le\overline r$，则在弱威慑可行域内的最优值为
+\[
+ r^{**}=\max\{r_{\min},r^*(\Lambda)\}.
+\]
+严格威慑须另设正裕量 $\eta>0$，并以 $r_{\min}+\eta$ 替换下界。
+若下界超过上界，当前治理菜单不可实现所声明目标。
+\end{corollary}
+\begin{Certificate}[模块相容与严格裕量]
+不得把策略威慑模型和独立误差模型未经接续就叠加；需登记共同成本、共同发现技术以及剩余损失的实际来源。
+\end{Certificate}
+\begin{proof}[证明（凸函数的区间限制）]
+严格凸目标在原最优点左侧递减、右侧递增。将可行左端提高到 $r_{\min}$ 后，若原最优仍可行则保留，
+否则取新左端。空区间无可行解。证毕。
+\end{proof}
+
+\begin{remark}[“更需要治理”的可证含义]
+在误差技术、执行能力、成本和目标不变时，提高可避免损失 $\Lambda$ 会弱提高最优核验强度；
+提高机会主义私人收益 $g$ 会提高最低威慑强度。这是两个明确的比较静态。
+若治理成本同步急升、可执行责任不足或预算不够，则不能由失灵加深推出当前方案值得实施或能够实施。
+生产技术进步不被用来假设这些约束已经消失。
+\end{remark}
+
+\chapter{三项核心功能、收入保留与真实退出}
+\label{chap:core}
+
+\section{基本份额与差异激励的独立约束}
+
+\begin{definition}[已覆盖的基本加差异合同]
+\label{def:base-diff}
+组织在接纳前声明 $N^{\max}$、基本份额 $\beta>0$、差异池 $D>0$ 和严格递增函数 $g$，$g(0)=0$。
+实际已到账且不与成本、准备金或其他支付重复承诺的资金池为 $B$，满足
+\[
+ N^{\max}\beta+D\le B.
+\]
+对 $1\le N=|\mathcal E|\le N^{\max}$，令
+\[
+ b_i=\beta+D\lambda_i,\qquad
+ \lambda_i=\begin{cases}
+ g(c_i)/\sum_{j\in\mathcal E}g(c_j),&\sum_jg(c_j)>0,\\
+ 1/N,&\sum_jg(c_j)=0.
+ \end{cases}
+\]
+已完成合同者的基本份额不得由事后差异评分、未经约定的费用或其他独立合同追溯削减。
+本定义为\Original 核心合同的自包含重述。
+\end{definition}
+
+\begin{theorem}[正基本份额、预算与横向贡献排序]
+\label{thm:base-diff}
+在定义~\ref{def:base-diff} 下，$b_i\ge\beta>0$，$\sum_i b_i=N\beta+D\le B$。
+同一期同一可比域内，$c_i=c_j\Rightarrow b_i=b_j$，$c_i>c_j\Rightarrow b_i>b_j$。
+实际收入结论还需 $y_i=b_i$ 的履约证据。
+\end{theorem}
+\begin{Certificate}[完整名单与逐状态预算]
+记录接纳与完成名单、贡献证据、公共分母、零权重处置、成本先行归属、应付清单和最终支付回执。
+\end{Certificate}
+\begin{proof}[证明（非负权重与有限求和）]
+所有权重非负且和为一，得到正下界及预算式。
+当 $c_i>c_j$ 时总权重为正，且
+\[
+ b_i-b_j=D\frac{g(c_i)-g(c_j)}{\sum_\ell g(c_\ell)}>0.
+\]
+相同贡献及全零状态给出相同应付。应付公式没有实际结算算子，故不能单独证明到账。证毕。
+\end{proof}
+
+\begin{proposition}[横向排序不等于每一点都有严格边际奖金]
+\label{prop:own-marginal}
+固定其他人的贡献，令 $S_{-i}=\sum_{j\ne i}g(c_j)$。
+当 $g$ 可微、$g'(c_i)>0$、$S_{-i}>0$ 时，
+\[
+ \frac{\partial b_i}{\partial c_i}
+ =D\frac{g'(c_i)S_{-i}}{(g(c_i)+S_{-i})^2}>0.
+\]
+若 $S_{-i}=0$ 且 $g(c_i)>0$，则 $b_i=\beta+D$，自身边际奖金为零。
+\end{proposition}
+\begin{Certificate}[公共分母与非退化性]
+分别记录横向比较、固定他人行动的自身比较和行为均衡；三者不能共用一个未标明条件的导数。
+\end{Certificate}
+\begin{proof}[证明（商求导）]
+对 $\beta+Dg(c_i)/(g(c_i)+S_{-i})$ 求导，得到公式；零 $S_{-i}$ 时该比值恒为一。证毕。
+\end{proof}
+
+\begin{remark}[能力、合同次序与均衡]
+定理~\ref{thm:base-diff} 保证已验证贡献的横向应付次序，不保证每个主体继续增加投入都有正净回报。
+基本份额保护完成约定的普通参与，差异池保护可比差异；净激励还取决于实际履行、收入保留、成本和策略相互作用。
+这与\Original 对正剩余份额必要性和正投入充分条件的区分一致。
+\end{remark}
+
+\section{坐标最小救济及其跨期边界}
+
+\begin{definition}[底线、市场收入与救济账户]
+\label{def:relief}
+对有限居民集合 $\mathcal H$，最低物质与真实市场接入支出为 $F_h>0$，
+声明收入基线为 $Y_h^m\ge0$。非负救济 $R_h$ 要求 $Y_h^m+R_h\ge F_h$。
+实际资金账户为
+\[
+ K_{t+1}=(1+r_t^K)K_t+\tau_t\Pi_t^++Q_t-\sum_hR_{ht}-C_t^R,
+\]
+并要求 $K_{t+1}\ge\underline K_{t+1}\ge0$。来源不得重复计入参与合同资金。
+缴款后参与、投资和组织激励各自验收，正会计余额不自动证明正边际投入。
+\end{definition}
+
+\begin{theorem}[给定收入下坐标最小充分救济]
+\label{thm:relief}
+给定 $\mathbf Y^m,\mathbf F$ 时，满足逐人底线的坐标最小非负救济唯一，为
+\[
+ R_h^*=[F_h-Y_h^m]_+.
+\]
+它当期可融资当且仅当实际可用来源扣除储备下限与管理成本后，不低于 $\sum_hR_h^*$。
+\end{theorem}
+\begin{Certificate}[逐人下界与来源账户]
+保存底线束、收入时点、救济资格、实际回执、来源及储备；“可融资”指本定义账户，不替代其他经济条件。
+\end{Certificate}
+\begin{proof}[证明（逐坐标偏序）]
+约束等价于 $R_h\ge\max\{0,F_h-Y_h^m\}$。
+该下界自身满足全部逐人条件，且任何充分向量均不小于它，故存在、唯一且最小。
+将其代入账户恒等式得到融资充要条件。证毕。
+\end{proof}
+
+\begin{proposition}[完全同步重算的边际保留限制]
+\label{prop:clawback}
+若对当期全部新增市场收入 $y$ 立即重算坐标最小救济，则
+\[
+ X(y)=y+[F-y]_+=\max\{F,y\}.
+\]
+在 $y<F$ 的开区间，$X'(y)=0$；在 $y>F$ 的开区间，$X'(y)=1$。
+因此静态最小救济不单独提供底线以下的严格正现金边际激励。
+\end{proposition}
+\begin{Certificate}[收入与评估时点]
+固定底线 $F$，说明 $y$ 是否包含本期全部参与支付；在折点 $y=F$ 使用单侧差分，不声明普通导数存在。
+\end{Certificate}
+\begin{proof}[证明（分段恒等式）]
+分别在 $y<F$ 与 $y>F$ 展开正部函数，得到常数与恒等映射。证毕。
+\end{proof}
+
+\begin{proposition}[固定评估基线与正保留收入]
+\label{prop:retention}
+设本期救济按事前收入 $Y^b$ 确定为 $R^*=[F-Y^b]_+$，
+本期新增已到账参与收入 $T^I$ 的保留份额为常数 $\omega\in(0,1]$。
+若同一期不进行超出已声明比例的追溯抵销，则底线以上预算为
+\[
+ B^L=[Y^b-F]_++\omega T^I,\qquad
+ \frac{\partial B^L}{\partial T^I}=\omega>0.
+\]
+它保持了相对于评估基线的坐标最小救济，而不必保持相对于更新后全部收入的逐时最小性。
+\end{proposition}
+\begin{Certificate}[时间窗与政策差额]
+记录评估日期、保留规则、下一期重算方式，以及与完全同步重算相比所需的额外财政资金。
+这些资金和放弃的追回额不能作为零成本处理。
+\end{Certificate}
+\begin{proof}[证明（展开与求导）]
+$Y^b+[F-Y^b]_+-F=[Y^b-F]_+$，加入 $\omega T^I$ 即得。
+当新增收入使更新缺口缩小时，旧基线确定的救济可大于新缺口，所以不自动逐时最小。证毕。
+\end{proof}
+
+\begin{remark}[与原稿的关系及期望运算]
+上一命题沿用\Original 的生活性预算与正保留率接口，而不是以新增政策默改其救济定义。
+若希望底线以下每一点都具有严格正可支配收入边际，则必须明确采用评估时滞、部分扣减或其他可融资设计，
+并承认与逐时坐标最小性之间的取舍。
+随机收入下应逐状态计算救济与保留额再取期望；一般
+$\EE[\max\{F,Y\}]\ne\max\{F,\EE[Y]\}$，不能把平均收入代入替代完整分布。
+\end{remark}
+
+\begin{proposition}[跨期保留的净激励]
+\label{prop:intertemporal-retention}
+若一次行动在 $t=0,\ldots,T$ 产生已计入各期救济重算后的收入差 $\Delta Y_t^{\rm ret}$，
+则准线性跨期最优回应比较使用
+\[
+ \Delta U=\sum_{t=0}^T\delta^t\EE[\Delta Y_t^{\rm ret}+\Delta H_t-\Delta C_t-\Delta L_t],
+ \qquad 0<\delta\le1.
+\]
+当期正保留收入不单独推出 $\Delta U>0$。
+\end{proposition}
+\begin{Certificate}[完整期际记录]
+登记全部后续救济调整与成本；有限窗外的结论需给出尾项界。
+反例取当期净增量 $1$、下期净减量 $2$、$\delta=1$。
+\end{Certificate}
+\begin{proof}[证明（有限求和与反例）]
+跨期可加效用按定义逐期相加。反例的总差为 $-1$，虽然当期正差为 $1$。证毕。
+\end{proof}
+
+\section{独立救济、真实退出与生存约束}
+
+\begin{theorem}[独立底线保障阻断特定生存排斥渠道]
+\label{thm:exit}
+设退出某组织后的市场收入为 $Y_h^{\rm out}$，救济资格不由该组织单方控制，
+付款先于必要支出到期且资金覆盖，实际存在至少一个不依赖原组织许可的合格市场入口。
+若退出过渡所需的声明最低支出已包含在 $F_h$，并支付
+$R_h^{\rm out}=[F_h-Y_h^{\rm out}]_+$，则退出不会仅因该组织收入中断而使可用资源跌破该底线。
+\end{theorem}
+\begin{Certificate}[独立资格与过渡可行性]
+保存退出后的收入、必要支出期限、救济回执、替代入口、身份与支付可携带性。
+未计入的转换费用、延迟、医疗或其他必要支出须更新底线，不以账面到账推定真实接入。
+\end{Certificate}
+\begin{proof}[证明（两类收入状态）]
+若 $Y_h^{\rm out}\ge F_h$，无需救济已满足；否则补足差额恰达 $F_h$。
+独立资格和付款时序使这一资源不依赖原组织同意，替代入口保证资源可以用于声明接入。
+因此该特定渠道被阻断。证毕。
+\end{proof}
+
+\begin{remark}[有界结论]
+底线保障不消除职业中断、声誉、关系专用投资或全部转换成本，也不保证每一项纠错具有正私人净回报。
+现金足够但替代入口不存在时，真实退出仍失败。制度目标是检验并修复具体约束，
+不是把个体意见是否获得认可直接转化为财政权利。
+\end{remark}
+
+\chapter{规则演化、持续履约与有界失灵修复}
+\label{chap:dynamics}
+
+\section{规则更新不得追溯消灭既有义务}
+
+\begin{definition}[经济状态与更新权限]
+\label{def:update-state}
+状态 $x_t$ 包含规则版本、有效合同、逐人应付与实际支付、资金与受限准备金、贡献证据、
+后续接纳条件、申诉、救济、真实入口及外部冲击。
+规则更新 $G_t\to G_{t+1}$ 先区分已经发生的权利和未来新合同。
+既有权利的修订必须有其原合同允许的独立事实纠错与复核依据；
+没有这种依据，不得因评分规则或接纳标准改变而追溯取消已完成参与的基本份额。
+\end{definition}
+
+\begin{definition}[更新保持条件]
+\label{def:update-invariants}
+记 $\Core_t$ 为以下条件的合取：既有到期义务依约履行；新接纳具有事前资金覆盖；
+在声明域与容限内保留贡献和实际支付次序；合法纠错不通过不相关标签改变待遇；
+原始来源与独立申诉可用；救济及退出条件没有被组织单方撤销。
+每次更新记录以下见证：旧权利逐项迁移等式、新规则对所有合格输入的测试、来源完整性、
+资金用途无重复、可执行支付与复核路径、外部条件仍处于声明域。
+\end{definition}
+
+\begin{theorem}[有限更新路径上的分配条件保持]
+\label{thm:update-invariance}
+若 $\Core_0=1$，并且每个被接受更新在实际调用域内证明
+\[
+ \Core_t=1\ \wedge\ \operatorname{Valid}(U_t,\eta_t)
+ \Longrightarrow \Core_{t+1}=1,
+\]
+则任意有限已接受更新路径均保持 $\Core_t=1$。
+\end{theorem}
+\begin{Certificate}[路径长度归纳]
+保存规则哈希、旧权利到新账本的映射、每次更新的完整前件与证明；归纳谓词为
+$P(n)=\bigwedge_{t=0}^n(\Core_t=1)$。不能仅把结论名称写入更新日志充当保持证明。
+\end{Certificate}
+\begin{proof}[证明（有限归纳）]
+初始证书给出 $P(0)$。假定 $P(n)$，第 $n$ 次更新的独立保持见证使 $\Core_{n+1}=1$，
+故 $P(n+1)$。归纳覆盖所有有限路径。外部冲击使必需前提失败时，更新不属于该已接受路径，
+不能继续签发本定理。证毕。
+\end{proof}
+
+\begin{remark}[拒绝新义务与继续履行旧义务]
+资金、输入完整性或比较条件失败时，可以暂停新接纳、复核相关规则并启动已约定风险处置；
+这不把旧应付款项归零。撤销“新规则已通过”的声明，与撤销既有主体收益权是不同操作。
+拒绝状态仍须保留旧债务、证据和申诉，不可借停止核验消灭责任。
+\end{remark}
+
+\section{有限修复速度与稳定性}
+
+\begin{definition}[局部标量失灵响应模型]
+\label{def:feedback}
+在固定、已量纲化的单一失灵坐标上，设
+\[
+ d_{t+1}=[(1-\gamma)d_t-\kappa r_t+\eta_t]_+,
+ \qquad d_t\ge0,\quad\kappa>0.
+\]
+$\gamma$ 表示自然修复或衰减，$r_t$ 为有效治理作用，$\eta_t$ 为外部新增失灵。
+该响应方程是需核验的局部模型，不由“设置审计”自动取得。
+取反馈 $r_t=\nu d_t$，$\nu\ge0$；仅在 $\nu d_t\le\overline r$ 的未饱和域内使用此线性规则。
+\end{definition}
+
+\begin{theorem}[有界冲击下的失灵上界]
+\label{thm:feedback-bound}
+设 $a=1-\gamma-\kappa\nu\in[0,1)$，$|\eta_t|\le\overline\eta$，初态 $d_0\le D_0$。
+若选定 $D_0$ 满足 $aD_0+\overline\eta\le D_0$ 且 $\nu D_0\le\overline r$，则所有后继留在该域，且
+\[
+ d_t\le a^td_0+\frac{\overline\eta(1-a^t)}{1-a}.
+\]
+无冲击时 $d_t\to0$；有界冲击时
+$\limsup_td_t\le\overline\eta/(1-a)$。
+\end{theorem}
+\begin{Certificate}[不变区间与归纳界]
+记录 $\gamma,\kappa,\nu,\overline\eta,D_0,\overline r$，每项单位与域一致。
+需要证明达到容限 $\epsilon$ 时，应检查极限上界严格低于 $\epsilon$，不能由有界性推出归零。
+\end{Certificate}
+\begin{proof}[证明（不变区间及几何求和）]
+$0\le d_t\le D_0$ 时，$d_{t+1}\le ad_t+\overline\eta\le D_0$，故区间归纳不变且反馈不饱和。
+递推 $d_{t+1}\le ad_t+\overline\eta$，得到
+$d_t\le a^td_0+\overline\eta\sum_{j=0}^{t-1}a^j$，几何求和给出公式。
+取极限得到两类结论。证毕。
+\end{proof}
+
+\begin{remark}[稳定、公正和福利不能互相替代]
+上述定理只证明一个已定义残差坐标的响应上界。预算平衡不保证动态稳定，稳定也不保证分配公正，
+更不保证净福利增加。全经济系统仍需\Original 的动态状态、资金机会成本、净需求回流及
+局部稳定核验；本稿不能用一个标量收缩式代替这些共同条件。
+\end{remark}
+
+\section{分配规则的条件性演化优势}
+
+\begin{proposition}[净绩效优势下的份额比增加]
+\label{prop:selection}
+对有限候选机制，设共同绩效 $J_t(G)$ 使用相同量纲、权重与来源，
+并已扣除治理真实成本、操纵损失、风险及资金机会成本。令
+\[
+ \Phi_t(G)=J_t(G)-\min_HJ_t(H)+\epsilon,\quad\epsilon>0,
+ \qquad
+ s_{t+1}(G)=\frac{s_t(G)\Phi_t(G)}{\sum_Hs_t(H)\Phi_t(H)}.
+\]
+若 $s_t(G_1),s_t(G_2)>0$ 且 $J_t(G_1)>J_t(G_2)$，则两者份额之比严格上升。
+\end{proposition}
+\begin{Certificate}[真实选择与同口径绩效]
+机制可进入、可退出且份额变化确由该条件选择模型表示；不存在未计入的进入封锁。
+绩效中的转移收益与真实资源收益分别核算。透明标签或规则正确性本身不证明净绩效优势，
+亦不推出历史必然扩张。
+\end{Certificate}
+\begin{proof}[证明（份额比约分）]
+公共分母约去，得到
+\[
+ \frac{s_{t+1}(G_1)}{s_{t+1}(G_2)}
+ =\frac{s_t(G_1)}{s_t(G_2)}\frac{\Phi_t(G_1)}{\Phi_t(G_2)}.
+\]
+后一个比值严格大于一，故结论成立。证毕。
+\end{proof}
+
+\chapter{经济观察的任务商与条件性机制同伦}
+\label{chap:quotient}
+
+\section{先声明经济观察，再决定可以归并什么}
+
+\begin{definition}[有限随机经济任务系统]
+\label{def:markov}
+取有限状态集 $X$、动作集 $A$、合法动作 $A(x)$、转移核 $K_a(x,x')$、观察 $O(x)$ 与单步成本 $C(x,a)$。
+$O$ 包含当前任务必需的应付、到账、资金、合法资格、底线与申诉状态；若需要验证横向排序，
+状态中保存整个可比主体组的记录，而不是只保留单人评分。
+非法动作统一进入拒绝状态，并保留已有义务的观察。
+\end{definition}
+
+\begin{definition}[经济充分商]
+\label{def:quotient}
+对满射 $q:X\to Q$，要求同一纤维内当前观察、合法动作与成本相同，并对每个动作及商类 $v$ 满足
+\begin{equation}\label{eq:lumpability}
+ \sum_{z:q(z)=v}K_a(x,z)
+ =\sum_{z:q(z)=v}K_a(x',z)
+ \quad\text{只要 }q(x)=q(x').
+\end{equation}
+于是可定义商转移 $\overline K_a(q(x),v)$、商观察 $\overline O$ 和商成本 $\overline C$。
+该条件保留下一步的全部商状态分布，不仅保留一个期望分数。
+\end{definition}
+
+\begin{proposition}[单项经济观察的因子化判据]
+\label{prop:factorization}
+给定满射 $q$，观察 $f$ 可写为唯一 $\overline f\circ q$，当且仅当 $f$ 在每条纤维上恒定。
+\end{proposition}
+\begin{Certificate}[同纤维值]
+通过证书为代表元无关的 $\overline f([x])=f(x)$；否决证书为同纤维但观察不同的状态对。
+\end{Certificate}
+\begin{proof}[证明（代表元无关）]
+因子化时同像必有同值。反之，纤维恒定使上述定义不依赖代表元；满射给出全域定义与唯一性。证毕。
+\end{proof}
+
+\begin{remark}[来源接口]
+命题~\ref{prop:factorization} 重述\cite[标签 \texttt{thm:utility-type}]{SourceGFramework}。
+下一定理将其确定性有限执行接口扩展到本稿明示的有限随机核；经济随机核与核相容条件由本稿给出，
+不把它们归为来源文稿已经验证的现实市场对象。
+\end{remark}
+
+\begin{theorem}[商适应策略下的有限经济执行保持]
+\label{thm:markov-preservation}
+若定义~\ref{def:quotient} 成立，且策略仅依赖商状态历史和相同的外生随机源，则任意有限期内，
+原系统经 $q$ 投影的状态、观察和累计成本联合分布，与商系统执行的联合分布相同。
+因此，属于这些观察的违约、底线不足、资金不足或任务命中概率在两侧相同。
+\end{theorem}
+\begin{Certificate}[逐动作概率交换与数学归纳]
+保存完整有限转移表、观察表、合法性与成本表，逐行验证式~\eqref{eq:lumpability}。
+对期数 $n$ 的归纳谓词为“长度 $n$ 的全部商历史具有相同概率及累计成本条件分布”。
+\end{Certificate}
+\begin{proof}[证明（历史概率归纳）]
+初始分布按 $q$ 推前，零期成立。假设长度 $n$ 的历史概率一致，策略因依赖相同商历史而给出相同动作分布。
+式~\eqref{eq:lumpability} 使同类内任意原状态都给出相同下一商状态概率，故对原状态条件分布求和
+仍等于商转移。观察与成本由纤维恒定性保持，得到长度 $n+1$ 的联合分布相同。
+有限归纳完成证明。终态事件与有限累计量的概率因此相同。证毕。
+\end{proof}
+
+\begin{remark}[没有被证明的更强策略结论]
+若原策略使用被 $q$ 删除的信息，它未必可由商历史实现，本定理不比较该策略。
+只保持均值也不足以保持尾部违约或逐人底线概率。身份可以不参与评分，但责任归属若是审计必需观察，
+就不能因身份无关评价而把全部来源标识从审计承载删除。
+\end{remark}
+
+\begin{proposition}[有限系统的可计算商构造]
+\label{prop:partition}
+从当前观察、合法性和成本相同的分区开始，反复按每个动作向各现有类的转移概率向量细化分区。
+若所有输入为可精确比较的有理数，算法在至多 $|X|-1$ 次严格细化后停止，输出满足
+定义~\ref{def:quotient} 的分区；任何满足该定义且保留初始观察的分区都细于输出。
+\end{proposition}
+\begin{Certificate}[稳定分区与精确输入]
+保存初分区、每轮概率签名、类数变化、稳定等式和原始有理转移表。
+浮点近似相等须改成另有误差界的近似任务，不作为精确相等。
+\end{Certificate}
+\begin{proof}[证明（有限细化及最粗性）]
+每次严格细化至少增加一个类，类数不超过 $|X|$，故有限停止。
+稳定时同类向每个稳定类的转移概率相同，且保留初始观察，故满足定义。
+任意相容分区在初轮不跨越不同观察；若它细于当前分区，则当前各类是其类的并，
+相容概率求和使其同类状态不会被下一轮拆开。因此归纳得到它细于最终分区。证毕。
+\end{proof}
+
+\section{固定经济观察下的机制参数同伦}
+
+\begin{theorem}[共同商转移下的凸同伦]
+\label{thm:kernel-homotopy}
+在相同有限状态、动作、合法性、观察和成本上，设两个随机核 $K^0,K^1$ 通过同一 $q$
+诱导完全相同的商核 $\overline K$。令
+\[
+ K^s_a=(1-s)K^0_a+sK^1_a,\qquad s\in[0,1].
+\]
+则 $K^s$ 为关于 $s$ 连续的随机核族，始终诱导同一 $\overline K$；
+定理~\ref{thm:markov-preservation} 的全部任务观察沿该机制参数同伦保持。
+\end{theorem}
+\begin{Certificate}[端点、连续性与概率交换]
+保存端点核、共同商核和逐行等式；连续性按有限矩阵的欧氏坐标理解。
+中间参数若要作为现实制度部署，仍须另检验其可实现方式、预算和行为回应。
+\end{Certificate}
+\begin{proof}[证明（线性核相容）]
+凸组合的元素非负、行和为一。向商类求和后得到
+$(1-s)\overline K_a+s\overline K_a=\overline K_a$。
+每个矩阵元关于 $s$ 为仿射函数，故连续。保持结论由有限执行定理逐 $s$ 应用。证毕。
+\end{proof}
+
+\begin{proposition}[四状态非平凡构造]
+\label{prop:fourstate}
+取 $X=\{(0,0),(0,1),(1,0),(1,1)\}$，$q(j,z)=j$。
+第一坐标表示固定合同尚待结算或已经结算，第二坐标为不改变经济观察的实现标记。
+一个结算动作具有端点核
+\[
+ K^0=\begin{pmatrix}0&0&1&0\\0&0&0&1\\0&0&1&0\\0&0&0&1\end{pmatrix},
+ \qquad
+ K^1=\begin{pmatrix}0&0&0&1\\0&0&1&0\\0&0&0&1\\0&0&1&0\end{pmatrix}.
+\]
+二者不同，但均下降为
+$\overline K=\left(\begin{smallmatrix}0&1\\0&1\end{smallmatrix}\right)$。
+给定相同的已覆盖资金、应付、结算后收入和成本观察，全部 $K^s$ 属于同一任务保持机制族。
+\end{proposition}
+\begin{Certificate}[四行概率核验]
+逐行把第三、第四列相加，均为 $1$；前两列和均为 $0$。
+观察仅依赖第一坐标，结算后的资金和权利变化由该坐标完整给定。
+\end{Certificate}
+\begin{proof}[证明（矩阵直接计算）]
+每个端点行和为一，按两条纤维求和得到共同商核。
+定理~\ref{thm:kernel-homotopy} 给出连续非平凡路径。证毕。
+\end{proof}
+
+\begin{remark}[同伦对象及其经济边界]
+这里证明的是机制参数空间中的任务保持同伦，不是两种现实社会整体作为拓扑空间的同伦等价。
+未提供共同商转移、动作对应和经济回读时，不能仅由阶段名称相似确认同一性。
+\Original 的有向循环附录另要求保向映射、截面与收缩见证，不能由本定理替代这些独立条件。
+\end{remark}
+
+\section{失灵分型与修复不能混同}
+
+\begin{proposition}[仅保留回报符号的弱商]
+\label{prop:sign-quotient}
+在局部正规型
+$V(x)=v_0+\kappa x$、$R(x)=R_0+(a-b)x$，$x\in[0,1]$，
+$\kappa>0,a,b\ge0,R_0\ge b$ 中，观察只要求行动增加后成果与回报的方向时，
+可取 $q_{\rm sign}=(\sgn\kappa,\sgn(a-b))$。
+对应严格同号的两个参数组沿凸插值保持此观察；零号组也独立保持。
+\end{proposition}
+\begin{Certificate}[符号同伦与被删除字段]
+记录被保留的增量符号，以及被删除的金额、预算、权利、成本、资格和风险。
+\end{Certificate}
+\begin{proof}[证明（凸号域）]
+正 $\kappa$ 的凸组合仍为正；两端同为正或负的 $a-b$ 的凸组合保持同号，
+两端为零时全程为零。$R_0\ge b$ 也由凸组合保持，故支付正规型合法。证毕。
+\end{proof}
+
+\begin{proposition}[符号同一不充分推出经济闭合]
+\label{prop:sign-insufficient}
+两个机制的回报方向相同，不充分推出基本份额、实际支付、预算或救济条件相同。
+若一个任务观察要求识别失败和修复后的成功，则把二者归为同一状态类不满足观察因子化。
+\end{proposition}
+\begin{Certificate}[同符号异经济状态]
+两个合同的名义支付均为 $1+c$，一个预留足额资金并兑现，另一个没有可支付资金。
+再取同一应付 $1$ 下 $y=0$ 与 $y=1$ 的两个状态，以是否到期全额到账为必需观察。
+\end{Certificate}
+\begin{proof}[证明（同纤维异观察）]
+首例的名义导数均为正但预算不同；第二例的到账谓词不同。
+按命题~\ref{prop:factorization}，相应观察不能在合并后的类上单值回读。证毕。
+\end{proof}
+
+\begin{remark}[比较同一性与修复演化]
+跨情境比较保留声明任务及观察对应；实施修复则让失灵状态沿允许动作发生改变。
+同一项任务可以从失败变为成功，但不能同时要求失败值是该修复路径的不变量。
+因此，经济学正文使用“技术--制度失配、传导逆序和可核验修复”，
+同伦只作为已给出见证的结构比较工具，不承担缺失的经验推断。
+\end{remark}
+
+\chapter{经验识别、核验误差与可证伪预测}
+\label{chap:empirical}
+
+\section{必须观察完整分母与实际支付}
+
+\begin{definition}[研究登记与结果变量]
+\label{def:study}
+在治理处理前固定申请者、接纳者、实际完成者与独立复核确认的应得者集合，并保留未接纳、未验证、
+未确权、未支付及退出的原因码。结果包括应付与到账差、迟延、真实贡献排序误差、合理纠错发生率、
+报告后待遇、替代入口、底线覆盖、净保留收入、组织剩余和全部治理成本。
+不得只以已付款者为样本来估计全链条支付成功率。
+\end{definition}
+
+\begin{remark}[选择偏差与干预对象]
+治理可能同时改变谁申请、谁被接纳、谁被核验和谁愿意纠错。
+只比较处理后成功核验者的均值，会把处理造成的样本选择与处理效果混在一起。
+预先固定的总体、不同阶段的分母和未观察结果的处理规则必须保留。
+合理拒绝申请不自动是违约；因错误证据排除已完成合同者，则须计入对应失灵坐标。
+\end{remark}
+
+\section{有限总体随机处理的可识别效果}
+
+\begin{definition}[组织层处理与潜在结果]
+\label{def:potential}
+设 $M$ 个组织在处理前登记。$Z_j\in\{0,1\}$ 表示是否实施完整治理处理，已知边际分配概率
+$\pi_j\in(0,1)$。$Y_j(1),Y_j(0)$ 为固定窗口内组织层预注册结果，可在组织内部包含任意相互作用，
+但不受其他组织处理影响。观察结果为 $Y_j=Z_jY_j(1)+(1-Z_j)Y_j(0)$。
+处理分配与这些固定潜在结果无关，记录完整、不因处理后样本筛选而删除组织。
+\end{definition}
+
+\begin{theorem}[逆概率差的无偏识别]
+\label{thm:identification}
+在定义~\ref{def:potential} 下，
+\[
+ \widehat\tau=\frac1M\sum_{j=1}^M
+ \left[\frac{Z_jY_j}{\pi_j}-\frac{(1-Z_j)Y_j}{1-\pi_j}\right]
+\]
+对有限总体平均处理效果
+$\tau=M^{-1}\sum_j(Y_j(1)-Y_j(0))$ 无偏。
+\end{theorem}
+\begin{Certificate}[分配、干扰边界与记录完整性]
+保存随机化程序、已知概率、处理版本、潜在结果对应的完整结果口径和缺失值规则。
+标准误必须反映实际分配设计及组织内相关；无偏性不等于估计精确或样本充分。
+\end{Certificate}
+\begin{proof}[证明（随机化期望）]
+由一致性，$Z_jY_j=Z_jY_j(1)$。固定潜在结果并取分配期望，有
+\[
+ \EE\left[\frac{Z_jY_j}{\pi_j}\right]=Y_j(1),\qquad
+ \EE\left[\frac{(1-Z_j)Y_j}{1-\pi_j}\right]=Y_j(0).
+\]
+逐项相减求和得到 $\EE[\widehat\tau]=\tau$。该证明不要求各组织的处理独立，
+但使用已知边际概率和无跨组织处理干扰。证毕。
+\end{proof}
+
+\begin{remark}[不能从总效果拆出每个中介效果]
+随机化完整治理处理可识别其总效果，却不自动识别“透明”“审计”“威慑”“救济”的各自因果份额。
+报告行为和承认概率是可能受处理影响的中介；不能把处理后报告者比较直接解释为纠错的因果回报。
+需要分组件随机化、有效工具或另有结构识别设计时，须单独登记其排除、相关性与稳定性条件。
+\end{remark}
+
+\begin{proposition}[非随机比较的未识别性]
+\label{prop:confounding}
+仅观察治理规则 $G$ 与收入 $Y$ 的相关性，不充分确定治理的因果效果。
+\end{proposition}
+\begin{Certificate}[同观测分布的两模型]
+令 $U$ 为取 $0,1$ 各半的变量，观察到 $G=U,Y=U$。
+模型一设 $Y=G$；模型二设 $Y=U$，且 $G=U$ 只用于观测规则选择。
+\end{Certificate}
+\begin{proof}[证明（反事实不同而观测相同）]
+两模型的观测分布都只包含 $(G,Y)=(0,0),(1,1)$。
+固定 $U$ 并外生改变 $G$ 时，模型一的 $Y$ 改变，模型二不变。
+因此观测相关不能唯一决定干预效果。证毕。
+\end{proof}
+
+\section{零违例样本不等于零风险}
+
+\begin{proposition}[独立同分布违例试验的零次上界]
+\label{prop:zero-failure}
+若 $n\ge1$ 次预先登记、独立同分布的核验机会具有共同违例概率 $p$，观察到零次违例，
+则单侧精确置信上界为
+\[
+ p_U=1-\alpha^{1/n},\qquad 0<\alpha<1.
+\]
+这里是置信水平 $1-\alpha$ 的频率学界，不是后验概率陈述。
+\end{proposition}
+\begin{Certificate}[抽样单位与同分布]
+保存独立抽样单位、原始事件、不遗漏零支付的分母、观察期与 $\alpha$。
+同一人或同一组织重复事件若相关，不能直接当作 $n$ 次独立试验。
+\end{Certificate}
+\begin{proof}[证明（零次事件的概率反演）]
+零次违例的概率为 $(1-p)^n$，它关于 $p$ 递减。
+令 $(1-p_U)^n=\alpha$，解得公式；大于此界的参数产生零次事件的概率低于 $\alpha$，
+故按单侧精确检验反演得到上界。证毕。
+\end{proof}
+
+\begin{definition}[符号判定与资料不足]
+对估计的支付差、激励差或福利差，预先声明误差区间 $[L,U]$。
+$L>0$ 才确认严格正号，$U<0$ 才确认严格负号；区间跨零时记录“未能区分符号”。
+精确等于零必须由结构等式或合适检验目标给出，不从“不显著”反推。
+因果、测量、抽样和模型误差分账，并检查联合错误率或多重比较规约。
+\end{definition}
+
+\section{预测与停止条件}
+
+\begin{longtable}{L{0.09\textwidth}L{0.41\textwidth}L{0.42\textwidth}}
+\toprule 编号 & 条件性预测 & 否决或限制见证 \\\midrule
+\endfirsthead
+\toprule 编号 & 条件性预测 & 否决或限制见证 \\\midrule
+\endhead
+E1 & 在零备选支付、正值域内，实际支付变化按名义支付与传导概率共同分解。 & 实际存在未记录部分支付、时间折现或费用时，简化公式不能使用。\\
+E2 & 其他条件固定且可执行责任严格覆盖机会主义收益时，超过阈值的审计使遵守成为严格最优。 & 执行概率为零、责任无财产覆盖、域外收益或额外行动集使该结论失败。\\
+E3 & 在共同成本与残余错误技术下，损失规模增加弱提高最优治理强度。 & 治理成本、技术或合法上限同时变化时须重新求解，不能外推单参数符号。\\
+E4 & 真实纠错和虚假报告的奖励区间非空时，菜单可满足相应弱激励与预算约束。 & 真实与虚假通过率不足以区分、最大支付超预算或存在未检查偏离。\\
+E5 & 同事实非相关标签不干扰要求权利、实际支付与后续资格分布保持。 & 处理相同事实却秘密改变待遇，或输入呈送被选择性省略。\\
+E6 & 静态全额救济同步扣减使底线以下新增现金的边际保留为零。 & 观察到正保留时应检查是否存在时滞、部分扣减或其他收入，不能直接称矛盾。\\
+E7 & 独立、及时、可融资救济加真实替代入口保障声明退出底线。 & 资格仍受原组织控制、过渡成本遗漏、付款迟延或替代入口不存在。\\
+E8 & 有界反馈模型在不变域内按几何界控制失灵坐标。 & 域外冲击、治理饱和、响应符号改变或预算失效使原界停止适用。\\
+\bottomrule
+\end{longtable}
+
+\begin{Certificate}[治理修复总核验记录]
+\label{cert:total}
+总记录包含：适用域、规则基线、失灵坐标、原始证据、独立评分、实际到账、完整成本、
+纠错与虚假报告偏离、责任可执行性、后续机会、救济与真实退出、预算来源、规则更新、
+任务商与概率交换、识别设计及结果误差。每个结论附自己的依赖父结点和允许外推域。
+任一必需项为 $0$ 或 $\bot$ 时，只撤销依赖它的签发，不把其他有效事实一并否定。
+\end{Certificate}
+
+\begin{remark}[停止扩张不等于停止救济与履约]
+新增合同无覆盖、身份或来源被篡改、严重实际逆序、报复、责任不可执行、救济储备不足或风险外溢超限时，
+停止签发新扩张条件并采取已约定处置。既有合同、实际救济和申诉按其成立义务继续处理；
+发现问题的主体不因触发停止条件自动失去原权利。只有另有事实依据与程序，才可变更个别状态。
+\end{remark}
+
+\chapter{预算闭合的有限策略构造与核验实例}
+\label{chap:example}
+
+\section{比较菜单、参与者与资金来源}
+
+本章全部数值均为构造的模型计价单位，不是经验估计。
+与命题~\ref{prop:reversal-example} 的未履约反例不同，本章构造完整支付且存在治理改革激励效果的
+有限组织模型。它把私人纠错、控制者回应、基本加差异分配、正组织剩余及独立救济放入同一组账本；
+不同时声称宏观需求、长期文化或全部后 AI 适用域已经成立。
+
+\begin{definition}[组织与参与菜单]
+\label{def:example-game}
+有一个组织、两个已完成基础服务的参与者和一个在该组织外取得市场收入的居民。
+客户对基础服务的支付意愿不低于 $5$，并在组织接受本期合同时向专用账户支付 $5$；
+客户选择与基础服务交付条件已满足，不以尚未实现的未来需求填补本期资金。
+组织选择不开办时利润为零，开办时必须履行以下公开合同。
+
+两个参与者均取得基本份额 $1$，共同差异池为 $1$，$g(c)=c$。
+参与者 $2$ 的贡献固定为 $c_2=1$；参与者 $1$ 可以不纠错 $e=0$ 或实施有益纠错 $e=1$，
+其真实且可精确核验的贡献为 $c_1=1+e$，纠错成本为 $e/10$。
+每人的基础参与成本为 $1/4$，不影响纠错的增量比较；外部选择的效用归一为零。
+应付并最终到账的金额为
+\[
+ T_1(e)=1+\frac{1+e}{2+e},\qquad
+ T_2(e)=1+\frac1{2+e},\qquad T_1(e)+T_2(e)=3.
+\]
+基本与差异资金在接受合同前被用途限制，不由控制者改变。
+
+组织固定完整成本为 $1/2$。外部提供并可验证的治理菜单为 $G_0,G_1$：
+$G_0$ 的治理成本 $C_G^0=1/4$，发现概率 $d_0=0$；
+$G_1$ 的治理成本 $C_G^1=1/2$，发现概率 $d_1=1/2$。
+可用 $d(r)=1-e^{-r}$、$r_0=0,r_1=\log2$ 实现两个概率；
+成本在这两个点的取值已固定，本章不求连续强度的全域最优。
+
+纠错发生后，控制者可以遵守或实施一次针对后续机会的违约排斥。
+排斥给控制者的税后私人货币等价净增益为 $g=3/10$，给纠错者增加损失 $2/5$；
+这不是合法组织利润，也不改写已支付的本期份额。责任实现概率 $s=1$，可执行额度 $K=1$。
+控制者在两个菜单中都有独立期初责任资产 $1$，不计为本期收入，不占用参与分配或救济资金；
+其已声明资金占用成本包含在固定完整成本中。均衡路径无违约时不发生罚款。
+责任金额与相应程序已成立且可执行，是本构造的前件。
+\end{definition}
+
+\begin{remark}[游戏顺序与事实约束]
+先固定外部治理菜单和合同，再由组织决定开办、参与者决定接纳，然后由参与者 $1$ 选择纠错，
+控制者观察该选择后决定是否排斥，最后按公共核验和既定支付执行。
+核验真实贡献不受控制者操纵，故排斥只通过已经建模的未来机会损失发生；
+存在其他隐蔽行为时须扩展行动集重新求解。
+\end{remark}
+
+\section{向后归纳及两个均衡}
+
+\begin{theorem}[菜单内的纠错与遵守均衡]
+\label{thm:example-equilibrium}
+在定义~\ref{def:example-game} 的有限顺序游戏中，$G_0$ 下控制者在纠错后严格选择排斥，
+参与者 $1$ 预见这一回应而严格选择不纠错。
+$G_1$ 下控制者在纠错后严格选择遵守，参与者 $1$ 严格选择纠错。
+两菜单中两个参与者都愿意接受合同；在本章随后给定的缴款规则下，组织均严格选择开办。
+\end{theorem}
+\begin{Certificate}[全部相关偏离差]
+控制者排斥收益为
+\[
+ \Delta U_O(G_0)=\frac3{10}>0,\qquad
+ \Delta U_O(G_1)=\frac3{10}-\frac12=-\frac15<0.
+\]
+本期纠错增加到账
+\[
+ T_1(1)-T_1(0)=\frac53-\frac32=\frac16.
+\]
+因此参与者的纠错净收益分别为
+\[
+ \Delta U_1(G_0)=\frac16-\frac1{10}-\frac25=-\frac13,
+ \qquad
+ \Delta U_1(G_1)=\frac16-\frac1{10}=\frac1{15}.
+\]
+\end{Certificate}
+\begin{proof}[证明（向后归纳）]
+控制者的两个严格收益差分别确定最后一个决策节点的唯一回应。
+将其代入参与者增量收益，分别得到严格负与严格正，故纠错选择唯一。
+两个参与者在所有可能评分状态下的到账至少为 $1$，均衡中不存在排斥损失，
+扣除 $1/4$ 基础参与成本及至多 $1/10$ 纠错成本后仍严格大于零，故接受合同。
+组织开办的税后利润在命题~\ref{prop:example-budget} 中为正，故严格优于不开办。
+在各可达和纠错后子博弈中均按最优回应选择，得到菜单内的子博弈精炼均衡。证毕。
+\end{proof}
+
+\begin{remark}[控制者的偏离与合同权利]
+$G_0$ 的均衡中没有实际发生纠错后排斥，不代表不存在排斥威胁造成的行为扭曲。
+只检查均衡路径的已发生投诉，可以遗漏使有益纠错不出现的可信威胁。
+反之，$G_1$ 的已发生罚款可以为零，仍与有效威慑相容。
+这些结论来自已解顺序游戏，不由现实中零投诉或零罚款直接推定。
+\end{remark}
+
+\section{组织剩余、救济与资源效果}
+
+\begin{proposition}[同一现金来源下的预算和正剩余]
+\label{prop:example-budget}
+在 $G_0,G_1$ 的均衡中，缴款前组织利润分别为
+\[
+ \Pi_0=5-3-\frac12-\frac14=\frac54,
+ \qquad
+ \Pi_1=5-3-\frac12-\frac12=1.
+\]
+取对该正利润的公开缴款率 $\tau=1/4$，则组织缴款后利润分别为 $15/16$ 与 $3/4$，均为正。
+第三名居民市场收入 $Y^m=4/5$、底线 $F=1$，独立救济为 $R^*=1/5$，
+救济管理成本 $C^R=1/20$。$G_1$ 下缴款 $1/4$ 恰覆盖救济与管理成本；
+$G_0$ 下结余 $1/16$ 留作公共储备。
+\end{proposition}
+\begin{Certificate}[分账与资金用途]
+组织的到账 $5$ 只在组织现金账本出现一次；缴款在组织账上是流出，在公共账上是同额流入。
+责任资产 $1$ 是既有存量，不属于本期流量收入。基础服务、治理、救济管理成本各归属一次。
+居民的市场收入 $4/5$ 来自本组织以外的已声明市场来源，不再次计入组织资金。
+独立救济在必要支出到期前到账，且真实替代入口存在。
+\end{Certificate}
+\begin{proof}[证明（账户恒等式）]
+两项组织利润由现金收入减去参与支付、固定成本与治理成本得到，乘 $3/4$ 得税后余额。
+救济缺口为 $1-4/5=1/5$，公共支出合计 $1/5+1/20=1/4$。
+$G_1$ 缴款为 $1/4$，收支相等；$G_0$ 缴款为 $5/16$，减去 $1/4$ 剩 $1/16$。
+不存在期望收入替代现金、转移重复计价或未付款改记利润。证毕。
+\end{proof}
+
+\begin{proposition}[菜单比较中的正资源净增益]
+\label{prop:example-welfare}
+若真实纠错使同一已声明货币等价尺度上的服务收益增加 $1/2$，且没有遗漏外部损失，
+则从 $G_0$ 到 $G_1$ 的真实净增益为
+\[
+ \Delta W=\frac12-\frac1{10}-\left(\frac12-\frac14\right)=\frac3{20}>0.
+\]
+该收益没有被提前记作新增销售回款；两个菜单均只使用已有 $5$ 单位收入。
+\end{proposition}
+\begin{Certificate}[资源与转移分离]
+新增服务收益、真实纠错成本和新增治理成本各一次。
+参与者之间的份额改变、组织利润与缴款分配变化是资金转移，不另加作社会资源收益。
+固定成本和救济管理成本在两菜单中相同，比较时抵销。
+\end{Certificate}
+\begin{proof}[证明（同口径净额）]
+均衡变化使纠错从零变一，产生 $1/2$ 收益与 $1/10$ 成本；治理增加真实成本 $1/4$。
+其余相同成本抵销，得到 $3/20$。若遗漏外部成本或收益计价条件不成立，仅保留前述预算与策略结论。证毕。
+\end{proof}
+
+\begin{center}
+\begin{tabular}{L{0.40\textwidth}L{0.23\textwidth}L{0.23\textwidth}}
+\toprule 核验项 & $G_0$ & $G_1$ \\\midrule
+基本份额／差异池 & $1\,/\,1$ & $1\,/\,1$\\
+纠错选择 $e$ & $0$ & $1$\\
+参与者实际到账 $(T_1,T_2)$ & $(3/2,3/2)$ & $(5/3,4/3)$\\
+纠错后的控制者最优回应 & 排斥 & 遵守\\
+纠错的私人净增益 & $-1/3$ & $1/15$\\
+完整治理成本 & $1/4$ & $1/2$\\
+组织缴款前利润 & $5/4$ & $1$\\
+组织缴款后利润 & $15/16$ & $3/4$\\
+独立救济／管理成本 & $1/5\,/\,1/20$ & $1/5\,/\,1/20$\\
+公共储备增加 & $1/16$ & $0$\\
+真实净增益（以 $G_0$ 为基线） & $0$ & $3/20$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}[本实例证明什么]
+本例提供一个共同预算和完整策略回应下的非空见证：有效参与具有正基本份额，
+贡献增加转化为更多实际支付，有益纠错由不利转为有利，组织保留正剩余，独立救济仍可融资。
+它只证明这些条件可以共同成立，不证明所有组织、所有纠错、所有责任制度都能如此，
+也不证明提高审计在任意参数下都有净收益。
+组织开办是已验证的离散进入激励；本例不把正利润进一步当作连续资本投入的正边际收益证明。
+\end{remark}
+
+\section{其他局部构造的复算参数}
+
+\begin{proposition}[奖励区间的数值非空性]
+\label{prop:reward-example}
+在定理~\ref{thm:reward-feasibility} 中取
+\[
+ q_C=\frac9{10},\quad q_F=\frac1{10},\quad
+ \omega=\frac45,\quad b_C=b_F=0,\quad
+ k_C=\frac3{10},\quad k_F=\frac12,
+\]
+并取 $B_R=1,C_R=1/10,n_R^{\max}=1$。
+则 $z_{\min}=5/12$，有效上界为 $9/10$，奖励 $z=1/2$ 可行。
+\end{proposition}
+\begin{Certificate}[奖励、虚假报告和预算差]
+\[
+ M_C(1/2)=\frac3{50}>0,\qquad
+ M_F(1/2)=-\frac{23}{50}<0,\qquad
+ \frac12+\frac1{10}=\frac35\le1.
+\]
+\end{Certificate}
+\begin{proof}[证明（代入）]
+真实激励下界与虚假报告上界分别为
+\[
+ \frac{3/10}{(4/5)(9/10)}=\frac5{12},\qquad
+ \frac{1/2}{(4/5)(1/10)}=\frac{25}4.
+\]
+预算上界 $9/10$ 较小。代入 $1/2$ 得证书中的三项。证毕。
+\end{proof}
+
+\begin{proposition}[局部反馈的非空不变域]
+\label{prop:feedback-example}
+取 $\gamma=\kappa=1/5$、$\nu=1$、$\overline\eta=1/100$、$D_0=1/10$、$\overline r=1$。
+则 $a=3/5$、$aD_0+\overline\eta=7/100\le1/10$，所有条件满足，
+极限上界为 $1/40$。
+\end{proposition}
+\begin{Certificate}[有理数不变区间]
+保存上述有理参数、初态范围和逐期冲击界，验证反馈最大强度不超过 $1/10<1$。
+\end{Certificate}
+\begin{proof}[证明（代入几何界）]
+$\overline\eta/(1-a)=(1/100)/(2/5)=1/40$，其余式直接代入。
+由定理~\ref{thm:feedback-bound} 得结论。证毕。
+\end{proof}
+
+\chapter{联合结论、原稿增益与适用边界}
+\label{chap:synthesis}
+
+\section{条件性制度修复的联合定理}
+
+\begin{definition}[最小兼容修复候选族]
+\label{def:repair-family}
+相对于声明基线 $G_0$、已确认失灵 $\mathbf d$ 和必要依赖坐标，登记有限候选族 $\mathfrak G$。
+每个被保留候选必须通过：基本加差异分配与实际支付、相关行动激励、输入与评价独立性、
+可执行纠错责任、独立救济与真实退出、共同预算及相应动态域。
+其变更支集不得包含与已证失灵及必要依赖无关的坐标。原稿已有市场、法币、产权、合同、税费、
+公共供给和非单点选择空间，在不需修复的坐标上继续保留。
+\end{definition}
+
+\begin{theorem}[分配传导失灵的条件性联合修复]
+\label{thm:joint-repair}
+对定义~\ref{def:repair-family} 中一个通过全部所需核验的 $G$，有以下联合结论：
+\begin{enumerate}[label=\textup{(J\arabic*)},leftmargin=4em]
+\item 每个完成约定的有效参与者取得合同承诺的正基本支付；
+\item 同一可比域内，贡献到应付的次序保持；对实际支付与真实贡献的结论，按精确或误差裕量条件分别成立；
+\item 已登记有益纠错的行动满足其逐偏离条件时，可以由自愿最优回应实施；
+\item 在非干扰与责任执行条件下，不相关身份不能单方改变结果，已确认错误具有实际修复路径；
+\item 独立、及时、可融资的救济及真实替代入口，使退出不经特定组织控制而跌破声明底线；
+\item 预算、正组织或投入激励及被调用的有限更新条件同时保持。
+\end{enumerate}
+本定理不从这些局部结论单独推出全经济有效需求恢复、长期稳定或全域福利最优。
+\end{theorem}
+\begin{Certificate}[共同域中的依赖合取]
+J1 调用定理~\ref{thm:base-diff} 与实际结算；J2 调用同一定理及引理~\ref{lem:order-error}；
+J3 调用定理~\ref{thm:correction-ic}，采用奖励时再调用定理~\ref{thm:reward-feasibility}；
+J4 调用定理~\ref{thm:separation}、\ref{thm:deterrence} 及实际申诉修复；
+J5 调用定理~\ref{thm:relief}、\ref{thm:exit}；J6 保存共同资金、行为回应和定理~\ref{thm:update-invariance} 的逐步证书。
+多主体同时成立时必须检查共用资金和行动的相容性，不能重复使用同一资金或忽略策略相互作用。
+\end{Certificate}
+\begin{proof}[证明（局部定理接续）]
+每项结论由证书指定的局部定理及其独立经济前件推出。
+定义~\ref{def:repair-family} 和共同核验记录保证这些前件属于同一对象、同一版本和相容预算，
+故可以在该共同域中合取。定理~\ref{thm:certificate-induction} 保证有限依赖图的推导可靠。
+宏观规模、净需求和全经济稳定没有包含在这些局部父结点中，所以不作为后件签发。证毕。
+\end{proof}
+
+\begin{proposition}[有限候选族内的最小兼容选择存在]
+\label{prop:minimal-compatible}
+若通过核验的候选族有限非空，按先最少变更坐标数、再最小预注册加权变更距离的字典序选择，
+则最小兼容候选族非空；所有并列候选保留。
+\end{proposition}
+\begin{Certificate}[候选穷尽于声明菜单]
+记录候选列表、逐项通过与拒绝理由、变更支集、权重和全部并列解。
+声明菜单以外的制度不因未被纳入就被记为不可行。
+\end{Certificate}
+\begin{proof}[证明（有限集合极小）]
+有限非空集合的整数变更数有最小值，限制到该非空子集后，有限个加权距离仍有最小值。
+因此存在字典序极小元。保留全部等值解即可，不产生唯一最优的额外结论。证毕。
+\end{proof}
+
+\section{本稿对原稿的具体增益}
+
+\paragraph{失灵解释。}
+原稿已证明正边际贡献不自动产生实际支付。本稿进一步分解承认、确权、结算概率与条件支付额，
+把回报不足、零边际回报和反向回报区分开。它解释为什么提高产能或名义奖金仍可能不恢复实际参与激励。
+
+\paragraph{行为机制。}
+原稿已具有激励相容接口。本稿增加有益纠错、虚假报告、机会主义控制者和未来排斥的可解菜单，
+把“需要真实信息”与“个人是否有动力提供真实信息”分开，给出奖励可行区间及可执行责任的阈值。
+
+\paragraph{治理边界。}
+原稿已区分执行一致与相对公正。本稿增加信息不可区分的错误下界、非相关身份不干扰、
+治理成本最优化与能力上限，证明透明和审计有明确功能，但不能替代实际执行、预算和权力约束。
+
+\paragraph{分配与退出。}
+原稿已有三项核心功能。本稿把基本份额、横向贡献次序、自身边际奖金和私人净激励进一步分开，
+同时明确独立救济对特定生存排斥渠道的作用，以及逐时最小救济和正边际保留之间的时间口径。
+这不取消原稿的坐标最小性，而是避免跨时点混用该结论。
+
+\paragraph{演化与证据。}
+本稿为规则更新、失灵反馈、共同经济任务商、有限随机执行、处理效果识别和拒绝签发提供具体条件。
+第~\ref{chap:example}章的联合构造使这些扩展不只停留于条件名称合取，
+但现实参数、外部有效性、宏观规模和连续资本投入仍由相应独立证据承担。
+
+\section{规范结论的经济学表述}
+
+\begin{corollary}[技术--制度失配下的治理任务]
+\label{cor:conclusion}
+在后 AI 适用域和具体分配失灵都已确认，并以可靠兑现参与权利、维护声明贡献次序及可纠错为目标时，
+修复需要足够的事实识别、事前规则、独立核验、实际执行及共同预算。
+在损失规模或机会主义收益提高、其余技术与成本不变的模型中，
+最优核验强度或最低威慑强度相应弱增或严格增加。
+\end{corollary}
+\begin{Certificate}[需求增加的两个模型]
+事实识别必要性由引理~\ref{lem:information-necessity} 给出；
+治理需求比较静态分别调用定理~\ref{thm:audit-optimum} 与推论~\ref{cor:rmin}。
+功能实现仍由定理~\ref{thm:joint-repair} 的完整条件决定。
+\end{Certificate}
+\begin{proof}[证明（必要性与比较静态分开）]
+无法区分正确处理所需事实时，不能保证正确分配；没有实际执行则不能由发现错误推出修复。
+在明示单参数模型中，已证明导数或截断单调性给出治理需求的方向。
+这些结论合取说明修复的具体职责，但不把任意治理方案、任意干预强度或无限披露纳入可行域。证毕。
+\end{proof}
+
+\begin{remark}[最终定位]
+本稿的经济学结论是：生产能力增加与分配秩序有效可以分离；当贡献到权利、支付或真实市场接入的
+传导失灵时，制度应针对已识别的障碍进行可核验、可执行且资金覆盖的修复。
+核心分配目标仍是有效参与的正份额、可比贡献的差异回报与全员底线接入。
+治理不替市场预先选择价格、偏好、投入和赢家；它保护事实、合同、竞争、纠错与风险边界，
+并把每项新增承诺的成本和失败条件保留在同一经济账本中。
+\end{remark}
+
+\appendix
+\chapter{原稿接续索引与来源边界}
+\label{app:source}
+
+本稿独立编译，不调用\Original 的辅助文件。下表的标签是\Original 源码中的定位键，
+不是本稿内部引用。行号对应文献~\cite{SourceMarket}的公开固定版本（$8158$ 行）；其他版本以标签和内容为准。
+原稿的具体反例和参数结论在本稿中引用时，已经标明重述或新增，不以来源文稿的存在替代经验核验。
+
+\begin{longtable}{L{0.43\textwidth}L{0.49\textwidth}}
+\toprule 原稿接口与定位 & 本稿接续内容 \\\midrule
+\endfirsthead
+\toprule 原稿接口与定位 & 本稿接续内容 \\\midrule
+\endhead
+第 832--950 行；\code{thm:minimal-compatible-extension}
+& 第~\ref{chap:scope}、\ref{chap:synthesis}章：后 AI 域与具体失灵分别核验，有限菜单内最小兼容修复。\\
+第 1278--1369 行；\code{prop:core-bridge-stagnation-risk}
+& 第~\ref{chap:scope}章：生产松弛不自动修复收入与需求传导；本稿不追加宏观规模结论。\\
+第 1541--1624 行；\code{thm:base-differential-coverage}
+& 第~\ref{chap:transmission}、\ref{chap:core}章：正基本份额、应付与到账分层、贡献次序和自身边际激励分离。\\
+第 2282--2457 行；\code{thm:minimal-sufficient-relief}
+& 第~\ref{chap:core}章：独立救济与退出底线，静态最小性、收入保留和跨期比较分别登记。\\
+第 2605--2676 行；\code{thm:relative-participation-fairness}
+& 第~\ref{chap:governance}章：事实、复算、横向公正、申诉、执行与权力边界的不同职责。\\
+第 3232--3441 行；\code{thm:residual-claim-incentive-necessity}
+& 第~\ref{chap:transmission}、\ref{chap:example}章：不把正剩余等同于逆序，不把正利润等同于连续正投入证明。\\
+第 3521--3710 行；\code{prop:participation-incentive-compatibility}
+& 第~\ref{chap:correction}章：有益纠错、虚假报告和控制者偏离的可解条件。\\
+第 4322--4466 行；\code{thm:platform-payment-chain}
+& 第~\ref{chap:transmission}章：逐阶段条件概率、一般支付分解与有限逆序判据。\\
+第 4503--4642 行；\code{thm:uvd-separation}
+& 第~\ref{chap:governance}章：完整输入、相关事实与不相关身份不干扰，扩展至未来机会。\\
+第 5054--5104 行；\code{lem:execution-not-fairness}
+& 第~\ref{chap:governance}章：公开偏置规则反例与事实可识别性下界。\\
+第 5187--5380 行；\code{thm:finite-governance-trajectory}
+& 第~\ref{chap:dynamics}章：规则更新保持、不变域与有界冲击，不由递归存在推出公正稳定。\\
+第 5492--5619 行；\code{prop:falsifiable-predictions}
+& 第~\ref{chap:empirical}章：随机处理识别、完整分母、阶段选择、零违例概率界及停止条件。\\
+第 5853--5934 行；\code{prop:noisy-effort-contract}
+& 第~\ref{chap:transmission}章：既有随机误判与新增系统性排斥分别识别。\\
+第 6656--6737 行；\code{prop:floor-income-life-choice}
+& 第~\ref{chap:core}章：固定评估基线、正保留率与长期净激励不混同。\\
+第 7776--7930 行；\code{thm:production-go-directed-homotopy}
+& 第~\ref{chap:quotient}章：任务观察因子化、随机核相容与机制参数同伦；不替代原稿的有向收缩见证。\\
+\bottomrule
+\end{longtable}
+
+\paragraph{原稿快照。}
+公开文件：文献~\cite{SourceMarket}所列固定版本的 \code{market_participation_formal_system.tex}。
+题名日期：2026-09-29。公开版本与本稿所用快照的 SHA-256 一致：
+\begin{quote}\small\code{5287da9597df78884454b8c467e8d5da506578160fa16eca7e0b603e796e8f15}\end{quote}
+本稿未改写这一源文件。
+
+\paragraph{框架来源。}
+框架引用限于文献~\cite{SourceGFramework}所列工作笔记。观察因子化定位于
+\code{thm:utility-type}（“效用保持与分型读回的独立判据”）；有限路径与策略保持定位于
+\code{thm:representation-execution}；有限证书图的前缀可靠性定位于 \code{thm:dag}。
+本文使用接口的明示因子化与有限归纳内容，不借用未被本稿定义的社会或经济推论。
+
+\chapter{独立编译、复算与结论验收}
+\label{app:verification}
+
+\section{编译方式与文档依赖}
+本文件沿用\Original 的 \code{report} 文类、12 点字号、A4 纸张、上下 25 mm 与左右 20 mm 页边距、
+\code{CJKutf8} 中文环境、\code{gkai} 字族、按章编号的定义／定理／引理／命题／推论／核验记录、
+\code{booktabs} 表格和目录样式。推荐使用 pdfLaTeX。
+参考文献直接写入本文件，不需要外部 \code{.bib}、图片或原稿的 \code{.aux}。
+
+安装包含 CJK 与本稿所列宏包的 TeX 环境后，可执行：
+\begin{quote}\small
+\begin{verbatim}
+latexmk -pdf -interaction=nonstopmode \
+  market_participation_governance_supplement.tex
+\end{verbatim}
+\end{quote}
+也可用 pdfLaTeX 连续编译至少三次，直到目录与交叉引用稳定。
+独立编译仅检验排版、语法和引用，不构成对经济前提或数学证明的自动验证。
+
+\section{构造复算的最小项目}
+
+\begin{longtable}{L{0.13\textwidth}L{0.44\textwidth}L{0.34\textwidth}}
+\toprule 编号 & 核验对象 & 应取得的结果 \\\midrule
+\endfirsthead
+\toprule 编号 & 核验对象 & 应取得的结果 \\\midrule
+\endhead
+V1 & 两个行动下的基本加差异支付 & 合计恒为 $3$，个人支付至少为 $1$。\\
+V2 & 控制者在两个菜单中的排斥收益 & $3/10$ 与 $-1/5$。\\
+V3 & 纠错者考虑后续回应的净激励 & $-1/3$ 与 $1/15$。\\
+V4 & 组织利润及缴款后余额 & $5/4,1$；$15/16,3/4$。\\
+V5 & 公共救济与管理账户 & $G_1$ 收支为 $1/4$；$G_0$ 储备增 $1/16$。\\
+V6 & 菜单间真实净收益 & $3/20$，不把支付和缴款重复计入。\\
+V7 & 真实纠错奖励与虚假报告 & 奖励 $1/2$ 下，净收益分别 $3/50,-23/50$。\\
+V8 & 四状态核及其凸组合 & 行和为一，向商类概率相同，有限商历史分布保持。\\
+V9 & 反馈不变区间与上界 & $a=3/5$，$aD_0+\overline\eta=7/100$，上界 $1/40$。\\
+V10 & 精确证书与经验数据分离 & 数值均标记为构造；不报告现实通过率或实测收益。\\
+\bottomrule
+\end{longtable}
+
+\begin{remark}[复算范围]
+有理构造应优先使用精确分数，矩阵核使用精确有理数；对数、指数和浮点演示只核验相应数值实例，
+不以网格抽样替代连续域证明。概率相等和有限归纳的普遍结论由正文证明承担。
+编译或算例复算通过，不代表前提在现实市场中已经成立。
+\end{remark}
+
+\section{正文结论的分层验收}
+
+\begin{center}
+\begin{tabular}{L{0.21\textwidth}L{0.69\textwidth}}
+\toprule 结论层 & 必须具备的记录 \\\midrule
+数学推导 & 明确域、定义、前提、等式／不等式、证明与依赖图。\\
+构造可行 & 具体策略、全部相关偏离、共同资金来源、逐状态支付和相容成本。\\
+经验成立 & 完整样本、可识别处理、独立事实、实际到账、误差与拒绝条件。\\
+宏观与外推 & 另有净需求、机会成本、规模、动态稳定及目标域可运输证据。\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{参考文献}
+
+\bibitem{SourceMarket}
+Gao Zheng（高政）.
+\newblock \emph{市场参与的形式系统：参与式分配、能者多得与最小救济的演化机制}.
+\newblock 2026，题名日期 2026-09-29；公开源文稿，8158 行。
+\newblock GitHub 仓库 \code{CTaiDeng/ai_economics}，固定提交
+\code{6f944c0620210ddaed13c52fea246fd88b0f263a}。
+\newblock 公开来源：\url{https://github.com/CTaiDeng/ai_economics/blob/6f944c0620210ddaed13c52fea246fd88b0f263a/docs/tex/tex1/market_participation_formal_system.tex}。
+来源定位与快照校验值见附录~\ref{app:source}。
+本文对该稿已有结论仅按相应声明域调用，不把该稿的引用书目视为本稿另行完成的外部文献核验。
+
+\bibitem{SourceGFramework}
+Gao Zheng（高政）.
+\newblock \emph{率与商：G 框架语义微积分与传统微积分之间的同伦映射形式系统}.
+\newblock 2026-09-12，收入 Gao, Z. (2026),
+\emph{Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis
+(GaoZheng G-Framework) and the Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra) 中文工作笔记}，Version v5.2，Zenodo。
+\newblock 本地源文稿：
+\code{docs/project_docs/notebook_tex_v5.2/20260912_gframework_rate_quotient_semantic_calculus_traditional_calculus_homotopy_mapping_formal_system.tex}。
+\newblock 工作笔记集 DOI：\url{https://doi.org/10.5281/zenodo.22739417}；
+公开记录：\url{https://zenodo.org/records/22739417}。
+\newblock 上述 DOI 对应 v5.2 工作笔记集；本文实际调用限于所列单篇的任务观察因子化、有限执行保持及
+见证分层接口，具体采用位置见附录~\ref{app:source}。
+
+\end{thebibliography}
+\end{CJK*}
+\end{document}
