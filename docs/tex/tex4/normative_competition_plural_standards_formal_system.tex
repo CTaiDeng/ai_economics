@@ -1,0 +1,1262 @@
+% !TEX program = pdflatex
+% 独立编译：latexmk -pdf -interaction=nonstopmode -halt-on-error 本文件.tex
+% 排版参照 market_participation_formal_system.tex；引用限于指定源文稿与外部公开文献。
+\documentclass[12pt,a4paper,openany]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{geometry}
+\geometry{top=25mm,bottom=25mm,left=20mm,right=20mm}
+\usepackage{xcolor,url,iftex}
+\ifPDFTeX
+  \IfFileExists{beramono.sty}{\usepackage[scaled=0.84]{beramono}}{\usepackage{courier}}
+\else
+  \PackageError{normative-competition}{Please compile with pdfLaTeX}{This standalone file uses CJKutf8.}
+\fi
+\usepackage[unicode,colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl,enumitem,booktabs,longtable,tocloft,array,needspace,etoolbox}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+% 保留原稿楷体。对某些 TeX 发行版中度量异常的单字使用标准宋体后备。
+\makeatletter
+\input{c70gkai.fd}
+\DeclareFontShape{C70}{gkai}{m}{it}{<-> CJK * gkaiu}{\CJKnormal}
+\DeclareFontShape{C70}{gkai}{bx}{it}{<-> CJKb * gkaiu}{\CJKbold}
+\newbox\NC@glyphbox
+\DeclareRobustCommand{\CJKsymbol}[1]{%
+ \leavevmode\begingroup
+ \setbox\NC@glyphbox=\hbox{\symbol{#1}%
+   \ifCJK@bold@\hbox to \CJKboldshift{\hss\symbol{#1}}%
+   \hbox to \CJKboldshift{\hss\symbol{#1}}\fi}%
+ \ifdim\ht\NC@glyphbox>1.2em
+   \fontfamily{gbsn}\fontshape{n}\selectfont
+   \setbox\NC@glyphbox=\hbox{\symbol{#1}%
+    \ifCJK@bold@\hbox to \CJKboldshift{\hss\symbol{#1}}%
+    \hbox to \CJKboldshift{\hss\symbol{#1}}\fi}%
+ \fi\box\NC@glyphbox\endgroup}
+\let\CJKpunctsymbol\CJKsymbol
+\ifPDFTeX
+ \let\NC@original@addcmap\CJK@addcmap
+ \def\CJK@addcmap#1{\begingroup
+  \edef\NC@encoding{\f@encoding}\def\NC@CJK{C70}%
+  \ifx\NC@encoding\NC@CJK\NC@original@addcmap{#1}\fi\endgroup}
+ \input{glyphtounicode}\pdfgentounicode=1
+\fi
+\makeatother
+\Urlmuskip=0mu plus 1mu
+\def\UrlFont{\ttfamily\small}
+\DeclareUrlCommand{\codeurl}{\urlstyle{tt}}
+\DeclareRobustCommand{\code}[1]{\ifmmode\text{\codeurl{#1}}\else\codeurl{#1}\fi}
+\sloppy
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\bibname}{参考文献}
+\renewcommand{\contentsname}{目录}
+\newtheorem{definition}{定义}[chapter]
+\newtheorem{assumption}{假设}[chapter]
+\newtheorem{axiom}{公理}[chapter]
+\newtheorem{theorem}{定理}[chapter]
+\newtheorem{lemma}{引理}[chapter]
+\newtheorem{proposition}{命题}[chapter]
+\newtheorem{corollary}{推论}[chapter]
+\newtheorem{remark}{备注}[chapter]
+\newtheorem{Certificate}{核验记录}[chapter]
+\newcommand{\RR}{\mathbb R}
+\newcommand{\NN}{\mathbb N}
+\newcommand{\EE}{\mathbb E}
+\newcommand{\PP}{\mathbb P}
+\newcommand{\ind}{\mathbf 1}
+\newcommand{\Charter}{\mathcal K}
+\newcommand{\HH}{\mathcal H}
+\newcommand{\JJ}{\mathcal J}
+\newcommand{\EEset}{\mathcal E}
+\newcommand{\Abs}[1]{\left\lvert#1\right\rvert}
+\newcommand{\Norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\Tuple}[1]{\left\langle#1\right\rangle}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\diag}{diag}
+\setlength{\emergencystretch}{8em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{3}
+\pretocmd{\section}{\Needspace{7\baselineskip}}{}{}
+\AtBeginEnvironment{definition}{\Needspace{4\baselineskip}}
+\AtBeginEnvironment{theorem}{\Needspace{4\baselineskip}}
+\AtBeginEnvironment{lemma}{\Needspace{4\baselineskip}}
+\AtBeginEnvironment{proposition}{\Needspace{4\baselineskip}}
+\AtBeginEnvironment{corollary}{\Needspace{4\baselineskip}}
+\AtBeginEnvironment{Certificate}{\Needspace{3\baselineskip}}
+\AtBeginEnvironment{remark}{\Needspace{3\baselineskip}}
+\hypersetup{pdftitle={规范竞技、多元评价与共同权利底线},pdfauthor={Gao Zheng（高政）},
+ pdfsubject={后AI参与经济的条件性制度构造与证明},
+ pdfkeywords={规范竞技,多元标准,任务商,条件适配,参与式分配,贡献激励,最小救济}}
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+\raggedbottom
+\clubpenalty=10000\widowpenalty=10000\displaywidowpenalty=10000
+\title{规范竞技、多元评价与共同权利底线\\[0.6em]
+\large 后 AI 参与经济的条件性制度构造与证明\\[0.5em]
+\normalsize 从“先礼后兵”的文化隐喻到可核验的多元参与机制}
+\author{Gao Zheng（高政）}
+\date{2026-10-17}
+\pagenumbering{roman}
+\maketitle
+\setcounter{page}{2}
+\chapter*{摘要与研究范围}
+\addcontentsline{toc}{chapter}{摘要与研究范围}
+本文研究如下制度目标的条件性实现：共同规则约束取胜手段，不同任务使用与目标相关的比较标准；有效参与与卓越表现分别获得承认；基本生存、已成立收益权和真实接入不由单次胜负决定。研究以“春秋—战国—再春秋”和“奥运会＋残运会”为文化入口，但不把朝代名称当作经济变量，也不把现代赛事的存在当作全民收入保障已经成立的证据。
+
+经济机制分为五层：共同保护目录；任务、条件、工具和版本共同确定的比较域；真实自愿参与的容量与成本约束；基本份额和差异份额的有资金分配；独立核验、及时结算、比例适当责任和实际纠错。基本份额承认完成约定的有效参与，差异池保留域内贡献次序；独立救济覆盖生存与市场接入底线，但不代替参与收入、贡献激励或跨期融资。
+
+主要结果为：相同表面标准不保证正确比较目标表现；可核验适配能够在明确任务域内保持次序；存在冲突的局部次序时，单一总分不能同时严格保留全部次序；给定预算可以构造兼具正基本份额与贡献差异的合同，但基本份额、差异强度和容量存在取舍；全员同时接入须满足邻域容量条件；生存底线可逐状态覆盖，但同步救济扣减与新增收入激励必须分开核算；有限权限、执行时限、违规收益和责任能力共同决定治理效果。
+
+正文最后给出两个任务组、五名居民、独立财政储备、买方需求和组织剩余的联合实例。它同时核验十六种努力组合、每次单边努力偏离、支付预算、退出缺口和有限核验者阈值。构造只证明所列目标在一个非空有限模型中相容，不证明任意现实经济、所有行为类型或无限期冲击下均成立。形式证明、有限复算、经验识别和外部推广分别验收。
+
+\paragraph{关键词。}规范竞技；多元评价；共同权利；条件适配；容量匹配；基本份额；贡献激励；真实退出；可核验治理；任务商。
+\clearpage
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\chapter{文化隐喻、来源职责与经济学转换}
+\label{chap:metaphor}
+\section{三种竞争机制，而非朝代的整体判定}
+“从春秋到战国，再走回春秋”在本文表示竞争秩序的重新制度化。其现代目标不是重建古代身份等级，而是在承认策略能力和利益差异的同时，使共同规则优先于一次竞争的胜负。历史社会本身并不由下表三个变量完整刻画。
+\begin{center}\small
+\begin{tabular}{L{0.19\textwidth}L{0.34\textwidth}L{0.36\textwidth}}
+\toprule 文化表述 & 经济学中的理想类型 & 需要解决的制度问题\\\midrule
+第一层“先礼后兵” & 存在约束竞争的规范，但执行较依赖自我约束 & 违规获利时，守规则者如何不被单方利用？\\
+“兵者诡道也”的失序投影 & 将胜利置于资格、证据和支付义务之上 & 怎样区分真实努力与侵占、串通、破坏？\\
+第二层“先礼后兵” & 规则事前可知、权限有界、事实可核、责任可执行 & 怎样在多元任务中维持参与、卓越与共同底线？\\
+\bottomrule
+\end{tabular}
+\end{center}
+上述第二行是本文主动限定的\emph{制度失序投影}，不等于对《孙子兵法》的整体评价。\cite[始计对应章第18节]{SunTzu}将诡道置于战争策略语境；本文不能由这一语境推出经济欺诈是正当行为，也不能把一切策略隐蔽视为欺诈。
+
+\section{文化原文的支持范围}
+《论语·八佾》3.7的“揖让而升，下而饮，其争也君子”，提供竞争与交往规范并存的文化参照；3.16的“射不主皮，为力不同科”，为讨论目标与比较尺度的关系提供文本入口\cite{Analects37,Analects316}。本文仅引用原文章句，并作现代制度重构；古代身份关系、章句的全部训诂与现代收入分配并不由此等同。
+
+“先礼”在本稿中转换为先公开条件、确定权限和保护目录；“后兵”转换为在合法行动集合内竞争，并对经核验的违规施加事前约定、比例适当的处置。对正在发生的重大侵害，允许规则预先规定紧急阻断；阻断须保全证据、限定时效，并接受后续独立复核。这里的顺序是规范优先，不是无限等待协商。
+
+\begin{definition}[允许的信息策略与规则欺骗]
+\label{def:strategy}
+项目$G_j$预先声明信息集、行动集与真实性义务。隐蔽意图、合法佯动和选择披露时机，只要属于该行动集且未违反已声明真实性义务，就记为允许的信息策略。伪造资格、串通评分、秘密改写规则及拒不履行既有付款义务，须按各自证据判定为违规。策略名称或行为者身份不替代这一判定。
+\end{definition}
+\begin{proposition}[策略保留与违规排除可以相容]
+\label{prop:strategy}
+若允许行动集含两种不同的信息策略，而侵害性操作不属于最终可生效的操作集，则排除这些侵害性操作不推出允许策略只能有一种。
+\end{proposition}
+\begin{Certificate}[两合法行动与拒绝分支]
+给出$a_1\ne a_2$及其合法性见证，再给出违规$a_v$的拒绝记录；拒绝不能删除已有收益权。
+\end{Certificate}
+\begin{proof}[证明（集合与反例）]
+$a_1,a_2$仍在允许集合中，故其基数至少为二。$a_v$的排除不改变这一见证。证毕。
+\end{proof}
+
+\section{现代体育参照与普遍参与的区别}
+国际奥委会把卓越、尊重与友谊并列，并将尊重规则和对手列入其价值表达\cite{IOCValues}。国际残奥委员会说明分级服务于公平、有意义的竞争，且具有项目特定性；不同条件对各项目活动的影响不同\cite{IPCClassification}。这些资料支持“严肃竞争与适配比较可以共存”，不支持“所有人已经享有精英赛事资格”或“所有参赛者获得本文规定的基本份额”。
+
+原命题使用“残运会”作为残疾人竞技的文化指代；本稿外部分类资料来自国际残奥体系，不把国内残运会与残奥会的组织、资格或奖金规则视为相同。以下乘法校准模型也不是实际残奥分类办法。
+
+联合国教科文组织2015年宪章第1.3与1.6项强调包容、适配、安全的机会以及符合能力和兴趣的发展机会\cite{UNESCOCharter}。本文从这一规范参照提取四层选项：卓越竞赛、适配竞赛、大众与支持角色、其他自愿生活选项。它是一项制度目标，而非由赛事名义自动产生的事实。
+
+\section{证据地位与公理降级}
+\begin{definition}[规范、模型、构造与经验四层记录]
+\label{def:evidence}
+规范记录声明保护什么；模型记录给出状态、效用、成本和转移；构造记录给出可复算输入、行为回应与共同预算；经验记录检验现实前件。每项核验状态取$\{1,0,\bot\}$，分别表示通过、发现违反、证据不足。数学基础按经典实数、有限集合与概率使用；行为假设不因为被命名为定理前提就成为经验事实。
+\end{definition}
+\begin{theorem}[有限证书图的可靠性：公理降级]
+\label{thm:dag}
+给定有限无环图，叶结论在同一声明模型中有见证，每条非叶推理保真，则按拓扑顺序接受的全部结论成立；含必需未知叶的结论不被签发为无条件成立。
+\end{theorem}
+\begin{Certificate}[拓扑前缀的归纳证书]
+保存结点$v_1,\ldots,v_m$、父索引、域、规则版本和未解除前提。归纳谓词为$P(k)=\bigwedge_{j\le k}S_j$。
+\end{Certificate}
+\begin{proof}[证明（数学归纳法）]
+空前缀成立。假设$P(k)$成立：下一结点若为叶则用其输入见证，否则父结点均在前缀，保真规则推出$S_{k+1}$。故$P(k+1)$成立。未知必要叶使规则前件未满足，不能通过该步。证毕。
+\end{proof}
+
+\chapter{共同权利、项目规则与有限履约}
+\label{chap:rights}
+\section{共同保护目录与项目对象}
+\begin{definition}[规范竞技经济]
+\label{def:economy}
+固定有限居民集合$\HH$、项目集合$\JJ$、时间窗$[0,T]$及共同货币计价时点。共同保护目录为
+\[
+ \Charter=(\mathcal R_0,\mathcal L_0,\mathbf F,\mathcal E_0,\mathcal Q_0),
+\]
+依次表示基本权利、已成立义务、生存与接入底线、真实退出、独立复核。具体内容及允许限制须事前声明。项目为
+\[
+ G_j=(E_j,A_j,M_j,V_j,c_j,T_j,Q_j),
+\]
+分别给出资格、合法行动、计量、真实性、贡献、支付与复核。项目只决定其已授权坐标；竞赛胜负不自动增加修改$\Charter$的权限。
+\end{definition}
+来源\cite[“竞技主导的组织域”]{SourceMarket}与\cite[“声明的保护目录”]{SourcePreference}将支持角色、合同资格和基本权利分开。本文沿用该分工：教学、协作或审核可依独立任务获得合同资格；不参赛不自动取得某项参与份额，也不因此失去基本权利。
+
+\begin{definition}[共同域和不相关标签]
+\label{def:context}
+一次比较的域标识为$j=(\tau,\zeta,\upsilon,\nu)$，其中$\tau$为任务，$\zeta$为相关条件，$\upsilon$为工具规则，$\nu$为合同版本。$z$包含全部合法补偿事实；$n$表示与这些事实无关的生活偏好、表达方式或是否接受公开荣誉。相关风险必须有来源并先登记到$z$，不能秘密通过$n$改变处理。
+\end{definition}
+\begin{theorem}[同事实处理的非干扰]
+\label{thm:noninterference}
+若完整输入不能被登记者选择性删除、插入或替换，评价、确权、支付和未来资格均只读取$z$及预注册随机源，则替换不相关$n$不改变上述输出的联合分布。
+\end{theorem}
+\begin{Certificate}[逐阶段耦合]
+保存输入完整性、规则权限和随机源分布。对两种标签采用同一随机源，逐项比较输出。
+\end{Certificate}
+\begin{proof}[证明（有限复合归纳）]
+两次输入具有相同$z$。首个算子不读取$n$，故同随机源下输出相同；若前$k$步相同，下一算子仍读取相同认证事实与规则，输出相同。有限归纳给出逐耦合相同，因而联合分布相同。证毕。
+\end{proof}
+这不要求偏好不同的人选择相同行动；不同行动产生不同合法事实时，支付可以不同。该结论重述并接续\cite[“同事实的非相关身份不干扰”]{SourceSupplement}与\cite[“不相关偏好标签不得决定既有收益权”]{SourcePreference}。
+
+\section{受保护账本及明确的生成操作}
+\begin{definition}[义务、资金与生效约束]
+\label{def:ledger}
+在没有已认证事实纠错的一个版本内，$A_i$为累计有效确权额，$P_i$为累计实际支付，$L_i$为剩余应付，满足
+\[
+ A_i=P_i+L_i,\qquad L_i\ge0.
+\]
+$K$为专用于相应义务的现金，$K\ge\sum_i L_i$。全部资金按来源唯一归属，公共救济、适配费用、责任保证财产和参与资金分别记账。已经独立认证的权利纠错使用另行记录的修正额，不把普通规则更新伪装为事实纠错。
+\end{definition}
+\begin{theorem}[有限合法操作保持义务与资金覆盖]
+\label{thm:ledger}
+下列操作共同保持定义\ref{def:ledger}的恒等式与不等式：
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=3em]
+\item 新确权$d_i\ge0$时，同步划入不小于$\sum_i d_i$的可支付资金，并置$A_i'=A_i+d_i,L_i'=L_i+d_i$；
+\item 支付$0\le p_i\le L_i$时，置$P_i'=P_i+p_i,L_i'=L_i-p_i,K'=K-\sum_i p_i$；
+\item 比赛、评价或新规则登记不改变旧版本的$A_i,P_i,L_i,K$；
+\item 拒绝非法操作保持旧状态，且保留申诉和原证据。
+\end{enumerate}
+\end{theorem}
+\begin{Certificate}[逐操作等式与词长归纳]
+新资金到账、支付回执、旧权利版本及每步状态差组成证书。初始状态须通过全部约束。
+\end{Certificate}
+\begin{proof}[证明（代数保持与数学归纳法）]
+(i)两侧同时增加$d_i$，现金增加不少于新负债；(ii) $P_i'+L_i'=P_i+L_i=A_i$，且
+\[
+ K'-\sum_iL_i'=K-\sum_iL_i\ge0.
+\]
+(iii)(iv)不改变相应坐标，故保持。空操作词满足约束，追加每项操作仍满足，按词长归纳得到全部有限路径。证毕。
+\end{proof}
+\begin{remark}[安全性不是按时支付]
+上述定理排除未授权削减与重复支出，但不能排除一直不支付。正确义务能否在期限内完成是另一项证明责任；比赛获胜不能取消旧义务，制度暂停新接纳也不能把旧应付归零。
+\end{remark}
+
+\chapter{任务分型、适配评价与不确定性}
+\label{chap:classification}
+\section{先确定评价对象，再确定需要控制的因素}
+\begin{definition}[三种不同评价任务]
+\label{def:target}
+区分：实际交付量任务，以最终服务数量或质量为观察；条件校准任务，以剔除已声明外生条件后的执行表现为观察；发展任务，以同口径起点与终点的改进为观察。一个因素是否需要控制，取决于任务目标、证据和合同，而不取决于它是否导致某人排名下降。
+\end{definition}
+\begin{lemma}[单一结果不能同时识别表现与条件]
+\label{lem:identification}
+若仅观察$y=ae$，其中$a,e>0$均未知，则$e$不能由$y$唯一确定。
+\end{lemma}
+\begin{Certificate}[同结果异表现]
+$(a,e)=(1,1)$和$(2,1/2)$均给出$y=1$。
+\end{Certificate}
+\begin{proof}[证明（非单射）]
+若存在唯一回读$e=h(y)$，则$h(1)$须同时等于$1$和$1/2$，矛盾。证毕。
+\end{proof}
+所以条件适配必须有独立证据。给定一个希望得到的名次，再反求“条件系数”，不能构成本稿校准前件。
+
+\begin{theorem}[精确条件校准保持目标表现次序]
+\label{thm:calibration}
+在任务已声明需要控制$a$、$a>0$且独立可核验的域中，若$y=ae$，取$c=y/a$，则$c=e$。故同表现同得分，严格表现次序被严格保留。
+\end{theorem}
+\begin{Certificate}[任务相关性与独立条件]
+保存任务目标、$a$的来源、结构方程及共同测量规约。实际交付任务若要求保留$a$产生的效果，不调用本定理消去它。
+\end{Certificate}
+\begin{proof}[证明（结构方程代入）]
+$c=(ae)/a=e$，正分母使式子良定义。差分$c_i-c_k=e_i-e_k$给出全部次序结论。证毕。
+\end{proof}
+\begin{remark}[不是现实体育分类公式]
+国际残奥分级提供项目特定比较的制度参照\cite{IPCClassification}；此处只是明确任务下的可计算实例，不宣称真实分级通过对每个成绩除以一个个人系数来完成。分类应保留真实技能、训练与竞技差异，而不把一切差异全部抹除。
+\end{remark}
+
+\section{校准误差和可签发的排序裕量}
+\begin{theorem}[有界校准误差下的真实次序]
+\label{thm:calibration-error}
+设$y=ae$，$0\le e\le\bar e$、$a\ge\underline a>0$，测量满足
+\[
+ |\widehat y-y|\le\epsilon_y,\qquad
+ |\widehat a-a|\le\epsilon_a<\underline a.
+\]
+则$\widehat c=\widehat y/\widehat a$满足
+\[
+ |\widehat c-e|\le
+ E:=\frac{\epsilon_y+\bar e\epsilon_a}{\underline a-\epsilon_a}.
+\]
+若两个对象具有共同界$E$且$e_H-e_L>2E$，则$\widehat c_H>\widehat c_L$。
+\end{theorem}
+\begin{Certificate}[独立误差界]
+保存两种测量的独立误差来源、正分母裕量、表现上界和所比较差值；不能从已出现的排名倒推误差很小。
+\end{Certificate}
+\begin{proof}[证明（三角不等式）]
+$\widehat a\ge\underline a-\epsilon_a>0$，且
+\[
+ \widehat c-e=
+ \frac{(\widehat y-y)-e(\widehat a-a)}{\widehat a}.
+\]
+分子绝对值不超过$\epsilon_y+\bar e\epsilon_a$，得到误差界。再有$\widehat c_H-\widehat c_L\ge e_H-e_L-2E>0$。证毕。
+\end{proof}
+\begin{corollary}[不能签发严格次序的区间]
+\label{cor:uncertain-rank}
+只知道$|\widehat c_i-e_i|\le E_i$时，若两个真实表现的允许区间重叠，则这些误差记录不充分证明其中一人严格优于另一人。
+\end{corollary}
+\begin{Certificate}[相容反序见证]
+取$\widehat c_1=\widehat c_2=1$、$E_1=E_2=1/10$，允许$(e_1,e_2)=(1.1,0.9)$及反序状态。
+\end{Certificate}
+\begin{proof}[证明（信息不足反例）]
+任取两个允许区间的共同点$u$，状态$e_1=e_2=u$符合这两项误差约束，已足以否定任一必然严格序。所列例子还允许相反次序。仅凭这些记录不能唯一签发严格次序。证毕。
+\end{proof}
+
+\section{项目细分不是无限分组}
+细分可以减少无关条件造成的错误比较，也会增加固定成本、核验负担并稀释差异池。有限可行方案应同时检验：分型是否改变了必要任务观察，容量是否足够，最低支付与差异池是否仍覆盖，是否存在可比较的对手，以及真实购买或公共供给是否支持成本。不存在比较对象并不意味着当事人没有价值；它只说明特定竞赛机制尚未具有足够参与规模。可以提供教学、合作或个人改进任务，但须明确改变了任务而不是伪造同一比赛。
+
+\chapter{多维贡献、局部次序与总榜的边界}
+\label{chap:orders}
+\section{任务族与可比较关系}
+来源\cite[“贡献不是全部社会价值的单一度量”]{SourceSupplement}允许贡献为多维向量及偏序，并限制标量化的适用域。本文把这一限制展开为可检查的次序兼容问题。参赛者、教师、组织服务者和审核者可以同时产生贡献，但除非已经公开定义了共同对象和权重，否则不能用竞技排名替代全部角色的评价。
+\begin{definition}[局部严格次序族]
+\label{def:orders}
+在有限对象集$X$上，每个任务$j$定义子域$X_j\subseteq X$及严格比较关系$\succ_j$。共同支配关系只在各坐标都可比较时使用：$x\succeq_Py$表示所有规定坐标不低于，且严格支配另要求至少一项更高。不可比较不等于相等，也不等于贡献为零。
+\end{definition}
+\begin{lemma}[交叉优势排除无损的单一严格总分]
+\label{lem:rank-conflict}
+若存在$x\succ_1y$而$y\succ_2x$，则不存在实值函数$S$同时严格保留这两项比较。
+\end{lemma}
+\begin{Certificate}[交叉优势]
+取$c(x)=(9,2)$、$c(y)=(2,9)$，两个任务分别以其中一项作为比较目标。
+\end{Certificate}
+\begin{proof}[证明（严格次序矛盾）]
+保留两项比较要求$S(x)>S(y)$且$S(y)>S(x)$，与实数次序矛盾。证毕。
+\end{proof}
+\begin{theorem}[有限局部严格次序的共同数值表示判据]
+\label{thm:rank-dag}
+把全部要求保留的严格比较$x\succ_jy$记为有向边$x\to y$。存在实分值$S$使每条边都有$S(x)>S(y)$，当且仅当这张有限有向图无环。
+\end{theorem}
+\begin{Certificate}[环见证或最长路分值]
+否决记录为有向环；通过记录为无环图及每点至汇点的最长路长度$S(x)$。若另外要求保留等价、金额或特定差距，须另增条件。
+\end{Certificate}
+\begin{proof}[证明（必要性与有限构造）]
+有环$x_1\to\cdots\to x_m\to x_1$会推出$S(x_1)>\cdots>S(x_m)>S(x_1)$，不可能。反之有限无环图的有向路长度均不超过$|X|-1$，最长长度存在。每条边$x\to y$可接在$y$的最长路前，故$S(x)\ge1+S(y)>S(y)$。证毕。
+\end{proof}
+\begin{remark}[不是禁止一切综合评价]
+该定理只回答能否同时保留已声明严格关系，不声称一切综合分数不合法。存在冲突时，可公开选择权重和取舍；所得结果属于该取舍，不是无条件的“全部价值总榜”。即使无环，分值也通常不唯一，且不自动等于应付金额、社会福利或人的基本价值。
+\end{remark}
+
+\section{标尺变换与分配变化不能混同}
+\begin{proposition}[保序重标不自动保持分配份额]
+\label{prop:rescale}
+严格递增变换$h$保持分数次序，但对$\lambda_i=c_i/\sum_kc_k$，用$h(c_i)$直接替换$c_i$可能改变支付份额。若同时把权重规则变为$g'=g\circ h^{-1}$，则在$h$的像域上$g'(h(c))=g(c)$，份额保持。
+\end{proposition}
+\begin{Certificate}[两个分数与规则运输]
+取$(c_1,c_2)=(1,2)$、$h(c)=c^2$，原份额$(1/3,2/3)$变为$(1/5,4/5)$。保持见证需记录$g'$及其作用域。
+\end{Certificate}
+\begin{proof}[证明（反例与代入）]
+平方在正域严格递增而上述两组比值不等，故保序不足以保支付。补充$g'=g\circ h^{-1}$后，逐项权重及共同分母均不变，所以份额相同。证毕。
+\end{proof}
+这一结果连接后文任务商：仅声称两个赛制“都奖励强者”并不能运输预算、个人收入或救济结论。若要将新标准用于实际分配，必须重新核验分配规则的全部经济观察。
+
+\section{开放工具条件与跨域标签}
+可构造不使用AI辅助、限定辅助、人机协作和开放技术性能等不同任务域。它们是可选制度设计，不是技术能力的统一道德排序。规则应明确允许工具、辅助时点、来源披露及核验方式；某域冠军只取得该域合同规定的结果，不取得替其他域决定价值的权限。
+
+同一人可以随训练、工具和偏好变化进入新的合法比较域；合法迁移不等于伪造分型。对确有必要变化的分类，使用事前复核、版本更新和旧权利保护；不以不可修改的身份等级替代对当前任务的分析。分组经费可以不同，但差异来源、成本和选择程序要公开，不能用分组掩盖已承诺底线的取消。
+
+\chapter{基本份额、贡献差异与实际支付}
+\label{chap:distribution}
+\section{事前接纳与资金覆盖}
+\begin{definition}[有效参与和分组资金池]
+\label{def:participation}
+项目$j$在任务开始前声明最大接纳数$N_j^{\max}$、资格、真实身份、完成标准和复核程序。已接纳者集合为$\mathcal U_j$，完成并经核验者为$\EEset_j\subseteq\mathcal U_j$，$N_j=|\EEset_j|$。独立复核确认被错误排除者仍属于应履约调查范围。差异排名不替代基本资格，支持角色按自身合同完成标准核验。
+
+$B_j$是扣除已归属的适配、组织和治理成本后，实际到账且专用于本期参与支付的资金。接受合同前要求
+\begin{equation}\label{eq:budget}
+ N_j^{\max}\beta_j+D_j\le B_j,
+ \qquad\beta_j>0,\quad D_j>0.
+\end{equation}
+没有有效参与者时，不使用下述归一式，未付资金按原合同留存或返还。已经成立的其他债务继续存在。
+\end{definition}
+\begin{definition}[基本加差异合同]
+\label{def:payment}
+对$N_j\ge1$，令$c_{ij}\ge0$为同一规则域内的已核验贡献，$g_j$严格递增且$g_j(0)=0$。依约应付为
+\begin{equation}\label{eq:payment}
+ b_{ij}=\beta_j+D_j\lambda_{ij},\qquad
+ \lambda_{ij}=\begin{cases}
+ \displaystyle\frac{g_j(c_{ij})}{\sum_{k\in\EEset_j}g_j(c_{kj})},&\sum_k g_j(c_{kj})>0,\\[1.2ex]
+ 1/N_j,&\sum_k g_j(c_{kj})=0.
+ \end{cases}
+\end{equation}
+实际到账$y_{ij}$与$b_{ij}$分别记录。收入税费、独立消费或借款不回写为对已完成合同基本份额的任意扣减。
+\end{definition}
+\begin{theorem}[有效参与、严格贡献次序和预算的相容性]
+\label{thm:distribution}
+在式\eqref{eq:budget}--\eqref{eq:payment}下，每名有效参与者有$b_{ij}\ge\beta_j>0$，且
+\[
+ \sum_{i\in\EEset_j}b_{ij}=N_j\beta_j+D_j\le B_j.
+\]
+同域内$c_{ij}=c_{kj}$给出等额应付，$c_{ij}>c_{kj}$给出$b_{ij}>b_{kj}$。若到期准确履行$y_{ij}=b_{ij}$，这些性质也传到实际支付。
+\end{theorem}
+\begin{Certificate}[完整分母和逐人回执]
+保留全部有效参与者、贡献、零权重处置、资金来源、成本归属、应付、期限与到账，不仅保留赢家或已付者。
+\end{Certificate}
+\begin{proof}[证明（非负归一与差额）]
+两种分支均有$\lambda_{ij}\ge0$且$\sum_i\lambda_{ij}=1$，得到下界及总额。严格贡献差意味着分母正，且
+\[
+ b_{ij}-b_{kj}
+ =D_j\frac{g_j(c_{ij})-g_j(c_{kj})}{\sum_\ell g_j(c_{\ell j})}>0.
+\]
+等贡献时权重相同。准确到账是额外前件，代入后性质保持。证毕。
+\end{proof}
+此处重述\cite[“参与即分配与能者多得的资金覆盖定理”]{SourceMarket}，新增的是多比较域之间的容量、校准和联合预算接续；不是宣称现实赛事已经采用本合同。
+
+\section{从评分正确到付款正确的两道裕量}
+\begin{lemma}[评分误差和到账误差下的次序]
+\label{lem:payment-margin}
+同域真实贡献满足$c_H-c_L>2\epsilon_c$，且$|\widehat c_i-c_i|\le\epsilon_c$，则按严格递增$g$计算的应付有$b_H>b_L$。若再有$|y_i-b_i|\le\epsilon_p$且$b_H-b_L>2\epsilon_p$，则$y_H>y_L$。
+\end{lemma}
+\begin{Certificate}[评分与支付两类误差]
+保存校准误差界、共同分母、应付差及实际到账误差；两类误差不可互相替代。
+\end{Certificate}
+\begin{proof}[证明（最坏差分）]
+$\widehat c_H-\widehat c_L\ge c_H-c_L-2\epsilon_c>0$，由定理\ref{thm:distribution}得应付次序。再有$y_H-y_L\ge b_H-b_L-2\epsilon_p>0$。证毕。
+\end{proof}
+\begin{proposition}[名义奖励不保证全链条实际回报递增]
+\label{prop:transmission}
+在成功支付事件概率$p(c)>0$、成功时支付$t(c)>0$、其余本窗口支付为零的分支，期望到账为$\bar y(c)=p(c)t(c)$。可微域中
+\[
+ \bar y'(c)<0\quad\Longleftrightarrow\quad
+ -\frac{p'(c)}{p(c)}>\frac{t'(c)}{t(c)}.
+\]
+所以$t'>0$不足以保证$\bar y'>0$。
+\end{proposition}
+\begin{Certificate}[事件和条件概率]
+保存完整申请、完成、确权和付款分母；$p$若由多个阶段构成，使用条件概率链，不假设各阶段独立。未付款继续列为义务。
+\end{Certificate}
+\begin{proof}[证明（乘积法则）]
+$\bar y'=p't+pt'$，除以正数$pt$即可。没有因果识别时，这只是条件均值的分解，不额外赋予因果含义。证毕。
+\end{proof}
+因此规范竞技不只要求计分公开，还要防止合格输入被删除、确权被拖延以及后续资格被无关标签改变。相对公正、账本一致与付款最终性分别核验\cite[“名义奖励被传导下降反转的充要条件”]{SourceSupplement}。
+
+\chapter{参与激励、差异强度与破坏行为}
+\label{chap:incentives}
+\section{应付次序不是努力均衡}
+Lazear与Rosen研究按组织内名次而非直接产出付酬的竞赛合同，并在特定风险与能力条件下分析其效率及差别化比较\cite{LazearRosen1981}。本文不以该研究证明任意奖金制有效，而是对自己的行为域逐项计算。
+\begin{definition}[私人成本与参与约束]
+\label{def:utility}
+给定他人行动和项目域，风险中性主体的效用为
+\[
+ U_i(a)=\EE[y_i^{\rm ret}(a)]+H_i(a)-C_i(a)-L_i(a).
+\]
+$y_i^{\rm ret}$为扣除已声明负担后可保留收入，$H_i$为本模型登记的非货币效用，$C_i$为真实成本，$L_i$为未重复计入其他项的风险损失。个体理性要求$\max_aU_i(a)\ge u_i^{\rm out}$。一项行动最优不自动证明如实报告、抗合谋或全部市场均衡。
+\end{definition}
+\begin{proposition}[固定差异池下的基本份额抵消]
+\label{prop:base-cancel}
+若资格已经确定、$U_i(a)=\beta+Dp_i(a)-C_i(a)$，且$\beta$不随追加行动改变，则两行动效用差为
+\[
+ U_i(a')-U_i(a)=D[p_i(a')-p_i(a)]-[C_i(a')-C_i(a)].
+\]
+固定$D$时，改变$\beta$不改变这些行动的排序；固定$B=N\beta+D$时，提高$\beta$则会压缩$D$，不能据此推出排序不变。
+\end{proposition}
+\begin{Certificate}[固定项清单]
+保留资格、参与人数、风险中性、收入保留、成本、预算和外部选择。风险厌恶或收入影响成本时，须重写效用。
+\end{Certificate}
+\begin{proof}[证明（相减与预算代入）]
+两式相减抵消$\beta$。固定$B,N$时$D=B-N\beta$，故$\partial D/\partial\beta=-N$。证毕。
+\end{proof}
+
+\section{双人离散贡献的严格努力条件}
+\begin{theorem}[基本加差异合同的严格努力与预算区间]
+\label{thm:binary-effort}
+两人已完成基本任务，追加努力$e_i\in\{0,1\}$被准确观察，使用式\eqref{eq:payment}且$g(c)=c=e$。努力成本为$k_ie_i$，$k_i>0$，收入全部保留。则追加努力是两人的严格占优选择，当且仅当
+\[
+ D>2\max\{k_1,k_2\}.
+\]
+若基本份额至少为$\underline\beta>0$，总支付预算为$B$，存在同时满足基本下界与严格努力的此类合同，当且仅当
+\[
+ B>2\underline\beta+2\max\{k_1,k_2\}.
+\]
+\end{theorem}
+\begin{Certificate}[四格支付表和可行区间]
+$(0,0)$及$(1,1)$每人得$\beta+D/2$；$(1,0)$分别得$\beta+D$与$\beta$；$(0,1)$对称。逐个对手行动核验单方差值。
+\end{Certificate}
+\begin{proof}[证明（穷尽二元偏离）]
+不论对方努力与否，本人从$0$改为$1$的支付增量均为$D/2$，净增量为$D/2-k_i$，故条件充要。预算还要求$D\le B-2\beta\le B-2\underline\beta$；与严格下界有交集，当且仅当所列预算不等式成立。反向取$\beta=\underline\beta$及交集中的$D$构造合同。证毕。
+\end{proof}
+\begin{remark}[严格、弱激励与普通参与]
+$D=2k_i$只给并列最优，不保证该人严格努力。上述定理只处理追加努力；基本任务的成本、服务需求、参加与不参加之间的效用差须另核验。正基本份额也不等于按其成本必然有利。
+\end{remark}
+
+\begin{proposition}[有误差评分下的努力裕量与反序概率]
+\label{prop:noisy}
+若最终二元信号$s_i$独立地以概率$\epsilon\in[0,1/2)$偏离$e_i$，仍按二元得分分配，则
+\[
+ b_i=\beta+\frac D2(1+s_i-s_k),\qquad
+ \EE[b_i\mid e]=\beta+\frac D2[1+(1-2\epsilon)(e_i-e_k)].
+\]
+若现金边际保留率为$\omega\in(0,1]$，追加努力净增量为$\omega D(1-2\epsilon)/2-k_i$。真实努力$(1,0)$时，反序支付概率为$\epsilon^2$，同额概率为$2\epsilon(1-\epsilon)$。
+\end{proposition}
+\begin{Certificate}[信号概率与保留率]
+独立性、误差校准、支付最终性和$\omega$均独立登记。确定评分排序和真实表现排序分别记录。
+\end{Certificate}
+\begin{proof}[证明（有限信号枚举）]
+$\EE[s_i\mid e_i]=\epsilon+(1-2\epsilon)e_i$，代入得到期望式。努力使期望保留支付增加$\omega D(1-2\epsilon)/2$。$(1,0)$下只有信号$(0,1)$反序，概率$\epsilon^2$；两个同分状态合计为$2\epsilon(1-\epsilon)$。证毕。
+\end{proof}
+此为\cite[“有误差时的预算、激励与贡献排序”]{SourceMarket}的同型重述，加上明确的收入保留率。它说明适配分型不能以“分组已经正确”为由忽略最终评分误差。
+
+\section{为什么只增大奖励差距可能激励破坏}
+Harbring与Irlenbusch的实验在其研究条件下发现，工资差距增加可同时提高努力和破坏行为\cite{Harbring2009}。本文据此提出需要分别检验的行为坐标，而不是把这一结果外推到所有竞赛。
+\begin{proposition}[局部努力与操纵双响应构造]
+\label{prop:sabotage}
+固定对手行动，局部获奖概率为$p(e,m)=p_0+ae+bm$，$a,b>0$，在预先限定矩形内始终位于$[0,1]$。效用为
+\[
+ U(e,m)=\beta+Dp(e,m)-\frac k2e^2-\frac h2m^2-\pi Lm,
+ \qquad k,h>0.
+\]
+在未触及上界的域内，最优选择为
+\[
+ e^*=\frac{Da}{k},\qquad m^*=\max\{0,(Db-\pi L)/h\}.
+\]
+固定$\pi L$时，增大$D$可能同时提高努力与操纵；$\pi L\ge Db$时，唯一最优操纵为零。
+\end{proposition}
+\begin{Certificate}[概率域与可执行责任]
+矩形上界须使概率合法；$m$仅表示登记的违规操作，$\pi L$为其单位预期实际责任，不是名义罚额。域外饱和时使用截断解并重新比较。
+\end{Certificate}
+\begin{proof}[证明（分离严格凹最优化）]
+两个变量的二阶导数分别为$-k,-h$。一阶条件给出$Da-ke=0$和$Db-\pi L-hm=0$；在$m\ge0$下截断得到解。边界$Db=\pi L$时正$m$仍因二次成本严格更差。证毕。
+\end{proof}
+该构造只给单人比较静态，未把局部线性概率延伸到无限行动，也未证明整个竞赛的纳什均衡。经济含义是：规范竞技应同时保留合法策略收益并检查违规收益，而不是把“竞争强烈”直接等同于“真实贡献增加”。
+\chapter{真实接入、项目容量与自愿选择}
+\label{chap:access}
+\section{从名义入口到可同时实现的参与机会}
+\begin{definition}[容量受限的合格入口图]
+\label{def:matching}
+令$\HH^w\subseteq\HH$为在声明窗口内自愿寻求参与安排的居民，项目$j$具有已融资名额$n_j\in\{0,1,2,\ldots\}$；零名额项目不产生已接纳合同。边$(i,j)$表示资格真实适配、任务及工具条件可用、转换成本可承担，且该入口在声明的同伴与规则条件下可被本人接受。令$\Gamma(S)$为集合$S\subseteq\HH^w$可以进入的项目集合。
+
+同时覆盖要求存在$z_{ij}\in\{0,1\}$，使
+\begin{equation}\label{eq:matching}
+ \sum_jz_{ij}=1\ (i\in\HH^w),\qquad
+ \sum_i z_{ij}\le n_j,\qquad
+ z_{ij}=1\Longrightarrow(i,j)\text{为合格边}.
+\end{equation}
+这里$z$是可行性及真实自愿安排的见证，不授权中心强迫居民进入某一项目。希望多项目参与时，可将需求、工时及重复合同限制显式扩展后再求解。
+\end{definition}
+\begin{theorem}[全体自愿申请者的容量覆盖判据]
+\label{thm:hall}
+定义\ref{def:matching}的有限域内，式\eqref{eq:matching}存在解，当且仅当
+\begin{equation}\label{eq:hall}
+ |S|\le\sum_{j\in\Gamma(S)}n_j
+ \qquad(\forall S\subseteq\HH^w).
+\end{equation}
+\end{theorem}
+\begin{Certificate}[匹配或拥堵集合]
+通过记录为完整$z$；否决记录为违反式\eqref{eq:hall}的居民子集。可将每个项目展开为$n_j$个名额，并保存增广路径序列。
+\end{Certificate}
+\begin{proof}[证明（必要性与增广路径构造）]
+若存在覆盖匹配，$S$中每个人占据$\Gamma(S)$里的不同名额，故必要不等式成立。反向，把项目展开为独立名额，居民连接到所有对应名额。取一个最大匹配；有限性保证其存在。
+
+若有未匹配居民$i_0$，从其出发沿未匹配边到名额、再沿匹配边回居民，搜索所有可达点。若到达未占用名额，沿交替路径交换匹配状态可增加一人，与最大性矛盾。因此全部可达名额均被匹配。令可达居民集为$S$，可达名额集为$V$；每个$V$中的名额恰匹配到$S\setminus\{i_0\}$，且每个该集合居民由其匹配边到达。故$|V|=|S|-1$。$S$的所有邻接名额都已在搜索中，因而$|V|=\sum_{j\in\Gamma(S)}n_j$。这违反式\eqref{eq:hall}。故没有未匹配居民，得到全覆盖。证毕。
+\end{proof}
+该判据是Hall代表元定理的容量展开形式\cite{Hall1935}；上文给出本经济任务的自包含证明，不将经典组合结论登记为本稿原创。
+
+\begin{proposition}[单人有入口与同时覆盖并不等价]
+\label{prop:access-failure}
+每名居民至少有一条合格边，不能单独推出全部居民同时被覆盖。
+\end{proposition}
+\begin{Certificate}[两人一名额]
+两名居民均只连接项目$j$，而$n_j=1$。每人都有入口，但集合$S$含两人时$2>1$。
+\end{Certificate}
+\begin{proof}[证明（容量反例）]
+两人不能同时占据同一名额；亦由定理\ref{thm:hall}直接否决。证毕。
+\end{proof}
+
+\section{同伴效应、经费与选择程序的相容性}
+匹配可行并不自动解决激励。若边$(i,j)$的可接受性取决于谁与$i$同组，则须在候选配置$z$下计算真实效用，或使用对全部允许同伴均成立的保守下界；不能先用有利同伴计算边，再无条件重配。增加新项目还可能消耗旧项目的共同经费，故容量应取已融资容量，而非名义容量。
+\begin{proposition}[可行选择扩张的条件性价值]
+\label{prop:choice-expansion}
+固定主体效用、价格、旧项目容量和预算，若新方案保留全部旧可行选项并新增若干选项，即$\mathcal A_i\subseteq\mathcal A_i'$，则
+\[
+ \sup_{a\in\mathcal A_i'}U_i(a)\ge\sup_{a\in\mathcal A_i}U_i(a).
+\]
+若新增选项的效用严格超过旧上确界，则新上确界严格提高。
+\end{proposition}
+\begin{Certificate}[旧选项保持与新增见证]
+记录真实可进入条件、资金、转换成本和自愿选择；不是只列项目名称。
+\end{Certificate}
+\begin{proof}[证明（集合包含）]
+每个旧选项仍在新集合中，故新上确界至少为旧上确界；严格更好的新选项给出严格结论。证毕。
+\end{proof}
+此结论不要求每个人都参加比赛。规范目标是保持可行生活选择，不是把竞技从收入渠道扩大为每个人必须履行的唯一生活方式。UNESCO的包容性参照与本稿非强迫参与目标共同说明，精英赛事、适配赛事与大众活动不能相互替代\cite{UNESCOCharter}。
+
+\section{多项目经费与重复承诺}
+总预算应写为
+\[
+ B^{\rm source}\ge
+ \sum_j\bigl(N_j^{\max}\beta_j+D_j+C_j^{\rm adapt}+C_j^{\rm gov}\bigr)
+ +C^{\rm shared},
+\]
+并逐笔核对共同成本只归属一次。若某项目支付池已经先扣共同成本，不能再次在个人结算时扣除同一笔。跨项目参与可以多次获得真实合同收入，但身份复制或同一事件冒充多个未发生事件不能新增权利。合法重复购买同一服务与虚假事件重复申领须由合同和来源区分。
+
+\chapter{最小救济、收入保留与独立退出}
+\label{chap:relief}
+\section{逐状态生存与接入保障}
+\begin{definition}[底线、外生情景和公共账户]
+\label{def:floor}
+对有限居民集合，声明最低物质与市场接入支出$F_i>0$。在有限情景集$\Omega$中，实际可用市场收入为$Y_i(\omega)\ge0$。公共救济资金与各竞赛合同资金互不重复；管理、转移及必要过渡费用单列。底线不包含购买所有兴趣品或在所有赛事获奖。
+\end{definition}
+\begin{theorem}[逐状态坐标最小充分救济]
+\label{thm:floor}
+满足$R_i(\omega)\ge0$和$Y_i(\omega)+R_i(\omega)\ge F_i$的坐标最小救济唯一，为
+\begin{equation}\label{eq:floor}
+ R_i^*(\omega)=[F_i-Y_i(\omega)]_+.
+\end{equation}
+如付款先于必要支出到期，则每个情景均满足$Y_i+R_i^*\ge F_i$。在本期无额外收入、全部情景都要求覆盖的现金模型内，事前公共可用资金$B_R$充分，当且仅当
+\[
+ B_R\ge\max_{\omega\in\Omega}\left\{\sum_iR_i^*(\omega)+C_R(\omega)\right\}.
+\]
+\end{theorem}
+\begin{Certificate}[完整情景与最坏资金]
+保留情景集、逐人收入、底线、支出时点、实际回执和管理成本。若存在保险或追加融资，须登记实际可调用条件而不假定自动到位。
+\end{Certificate}
+\begin{proof}[证明（逐坐标下界与最大值）]
+两项约束等价于$R_i\ge\max\{0,F_i-Y_i\}$。该下界本身满足约束，故唯一最小。有限情景最大值存在，资金不小于最大需要可逐状态支付；低于最大值则在取得最大值的情景不足。证毕。
+\end{proof}
+这是\cite[“坐标最小充分救济的存在、唯一性与预算条件”]{SourceMarket}的有限情景展开。全员底线来自明示承诺，不由总消费增长或平均收入独自推出。
+
+\begin{proposition}[不能用平均收入替代情景救济需求]
+\label{prop:expected-relief}
+固定$F_i$时，
+\[
+ \EE[(F_i-Y_i)_+]\ge(F_i-\EE[Y_i])_+.
+\]
+只按平均缺口拨付既不自动覆盖平均实际救济，也不自动覆盖最坏情景。
+\end{proposition}
+\begin{Certificate}[高低收入双情景]
+$F=1$，$Y=0$或$2$各以$1/2$出现。平均收入为$1$，平均缺口公式为零，但实际平均救济为$1/2$，最坏为$1$。
+\end{Certificate}
+\begin{proof}[证明（正部函数的两项下界）]
+$(F-Y)_+\ge F-Y$且$\ge0$，取期望后同时不小于$F-\EE[Y]$与零，故不小于两者最大值。数值例给出两类遗漏。证毕。
+\end{proof}
+
+\section{底线保障与边际努力的分工}
+\begin{proposition}[同步扣减与收入保留不能混用]
+\label{prop:clawback}
+若本期全部市场收入$y$立即进入式\eqref{eq:floor}，则总现金
+\[
+ X(y)=y+[F-y]_+=\max\{F,y\}.
+\]
+$y<F$时$X'(y)=0$。若本期按事前基线$Y^b$确认救济，而新收入$T$保留比例$\omega\in(0,1]$，则生活性超额预算为
+\[
+ B^L=[Y^b-F]_++\omega T,\qquad \frac{\partial B^L}{\partial T}=\omega>0.
+\]
+第二种规则不必是相对于更新后全部收入的逐时最小救济。
+\end{proposition}
+\begin{Certificate}[评估时点与额外融资]
+保存事前基线、抵销规则、税费、下一期重算和额外预算。不能在同一算例中既用全部即时抵销节省支出，又用全部收入保留证明努力激励。
+\end{Certificate}
+\begin{proof}[证明（分段函数与恒等式）]
+第一式按$y<F$或$y>F$展开即可。第二式由$Y^b+[F-Y^b]_+-F=[Y^b-F]_+$得到；新增收入未全抵销时，救济可能高于按新收入计算的最小值。证毕。
+\end{proof}
+\begin{corollary}[跨期净激励仍须重新核验]
+\label{cor:dynamic-incentive}
+即使当期$\Delta X_0>0$，若折现后的未来抵销量与成本超过它，跨期追加行动仍可能不利。有限期可加效用下，正确条件是$\sum_{t=0}^{T}\delta^t\Delta U_{it}>0$，不是只检查$t=0$。
+\end{corollary}
+\begin{Certificate}[两期反例]
+当期净增益为$1$，下一期净减少为$2$，取$\delta=1$，总差为$-1$。
+\end{Certificate}
+\begin{proof}[证明（有限求和）]
+由可加效用定义逐期相减，反例总差$1-2=-1$。证毕。
+\end{proof}
+
+\section{退出不是取消身份或债权}
+\begin{theorem}[独立底线与真实替代入口保障声明退出]
+\label{thm:exit}
+若退出后收入为$Y_i^{\rm out}$，必要过渡费用已经列入$F_i$，救济资格不由原组织单方控制且及时足额支付$[F_i-Y_i^{\rm out}]_+$，又实际存在至少一个不依赖原组织许可的接入路径，则退出不会仅因该组织收入中断而使声明的生存与接入条件失效。
+\end{theorem}
+\begin{Certificate}[退出资源与路径]
+记录独立资格、必要支出期限、过渡费用、可携带的合法权利与证据、替代入口和付款回执。已赚得但未付的合同收入仍列为债权，不被退出注销。
+\end{Certificate}
+\begin{proof}[证明（资源与可达性合取）]
+由定理\ref{thm:floor}可用资源不少于$F_i$；独立资格使原组织拒绝合作不取消资金，真实路径使资源能够用于接入。两者共同阻断声明渠道。证毕。
+\end{proof}
+该结论沿用\cite[“独立底线保障阻断特定生存排斥渠道”]{SourceSupplement}。它不消除全部职业、声誉和关系专用投资损失，也不保证每项意见都应被认可或获得奖金。
+
+\chapter{可核验治理、违规威慑与实际纠错}
+\label{chap:governance}
+\section{透明、公开、公平和审计的不同职责}
+规则公开使人知道事前条件，透明来源使人能追踪资格到支付的过程，事实核验排除错误输入，独立复算检查规则执行，相对公正检验等价处理和贡献次序，实际纠错改变已确认错误结果。任一环节不能只由其他环节名称替代\cite[“透明、公开、相对公正与治理成本”]{SourceSupplement}。
+\begin{lemma}[同证据异正确结果的识别障碍]
+\label{lem:information}
+若$Z(x_1)=Z(x_2)$而相对于声明规则的正确结果$D^*(x_1)\ne D^*(x_2)$，则任何只读取$Z$的确定函数不能同时正确处理两者。
+\end{lemma}
+\begin{Certificate}[遗漏字段见证]
+保存相同证据、不同正确结果与遗漏字段；例如相同分数属于两个不同工具规则域。
+\end{Certificate}
+\begin{proof}[证明（函数单值性）]
+相同输入只能给出同一输出，至少一个输出不同于相应正确结果。证毕。
+\end{proof}
+\begin{proposition}[公开且准确执行不充分推出相对公正]
+\label{prop:fairness}
+同资格、同贡献的两名参与者若被一项公开条款指定分别获得全部差异收入和零收入，且独立申诉被关闭，则即使账务与条款完全一致，也不能确认等价处理和有效申诉。
+\end{proposition}
+\begin{Certificate}[公开偏置条款]
+保存全部合法事实相同、支付规则按无关身份分配、执行准确但申诉关闭的有限状态。
+\end{Certificate}
+\begin{proof}[证明（反例）]
+前件满足公开和执行一致，后件却直接违反等价处理与申诉目标，故前件不充分。证毕。
+\end{proof}
+对真实误判的独立复核不得被“不破坏团结”取代；对个人证据的核验又不要求向公众公开全部私人资料。只公开规则、权限、理由和必要汇总，向有权当事人及独立核验者提供适当证据，是可行的信息分层候选；是否充分由第\ref{chap:quotient}章的任务因子化判据检查。
+
+\section{有界核验者下的安全与及时执行}
+\begin{proposition}[固定唯一决定的双向阈值]
+\label{prop:quorum}
+设$n$个实际独立的核验者中最多$f$个不按规则行动。对已经具有唯一正确答案的固定结算记录，诚实核验者不会批准错误记录，且可在时限$\tau_v$内批准正确记录。若生效阈值$k$满足
+\[
+ f<k\le n-f,
+\]
+且阈值一旦满足，独立结算设施在$\tau_s$内执行、不再需要控制者单方批准，则错误记录不能仅由故障者生效，正确记录可在$\tau_v+\tau_s$内完成。
+\end{proposition}
+\begin{Certificate}[实际控制与时限]
+记录控制者而非账户数、唯一正确记录、核验规则、可用资金、执行设施和时限。中断共用设施或故障超过$f$属于域外状态。
+\end{Certificate}
+\begin{proof}[证明（计数）]
+错误记录最多取得$f<k$个批准，不能生效；正确记录至少取得$n-f\ge k$个及时批准，随后独立执行。证毕。
+\end{proof}
+\begin{remark}[阈值模型的范围]
+本命题不是任意网络环境中的拜占庭共识定理：唯一正确答案、诚实核验能力、通信时限和不可绕过执行均已作为独立前件。若存在相互冲突且都可能通过的记录，还须补充冲突消解与交叉约束。阈值由\cite[“有限偏离域中的安全阈值与到期阈值”相关构造]{SourcePreference}接续，不以多签字名义自动代替现实独立性。
+\end{remark}
+
+\section{分类报告、真实选择和制度复核}
+\begin{definition}[合法选择与虚假分型]
+主体选择一个自己真实符合条件的项目，即使考虑不同奖金，也不自动属于违规。虚假分型是指违反事前真实性义务、提交虚假条件以进入不符合资格的比较域；须有对应事实证据。规则调整不把人的身份永久固定为高低等级。
+\end{definition}
+\begin{proposition}[虚假分型的逐报告激励约束]
+\label{prop:misreport}
+固定他人行为与全部合法项目选择。若每个虚假报告$r$相对于最佳合法选择的净增益为$G_i(r)$，其预期额外可执行责任为$p_i(r)L_i(r)$，则在风险中性域内
+\[
+ p_i(r)L_i(r)>G_i(r)\quad(\forall r)
+\]
+使全部登记虚假报告严格劣于最佳合法选择。
+\end{proposition}
+\begin{Certificate}[真实性与合法备选]
+报告集合包含可能的身份、条件、工具使用和版本伪造；相对收益已经扣除造假成本。真实备选、核验概率、责任及申诉分别记录。
+\end{Certificate}
+\begin{proof}[证明（效用差）]
+每个虚假报告的差为$G_i(r)-p_i(r)L_i(r)<0$，逐项比较即得。证毕。
+\end{proof}
+该约束不要求惩罚合法跨项目选择，也不授权因一次误判永久排除当事人。IPC资料中的项目特定异议和重新评估，支持分类需要程序性复核这一参照\cite{IPCClassification}；具体经济制度的独立申诉、期限和救济仍须本稿另外构造。
+\section{违规收益与发现、执行能力}
+\begin{theorem}[登记偏离域内的严格威慑]
+\label{thm:deterrence}
+令$\mathcal V_i$为有限登记违规集合。对每个$v$，其相对于同条件合法基准的私人净增益为$g_i(v)$，发现概率为$d_i(v)$，发现后责任实现的条件概率为$s_i(v)$，可执行责任为$K_i(v)$。风险中性且信念与所用概率相符时，若
+\[
+ d_i(v)s_i(v)K_i(v)-g_i(v)\ge\eta>0
+ \qquad(\forall i,v),
+\]
+则每项登记违规均严格劣于其合法基准。若同一合法行动支配这些基准，则该合法行动也严格优于全部登记违规。
+\end{theorem}
+\begin{Certificate}[完整偏离、合法基准和正裕量]
+记录全部偏离、收益中已包括的金钱及非金钱动机、可执行财产、独立裁决和正当复核。$s$为条件概率，乘积不依赖发现与执行事件相互独立。
+\end{Certificate}
+\begin{proof}[证明（逐偏离效用差）]
+违规相对收益为$g_i(v)-d_i(v)s_i(v)K_i(v)\le-\eta<0$。逐项成立。若另一合法行动效用不低于合法基准，用不等式传递即可。证毕。
+\end{proof}
+来源\cite[“发现与执行联合决定威慑”]{SourceSupplement}的两行动模型是特例。这里明确扩展了偏离索引，但没有自动包含未登记的合谋、非货币收益或主观概率差异。
+
+\begin{proposition}[有限执行能力与最低审计强度]
+\label{prop:audit-min}
+取$g>0$、$d(r)=1-e^{-\lambda r}$、$\lambda>0$、$r\in[0,\bar r]$，执行能力$sK$固定。存在有限弱威慑强度当且仅当
+\[
+ sK>g,\qquad
+ \bar r\ge r_{\min}:=\frac1\lambda\log\frac{sK}{sK-g}.
+\]
+严格威慑要求$r>r_{\min}$。若$sK=0$，提高发现率不能使正$g$的违规不再有利。
+\end{proposition}
+\begin{Certificate}[审计技术、上限和责任]
+保存指数发现技术的来源、实际执行概率、责任能力及成本决定的可行上限；不能以名义罚额代替$K$。
+\end{Certificate}
+\begin{proof}[证明（解不等式）]
+$(1-e^{-\lambda r})sK\ge g$等价于$e^{-\lambda r}\le1-g/(sK)$；右侧必须正，取对数得到阈值，再与可行区间求交。$sK=0$时违规净收益恒为$g$。证毕。
+\end{proof}
+限制单方可侵占收益、减少不可审计操作和独立保全资金，可以降低$g$；提高审计或责任并不是唯一可行修复。处罚上限受比例、证据、权限和可执行能力约束，不以无限责任补足机制缺口。
+
+\section{治理成本与有期限的修复}
+\begin{proposition}[有界治理的损失--成本比较静态]
+\label{prop:audit-opt}
+设与行为回应相容的剩余真实损失为$\Lambda e^{-\lambda r}$，核验、隐私与安全等合计边际真实成本为$k>0$。在$0\le r\le\bar r$内，目标
+\[
+ J(r)=\Lambda e^{-\lambda r}+kr
+\]
+的最优强度为
+\[
+ r^*=\min\{\bar r,\max\{0,\lambda^{-1}\log(\Lambda\lambda/k)\}\}
+ \quad(\Lambda>0),
+\]
+$\Lambda=0$时为零。固定技术和成本时，$r^*$关于$\Lambda$弱增。
+\end{proposition}
+\begin{Certificate}[共同成本与行为模型]
+损失必须扣除纯转移的重复计算，并与实际策略回应相容；不能在威慑已改变行为后无依据继续沿用旧损失率。
+\end{Certificate}
+\begin{proof}[证明（凸优化）]
+$J'=-\Lambda\lambda e^{-\lambda r}+k$，$J''=\Lambda\lambda^2e^{-\lambda r}>0$。无约束最优取对数解，区间约束使其截断。零损失时成本严格递增。证毕。
+\end{proof}
+\begin{theorem}[有限期限纠错的条件性完成]
+\label{thm:repair}
+若一个经确认错误的处理链具有$m$个阶段，每个阶段在输入完整、前件满足时不晚于$\tau_k$完成，阶段间传输不晚于$\delta_k$，最终纠正权利、支付和后续资格所需权限及资金均已覆盖，则从完整受理起不晚于
+\[
+ T_{\rm repair}=\sum_{k=1}^m\tau_k+\sum_{k=1}^{m-1}\delta_k
+\]
+完成声明修复。
+\end{theorem}
+\begin{Certificate}[有时限的实际修复链]
+记录受理、独立事实复核、裁决、账本更正、结算和后续资格恢复的起止回执，及每阶段权限和资金。过去已经发生的迟延不因后来补付被删除。
+\end{Certificate}
+\begin{proof}[证明（阶段时间归纳）]
+第一阶段在$\tau_1$内完成。若前$k$阶段累计不超过相应和，加上传输$\delta_k$与下一阶段$\tau_{k+1}$即得$k+1$上界。归纳至$m$。资金和权限保证最后一步不是只有纸面决定。证毕。
+\end{proof}
+若某阶段只有发现而无执行权限，或控制者具有不可替代否决权，定理前件失败。规范竞技的执行条件必须同样约束组织者与评判者，不能只约束参赛者。
+\chapter{任务商、分型保留与显式同伦}
+\label{chap:quotient}
+\section{经济任务需要保留哪些观察}
+\begin{definition}[有限任务及充分商]
+\label{def:quotient}
+取有限状态集$X$、动作集$A$、完成化的后继$F_a:X\to X$、观察$O$和单步成本$C(x,a)$。非法操作进入拒绝状态，但旧债务与证据仍作为观察保留。$O$包括本任务必须读取的项目、版本、工具条件、资格、贡献、应付、到账、资金、底线及复核状态。
+
+满射$q:X\to Q$为本任务的充分商，若存在$\bar F_a,\bar O,\bar C$使
+\[
+ qF_a=\bar F_aq,\qquad O=\bar Oq,\qquad C(x,a)=\bar C(qx,a),
+\]
+并且合法动作及拒绝标签同样因子化。保留横向排序时，状态保存整个比较组，不能只保存单个人的分数。
+\end{definition}
+\begin{proposition}[观察因子化的充要判据]
+\label{prop:factor}
+给定满射$q:X\to Q$，存在唯一$\bar f$使$f=\bar f q$，当且仅当$q(x)=q(y)$蕴含$f(x)=f(y)$。
+\end{proposition}
+\begin{Certificate}[同纤维一致性]
+通过记录给出$\bar f([x])=f(x)$与代表元无关性；否决记录给出同商值但$f$不同的状态对。
+\end{Certificate}
+\begin{proof}[证明（双向因子化）]
+若因子化成立，同商值的$f$值相同。反之，纤维恒定使定义$\bar f(qx)=f(x)$与代表元无关；满射保证处处有定义且唯一。证毕。
+\end{proof}
+这是\cite[“相对任务的不变量与信息保持”及任务因子化接口]{SourceRateQuotient}的具体使用。它不允许因为希望统一评价，就删去决定合格性的任务类型。
+
+\begin{proposition}[同分异任务的否决见证]
+\label{prop:typed-score}
+任务甲合格线为$75$、任务乙为$85$，两条记录分数同为$80$。只保留分数的$q$不能保留是否合格的观察；保留任务及规则版本后的细商可区分二者。
+\end{proposition}
+\begin{Certificate}[两个带类型记录]
+$x=(\mathrm{甲},\nu,80)$、$y=(\mathrm{乙},\nu,80)$，$\operatorname{Pass}(x)=1$、$\operatorname{Pass}(y)=0$。
+\end{Certificate}
+\begin{proof}[证明（同纤维异值）]
+只读分数时$q(x)=q(y)$而观察不同，由命题\ref{prop:factor}因子化失败。$q'=(\text{任务},\text{版本},\text{分数})$保留合格线的确定依据，所以该观察可以回读。证毕。
+\end{proof}
+
+\begin{theorem}[商上有限执行保持：公理降级]
+\label{thm:execution}
+只要满足定义\ref{def:quotient}列出的单步交换、观察、合法性和成本因子化式，不要求状态集有限，任意有限动作词$w=a_1\cdots a_m$满足$qF_w=\bar F_wq$；观察、合法性和有限累计成本可由商执行恢复。
+\end{theorem}
+\begin{Certificate}[单步交换与词长归纳]
+每个动作提交交换方块、观察因子化、合法性和成本等式。任意自适应策略若要在商上执行，必须仅依赖商中保留的历史信息。
+\end{Certificate}
+\begin{proof}[证明（数学归纳法）]
+空词有$q\operatorname{id}=\operatorname{id}q$。若长度$m$时成立，追加动作$a$后
+\[
+ qF_aF_w=\bar F_aqF_w=\bar F_a\bar F_wq.
+\]
+观察与合法性由因子化得到，每步成本相等后有限求和。证毕。
+\end{proof}
+
+\section{校准表示上的非平凡同伦构造}
+\begin{theorem}[条件表示可变而经济任务保持的形变收缩]
+\label{thm:homotopy}
+令$Z$为有限语义状态集，状态$z$保存项目、版本、目标表现向量$e(z)$和全部本任务要求的经济账本。取正参数盒$\mathcal A=\prod_{i=1}^n[\underline a_i,\bar a_i]$，$0<\underline a_i\le\bar a_i$，固定$a^*\in\mathcal A$。定义表示空间
+\[
+ X=\{(z,a,y):z\in Z,\ a\in\mathcal A,\ y_i=a_i e_i(z)\},
+ \qquad q(z,a,y)=z.
+\]
+在$Z$的离散拓扑与参数欧氏拓扑下，令
+\[
+ s(z)=(z,a^*,a^*\odot e(z)),
+\]
+\[
+ H_t(z,a,y)=\bigl(z,a_t,a_t\odot e(z)\bigr),\qquad
+ a_t=(1-t)a+ta^*,\quad0\le t\le1.
+\]
+则$qs=\operatorname{id}_Z$、$H_0=\operatorname{id}_X$、$H_1=sq$、$qH_t=q$，且$H_t$固定$s(Z)$。因此构成保持规定经济观察的强形变收缩。
+\end{theorem}
+\begin{Certificate}[端点、连续性和任务回读]
+$\odot$表示逐坐标乘法。记录所有经济观察均为$f=\bar f q$，参数盒凸且与零有正距离，并逐坐标验证校准$y_i/a_i=e_i(z)$。
+\end{Certificate}
+\begin{proof}[证明（显式同伦恒等式）]
+参数盒凸，故$a_t\in\mathcal A$；逐坐标乘法连续，故$H$连续。端点代入分别得到原表示与固定截面，投影始终为$z$。当$a=a^*$时全程不动，因此是强形变收缩。观察因子化使$fH_t=f$。证毕。
+\end{proof}
+\begin{corollary}[同伦与合法语义动作相容]
+\label{cor:homotopy-action}
+若语义动作$F_a^Z$有实现
+\[
+ \widehat F_a(z,\alpha,y)
+ =\bigl(F_a^Zz,\alpha,\alpha\odot e(F_a^Zz)\bigr),
+\]
+其中动作下标$a$与条件参数$\alpha$区分，则$q\widehat F_a=F_a^Zq$，并且$H_t\widehat F_a=\widehat F_aH_t$。在相同成本与合法性回读下，有限执行的经济观察保持。
+\end{corollary}
+\begin{Certificate}[动作交换式]
+逐项代入$F_a^Z$，验证它只改变语义状态、不秘密改变被保留的项目、版本和账本规则。
+\end{Certificate}
+\begin{proof}[证明（合成计算）]
+两侧均得到语义状态$F_a^Zz$、插值参数$(1-t)\alpha+ta^*$及其与新表现向量的乘积。其余结论由定理\ref{thm:execution}。证毕。
+\end{proof}
+
+
+\chapter{多元竞技的联合有限构造}
+\label{chap:example}
+\section{构造来源、阶段和完整比较域}
+本章在原讨论的两个任务组示意上，新增基础完成成本、消费者价值、独立公共储备、故障边界和退出分支的资金核验。全部数值为\emph{构造输入}，不是现实残奥分级、实际工资、政府预算或经验估计。均衡结论只覆盖下列有限合同与行为域。
+
+居民为$\HH=\{1,2,3,4,5\}$，四人自愿参加两个双人任务组：$A=\{1,2\}$、$B=\{3,4\}$；第5人选择不参加本期竞技。每人底线$F_i=1$。两组的已核验条件分别为$a_A=1$、$a_B=1/4$；这是匿名任务条件，不对应任何对人的诊断或等级判断。
+
+阶段为：公开固定合同与独立资金安排；本人决定是否接受名额；买方在明确启动条件下预付，资金覆盖后组织方正式接纳；完成基础任务；追加努力与核验；结算与同一期一次性救济评估。未达启动条件时不形成未融资的新义务，已发生义务按原条件处理。以下分析两个组均已启动的努力子博弈，并核对在该继续策略下的自愿参与；不声称穷尽所有签约或协调均衡。
+
+\section{任务、支付与唯一追加努力均衡}
+原始结果$y_i^{\rm raw}=a_je_i$，追加努力$e_i\in\{0,1\}$，合同明确比较校准表现$c_i=y_i^{\rm raw}/a_j=e_i$。基础任务私人成本为$1/4$，追加努力成本为$e_i/4$。每组取
+\[
+ \beta=1,\qquad D=2,
+\]
+且使用准确核验与实际支付。信号造假不在本例可生效动作中：条件与表现由声明的独立事实设施核验；扩大到能够操纵设施的行为域时，必须另行核验命题\ref{prop:misreport}及实际控制条件，不能沿用本例而省略该义务。
+\begin{center}
+\begin{tabular}{cccc}
+\toprule 追加努力$(e_1,e_2)$ & 第一人支付 & 第二人支付 & 组内合计\\\midrule
+$(0,0)$ & 2 & 2 & 4\\
+$(1,0)$ & 3 & 1 & 4\\
+$(0,1)$ & 1 & 3 & 4\\
+$(1,1)$ & 2 & 2 & 4\\\bottomrule
+\end{tabular}
+\end{center}
+\begin{theorem}[两个适配任务组的严格努力与参与可行性]
+\label{thm:example-effort}
+上述两个组中，每个参与者追加努力的单边净增益恒为$3/4$，故每人$e_i=1$为严格占优选择，努力子博弈唯一均衡为$(1,1,1,1)$。均衡下每人支付$2$、私人成本$1/2$、净效用$3/2$；若不参与者的可用底线效用为$1$，则在该继续策略下参与严格优于退出。
+\end{theorem}
+\begin{Certificate}[十六组合与全部单边偏离]
+两个组各四种努力组合，共十六种；每人两种同伴行动下的努力差均逐项计算。基本任务成本在追加努力差中抵消，但在参与约束中保留。
+\end{Certificate}
+\begin{proof}[证明（有限枚举和严格占优）]
+任一对手行动下，追加努力提高支付$1$，增加成本$1/4$，净增益$3/4>0$。严格占优给出唯一努力均衡。均衡效用为$2-1/4-1/4=3/2>1$，故参与约束在该继续策略下满足。证毕。
+\end{proof}
+如果采用第\ref{prop:noisy}条的误差模型且$\epsilon=1/10,\omega=1$，净努力裕量变为$2(1-2/10)/2-1/4=11/20>0$；真实努力差的支付反序概率为$1/100$。这构成另一个带误差版本，不能同时声称每个状态真实排序绝对正确。
+
+\section{买方需求、组织利润与共同现金账本}
+每组买方的真实服务价值在本构造中为$V_j(e)=3(e_{j1}+e_{j2})$，预付价格为$11/2$。在上述均衡下$V_j=6$，买方净收益为$1/2>0$。组织对每组从收到的$11/2$中预留参与支付$4$、适配成本$1/2$、治理成本$1/2$，剩余$1/2$归组织者。两组总额为
+\begin{equation}\label{eq:example-budget}
+ 11=8\text{（参与支付）}+1\text{（适配）}
+      +1\text{（治理）}+1\text{（组织剩余）}.
+\end{equation}
+买方付款是其在所列继续策略和价值下愿意接受的合同，不是从“注意力存在”直接产生的资金。买方价值与适配评分都以校准后的服务完成为目标；若实际购买目标改为原始产出，则须改变价值函数并重新检查$11/2$是否仍可接受。
+
+\begin{theorem}[单期来源覆盖与真实资源分账]
+\label{thm:example-budget}
+在本例每个努力组合下，两组参与支付合计恒为$8$，均由$11$的真实预付款覆盖。均衡下买方、参与者与组织者的货币效用净额合计为$8$，等于真实服务价值$12$减基础任务成本$1$、追加努力成本$1$、适配成本$1$和治理成本$1$。
+\end{theorem}
+\begin{Certificate}[货币转移与资源成本分离]
+支付$8$是买方通过组织向参与者的转移，不另加为社会新增产出；组织、适配与治理的成本假定已完整计量，其供应者无额外未记录净租金。其他外部损害在本有限基准取零，改变时须重算。
+\end{Certificate}
+\begin{proof}[证明（恒等式）]
+每组任一状态总支付$4$，故总支付$8$。均衡买方总剩余$12-11=1$，参与者净收益$8-2=6$，组织剩余$1$，合计$8$；真实资源口径$12-1-1-1-1=8$相同。证毕。
+\end{proof}
+这只是本模型的单期资源分账，不是无对照的政策净增益声明。私人剩余为正不等于不公正；来源\cite[“合同剩余索取与差异化收入”]{SourceMarket}分别检验剩余来源、投资激励和市场条件。
+
+\section{独立财政储备、退出与不可重复支付}
+公共账户预先具有$26/5=5.2$，与交易款$11$独立。其中$5$覆盖五名居民在本期全部零市场收入时的底线，$1/5$为救济识别与支付管理成本。责任保证财产另有$1/2$，既不计入$11$也不计入公共$5.2$。
+
+均衡结算后，前四人市场收入均为$2\ge1$，无需救济；第5人收入为零，支付救济$1$。公共账户当期支出为$6/5$，余额为$4$。若某居民在本期接纳前选择退出并无收入，则在最终收入情景中增加其$1$缺口；即使五人均无市场收入，公共资金仍覆盖$5+1/5$。这没有向已赚得$2$后退出的人再次假定当期收入为零。
+\begin{proposition}[共同底线的单期最坏覆盖]
+\label{prop:example-floor}
+对本例$0\le Y_i\le3$的登记结算情景，$R_i=[1-Y_i]_+\le1$，故公共$5.2$逐情景覆盖全部救济与管理成本。均衡实际救济只为$1$，无需动用参与支付或责任保证财产。
+\end{proposition}
+\begin{Certificate}[财政来源与评估窗口]
+一次最终收入评估覆盖本期必要支出，付款时限先于支出到期。本期既有付款累计记录，重复申请不重复生成缺口；下一期新增需要必须有新预算，不能默认重复使用同一$5.2$。
+\end{Certificate}
+\begin{proof}[证明（逐人上界求和）]
+每个非负$Y_i$最多产生$1$缺口，总救济不超过$5$，加$1/5$成本正好不超过储备。均衡前四人缺口零、第五人缺口一。证毕。
+\end{proof}
+把公共管理成本加入本例全体真实资源账本，净额为$8-1/5=39/5=7.8$。救济$1$在供资方和领取方之间转移，不再次增加社会资源。未支出的储备$4$及保证财产$1/2$是期末资产，不算当期消耗。本单期基准的锁定资本机会成本为零；有正机会成本、税收扭曲或更高管理成本时应另扣，不能把本数值直接视作现实总福利。
+
+\section{控制者、核验者与执行子系统}
+已认证旧权利与资金由第\ref{thm:ledger}条操作集保护。设$n=3,f=1,k=2$，独立事实核验在1个时间单位内完成，结算设施在随后1个时间单位内付款，则第\ref{prop:quorum}条给出固定记录的两单位及时执行。
+
+对仍可尝试的登记控制者违规，假定相对收益不超过$1/5$、发现概率$4/5$、发现后执行概率$1$、独立可执行责任$1/2$。于是
+\[
+ \Delta U^{\rm violation}\le\frac15-\frac45\cdot1\cdot\frac12=-\frac15<0.
+\]
+这只覆盖已登记收益上界；并不宣称控制者可以任意侵占全部$8$而仅用$1/2$责任就足以威慑。超出上界的侵占在本例中由受限账本与生效设施阻断；如果现实实施不能阻断，必须将真实收益纳入$g$重算。
+
+
+
+\chapter{联合实现、制度选择与经验验证}
+\label{chap:implementation}
+\begin{proposition}[共同实例非空而非现实自动成立]
+\label{prop:example-joint}
+在第\ref{chap:example}章全部显式输入及有限故障域内，存在同一组规则和资金安排，同时实现：域内真实表现的校准、有效参与正份额、严格追加努力、买方与参与者自愿条件、正组织剩余、共同底线覆盖和登记控制者违规负净收益。
+\end{proposition}
+\begin{Certificate}[联合参数与依赖]
+使用定理\ref{thm:example-effort}、\ref{thm:example-budget}及命题\ref{prop:example-floor}，再加准确事实核验、时限、控制映射及责任财产记录。不得将准确核验分支与带误差分支的结果混为同一记录。
+\end{Certificate}
+\begin{proof}[证明（同一输入上的合取）]
+各条结论使用相同参与者、两个支付池、同一努力表和互不重复的三类资金。严格努力与买方价值在同一继续策略下成立，底线覆盖使用全部居民和独立财政上界。治理的结构与激励保证分别满足其前件，因此合取可在同一有限实例成立。证毕。
+\end{proof}
+
+\section{可执行的联合构造而非条件名称堆叠}
+\begin{theorem}[规范竞技、多元评价与共同底线的条件性实现]
+\label{thm:main}
+给定有限居民、项目和时间窗，以及明确选择的保护目录。若以下输入具有共同可行见证：
+\begin{enumerate}[label=\textup{(J\arabic*)},leftmargin=4em]
+\item 每个任务的条件、工具、版本及评分映射有来源，必要误差小于所声明次序裕量；
+\item 有自愿且容量可行的参与安排；同伴效应已在该安排下重算；
+\item 每个已接纳合同有真实支付储备，基本、差异、适配、治理、救济及保证资金没有重复用途；
+\item 有对应的参与和努力策略，逐个登记偏离满足私人效用要求；买方或其他实际供资者的行为条件成立；
+\item 合法操作保持既有权利，正确终态有可执行时限；违规被技术结构阻断或在登记域内不再有利；
+\item 每个居民的底线在声明情景内独立且及时覆盖，真实退出路径存在；规则更新保持相关旧义务；
+\item 事实复核、申诉与修复使用同一来源，所有未解决必要前件明确保留，不混用不同版本或反事实分支，
+\end{enumerate}
+则可构造一个在该域内保持共同权利、允许任务特定评价、向有效参与者支付正基本份额、保留可核验贡献差异并保障声明底线与退出的规范竞技机制。制度不要求全部居民追求同一种竞技目标，也不以控制者个人善意为证明前件。
+\end{theorem}
+\begin{Certificate}[联合实现程序]
+先登记共同目录与项目版本；按合格边取得自愿安排；冻结合同并划入独立储备；按任务条件计量和复核；使用式\eqref{eq:payment}确权并由受限设施结算；依式\eqref{eq:floor}在共同情景下补足底线；最后将全部回执和更新见证组成无环核验图。来源、对象、金额和时间须逐项对应。
+\end{Certificate}
+\begin{proof}[证明（构造接续）]
+J1提供评分与分类输入，定理\ref{thm:calibration-error}控制可签发次序；J2给出实际安排；J3和定理\ref{thm:distribution}构造预算覆盖的收益权；J4提供行为回应而非仅假设正支付等于激励。J5通过定理\ref{thm:ledger}及命题\ref{prop:quorum}分别给出安全与及时完成，定理\ref{thm:deterrence}控制剩余登记偏离。J6调用定理\ref{thm:floor}、\ref{thm:exit}及旧权利保持；J7使这些模块在同一事件而非互不相容的模型中接续。有限阶段由定理\ref{thm:dag}归纳验证，故全部规定目标在该域内实现。第\ref{chap:example}章提供非空见证。证毕。
+\end{proof}
+
+\section{可行、改进与应当采用的不同层级}
+\begin{proposition}[共同口径下的真实净增益判据]
+\label{prop:welfare}
+设基线与改造方案使用同一真实资源口径。新增服务价值为$\Delta V$，减少的破坏损失为$\Delta H^{\rm avoid}$，新增努力、适配、治理及其他真实成本分别为$\Delta C^e,\Delta C^a,\Delta C^g,\Delta C^o$。则定义的净资源增量
+\[
+ \Delta W=\Delta V+\Delta H^{\rm avoid}
+ -\Delta C^e-\Delta C^a-\Delta C^g-\Delta C^o
+\]
+严格为正，当且仅当前两项之和大于后四项之和。
+\end{proposition}
+\begin{Certificate}[基线、机会成本与归属]
+支付、奖金额、税费和救济的内部转移不重复计为新增资源；资金机会成本、隐私、安全和未补偿外部损害必须登记。分配福利权重如果使用，另行声明，不混为资源总额。
+\end{Certificate}
+\begin{proof}[证明（同口径差额）]
+对两方案同口径总价值减真实成本作差，得到上式，移项即得判据。正总增量不自动给每人正增量，也不推出全域最优。证毕。
+\end{proof}
+
+当后AI相关产品已经通过产能约束松弛核验，而传统收入传导或新型参与的确权、接入、支付存在已识别失灵时，可以把本机制作为候选修复。\cite[“后 AI 条件触发后的最小兼容适用路径”]{SourceMarket}要求保留与修复无关且仍有效的制度坐标。技术变强不自动证明需要本方案，更不自动证明本方案历史唯一。
+
+有限候选制度族非空时，可以先排除不满足保护目录、预算及行为条件的候选，再按预先声明的成本或目标选择。筛选不应预先指定谁获胜或所有人的生活偏好；可行性与净改进分别核验。即使有多个并列可行方案，也不影响它们共同体现规范竞技的功能目标。
+
+\section{规则更新、文化存续与持续性边界}
+\begin{theorem}[有限更新路径上的共同条件保持]
+\label{thm:update}
+设初始机制通过其共同核验，且每次实际接受的更新都有独立证明：旧权利和来源被保持，新承诺具有资金，改变的分型经新任务证据支持，时限和故障界仍成立。则任意有限已接受更新路径保持这些共同条件。
+\end{theorem}
+\begin{Certificate}[版本迁移与前缀]
+记录旧到新权利映射、分型变化理由、资金差、时限、旧证据可读取性和每次更新的实际适用域；不得只在日志中重复“保持”二字。
+\end{Certificate}
+\begin{proof}[证明（前缀归纳）]
+初始证书给出基步，每次独立更新证明给出保持的归纳步。有限归纳完成。超出故障、资金或外生情景上限的更新不属于该已接受路径。证毕。
+\end{proof}
+来源\cite[“可观测文化状态与参与沉积”]{SourceMarket}允许真实长期参与、共同记录和实际共同体承认形成文化存量。本文仅据此说明稳定可复核规则可以成为文化形成的承载；不把举办一次活动、发布统一价值文本或强迫认同当作非零文化沉积的证明。文化存在、内容是否有益及宏观需求能否持续，仍为不同任务。
+
+\section{预注册指标与可证伪边界}
+\begin{longtable}{L{0.08\textwidth}L{0.41\textwidth}L{0.42\textwidth}}
+\toprule 编号 & 需要观察的具体关系 & 否决或限制见证\\\midrule\endfirsthead
+\toprule 编号 & 需要观察的具体关系 & 否决或限制见证\\\midrule\endhead
+P1 & 校准目标、条件来源、原始与校准表现、误差界。 & 条件不能独立识别，或排序差不大于误差裕量。\\
+P2 & 各任务严格关系的兼容图，以及总分采用的权重。 & 有向环存在却声称所有严格次序无损统一。\\
+P3 & 全部接纳、完成、误拒与支付记录；基本份额和差异池。 & 完成约定者被事后排名取消基本份额，或应付未到账。\\
+P4 & 私人成本、实际收入保留、同伴配置与全部登记偏离。 & 奖金额为正但净努力收益非正；借用其他配置的最优回应。\\
+P5 & 自愿申请者完整分母、合格入口边、真实容量与安排。 & 每人有边但存在容量不足子集；仅统计成功入场者。\\
+P6 & 全部收入情景、底线、公共资金及到账期限。 & 仅用平均缺口证明逐情景保障，或重复计算资金。\\
+P7 & 实际控制映射、独立核验、责任能力和完成时限。 & 多账户同控制、名义罚额无财产覆盖、正确付款仍需单方许可。\\
+P8 & 真实分类异议、申诉结果、支付与未来资格的修复。 & 只发现偏差而不改结果，或补付后删除过去迟延记录。\\
+P9 & 参与组与对照组的真实服务、努力、破坏和全部成本。 & 只以奖金或流量增加确认社会净增益。\\
+P10 & 长期来源、规则版本、共同体采用与持续需求。 & 平台单方命名文化，或一次付款被当作无限期稳定。\\\bottomrule
+\end{longtable}
+需要因果结论时，应预先声明处理、对照、结果、时间窗、随机分配或其他识别条件。单纯在改造前后观察均值变化，不能排除参与者选择、需求变化、项目容量和工具升级等混杂因素。未通过前提的样本不能直接被写成对形式蕴含的支持或反驳；应首先定位失败前件。
+
+\section{结论的经济学表达}
+本稿支持的不是取消竞争、统一身份或按一种能力尺度筛选全部人，而是在明确制度目标下构造：共同权利先行、任务特定比较、有效参与正份额、可核验贡献差异、独立最低保障和可执行纠错。
+
+“第二次春秋”由此指向竞争秩序的再制度化：规范不只依赖行为者礼让，而落实为可读取规则、可验证事实、可执行责任与受限权限。“奥运会＋残运会”的功能启发是为不同条件下的卓越建立有意义的比较域，同时保留大众参与、支持角色和其他合法生活选项。任何一个项目的冠军或失败者，都不能仅凭该结果被赋予或剥夺全部社会权利。
+
+上述结论属于条件性制度实现。它有具体非空构造、误差界、容量判据、预算约束和停止条件；是否在某个现实经济域值得部署，应以共同口径的实际资金、行为、成本和外部有效性证据继续检验。
+\appendix
+\chapter{来源定位、内容归属与版式快照}
+\label{app:sources}
+\section{内部来源的使用范围}
+本稿直接引用《市场参与的形式系统》\cite{SourceMarket}、《后 AI 转型中的分配传导失灵与可核验治理》\cite{SourceSupplement}、《偏好多样性、权利边界与可兑现分配》\cite{SourcePreference}及中文工作笔记中的《率与商：G 框架语义微积分与传统微积分之间的同伦映射形式系统》\cite{SourceRateQuotient}。前三份文稿提供分配、实施与权利保护的具体结构；工作笔记仅提供本稿明确实例化的任务、分型和有限证书接口。未直接使用的专著、工作笔记及各来源中的被引文献不自动成为本稿证据。各源文件的仓库相对路径列于参考文献。
+
+以下以源文件中的稳定标签或准确章节、定义和命题名称定位；同名标签须结合对应文献区分，不使用汇编文件的累计行号。
+\begin{longtable}{L{0.16\textwidth}L{0.29\textwidth}L{0.45\textwidth}}
+\toprule 来源 & 位置 & 本稿使用及边界\\\midrule\endfirsthead
+\toprule 来源 & 位置 & 本稿使用及边界\\\midrule\endhead
+原稿\cite{SourceMarket} & \code{def:competition-led-domain} & 竞技与支持网络，支持角色依自身任务取得资格。\\
+同上 & \code{thm:base-differential-coverage} & 基本加差异合同、预算和域内贡献次序。本稿增加多域接续。\\
+同上 & \code{thm:minimal-sufficient-relief} & 生存--接入束及坐标最小救济。本稿增加完整情景上界。\\
+同上 & \code{prop:noisy-effort-contract} & 评分误差下的预算、激励与反序概率。\\
+同上 & \code{def:neutral-surplus-exploitation} & 合同剩余来源、投资激励与分配公正分别核验。\\
+同上 & \code{thm:minimal-compatible-extension} & 后 AI 条件与具体失灵共同触发的最小兼容修复。\\
+同上 & \code{sec:endogenous-cultural-background}中的“可观测文化状态与参与沉积” & 真实长期参与、共同记录与共同体承认的文化存量接口。\\
+补充稿\cite{SourceSupplement} & “贡献不是全部社会价值的单一度量”；\code{thm:reversal} & 多维贡献与标量化边界，名义奖励和实际回报的传导分离。\\
+同上 & \code{thm:deterrence} & 有界责任、发现与执行、严格和弱威慑的区分。\\
+同上 & \code{chap:governance}；\code{thm:separation} & 公开与公正分离、完整输入、非相关标签不干扰。\\
+同上 & \code{prop:clawback}；\code{prop:retention} & 同步抵销与保留收入的不同评估时点。\\
+同上 & \code{thm:exit} & 独立资金、时序和真实替代入口的退出条件。\\
+同上 & \code{def:quotient}；\code{thm:markov-preservation}；\code{thm:kernel-homotopy} & 任务充分商、有限执行及机制参数同伦的已有经济接口。\\
+权利文稿\cite{SourcePreference} & \code{def:charter}；\code{thm:noninterference} & 共同保护目录与偏好标签不干扰。\\
+同上 & \code{thm:ledger}；\code{thm:threshold} & 不依赖善意的结构与激励两种含义，固定记录下的安全与到期阈值。\\
+率与商笔记\cite{SourceRateQuotient} & \code{thm:dag}；\code{thm:generated} & 有限证书可靠性和生成式保持的归纳接口。\\
+同上 & “相对任务的不变量与信息保持”；\code{thm:joint-typing-refinement} & 相对任务的观察因子化、分型是否可被商去的判据。\\\bottomrule
+\end{longtable}
+
+\section{本稿新增、重述与外部参照的区分}
+重述部分包括基本加差异合同、最小救济、传导逆序、有限时限、标签不干扰及审计责任的一般接口。本稿新增展开包括：任务相关条件的识别反例；条件校准的显式误差界；局部次序兼容图及无环判据；保序重标与分配保持的分离；双人严格努力的预算可行区间；多元项目的容量覆盖；校准表示空间的显式强形变收缩；含公共最坏储备与基础任务成本的联合实例。
+
+容量覆盖采用Hall型经典原理，正文已给出独立证明并注明来源\cite{Hall1935}；它不是本稿提出的全新组合定理。古典章句与现代体育原则提供文化和规范参照；竞赛报酬与破坏实验提供有限模型或经验参照。不把这些参照直接外推为本稿机制已在现实社会成功。
+
+\begin{remark}[表示同伦不是现实历史等价]
+该定理严格证明所构造表示空间的同伦，不证明两个朝代、两类身体条件或两种现实经济整体同伦等价。若任务需要观察未校准的实际产出$y$、某种适配真实成本或条件本身，这些观察未必因子化到$q$，必须细化商并重证。修复违约应改变违约结果，不能同时要求该失败值沿修复路径不变。
+\end{remark}
+
+\section{文件快照与版式}
+版式参照\code{market_participation_formal_system.tex}：\code{report}、12pt、A4、上/下25mm及左/右20mm页边距，中文楷体环境，按章编号的定义、假设、定理、引理、命题、推论、备注与核验记录，目录点引导和蓝色内部链接。补充了公式与表格的分页保护及异常字形后备，不修改原始文件或字体文件。
+
+\Needspace{5\baselineskip}
+源文件快照：
+\begin{description}[style=nextline,leftmargin=0pt,labelwidth=0pt,labelsep=0pt]
+\item[原稿\cite{SourceMarket}（兼作版式参照）：8158行。]
+\code{5287da9597df78884454b8c467e8d5da506578160fa16eca7e0b603e796e8f15}
+\item[补充稿\cite{SourceSupplement}：1965行。]
+\code{88d7652d9fb127bd341c97415a153fdac2a3f0d852e4d70359e770ae700e299b}
+\item[权利文稿\cite{SourcePreference}：1337行。]
+\code{22752f46cfe55bbeecae55c1195e05cbdfc6bc48689d8098587790442c002494}
+\item[率与商笔记\cite{SourceRateQuotient}：3934行。]
+\code{083411f4d3cbfc95f02e3056ffb364b48b184e6d5426e36814f6986c2bdd7784}
+\end{description}
+正文可独立编译，不调用上述源文件，也不依赖外部\code{.bib}或图片。参考文献为文内自包含列表。编译需要包含中文CJK字体与所列标准宏包的pdfLaTeX环境，不在交付包中分发字体。
+
+\chapter{有限复算、压力情景与证明责任}
+\label{app:checks}
+\section{可复算对象}
+配套程序使用有理数复算第\ref{chap:example}章的支付、努力差和独立账户；有限图检查用于核对容量判据的构造实现。这些运行检查帮助发现算术或实现错误，不替代一般定理的符号证明，也不构成真实市场的运行证据。
+\begin{longtable}{L{0.19\textwidth}L{0.38\textwidth}L{0.33\textwidth}}
+\toprule 检查对象 & 输入或范围 & 应核对结果\\\midrule\endfirsthead
+\toprule 检查对象 & 输入或范围 & 应核对结果\\\midrule\endhead
+双人支付 & 四种二元努力组合 & 每人支付不低于1，每组总支付恒为4。\\
+两组支付 & 十六种四人努力组合 & 总支付恒为8，不因低分取消基本份额。\\
+全部单边努力 & 十六状态、四名主体 & 从不努力转努力的净增量恒为$3/4$。\\
+误差版本 & $\epsilon=1/10,D=2,k=1/4$ & 净努力裕量$11/20$，反序概率$1/100$。\\
+校准误差 & $\underline a=1/4,\bar e=1,\epsilon_a=\epsilon_y=1/100$ & 最坏界$E=1/12$；差值大于$1/6$才签发共同界下的严格序。\\
+容量覆盖 & 四名居民、两项目，各容量2；全部$2^8$种入口图 & 最大匹配全覆盖与全部邻域容量不等式等价。\\
+账本操作 & 资金、确权、分期支付、拒绝和规则更新 & $A=P+L$、$K\ge\sum L$逐步保持。\\
+公共底线 & 五人各$Y_i\in\{0,1,2,3\}$ & 总缺口最多5，含管理费最多$26/5$。\\
+权力边界 & $n=3,f=1,k=2$ & 错误最多1票，正确至少2票；到期路径无单方否决。\\
+违规责任 & $g=1/5,d=4/5,s=1,K=1/2$ & 违规相对收益$-1/5$。\\
+显式同伦 & 正条件参数与多个$t$ & $qH_t=q$，端点、截面固定和校准回读恒等式。\\
+引用和独立性 & 全部标签、参考文献、主文件 & 无未定义引用；引用仅指向指定源文稿与外部公开文献。\\\bottomrule
+\end{longtable}
+
+\section{应当被拒绝的反例}
+以下情形不能因其他坐标通过而被接受：仅为第五人预留$1$就声称五人全部退出仍有资金；责任执行概率为零却声称已威慑；阈值不高于故障数却声称安全；阈值高于$n-f$却声称故障者不能拖延；把两个同分异任务合并后仍声称合格性可回读；以全部收入抵销节省财政，却同时把被抵销收入用于正现金激励计算；用原始产出价值函数的收入给校准表现任务支付，却没有证明买方接受这种转换。
+
+原始账本或来源缺失、预算不足、错误率超过容限、实际市场入口被关闭及无法执行纠错时，只撤销依赖该前件的联合结论，不把所有有效局部结果归零。暂停新接纳须继续保留旧应付与申诉。若未来扩展至不受限合谋、跨期融资或全市场福利排序，需要新增对象、行为和证据，而不能仅扩大既有结论的措辞。
+
+\section{独立编译与核验运行}
+\begin{verbatim}
+latexmk -pdf -interaction=nonstopmode -halt-on-error \
+  normative_competition_plural_standards_formal_system.tex
+python verify_normative_competition.py
+\end{verbatim}
+核验程序与报告单独交付；主TeX编译不需要程序执行。程序检查有限对象、来源快照和构建一致性，不是证明助手证书。正文中全部数值例保持“构造证书”地位。
+
+\begingroup
+\small
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{参考文献}
+\raggedright\small
+\setlength{\itemsep}{3pt}
+\setlength{\parsep}{0pt}
+\setlength{\parskip}{0pt}
+\item[]所有公开网页的访问日期均为2026年10月17日。
+\bibitem{SourceMarket} Gao Zheng（高政）.
+\emph{市场参与的形式系统：参与式分配、能者多得与最小救济的演化机制}.
+2026，源文稿日期标注为2026年9月29日。
+本地源文件：\code{docs/tex/tex1/market_participation_formal_system.tex}。
+本文实际使用的标签与快照见附录\ref{app:sources}。
+
+\bibitem{SourceSupplement} Gao Zheng（高政）.
+\emph{后 AI 转型中的分配传导失灵与可核验治理：参与式分配、贡献激励、真实退出与最小救济的条件性扩展}.
+2026年10月13日，《市场参与的形式系统》的独立补充稿。
+本地源文件：\code{docs/tex/tex2/market_participation_governance_supplement.tex}。
+
+\bibitem{SourcePreference} Gao Zheng（高政）.
+\emph{偏好多样性、权利边界与可兑现分配：不依赖控制者个人善意的市场参与制度及其条件性证明}.
+2026年10月14日。
+本地源文件：\code{docs/tex/tex3/preference_rights_institution_formal_system.tex}。
+
+\bibitem{SourceRateQuotient} Gao Zheng（高政）.
+\emph{率与商：G 框架语义微积分与传统微积分之间的同伦映射形式系统}.
+2026年9月12日，中文工作笔记 v5.2 中的单篇。
+本地源文件：\code{docs/project_docs/notebook_tex_v5.2/20260912_gframework_rate_quotient_semantic_calculus_traditional_calculus_homotopy_mapping_formal_system.tex}。
+工作笔记组的发布引用：Gao, Z. (2026).
+\emph{Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis (GaoZheng G-Framework) and the Principal-Bundle-Based Generalized Noncommutative Lie Algebra (GaoZheng G-Algebra) 中文工作笔记}, Version v5.2, Zenodo.
+\url{https://doi.org/10.5281/zenodo.22739417}。
+具体使用范围见附录\ref{app:sources}，不以整组资料代替本稿的具体证明。
+
+\bibitem{Analects37} 孔子及弟子. \emph{论语·八佾}，3.7。
+中国孔子网《论语》（一）中英对照版公开原文页面130（正文页112）。
+\url{https://www.chinakongzi.org/eBook/analects/one/files/basic-html/page130.html}.
+仅以原文章句为文化参照。
+
+\bibitem{Analects316} 孔子及弟子. \emph{论语·八佾}，3.16。
+中国孔子网《论语》（一）中英对照版公开原文页面150（正文页132）。
+\url{https://www.chinakongzi.org/eBook/analects/one/files/basic-html/page150.html}.
+本文不据此裁定全部古典训诂。
+
+\bibitem{SunTzu} Sun Tzu. \emph{The Art of War}.
+Lionel Giles译，1910；Project Gutenberg公开版，Chapter I: Laying Plans, \S18。
+\url{https://www.gutenberg.org/files/132/132-h/132-h.htm}.
+
+
+\bibitem{IOCValues} International Olympic Committee.
+\emph{Olympic Values---Excellence, Respect and Friendship}.
+\url{https://www.olympics.com/ioc/olympic-values}.
+
+
+\bibitem{IPCClassification} International Paralympic Committee.
+\emph{Classification}，尤其“What is Classification?”、“Classification by Sport”及FAQs。
+\url{https://www.paralympic.org/classification}.
+
+
+\bibitem{UNESCOCharter} UNESCO.
+\emph{International Charter of Physical Education, Physical Activity and Sport}.
+2015年11月17日通过，尤其第1.3、1.6项。
+\url{https://www.unesco.org/en/legal-affairs/international-charter-physical-education-physical-activity-and-sport}.
+
+
+\bibitem{LazearRosen1981} Lazear, E. P., and Rosen, S.
+Rank-Order Tournaments as Optimum Labor Contracts.
+\emph{Journal of Political Economy}, 1981, 89(5):841--864.
+\url{https://doi.org/10.1086/261010}.
+
+
+\bibitem{Harbring2009} Harbring, C., and Irlenbusch, B.
+\emph{Sabotage in Tournaments: Evidence from a Laboratory Experiment}.
+IZA Discussion Paper No.4205, June 2009.
+\url{https://www.iza.org/publications/dp/4205/sabotage-in-tournaments-evidence-from-a-laboratory-experiment}.
+
+
+\bibitem{Hall1935} Hall, P. On Representatives of Subsets.
+\emph{Journal of the London Mathematical Society}, 1935, s1-10(1):26--30.
+\url{https://doi.org/10.1112/jlms/s1-10.37.26}.
+本稿容量版本通过名额展开与增广路径给出完整证明；不把经典原理登记为新增贡献。
+\end{thebibliography}
+\endgroup
+\end{CJK*}
+\end{document}

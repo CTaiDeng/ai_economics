@@ -12,7 +12,7 @@
 
 | JSON | 输入文件数 | 输出目标（仓库相对路径） |
 | --- | ---: | --- |
-| [ai_economics.json](ai_economics.json) | 7 | `res/ai_economics.txt` |
+| [ai_economics.json](ai_economics.json) | 9 | `res/ai_economics.txt` |
 | [G_Framework.json](G_Framework.json) | 38 | `res/G_Framework.txt` |
 
 在仓库根目录运行：
