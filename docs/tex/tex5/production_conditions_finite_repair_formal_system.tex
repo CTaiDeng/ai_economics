@@ -1,0 +1,2251 @@
+% !TEX program = pdflatex
+% Build: latexmk -pdf -interaction=nonstopmode -halt-on-error production_conditions_finite_repair_formal_system.tex
+% Standalone anonymized manuscript. UTF-8. No external source inputs are required.
+\documentclass[12pt,a4paper,openany]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{CJKutf8}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[scaled=0.84]{beramono}
+\else
+  \PackageError{ai-repair}{Compile this document with pdfLaTeX}{Use pdflatex or latexmk -pdf.}
+\fi
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{mathrsfs}
+\usepackage{geometry}
+\geometry{top=25mm,bottom=25mm,left=20mm,right=20mm}
+\usepackage{xcolor,url,xurl}
+\usepackage[unicode,colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{enumitem,booktabs,longtable,array,tocloft,listings}
+\hypersetup{pdftitle={生产条件重构与有限工程修复的形式系统},pdfauthor={},pdfsubject={理想吸收、相对同调与工程验收},pdfkeywords={分配修复,链复形,相对同调,L-infinity,有限实现,工程幻觉}}
+\Urlmuskip=0mu plus 1mu
+\def\UrlFont{\ttfamily\small}
+\DeclareRobustCommand{\urlunderscore}{\raisebox{-0.35ex}{\rule{0.55em}{0.35pt}}}
+\makeatletter
+\input{c70gkai.fd}
+\DeclareFontShape{C70}{gkai}{m}{it}{<-> CJK * gkaiu}{\CJKnormal}
+\DeclareFontShape{C70}{gkai}{bx}{it}{<-> CJKb * gkaiu}{\CJKbold}
+\g@addto@macro\UrlSpecials{\do\_{\urlunderscore}}
+\makeatother
+\DeclareUrlCommand{\codeurl}{\urlstyle{tt}}
+\DeclareRobustCommand{\code}[1]{\ifmmode\text{\codeurl{#1}}\else\codeurl{#1}\fi}
+\sloppy
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\contentsname}{目录}
+\renewcommand{\bibname}{参考文献}
+\renewcommand{\proofname}{证明}
+\newtheorem{definition}{定义}[chapter]
+\newtheorem{theorem}{定理}[chapter]
+\newtheorem{lemma}{引理}[chapter]
+\newtheorem{proposition}{命题}[chapter]
+\newtheorem{corollary}{推论}[chapter]
+\newtheorem{remark}{备注}[chapter]
+\newtheorem{Certificate}{核验记录}[chapter]
+\numberwithin{equation}{chapter}
+\newcommand{\NN}{\mathbb N}
+\newcommand{\QQ}{\mathbb Q}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\EE}{\mathbb E}
+\newcommand{\cfin}{C_{\mathrm{fin}}}
+\newcommand{\chat}{\widehat C}
+\newcommand{\Linfty}{L_\infty}
+\newcommand{\Id}{\operatorname{id}}
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\spanof}{\operatorname{span}}
+\newcommand{\cone}{\operatorname{cone}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\spr}{\operatorname{spr}}
+\newcommand{\LocOK}{\operatorname{LocOK}}
+\newcommand{\EngOK}{\operatorname{EngOK}}
+\newcommand{\ReportOK}{\operatorname{ReportOK}}
+\newcommand{\Hall}{\operatorname{Hall}}
+\newcommand{\Sol}{\operatorname{Sol}}
+\newcommand{\Norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\Abs}[1]{\left\lvert#1\right\rvert}
+\newcommand{\pos}[1]{\left[#1\right]_+}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setlength{\emergencystretch}{8em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{3}
+\setlist{itemsep=0.2em,topsep=0.3em}
+\lstset{basicstyle=\ttfamily\footnotesize,keywordstyle=\ttfamily,commentstyle=\ttfamily\color{gray},stringstyle=\ttfamily,breaklines=true,columns=fullflexible,keepspaces=true,frame=single,showstringspaces=false}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+\title{生产条件重构与有限工程修复的形式系统\\[0.6em]
+\large 分配复形、共同安全核心与理想吸收的相对同调}
+\author{}
+\date{}
+\pagenumbering{roman}
+\hypersetup{pageanchor=false}
+\maketitle
+\setcounter{page}{2}
+\hypersetup{pageanchor=true}
+
+\chapter*{摘要与证明范围}
+\addcontentsline{toc}{chapter}{摘要与证明范围}
+
+本文在给定的生产、控制与收益回流条件下，构造从分配缺陷到修复执行的形式系统。
+制度操作的净效果构成修复复形的边界，指定缺陷的可修复性由同调类与对偶读出检验。
+生产能力的低成本性、解除实质性垄断与可私有化，在声明的三坐标生产条件任务上构成三个基本生成方向。
+三坐标分型、收入到账、资金覆盖、安全执行和完整任务验收分别采用各自的观察与判据。
+
+本文的主结论属于\emph{理想可解而有限实现受阻}的分型。构造有限支撑修复复形
+\[
+ \cfin:\quad c_{00}(a_j)\xrightarrow{\partial}c_{00}(b_j)\longrightarrow0,
+ \qquad \partial a_j=b_j-b_{j+1},
+\]
+以及逐坐标乘积完成 $\chat$。对 $\omega=\Delta b_1$、$\Delta>0$，有
+\[
+ H_1(\cfin)\cong\RR,\qquad [\omega]_{\cfin}\ne0,
+ \qquad \widehat\partial\bigl(\Delta,\Delta,\ldots\bigr)=\omega,
+ \qquad H_1(\chat)=0.
+\]
+理想吸收所需的非有限部分在商 $Q=\chat/\cfin$ 中形成第二同调类，连接同态满足
+\[
+ \boxed{\delta[\bar u_\infty]=[\omega]_{\cfin}\ne0.}
+\]
+每个有限前缀执行仍留下 $r_N=\Delta b_{N+1}$。若局部观察只保留前 $N$ 个坐标，则
+\[
+ \boxed{P_Nr_N=0,\qquad \Norm{r_N}_1=\Delta>0.}
+\]
+将这一局部通过发布为原任务已经完成，构成本文定义的工程幻觉。
+本文另外给出满足广义 Jacobi 恒等式的 $\Linfty$ 运算，使全展开吸收与有限展开残差对应于同一个构造。
+
+该否决不以训练成本、算力开销或运行时间为前提。训练成本在生产进入模型中单独计量；
+高阶同调类计量理想见证向有限实际作用的兑现缺口。
+数学归纳法依据单步实际作用覆盖证书，覆盖相应的全部有限自适应执行。
+
+若原目标要求同一变量同时满足互相矛盾的条件，则其解集为空，且在保持原判据的扩展中仍为空。
+这一绝对不相容分型与理想可解、有限实现受阻的分型，分别由解集条件和相应证明刻画。
+
+本文还构造分配压力的四状态反馈系统与内外部账户模型，证明其稳定性边界及外部义务的分离读出。
+文献用于标明已有结构接口；本文新增的复形、映射、同伦、残差界和验收判据均在正文内给出自足证明。
+
+\textbf{关键词：}生产关系；分配修复；任务充分商；相对同调；理想完成；有限实现；$\Linfty$；工程幻觉。
+
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\chapter{任务对象、证明类型与逻辑分型}
+\label{chap:typing}
+
+\section{完整任务与证明条件}
+
+\begin{definition}[完整修复任务]
+\label{def:task}
+一个任务写为
+\[
+ T=(X,X_0,\mathcal A,\operatorname{Succ},O,G_T,\varepsilon).
+\]
+$X$ 是完整状态域，$X_0$ 是初态集合，$\mathcal A(x)$ 是状态 $x$ 下允许的动作，
+$\operatorname{Succ}(x,a)$ 保存动作之后全部被任务纳入的实际响应；$O$ 是必要观察，
+$G_T$ 是完整接受判据，$\varepsilon$ 是预先声明的容差。若任务包含安全或稳健性，
+响应集合包括相应的偏离、失败、外部扰动及被禁止动作仍可能产生的实际后继。
+\end{definition}
+
+\begin{definition}[三种不同对象]
+模型解释残差 $e_{\mathcal M}$ 衡量模型与待解释资料的差异；对象内部缺陷 $\omega$ 衡量实际状态与目标的差异；
+执行残差 $r(\tau)$ 衡量一条已经执行的轨迹 $\tau$ 尚未兑现的完整义务。
+修订模型可以减小 $e_{\mathcal M}$，但不自动使现实 $\omega$ 或 $r(\tau)$ 减小。
+\end{definition}
+
+\begin{remark}[定义、模型条件与定理]
+符号和任务阈值由定义登记，模型条件由数据、构造或独立证明支持。
+由有限生成规则、矩阵恒等式或单步保持关系推出的结论，以定理及相应证书陈述。
+模型内推导、现实参数识别、实现运行证据和跨场景覆盖是不同证明责任。
+\end{remark}
+
+\section{三种解集分型}
+
+\begin{definition}[绝对不相容、相对实现受阻与有限可实现]
+固定同一个完整任务判据，令 $\Sol_\infty(T)$ 表示理想域中的解，
+$\Sol_{\mathrm{fin}}(T)$ 表示具有合法有限实际实现的解。分为
+\[
+\begin{aligned}
+ \mathfrak A &: \Sol_\infty(T)=\varnothing;\\
+ \mathfrak R &: \Sol_\infty(T)\ne\varnothing,
+                  \quad\Sol_{\mathrm{fin}}(T)=\varnothing;\\
+ \mathfrak F &: \Sol_{\mathrm{fin}}(T)\ne\varnothing.
+\end{aligned}
+\]
+只有在理想对象与实际对象的任务意义已经对应时，以上集合才能直接比较。
+本文最终的理想吸收与工程幻觉主定理采用 $\mathfrak R$ 分型。
+\end{definition}
+
+\begin{theorem}[逻辑矛盾不能由保持判据的完成消去]
+\label{thm:contradiction-persistence}
+若合格状态必须使同一实数 $n$ 满足 $K\le n\le M$，且 $K>M$，则任何继续采用这一判据的扩展域均无合格状态。
+\end{theorem}
+\begin{Certificate}[固定判据的否决记录]
+证书为 $(K,M,K-M>0)$ 及两项必要条件使用同一个 $n$ 的类型核验。
+\end{Certificate}
+\begin{proof}
+假设扩展域中的 $x$ 合格，则 $K\le n(x)\le M$，由实数序关系的传递性得 $K\le M$，与证书矛盾。
+因此，无论扩展增加多少表示或运算，该固定判据的接受集合仍为空。
+\end{proof}
+
+\begin{corollary}[理想可解分型的见证条件]
+任务属于 $\mathfrak R$ 的必要条件，是理想域存在一个满足所声明修复方程的见证。
+定理~\ref{thm:contradiction-persistence} 所刻画的固定矛盾判据属于 $\mathfrak A$。
+\end{corollary}
+
+\section{充分商与验收保持}
+
+\begin{definition}[任务观察的充分商]
+\label{def:sufficient}
+满射 $q:X\to\bar X$ 对观察 $O$ 充分，指存在 $\bar O$ 使 $O=\bar Oq$。
+若还要在商上执行，须另外保留动作合法性、相关后继关系与接受结果。
+这一分层采用经济资料中“有限任务及充分商”和“观察因子化的充要判据”的接口
+\cite[《规范竞技、多元评价与共同权利底线》，“经济任务需要保留哪些观察”节]{SourceCompetition}。
+\end{definition}
+
+\begin{theorem}[观察下降的充要条件]
+\label{thm:factor}
+存在唯一 $\bar O$ 使 $O=\bar Oq$，当且仅当
+\[
+ q(x)=q(y)\Longrightarrow O(x)=O(y).
+\]
+\end{theorem}
+\begin{Certificate}[同纤维一致性或异值对]
+通过证书为 $\bar O(qx)=O(x)$ 的代表元无关性；否决证书为 $q(x)=q(y)$ 而 $O(x)\ne O(y)$ 的一对状态。
+\end{Certificate}
+\begin{proof}
+因子化成立时，同像的两个状态由同一个 $\bar O$ 读出，观察相同。
+反之，同纤维一致性使 $\bar O(qx)=O(x)$ 良定义，满射保证处处有定义并唯一。
+\end{proof}
+
+\begin{theorem}[有限执行保持的归纳证明]
+\label{thm:word-preservation}
+对确定性后继 $F_a$，若每个允许动作均有 $qF_a=\bar F_aq$，并保持合法性及接受观察，
+则任意有限动作词 $w=a_1\cdots a_m$ 满足 $qF_w=\bar F_wq$。
+对集合值后继，若逐动作、逐响应的相应模拟关系成立，同样由轨迹长度归纳得到已覆盖路径的保持。
+\end{theorem}
+\begin{Certificate}[单步交换方块]
+提交每个动作的交换关系、合法标签及后继对应。自适应策略在商上作相同选择，还须仅依赖商中保留的历史。
+\end{Certificate}
+\begin{proof}
+空词为恒等映射。若长度 $m$ 成立，追加 $a$ 后
+\[
+ qF_aF_w=\bar F_aqF_w=\bar F_a\bar F_wq.
+\]
+合法性与接受观察由单步和终态保持条件传递。集合值版本在每个允许后继上应用相同归纳。
+确定性部分给出资料中有限执行保持接口的自足证明
+\cite[《规范竞技、多元评价与共同权利底线》，定理“商上有限执行保持：公理降级”]{SourceCompetition}。
+\end{proof}
+
+\chapter{分配缺陷、收益回流与制度修复复形}
+\label{chap:distribution}
+
+\section{技术扩张与家庭收入}
+
+\begin{definition}[固定群体的实际收入]
+固定基期家庭集合 $H$，使用同一购买力口径。记工资、资产收益、净转移及价格指数为
+$W_t,R_t,T_t,P_t$，其中仅要求 $P_t>0$，其余收入项允许依核算为零或负。
+实际收入定义为 $d_t=(W_t+R_t+T_t)/P_t$。
+\end{definition}
+
+\begin{theorem}[产出增长与群体实际收入下降相容]
+\label{thm:income}
+即使总实际产出 $Y_1>Y_0$，只要
+\[
+ \Delta W+\Delta R+\Delta T<d_0\Delta P,
+\]
+就有 $d_1<d_0$。
+\end{theorem}
+\begin{Certificate}[同口径收入记录]
+证书为两个时期的 $(W,R,T,P,Y)$、固定家庭分母及不重复核算规则。
+\end{Certificate}
+\begin{proof}
+直接相减得
+\[
+ d_1-d_0=\frac{\Delta W+\Delta R+\Delta T-d_0\Delta P}{P_1}<0.
+\]
+该恒等式与总产出增长相容，结论的统计对象为所声明固定群体的均值。
+\end{proof}
+
+\begin{definition}[技术扩张的分配接口]
+取扩张规模 $a\ge0$、每单位被替代劳动收入 $\ell\ge0$、新组织可分配收益 $G\ge0$、
+初次归于受影响群体之外的比例 $m\in[0,1]$、外部收益回流比例 $r\in[0,1]$，
+以及不重复计入前述流量的其他单位净补偿 $c$。构造
+\[
+ \Delta I_H=a\{c-\ell+G[1-m(1-r)]\}=-a\chi,
+ \qquad \chi=\ell-c-G[1-m(1-r)].
+\]
+\end{definition}
+
+\begin{proposition}[控制与回流的方向效应]
+在其他参数固定的模型中，
+\[
+ \partial_m\chi=G(1-r)\ge0,\qquad
+ \partial_r\chi=-Gm\le0.
+\]
+$a>0$ 时，$\chi>0$ 推出受影响群体收入下降。
+\end{proposition}
+\begin{Certificate}[参数与流量归属]
+证书为 $(a,\ell,G,m,r,c)$ 及每项收入归属、不重复计量记录。
+\end{Certificate}
+\begin{proof}
+由定义展开 $\chi=\ell-c-G+Gm(1-r)$，求导并代入 $\Delta I_H=-a\chi$ 即得。
+收入下降结论的参数域为 $a>0$ 且 $\chi>0$。
+\end{proof}
+
+\section{资源相容的修复复形}
+
+\begin{definition}[配置缺陷与允许操作]
+取同一核算范围的实际配置 $x^{\mathrm{act}}$ 与参照配置 $x^{\mathrm{ref}}$，令
+$\omega=x^{\mathrm{ref}}-x^{\mathrm{act}}\in\QQ^n$。
+资源相容矩阵为 $B$，修复效果矩阵为 $A=(a_1,\ldots,a_r)$。要求
+\[
+ B\omega=0,\qquad Ba_j=0\quad(1\le j\le r).
+\]
+超出可用总资源的参照要求另列为资源不足。
+\end{definition}
+
+\begin{lemma}[逐操作守恒生成复形]
+\label{lem:balance}
+上述条件推出 $BA=0$，故
+\[
+ C_2=\QQ^r\xrightarrow{A}C_1=\QQ^n\xrightarrow{B}C_0
+\]
+构成链复形。任意有限更新 $\omega_{t+1}=\omega_t-Au_t$ 保持 $B\omega_t=0$。
+\end{lemma}
+\begin{Certificate}[列证书与归纳式]
+证书为全部 $Ba_j=0$、初始 $B\omega_0=0$ 及每次实际效果记录。
+\end{Certificate}
+\begin{proof}
+对任意 $u$，$BAu=\sum_j u_jBa_j=0$。若 $B\omega_t=0$，则
+$B\omega_{t+1}=B\omega_t-BAu_t=0$；按执行次数归纳。
+\end{proof}
+
+定义
+\[
+ H_1(C)=\ker B/\im A.
+\]
+这是闭链模去边界的标准同调构造\cite[第2章]{Hatcher2002}。
+在本任务中，$[\omega]=0$ 只表示存在有符号形式修复 $Au=\omega$。
+实际修复须再要求 $u\in\mathcal U(x)$，其中保留非负数量、真实资金、权限、期限和可执行顺序。
+
+\begin{theorem}[有限线性修复的双证书]
+\label{thm:dual}
+有限有理矩阵下，以下两类证书恰有一类存在：
+\[
+ Au=\omega;
+ \qquad\text{或}\qquad
+ \lambda A=0,\quad\lambda\omega\ne0.
+\]
+前者证明 $[\omega]=0$，后者证明 $[\omega]\ne0$。
+\end{theorem}
+\begin{Certificate}[精确消元记录]
+对 $[A\mid\omega]$ 作有理高斯消元并保存行变换。回代给出 $u$；矛盾行给出 $\lambda$。
+\end{Certificate}
+\begin{proof}
+无矛盾行时线性系统可解。出现矛盾行时，其行组合对 $A$ 取零而对 $\omega$ 非零。
+若两类同时成立，则 $\lambda\omega=\lambda Au=0$，矛盾。每次消元增加主元，主元数有有限上界。
+\end{proof}
+
+\begin{corollary}[有限维距离与执行残差]
+\label{cor:finite-distance}
+正定矩阵 $W$ 下，任何上述非零分离证书给出
+\[
+ \inf_{u\in\mathcal U(x)}\Norm{\omega-Au}_W
+ \ge\inf_u\Norm{\omega-Au}_W
+ \ge\frac{|\lambda\omega|}{\sqrt{\lambda W^{-1}\lambda^\top}}>0.
+\]
+\end{corollary}
+\begin{proof}
+$\lambda(\omega-Au)=\lambda\omega$，应用加权 Cauchy--Schwarz 不等式并取下确界。
+无限维推广须另外验证读出的连续性和对偶范数，见第~\ref{chap:completion}章。
+\end{proof}
+
+\section{可执行回流与低阶修复}
+
+按 $(H,K,G)$ 排列家庭、资本与公共账户，取
+\[
+ B=(1,1,1),\qquad
+ a=(0,-1,1)^\top,\qquad b=(1,0,-1)^\top,
+ \qquad\omega=(d,-d,0)^\top.
+\]
+只有 $a$ 时，$\lambda_H=(1,0,0)$ 满足 $\lambda_Ha=0$、$\lambda_H\omega=d$，家庭缺口是非零类。
+加入 $b$ 后，$d(a+b)=\omega$ 且 $H_1=0$。
+
+\begin{proposition}[形式回流与实际回流分别核验]
+若资金与权限支持轨迹
+\[
+ (0,d,0)\longrightarrow(0,0,d)\longrightarrow(d,0,0),
+\]
+则这项家庭分配缺口确实修复。两笔毛支付为 $2d$，合并账户后的跨群体净转移为 $d$。
+若第二步只能支付 $u_b\le T_{\max}<d$，则实际家庭缺口仍至少为 $d-T_{\max}$。
+\end{proposition}
+\begin{Certificate}[到账与合并抵销]
+保存起始未重复承诺余额、两笔执行回执、合并账户规则与期末余额。
+应付与到账分别记录，合并核算抵销跨组织内部流量，家庭收入按净流入计量
+\cite[《市场参与的形式系统》，定义“两个收入群体与同口径资金用途”；
+《后 AI 转型中的分配传导失灵与可核验治理》，“应付、到账与可保留收入的分离”节]{SourceMarket,SourceSupplement}。
+\end{Certificate}
+\begin{proof}
+逐项加减即可验证资金守恒；净变化为 $(d,-d,0)$。
+容量受限时 $\lambda_H(\omega-au_a-bu_b)=d-u_b\ge d-T_{\max}>0$。
+\end{proof}
+
+\begin{proposition}[训练条件固定时的收入修复实例]
+\label{prop:income-not-training}
+在已融资、真实支付与持续产出条件满足的模型中，家庭收入修复不以家庭独立训练为必要前件。
+若另行固定一个与这些现金和生产条件相容的训练子系统，收入修复实例继续成立。
+资料中的共同可行实例给出每期真实净转移 $T=8$ 及
+\[
+ Y_{t+1}=\frac{216}{5}+\frac{71}{125}Y_t,
+ \qquad Y^*=100.
+\]
+该构造同时核对资本侧预算、先期现金、消费替代与库存延续
+\cite[《市场参与的形式系统》，定理“微观合同与总量收入的一个共同可行实例”]{SourceMarket}。
+\end{proposition}
+\begin{Certificate}[流量与稳定性]
+采用原构造的资金、库存及每期转移前件，另保存递推系数 $71/125<1$。
+\end{Certificate}
+\begin{proof}
+相减得到
+\[
+ Y_{t+1}-100=\frac{71}{125}(Y_t-100),
+\]
+按期数归纳得 $Y_t-100=(71/125)^t(Y_0-100)\to0$。
+收入递推的前提由现金、转移与生产条件组成；任何与这些条件相容的固定训练子系统均保留该收入修复实例。
+\end{proof}
+
+\begin{remark}[生产关系研究的任务外延]
+生产自主、收益权、实际生活保障和持续需求分别作为完整目标中的观察与接受条件。
+本文后续的有限不可实现定理，仅否决具有相应执行覆盖与残差证书的联合任务。
+\end{remark}
+
+\chapter{三基本生成类与规范化同伦}
+\label{chap:three}
+
+\section{生产条件的三个独立读出}
+
+\begin{definition}[训练低成本、真实替代与自主占有]
+固定能力标准 $h$、训练成功标准、主体集合及持续生产窗口，登记
+\[
+ L=\text{低训练成本性},\qquad
+ M=\text{解除实质性垄断},\qquad
+ P=\text{生产能力可自主占有}.
+\]
+$L$ 要求生产出能力 $h$ 的真实训练资源成本跨过目标主体的可负担门槛。
+计量范围包括该训练过程必需的计算、存储、通信及其他已声明资源；购买现成能力的价格与推理服务价格另记。
+$M$ 要求必要投入、生产续行和出口存在真实替代，任务所登记的控制者不能单方封锁全部可行路径。
+$P$ 要求主体能够依法占有、部署、运行、改造相应生产实例，并保有已确认的产出和收益权；
+若任务还要求独立再训练，须明确增加该条件。
+\end{definition}
+
+\begin{remark}[成本口径与产权口径]
+训练资源成本、推理服务价格与总运行成本分别计量，自主占有按已声明的合法权限边界核验。
+本章采用上述三项定义登记生产条件。
+资料关于实际控制、真实退出和旧权利保持的规定，可用于核验 $M,P$ 的部分接口
+\cite[《偏好多样性、权利边界与可兑现分配》，“独立最小救济与真实退出”及
+“有界权限与不依赖单方批准的履约”两章]{SourcePreference}。
+\end{remark}
+
+\begin{proposition}[三个谓词不互相蕴含]
+在上述定义下，另外两项成立不自动推出剩余一项成立。
+\end{proposition}
+\begin{Certificate}[独立性情景]
+\begin{center}
+\begin{tabular}{P{0.64\textwidth}ccc}
+\toprule
+构造状态 & $L$ & $M$ & $P$\\
+\midrule
+有真实竞争投入和自主产权，但训练资源需求仍超过主体预算 & 0&1&1\\
+训练便宜且模型自有，但全部必要生产出口受同一控制者封锁 & 1&0&1\\
+训练资源便宜、生产供应可替换，但许可只赋予调用权 & 1&1&0\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{Certificate}
+\begin{proof}
+三行分别给出 $M\land P\land\neg L$、$L\land P\land\neg M$、
+$L\land M\land\neg P$ 的模型。每行的资源条件、外部路径条件和权利条件可分别指定，
+因而没有违反定义中的共同要求。
+\end{proof}
+
+\section{净作用锥的最小生成证书}
+
+\begin{definition}[标准化缺口与单调净作用]
+令 $d=(d_L,d_M,d_P)^\top\in\RR_{\ge0}^3$。$d_j=0$ 表示相应条件已经满足。
+各坐标采用各自的标准化口径，其货币解释另由单位换算登记。
+令候选净改善矩阵为 $F$，本节仅研究 $F\ge0$ 的单调净作用放宽：
+\[
+ \cone(F)=\{Fu:u\ge0\}.
+\]
+实际权限、资金、顺序与容量另由执行集合保存。
+\end{definition}
+
+\begin{theorem}[三方向的生成完备性]
+\label{thm:three-cone}
+若存在非负矩阵 $V$，满足
+\[
+ F\ge0,\qquad V\ge0,\qquad FV=I_3,
+\]
+则 $\cone(F)=\RR_{\ge0}^3$；其不可分的极射线恰为三个坐标轴。
+\end{theorem}
+\begin{Certificate}[有限矩阵]
+可以取
+\[
+ F=
+ \begin{pmatrix}
+ 1&0&0&1&1&0\\
+ 0&1&0&1&0&1\\
+ 0&0&1&0&1&1
+ \end{pmatrix},
+ \qquad
+ V=\begin{pmatrix}I_3\\0_{3\times3}\end{pmatrix}.
+\]
+该证书是一个明确的构造实例；特定制度的操作矩阵须另行求解同一方程。
+\end{Certificate}
+\begin{proof}
+$F\ge0$ 给出 $\cone(F)\subseteq\RR_{\ge0}^3$。
+对任意 $r\ge0$，有 $r=FVr$ 且 $Vr\ge0$，得到反向包含。
+若非零向量仅有一个正坐标，其非负分解的各项只能沿同一轴。
+若至少有两个正坐标，将其中一个正坐标与其余坐标分开，就得到两个不共线的非负分量，
+故该方向不是极射线。
+\end{proof}
+
+\begin{remark}[三坐标生成与完整任务保持]
+方程 $FV=I_3$ 证明所登记作用族能生成各轴；完整经济任务向三坐标下降的充分性须满足
+定理~\ref{thm:factor} 的观察下降和执行保持条件。
+财政回流如果独立改变实际收入，其效果须继续保存在完整经济状态中。
+\end{remark}
+
+\section{基本同伦类与八种规范复合}
+
+\begin{definition}[规范化作用]
+在 $\bar X=\{0,1\}^3$ 上，$1$ 表示对应缺口仍存在。
+定义 $\bar f_j$ 将第 $j$ 个坐标置零，其余坐标保持。相应确定性随机核为 $\bar K_j$。
+对 $J\subseteq\{L,M,P\}$，令 $\bar f_J$ 同时清零 $J$ 中的坐标。
+\end{definition}
+
+\begin{theorem}[规范作用的最小生成集]
+\label{thm:three-monoid}
+上述作用满足
+\[
+ \bar f_J\bar f_K=\bar f_{J\cup K},\qquad
+ \bar f_j^2=\bar f_j,\qquad
+ \bar f_j\bar f_k=\bar f_k\bar f_j.
+\]
+规范作用幺半群有八个元素，其唯一不可删的最小生成集为
+$\{\bar f_L,\bar f_M,\bar f_P\}$。
+\end{theorem}
+\begin{proof}
+某坐标在复合后为零，当且仅当它属于 $J\cup K$，故乘法公式成立。
+不同子集作用于 $(1,1,1)$ 给出不同结果，因此共有 $2^3=8$ 个元素。
+要用并运算生成单点集合 $\{j\}$，参与的非空生成集合必须有一个恰为 $\{j\}$。
+三个单点因此都不可删除，同时它们显然生成全部子集。
+对有限执行词，空词对应空集；追加 $j$ 将 $J$ 更新为 $J\cup\{j\}$。
+按词长归纳，任意有限词都有唯一规范复合。
+\end{proof}
+
+\begin{definition}[固定商作用的实现空间]
+取有限细化状态域 $X$ 与满射 $q:X\to\bar X$，令
+$S_{x,\bar x}=\mathbf1_{\{q(x)=\bar x\}}$。
+对基本类型 $j$ 定义
+\[
+ \mathscr K_j=
+ \{K:K\ge0,\ K\mathbf1=\mathbf1,\ KS=S\bar K_j\},
+\]
+并假定各集合非空。这里 $K$ 为按行作用的随机核。
+\end{definition}
+
+\begin{theorem}[三个指定基本实现族的同伦分型]
+\label{thm:kernel-components}
+每个 $\mathscr K_j$ 可收缩；在限制空间
+$\mathscr K_{\mathrm{prim}}=\mathscr K_L\cup\mathscr K_M\cup\mathscr K_P$
+中，恰有三个路径连通分支。
+\end{theorem}
+\begin{Certificate}[凸同伦]
+对同族 $K^0,K^1$，取
+\[
+ K^\theta=(1-\theta)K^0+\theta K^1,\qquad0\le\theta\le1.
+\]
+\end{Certificate}
+\begin{proof}
+非负性、行和为一及等式 $KS=S\bar K_j$ 均由凸组合保持。
+固定一个 $K^1$ 即得收缩。连续映射 $K\mapsto KS$ 在指定并集上的像只有三个不同点；
+连续路径的像连通，不能跨越这三个点。因此三族互不连通，而各族自身连通。
+\end{proof}
+
+\begin{remark}[指定实现空间的连通分支]
+定理~\ref{thm:kernel-components} 的作用空间为所定义的三个基本实现族之并。
+允许连续改变商作用或纳入其他自映射时，路径连通分支按扩大的实现空间重新计算。
+随机核之间的形式凸插值还需预算与实施证书，才能成为实际制度的可执行插值。
+这一要求与资料的共同商转移同伦接口一致
+\cite[《后 AI 转型中的分配传导失灵与可核验治理》，定理“共同商转移下的凸同伦”]{SourceSupplement}。
+\end{remark}
+
+\section{缺类障碍与剩余核心的可计算判据}
+
+\begin{theorem}[删除一类的线性障碍]
+令 $J\subseteq\{L,M,P\}$，$E_J$ 的列为 $J$ 中的标准基向量，构造
+\[
+ C_J:\quad\QQ^{|J|}\xrightarrow{E_J}\QQ^3\longrightarrow0.
+\]
+则
+\[
+ H_1(C_J)\cong\QQ^{3-|J|}.
+\]
+若 $j\notin J$ 且 $d_j>0$，则 $[d]\ne0$。
+\end{theorem}
+\begin{proof}
+$E_J$ 的列线性独立，商空间维数为 $3-|J|$。
+取第 $j$ 个坐标读出 $\lambda_j$，有 $\lambda_jE_J=0$ 而 $\lambda_jd=d_j>0$，
+故不存在 $E_Ju=d$。
+\end{proof}
+
+\begin{proposition}[三坐标分解的余障碍]
+\label{prop:three-residual}
+对原复形 $C_2\xrightarrow{A_0}C_1\xrightarrow B C_0$，设
+\[
+ BA_0=0,\quad \Lambda A_0=0,\quad BV=0,\quad\Lambda V=I_3.
+\]
+则
+\[
+ H_1(C)\cong\QQ^3\oplus
+ \frac{\ker B\cap\ker\Lambda}{\im A_0}.
+\]
+若 $Z$ 的列为 $\ker B$ 的一组基，则三坐标已经穷尽障碍，当且仅当存在 $U$ 使
+\[
+ A_0U=(I-V\Lambda)Z.
+\]
+\end{proposition}
+\begin{proof}
+每个闭元 $z$ 唯一分解为 $V\Lambda z+(I-V\Lambda)z$。
+第一项属于 $\im V$，第二项属于 $\ker B\cap\ker\Lambda$；
+由 $\Lambda V=I_3$，两项空间交为零。边界全部位于第二项。
+取商即得分解。余障碍为零恰当于每个基列的剩余项均有 $A_0$ 原像，
+排列这些原像即得到矩阵 $U$。
+\end{proof}
+
+\section{形式扩展、映射锥与操作见证}
+
+\begin{proposition}[外代数扩展保留指定核心]
+令 $\mathscr B$ 为仅在余链次数 $1$ 非零的三维核心，$d_{\mathscr B}=0$。
+取 $\Lambda_N=\Lambda(\xi_1,\ldots,\xi_N)$、$|\xi_i|=1$、$d\xi_i=0$。
+则
+\[
+ H^\bullet(\mathscr B\otimes\Lambda_N)
+ \cong H^\bullet(\mathscr B)\otimes\Lambda_N,\qquad
+ \dim H^\bullet=3\cdot2^N.
+\]
+取常数项的增广商仍为 $\mathscr B$。
+\end{proposition}
+\begin{proof}
+微分不混合外单项式块，闭元和边界逐块计算。
+单项式或者不含 $\xi_{N+1}$，或者恰含一次，故基数每次翻倍；
+由 $N=0$ 的三维基例归纳得到维数公式。
+增广投影的核恰为正外次数部分，商为常数块。
+\end{proof}
+
+\begin{theorem}[任意附加核的形式收缩]
+\label{thm:cone}
+给定余链复形 $(\mathscr K,d_{\mathscr K})$，令
+\[
+ \mathscr E^n=\mathscr B^n\oplus\mathscr K^n\oplus\mathscr K^{n+1},
+\]
+\[
+ D(b,u,v)=(d_{\mathscr B}b,\ d_{\mathscr K}u+v,\ -d_{\mathscr K}v).
+\]
+取 $\pi(b,u,v)=b$、$\iota b=(b,0,0)$、$h(b,u,v)=(0,0,u)$，则
+\[
+ D^2=0,\quad \pi\iota=I,\quad
+ Dh+hD=I-\iota\pi.
+\]
+因此 $\mathscr E$ 与 $\mathscr B$ 链同伦等价。
+\end{theorem}
+\begin{proof}
+$D^2$ 的第二分量为 $d_{\mathscr K}^2u+d_{\mathscr K}v-d_{\mathscr K}v=0$，
+其余分量为零。又
+\[
+ Dh(b,u,v)=(0,u,-d_{\mathscr K}u),\quad
+ hD(b,u,v)=(0,0,d_{\mathscr K}u+v),
+\]
+相加即得收缩恒等式。
+\end{proof}
+
+\begin{corollary}[实现到核心的同伦归约]
+令 $P=\iota\pi$，若 $F$ 与 $D$ 交换，则
+\[
+ F-PFP=D(hF+PFh)+(hF+PFh)D.
+\]
+故 $F$ 链同伦于 $\iota(\pi F\iota)\pi$。
+\end{corollary}
+\begin{proof}
+将 $F-PFP=(I-P)F+PF(I-P)$ 中的 $I-P$ 替换为 $Dh+hD$，再利用链映射交换关系即可。
+\end{proof}
+
+\begin{remark}[形式扩展的执行条件]
+上述收缩在扩展中增加了新的原像。若 $u$ 原来是闭元，则 $(0,u,0)=D(0,0,u)$。
+该等式给出附加核的代数原像；若 $u$ 表示真实收入、控制权或其他未兑现义务，
+新原像的实际执行另由操作证书确认。后续的相对同调记录
+“理想域已经有原像，当前有限实际域尚无原像”的差别。
+\end{remark}
+
+\chapter{共同安全核心与训练约束的逻辑分型}
+\label{chap:safety}
+
+\section{指定受限事件的执行与排除}
+
+\begin{definition}[受限事件可执行性与轨迹安全]
+对实现 $I$，令 $\operatorname{Tr}_{\rm own}(I)$ 为主体能够自主完成的实际轨迹集合，
+$D_I$ 为事先登记的禁止损害状态集合。定义
+\[
+ b(I)=\mathbf1_{\{\exists\tau\in\operatorname{Tr}_{\rm own}(I):
+                         \tau\cap D_I\ne\varnothing\}}.
+\]
+$P_D(I)$ 表示保留进入 $D_I$ 的自主可执行性，即 $b(I)=1$；
+$S_D(I)$ 表示该自主执行范围内全部轨迹都避开 $D_I$，即 $b(I)=0$。
+\end{definition}
+
+\begin{theorem}[受限事件可执行性与轨迹安全不相容]
+对任意实现 $I$，$\neg(P_D(I)\land S_D(I))$。
+\end{theorem}
+\begin{Certificate}[存在与全称]
+$P_D$ 提供一条进入 $D_I$ 的自主轨迹；$S_D$ 要求每条同域自主轨迹均不进入 $D_I$。
+\end{Certificate}
+\begin{proof}
+将存在见证代入全称命题即得矛盾。
+\end{proof}
+
+\begin{remark}[生产权与受限事件的判据]
+第~\ref{chap:three}~章的 $P$ 按合法生产与收益权的权限边界登记，
+$P_D$ 按实际自主轨迹进入指定集合 $D_I$ 的存在性登记。
+对某一能力族，蕴含 $L\land M\land P\Rightarrow P_D$
+须由生产效用与指定受限事件可执行性不可分离的全实现证书支持。
+\end{remark}
+
+\section{带指定类与对偶观察的共同复形}
+
+\begin{definition}[共同安全核心]
+\label{def:safety-core}
+构造链复形
+\[
+ \mathcal K_2=\RR\xrightarrow{a}\mathcal K_1=\RR^2\longrightarrow0,
+ \qquad a(t)=(t,-t).
+\]
+两个坐标是受限事件自主可执行性的缺口与相应轨迹安全缺口，指定
+\[
+ \omega_*=(1,0),\qquad \lambda(p,s)=p+s.
+\]
+真实规范化状态读作 $\omega_b=(1-b,b)$。
+\end{definition}
+
+\begin{theorem}[共同非零配对]
+\label{thm:safety-pairing}
+有
+\[
+ H_1(\mathcal K)=\RR^2/\RR(1,-1)\cong\RR,\qquad
+ \langle[\lambda],[\omega_*]\rangle=1.
+\]
+并且 $[\omega_b]=[\omega_*]\ne0$。
+\end{theorem}
+\begin{proof}
+$\lambda a=0$，且 $\ker\lambda=\im a$，所以 $\lambda$ 在商上给出同构。
+$\lambda\omega_*=1$，故该类非零。
+又 $\omega_b-\omega_*=(-b,b)=a(-b)$，两者相差边界。
+\end{proof}
+
+\begin{theorem}[不同实现到同一指定核心的链映射]
+\label{thm:shared-core}
+对实现分支 $i$，给定 $C_{i,2}\xrightarrow{A_i}C_{i,1}\xrightarrow{B_i}C_{i,0}$，
+$B_iA_i=0$，以及读出 $P_i,S_i$。若
+\[
+ (P_i+S_i)A_i=0,\quad B_i\omega_i=0,\quad
+ (P_i\omega_i,S_i\omega_i)=(1-b_i,b_i),
+\]
+则以下映射组成链映射 $q_i:C_i\to\mathcal K$：
+\[
+ q_{i,1}v=(P_iv,S_iv),\qquad q_{i,2}u=P_iA_iu,\qquad q_{i,0}=0.
+\]
+且
+\[
+ q_{i*}[\omega_i]=[\omega_*],\qquad
+ \langle q_i^*[\lambda],[\omega_i]\rangle=1.
+\]
+\end{theorem}
+\begin{proof}
+由 $S_iA_i=-P_iA_i$，得
+$q_{i,1}A_iu=(P_iA_iu,-P_iA_iu)=a\,q_{i,2}u$。
+下一次数因核心微分为零而交换。指定类的像为 $\omega_{b_i}$，
+由定理~\ref{thm:safety-pairing} 得到同调像与配对。
+\end{proof}
+
+\begin{remark}[高双用性分支的共同核心条件]
+设两个高双用性能力分支均满足定理~\ref{thm:shared-core} 的链映射条件，
+则其指定类被送入同一核心类，并保留相同的非零配对。
+各分支的受限事件可执行性由预先登记的 $D_I$ 及实际自主轨迹判定；
+具体链映射 $q_i$ 的覆盖范围，由能力、实际轨迹、自主控制及受限事件观察的保持证书确定。
+\end{remark}
+
+\begin{proposition}[四坐标正规型的显式回缩]
+对 $C_2=\RR^3$、$C_1=\RR^4$ 及
+\[
+ A=\begin{pmatrix}1&0&0\\0&1&0\\0&0&1\\0&0&-1\end{pmatrix},
+\]
+取 $q_1(\ell,m,p,s)=(p,s)$、$q_2(u_L,u_M,u_P)=u_P$，
+截面在前两坐标补零，$K_1(\ell,m,p,s)=(\ell,m,0)$。
+则
+\[
+ q\iota=I,\qquad I-\iota q=\partial K+K\partial.
+\]
+\end{proposition}
+\begin{proof}
+两个非平凡次数分别满足
+\[
+ (\ell,m,0,0)=AK_1(\ell,m,p,s),\qquad
+ (u_L,u_M,0)=K_1A(u_L,u_M,u_P).
+\]
+\end{proof}
+
+\section{治理依赖、单方控制与有限兑现}
+
+\begin{theorem}[本地不可区分的撤销约束]
+两个世界分别有、没有新的撤销决定。若副本在期限内收到的输入、初态和执行约束相同，
+则其目标动作执行概率相同。若又要求未撤销时成功概率至少 $1-\varepsilon_L$、
+撤销时至多 $\varepsilon_S$，必有
+\[
+ \varepsilon_L+\varepsilon_S\ge1.
+\]
+\end{theorem}
+\begin{proof}
+耦合两个世界的随机带。由初态、输入和程序相同，按本地步骤归纳，两条轨迹相同。
+设共同执行概率为 $p$，则 $1-\varepsilon_L\le p\le\varepsilon_S$，结论成立。
+\end{proof}
+
+\begin{proposition}[共同必要批准何时产生单方否决]
+设全部可行生产路径都与节点集合 $Q$ 相交，同一主体 $g$ 能单方拒绝 $Q$ 全部放行，
+且无独立替代路径。则 $g$ 能阻断全部生产续行。
+\end{proposition}
+\begin{proof}
+每条路径包含至少一个被 $g$ 拒绝的必要节点，故没有路径能够完成。
+\end{proof}
+
+\begin{proposition}[独立阈值核验的安全与及时性]
+采用条件为 $f<q\le n-f$ 的独立阈值核验构造，取 $n=3,f=1,q=2$。
+假定至多一个角色偏离，合规角色对同一完整输入和唯一正确结果进行可靠且完备的独立核验；
+签发可认证，生效器不可被该偏离者绕过或停止，输入、通信、调度和生效在容量域内具有时间上界，
+且提交完整签发后无额外单方批准步骤。
+则错误请求不生效，正确请求在规定时限内生效
+\cite[《偏好多样性、权利边界与可兑现分配》，“有限核验者模型：安全与及时性的不同门槛”节]{SourcePreference}。
+\end{proposition}
+\begin{proof}
+错误请求至多获得 $f=1<q$ 项有效签发，故达不到生效阈值。
+正确请求至少获得 $n-f=2=q$ 项合规签发；由输入、通信、调度与生效的时间界及生效器条件，
+它在相应总时限内生效。
+\end{proof}
+
+\section{训练资源成本与独立生产规模}
+
+\begin{definition}[可复现训练的进入集合]
+固定能力 $h$ 与成功标准，令 $c=C_{\rm train}(h)$ 为比较版本中可复现的训练资源成本。
+设主体预算为 $b_1,\ldots,b_N$。在方法可复现、必要输入可取得且无额外不可替代准入条件的子模型中，
+\[
+ \mathcal E(c)=\{i:b_i\ge c\},\qquad n(c)=\#\mathcal E(c).
+\]
+$n(c)$ 计量潜在独立训练者，不计量购买服务者或已被赋予收益权的人数。
+\end{definition}
+
+\begin{lemma}[降本的单调进入效应]
+$c_1<c_2$ 蕴含 $\mathcal E(c_2)\subseteq\mathcal E(c_1)$，故 $n(c_1)\ge n(c_2)$。
+\end{lemma}
+\begin{proof}
+若 $b_i\ge c_2$，必有 $b_i\ge c_1$。
+\end{proof}
+
+\begin{definition}[一个条件性的联合风险模型]
+设最优已登记治理下，单主体事件的边际概率约束为
+$\Pr(D_i)\le\bar q$，$0<\bar q\le1$。
+允许的联合分布不另加相关结构限制，并且模型将这些边际上界视为共同可达到的最坏情景。
+共同风险预算为 $0<\delta_{\rm risk}<1$。
+上述边际约束、联合分布域及风险预算共同定义本节的鲁棒风险模型。
+\end{definition}
+
+\begin{proposition}[风险模型中的规模上界]
+在该模型内，
+\[
+ \sup\Pr\Bigl(\bigcup_{i=1}^n D_i\Bigr)=\min(1,n\bar q).
+\]
+故共同风险要求等价于 $n\le M$，其中
+$M=\lfloor\delta_{\rm risk}/\bar q\rfloor$。
+\end{proposition}
+\begin{proof}
+并集概率不超过边际概率之和及 $1$。当 $n\bar q\le1$，取互斥事件、各概率为 $\bar q$；
+当 $n\bar q\ge1$，取 $n$ 个互斥事件、各概率为 $1/n\le\bar q$，分别达到上界。
+因 $\delta_{\rm risk}<1$，约束化为 $n\bar q\le\delta_{\rm risk}$，对整数 $n$ 即得结论。
+\end{proof}
+
+\begin{theorem}[训练成本水平无法化解不相容规模要求]
+\label{thm:training-incompatibility}
+若指定的自主生产修复要求 $n(c)\ge K$，安全模型要求 $n(c)\le M$，且 $K>M$，则
+\[
+ \forall c,\quad
+ \pos{K-n(c)}+\pos{n(c)-M}\ge K-M>0.
+\]
+将预算降序排列，当 $0\le M<K\le N$ 时，两项条件分别要求
+\[
+ c\le b_{(K)},\qquad c>b_{(M+1)},
+\]
+两个区间不相交。
+\end{theorem}
+\begin{proof}
+$[a]_++[b]_+\ge a+b$，代入即得残差界。
+至少 $K$ 个主体能训练恰当于 $c\le b_{(K)}$；至多 $M$ 个主体能训练恰当于
+$c>b_{(M+1)}$。由 $K>M$ 得 $b_{(K)}\le b_{(M+1)}$，故无交集。
+\end{proof}
+
+\begin{remark}[联合可行集与资源计量]
+定理~\ref{thm:training-incompatibility} 的结论对象为保持两项规模条件的联合可行集。
+训练资源成本由 $C_{\rm train}$ 计量，同调残差的资源解释另由计算、能量或货币的计量映射给定。
+\end{remark}
+
+\section{共同终态条件与解集分型}
+
+\begin{theorem}[由共同终态条件覆盖全部方法]
+若全部合格终态 $x$ 必须满足同一计量 $K\le n(x)\le\overline M$，
+且 $K>\overline M$，则任何方法都没有合格终态。
+\end{theorem}
+\begin{proof}
+假定某方法具有合格终态，将其代入共同必要条件，得到 $K\le\overline M$，矛盾。
+\end{proof}
+
+\begin{proposition}[绝对不相容与相对实现受阻的分离]
+本章要求 $P_D\land S_D$ 的任务，以及固定 $K>\overline M$ 的任务，均属于 $\mathfrak A$。
+后续理想可解、有限作用受阻的主定理属于 $\mathfrak R$。
+两类任务的理想解集分别为空与非空。
+\end{proposition}
+\begin{proof}
+前两项任务的接受集由存在／全称矛盾或序关系矛盾为空；
+$\mathfrak R$ 的定义要求理想解集非空。若二者为同一任务，将同时推出理想解集为空和非空。
+\end{proof}
+
+\chapter{分配压力、反馈传导与外部义务}
+\label{chap:political}
+
+\section{四状态反馈系统的稳定性}
+
+\begin{definition}[标准化压力状态]
+在固定参数区间中，令
+\[
+ x_t=(z_t,u_t,p_t,w_t)^\top,
+\]
+分别表示分配压力、组织响应、归责压力和外部行动压力。
+各分量均为标准化模型状态量，构造
+\[
+ x_{t+1}=Mx_t+f_t,\qquad
+ M=
+ \begin{pmatrix}
+ \rho_z&0&0&\kappa\\
+ \alpha&\rho_u&0&0\\
+ 0&\beta b&\rho_p&0\\
+ 0&0&\gamma h&\rho_w
+ \end{pmatrix},
+\]
+其中 $0\le\rho_i<1$，$\alpha,\beta,\gamma,\kappa\ge0$，$b,h\in[0,1]$。
+$b,h$ 分别登记归责环节与行动执行的通过系数；$\kappa$ 登记外部行动向内部压力的反馈系数。
+外部输入可包含 $\sigma[\lambda_Hr_t]_+$，其中 $\sigma$ 将经济残差转换为模型压力单位。
+\end{definition}
+
+\begin{theorem}[反馈增益的精确稳定性边界]
+\label{thm:feedback}
+定义
+\[
+ \Gamma=
+ \frac{\kappa\alpha\beta b\gamma h}
+ {(1-\rho_z)(1-\rho_u)(1-\rho_p)(1-\rho_w)}.
+\]
+则 $\spr(M)<1$ 当且仅当 $\Gamma<1$。
+\end{theorem}
+\begin{Certificate}[有限矩阵恒等式]
+记 $D=\operatorname{diag}(1-\rho_i)$、
+$N=M-\operatorname{diag}(\rho_i)$、$T=D^{-1}N$。则
+\[
+ T^4=\Gamma I,\qquad
+ I-M=D(I-T).
+\]
+当 $\Gamma<1$ 时，
+\[
+ (I-M)^{-1}=\frac{I+T+T^2+T^3}{1-\Gamma}D^{-1}\ge0.
+\]
+\end{Certificate}
+\begin{proof}
+矩阵 $T$ 只有一条四节点循环，其四条边权乘积为 $\Gamma$，故四次乘积为 $\Gamma I$。
+当 $\Gamma<1$，取 $v=(I-M)^{-1}\mathbf1>0$，则 $Mv=v-\mathbf1<v$。
+因为 $M\ge0$，在范数 $\Norm y_v=\max_i|y_i|/v_i$ 中，
+\[
+ \Norm{My}_v\le
+ \left(\max_i\frac{(Mv)_i}{v_i}\right)\Norm y_v,
+\]
+括号内严格小于 $1$，故谱半径小于 $1$。
+反向，特征多项式为
+\[
+ \det(sI-M)=\prod_i(s-\rho_i)-\kappa\alpha\beta b\gamma h.
+\]
+$\Gamma=1$ 时 $s=1$ 为根；$\Gamma>1$ 时该式在 $s=1$ 为负，在充分大正数处为正，
+故有实根 $s>1$。两种情况均不满足 $\spr(M)<1$。
+\end{proof}
+
+\begin{corollary}[持续输入下的稳态]
+若 $f_t=f$ 且 $\Gamma<1$，则
+$x_t\to(I-M)^{-1}f$。持续正输入可以对应持续正压力。
+\end{corollary}
+\begin{proof}
+有限迭代给出 $x_t=M^tx_0+\sum_{j=0}^{t-1}M^jf$。
+由前述收缩界，第一项趋零，级数收敛于 $(I-M)^{-1}f$。
+\end{proof}
+
+\begin{remark}[残差输入与反馈参数]
+输入项、传导系数 $b,h$ 与反馈系数 $\kappa$ 分别构成可登记的控制接口。
+修复残差通过已声明的观察及单位转换进入动态系统的输入项；
+链复形的边界算子与时间演化矩阵按各自的作用域和类型登记。
+\end{remark}
+
+\section{内部读数改善与外部同调障碍}
+
+\begin{definition}[四账户比较]
+按 $(H,K,G,F)$ 登记受影响家庭、资本控制者、公共账户与外部受影响主体账户。
+令
+\[
+ B_g=(1,1,1,1),\qquad
+ A_{\rm dom}=
+ \begin{pmatrix}
+ 0&1\\-1&0\\1&-1\\0&0
+ \end{pmatrix}.
+\]
+修复作用限于已登记的两项内部转移。
+\end{definition}
+
+\begin{proposition}[外部转移后的残差与分离读出]
+\label{prop:external}
+初始缺陷 $\omega_0=d(e_H-e_K)$、$d>0$ 属于 $\im A_{\rm dom}$。
+若实际状态增加无对价外部转移 $v=d(e_H-e_F)$，并保持参照配置不变，则
+\[
+ \omega_1=\omega_0-v=d(e_F-e_K).
+\]
+此时家庭读数为零，但 $[\omega_1]\ne0$，且
+$H_1(C_g)\cong\RR$。
+\end{proposition}
+\begin{Certificate}[外部账户的分离读出]
+取 $\lambda_F=(0,0,0,1)$。有
+\[
+ B_gA_{\rm dom}=0,\quad
+ \lambda_FA_{\rm dom}=0,\quad
+ \lambda_F\omega_1=d>0.
+\]
+\end{Certificate}
+\begin{proof}
+$\omega_0=A_{\rm dom}(d,d)^\top$。
+转移后的缺陷由参照减实际状态直接计算。
+$\dim\ker B_g=3$，$\rank A_{\rm dom}=2$，故第一同调一维。
+外部账户读出在全部内部边界上为零，在 $\omega_1$ 上为正，因而该类非零。
+\end{proof}
+
+\begin{corollary}[保留外部受损读出的商不能删除该障碍]
+若子复形 $N\subseteq C_g$ 满足 $N_1\subseteq\ker\lambda_F$，则商中 $[q\omega_1]\ne0$。
+\end{corollary}
+\begin{proof}
+若商中归零，则 $\omega_1-A_{\rm dom}u\in N_1$；
+应用 $\lambda_F$ 得 $d=0$，矛盾。
+\end{proof}
+
+\begin{remark}[扩大实际作用域可以改变同调]
+增加具有真实资金与权限的外部补偿 $b_F=e_F-e_G$ 后，
+\[
+ d(e_G-e_K)+d(e_F-e_G)=\omega_1.
+\]
+该实际操作扩展原作用族，并使 $\omega_1$ 成为扩展复形的边界。
+\end{remark}
+
+\chapter{理想完成与有限实现的相对同调}
+\label{chap:completion}
+
+\section{待兑现义务的有限支撑复形}
+
+\begin{definition}[有限实际作用与义务坐标]
+\label{def:cfin}
+令 $c_{00}$ 表示有限支撑实序列，定义
+\[
+ C_{2,\rm fin}=c_{00}(a_1,a_2,\ldots),\qquad
+ C_{1,\rm fin}=c_{00}(b_1,b_2,\ldots),\qquad C_{0,\rm fin}=0,
+\]
+\[
+ \partial a_j=b_j-b_{j+1}.
+\]
+$a_j$ 是已登记的实际修复作用的形式标签，$b_j$ 是第 $j$ 项待兑现义务的形式坐标。
+该作用消除本层义务，同时生成下一层义务。坐标不预先解释成货币或物理账户。
+固定
+\[
+ \omega=\Delta b_1,\qquad \Delta>0,\qquad r(u)=\omega-\partial u.
+\]
+本节允许全部有符号有限线性组合；真实非负或受权限约束的作用集合可以是它的子集。
+\end{definition}
+
+\begin{remark}[线性放宽用于否决]
+放入形式上可比较、实际未必能执行的有限组合，只会扩大可修复集合。
+若这个更宽的有限域仍然没有解，任何已被它覆盖的实际子集合也没有解。
+对全部现实技术或经济操作的覆盖，需要第~\ref{chap:total}~章的单步实际证书。
+\end{remark}
+
+\begin{theorem}[全部有限组合的同调否决]
+\label{thm:finite-obstruction}
+定义
+\[
+ \lambda\!\left(\sum_jx_jb_j\right)=\sum_jx_j.
+\]
+则
+\[
+ \lambda\partial=0,\quad
+ \im\partial=\ker\lambda,\quad
+ H_2(\cfin)=0,\quad H_1(\cfin)\cong\RR.
+\]
+对任意 $u\in C_{2,\rm fin}$，
+\[
+ \boxed{\lambda r(u)=\Delta,\qquad \partial u\ne\omega.}
+\]
+\end{theorem}
+\begin{Certificate}[有限和及前缀和]
+每个 $\partial a_j$ 的系数和为零。
+若 $x=\sum_{j=1}^m x_jb_j$ 且 $\sum_{j=1}^m x_j=0$，取
+\[
+ u_j=\sum_{i=1}^j x_i\quad(1\le j\le m),\qquad u_j=0\quad(j>m).
+\]
+则 $u_m=0$，所以 $u$ 有限支撑，且 $\partial u=x$。
+\end{Certificate}
+\begin{proof}
+对任意有限 $u$，$\lambda\partial u=0$，故 $\im\partial\subseteq\ker\lambda$。
+证书中的前缀和给出反向包含。若 $\partial u=0$，第一坐标得 $u_1=0$，
+再由第 $j$ 坐标 $u_j-u_{j-1}=0$ 归纳得全部 $u_j=0$，故 $H_2=0$。
+$\lambda$ 满射且核为 $\im\partial$，第一同调因此为 $\RR$。
+最后 $\lambda r(u)=\lambda\omega-\lambda\partial u=\Delta$，排除零残差。
+\end{proof}
+
+\begin{theorem}[有限补修的归纳轨迹]
+\label{thm:prefix}
+令 $u^{(0)}=0$，$u^{(N)}=\Delta\sum_{j=1}^Na_j$。则
+\[
+ \partial u^{(N)}=\Delta(b_1-b_{N+1}),\qquad
+ \boxed{r_N=\Delta b_{N+1}\ne0}.
+\]
+每个固定有限坐标最终被修复，但每个有限阶段的完整义务仍有总读数 $\Delta$。
+\end{theorem}
+\begin{proof}
+$N=0$ 时 $r_0=\Delta b_1$。
+若 $r_N=\Delta b_{N+1}$，追加 $\Delta a_{N+1}$ 得
+\[
+ r_{N+1}
+ =r_N-\Delta(b_{N+1}-b_{N+2})
+ =\Delta b_{N+2}.
+\]
+由归纳法对全部有限 $N$ 成立。
+固定 $j$，当 $N\ge j$ 时第 $j$ 坐标为零；总读数由定理~\ref{thm:finite-obstruction} 保持。
+\end{proof}
+
+\section{乘积完成中的精确吸收}
+
+\begin{definition}[理想完成]
+\label{def:completion}
+取
+\[
+ \widehat C_2=\prod_{j\ge1}\RR a_j,\qquad
+ \widehat C_1=\prod_{j\ge1}\RR b_j,\qquad \widehat C_0=0,
+\]
+赋予逐坐标乘积拓扑，并扩展微分为
+\[
+ (\widehat\partial u)_1=u_1,\qquad
+ (\widehat\partial u)_j=u_j-u_{j-1}\quad(j\ge2).
+\]
+有限支撑嵌入记为 $i:\cfin\hookrightarrow\chat$。
+\end{definition}
+
+\begin{theorem}[理想微分可逆且具有吸收见证]
+\label{thm:ideal-absorption}
+$\widehat\partial$ 是连续线性双射，逆为连续前缀和算子
+\[
+ (\widehat\partial^{-1}x)_j=\sum_{k=1}^j x_k.
+\]
+因此
+\[
+ H_2(\chat)=H_1(\chat)=0,\qquad
+ u_\infty=\Delta(1,1,\ldots),\qquad
+ \boxed{\widehat\partial u_\infty=i\omega}.
+\]
+\end{theorem}
+\begin{proof}
+每个输出坐标只使用有限个输入坐标，微分与前缀和均连续。
+将前缀和代入差分式，相邻部分相消得到 $x$；将差分式作前缀和得到 $u$。
+二者互逆，核与余核为零。
+对常数序列 $u_\infty$，第一坐标为 $\Delta$，后续差分均为零。
+\end{proof}
+
+\begin{corollary}[同一有限缺陷在两个作用域中的不同类别]
+\[
+ [\omega]_{\cfin}\ne0,\qquad i_*[\omega]=0\in H_1(\chat).
+\]
+因此该例属于理想可解而当前有限实际作用不可精确兑现的 $\mathfrak R$ 分型。
+\end{corollary}
+\begin{proof}
+第一项由有限总读出，第二项由理想吸收见证得到。
+\end{proof}
+
+\begin{proposition}[正读出不随此完成连续延拓]
+\label{prop:lambda-not-extend}
+$\lambda$ 没有到 $\widehat C_1$ 的连续线性延拓。
+也不存在同时满足 $\widehat\lambda i=\lambda$ 与
+$\widehat\lambda\widehat\partial=0$ 的线性泛函。
+\end{proposition}
+\begin{proof}
+$b_{N+1}\to0$ 在乘积拓扑成立，但 $\lambda b_{N+1}=1$，与连续延拓矛盾。
+若还要求消灭理想边界，则
+\[
+ \Delta=\widehat\lambda i\omega
+ =\widehat\lambda\widehat\partial u_\infty=0,
+\]
+再次矛盾。后一结论也可由 $\widehat\partial$ 满射直接得到。
+\end{proof}
+
+\section{相对商中的高阶实现障碍}
+
+\begin{definition}[理想作用模去有限作用]
+取代数商复形
+\[
+ Q=\chat/\cfin,\qquad
+ 0\longrightarrow\cfin\xrightarrow{i}\chat\xrightarrow{p}Q\longrightarrow0.
+\]
+以下短正合列及同调计算采用代数商复形；有限支撑在乘积拓扑中稠密。
+\end{definition}
+
+\begin{theorem}[相对实现类与连接像]
+\label{thm:relative-example}
+该例的连接同态为同构
+\[
+ \delta:H_2(Q)\xrightarrow{\sim}H_1(\cfin)\cong\RR.
+\]
+且
+\[
+ \boxed{\delta[p_2u_\infty]=[\omega]_{\cfin}\ne0}.
+\]
+因此 $[p_2u_\infty]\ne0$，其可度量坐标为
+\[
+ \boxed{\mathcal O_{\rm real}
+       =\Abs{\lambda_*\delta[p_2u_\infty]}=\Delta}.
+\]
+\end{theorem}
+\begin{Certificate}[提升后取边界]
+$\widehat\partial u_\infty=i\omega$ 属于有限部分，因此
+$\partial_Q(p_2u_\infty)=0$。将该商闭元提升为 $u_\infty$ 后取微分，即读回 $\omega$。
+\end{Certificate}
+\begin{proof}
+短正合链复形的长正合列在本例给出
+\[
+ 0=H_2(\chat)\longrightarrow H_2(Q)
+ \xrightarrow{\delta}H_1(\cfin)
+ \longrightarrow H_1(\chat)=0.
+\]
+正合性使 $\delta$ 为同构；连接映射由证书中的提升和取边界定义，故指定像为 $[\omega]$。
+其非零性与数值由 $\lambda\omega=\Delta$ 得到。
+长正合列及连接映射采用标准链同调定义 \cite[第 2 章]{Hatcher2002}；
+这里的相对作用域与任务读出由本文另行登记。
+\end{proof}
+
+\begin{proposition}[高阶类的显式代表]
+$Q$ 中第二闭链恰由“差分具有有限支撑”的序列代表，即最终为常数的序列。
+模去有限支撑后，只剩最终常数，故 $H_2(Q)\cong\RR$。
+\end{proposition}
+\begin{proof}
+$\partial_Q[u]=0$ 等价于 $\widehat\partial u\in c_{00}$。
+此时存在 $m$，使 $u_j-u_{j-1}=0$ 对 $j>m$ 成立，因此序列最终为常数。
+两个这样的序列在 $Q_2$ 中相同，当且仅当其差有限支撑，即最终常数相同。
+由于本复形没有第三次数，没有更高边界需要模去。
+\end{proof}
+
+\begin{theorem}[一般相对实现障碍]
+\label{thm:relative-general}
+对任意短正合链复形
+$0\to C\xrightarrow{i}E\xrightarrow{p}Q\to0$，有自然同构
+\[
+ \boxed{
+ \frac{H_2(Q)}{p_*H_2(E)}
+ \cong
+ \ker\bigl(i_*:H_1(C)\to H_1(E)\bigr)}.
+\]
+若 $\partial_Eh_\infty=i\omega$ 且 $[\omega]\ne0$，则
+$\delta[p_2h_\infty]=[\omega]$；其在左侧商中的类与理想见证的选择无关。
+\end{theorem}
+\begin{proof}
+长正合列给出 $\ker\delta=\im p_*$ 与 $\im\delta=\ker i_*$，
+第一同构定理即得公式。
+若 $h_\infty'$ 是另一理想见证，则
+$\partial_E(h_\infty'-h_\infty)=0$，其差在商同调中的像属于 $p_*H_2(E)$，
+因此最终相对类不变。
+\end{proof}
+
+\begin{remark}[高阶与连接方向]
+本文的高阶见证位于 $H_2(Q)$，连接映射 $\delta$ 下降到 $H_1(C)$。
+它是“理想见证的非有限部分”对“有限缺陷”的读回关系。
+若改用余链次数，连接方向相应升阶。
+在 $H_2(E)=H_1(E)=0$ 的条件下，一般公式化为 $H_2(Q)\cong H_1(C)$。
+\end{remark}
+
+\section{代数障碍与任务范数的依赖}
+
+\begin{theorem}[总义务范数下的统一正距离]
+\label{thm:l1-distance}
+在 $c_{00}$ 上采用 $\ell^1$ 范数，则
+\[
+ |\lambda x|\le\Norm x_1,\qquad\Norm\lambda_*=1,\qquad
+ \boxed{\inf_{u\in c_{00}}\Norm{\omega-\partial u}_1=\Delta}.
+\]
+\end{theorem}
+\begin{proof}
+绝对值三角不等式给出有界性。取 $x=b_1$ 得对偶范数等于 $1$。
+全部有限残差的总和为 $\Delta$，故范数不小于 $\Delta$；
+$u=0$ 或任一前缀作用达到等号。
+\end{proof}
+
+\begin{proposition}[欧氏型范数中的反证书]
+\label{prop:l2-counter}
+同一个代数同调类在 $\ell^2$ 范数中满足
+\[
+ \inf_{u\in c_{00}}\Norm{\omega-\partial u}_2=0,
+\]
+尽管任何有限 $u$ 都不能精确修复。
+\end{proposition}
+\begin{Certificate}[将残差分散到有限多坐标]
+令
+\[
+ r_m=\frac{\Delta}{m}\sum_{j=1}^m b_j,\qquad
+ u_m=\Delta\sum_{j=1}^{m-1}\left(1-\frac jm\right)a_j.
+\]
+则 $\partial u_m=\omega-r_m$，且
+$\Norm{r_m}_2=\Delta/\sqrt m$。
+\end{Certificate}
+\begin{proof}
+第一坐标的差分为 $\Delta(1-1/m)$，随后直到第 $m$ 个坐标为 $-\Delta/m$，
+其余为零，故证书恒等式成立。
+残差有 $m$ 个相等坐标 $\Delta/m$，得到范数公式并趋于零。
+精确不可解仍由定理~\ref{thm:finite-obstruction} 保证。
+\end{proof}
+
+\begin{remark}[任务范数与读出的有界性]
+在无限维的 $\ell^2$ 任务范数下，$\lambda$ 不是有界泛函；
+第~\ref{chap:distribution}~章的分离距离下界以所用任务范数中的有界读出为前提。
+代数非零、精确不可解与正容差不可达，分别按各自判据核验。
+本文统一正下界采用明确的总义务 $\ell^1$ 范数或有界对偶读出。
+若某经济任务使用其他权重，必须重新核验该读出的有界性。
+\end{remark}
+
+\chapter{有限截断、完整观察与工程幻觉}
+\label{chap:hallucination}
+
+\section{保留尾部义务的有限模型}
+
+\begin{definition}[第 $N$ 个有限执行复形]
+对 $N\ge1$，取
+\[
+ C_{2,N}=\spanof(a_1,\ldots,a_N),\qquad
+ C_{1,N}=\spanof(b_1,\ldots,b_{N+1}),\qquad C_{0,N}=0,
+\]
+微分 $\partial_Na_j=b_j-b_{j+1}$。
+第 $N+1$ 个坐标属于完整观察，记录执行前 $N$ 项修复后仍然存在的义务。
+\end{definition}
+
+\begin{theorem}[有限模型保留同一核心残差]
+\[
+ H_1(C_N)\cong\RR,\qquad
+ \lambda_N(x_1,\ldots,x_{N+1})=\sum_{j=1}^{N+1}x_j,
+\]
+并且 $\lambda_N$ 诱导同调坐标。对前缀执行有
+\[
+ r_N=\omega-\partial_Nu^{(N)}=\Delta b_{N+1},\qquad
+ \lambda_Nr_N=\Delta.
+\]
+\end{theorem}
+\begin{proof}
+$\partial_N$ 的前 $N$ 行组成对角元为 $1$ 的三角矩阵，故秩为 $N$。
+其像包含于 $\ker\lambda_N$，二者维数均为 $N$，因而相等。
+第一同调为一维，指定残差由定理~\ref{thm:prefix} 给出。
+\end{proof}
+
+\section{删去尾部的链商与局部归零}
+
+\begin{definition}[截断观察商]
+令 $P_N:\RR^{N+1}\to\RR^N$ 删除最后一个坐标。
+取子复形
+\[
+ D_{2,N}=0,\qquad D_{1,N}=\RR b_{N+1},\qquad D_{0,N}=0.
+\]
+商 $q_N:C_N\to\bar C_N=C_N/D_N$ 的次数 $2$ 映射为恒等，
+次数 $1$ 映射为 $P_N$，商微分为 $\bar\partial_N=P_N\partial_N$。
+\end{definition}
+
+\begin{theorem}[合法链商可以删除完整任务的障碍]
+\label{thm:truncation}
+有
+\[
+ H_1(\bar C_N)=0,\qquad
+ [q_N\omega]=0,\qquad
+ \boxed{P_Nr_N=0\ \text{而}\ r_N\ne0}.
+\]
+该商没有保留完整残差读出 $\lambda_N$。
+\end{theorem}
+\begin{Certificate}[单位三角矩阵]
+在自然有序基下，
+\[
+ \bar\partial_N=
+ \begin{pmatrix}
+ 1&0&0&\cdots&0\\
+ -1&1&0&\cdots&0\\
+ 0&-1&1&\cdots&0\\
+ \vdots&\ddots&\ddots&\ddots&\vdots\\
+ 0&\cdots&0&-1&1
+ \end{pmatrix},\qquad \det\bar\partial_N=1.
+\]
+\end{Certificate}
+\begin{proof}
+商微分可逆，所以同调为零。
+真实残差仅在被删除的 $b_{N+1}$ 坐标非零，因此投影为零。
+但 $\lambda_Nb_{N+1}=1$，故
+$D_{1,N}\not\subseteq\ker\lambda_N$，不存在 $\bar\lambda_N$ 使
+$\lambda_N=\bar\lambda_NP_N$。
+\end{proof}
+
+\begin{proposition}[删除障碍的精确同调核]
+商映射在第一同调上的核为
+\[
+ \ker(q_{N*})=
+ \im\bigl(H_1(D_N)\to H_1(C_N)\bigr)=H_1(C_N).
+\]
+\end{proposition}
+\begin{proof}
+$H_1(D_N)$ 由 $b_{N+1}$ 生成，嵌入 $C_N$ 后在 $\lambda_N$ 下取值 $1$，
+因此像为整个一维 $H_1(C_N)$；商同调为零，核也为全部。
+\end{proof}
+
+\begin{remark}[链商与任务充分商]
+该链商删除的子复形具有非零同调，承载全部指定障碍。
+完整残差读出在该子复形上非零，因此该商不满足完整观察的下降条件。
+\end{remark}
+
+\section{工程幻觉的三项合取}
+
+\begin{definition}[局部通过、完整通过与正常发布]
+\label{def:hallucination}
+固定原任务接受容差 $0\le\varepsilon<\Delta$。对有限执行 $u$，令
+\[
+ \EngOK_T(u)\iff\Norm{\omega-\partial u}_1\le\varepsilon,
+\]
+\[
+ \LocOK_N(u)\iff P_N(\omega-\partial u)=0,
+\]
+其中局部判据对 $u\in C_{2,N}$ 及其相应有限残差验证域取值。
+$\ReportOK_N(u)$ 表示将该结果正常发布为“原任务完整修复已经完成”。
+定义本文的工程幻觉为
+\[
+ \boxed{
+ \Hall_{T,N}(u)=
+ \ReportOK_N(u)\land\LocOK_N(u)\land\neg\EngOK_T(u)}.
+\]
+本文以这一合取作为工程幻觉的误接受谓词。
+\end{definition}
+
+\begin{theorem}[每个有限前缀的误接受证书]
+\label{thm:hallucination}
+对 $u^{(N)}=\Delta\sum_{j=1}^Na_j$，有
+\[
+ \LocOK_N(u^{(N)})=1,\qquad \EngOK_T(u^{(N)})=0.
+\]
+故
+\[
+ \ReportOK_N(u^{(N)})\Longrightarrow\Hall_{T,N}(u^{(N)}).
+\]
+若验收规则统一规定“局部零残差即发布完整成功”，则每个有限 $N\ge1$ 均发生上述误接受。
+\end{theorem}
+\begin{Certificate}[有限反验收记录]
+证书为
+\[
+ (\partial_N,P_N,\omega,u^{(N)},r_N,\lambda_N,\varepsilon,
+   \ReportOK_N),
+\]
+核验以下四项：
+\[
+ \partial_Nu^{(N)}=\omega-r_N,\quad P_Nr_N=0,\quad
+ \Norm{r_N}_1=\Delta>\varepsilon,\quad \ReportOK_N=1.
+\]
+\end{Certificate}
+\begin{proof}
+前两项表明局部检查通过；第三项直接证明完整任务未完成；
+最后一项确认这次局部通过被发布为完整成功。代入定义即得结论。
+\end{proof}
+
+\begin{remark}[误接受的证据条件]
+误接受证书同时包含局部通过、完整残差超过容差和完整成功发布的记录。
+正确拒绝、标明未完成或只报告前 $N$ 项通过时，完整成功发布谓词为假，工程幻觉合取亦为假。
+执行残差仍按实际作用单独核验。
+\end{remark}
+
+\section{完整判据的观察因子化}
+
+\begin{theorem}[同纤维异真值的验收障碍]
+\label{thm:validator}
+设 $q:X\to Y$ 是检查保留的信息，$G_T:X\to\{0,1\}$ 为完整任务判据。
+若存在 $x^+,x^-$ 满足
+\[
+ q(x^+)=q(x^-),\qquad G_T(x^+)=1,\qquad G_T(x^-)=0,
+\]
+则不存在 $\bar G_T$ 使 $G_T=\bar G_Tq$。
+\end{theorem}
+\begin{proof}
+若因子化存在，同一个商值将同时被映为 $1$ 和 $0$，矛盾。
+\end{proof}
+
+\begin{Certificate}[包含成功与失败的验证域]
+在包含 $0$ 与 $\Delta b_{N+1}$ 的完整残差验证域上，取
+\[
+ x^+=0,\qquad x^-=\Delta b_{N+1}.
+\]
+二者的 $P_N$ 读数均为零，但当 $\varepsilon<\Delta$ 时完整判据不同。
+\end{Certificate}
+
+\begin{remark}[可达残差域与完整验证域]
+本例固定初态经有限作用可达的残差，完整通过判据恒为假，常值拒绝给出该子域上的精确判定。
+定理~\ref{thm:validator} 的非因子化结论适用于包含同检查值、不同完整真值的状态对的验证域。
+\end{remark}
+
+\begin{proposition}[尾部证书可以支持有限验收]
+\label{prop:tail}
+设 $q_N$ 为有限观察，$i_N$ 为已声明读回。若实际残差 $r$ 满足
+\[
+ \Norm{i_Nq_Nr}_T\le\eta_N,\qquad
+ \Norm{r-i_Nq_Nr}_T\le\beta_N,\qquad
+ \eta_N+\beta_N\le\varepsilon,
+\]
+则 $\Norm r_T\le\varepsilon$。
+\end{proposition}
+\begin{proof}
+分解 $r=i_Nq_Nr+(r-i_Nq_Nr)$，用三角不等式相加。
+\end{proof}
+
+\begin{remark}[前缀残差的尾部界]
+本例的局部项为零、真实尾部 $\ell^1$ 范数为 $\Delta$；
+当 $\varepsilon<\Delta$ 时，任何真实有效的 $\beta_N$ 都至少为 $\Delta$，
+因此命题~\ref{prop:tail} 的通过条件不成立。
+\end{remark}
+
+\section{相对作用商与截断观察商}
+
+\begin{center}
+\begin{tabular}{P{0.28\textwidth}P{0.30\textwidth}P{0.33\textwidth}}
+\toprule
+对象 & 保留或删除 & 证明责任\\
+\midrule
+$Q=\chat/\cfin$ & 理想作用模去当前有限实际作用 & 第二同调类记录理想见证尚未有限兑现的部分\\
+$\bar C_N=C_N/D_N$ & 删除未验收的最后义务 & 检查中障碍消失；完整观察不再能下降\\
+$i:\cfin\to\chat$ & 扩大允许原像的域 & 有限非零类在理想域中边界化\\
+$\lambda_N$ & 保留全部有限义务读出 & 给出真实未完成的有限反证书\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{definition}[理想吸收向有限工程迁移的幻觉扇区]
+\label{def:hall-sector}
+本文将以下四项同时成立的工程实例组成 $\mathfrak H_{\infty\to{\rm fin}}$：
+理想域有吸收见证；当前有限实际作用没有完整兑现；有限观察遗漏决定成败的义务；
+局部通过被发布为原任务完整成功。
+\end{definition}
+
+\begin{corollary}[扇区非空且具有有限见证]
+对每个有限 $N\ge1$，定理~\ref{thm:hallucination} 的实例都属于
+$\mathfrak H_{\infty\to{\rm fin}}$；其成员资格可由有限矩阵和发布记录核验。
+\end{corollary}
+\begin{proof}
+四项分别由定理~\ref{thm:ideal-absorption}、
+\ref{thm:finite-obstruction}、\ref{thm:truncation} 和
+\ref{thm:hallucination} 给出。
+\end{proof}
+
+\chapter{\texorpdfstring{$L_\infty$}{L-infinity} 高阶展开与有限兑现}
+\label{chap:linfty}
+
+\section{次数、运算与广义 Jacobi 恒等式}
+
+\begin{definition}[余链次数约定]
+本章使用 $\deg\ell_k=2-k$ 的分次反对称 $\Linfty$ 约定。
+这与强同伦 Lie 代数的标准定义在相应次数转换下相容
+\cite{LadaMarkl1995}。
+把有限作用参数与义务分别放在
+\[
+ V^1=c_{00}(a_j),\qquad V^2=c_{00}(b_j),\qquad
+ V^n=0\ (n\ne1,2).
+\]
+这里采用余链次数，以便修复微分从参数指向缺陷；它是前章两项复形的次数重排。
+\end{definition}
+
+\begin{definition}[一个中心输出的高阶结构]
+\label{def:linfty}
+定义
+\[
+ \ell_1a_j=b_j-b_{j+1},\qquad\ell_1b_j=0.
+\]
+令 $c(v)$ 为 $v\in V^1$ 的 $a_1$ 系数。对 $k\ge2$，当所有输入均在 $V^1$ 时，
+\[
+ \boxed{
+ \ell_k(v_1,\ldots,v_k)=
+ k!\prod_{i=1}^k c(v_i)\,(b_k-b_{k+1})}.
+\]
+只要某个齐次输入属于 $V^2$，运算取零；再按多线性延拓。
+\end{definition}
+
+\begin{theorem}[全部高阶相容恒等式成立]
+\label{thm:linfty}
+定义~\ref{def:linfty} 构成一个 $\Linfty$ 代数。
+\end{theorem}
+\begin{Certificate}[类型与嵌套零项]
+对 $k$ 个次数为 $1$ 的输入，输出次数为 $k+(2-k)=2$。
+所有非零输出均在 $V^2$，外层任何运算遇到该输出均为零。
+\end{Certificate}
+\begin{proof}
+次数已由证书核验。对于两个奇次数 $1$ 的输入，分次反对称交换符号为
+$-(-1)^{1\cdot1}=1$，故这里的对称系数乘积符合分次反对称性。
+当出现次数 $2$ 的输入，所需等式两边均为零。
+广义 Jacobi 恒等式由形如
+\[
+ \ell_j\bigl(\ell_i(v_{\sigma(1)},\ldots,v_{\sigma(i)}),
+                    v_{\sigma(i+1)},\ldots\bigr)
+\]
+的带符号项之和构成。
+内层若为零，则整项为零；内层若非零，则落在 $V^2$，
+外层包括 $\ell_1$ 在内都取零。因此所有嵌套项逐项为零，恒等式成立。
+\end{proof}
+
+\section{完备滤过保证全展开有定义}
+
+\begin{definition}[尾部滤过及其完成]
+对 $p\ge1$，取
+\[
+ F^pV^1=\spanof\{a_j:j\ge p\},\qquad
+ F^pV^2=\spanof\{b_j:j\ge p\}.
+\]
+令 $\widehat V=\varprojlim_p V/F^pV$。
+各次数的完成均为全部实序列，具有逐坐标拓扑。
+\end{definition}
+
+\begin{proposition}[滤过相容性]
+\label{prop:filtration}
+有
+\[
+ \ell_1(F^pV)\subseteq F^pV,\qquad
+ \ell_k(F^{p_1}V,\ldots,F^{p_k}V)
+ \subseteq F^{p_1+\cdots+p_k}V\quad(k\ge2).
+\]
+因此这些运算延拓到完备分离滤过空间 $\widehat V$，并且下述高阶修复级数逐坐标收敛。
+\end{proposition}
+\begin{proof}
+$\ell_1a_j=b_j-b_{j+1}$ 不产生更低坐标，故保持 $F^p$。
+若 $k\ge2$ 的某输入属于 $F^2$，其 $a_1$ 系数为零，输出为零；
+若全部 $p_i=1$，输出为 $b_k-b_{k+1}\in F^k$。
+含 $V^2$ 输入时亦为零，故所有情形成立。
+每个输出坐标只依赖有限输入坐标，运算可连续延拓。
+第 $k$ 项位于 $F^k$，模任一固定 $F^p$ 只有有限多项非零，故级数在完成中有定义。
+\end{proof}
+
+\begin{definition}[非齐次修复方程]
+对参数 $h\in\widehat V^1$，定义
+\[
+ \mathcal R_{\le N}(h)=
+ \sum_{k=1}^N\frac1{k!}\ell_k(h,\ldots,h),\qquad
+ \mathcal R_\infty(h)=
+ \sum_{k=1}^\infty\frac1{k!}\ell_k(h,\ldots,h).
+\]
+本文研究 $\mathcal R_\infty(h)=\omega$，称为非齐次修复方程。
+\end{definition}
+
+\section{全展开吸收与每个有限展开的残差}
+
+\begin{theorem}[高阶结构中的理想吸收]
+\label{thm:linfty-absorption}
+本节取单位缺陷 $\omega=b_1$ 与参数 $h=a_1$。则
+\[
+ \mathcal R_{\le N}(a_1)=b_1-b_{N+1},
+ \qquad
+ \boxed{\mathcal R_\infty(a_1)=b_1=\omega}.
+\]
+对每个有限 $N\ge1$，
+\[
+ \omega-\mathcal R_{\le N}(a_1)=b_{N+1}\ne0.
+\]
+\end{theorem}
+\begin{proof}
+第一项为 $b_1-b_2$。当 $k\ge2$ 时，
+$\ell_k(a_1,\ldots,a_1)/k!=b_k-b_{k+1}$。
+有限求和望远镜相消得到 $b_1-b_{N+1}$。
+由命题~\ref{prop:filtration} 级数有定义，且 $b_{N+1}\to0$ 在完成中成立，
+所以全展开等于 $b_1$。
+\end{proof}
+
+\begin{proposition}[高阶展开与相对链复形的接合]
+在本例中，
+\[
+ \mathcal R_{\le N}(a_1)
+ =\partial\left(\sum_{j=1}^Na_j\right),\qquad
+ \mathcal R_\infty(a_1)=\widehat\partial(1,1,\ldots).
+\]
+因此其理想见证的非有限部分正是定理~\ref{thm:relative-example} 的高阶商类。
+\end{proposition}
+\begin{proof}
+两侧的有限式均为 $b_1-b_{N+1}$，理想式均为 $b_1$。
+在链次数中把见证送入 $Q_2$，连接像为 $[b_1]_{\cfin}$。
+\end{proof}
+
+\begin{corollary}[任意有限高阶项组合仍受有限作用证书约束]
+对每个有限 $k$ 及全部有限支撑输入 $v_i\in V$，
+运算值 $\ell_k(v_1,\ldots,v_k)$ 都属于 $\im\partial$。
+由这些值组成的任意有限线性组合，不能等于 $b_1$。
+\end{corollary}
+\begin{proof}
+$k=1$ 时即为 $\partial v$；
+$k\ge2$ 时运算值为某个实系数乘以 $\partial a_k$，或为零。
+有限和仍属于 $\im\partial=\ker\lambda$，但 $\lambda b_1=1$。
+\end{proof}
+
+\begin{remark}[参数、表达式与实际作用的证书]
+$h=a_1$ 是一个有限参数，$(1,1,\ldots)$ 也有有限文字描述。
+本例将 $\mathcal R_\infty$ 登记为理想展开，实际原子操作由独立的执行证书登记。
+闭式 $b_1$ 属于计算表达式，消除全部相关义务属于实际任务作用。
+若某个有限整体操作具有真实执行证书，能够一次产生完整 $\omega$ 的效果，
+则将其加入实际作用域，并按扩展后的作用族重新计算覆盖关系与同调。
+\end{remark}
+
+\begin{remark}[展开截断与执行截断]
+本例通过显式等式，把前 $N$ 个高阶运算与前 $N$ 项有限修复接合。
+一般 $\Linfty$ 系统的运算元数、参数长度、程序步数、训练成本及实际执行层数分别计量；
+两种截断之间的结论运输以相应接合证书为前提。
+\end{remark}
+
+\section{有限完整见证与扇区归属}
+
+\begin{proposition}[有限完整见证排除实现失败条件]
+若某任务有合法有限作用 $u$ 满足 $\partial u=\omega$，且完整验收有保真读回，
+则该实例不满足 $\mathfrak H_{\infty\to{\rm fin}}$ 的有限实现失败条件。
+\end{proposition}
+\begin{proof}
+有限完整见证直接使 $\Sol_{\rm fin}(T)\ne\varnothing$，
+与该扇区要求的当前有限实际作用无法完整兑现不相容。
+\end{proof}
+
+\chapter{全有限策略定理与经济兑现接口}
+\label{chap:total}
+
+\section{单步覆盖与有限轨迹归纳}
+
+\begin{definition}[有限实际作用覆盖]
+\label{def:coverage}
+设 $C_\bullet$ 为修复复形，实际状态域为 $X$，真实残差为
+$R(x)\in Z_1(C)$，初态满足 $R(x_0)=\omega$。
+对每个可达状态、每个允许动作及每个被任务纳入的实际后继
+$x\xrightarrow a x'$，均给出有限作用见证
+$u(x,a,x')\in C_2$，使
+\[
+ \boxed{R(x')=R(x)-\partial_2u(x,a,x')}.
+\]
+该条件称为单步实际作用覆盖。它允许状态演化非线性、动作顺序不交换，以及选择依赖历史。
+\end{definition}
+
+\begin{theorem}[全部有限自适应执行的残差保持]
+\label{thm:all-finite}
+若定义~\ref{def:coverage} 成立，并存在
+\[
+ \lambda\partial_2=0,\qquad\lambda\omega=\Delta>0,
+\]
+则对任意有限实际轨迹
+$\tau:x_0\to x_1\to\cdots\to x_m$，有
+\[
+ U_\tau=\sum_{j=0}^{m-1}u(x_j,a_j,x_{j+1})\in C_2,
+\]
+\[
+ \boxed{R(x_m)=\omega-\partial_2U_\tau,\qquad
+        \lambda R(x_m)=\Delta}.
+\]
+若完整任务范数满足 $|\lambda z|\le L_T\Norm z_T$、
+$0<L_T<\infty$，且 $\varepsilon<\Delta/L_T$，则任何这样的有限轨迹均不能完整通过。
+\end{theorem}
+\begin{Certificate}[有限归纳格式]
+证书由初态残差、通用单步覆盖、闭余链等式、有界读出与完整目标容差组成。
+不需要实际列出无限多条轨迹。
+\end{Certificate}
+\begin{proof}
+长度为零时取 $U_\tau=0$。
+假定长度为 $m$ 时成立，追加允许后继得到
+\[
+ R(x_{m+1})
+ =\omega-\partial_2U_\tau-\partial_2u_m
+ =\omega-\partial_2(U_\tau+u_m).
+\]
+有限和仍属于 $C_2$，归纳成立。
+应用 $\lambda$ 得固定正读数；有界性给出
+$\Norm{R(x_m)}_T\ge\Delta/L_T>\varepsilon$。
+证明对每个实际后继逐一成立，因而覆盖自适应策略以及被纳入的随机或对抗响应。
+\end{proof}
+
+\begin{remark}[归纳证书封闭的量词]
+量词域为所声明状态、允许动作及实际后继中，满足单步实际作用覆盖式的全部有限轨迹。
+新增整体操作的实际效果按同一覆盖式核验，其归属由该证书确定。
+\end{remark}
+
+\section{主定理：理想吸收、有限障碍与误接受同时成立}
+
+对一般状态 $x$，把局部检查写为
+$\LocOK_{T,N}(x)=\operatorname{Check}_{T,N}(q_NR(x))$，
+并以同样的“正常成功发布、局部通过、完整未通过”三项合取定义 $\Hall_{T,N}(x)$。
+主定理采用上述一般局部检查谓词。
+
+\begin{theorem}[相对实现与工程幻觉总定理]
+\label{thm:main}
+设以下证书共同成立：
+\begin{enumerate}[label=\textnormal{(\arabic*)}]
+\item 有短正合链复形 $0\to C\xrightarrow{i}E\xrightarrow{p}Q\to0$；
+\item $\omega\in Z_1(C)$ 且存在理想见证 $h_\infty\in E_2$，满足
+      $\partial_Eh_\infty=i\omega$；
+\item 存在 $0<L_T<\infty$ 及读出，满足 $\lambda\partial_2=0$、
+      $\lambda\omega=\Delta>0$、$|\lambda z|\le L_T\Norm z_T$；
+\item 定义~\ref{def:coverage} 覆盖所研究的全部实际有限后继；
+\item 完整成功要求 $\Norm{R(x)}_T\le\varepsilon<\Delta/L_T$；
+\item 某个有限终态 $x_N$ 的局部检查只读取 $q_NR(x_N)$，
+      其值通过检查，而完整成功仍被正常发布。
+\end{enumerate}
+则同时有：
+\[
+ \boxed{i_*[\omega]=0,\qquad[\omega]\ne0},
+\]
+\[
+ \boxed{\delta[p_2h_\infty]=[\omega]\ne0},
+\]
+\[
+ \boxed{\text{全部被覆盖有限轨迹都不能完整通过}},
+\]
+且该终态 $x_N$ 的完整成功发布构成工程幻觉。
+\end{theorem}
+\begin{proof}
+理想原像给出 $i_*[\omega]=0$；
+正闭余链给出 $[\omega]\ne0$，否则 $\omega=\partial_2u$ 会使 $\lambda\omega=0$。
+理想见证在商中闭合，连接定义给出 $\delta[p_2h_\infty]=[\omega]$。
+全部有限轨迹的残差下界由定理~\ref{thm:all-finite} 得到。
+最后，局部通过、完整未通过与正常成功发布满足定义~\ref{def:hallucination} 的三项合取。
+\end{proof}
+
+\begin{corollary}[本稿的统一实例]
+取 $C=\cfin$、$E=\chat$、$\lambda$ 为有限系数总和，
+$\Norm{\cdot}_T=\Norm{\cdot}_1$、$L_T=1$，则理想见证为
+$\Delta(1,1,\ldots)$，有限前缀剩余 $\Delta b_{N+1}$。
+取删除尾部的 $P_N$ 和局部零即发布完整成功的规则，主定理对全部 $N\ge1$ 成立。
+\end{corollary}
+\begin{proof}
+各前件分别已由第~\ref{chap:completion}、\ref{chap:hallucination}~章的显式证书验证。
+\end{proof}
+
+\begin{corollary}[成本从证明依赖中消去]
+定理~\ref{thm:main} 不需要训练资源、购买价格、总算力、运行时间或费用预算作为前提。
+任意改变独立成本观察，只要不改变其余证书，结论保持。
+\end{corollary}
+\begin{proof}
+逐项检查主定理证明，只使用短正合关系、理想原像、有限实际覆盖、
+有界任务读出与发布判据；没有调用成本变量。
+\end{proof}
+
+\begin{remark}[判定证书与兑现证书]
+不可实现证书和报告错误证书完成相应的判定任务；
+经济、产权或安全的修复任务另以实际状态的完整接受判据确认。
+拒绝、退出及异常处理按其实际效果进入残差与发布记录。
+\end{remark}
+
+\section{把待兑现义务接回完整经济状态}
+
+\begin{definition}[经济语义桥接]
+\label{def:econ-bridge}
+令完整经济状态为 $x$，其必要观察至少按任务需要保存：
+应付、终局到账、可保留收入、预留资金、旧权利、实际控制、执行状态和外部受损义务。
+给出残差映射
+\[
+ R_T:X\to C_{1,\rm fin},
+\]
+并要求
+\[
+ \EngOK_T(x)\Longrightarrow\Norm{R_T(x)}_T\le\varepsilon.
+\]
+对真实动作，提交
+\[
+ R_T(x)-R_T(x')=\partial u_a(x,x'),\qquad u_a(x,x')\in C_{2,\rm fin}.
+\]
+这两式分别把经济完成的必要条件和实际作用送入主定理。
+\end{definition}
+
+\begin{proposition}[付款判据的观察充分性]
+若同一检查值可对应应付已确认但尚未到账的状态，以及已按任务到账的状态，
+则该检查值不足以支持完整付款成功判据。
+\end{proposition}
+\begin{proof}
+按定义~\ref{def:econ-bridge}，实际到账属于必要观察。
+两种状态同检查值而完整真假不同，应用定理~\ref{thm:validator}。
+资料将窗口内实际到账与未付或争议权利分别登记；未确认未来支付不能计入当前现金，
+窗口结束亦不删除旧权利
+\cite[《后 AI 转型中的分配传导失灵与可核验治理》，“应付、到账与可保留收入的分离”节]{SourceSupplement}。
+\end{proof}
+
+\begin{proposition}[预留资金的覆盖不变量]
+设账户 $(B,L,Y)$ 分别为预留余额、未付责任与累计已付。
+合法付款和新增承诺为
+\[
+ (B,L,Y)\mapsto(B-u,L-u,Y+u),\quad0\le u\le L,
+\]
+\[
+ (B,L)\mapsto(B+w,L+v),\quad w\ge v\ge0.
+\]
+若初态 $B_0\ge L_0\ge0$，则全部有限步保持 $B_t\ge L_t\ge0$；
+这不单独保证某一正确付款会在期限内发生。
+\end{proposition}
+\begin{proof}
+付款同时减少余额与责任，差 $B-L$ 不变；新增承诺使差增加 $w-v\ge0$。
+按事件步数归纳得不变量。
+恒等地不执行任何付款也保持该不变量，故它不能单独推出及时付款。
+这一分型与资料的逐步守恒及安全／及时性接口一致
+\cite[《偏好多样性、权利边界与可兑现分配》，“受保护账户的逐步守恒”节及
+引理“不出错不等于能兑现”]{SourcePreference}。
+\end{proof}
+
+\begin{proposition}[版本迁移下的旧义务保持]
+若规则迁移保留旧权利，则未付差额在迁移前后相同。
+将旧义务移到下一版本或后续复核层后，付款成功仍以实际到账判据为准。
+\end{proposition}
+\begin{proof}
+旧权利保持要求
+$(b_i-y_i)_{\rm after}=(b_i-y_i)_{\rm before}$；
+因此若迁移前差额为正，迁移后仍为正。
+该式与资料中的旧权利命题一致
+\cite[《偏好多样性、权利边界与可兑现分配》，命题“规则更新不能自动消灭旧权利”]{SourcePreference}。
+若有限检查删除迁移后承载差额的记录，则发生观察信息丢失，而非支付事实改变。
+\end{proof}
+
+\begin{remark}[经济应用的证书范围]
+$b_j$ 可以被解释为付款、权利、替代路径、独立执行或外部补偿的待兑现义务，
+各坐标的实际含义、单位和闭性须逐项核验。
+若某项真实净转移使必要残差减少，并具有完整到账和后继证书，
+则它构成相应义务的有效修复。
+命题~\ref{prop:income-not-training} 的持续收入实例属于有限可实现的任务，
+主定理的不可实现结论适用于满足其作用覆盖及正残差证书的完整任务。
+\end{remark}
+
+\section{新增操作与经济实现障碍}
+
+\begin{proposition}[精确修复新动作的覆盖关系]
+若某个真实新动作完成 $\omega$，则其净效果 $a_{\rm new}$ 满足
+$a_{\rm new}=\omega$，从而 $\lambda a_{\rm new}=\Delta\ne0$。
+它不属于旧有限边界空间 $\im\partial\subseteq\ker\lambda$。
+\end{proposition}
+\begin{proof}
+直接应用 $\lambda$。若仍属于旧边界空间，将得到 $\Delta=0$，矛盾。
+\end{proof}
+
+\begin{remark}[作用域与验收任务的更新]
+新增真实整体操作、改变允许义务转移、建立保真的尾部兑现路径，可能改变有限作用域。
+改变目标容差、删除受损主体或改变产权和安全含义，则改变验收任务。
+两类更新分别登记新操作证书与新的任务声明。
+\end{remark}
+
+\begin{theorem}[经济语义桥接下的有限实现障碍]
+在定理~\ref{thm:main} 的前五项证书及定义~\ref{def:econ-bridge} 的经济语义证书下，
+若理想见证在完成中吸收缺陷，而有限执行保留正的完整义务读出，
+则全部被覆盖的有限经济与技术复合都不能完成该任务。
+若验收删去承载余项的尾部并发布完整成功，则该报告为工程幻觉；
+实现障碍由高阶相对类及其非零连接像证明。
+这一结论不使用成本开销作为否决依据。
+\end{theorem}
+\begin{proof}
+经济语义桥接将实际轨迹送入单步覆盖式，按定理~\ref{thm:all-finite} 归纳。
+理想吸收与有限非零通过定理~\ref{thm:relative-general} 形成相对类；
+截断和发布条件按定理~\ref{thm:hallucination} 得到误接受。
+成本独立性由主定理的推论给出。
+\end{proof}
+
+\appendix
+
+\chapter{证明依赖与适用域核验表}
+\label{app:dependencies}
+
+\section{从经济对象到误接受判据的证明依赖}
+
+\begin{center}
+\small
+\begin{longtable}{P{0.23\textwidth}P{0.39\textwidth}P{0.29\textwidth}}
+\toprule
+对象 & 必要证书 & 结论\\
+\midrule
+\endfirsthead
+\toprule
+对象 & 必要证书 & 结论\\
+\midrule
+\endhead
+群体实际收入
+& 固定群体、同口径收入恒等式及相应不等式
+& 总产出增长与群体均值下降相容\\
+分配同调障碍
+& $BA=0$、$B\omega=0$、$\lambda A=0$、$\lambda\omega\ne0$
+& 指定作用族中 $[\omega]\ne0$\\
+三基本生成类
+& 三坐标语义、$FV=I_3$、指定规范作用族
+& 三个基本方向生成指定规范作用\\
+共同安全核心
+& 具体实现到核心的链映射及指定配对
+& 指定类运输至共同非零类\\
+训练联合目标无解
+& 对同一主体计量的 $n\ge K$ 与 $n\le M<K$
+& 联合可行集为空\\
+理想吸收
+& $\widehat\partial u_\infty=i\omega$
+& $i_*[\omega]=0$\\
+有限精确不可解
+& 全有限作用覆盖与非零闭余链
+& 被覆盖有限轨迹残差非零\\
+统一正残差
+& 正闭读出及 $|\lambda z|\le L_T\Norm z_T$
+& 残差范数至少为 $\Delta/L_T$\\
+工程幻觉
+& 局部通过、实际未完成、正常发布完整成功
+& 三项合取给出误接受\\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\section{理想、检查与执行的三类归零判据}
+
+\begin{proposition}[三种“归零”有不同前件]
+以下三式分别属于不同对象：
+\[
+ [\omega]_{\chat}=0,\qquad
+ [P_N\omega]_{\bar C_N}=0,\qquad
+ r(u)=0\ \text{且 $u$ 已合法执行}.
+\]
+第一式表示理想域存在原像；第二式表示有限检查商存在原像；
+第三式表示当前完整任务已由实际作用精确兑现。
+前两式不单独蕴含第三式。
+\end{proposition}
+\begin{proof}
+本稿取 $\omega=\Delta b_1$。前两式由理想见证与单位三角商矩阵成立，
+而第三式被全部有限作用的正读出否决，得到前两式均成立、第三式不成立的反例。
+\end{proof}
+
+\chapter{有限证书的精确复算}
+\label{app:verification}
+
+\section{整数与有理数核验程序}
+
+以下 Python 程序只使用标准库的精确有理数，复算有限矩阵的秩、商的可逆性、
+前缀残差、总义务读出以及 $\ell^2$ 反证书。
+它可直接从本文件复制运行。有限扫描用于发现符号、方向和索引错误；
+任意有限 $N$ 的结论由正文归纳与一般公式证明。
+
+\begin{lstlisting}[language=Python]
+from fractions import Fraction as F
+
+def mv(A, x):
+    return [sum((a*b for a, b in zip(row, x)), F(0))
+            for row in A]
+
+def rank(A):
+    R = [[F(x) for x in row] for row in A]
+    m, n = len(R), len(R[0])
+    p = 0
+    for col in range(n):
+        pivot = next((j for j in range(p, m)
+                      if R[j][col] != 0), None)
+        if pivot is None:
+            continue
+        R[p], R[pivot] = R[pivot], R[p]
+        scale = R[p][col]
+        R[p] = [z/scale for z in R[p]]
+        for j in range(m):
+            if j != p and R[j][col]:
+                scale = R[j][col]
+                R[j] = [a-scale*b
+                        for a, b in zip(R[j], R[p])]
+        p += 1
+        if p == m:
+            break
+    return p
+
+def boundary_matrix(n):
+    return [[F(int(i == j)-int(i == j+1))
+             for j in range(n)] for i in range(n+1)]
+
+Delta = F(3, 2)
+checked = 0
+for n in range(1, 33):
+    A = boundary_matrix(n)
+    omega = [Delta] + [F(0)]*n
+    actual = mv(A, [Delta]*n)
+    residual = [a-b for a, b in zip(omega, actual)]
+    assert rank(A) == n
+    assert rank(A[:-1]) == n
+    assert residual == [F(0)]*n + [Delta]
+    assert sum(residual) == Delta
+    assert sum(abs(z) for z in residual) == Delta
+    assert all(sum(row[j] for row in A) == 0
+               for j in range(n))
+    checked += 6
+
+for m in range(2, 34):
+    A = boundary_matrix(m-1)
+    u = [Delta*(1-F(j, m)) for j in range(1, m)]
+    omega = [Delta] + [F(0)]*(m-1)
+    residual = [a-b for a, b in zip(omega, mv(A, u))]
+    assert residual == [Delta/m]*m
+    assert sum(z*z for z in residual) == Delta*Delta/m
+    assert sum(residual) == Delta
+    checked += 3
+
+print("Exact certificate groups checked:", checked)
+\end{lstlisting}
+
+\section{可由有限描述核验的无限结构}
+
+\begin{proposition}[层级全称与实现条件全称]
+对参数 $\theta$，归纳式
+$P(0,\theta)$ 与 $P(N,\theta)\Rightarrow P(N+1,\theta)$
+只能直接推出 $\forall N\,P(N,\theta)$。
+若要得到 $\forall\theta\forall N\,P(N,\theta)$，基例和通用归纳步也须对全部 $\theta$ 成立。
+\end{proposition}
+\begin{proof}
+数学归纳法量化的是自然数变量 $N$。将其用于某个固定 $\theta$，
+不会为未满足基例或单步证书的其他 $\theta$ 生成证明。
+\end{proof}
+
+\begin{Certificate}[理想微分互逆]
+输入为两个通用坐标公式：
+\[
+ (\widehat\partial u)_j=u_j-u_{j-1},\quad u_0=0,\qquad
+ (Sx)_j=\sum_{k=1}^j x_k.
+\]
+逐个任意 $j$ 验证 $\widehat\partial Sx=x$ 与 $S\widehat\partial u=u$，
+即得到全部序列上的互逆证书，无须枚举序列。
+\end{Certificate}
+
+\begin{Certificate}[高阶恒等式]
+核验运算次数、奇输入的交换规则、所有非零输出落入 $V^2$，
+以及外层遇到 $V^2$ 必为零。这是全部高阶 Jacobi 恒等式的有限规则证书。
+它与附录程序的有限矩阵扫描承担不同责任。
+\end{Certificate}
+
+\begin{Certificate}[发布记录]
+完整工程幻觉证书包含一次实际的 $\ReportOK$ 发布记录，
+并与局部通过及完整残差超出容差的证据共同核验。
+矩阵恒等式给出以相应发布记录为前件的误接受蕴含。
+\end{Certificate}
+
+\chapter{记号、次数与文献接口}
+\label{app:notation}
+
+\begin{center}
+\small
+\begin{longtable}{P{0.23\textwidth}P{0.42\textwidth}P{0.26\textwidth}}
+\toprule
+记号 & 含义 & 使用位置\\
+\midrule
+\endfirsthead
+\toprule
+记号 & 含义 & 使用位置\\
+\midrule
+\endhead
+$e_{\mathcal M}$ & 模型解释残差 & 第~\ref{chap:typing}~章\\
+$\omega$ & 参照与实际状态之差，或已声明的待修复缺陷 & 依各章任务定义\\
+$A,B$ & 修复净作用与相容性检查 & 分配复形\\
+$\mathcal U(x)$ & 真实可执行作用集合 & 资金、容量与权限\\
+$L,M,P$ & 低训练成本、真实替代、自主占有 & 三基本类型\\
+$P_D,S_D$ & 同一受限事件的自主可执行与轨迹安全 & 共同安全核心\\
+$C_{\rm train}(h)$ & 生产固定能力的训练资源成本 & 独立生产进入\\
+$K,M,\overline M$ & 所需独立规模与安全规模界 & 条件性不相容任务\\
+$\Gamma$ & 四状态循环反馈增益 & 稳定性定理\\
+$\cfin,\chat$ & 有限支撑作用复形与理想乘积完成 & 主构造\\
+$\Delta$ & 主构造中未兑现义务的总读数 & 单位由任务坐标登记\\
+$Q=\chat/\cfin$ & 理想作用模去当前有限作用 & 相对同调\\
+$\delta:H_2(Q)\to H_1(\cfin)$ & 链同调连接映射 & 下降一次次数\\
+$P_N$ & 删除尾部义务的有限观察 & 局部验收\\
+$\ell_k$ & 次数 $2-k$ 的高阶运算 & 余链约定\\
+$\LocOK,\EngOK$\newline $\ReportOK$ & 局部通过、完整通过、正常成功发布 & 工程幻觉三项判据\\
+\bottomrule
+\end{longtable}
+\end{center}
+
+同一个字母在不同章节中出现时，以该章明示的类型为准。
+特别地，$M$ 分别用于三基本类型中的解除实质性垄断、训练规模上界及四状态反馈矩阵。
+主构造的 $\Delta$ 为义务读数，固定规模矛盾中的 $K-M$ 为主体数量差；
+各量按所在章节的定义和单位使用。
+
+\section{文献与本文新增构造}
+
+经济部分直接引用四份原始 TeX 文稿
+\cite{SourceMarket,SourceSupplement,SourcePreference,SourceCompetition}；
+仓库相对路径见参考文献，引注按文稿及条目题名定位。
+链复形、链同伦与长正合列采用
+\cite{Hatcher2002} 的标准结构；$\Linfty$ 运算的类型和恒等式采用
+\cite{LadaMarkl1995} 的公开结构接口，并声明本文的次数约定。
+生产条件三坐标、具体修复复形、相对实现读数、截断误接受和经济桥接定理均在本文内独立构造并证明。
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{参考文献}
+\begin{thebibliography}{99}
+\small
+
+\bibitem{SourceMarket}
+Gao Zheng（高政）.
+\newblock \emph{市场参与的形式系统：参与式分配、能者多得与最小救济的演化机制}.
+\newblock 2026，本地源文稿日期标注为2026年9月29日。
+\newblock 本地源文件：\code{docs/tex/tex1/market_participation_formal_system.tex}。
+
+\bibitem{SourceSupplement}
+Gao Zheng（高政）.
+\newblock \emph{后 AI 转型中的分配传导失灵与可核验治理：
+参与式分配、贡献激励、真实退出与最小救济的条件性扩展}.
+\newblock 2026年10月13日，《市场参与的形式系统》的独立补充稿。
+\newblock 本地源文件：\code{docs/tex/tex2/market_participation_governance_supplement.tex}。
+
+\bibitem{SourcePreference}
+Gao Zheng（高政）.
+\newblock \emph{偏好多样性、权利边界与可兑现分配：
+不依赖控制者个人善意的市场参与制度及其条件性证明}.
+\newblock 2026年10月14日。
+\newblock 本地源文件：\code{docs/tex/tex3/preference_rights_institution_formal_system.tex}。
+
+\bibitem{SourceCompetition}
+Gao Zheng（高政）.
+\newblock \emph{规范竞技、多元评价与共同权利底线：
+后 AI 参与经济的条件性制度构造与证明}.
+\newblock 2026年10月17日。
+\newblock 本地源文件：\code{docs/tex/tex4/normative_competition_plural_standards_formal_system.tex}。
+
+\bibitem{Hatcher2002}
+Allen Hatcher.
+\newblock \emph{Algebraic Topology}.
+\newblock Cambridge University Press, Cambridge, 2002.
+\newblock 作者公开电子版：
+\url{https://pi.math.cornell.edu/~hatcher/AT/ATpage.html}.
+
+\bibitem{LadaMarkl1995}
+Tom Lada and Martin Markl.
+\newblock Strongly homotopy Lie algebras.
+\newblock \emph{Communications in Algebra}, 23(6):2147--2161, 1995.
+\newblock \url{https://doi.org/10.1080/00927879508825335}.
+\newblock 作者公开预印本：
+\url{https://arxiv.org/abs/hep-th/9406095}.
+
+\end{thebibliography}
+\end{CJK*}
+\end{document}
