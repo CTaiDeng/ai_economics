@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>百转千回 · 一百四十手的棋局与十三道门</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2314171a'/%3E%3Ccircle cx='11' cy='11' r='6' fill='%23f6f1e4'/%3E%3Ccircle cx='21' cy='21' r='6' fill='%23b3352b'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+:root{
+  --paper:#f1e8d4;
+  --paper-2:#e9dcc1;
+  --paper-3:#e2d2b2;
+  --ink:#1d1a16;
+  --ink-soft:#3a342b;
+  --ink-faint:#6b5f4d;
+  --line:#c2ad86;
+  --line-dark:#8a7656;
+  --cinnabar:#b3352b;
+  --cinnabar-deep:#8f2720;
+  --cinnabar-soft:#c8624f;
+  --dai:#2f4a5c;
+  --dai-2:#3d6178;
+  --stone:#f6f1e4;
+  --night:#14171a;
+  --night-2:#1b2026;
+  --gold:#b8986a;
+  --serif:"Noto Serif SC", "Songti SC", "STSong", serif;
+  --sans:"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow:0 18px 50px -20px rgba(40,30,15,.35);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--cinnabar);color:#fff}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:700;line-height:1.3}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+/* 宣纸纹理 */
+.paper-tex{
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(circle at 18% 22%, rgba(140,110,60,.06) 0, transparent 42%),
+    radial-gradient(circle at 82% 12%, rgba(120,90,50,.05) 0, transparent 38%),
+    radial-gradient(circle at 50% 90%, rgba(100,80,45,.05) 0, transparent 45%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.28 0 0 0 0 0.16 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============ 顶部导航 ============ */
+nav.top{
+  position:fixed;top:0;left:0;right:0;z-index:80;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 30px;
+  transition:background .4s,box-shadow .4s,padding .4s;
+}
+nav.top.scrolled{
+  background:rgba(20,23,26,.92);backdrop-filter:blur(10px);
+  padding:9px 30px;box-shadow:0 6px 30px -12px rgba(0,0,0,.6);
+}
+nav .brand{font-family:var(--serif);font-weight:900;font-size:19px;letter-spacing:6px;color:#e8dcc2}
+nav .brand small{font-size:11px;letter-spacing:2px;color:var(--gold);margin-left:10px;font-weight:400}
+nav ul{display:flex;gap:26px;list-style:none}
+nav ul a{font-size:13.5px;color:#cabca2;letter-spacing:2px;transition:color .3s}
+nav ul a:hover{color:var(--cinnabar-soft)}
+@media(max-width:760px){nav ul{display:none}}
+
+/* ============ HERO ============ */
+.hero{
+  position:relative;min-height:100vh;
+  background:
+    radial-gradient(1200px 700px at 78% 18%, rgba(61,97,120,.32), transparent 60%),
+    radial-gradient(900px 600px at 12% 88%, rgba(179,53,43,.14), transparent 55%),
+    linear-gradient(160deg,#0f1216 0%,#171c22 48%,#12151a 100%);
+  color:#e9e0cc;
+  display:flex;align-items:center;
+  overflow:hidden;
+}
+.hero::after{content:"";position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 0 0.7 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.5;pointer-events:none}
+.hero .wrap{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;width:100%;padding-top:90px;padding-bottom:60px}
+.hero-kicker{font-size:13px;letter-spacing:9px;color:var(--gold);margin-bottom:26px;font-weight:300}
+.hero-kicker span{color:var(--cinnabar-soft)}
+.hero h1{font-size:clamp(64px,11vw,128px);font-weight:900;letter-spacing:14px;line-height:1.05;
+  background:linear-gradient(180deg,#f5ecd6 0%,#d8c39a 55%,#a9865a 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 1px 0 rgba(255,255,255,.04)}
+.hero .sub{font-family:var(--serif);font-size:clamp(17px,2.2vw,23px);color:#d8c9ab;margin-top:22px;font-weight:500;letter-spacing:2px}
+.hero .desc{margin-top:22px;max-width:480px;color:#a99f89;font-size:14.5px;line-height:2.1;font-weight:300}
+.hero-stats{display:flex;gap:0;margin-top:40px;border-top:1px solid rgba(184,152,106,.28)}
+.hero-stats div{flex:1;padding:18px 6px 0}
+.hero-stats div+div{border-left:1px solid rgba(184,152,106,.2)}
+.hero-stats b{display:block;font-family:var(--serif);font-size:30px;color:#f0e6cf;font-weight:700}
+.hero-stats b em{font-style:normal;color:var(--cinnabar-soft);font-size:18px}
+.hero-stats span{font-size:12px;color:#9a8f77;letter-spacing:1.5px}
+.hero-scroll{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3;color:#8d8368;font-size:11px;letter-spacing:4px;writing-mode:vertical-rl}
+.hero-scroll::after{content:"";display:block;width:1px;height:46px;background:linear-gradient(var(--gold),transparent);margin:10px auto 0}
+
+/* 棋盘 */
+.board-stage{position:relative;display:flex;justify-content:center;align-items:center}
+.board-glow{position:absolute;width:90%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,rgba(61,97,120,.35),transparent 65%);filter:blur(30px)}
+#goBoard{width:min(100%,470px);height:auto;position:relative;z-index:2;filter:drop-shadow(0 30px 50px rgba(0,0,0,.55))}
+.hero-seal{position:absolute;right:6px;bottom:-8px;z-index:3;width:64px;height:64px;border-radius:8px;
+  background:var(--cinnabar);color:#f6ead6;display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-weight:900;font-size:15px;line-height:1.15;text-align:center;letter-spacing:2px;
+  transform:rotate(-6deg);box-shadow:0 8px 22px -8px rgba(179,53,43,.7);
+  writing-mode:vertical-rl;padding:8px 0}
+@media(max-width:880px){.hero .wrap{grid-template-columns:1fr;gap:10px}.hero h1{letter-spacing:8px}.board-stage{order:-1;margin-bottom:10px}#goBoard{width:min(78vw,380px)}}
+
+/* 落子动画 */
+.stone{opacity:0;animation:drop .5s cubic-bezier(.2,.9,.3,1.3) forwards}
+@keyframes drop{0%{opacity:0;transform:translateY(-26px) scale(.6)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.door-ring{opacity:0;animation:ringin 1.2s ease forwards;animation-delay:2.6s}
+@keyframes ringin{to{opacity:1}}
+.pulse-ring{animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* ============ 通用区块 ============ */
+section{position:relative}
+.sec-head{margin-bottom:46px}
+.sec-no{font-family:var(--serif);font-size:13px;letter-spacing:6px;color:var(--cinnabar);font-weight:600}
+.sec-no::before{content:"";display:inline-block;width:34px;height:1px;background:var(--cinnabar);vertical-align:middle;margin-right:14px}
+.sec-head h2{font-size:clamp(30px,4.4vw,46px);font-weight:900;letter-spacing:6px;margin:14px 0 8px;color:var(--ink)}
+.sec-head p{color:var(--ink-faint);font-size:15px;max-width:680px;letter-spacing:1px}
+.block{padding:96px 0}
+@media(max-width:760px){.block{padding:66px 0}}
+
+/* 序章引语 */
+.prelude{background:var(--night-2);color:#d8cba9;padding:110px 0;text-align:center;position:relative;overflow:hidden}
+.prelude .bigquote{font-family:var(--serif);font-size:clamp(23px,3.6vw,38px);font-weight:600;letter-spacing:4px;line-height:1.9;max-width:880px;margin:0 auto}
+.prelude .bigquote .hl{color:#e8c98f}
+.prelude .bigquote .red{color:var(--cinnabar-soft)}
+.prelude .from{margin-top:34px;font-size:13px;letter-spacing:4px;color:#8b8168}
+.prelude .sealmark{display:inline-block;margin-top:26px;width:54px;height:54px;border:2px solid var(--cinnabar);color:var(--cinnabar-soft);
+  border-radius:6px;font-family:var(--serif);font-weight:900;font-size:13px;line-height:1.3;display:flex;align-items:center;justify-content:center;text-align:center;letter-spacing:2px;margin-left:auto;margin-right:auto}
+
+/* 时代之困 */
+.crisis-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:start}
+.crisis-text p{font-size:15.5px;margin-bottom:18px;color:var(--ink-soft)}
+.crisis-text p strong{color:var(--cinnabar-deep);font-weight:700}
+.crisis-cards{display:grid;gap:18px}
+.crisis-card{background:var(--paper-2);border:1px solid var(--line);border-left:4px solid var(--cinnabar);padding:22px 24px;border-radius:4px;box-shadow:var(--shadow)}
+.crisis-card .num{font-family:var(--serif);font-size:38px;font-weight:900;color:var(--cinnabar-deep);line-height:1}
+.crisis-card .num small{font-size:15px;color:var(--ink-faint);font-weight:500;margin-left:4px}
+.crisis-card h4{font-size:17px;margin:10px 0 6px;letter-spacing:2px}
+.crisis-card p{font-size:13.5px;color:var(--ink-faint);line-height:1.8}
+@media(max-width:880px){.crisis-grid{grid-template-columns:1fr}}
+
+/* 棋局翻转 */
+.turn{background:linear-gradient(180deg,#23282f,#191d23);color:#dfe3e6}
+.turn .sec-head h2{color:#f0e8d6}
+.turn .sec-head p{color:#9aa3ab}
+.turn .sec-no{color:var(--cinnabar-soft)}
+.turn-grid{display:grid;grid-template-columns:1.3fr .9fr;gap:38px;align-items:stretch}
+.chart-box{background:rgba(255,255,255,.03);border:1px solid rgba(184,152,106,.25);border-radius:8px;padding:18px}
+.chart-box .ctitle{font-size:13px;color:#b9a98a;letter-spacing:2px;margin-bottom:4px}
+#valueChart{width:100%;height:380px}
+.turn-side{display:flex;flex-direction:column;gap:16px}
+.turn-note{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:8px;padding:20px 22px}
+.turn-note h4{font-family:var(--serif);color:#e8c98f;letter-spacing:2px;font-size:16px;margin-bottom:8px}
+.turn-note p{font-size:13.5px;color:#aab3bb;line-height:1.95}
+.turn-final{background:linear-gradient(135deg,rgba(179,53,43,.22),rgba(179,53,43,.06));border:1px solid rgba(200,98,79,.4)}
+.turn-final .big{font-family:var(--serif);font-size:44px;font-weight:900;color:#e8c98f;line-height:1.1}
+.turn-final .big em{font-style:normal;color:var(--cinnabar-soft)}
+@media(max-width:880px){.turn-grid{grid-template-columns:1fr}#valueChart{height:320px}}
+
+/* 机制四步 */
+.mech{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:40px;border:1px solid rgba(184,152,106,.28);border-radius:8px;overflow:hidden}
+.mech>div{padding:24px 20px;position:relative;background:rgba(255,255,255,.025)}
+.mech>div+div{border-left:1px solid rgba(184,152,106,.22)}
+.mech .step{font-family:var(--serif);color:var(--cinnabar-soft);font-size:13px;letter-spacing:3px}
+.mech h5{font-family:var(--serif);color:#ece2cd;font-size:18px;margin:8px 0;letter-spacing:2px}
+.mech p{font-size:12.5px;color:#98a1aa;line-height:1.85}
+@media(max-width:760px){.mech{grid-template-columns:1fr 1fr}.mech>div:nth-child(3){border-left:none}.mech>div:nth-child(n+3){border-top:1px solid rgba(184,152,106,.22)}}
+
+/* 十卷时间轴 */
+.scroll-track{position:relative;margin-top:20px}
+.scroll-track::before{content:"";position:absolute;left:270px;top:0;bottom:0;width:2px;background:linear-gradient(var(--cinnabar),var(--line-dark) 12%,var(--dai) 88%,var(--cinnabar))}
+.juan{position:relative;display:grid;grid-template-columns:240px 30px 1fr;gap:0;padding:0 0 34px}
+.juan .when{text-align:right;padding-right:26px}
+.juan .when .vol{font-family:var(--serif);font-size:21px;font-weight:900;color:var(--ink);letter-spacing:1px}
+.juan .when .moves{font-size:12px;color:var(--cinnabar);letter-spacing:1.5px;margin-top:4px;font-weight:500}
+.juan .when .theme{font-size:12px;color:var(--ink-faint);margin-top:3px;letter-spacing:2px}
+.juan .dotcol{position:relative;display:flex;justify-content:center}
+.juan .dot{width:15px;height:15px;border-radius:50%;background:var(--paper);border:3px solid var(--cinnabar);margin-top:8px;z-index:2;box-shadow:0 0 0 4px var(--paper)}
+.juan .dot::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--cinnabar)}
+.juan .card{background:var(--paper-2);border:1px solid var(--line);border-radius:6px;padding:20px 24px;box-shadow:0 10px 30px -18px rgba(40,30,15,.4)}
+.juan .card h3{font-size:19px;letter-spacing:2px;color:var(--ink);margin-bottom:6px}
+.juan .card h3 .arc{font-size:12px;color:var(--dai);font-family:var(--sans);font-weight:500;letter-spacing:1px;margin-left:8px}
+.juan .card p{font-size:13.8px;color:var(--ink-soft);line-height:1.9}
+.juan .tag{display:inline-block;margin-top:10px;font-size:11.5px;padding:3px 11px;border-radius:20px;background:rgba(47,74,92,.12);color:var(--dai);letter-spacing:1px;margin-right:6px}
+.juan.prologue .dot,.juan.epilogue .dot{border-color:var(--cinnabar-deep)}
+.juan.prologue .when .vol,.juan.epilogue .when .vol{color:var(--cinnabar-deep)}
+@media(max-width:760px){
+  .scroll-track::before{left:15px}
+  .juan{grid-template-columns:30px 1fr;gap:12px}
+  .juan .when{grid-column:2;text-align:left;padding-right:0;order:2}
+  .juan .dotcol{grid-column:1;grid-row:1/span 2;justify-content:flex-start}
+  .juan .card{grid-column:2}
+  .juan .dot{margin-left:0}
+}
+
+/* 人物 */
+.people-tabs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:34px}
+.people-tabs button{font-family:var(--sans);font-size:13.5px;letter-spacing:2px;padding:8px 18px;border-radius:30px;border:1px solid var(--line-dark);background:transparent;color:var(--ink-soft);cursor:pointer;transition:all .25s}
+.people-tabs button.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.people-tabs button:hover:not(.active){border-color:var(--cinnabar);color:var(--cinnabar-deep)}
+#relChart{width:100%;height:640px;background:linear-gradient(180deg,#f3ead6,#ece0c4);border:1px solid var(--line);border-radius:8px}
+.rel-hint{font-size:12.5px;color:var(--ink-faint);margin-top:10px;letter-spacing:1px}
+.people-grid{display:grid;grid-template-columns:repeat(var(--cols,3),1fr);gap:18px;margin-top:46px;transition:grid-template-columns .3s}
+.pcard{background:var(--paper-2);border:1px solid var(--line);border-radius:8px;padding:22px 22px 20px;position:relative;transition:transform .3s,box-shadow .3s;cursor:default}
+.pcard:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.pcard .faction{position:absolute;top:16px;right:18px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:15px;font-weight:900;color:#fff}
+.pcard h3{font-size:20px;letter-spacing:2px;margin-bottom:2px}
+.pcard .role{font-size:12px;color:var(--cinnabar);letter-spacing:1.5px;font-weight:500;margin-bottom:10px}
+.pcard .kung{font-size:12px;color:var(--dai);margin-bottom:8px;letter-spacing:.5px}
+.pcard p{font-size:13px;color:var(--ink-soft);line-height:1.85}
+.f-core{background:var(--cinnabar)}.f-grass{background:var(--dai)}.f-guide{background:#7a6a3f}.f-family{background:#a8664e}.f-cap{background:#5b5040}.f-guard{background:#3f5a44}.f-foe{background:#2b2622}
+@media(max-width:600px){#relChart{height:520px}}
+
+/* 十三道门 */
+.doors{background:var(--night);color:#dfe3e6}
+.doors .sec-head h2{color:#f0e8d6}
+.doors .sec-head p{color:#9aa3ab}
+.doors .sec-no{color:var(--cinnabar-soft)}
+.doors-intro{max-width:820px;font-size:15px;color:#b7bec4;line-height:2.1;margin-bottom:46px}
+.doors-intro strong{color:#e8c98f}
+.door-group{margin-bottom:38px}
+.door-group .gh{display:flex;align-items:baseline;gap:14px;margin-bottom:16px}
+.door-group .gh .gt{font-family:var(--serif);font-size:20px;font-weight:900;letter-spacing:3px;color:#e8c98f}
+.door-group .gh .gd{font-size:12.5px;color:#8d969e;letter-spacing:1px}
+.door-cells{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.door-cells.four{grid-template-columns:repeat(4,1fr)}
+.door-cells.three{grid-template-columns:repeat(3,1fr)}
+.dcell{border:1px solid rgba(184,152,106,.35);border-radius:8px;padding:20px 14px;text-align:center;position:relative;background:rgba(255,255,255,.03);transition:all .3s}
+.dcell:hover{border-color:var(--cinnabar-soft);background:rgba(200,98,79,.08);transform:translateY(-3px)}
+.dcell .ico{width:40px;height:40px;margin:0 auto 12px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:700;color:var(--gold)}
+.dcell h5{font-family:var(--serif);font-size:18px;letter-spacing:3px;color:#f0e8d6}
+.dcell p{font-size:11.5px;color:#93a0a8;margin-top:7px;line-height:1.7}
+.dcell.terminal .ico{border-color:var(--cinnabar-soft);color:var(--cinnabar-soft)}
+.dcell.terminal{border-style:dashed}
+@media(max-width:880px){.door-cells{grid-template-columns:repeat(3,1fr)}.door-cells.four{grid-template-columns:repeat(2,1fr)}.door-cells.three{grid-template-columns:repeat(1,1fr)}}
+@media(max-width:520px){.door-cells{grid-template-columns:repeat(2,1fr)}}
+
+/* 双隐喻 */
+.metaphor{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+.meta-card{border-radius:10px;padding:34px 32px;position:relative;overflow:hidden}
+.meta-card.wei{background:linear-gradient(160deg,#242a31,#171c21);color:#dbe1e5}
+.meta-card.wuxia{background:linear-gradient(160deg,#f4e8d0,#e7d5b2);color:var(--ink);border:1px solid var(--line)}
+.meta-card .mk{font-family:var(--serif);font-size:15px;letter-spacing:6px;opacity:.7}
+.meta-card h3{font-size:26px;letter-spacing:4px;margin:12px 0 18px}
+.meta-card.wei h3{color:#e8c98f}.meta-card.wuxia h3{color:var(--cinnabar-deep)}
+.meta-card ul{list-style:none}
+.meta-card li{font-size:14px;line-height:1.7;padding:10px 0 10px 22px;position:relative;border-bottom:1px dashed rgba(140,120,80,.25)}
+.meta-card li::before{content:"";position:absolute;left:2px;top:19px;width:7px;height:7px;border-radius:50%}
+.meta-card.wei li::before{background:var(--dai-2)}
+.meta-card.wuxia li::before{background:var(--cinnabar)}
+.meta-card li:last-child{border-bottom:none}
+@media(max-width:760px){.metaphor{grid-template-columns:1fr}}
+
+/* 金句 */
+.quotes{background:var(--paper-2)}
+.quote-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.quote{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:30px 30px 26px;position:relative;box-shadow:0 12px 34px -22px rgba(40,30,15,.4)}
+.quote::before{content:"“";position:absolute;top:-6px;left:16px;font-family:var(--serif);font-size:80px;color:var(--cinnabar);opacity:.25;line-height:1}
+.quote p{font-family:var(--serif);font-size:17.5px;font-weight:500;line-height:1.95;letter-spacing:1.5px;color:var(--ink);position:relative;z-index:2}
+.quote span{display:block;margin-top:16px;font-size:12.5px;color:var(--dai);letter-spacing:2px}
+@media(max-width:760px){.quote-grid{grid-template-columns:1fr}}
+
+/* 终章 */
+.finale{background:radial-gradient(1000px 600px at 50% 0%,rgba(61,97,120,.3),transparent 60%),linear-gradient(180deg,#14171a,#0e1115);color:#d8cba9;text-align:center;padding:120px 0}
+.finale .thirteen{display:flex;justify-content:center;gap:10px;margin-bottom:46px;flex-wrap:wrap}
+.finale .thirteen i{width:12px;height:12px;border-radius:50%;background:var(--gold);opacity:.5}
+.finale .thirteen i.lit{background:var(--cinnabar-soft);opacity:1;box-shadow:0 0 12px rgba(200,98,79,.8)}
+.finale h2{font-family:var(--serif);font-size:clamp(26px,4vw,40px);font-weight:700;letter-spacing:5px;line-height:1.9;color:#f0e6cf;max-width:820px;margin:0 auto 30px}
+.finale .lastline{font-family:var(--serif);font-size:clamp(22px,3.2vw,34px);letter-spacing:6px;color:#e8c98f;margin-top:40px;font-weight:700}
+.finale .sub{font-size:14px;color:#8d969e;letter-spacing:3px;margin-top:18px}
+footer{background:#0b0d10;color:#6c6557;text-align:center;padding:34px 20px;font-size:12.5px;letter-spacing:2px}
+footer .ft-seal{color:var(--cinnabar-soft);font-family:var(--serif);font-weight:700;letter-spacing:5px;margin-bottom:8px}
+
+/* 滚动揭示 */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s ease}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.stone{animation:none;opacity:1}.door-ring{animation:none;opacity:1}}
+</style>
+</head>
+<body class="paper-tex">
+
+<nav class="top" id="topnav">
+  <div class="brand">百转千回<small>一百四十手 · 十三道门</small></div>
+  <ul>
+    <li><a href="#crisis">时代之困</a></li>
+    <li><a href="#turn">棋局</a></li>
+    <li><a href="#volumes">十卷长卷</a></li>
+    <li><a href="#people">人物</a></li>
+    <li><a href="#doors">十三道门</a></li>
+    <li><a href="#themes">主题</a></li>
+  </ul>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-text">
+      <div class="hero-kicker">一部以围棋为骨、武侠为皮的<span>AI时代分配寓言</span></div>
+      <h1>百转千回</h1>
+      <div class="sub">当一百八十六个名字印上裁员名单，一盘更大的棋，才落下第一子。</div>
+      <p class="desc">六个被逼下牌桌的技术理想主义者，在城北工坊重开一局——以代码为剑、以不可篡改的契约为盾，试着重接"生产"与"分配"之间被 AI 斩断的那条路。十卷一百章，一百四十手，终局黑胜六点九目。</p>
+      <div class="hero-stats">
+        <div><b>10<em>卷</em></b><span>一百章 · 序与尾</span></div>
+        <div><b>140<em>手</em></b><span>一盘贯通全书的棋</span></div>
+        <div><b>13<em>门</em></b><span>六个主干 · 四次级 · 三终端</span></div>
+        <div><b>6.9<em>目</em></b><span>终局黑胜的目数</span></div>
+      </div>
+    </div>
+    <div class="board-stage">
+      <div class="board-glow"></div>
+      <!-- 十九路棋盘由 JS 生成 -->
+      <svg id="goBoard" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg" aria-label="围棋中盘，十三个金色圈标记十三道门"></svg>
+      <div class="hero-seal">百转千回</div>
+    </div>
+  </div>
+  <div class="hero-scroll">落子 · 入局</div>
+</header>
+
+<!-- ============ 序章引语 ============ -->
+<section class="prelude">
+  <div class="wrap">
+    <div class="bigquote reveal">
+      能各自活下来的，仍然可以活。<br>
+      真正失去的，是<span class="hl">替所有地方一起发号施令</span>的路。<br>
+      <span style="font-size:.62em;color:#8d8368">—— 那是这一年里，我们学会不再替所有人落子的地方。</span>
+    </div>
+    <div class="sealmark reveal">十三<br>道门</div>
+    <div class="from reveal">序章 · 第一百四十手 · 黑胜六点九目</div>
+  </div>
+</section>
+
+<!-- ============ 时代之困 ============ -->
+<section class="block paper-tex" id="crisis">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-no">壹 · 缘起</div>
+      <h2>海啸之夜，一百八十六颗弃子</h2>
+      <p>2026 年一月，AI 以近乎零边际成本吐出代码、图纸与文案，写字楼却在裁员、商铺成片熄灯、通缩深渊张开。霁岳科技上市三年，一份裁员名单摆上了三十六层的黑胡桃木桌。</p>
+    </div>
+    <div class="crisis-grid reveal">
+      <div class="crisis-text">
+        <p>深夜十一点四十七分，霁岳科技总部三十六层。<strong>总计一百八十六人</strong>的《组织结构优化与人员分流最终执行表》盖上保密印章——平均年龄二十九岁，六十三人是全家唯一收入来源，二十九人刚在高位背上房贷。</p>
+        <p>联合创始人<strong>程砚舟</strong>与<strong>许知妍</strong>争下 N+2 与大病医保，却仍被逼着签字。机构代表赵董事随即逼宫：再裁三百一十二人，并把核心资产"晨港"打包卖给海外——"就算一年后空置又如何？"</p>
+        <p>棋手一样的两位创始人第一次明白：在资本的棋盘上，坐上去就必须按它的规则杀人。他们愤而<strong>破门出宗</strong>，六枚工牌排成一列，连夜走进城北的雨里，要在旧棋盘之外，另开一局。</p>
+        <p>引路人贺敬山在残局上落下一子，点在中腹之外的虚空——<strong>"脱先求活"</strong>：不必同时封死十三道门，先让真实的路径出现，再选择那一处恰好能命中它的截断面。这一手，叫"横断"。</p>
+      </div>
+      <div class="crisis-cards">
+        <div class="crisis-card"><div class="num">186<small>人</small></div><h4>第一批裁员名单</h4><p>纸面上是几行姓名与赔偿公式，落到各自屋檐下，是一座座摇摇欲坠的顶梁柱。</p></div>
+        <div class="crisis-card"><div class="num">N+2<small>补偿</small></div><h4>争来的喘息生机</h4><p>九票死局里硬争高一档补偿、保留大病商保、管生绩效全额补足。</p></div>
+        <div class="crisis-card"><div class="num">13<small>道门</small></div><h4>另起一局的接口</h4><p>六个主干、四个次级、三个终端，让任何跨区的权力都必须带着责任通过。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 棋局翻转 ============ -->
+<section class="block turn" id="turn">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-no">贰 · 棋势</div>
+      <h2>从白方领先，到黑胜六点九目</h2>
+      <p>全书用同一份"开放估值"贯穿。第八十手，新局尚是散锚、白方领先五点五七三七；第一百四十手，主干闭合，黑方反超六点九四四六。两份报告都原样留档，谁也没有把不利的数字改写成大捷。</p>
+    </div>
+    <div class="turn-grid reveal">
+      <div class="chart-box">
+        <div class="ctitle">开放估值投影 · 第 80 手 / 第 140 手（真实结算截面）</div>
+        <div id="valueChart"></div>
+      </div>
+      <div class="turn-side">
+        <div class="turn-note">
+          <h4>第 80 手 · 白领先 5.5737</h4>
+          <p>十三处锚点分散在四角、边线与中腹，单看每一处都薄，围不出一块人人看得见的大空。公开估值上，旧平台与资本网络仍占上风。"它证明我们此刻没有赢，不证明我们应该改写口径。"</p>
+        </div>
+        <div class="turn-note turn-final">
+          <h4>第 140 手 · 黑领先</h4>
+          <div class="big"><em>6.9446</em> 目</div>
+          <p style="margin-top:8px">三块汇成三十六子十五气，再成三十七子主集团。白棋的局部仍各自活着，全盘协同却一层层失去。"六点九目，算不上屠龙。本来也不需要屠龙。"</p>
+        </div>
+      </div>
+    </div>
+    <div class="mech reveal">
+      <div><div class="step">机制 一</div><h5>分散设锚</h5><p>不急着围大空，在四角、边线与中腹分散留下锚点，单看皆薄，合起来等待。</p></div>
+      <div><div class="step">机制 二</div><h5>等待路径</h5><p>白棋每一次救援、连接、反攻，都会暴露一条真实的跨区路径。</p></div>
+      <div><div class="step">机制 三</div><h5>局部重算</h5><p>路径出现后，只在命中它的那道门核验：查融资、验授权、摊原始记录。</p></div>
+      <div><div class="step">机制 四</div><h5>横断闭合</h5><p>切断的是把权力偷偷运走却不带上责任的路，局部依旧能各自活。</p></div>
+    </div>
+  </div>
+</section>
+<!-- ============ 十卷长卷 ============ -->
+<section class="block paper-tex" id="volumes">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-no">叁 · 长卷</div>
+      <h2>十卷一百章，一百四十手</h2>
+      <p>每一卷都以围棋术语题写"棋势"，标明手数。从一场雨夜裁员到一局终了，这是一部关于规则如何一寸寸立起来的编年史。</p>
+    </div>
+    <div class="scroll-track" id="scrollTrack"></div>
+  </div>
+</section>
+
+<!-- ============ 人物 ============ -->
+<section class="block" id="people" style="background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-no">肆 · 江湖</div>
+      <h2>群像与关系网</h2>
+      <p>有人执剑立规，有人守账护钱，有人在虚拟战场里拿命换钱，也有人把骗局做成金字招牌。拖动、悬停可查看每个人的阵营与关系。</p>
+    </div>
+    <div class="people-tabs reveal" id="peopleTabs"></div>
+    <div class="reveal" id="relChart"></div>
+    <div class="rel-hint reveal">图谱按阵营着色，连线表示结盟、亲情、师承、商业或对立关系；点击下方卡片可在图中定位。</div>
+    <div class="people-grid" id="peopleGrid"></div>
+  </div>
+</section>
+
+<!-- ============ 十三道门 ============ -->
+<section class="block doors" id="doors">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-no">伍 · 架构</div>
+      <h2>十三道门，十三个腔室</h2>
+      <p>十三个腔室不是十三块要抢的地，也不是十三个归谁调遣的堂口，而是十三个必须分别说清楚的接口。每个腔室只有一扇门。</p>
+    </div>
+    <p class="doors-intro reveal">门外可以是不同的技术、行会、城市，甚至彼此竞争的商业模式；门内却必须回答同样的问题——<strong>谁发起作用、谁承受后果、钱和权限怎样运输、出错时由谁回放</strong>。腔室轮廓不等于领地，门也不等于永久封锁。</p>
+    <div class="door-group reveal">
+      <div class="gh"><span class="gt">六主干</span><span class="gd">少一件，新世界就只是换了牌匾的旧山门</span></div>
+      <div class="door-cells">
+        <div class="dcell"><div class="ico">身</div><h5>身份</h5><p>谁可以进来，谁有权调用</p></div>
+        <div class="dcell"><div class="ico">权</div><h5>授权</h5><p>作用经谁许可，边界在哪</p></div>
+        <div class="dcell"><div class="ico">钱</div><h5>结算</h5><p>钱从哪来、到哪去，分润有据</p></div>
+        <div class="dcell"><div class="ico">证</div><h5>证据</h5><p>历史怎样回放，不可篡改</p></div>
+        <div class="dcell"><div class="ico">诉</div><h5>申诉</h5><p>争议凭什么翻案，留人工复核</p></div>
+        <div class="dcell"><div class="ico">退</div><h5>退出</h5><p>怎样带着自己的东西离开</p></div>
+      </div>
+    </div>
+    <div class="door-group reveal">
+      <div class="gh"><span class="gt">四次级</span><span class="gd">四条会不断变化的路，不能越过主干偷拿别人的身份、钱与名</span></div>
+      <div class="door-cells four">
+        <div class="dcell"><div class="ico">竞</div><h5>竞技</h5><p>对局、战区与战功的比较</p></div>
+        <div class="dcell"><div class="ico">创</div><h5>创作</h5><p>母带、战报与作品的授权</p></div>
+        <div class="dcell"><div class="ico">教</div><h5>教学</h5><p>把后生领进山门的传承</p></div>
+        <div class="dcell"><div class="ico">组</div><h5>组织</h5><p>搭台、办赛与分担风险</p></div>
+      </div>
+    </div>
+    <div class="door-group reveal">
+      <div class="gh"><span class="gt">三终端</span><span class="gd">离中腹最远，却最容易在得势之后变成新的暗门</span></div>
+      <div class="door-cells three">
+        <div class="dcell terminal"><div class="ico">择</div><h5>赞助选择</h5><p>赞助者凭实力争取用户选择，买不下"选择"本身</p></div>
+        <div class="dcell terminal"><div class="ico">治</div><h5>地方自治</h5><p>节点保留自有名称、规则与账房，可被核验而非被吞并</p></div>
+        <div class="dcell terminal"><div class="ico">交</div><h5>权利移交</h5><p>旧成员怎样离开，或把权利交给后来人</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 双隐喻 ============ -->
+<section class="block paper-tex" id="themes">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-no">陆 · 题眼</div>
+      <h2>一副围棋，两本江湖</h2>
+      <p>小说用围棋的手筋讲制度，用武侠门派的兴衰讲资本。两套语言互为表里，讲的是同一件事：如何让权力与责任同行。</p>
+    </div>
+    <div class="metaphor reveal">
+      <div class="meta-card wei">
+        <div class="mk">围棋 · 骨</div>
+        <h3>落子即立法</h3>
+        <ul>
+          <li><b>分散设锚</b>：不抢大空，等待对手自己暴露路径。</li>
+          <li><b>脱先求活</b>：在别人算尽的死局之外落下一子。</li>
+          <li><b>横断</b>：切断无授权的跨区支配，而非屠尽对手。</li>
+          <li><b>弃子争先</b>：敢于弃局部、守主干，也敢于不补"假眼"。</li>
+          <li><b>终局</b>：不屠龙，只让局部生存与全局支配彻底分离。</li>
+        </ul>
+      </div>
+      <div class="meta-card wuxia">
+        <div class="mk">武侠 · 皮</div>
+        <h3>破门开新宗</h3>
+        <ul>
+          <li><b>旧山门</b>：名门正派把外门弟子当投名状，财报即戒律。</li>
+          <li><b>化功大法</b>：资本吸干底层血肉，庞氏骗局废人根骨。</li>
+          <li><b>折梅手</b>：沈婉衡以极寒守势化尽万法、凝水成冰。</li>
+          <li><b>太极道统</b>：程砚舟所求的，是以大巧若拙包容万物。</li>
+          <li><b>刑堂与香堂</b>：鸣冤、避嫌、交椅轮值，规矩为人服务。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 金句 ============ -->
+<section class="block quotes">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-no">柒 · 落子声</div>
+      <h2>几句贯穿全书的话</h2>
+    </div>
+    <div class="quote-grid reveal">
+      <div class="quote"><p>大厦将倾，你们还守在玻璃笼子里互撕，不过是坐以待毙。跳出旧谱，天元自辟。</p><span>—— 贺敬山 · 脱先求活</span></div>
+      <div class="quote"><p>你们真正要切开的，不是人，而是那些把一个地方的权力偷偷运到另一个地方、却不肯带上责任的路。</p><span>—— 贺敬山 · 横断</span></div>
+      <div class="quote"><p>下得好、讲得好、贡献真实的，理应多得；空耗时长、制造垃圾的，一文不取。</p><span>—— 城北立约 · 参与即分配</span></div>
+      <div class="quote"><p>钱还没真刀真枪落袋，就不是你的。</p><span>—— 沈婉衡 · 六个月验收</span></div>
+      <div class="quote"><p>今天已经撒出去的烂账，今天，就在这里，必须见着真金白银的底。</p><span>—— 程砚舟 · 千礁清算</span></div>
+      <div class="quote"><p>证明不必把所有人变成自己的人，也能让规则成立。</p><span>—— 尾声 · 十三道门</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 终章 ============ -->
+<section class="finale">
+  <div class="wrap">
+    <div class="thirteen reveal" id="thirteenLights"></div>
+    <h2 class="reveal">他牵起女儿的手，走出机房。<br>长廊尽头，十三道门各自开向不同的灯火。</h2>
+    <p class="sub reveal" style="max-width:680px;margin:0 auto">门后的人知道怎样核验自己的账，怎样拒绝不属于自己的命令，也知道在需要合作时，怎样带着完整的责任穿过那条横贯全局的主干。</p>
+    <div class="lastline reveal">棋谱已经收官。生活没有。</div>
+    <p class="sub reveal">而这一次，再也没有一个人能够替所有人落子。</p>
+  </div>
+</section>
+<footer>
+  <div class="ft-seal">百转 · 千回</div>
+  <div>《百转千回》作品展示页 · 十卷一百章 · 序章与尾声 · 人物 / 情节 / 十三道门</div>
+</footer>
+
+<script>
+/* ============ 生成 HERO 十九路棋盘 ============ */
+(function(){
+  const svg=document.getElementById('goBoard');
+  if(!svg)return;
+  const N=19,M=42,GAP=(480-M*2)/(N-1);
+  const pos=i=>(M+i*GAP);
+  let s='';
+  // 木纹底色
+  s+='<defs><radialGradient id="bd" cx="50%" cy="42%" r="75%"><stop offset="0%" stop-color="#e7d3a6"/><stop offset="70%" stop-color="#d4b983"/><stop offset="100%" stop-color="#bd9d66"/></radialGradient>';
+  s+='<radialGradient id="bk" cx="38%" cy="32%" r="75%"><stop offset="0%" stop-color="#5a5650"/><stop offset="55%" stop-color="#211f1c"/><stop offset="100%" stop-color="#0c0b0a"/></radialGradient>';
+  s+='<radialGradient id="wt" cx="38%" cy="32%" r="80%"><stop offset="0%" stop-color="#ffffff"/><stop offset="65%" stop-color="#efe7d2"/><stop offset="100%" stop-color="#cabf9f"/></radialGradient></defs>';
+  s+='<rect x="0" y="0" width="480" height="480" rx="10" fill="url(#bd)"/>';
+  // 线
+  for(let i=0;i<N;i++){
+    s+='<line x1="'+pos(0)+'" y1="'+pos(i)+'" x2="'+pos(18)+'" y2="'+pos(i)+'" stroke="#5c4a2c" stroke-width="'+(i===0||i===18?1.6:0.9)+'" opacity="0.8"/>';
+    s+='<line x1="'+pos(i)+'" y1="'+pos(0)+'" x2="'+pos(i)+'" y2="'+pos(18)+'" stroke="#5c4a2c" stroke-width="'+(i===0||i===18?1.6:0.9)+'" opacity="0.8"/>';
+  }
+  // 星位
+  [[3,3],[3,9],[3,15],[9,3],[9,9],[9,15],[15,3],[15,9],[15,15]].forEach(p=>{s+='<circle cx="'+pos(p[0])+'" cy="'+pos(p[1])+'" r="3.4" fill="#4a3a20"/>';});
+  // 棋子：黑=中腹断续主干，白=左右两翼活棋
+  const black=[[8,2],[9,3],[7,4],[10,4],[8,5],[9,6],[6,6],[11,6],[7,7],[10,7],[8,8],[9,9],[5,9],[12,9],[7,10],[10,10],[8,11],[11,11],[9,12],[6,12],[12,12],[8,13],[10,13],[9,14],[7,14],[11,14],[8,15],[10,15],[9,16],[3,8],[4,10],[14,7],[15,9],[3,14],[14,15],[12,4],[6,16],[13,12],[5,3],[16,11]];
+  const white=[[2,3],[3,3],[4,3],[2,4],[3,4],[4,4],[2,5],[3,5],[5,5],[3,6],[4,6],[5,6],[2,7],[4,7],[2,8],[5,8],[14,3],[15,3],[13,4],[14,4],[16,4],[13,5],[15,5],[16,5],[14,6],[13,7],[15,7],[16,8],[14,9],[15,10],[16,10],[4,13],[5,14],[4,15],[5,15],[3,15],[4,16],[17,12],[12,16],[13,17],[2,12]];
+  const r=GAP*0.46;
+  let order=0;
+  const stone=(c,fill)=>{
+    const d=0.06*order;
+    s+='<circle class="stone" style="animation-delay:'+(0.15+d)+'s" cx="'+pos(c[0])+'" cy="'+pos(c[1])+'" r="'+r+'" fill="url('+fill+')" stroke="rgba(0,0,0,.25)" stroke-width="0.6"/>';
+    order++;
+  };
+  // 黑白交错落子
+  const max=Math.max(black.length,white.length);
+  for(let i=0;i<max;i++){
+    if(black[i])stone(black[i],'#bk');
+    if(white[i])stone(white[i],'#wt');
+  }
+  // 十三道门：6主干(中腹) 4次级(两翼) 3终端(边角)
+  const doors=[[8,5],[9,9],[7,10],[10,10],[9,12],[10,15],[5,6],[14,6],[4,15],[15,7],[3,3],[16,4],[8,16]];
+  doors.forEach((d,i)=>{
+    s+='<circle class="door-ring pulse-ring" cx="'+pos(d[0])+'" cy="'+pos(d[1])+'" r="'+(r+4)+'" fill="none" stroke="#c9a24b" stroke-width="1.6" stroke-dasharray="3 2.4" style="animation-delay:'+(2.6+i*0.05)+'s"/>';
+  });
+  svg.innerHTML=s;
+})();
+
+/* ============ 导航 / 滚动揭示 ============ */
+const nav=document.getElementById('topnav');
+window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>60);});
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ============ 十三盏灯 ============ */
+(function(){
+  const box=document.getElementById('thirteenLights');
+  if(!box)return;
+  for(let i=0;i<13;i++){
+    const d=document.createElement('i');
+    d.className='lit';
+    d.style.animation='pulse 3s ease-in-out '+ (i*0.18)+'s infinite';
+    box.appendChild(d);
+  }
+})();
+
+/* ============ 十卷时间轴 ============ */
+const VOLS=[
+ {type:'prologue',vol:'序章',moves:'第一百四十手',theme:'黑胜六点九目',title:'第一百四十手',arc:'结局回望',desc:'雨停后的城北工坊，程砚舟与九岁的女儿小溪复盘一盘横贯中腹的棋。白棋各块仍活，却失去了替全盘发号施令的路。旁屏上是十三个腔室、每室一扇门。他的记忆回到真正的第一手——一百八十六个名字的裁员名单。',tags:['棋局题眼','十三道门']},
+ {vol:'第一卷',moves:'第 1—28 手',theme:'分散设锚',title:'山雨欲来',arc:'黑棋不急于围大空，在四角、边线与中腹分散留下锚点',desc:'AI 海啸中霁岳裁员一百八十六人，程砚舟、许知妍被逼签字；资本逼宫要再裁三百一十二人并卖掉晨港。贺敬山以残谱点化"脱先求活""横断"，六创始人破门出宗，在城北立破阵网络、签下《城北新界开发者同盟立约》，星原双桥战区开启首测。',tags:['裁员186人','破门出宗','八人立约','双桥首测']},
+ {vol:'第二卷',moves:'第 29—60 手',theme:'白方择路',title:'行到水穷',arc:'白棋试探连接与反攻，黑棋只记录真实路径、费用与响应',desc:'极轴与凌拓两家外设以不同方式赞助首战，复盘入口胜过开场大屏；黑产掮客兜售虚假流量、NPC 冒充真人领赏，被逐帧勘验拦下；视障玩家险些被误判又获更正；刘景和千元差异款因缺原始语音被卡，启动独立复核。',tags:['品牌实验','打假','人工复核','规则细化']},
+ {vol:'第三卷',moves:'第 61—80 手',theme:'局部领先',title:'春潮带雨',arc:'白棋在公开估值上取得领先，散锚尚未形成可见主干',desc:'星原取得出版与增值电信许可，正式开山立派；岑绍庭潮汐站、东瀚公会等多方入驻，蒋克己为播广告逼战队待命酿成事故；"旧声重听"复盘会立起残谱。沈婉衡六个月验收，程砚舟坦白越界。第 80 手估值：白领先 5.5737。',tags:['正式运营','广告事故','残谱','白领先5.57']},
+ {vol:'第四卷',moves:'第 81—89 手',theme:'第一闭合',title:'云帆济海',arc:'分散旧块首次汇成可回放结构，完成第一笔边界回收',desc:'陆宏远南离工坊凭独立结算与生死契接入，庄承裕四海行会的扩张被规则一次次挡回；许嘉榕远走南离撞头成长；沈培棠本草堂未达开场条件，原路退票、体面退场；严知敏为二十户草根守独立救济信托。机制取得第一次现实见证。',tags:['诸侯接入','体面退场','托底救济','埋隐患']},
+ {vol:'第五卷',moves:'第 90—103 手',theme:'藏劫待收',title:'浮云蔽日',arc:'旧劫材不能提前兑现，缺因果链时怀疑只能登记，不能包装成判决',desc:'庄承裕的千礁星云以"包赚不赔的收益权凭证"与假战报暴雷，二十二名苦主被骗 9.6 万；恐慌连坐、海岬逃营。陈驰查封引荐接口，顾承安拆穿 NPC 冒功与人影分身，方婉音辨伪声，周慎衡坚持不兜底、不挪用、不把救济金填窟窿。',tags:['庞氏暴雷','假战报','信任危机','切割赏金']},
+ {vol:'第六卷',moves:'第 104—113 手',theme:'逐门重算',title:'风雨如晦',arc:'身份、授权、结算、证据、申诉、退出，被逐门重算一遍',desc:'残局之后逐门核验：三局盈亏各算各账、还君明珠把多领的钱退回原处；程砚舟为花名册那手"自作聪明"负剑责躬；刘景和交椅竹下闲枰，江湖夜雨里同袍对坐，把每一道门的规矩重新压实。',tags:['负荆责躬','三局盈亏','逐门核验','同袍']},
+ {vol:'第七卷',moves:'第 114—119 手',theme:'拉链合拢',title:'澄江如练',arc:'主干扩为二十六子、十二气，各门由同一证据骨架相连',desc:'青云会云台论剑，程砚舟破天荒空出掌门黑椅；六人共掌议事会，避嫌、四令箭、亲族回避；银两买不到帅印虎符，许嘉榕为育儿让议事更漏拨慢半个时辰——规矩开始为人服务。程砚舟的虎榜议案被原封退回。',tags:['云台论剑','空出掌门椅','六人共治','规矩为人']},
+ {vol:'第八卷',moves:'第 120—131 手',theme:'横断成干',title:'柳暗花明',arc:'目标不是占满腔室，而是让任何跨区支配都穿过可选择的门',desc:'凌拓与极轴胜负逆转；方婉音、陆宏远合办"两岸回声"接力镖。魏泽安"一将化两身"双重冒领、冯至成徇私盖戳被查实退赔；锦川地方节点保留自有戏台、账房与规则，只以六项记录同行接入主干。横断成形。',tags:['接力镖','双重冒领','地方自治','横断成干']},
+ {vol:'第九卷',moves:'第 132—135 手',theme:'边界提取',title:'海内知己',arc:'寒门有托、万里比邻，边界被提取，地方各有江湖',desc:'新舟破浪、寒门有托，各地节点在最小公共接口上自治生长；有人无须夺魁也有一席之地。一份"鲸吞天下"的扩张计划把同一批人连加三次、凑出三万六千节点，被沈婉衡戳破注水，程砚舟叫停推演、先做小盘试阵，谈崩也不借出招牌。',tags:['节点自治','拒绝扩张','挤水分','小盘试阵']},
+ {vol:'第十卷',moves:'第 136—140 手',theme:'价值翻转',title:'江流天地',arc:'第137手三块汇成三十六子，第139手成三十七子主集团',desc:'百炼工坊两万个节点成熟运转，DDoS 实战、AI"铁面"判官、败军之将也照拿履约款。韩知衡主持春季账局复盘，以一套可重演的生门模型"凭此数条，劈开生门"。第 140 手估值：黑领先 6.9446，且不写成全面胜利。程砚舟退入墙影。',tags:['两万个节点','劈开生门','黑领先6.94','退居幕后']},
+ {type:'epilogue',vol:'尾声',moves:'棋局之后',theme:'十三道门',title:'十三道门',arc:'局部生存与全局支配彻底分离',desc:'小溪问"六点九目大吗"。程砚舟望着十三盏依次亮着、无需他许可的运行灯说：证明不必把所有人变成自己的人，也能让规则成立。白棋可以在自己的地方活，可以重新签约、换一条路。棋谱已经收官，生活没有——再也没有人能替所有人落子。',tags:['不必屠龙','门门有灯','生活没有收官']}
+];
+(function(){
+  const track=document.getElementById('scrollTrack');
+  VOLS.forEach((v,i)=>{
+    const d=document.createElement('div');
+    d.className='juan reveal '+(v.type||'');
+    const tags=(v.tags||[]).map(t=>'<span class="tag">'+t+'</span>').join('');
+    d.innerHTML='<div class="when"><div class="vol">'+v.vol+'</div><div class="moves">'+v.moves+'</div><div class="theme">'+v.theme+'</div></div>'
+      +'<div class="dotcol"><div class="dot"></div></div>'
+      +'<div class="card"><h3>'+v.title+'<span class="arc">'+v.arc+'</span></h3><p>'+v.desc+'</p><div>'+tags+'</div></div>';
+    track.appendChild(d);
+    io.observe(d);
+  });
+})();
+
+/* ============ 人物数据 ============ */
+const FACTIONS={
+  core:{name:'破阵六子',color:'#b3352b',cls:'f-core'},
+  grass:{name:'星原群像',color:'#2f4a5c',cls:'f-grass'},
+  guide:{name:'引路学者',color:'#7a6a3f',cls:'f-guide'},
+  family:{name:'家人',color:'#a8664e',cls:'f-family'},
+  cap:{name:'资本企业',color:'#5b5040',cls:'f-cap'},
+  guard:{name:'守门与平民',color:'#3f5a44',cls:'f-guard'},
+  foe:{name:'对立与舞弊',color:'#2b2622',cls:'f-foe'}
+};
+const PEOPLE=[
+ {n:'程砚舟',f:'core',r:'男主 · 破阵网络创始人',k:'武当太极 · 大巧若拙',d:'霁岳前总裁、分布式架构极客。破门出宗后立星原，一路从想替所有人落子，到空出掌门椅、退入墙影。'},
+ {n:'许知妍',f:'core',r:'联合创始人 · 机制设计',k:'桃花岛奇门遁甲心算',d:'名校经济学出身，善博弈立约、为被裁者争补偿。已婚已育，与程砚舟有过越界之夜，最终守死楚河汉界。'},
+ {n:'周慎衡',f:'core',r:'财务总监 · 守账铁面',k:'天龙寺一阳指',d:'红线熔断、账分两本，把玩家血汗钱与组织者亏空死死劈开，一文不混、一文不挪。'},
+ {n:'顾承安',f:'core',r:'信息安全 / 运维 · 破阵堂主',k:'铁面判官',d:'公共政策出身，锁死最高"天眼"特权、削权立规，主持云台论剑，规则面前连程砚舟也无例外。'},
+ {n:'林静薇',f:'core',r:'核心架构师 · 契约铁律',k:'峨眉剑侠 · 割袍断义',d:'计算机加法律双背景，执念于权责边界，坚持每条规则在动手前白纸黑字、亲族避席。'},
+ {n:'杜启航',f:'core',r:'底层网络负责人',k:'刚猛沙弥 · 怒碎戒刀',d:'刚直敢言，造自动"史官"为一切动作留痕，宁可断尾少开战线，也不虚报承诺。'},
+ {n:'陈驰',f:'grass',r:'被裁测试工程师 → 刑堂堂主',k:'霁岳"最敏锐的哨兵"',d:'28 岁被 AI 替代后加入，执掌戒律院打假查账，守住"必须用真金白银、真实劳动结账"的底线。'},
+ {n:'方婉音',f:'grass',r:'独立音效师 · 风雷原声社掌门',k:'声音确权',d:'被音频生成工具淘汰的外包创作者，坚持母带逐笔授权、不同用途分开签约，守护真实的声音。'},
+ {n:'唐梓豪',f:'grass',r:'突入小队指挥',k:'沉默的年轻剑客',d:'双桥首战带队突入与撤出，第一笔钱给母亲配老花镜，后通过限定副席考核，懂得守护而非炫技。'},
+ {n:'刘景和',f:'grass',r:'通信席 · 后川堂掌椅',k:'识途老镖师',d:'四十余岁、山区十年线路维护，凭一条失效预警救队友，敢击鼓鸣冤，后入六人议事会。'},
+ {n:'许嘉榕',f:'grass',r:'通信 / 创作者 · 议事堂判官',k:'独立镖客',d:'不把一次参战当终身烙印，远走南离撞头成长，议事逢亲避席，为育儿争取更漏改时。'},
+ {n:'岑绍庭',f:'grass',r:'老派棋手 · 赛事组织者',k:'武当宗师入定',d:'老城棋社出身，办潮汐站护镖，重对手、重复盘；名号被盗用兜售收益权时，亲自一剑挑明。'},
+ {n:'老关',f:'grass',r:'实战派老玩家',k:'粗粝老兵',d:'不装神、不藏拙，把惨败夜的第一视角盲区与"保命残谱"，原样交给新人。'},
+ {n:'罗启锋',f:'grass',r:'前线战役指挥',k:'拒摆拍的孤狼',d:'拒绝资本补拍"顺利进场"的假片段，绝不让看客误认那拙劣摆拍就是血肉实战。'},
+ {n:'邱庭舟',f:'grass',r:'工兵 · 修桥者',k:'事了拂衣',d:'拼死夺回的修桥履历被盗用典当，他掏出契约，证明哪一趟镖自己根本没上过船。'},
+ {n:'沈培棠',f:'grass',r:'本草堂创办人',k:'花草与城镇记忆的文人',d:'秋场未达开场条件，原路退回预收、自担亏损、体面拂衣；档案标注为"依约结束"而非失败。'},
+ {n:'贺敬山',f:'guide',r:'71岁 · 宏观战略引路人',k:'落子点化的国手',d:'原省技术创新引导基金掌舵人，以一盘残谱讲透脱先求活、横断与十三道门，只作证、不表决。'},
+ {n:'韩知衡',f:'guide',r:'江岑大学教授 · 冷面顾问',k:'专挑死穴',d:'冷眼审查账目与宏观，只认可重演的硬记录，列举反例与问号，拒绝做背书的金字招牌。'},
+ {n:'沈婉衡',f:'family',r:'程砚舟之妻 · 沈氏产业基金',k:'天山折梅手 · 极寒守势',d:'并购深水区操盘手，给六个月期限、划两栏账，不提前摊牌，也不让女儿成牺牲品，终留赎罪余地。'},
+ {n:'程小溪',f:'family',r:'程砚舟之女 · 问棋人',k:'一座总粘不牢的纸桥',d:'序章九岁学棋。从创客开放日的纸桥，到结尾"六点九目大吗"的追问，是全书的良心与落点。'},
+ {n:'叶舒倩',f:'family',r:'沈婉衡初中同窗',k:'旁观者与提醒者',d:'最先察觉程、许二人刻意避嫌的异常，劝二十年的挚友为自己打算。'},
+ {n:'罗振业',f:'cap',r:'极轴外设代表',k:'激进买展示的商人',d:'几番在开场广告上净亏，被真实战局教训后，删掉保证收益条款、缩短口播、留完整问答。'},
+ {n:'宋振峰',f:'cap',r:'凌拓外设代表',k:'武当绵掌 · 绵里藏针',d:'剑走偏锋买下复盘入口而先胜，也有失手时，认账后让出天元、另起炉灶。'},
+ {n:'陆文渊',f:'cap',r:'崇远资本投资人',k:'老辣捕快',d:'只投可查的前期风险，战前劈开分赃位次与抽成，买不走帅印、占不了交椅。'},
+ {n:'陆宏远',f:'cap',r:'南离工坊魁首 · 外门掌椅',k:'带生死契的独立刀客',d:'曾拒接程砚舟的英雄帖，后凭独立账户与边界接入，当庭顶撞、敢投反对票。'},
+ {n:'蒋克己',f:'cap',r:'东瀚公会导播 / 组织者',k:'被广告反噬的导演',d:'为播完赞助商动画逼战队待命四分钟，致路线误判、镜头扑空，后立"转播绝对依附真实战局"。'},
+ {n:'严知敏',f:'guard',r:'社区救济与刑堂执法主事',k:'守护无门者',d:'坚持先让弱者有口饭吃、再谈入不入江湖，为二十户守独立信托，喝令黑市撤榜、绝不张榜示众。'},
+ {n:'李惠兰',f:'guard',r:'码头老苦力 · 二十户之一',k:'不需要卖命的活命钱',d:'病骨一身、凑不齐二十元话费；领救济无需吆喝、无需冲销量，终于拨通久未联系的亲人电话。'},
+ {n:'吴秀榕',f:'guard',r:'数据标注女工 · 苦主',k:'戳破画皮的证人',d:'被"包赚不赔的收益权凭证"诱骗，她的布告与追问，成为拆穿千礁庞氏骗局的关键线索。'},
+ {n:'潘俊棠',f:'guard',r:'千礁骗局苦主',k:'冲动讨债者',d:'攥着死契逼问平台垫钱，被"不挪用、不兜底"的规矩拦下，只拿到写明时辰与路径的追凶令。'},
+ {n:'赵董事',f:'foe',r:'霁岳机构投资者代表',k:'左冷禅式资本长老',d:'逼宫裁员、要把晨港打包海外卖三亿美金，信奉"我们管不了天下饭碗，只管投资回报率"。'},
+ {n:'庄承裕',f:'foe',r:'四海行会 / 千礁星云魁首',k:'星宿派化功大法',d:'以假战报、收益权凭证和新入局者的钱填旧坑，拆东墙补西墙，是全书包赚不赔的庞氏主谋。'},
+ {n:'魏泽安',f:'foe',r:'东瀚镖局探子',k:'一将化两身',d:'用两个相似 ID 把一趟战功劈成三份冒领，被第三方审计查实，多领的钱退回、应得的照付。'},
+ {n:'冯至成',f:'foe',r:'验身关卡执事',k:'徇私的把门人',d:'与魏泽安有脚行旧情，硬把一份买卖盖两遍戳、坐地分赃，被罢权，经手卷宗全部重审。'},
+ {n:'聂·廖管事',f:'grass',r:'锦川节点两位大管事',k:'地方自治的守印人',d:'带着几座旧戏台与养老琴师的坑位图而来，不肯照抄定式；保留自有名称、账房与规则，只以六项记录同行接入主干。'},
+ {n:'第三方审计师',f:'guard',r:'游离于公司之外的盲判官',k:'重新翻案的眼睛',d:'重审全部提交记录，冷脸算出"只攻破一处、多领二百二十"，并把四百八十元审计费判由管理不善的东瀚自担。'}
+];
+
+/* 人物卡片 + tabs */
+(function(){
+  const grid=document.getElementById('peopleGrid');
+  const tabs=document.getElementById('peopleTabs');
+  const order=['all','core','grass','guide','family','cap','guard','foe'];
+  order.forEach((key,idx)=>{
+    const b=document.createElement('button');
+    b.textContent=key==='all'?'全部人物':FACTIONS[key].name;
+    if(idx===0)b.classList.add('active');
+    b.onclick=()=>{
+      tabs.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      filterPeople(key);
+      renderGraph(key);
+    };
+    tabs.appendChild(b);
+  });
+  PEOPLE.forEach(p=>{
+    const c=document.createElement('div');
+    c.className='pcard';
+    c.dataset.f=p.f;
+    c.dataset.name=p.n;
+    c.innerHTML='<div class="faction '+FACTIONS[p.f].cls+'">'+p.n.charAt(0)+'</div>'
+      +'<h3>'+p.n+'</h3><div class="role">'+p.r+'</div>'
+      +(p.k?'<div class="kung">〔 '+p.k+' 〕</div>':'')
+      +'<p>'+p.d+'</p>';
+    c.onclick=()=>{focusNode(p.n);};
+    grid.appendChild(c);
+  });
+  window.__activeFilter='all';
+  function applyCols(){
+    const n=window.__activeFilter==='all'?PEOPLE.length:PEOPLE.filter(p=>p.f===window.__activeFilter).length;
+    const w=window.innerWidth;
+    let max=w<=600?1:(w<=920?2:3);
+    let c=max;
+    if(n<c)c=Math.max(1,n);
+    if(n%c===1&&c>1){c=(n%(c-1)!==1)?c-1:1;}
+    grid.style.setProperty('--cols',c);
+  }
+  function filterPeople(key){
+    window.__activeFilter=key;
+    grid.querySelectorAll('.pcard').forEach(c=>{
+      c.style.display=(key==='all'||c.dataset.f===key)?'':'none';
+    });
+    applyCols();
+  }
+  window.addEventListener('resize',applyCols);
+  applyCols();
+})();
+
+/* ============ 关系图 ============ */
+const REL_NODES=['程砚舟','许知妍','周慎衡','顾承安','林静薇','杜启航','陈驰','方婉音','唐梓豪','刘景和','许嘉榕','岑绍庭','贺敬山','韩知衡','沈婉衡','程小溪','叶舒倩','罗振业','宋振峰','陆文渊','陆宏远','蒋克己','严知敏','李惠兰','吴秀榕','赵董事','庄承裕','魏泽安'];
+const REL_LINKS=[
+ ['程砚舟','许知妍','共同创业 · 越界'],['程砚舟','周慎衡','六子结盟'],['程砚舟','顾承安','六子结盟'],['程砚舟','林静薇','六子结盟'],['程砚舟','杜启航','六子结盟'],['许知妍','周慎衡','六子结盟'],
+ ['程砚舟','沈婉衡','夫妻 · 裂痕与赎罪'],['程砚舟','程小溪','父女'],['沈婉衡','程小溪','母女'],['沈婉衡','叶舒倩','挚友'],
+ ['程砚舟','贺敬山','引路 · 师徒'],['程砚舟','韩知衡','顾问 · 质询'],
+ ['程砚舟','赵董事','资本对立'],['程砚舟','庄承裕','规则对立'],
+ ['陈驰','庄承裕','刑堂执法'],['陈驰','顾承安','技术核验'],['陈驰','林静薇','查案立约'],['程砚舟','陈驰','招揽同道'],
+ ['方婉音','许嘉榕','原声社 · 师承'],['许嘉榕','陆宏远','南离共事'],['刘景和','唐梓豪','战场战友'],['刘景和','岑绍庭','复盘 · 棋'],
+ ['罗振业','宋振峰','商业对手'],['罗振业','蒋克己','赞助 · 东瀚'],
+ ['陆文渊','程砚舟','投资立约'],['陆宏远','程砚舟','接入共治'],
+ ['严知敏','李惠兰','救济'],['严知敏','庄承裕','执法'],['吴秀榕','庄承裕','受骗'],['魏泽安','冯至成','舞弊同伙'],['岑绍庭','庄承裕','名号被盗用'],
+ ['方婉音','程砚舟','加入星原'],['唐梓豪','陈驰','同道']
+];
+let relChart=null;
+const catOrder=['core','grass','guide','family','cap','guard','foe'];
+function renderGraph(active){
+  const el=document.getElementById('relChart');
+  if(!relChart)relChart=echarts.init(el);
+  const nameF={};PEOPLE.forEach(p=>nameF[p.n]=p.f);
+  const dim=new Set();
+  if(active&&active!=='all'){
+    REL_NODES.forEach(n=>{if(nameF[n]===active)dim.add(n);});
+    // 加入其一度邻居
+    REL_LINKS.forEach(L=>{
+      if(nameF[L[0]]===active)dim.add(L[1]);
+      if(nameF[L[1]]===active)dim.add(L[0]);
+    });
+  }
+  const nodes=REL_NODES.map(n=>{
+    const f=nameF[n];
+    const on=active==='all'||!active||dim.has(n);
+    return{name:n,category:catOrder.indexOf(f),symbolSize:(f==='core'||f==='foe'&&n==='庄承裕')?58:46,
+      itemStyle:{color:FACTIONS[f].color,opacity:on?1:.12,borderColor:'#fff',borderWidth:1.5},
+      label:{show:true,color:'#221c14',fontSize:12,fontWeight:600,opacity:on?1:0},
+      emphasis:{label:{fontWeight:700}}};
+  });
+  const links=REL_LINKS.map(L=>{
+    const on=active==='all'||!active||(dim.has(L[0])&&dim.has(L[1]));
+    const hostile=(L[2].indexOf('对立')>=0||L[2].indexOf('执法')>=0||L[2].indexOf('受骗')>=0||L[2].indexOf('舞弊')>=0||L[2].indexOf('盗用')>=0);
+    return{source:L[0],target:L[1],value:L[2],
+      lineStyle:{color:hostile?'#b3352b':'#9a8a6a',width:hostile?1.6:1.1,curveness:0.12,opacity:on? (hostile?.75:.5):.04,type:hostile?'dashed':'solid'}};
+  });
+  relChart.setOption({
+    tooltip:{formatter:p=>p.dataType==='edge'?p.data.value:(p.name+' · '+FACTIONS[nameF[p.name]].name),backgroundColor:'rgba(20,23,26,.92)',borderColor:'#b8986a',textStyle:{color:'#f0e8d6',fontSize:12}},
+    legend:[{data:catOrder.map(c=>FACTIONS[c].name),top:10,textStyle:{color:'#5a5040',fontSize:12},itemWidth:12,itemHeight:12,
+      formatter:name=>name}],
+    categories:catOrder.map(c=>({name:FACTIONS[c].name})),
+    series:[{
+      type:'graph',layout:'force',roam:true,draggable:true,
+      categories:catOrder.map(c=>({name:FACTIONS[c].name,itemStyle:{color:FACTIONS[c].color}})),
+      force:{repulsion:620,edgeLength:[70,150],gravity:0.12},
+      data:nodes,links:links,
+      label:{position:'bottom'},
+      edgeSymbol:['none','none'],
+      emphasis:{focus:'adjacency',lineStyle:{width:2.4,opacity:1}}
+    }]
+  },true);
+}
+function focusNode(name){
+  if(!relChart)return;
+  const idx=REL_NODES.indexOf(name);
+  if(idx<0)return;
+  relChart.dispatchAction({type:'focusNodeAdjacency',seriesIndex:0,dataIndex:idx});
+}
+renderGraph('all');
+
+/* ============ 估值翻转图 ============ */
+(function(){
+  const el=document.getElementById('valueChart');
+  if(!el||typeof echarts==='undefined')return;
+  const chart=echarts.init(el);
+  chart.setOption({
+    backgroundColor:'transparent',
+    grid:{left:48,right:20,top:60,bottom:40},
+    tooltip:{trigger:'axis',backgroundColor:'rgba(20,23,26,.92)',borderColor:'#b8986a',textStyle:{color:'#f0e8d6'}},
+    legend:{top:12,textStyle:{color:'#c6bda6',fontSize:12},data:['黑方 · 新局 / 星原','白方 · 旧平台与资本网络']},
+    xAxis:{type:'category',data:['第 80 手\n（散锚未成主干）','第 140 手\n（主干闭合）'],axisLine:{lineStyle:{color:'#6b7480'}},axisLabel:{color:'#c6bda6',fontSize:13,lineHeight:18,fontWeight:600},axisTick:{show:false}},
+    yAxis:{type:'value',min:35,max:88,splitLine:{lineStyle:{color:'rgba(184,152,106,.14)'}},axisLabel:{color:'#8d969e',fontSize:11}},
+    series:[
+      {name:'黑方 · 新局 / 星原',type:'bar',barWidth:34,data:[41.5135,81.9218],
+        itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#e0b96f'},{offset:1,color:'#a87d3e'}]),borderRadius:[4,4,0,0]},
+        label:{show:true,position:'top',color:'#e8c98f',fontSize:13,fontWeight:700,formatter:p=>p.value},
+        markLine:{symbol:'none',data:[],}},
+      {name:'白方 · 旧平台与资本网络',type:'bar',barWidth:34,data:[47.0873,74.9772],
+        itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#8fb0c4'},{offset:1,color:'#4a6a80'}]),borderRadius:[4,4,0,0]},
+        label:{show:true,position:'top',color:'#a9c4d4',fontSize:13,fontWeight:700,formatter:p=>p.value}}
+    ],
+    graphic:[
+      {type:'text',left:'15%',top:40,style:{text:'白领先 5.5737',fill:'#a9c4d4',fontSize:13,fontWeight:700}},
+      {type:'text',right:'12%',top:40,style:{text:'黑领先 6.9446',fill:'#e8c98f',fontSize:13,fontWeight:700}}
+    ]
+  });
+  window.addEventListener('resize',()=>chart.resize());
+})();
+window.addEventListener('resize',()=>{if(relChart)relChart.resize();});
+</script>
+</body>
+</html>
