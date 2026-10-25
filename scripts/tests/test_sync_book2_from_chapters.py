@@ -37,12 +37,23 @@ class BookSyncTests(unittest.TestCase):
         self.chapters = self.book_dir / "百转千回"
         self.combined = self.book_dir / "百转千回.md"
         self.external = self.root / "antigravity_project"
-        expected = ["# 百转千回", ""]
+        expected = ["# 百转千回", "", "## 序章：第一百四十手", "", "序章正文。", ""]
+        self.chapters.mkdir()
+        self.prologue = self.chapters / "序章：第一百四十手.md"
+        self.epilogue = self.chapters / "尾声：十三道门.md"
+        self.prologue.write_bytes("# 序章：第一百四十手\n\n序章正文。\n".encode("utf-8"))
+        self.epilogue.write_bytes("# 尾声：十三道门\n\n尾声正文。\n".encode("utf-8"))
+        self.intros = []
         for volume in range(1, 11):
             volume_title = f"第{volume}卷 测试卷{volume}"
             directory = self.chapters / volume_title
             directory.mkdir(parents=True)
-            expected.extend([f"## {volume_title}", ""])
+            full_title = f"{volume_title}｜棋势{volume}"
+            phase = f"棋势一·第{(volume - 1) * 14 + 1}—{volume * 14}手：本卷棋势说明。"
+            intro = directory / "卷首.md"
+            intro.write_bytes(f"# {full_title}\n\n{phase}\n".encode("utf-8"))
+            self.intros.append(intro)
+            expected.extend([f"## {full_title}", "", phase, ""])
             for chapter in range(1, 11):
                 title = f"第{chapter}章：测试章{volume}-{chapter}"
                 first = f"卷{volume}章{chapter}：原文 <保留> & 符号。"
@@ -50,9 +61,10 @@ class BookSyncTests(unittest.TestCase):
                 (directory / f"{title}.md").write_bytes(
                     f"# {title}\n\n{first}\n同段续行。\n\n{second}\n".encode("utf-8")
                 )
-                expected.extend([f"### {title}", "", first + "同段续行。", "", second, ""])
+                expected.extend([f"### {title}", "", first, "同段续行。", "", second, ""])
+        expected.extend(["## 尾声：十三道门", "", "尾声正文。", ""])
         self.expected = ("\n".join(expected).rstrip("\n") + "\n").encode("utf-8")
-        self.first_chapter = next(self.chapters.rglob("*.md"))
+        self.first_chapter = self.chapters / "第1卷 测试卷1" / "第1章：测试章1-1.md"
 
     def cleanup_workspace(self):
         # Verify the deletion boundary before TemporaryDirectory removes fixtures.
@@ -135,6 +147,47 @@ class BookSyncTests(unittest.TestCase):
     def test_missing_chapter_leaves_existing_book_untouched(self):
         self.combined.write_bytes("# 保留旧稿\n".encode("utf-8"))
         self.first_chapter.unlink()
+        before = self.snapshot()
+        self.run_sync(expected=1)
+        self.assertEqual(self.snapshot(), before)
+
+    def test_math_lines_survive_updates_and_empty_lines_do_not_rewrite_source(self):
+        equation = "\\[\nr_{\\mathrm{cross}}(S)\n=\\dim\\operatorname{Span}\\{[\\gamma]\\}.\n\\]"
+        self.first_chapter.write_bytes(
+            (self.first_chapter.read_text(encoding="utf-8").rstrip("\n") + "\n\n" + equation + "\n").encode("utf-8")
+        )
+        self.run_sync()
+        self.assertIn(equation.encode("utf-8"), self.combined.read_bytes())
+        formatted = self.combined.read_bytes().replace(b"\n\n", b"\n\n\n") + b"\n"
+        self.combined.write_bytes(formatted)
+        before = self.snapshot()
+        self.run_sync("-Check")
+        self.run_sync()
+        self.assertEqual(self.snapshot(), before)
+
+    def test_missing_prologue_intro_or_epilogue_never_drops_existing_content(self):
+        self.combined.write_bytes(self.expected)
+        for path in (self.prologue, self.intros[0], self.epilogue):
+            with self.subTest(path=path.name):
+                original = path.read_bytes()
+                path.unlink()
+                before = self.snapshot()
+                self.run_sync(expected=1)
+                self.assertEqual(self.snapshot(), before)
+                path.write_bytes(original)
+
+    def test_invalid_volume_intro_or_unrecognized_file_is_rejected(self):
+        self.combined.write_bytes(self.expected)
+        original = self.intros[0].read_bytes()
+        for content in ("# 第2卷 测试卷2｜错卷\n\n棋势一·第1—14手：说明。\n",
+                        "# 第1卷 测试卷1｜棋势1\n\n没有棋势范围。\n"):
+            with self.subTest(content=content):
+                self.intros[0].write_bytes(content.encode("utf-8"))
+                before = self.snapshot()
+                self.run_sync(expected=1)
+                self.assertEqual(self.snapshot(), before)
+        self.intros[0].write_bytes(original)
+        (self.intros[0].parent / "未分类正文.md").write_bytes("# 不能丢失\n\n正文。\n".encode("utf-8"))
         before = self.snapshot()
         self.run_sync(expected=1)
         self.assertEqual(self.snapshot(), before)

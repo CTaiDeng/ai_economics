@@ -6,8 +6,10 @@
 .SYNOPSIS
 从百转千回分章目录生成同目录的百转千回.md合订本。
 .DESCRIPTION
-直接按数字卷章序读取十卷一百章；书名取自目录名，卷章名取自目录和文件。
-只进行合订本排版及字数统计，不修改分章，不依赖额外配置文件或其他工作区。
+按序章、十卷一百章和尾声读取；每卷的卷首.md保存完整卷题与棋势说明。
+卷目录保留原卷名，章名取自文件名；正文换行及数学块原样保留。
+只合订及统计非空白文本元素，不修改分章，不依赖命名表或其他工作区。
+核对时仅统一连续空行及文末空行；内容一致时保留已有合订本的排版。
 唯一写入目标为脚本所在目录的百转千回.md。
 默认同步；-Check只读核对，存在差异时退出码为1；-Preview只读预览。
 #>
@@ -56,9 +58,9 @@ function Assert-SyncPath {
     }
 }
 
-function ConvertTo-LfText {
+function ConvertTo-ComparableLayout {
     param([AllowEmptyString()][string]$Text)
-    return $Text.Replace("`r`n", "`n").Replace("`r", "`n")
+    return [regex]::Replace($Text, "`n{3,}", "`n`n").TrimEnd("`n") + "`n"
 }
 
 function Read-Utf8Text {
@@ -85,62 +87,49 @@ function Get-NovelWordCount {
     return $count
 }
 
-function Read-ChapterMarkdown {
+function Read-BookPartMarkdown {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
-        [Parameter(Mandatory = $true)][string]$ExpectedTitle
+        [string]$ExpectedTitle,
+        [Parameter(Mandatory = $true)][ValidateSet('序章', '卷首', '章', '尾声')][string]$Kind,
+        [Parameter(Mandatory = $true)][string]$Root
     )
-    $text = ConvertTo-LfText -Text (Read-Utf8Text -Path $Path)
-    $lines = @($text -split "`n")
-    while ($lines.Count -gt 0 -and [string]::IsNullOrWhiteSpace($lines[$lines.Count - 1])) {
-        if ($lines.Count -eq 1) {
-            $lines = @()
-        }
-        else {
-            $lines = @($lines[0..($lines.Count - 2)])
-        }
+    Assert-SyncPath -Path $Path -Root $Root
+    $text = Read-Utf8Text -Path $Path
+    if ($text -cnotmatch '\A# (?<Title>[^\n]+)\n\n(?<Body>[\s\S]+)\z') {
+        throw "分章稿必须以一级Markdown题名、空行和正文开头：$Path"
     }
-    if ($lines.Count -lt 2) {
-        throw "分章稿必须包含首行章名和至少一段正文：$Path"
+    $actualTitle = $Matches.Title
+    $bodyText = $Matches.Body.TrimEnd("`n")
+    if ($ExpectedTitle -and $actualTitle -cne $ExpectedTitle) {
+        throw ('分章稿首行题名不符：{0}；应为“{1}”，实际为“{2}”' -f $Path, $ExpectedTitle, $actualTitle)
     }
-    if ($lines[0] -notmatch '^#\s+\S') {
-        throw "分章稿首行必须为一级Markdown章名：$Path"
-    }
-    $actualTitle = $lines[0].Trim() -replace '^#\s+', ''
-    if ($actualTitle -cne $ExpectedTitle) {
-        throw ('分章稿首行章名与文件名不一致：{0}；首行为“{1}”' -f $Path, $actualTitle)
-    }
-    $bodyText = (($lines | Select-Object -Skip 1) -join "`n").Trim()
     if ([string]::IsNullOrWhiteSpace($bodyText)) {
         throw "分章稿正文不能为空：$Path"
     }
-    $paragraphs = [System.Collections.Generic.List[string]]::new()
-    foreach ($block in @([regex]::Split($bodyText, "`n[ `t]*`n+"))) {
-        $joinedLines = @(
-            $block -split "`n" |
-                ForEach-Object { $_.Trim() } |
-                Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-        ) -join ''
-        if (-not [string]::IsNullOrWhiteSpace($joinedLines)) {
-            if ($joinedLines -match '^#{1,6}\s') {
-                throw "正文段落不得包含Markdown标题：$Path；$joinedLines"
-            }
-            $paragraphs.Add($joinedLines)
-        }
-    }
-    if ($paragraphs.Count -eq 0) {
-        throw "分章稿未解析出正文段落：$Path"
+    if ($bodyText -match '(?m)^#{1,6}\s') {
+        throw "分章稿正文不得包含其他Markdown标题：$Path"
     }
     return [pscustomobject]@{
         Title = $actualTitle
-        Paragraphs = @($paragraphs)
+        Body = $bodyText
+        Kind = $Kind
+        WordCount = Get-NovelWordCount -Text $bodyText
         Path = $Path
         SourceText = $text
     }
 }
 
-function Read-BookChapters {
+function Read-BookParts {
     param([Parameter(Mandatory = $true)][string]$Directory)
+
+    $standalone = @(Get-ChildItem -LiteralPath $Directory -File -Filter '*.md')
+    $prologues = @($standalone | Where-Object { $_.BaseName -cmatch '^序章：\S.*$' })
+    $epilogues = @($standalone | Where-Object { $_.BaseName -cmatch '^尾声：\S.*$' })
+    if ($standalone.Count -ne 2 -or $prologues.Count -ne 1 -or $epilogues.Count -ne 1) {
+        throw '分章根目录必须且只能包含一份序章：题名.md与一份尾声：题名.md。'
+    }
+    Read-BookPartMarkdown -Path $prologues[0].FullName -ExpectedTitle $prologues[0].BaseName -Kind 序章 -Root $Directory
 
     $volumes = @(foreach ($item in @(Get-ChildItem -LiteralPath $Directory -Directory)) {
         if ($item.Name -notlike '第*卷*') { continue }
@@ -159,7 +148,20 @@ function Read-BookChapters {
         if ($volume.Index -ne ($volumeOffset + 1)) {
             throw "卷序必须为1至10，不得重复或缺卷：$($volume.Item.Name)"
         }
+        $introPath = Join-Path $volume.Item.FullName '卷首.md'
+        if (-not (Test-Path -LiteralPath $introPath -PathType Leaf)) {
+            throw "每卷必须包含卷首.md，保存完整卷题与棋势说明：$introPath"
+        }
+        $intro = Read-BookPartMarkdown -Path $introPath -Kind 卷首 -Root $Directory
+        if ($intro.Title -cnotmatch ('\A' + [regex]::Escape($volume.Item.Name) + '｜\S.*\z')) {
+            throw "卷首题名须为卷目录名加｜棋势副题：$introPath"
+        }
+        if ($intro.Body -cnotmatch '\A棋势[一二三四五六七八九十]+·第[1-9][0-9]*—[1-9][0-9]*手：\S') {
+            throw "卷首正文须以棋势及手数范围开头：$introPath"
+        }
+        $intro
         $chapters = @(foreach ($item in @(Get-ChildItem -LiteralPath $volume.Item.FullName -File -Filter '*.md')) {
+            if ($item.Name -ceq '卷首.md') { continue }
             if ($item.BaseName -notmatch '^第([1-9][0-9]*)章：\S.*$') {
                 throw "分章文件名须采用第N章：题名.md格式：$($item.Name)"
             }
@@ -174,18 +176,10 @@ function Read-BookChapters {
             if ($chapter.Index -ne ($chapterOffset + 1)) {
                 throw "每卷章序必须为1至10，不得重复或缺章：$($chapter.Item.Name)"
             }
-            $record = Read-ChapterMarkdown -Path $chapter.Item.FullName -ExpectedTitle $chapter.Item.BaseName
-            $wordCount = 0
-            foreach ($paragraph in $record.Paragraphs) {
-                $wordCount += Get-NovelWordCount -Text $paragraph
-            }
-            $record | Add-Member -NotePropertyName VolumeIndex -NotePropertyValue $volume.Index
-            $record | Add-Member -NotePropertyName VolumeTitle -NotePropertyValue $volume.Item.Name
-            $record | Add-Member -NotePropertyName ChapterIndex -NotePropertyValue $chapter.Index
-            $record | Add-Member -NotePropertyName WordCount -NotePropertyValue $wordCount
-            $record
+            Read-BookPartMarkdown -Path $chapter.Item.FullName -ExpectedTitle $chapter.Item.BaseName -Kind 章 -Root $Directory
         }
     }
+    Read-BookPartMarkdown -Path $epilogues[0].FullName -ExpectedTitle $epilogues[0].BaseName -Kind 尾声 -Root $Directory
 }
 
 $bookRoot = [System.IO.Path]::GetFullPath($PSScriptRoot)
@@ -197,35 +191,25 @@ if (-not (Test-Path -LiteralPath $chapterDirectory -PathType Container)) {
 }
 Assert-SyncPath -Path $combinedPath -Root $bookRoot
 $bookTitle = Split-Path -Leaf $chapterDirectory
-$chapterRecords = @(Read-BookChapters -Directory $chapterDirectory)
+$partRecords = @(Read-BookParts -Directory $chapterDirectory)
 
 $combinedLines = [System.Collections.Generic.List[string]]::new()
 $combinedLines.Add("# $bookTitle")
 $combinedLines.Add('')
 $bookWordCount = 0
-for ($volumeIndex = 1; $volumeIndex -le 10; $volumeIndex++) {
-    $volumeTitle = $chapterRecords[($volumeIndex - 1) * 10].VolumeTitle
-    $combinedLines.Add("## $volumeTitle")
+foreach ($part in $partRecords) {
+    $headingPrefix = if ($part.Kind -ceq '章') { '###' } else { '##' }
+    $combinedLines.Add("$headingPrefix $($part.Title)")
     $combinedLines.Add('')
-    $volumeChapters = @($chapterRecords | Where-Object { [int]$_.VolumeIndex -eq $volumeIndex } | Sort-Object { [int]$_.ChapterIndex })
-    if ($volumeChapters.Count -ne 10) {
-        throw "第${volumeIndex}卷必须包含10章。"
-    }
-    foreach ($chapter in $volumeChapters) {
-        $combinedLines.Add("### $($chapter.Title)")
-        $combinedLines.Add('')
-        foreach ($paragraph in @($chapter.Paragraphs)) {
-            $combinedLines.Add([string]$paragraph)
-            $combinedLines.Add('')
-        }
-        $bookWordCount += $chapter.WordCount
-    }
+    $combinedLines.Add($part.Body)
+    $combinedLines.Add('')
+    $bookWordCount += $part.WordCount
 }
 $combinedContent = ($combinedLines -join "`n").TrimEnd("`n") + "`n"
 
 $combinedExisted = Test-Path -LiteralPath $combinedPath -PathType Leaf
 $currentCombinedText = if ($combinedExisted) { Read-Utf8Text -Path $combinedPath } else { '' }
-$hasDifference = $combinedContent -cne $currentCombinedText
+$hasDifference = (ConvertTo-ComparableLayout -Text $combinedContent) -cne (ConvertTo-ComparableLayout -Text $currentCombinedText)
 
 if ($Check -or $Preview) {
     if ($hasDifference) {
@@ -234,23 +218,24 @@ if ($Check -or $Preview) {
         if ($Check) { exit 1 }
     }
     else {
-        Write-Host "检查通过：10卷、100章分章稿与合订本完全同步；全书$($bookWordCount)字。"
+        Write-Host "检查通过：序章、10份卷首、100章与尾声的正文及结构同步（仅统一空行数量）；全书$($bookWordCount)个非空白文本元素。"
     }
     if ($Preview) { Write-Host '预览完成，未写入文件。' }
     exit 0
 }
 
 if (-not $hasDifference) {
-    Write-Host "无需写入：100章分章稿与合订本已经同步；全书$($bookWordCount)字。"
+    Write-Host "无需写入：序章、10份卷首、100章与尾声已经同步；全书$($bookWordCount)个非空白文本元素。"
     exit 0
 }
 
 # 写入前复核全部来源及唯一目标，避免覆盖运行期间的编辑。
-$currentChapters = @(Read-BookChapters -Directory $chapterDirectory)
-for ($chapterOffset = 0; $chapterOffset -lt $chapterRecords.Count; $chapterOffset++) {
-    if ($currentChapters[$chapterOffset].Path -cne $chapterRecords[$chapterOffset].Path -or
-        $currentChapters[$chapterOffset].SourceText -cne $chapterRecords[$chapterOffset].SourceText) {
-        throw "分章在同步期间发生变化，已停止写入：$($chapterRecords[$chapterOffset].Path)"
+$currentParts = @(Read-BookParts -Directory $chapterDirectory)
+if ($currentParts.Count -ne $partRecords.Count) { throw '分章结构在同步期间发生变化，已停止写入。' }
+for ($partOffset = 0; $partOffset -lt $partRecords.Count; $partOffset++) {
+    if ($currentParts[$partOffset].Path -cne $partRecords[$partOffset].Path -or
+        $currentParts[$partOffset].SourceText -cne $partRecords[$partOffset].SourceText) {
+        throw "分章在同步期间发生变化，已停止写入：$($partRecords[$partOffset].Path)"
     }
 }
 Assert-SyncPath -Path $combinedPath -Root $bookRoot
@@ -291,5 +276,5 @@ catch {
     throw $writeError
 }
 
-Write-Host "同步完成：10卷、100章、全书$($bookWordCount)字；已更新合订本：$combinedPath"
+Write-Host "同步完成：序章、10份卷首、100章与尾声；全书$($bookWordCount)个非空白文本元素；已更新合订本：$combinedPath"
 exit 0
