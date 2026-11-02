@@ -1,0 +1,2660 @@
+% !TEX program = pdflatex
+\documentclass[12pt,a4paper,openany]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1,OT1]{fontenc}
+\usepackage{CJKutf8}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage{geometry}
+\geometry{top=25mm,bottom=25mm,left=20mm,right=20mm}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[scaled=0.84]{beramono}
+  \makeatletter
+  \DeclareRobustCommand{\ttfamily}{%
+    \not@math@alphabet\ttfamily\mathtt
+    \fontencoding{T1}\fontfamily{\ttdefault}\selectfont}
+  \makeatother
+\else
+  \usepackage{fontspec}
+  \setmainfont{Consolas}
+  \setsansfont{Consolas}
+  \setmonofont{Consolas}
+\fi
+\usepackage[unicode,colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tocloft}
+\usepackage{array}
+\usepackage{needspace}
+\usepackage{etoolbox}
+
+\Urlmuskip=0mu plus 1mu
+\def\UrlFont{\ttfamily\small}
+\DeclareRobustCommand{\urlunderscore}{\raisebox{-0.35ex}{\rule{0.55em}{0.35pt}}}
+\makeatletter
+\g@addto@macro\UrlSpecials{\do\_{\urlunderscore}}
+\makeatother
+\DeclareUrlCommand{\codeurl}{\urlstyle{tt}}
+\DeclareRobustCommand{\code}[1]{\ifmmode\text{\codeurl{#1}}\else\codeurl{#1}\fi}
+\sloppy
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\bibname}{参考文献}
+\renewcommand{\proofname}{证明}
+\newtheorem{definition}{定义}[chapter]
+\newtheorem{theorem}{定理}[chapter]
+\newtheorem{lemma}{引理}[chapter]
+\newtheorem{proposition}{命题}[chapter]
+\newtheorem{corollary}{推论}[chapter]
+\newtheorem{remark}{备注}[chapter]
+\newtheorem{Certificate}{核验记录}[chapter]
+\newcommand{\NN}{\mathbb N}
+\newcommand{\QQ}{\mathbb Q}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\EE}{\mathbb E}
+\newcommand{\PP}{\mathbb P}
+\newcommand{\id}{\operatorname{id}}
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\spanof}{\operatorname{span}}
+\newcommand{\TV}{\operatorname{TV}}
+\newcommand{\Ind}{\mathbf 1}
+\newcommand{\Valid}{\operatorname{Valid}}
+\newcommand{\Human}{\operatorname{HumanAct}}
+\newcommand{\Paid}{\operatorname{Paid}}
+\newcommand{\Entitled}{\operatorname{Entitled}}
+\newcommand{\Safe}{\operatorname{Safe}}
+\newcommand{\Cert}{\mathfrak C}
+\newcommand{\Norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\Abs}[1]{\left\lvert#1\right\rvert}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setlength{\emergencystretch}{8em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{3}
+\setlist{itemsep=0.2em,topsep=0.3em}
+\pretocmd{\section}{\Needspace{7\baselineskip}}{}{}
+\AtBeginEnvironment{definition}{\Needspace{4\baselineskip}}
+\AtBeginEnvironment{theorem}{\Needspace{5\baselineskip}}
+\AtBeginEnvironment{lemma}{\Needspace{4\baselineskip}}
+\AtBeginEnvironment{proposition}{\Needspace{4\baselineskip}}
+\AtBeginEnvironment{corollary}{\Needspace{4\baselineskip}}
+\AtBeginEnvironment{Certificate}{\Needspace{3\baselineskip}}
+\hypersetup{
+ pdftitle={防作弊约束下的可循环参与经济},
+ pdfauthor={Gao Zheng（高政）},
+ pdfsubject={人类资格保护、最小制度修复与三角洲行动的同调见证},
+ pdfkeywords={参与经济,防作弊,任务商,分型细化,同调,最小制度修复,真实支付}}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+\makeatletter
+\@ifundefined{C70/gkai/m/n}{\input{c70gkai.fd}}{}
+\DeclareFontShape{C70}{gkai}{m}{it}{<->ssub*gkai/m/n}{}
+\makeatother
+\raggedbottom
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\pagenumbering{roman}
+\hypersetup{pageanchor=false}
+\title{防作弊约束下的可循环参与经济\\[0.5em]
+\large 人类资格保护、最小制度修复\\与三角洲行动的同调见证}
+\author{Gao Zheng（高政）}
+\date{2026-11-02}
+\maketitle
+\setcounter{page}{2}
+\hypersetup{pageanchor=true}
+
+\chapter*{摘要}
+\addcontentsline{toc}{chapter}{摘要}
+本文研究一个条件性制度命题：在真实人的参与本身构成服务内容、活动能够循环、
+参与份额有合同与资金支持的制度域内，防作弊可以通过资格核验及其执行接口，
+保护人的合格参与和已成立收益，使这种保护不以人的竞技能力或同质生产效率超过人工智能为前提。
+研究从任务结构、分型细化、演化饱和、链同伦回缩和成本复用出发，
+接续正基本份额、差异分配、真实支付、最小兼容扩展与分配修复复形。
+规范承诺被明确登记为制度目标；能够由生成规则推出的保持性质，
+均写成定理、核验记录及证明。
+
+主要结果包括：原游戏任务表示与真实参与分型的联合映射，是同时保留二者的最粗静态细化；
+有限演化饱和得到保持所有规定有限后继观察的最粗动态商；
+附加证据的纤维条件与总变差界刻画精确识别及有限误差保护的边界；
+准入容量、过程完整性和收益支付分别治理，完整保护需要覆盖所有受保护路径。
+在固定规则、真实核验、资金预留及到期处理能力成立时，
+基本份额、贡献次序、偿付覆盖、既有权利与再参与条件可由有限事件归纳保持。
+
+数学见证把合法参与循环与分配缺陷分开。四阶段循环具有一维第一同调；
+三账户修复复形中的侵占缺陷在原操作族中非零，
+加入可执行的追回操作后成为边界。相对复形的连接同构
+\[
+H_2(C^+/C^-)\cong H_1(C^-)
+\]
+准确对应新增治理方向与原有缺陷。进一步构造带非零耦合的链同伦回缩，
+证明修复扇区可消的同时合法循环保持。逐人明细、合法方向、期限和资金继续单独验收，
+代数同调不替代实际履约。
+
+最小性分为表示细化、制度变更支集、新增修复秩和实际成本四种。
+在预注册单一共同控制点已经覆盖目标的条件下，零修改失败且一处修改成功，
+得到变更数恰为一；一般情形采用路径覆盖的原始--对偶证书。
+复用成本及就业保护对照以同目标、同期限、同风险和同成本口径比较，
+给出严格优势区间及可复算的非空构造例。
+《三角洲行动》的官方资料只承担循环、反自动化规则和处置接口的公开辅助见证；
+现实法币收入与普通参与者保障由本文的合同、资金和执行构造承担。
+
+\paragraph{关键词。}
+可循环参与经济；真人资格；防作弊；任务充分商；最粗细化；相对同调；
+实际履约；最小制度修复；人工智能；三角洲行动。
+
+\chapter*{前言与主要贡献}
+\addcontentsline{toc}{chapter}{前言与主要贡献}
+本研究的出发点是区分技术可完成性与制度收益资格。
+在以同质产出为支付对象的任务中，人和人工智能可能是替代生产者；
+在以真实人参与过程为交付内容的任务中，参与来源本身属于合格性条件。
+因此，提高人工智能的表现分数，与取得为真实人参与设定的合同份额，
+属于两个需要分别连接的判断。防作弊的经济职能，就是维护这项连接的真实性与执行性。
+
+本文将这一观察展开为五条互相接续的证明链。
+第一条是表示链：旧任务商、真实类型、独立证据、最粗细化及动态饱和。
+第二条是治理链：接纳、过程中保护、资格确认、确权、付款及复核。
+第三条是经济链：有来源的资金、正基本份额、差异激励、成本、再参与及独立退出。
+第四条是同调链：合法循环、守恒缺陷、允许修复、相对连接及任务保持。
+第五条是成本链：固定基线、修改范围、必要下界、可行上界、复用次数与再认证。
+
+这些链共享同一主体集合、规则版本、时间窗口与资金账本。
+同一项资金不同时承担两项独立承诺；同一来源的多份公告不被计为独立检测成效；
+同一数学操作的形式存在与它的实际执行分别登记。
+本文给出完整有限实例，使核心资格、资金与执行前提在一个模型中同时成立，
+并给出失败反例以明确各定理的适用边界。
+
+\clearpage
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\chapter{任务对象、逻辑前件与证明证书}
+\label{ch:objects}
+
+\section{来源接口与新增证明责任}
+\label{sec:sources}
+G 框架的直接接口主要取自《率与商》，包括任务结构、有限证书、
+观察因子化、分型最粗细化、演化饱和、回缩保持与复用成本\cite{GRate}。
+经济接口取自参与经济文稿及其补充、权利、规范竞技和有限修复文稿
+\cite{EMarket,EGovernance,ERights,ECompetition,ERepair}。
+本文对所需有限模型重新给出证明，相关文献的原文标签列于附录~\ref{app:sources}。
+
+\begin{definition}[任务结构与版本]
+\label{def:task}
+固定一个任务窗口，任务结构为
+\[
+\mathcal M_R=(X,A,\Xi,\delta,U,G,\mathcal T;R).
+\]
+\(X\) 是状态集，\(A(x)\) 是合法动作集，
+\(\Xi(x,a)\) 是允许响应集，\(\delta(x,a,\xi)\) 是后继，
+\(U\) 是规定观察，\(G\) 是接受状态集，\(\mathcal T\) 是必须保持的测试族。
+规则 \(R\) 指定允许工具、参与方式、证据、接纳、分配、支付、复核与退出。
+状态至少保留身份关联、实际控制、活动记录、资源、真实义务、
+可用资金、付款回执、争议状态和下一期入口。
+\end{definition}
+
+\begin{definition}[参与事件与真实合格性]
+\label{def:valid}
+事件为 \(e=(i,t,\pi,\ell,R)\)，其中 \(i\) 是主体，
+\(t\) 是结算期，\(\pi\) 是实际参与过程，\(\ell\) 是可访问记录。
+真实合格性定义为
+\[
+\begin{aligned}
+\Valid_R(e)\Longleftrightarrow{}&
+\operatorname{Admitted}_R(e)\land\Human_R(e)\\
+&\land\operatorname{Compliant}_R(e)
+\land\operatorname{Completed}_R(e)
+\land\operatorname{Unique}_R(e).
+\end{aligned}
+\]
+依次核验接纳、约定的人实际控制、工具及行为合规、任务完成、
+主体额度与事件确权唯一性。设账户到规范主体的真实关联为
+\(\operatorname{owner}_R(a)=i\)，同一主体的账户按此归并。
+\(\operatorname{Unique}_R\) 要求每个合同事件只有一个真实请求权标识，
+且该主体本期获得的合同额度不超过事前上限 \(q_{it}\)。
+下文逐人分配采用 \(q_{it}=1\)，多个账户不生成额外主体份额；
+同一合同内可包含多次动作。唯一性指请求权的归属，已经付款不会使
+原真实完成事实变假；重复付款由结算账本另行禁止。
+真实合格性与检测器的输出
+\(\widehat V(e)\in\{0,1,?\}\) 分别记录。
+\end{definition}
+
+允许工具是规则域的组成部分。无 AI 辅助、允许指定辅助、人机协作以及开放技术性能，
+可以分别定义比较域\cite{ECompetition}。
+本论文研究的是已经声明保留给合格真人过程的那一部分任务。
+账户持有人为自然人与每次操作符合真人要求不构成同一个谓词。
+官方设置的非玩家角色或后台自动化也不因此成为人类份额的申请人。
+
+\begin{definition}[三层保护及持续参与]
+\label{def:goals}
+对事前声明且符合条件的主体集合，定义：
+\[
+\begin{aligned}
+G_A &: \text{准入容量与排队次序未被无资格请求冒占};\\
+G_P &: \text{比赛或服务状态符合已声明的过程完整性标准};\\
+G_S &: \text{真实到期权利得到正确、及时的实际支付};\\
+G_R &: \text{在接纳容量与资源前件内，下一期合法入口可达}.
+\end{aligned}
+\]
+不合格主体不取得人类份额。过程完整性可以声明为严格阻断，
+也可以声明为有上界的干扰加期限内恢复；两种标准分别核验。
+已完成合同的收益保护不自动给尚未被接纳的人生成本期合同。
+\end{definition}
+
+\section{证书图与生成性质的定理化}
+\begin{definition}[有限证书图]
+\label{def:dag}
+证书图是有限有向无环图。叶节点登记定义、明示条件或实际证据；
+内部节点登记命题、父节点和保真推理规则。
+证据状态取 \(\{1,0,\bot\}\)，分别表示通过、反驳与未取得；
+某个合取节点通过须其全部必需前件通过。
+逻辑蕴含边与实际干预造成状态变化的因果边分别标注。
+\end{definition}
+
+\begin{theorem}[有限证书的前缀可靠性]
+\label{thm:dag}
+若叶事实在所声明域内成立，且每个内部节点的推理在该域保真，
+则按任意拓扑次序核验的每个已通过前缀，其全部命题均成立。
+\end{theorem}
+\begin{Certificate}[拓扑序与父节点]
+保存叶来源、适用窗口、全部父节点编号及每条推理。
+必需叶为 \(\bot\) 时，仅登记条件结论，不签发该结论的现实通过状态。
+\end{Certificate}
+\begin{proof}
+空前缀平凡。设前 \(n\) 个已通过节点均真。
+第 \(n+1\) 个节点若是叶，由条件成立；若是内部节点，
+其父节点先于它且均真，由保真规则得到该节点真。
+按前缀长度归纳完成。
+该命题实例化文献\cite{GRate}的有限证书前缀结构。
+\end{proof}
+
+\begin{theorem}[有限生成执行中的不变量保持]
+\label{thm:generated}
+设初态集合 \(X_0\) 满足谓词 \(I\)，合法事件由有限个构造子
+\(\Gamma=\{\gamma_1,\ldots,\gamma_m\}\) 生成。
+这里的事件包括制度允许考虑的攻击到达、故障和环境响应；
+“合法执行”指符合所声明执行模型，不表示攻击行为获得许可。
+若逐构造子证明
+\[
+I(x)\land\operatorname{Enabled}_{\gamma}(x)
+\Longrightarrow I(\gamma x),
+\]
+则每条由 \(X_0\) 出发的有限合法执行都满足 \(I\)。
+\end{theorem}
+\begin{Certificate}[基例与逐原子保持]
+保存初态、每种事件的前件、更新式和保持证明，
+以及实际执行的构造子序列。新增事件类型必须新增保持证明。
+\end{Certificate}
+\begin{proof}
+长度零时由初态条件成立。长度 \(n+1\) 的执行分为长度 \(n\) 前缀及最后一步。
+归纳假设给出前缀末态满足 \(I\)，最后一个构造子的保持式给出新末态满足 \(I\)。
+任意有限长度均得证。
+\end{proof}
+
+\begin{remark}[规范选择与事实条件]
+将某类参与份额保留给真实人，是本文研究的制度目标。
+预算、证据可识别性、合法执行权限和需求属于另行核验的条件。
+保持定理证明目标如何由这些条件实现；它不把规范选择当作自然科学公理，
+也不把经济事实当作由符号定义自动产生的现实。
+\end{remark}
+
+\chapter{人类分型、独立证据与最小表示修复}
+\label{ch:quotient}
+
+\section{旧成绩表示不能自动恢复参与来源}
+\begin{definition}[旧任务商与真实分型]
+\label{def:typing}
+令 \(q:X\to Q\) 为满射，保存旧任务规定的成绩、库存、资源或其他观察。
+真实类型为 \(\tau:X\to\mathcal T_0\)，其中
+\(\mathcal T_0\) 区分符合人类过程要求、违反自动化要求及其他真实合同类型。
+检测输出 \(\widehat\tau\) 另允许待复核值 \(?\)。
+待复核是证据状态，不被当成真实类型已知。
+\end{definition}
+
+\begin{lemma}[资格可由旧商读回的充要条件]
+\label{lem:fiber}
+存在 \(\bar\tau:Q\to\mathcal T_0\) 满足 \(\tau=\bar\tau q\)，
+当且仅当 \(\tau\) 在每个纤维 \(q^{-1}(y)\) 上恒定。
+\end{lemma}
+\begin{Certificate}[同像异型或逐纤维表]
+正向证书为每个商值唯一的类型；
+否决证书为 \(q(x)=q(x')\) 而 \(\tau(x)\ne\tau(x')\) 的输入对。
+\end{Certificate}
+\begin{proof}
+若因子化成立，相同商值经同一函数取得相同类型。
+反向按任意代表元定义 \(\bar\tau(y)=\tau(x)\)，纤维恒定保证良定义。
+满射性使每个 \(y\) 有代表，结论成立。
+\end{proof}
+
+因此，同样的战绩、库存或提款请求可能需要不同的资格判定。
+这正是文献\cite{GRate}中观察因子化条件在参与来源问题上的实例；
+它不要求先假定人工智能不能模拟人类的表面成绩。
+
+\section{联合分型的普遍性质}
+\begin{theorem}[人类资格的最粗静态细化]
+\label{thm:minimal-refinement}
+定义
+\[
+q^+(x)=(q(x),\tau(x)),\qquad Q^+=\im(q,\tau).
+\]
+则 \(q^+\) 同时保留 \(q\)、\(\tau\)，并保留所有通过 \(q\) 因子化的任务观察。
+对任意满射 \(p:X\to P\)，若存在 \(a,c\) 使
+\[
+q=ap,\qquad \tau=cp,
+\]
+则存在唯一 \(h:P\to Q^+\) 使 \(q^+=hp\)。
+因此 \(q^+\) 是同时满足旧任务与真实类型保持义务的最粗细化。
+\end{theorem}
+\begin{Certificate}[两投影与因子化]
+登记 \(\operatorname{pr}_1,\operatorname{pr}_2\)，并逐代表核验
+\(h(p(x))=(q(x),\tau(x))\)。只采用实际像 \(Q^+\)。
+\end{Certificate}
+\begin{proof}
+两投影给出 \(q=\operatorname{pr}_1q^+\) 和
+\(\tau=\operatorname{pr}_2q^+\)。
+若 \(f=\bar f q\)，则 \(f=\bar f\operatorname{pr}_1q^+\)。
+当 \(p(x)=p(x')\) 时，两个因子化式分别使 \(q(x)=q(x')\)、
+\(\tau(x)=\tau(x')\)，故 \(h\) 良定义。
+\(p\) 满射使 \(h\) 的取值唯一。
+任何满足两个保持义务的表示都能再映到 \(Q^+\)，
+所以不能比它省略更多必要区分。证毕。
+\end{proof}
+
+\begin{corollary}[只分裂存在资格混同的纤维]
+\label{cor:fiber-count}
+若 \(X\) 有限，令 \(K_y=|\tau(q^{-1}(y))|\)，则
+\[
+|Q^+|=\sum_{y\in Q}K_y.
+\]
+当全部 \(K_y=1\) 时，旧表示已经保存分型；
+只有 \(K_y>1\) 的纤维需要增加类型区分。
+\end{corollary}
+\begin{Certificate}[纤维内类型清单]
+逐商值列出实际出现的类型，排除不存在的笛卡尔积组合。
+\end{Certificate}
+\begin{proof}
+不同旧商值对应互不相交的表示块，每块恰有 \(K_y\) 个元素。
+逐块计数即得公式。全部 \(K_y=1\) 时，应用引理~\ref{lem:fiber}。
+\end{proof}
+
+这一定理重证文献\cite{GRate}的分型附加结果。
+它给出最小信息结构，不给检测真相的免费来源。
+下面把证据取得单独纳入。
+
+\section{证据可读回与信息下界}
+\begin{theorem}[独立证据恢复真实类型的充要条件]
+\label{thm:evidence}
+令 \(e:X\to E\) 为允许读取的附加证据。
+存在解码器 \(g\) 满足
+\[
+\tau(x)=g(q(x),e(x)),
+\]
+当且仅当 \(\tau\) 在联合映射 \((q,e)\) 的每个纤维上恒定。
+若 \(X\) 有限，且全部附加信息由固定长度 \(s\) 位字串提供，
+则精确恢复必须满足
+\[
+2^s\ge K_{\max},\qquad
+K_{\max}=\max_{y\in Q}|\tau(q^{-1}(y))|.
+\]
+存在依赖 \(q\) 的有限类型码表时，长度
+\(\lceil\log_2K_{\max}\rceil\) 足以编码分型。
+\end{theorem}
+\begin{Certificate}[来源与码表]
+保存同一事件的证据来源、规则版本、访问权限和完整码表；
+地址、标签及能够区分输入的动态元数据一并计入附加信息。
+编码长度与取得正确码字的实际工作量分别计费。
+\end{Certificate}
+\begin{proof}
+解码器存在即使同一联合输入产生同一类型；反向按联合像的代表定义 \(g\)。
+取具有 \(K_{\max}\) 种类型的旧纤维，不同类型必须使用不同附加码字，
+而 \(s\) 位只有 \(2^s\) 个码字，得到下界。
+逐纤维枚举类型并用其索引编码，给出可达长度。
+该构造证明编码容量，不证明观测系统能够无误取得索引。
+\end{proof}
+
+\begin{proposition}[无法从同一证据中制造缺失的区分]
+\label{prop:identical}
+若 \(q(x)=q(x')\)、\(e(x)=e(x')\) 而
+\(\tau(x)\ne\tau(x')\)，则任何只依赖 \((q,e)\) 的确定性程序，
+无论执行多少次，都不能在两输入上同时精确恢复真实类型。
+\end{proposition}
+\begin{Certificate}[不可区分输入对]
+保留两输入的全部允许观察与不同类型的见证。
+\end{Certificate}
+\begin{proof}
+两输入导致相同初始可见数据。对程序步骤归纳，
+其内部状态与下一步操作始终相同，因此终止时输出相同。
+不同真实类型要求不同正确输出，矛盾。
+\end{proof}
+
+\section{动态饱和与有限执行保持}
+\begin{definition}[有限测试饱和]
+\label{def:saturation}
+固定有限 \(X\) 与有限标签集 \(\Lambda\)。
+加入未定义状态 \(\bot\)，部分转移扩张为
+\(\widehat\Phi_\ell:X_\bot\to X_\bot\)，并固定 \(\bot\)。
+初始测试族 \(\mathcal P_0\) 包含旧任务观察、真实资格、合法性、
+全部响应域、应付、到账、期限、入口及 \(\Ind_{\{\bot\}}\)。
+递归定义
+\[
+\mathcal P_{n+1}=\mathcal P_n\cup
+\{f\circ\widehat\Phi_\ell:f\in\mathcal P_n,\ \ell\in\Lambda\},
+\]
+\[
+x\sim_n y\Longleftrightarrow
+\forall f\in\mathcal P_n,\ f(x)=f(y).
+\]
+\end{definition}
+
+\begin{theorem}[最粗动态充分商与稳定次数]
+\label{thm:dynamic}
+若初始分区有 \(b_0\) 个块，分区至多发生
+\(|X_\bot|-b_0\) 次严格细化。
+稳定商 \(q_*:X_\bot\to Q_*\) 保持任意有限标签路径后的初始测试，
+并有良定义商转移
+\[
+q_*\widehat\Phi_\ell=\bar\Phi_\ell q_*.
+\]
+任何保持初始测试和这些转移的商，都细于 \(q_*\)。
+\end{theorem}
+\begin{Certificate}[分离对与稳定表]
+每次分裂保存同块异值对及对应的有限路径测试；
+终止时保存各块的初始测试恒定性与逐标签后继同块性。
+\end{Certificate}
+\begin{proof}
+每次严格细化至少增加一个块，块数不超过 \(|X_\bot|\)。
+若某轮不再分裂，则同类输入的每个标签后继仍同类，
+否则某个复合测试会分裂它们。由此商转移良定义。
+对路径长度归纳，全部有限后继上的初始测试保持。
+反向，任意保持初始测试和后继的等价关系，
+按同一归纳保持所有复合测试，所以包含于稳定等价关系。
+其商只能更细，最粗性成立。
+\end{proof}
+
+\begin{remark}[执行修复与规则改变]
+旧规则已经要求真人而旧执行允许冒领时，新增核验属于执行缺口修复。
+若旧规则允许自动操作而新规则禁止，合法动作集合已经改变；
+此时声明新的任务版本，仅证明旧合规真人子任务在新制度中的保持。
+不能同时要求旧自动操作仍合法，又要求其被新规则排除。
+\end{remark}
+
+\chapter{三层防作弊、误差边界与资格保护}
+\label{ch:security}
+
+\section{身份复制与行为来源的不同义务}
+分布式身份研究以 Sybil 攻击说明单一实体能够制造多个身份，
+从而破坏依赖独立身份的机制\cite{Douceur}.
+在本论文中，该事实说明身份唯一性需要独立核验；
+行为控制归属则还需另一组证据。两个义务均由定义~\ref{def:valid}登记。
+
+\begin{proposition}[账户平分下的复制申领增益]
+\label{prop:sybil}
+设 \(N\ge1\) 名其他真实参与者、固定池 \(P>0\)，
+一名主体以 \(k\) 个账户申领，成本为 \(c(k)\)，则
+\[
+U(k)=\frac{Pk}{N+k}-c(k),
+\]
+\[
+U(k)-U(1)=
+\frac{PN(k-1)}{(N+k)(N+1)}-[c(k)-c(1)].
+\]
+若增量复制成本小于前项，则复制有利，而总支付仍为 \(P\)。
+\end{proposition}
+\begin{Certificate}[主体关联与份额]
+保存账户到主体的关联、真实参与事件、池规模和复制成本。
+\end{Certificate}
+\begin{proof}
+通分相减得到等式。份额增加由其他主体份额下降抵销，
+总预算未增长，故资金守恒不排除资格侵占。
+\end{proof}
+
+\section{结算保护不能代替准入与过程保护}
+\begin{proposition}[只有支付核验时的准入反例]
+\label{prop:admission-counterexample}
+存在一个从不向自动体付款的制度，仍不能保护合格人的参与机会。
+\end{proposition}
+\begin{Certificate}[一席位反例]
+每期只有一个不可补开的席位，按先到先得分配；
+自动请求先到并占用整期，人工请求后到。
+支付时自动请求被正确拒付。
+\end{Certificate}
+\begin{proof}
+自动体的到账为零，收益排除成立。
+但合格人未获得席位，也无法完成本期任务，故 \(G_A\) 失败。
+因此 \(G_S\) 中的无资格拒付不蕴含 \(G_A\)。
+\end{proof}
+
+\begin{proposition}[只有事后追回时的过程反例]
+\label{prop:process-counterexample}
+即使自动体的非法所得全部追回，也可能存在未恢复的人类过程损失。
+\end{proposition}
+\begin{Certificate}[不可恢复时窗]
+取只能在时窗 \([0,1]\) 举行一次的活动。
+违规输入在 \(1/2\) 时破坏比赛；在时刻 \(2\) 追回所有所得。
+合同的过程目标要求在时刻 \(1\) 前完成有效活动。
+\end{Certificate}
+\begin{proof}
+追回只改变时刻 \(2\) 的资源归属，不改变时刻 \(1\) 前活动未完成的历史。
+所以归属修复不能单独推出该过程目标成立。
+\end{proof}
+
+\begin{definition}[完整控制覆盖]
+\label{def:coverage}
+声明攻击域 \(\Theta\)、准入控制 \(V_A\)、过程控制 \(V_P\)、
+确权支付控制 \(V_S\) 和独立复核 \(Q\)。
+每条可能影响 \(G_A,G_P,G_S\) 的不合格路径，
+须在对应影响生效前被所声明控制阻断，
+或按预先声明的容差与期限进入有效恢复路径。
+同一共享验证服务可以被多个控制点调用；服务复用与控制点数量分别记录。
+\end{definition}
+
+\begin{theorem}[三层保护的组合]
+\label{thm:three-protection}
+若准入控制保持合格人的预约与容量，
+过程控制在声明攻击域内满足规定完整性或恢复标准，
+支付控制只接受真实权利并有到期履约能力，
+且三者使用同一事件、主体和规则版本，
+则 \(G_A\land G_P\land G_S\) 成立。
+\end{theorem}
+\begin{Certificate}[三张控制表与接续]
+记录每层的输入、输出、主体标识、不可绕过路径、
+处理期限及跨层事件对应；复核更正必须回写有关层的状态。
+\end{Certificate}
+\begin{proof}
+准入前件给出 \(G_A\)，其输出事件正确进入过程层；
+过程前件给出 \(G_P\)，其真实完成记录进入支付层；
+支付前件给出 \(G_S\)。共同标识及版本排除把不同人的资格、成绩、
+资金或回执拼接为同一证书。逐事件接续由定理~\ref{thm:generated}保持。
+\end{proof}
+
+\section{检测误差的可证明边界}
+\begin{definition}[误拒、误受与总变差]
+对全部允许记录，令 \(P_H,P_A\) 分别为合格人类与禁止自动化的分布。
+随机接受器为 \(v:\Omega\to[0,1]\)。
+定义
+\[
+\alpha=1-\EE_Hv,\qquad \varepsilon=\EE_Av,\qquad
+\TV(P_H,P_A)=\sup_{E\subseteq\Omega}|P_H(E)-P_A(E)|.
+\]
+这里 \(\alpha\) 是误拒率，\(\varepsilon\) 是误受率；
+它们不从处罚次数推断。
+\end{definition}
+
+\begin{theorem}[观测可分性对双向误差的下界]
+\label{thm:tv}
+在有限记录空间内，对任意随机接受器：
+\[
+\boxed{\alpha+\varepsilon\ge1-\TV(P_H,P_A).}
+\]
+若 \(P_H=P_A\)，则 \(\alpha+\varepsilon=1\)。
+对记录作同一个随机后处理，不能增大两分布的总变差。
+\end{theorem}
+\begin{Certificate}[完整记录分布与接受函数]
+提供声明域上的分布或经认可的界，以及所有额外随机化的来源。
+若只有经验样本，置信区间与抽样适用域另行保留。
+\end{Certificate}
+\begin{proof}
+令 \(\mu(\omega)=P_H(\omega)-P_A(\omega)\)。
+因 \(\sum_\omega\mu(\omega)=0\)，
+\(\sum_{\mu>0}\mu=\TV(P_H,P_A)\)。
+由 \(0\le v\le1\)，
+\[
+\EE_Hv-\EE_Av=\sum_\omega v(\omega)\mu(\omega)
+\le\sum_{\mu>0}\mu.
+\]
+代入 \(\alpha+\varepsilon=1-(\EE_Hv-\EE_Av)\) 得下界。
+分布相同时期望相同，得到等式。
+若随机后处理为核 \(K\)，其任一输出事件的原记录接受概率
+\(K(\omega,E)\) 仍在 \([0,1]\)，应用同一估计得到
+\(\TV(P_HK,P_AK)\le\TV(P_H,P_A)\)。
+\end{proof}
+
+\begin{theorem}[有限自适应执行的失败并集界]
+\label{thm:union}
+一轮执行至多有 \(M\) 个必需决策。
+若对每次决策 \(j\) 及其全部允许历史，
+条件失败概率不超过 \(\epsilon_j\)，则
+\[
+\PP(\text{任一必需决策失败})\le
+\min\left\{1,\sum_{j=1}^{M}\epsilon_j\right\}.
+\]
+无需假设各层或各次检测独立。
+\end{theorem}
+\begin{Certificate}[条件界与调用次数]
+逐层记录决策次数上界、历史域、误拒和误受定义、复核后的失败标准。
+自适应攻击改变历史分布时，条件界须仍覆盖该历史。
+\end{Certificate}
+\begin{proof}
+将不足 \(M\) 次的执行补为失败概率零的空决策。
+全期望公式给出每个失败事件 \(F_j\) 满足
+\(\PP(F_j)\le\epsilon_j\)。
+由指示函数
+\(\Ind_{\cup_jF_j}\le\sum_j\Ind_{F_j}\)
+取期望得到并集界，再与概率上界一取最小。
+\end{proof}
+
+\begin{corollary}[有限误差的保护陈述]
+在全部决策成功的事件上，定理~\ref{thm:three-protection}成立；
+所以三层保护的概率至少为
+\[
+\left[1-\sum_j\epsilon_j\right]_+.
+\]
+若非负总损失满足
+\(\mathcal L\le\sum_jL_j\Ind_{F_j}\)，其中 \(L_j\ge0\)，
+则 \(\EE\mathcal L\le\sum_j L_j\epsilon_j\)。
+\end{corollary}
+\begin{Certificate}[损失归属]
+对重叠失败避免重复计算同一损失；使用逐事件总和作为保守上界时明确登记。
+\end{Certificate}
+\begin{proof}
+保护成功包含全部必需决策成功的事件，应用前一定理。
+损失逐事件不超过 \(L_j\Ind_{F_j}\)，取期望并求和。
+\end{proof}
+
+\chapter{参与确权、真实支付与循环的归纳保持}
+\label{ch:economy}
+
+\section{技术表现与合同对象}
+\begin{definition}[结果合同与真人过程合同]
+结果合同 \(J\) 购买合格输出 \(y\)，在指定模型中只比较质量、价格与交付时间。
+真人过程合同 \(G\) 购买 \((y,\Human_R)\)，
+并把符合规则的真人参与作为交付内容的一部分。
+机器成本与人工成本的比较只在相同合格交付对象上进行。
+\end{definition}
+
+\begin{lemma}[技术优势不推出人类份额资格]
+\label{lem:ability}
+若 \(G\) 的合格条件含 \(\Human_R(e)\)，则
+\[
+\neg\Human_R(e_A)\Longrightarrow\neg\Valid_R(e_A),
+\]
+无论自动体的成绩或产出指标有多高。
+这个结论不要求人工成绩超过自动体成绩。
+\end{lemma}
+\begin{Certificate}[交付对象与比较域]
+保存合同对象、工具条件、实际控制证据和完成标准。
+若人工与机器的合法使用条件不同，分别标记任务域。
+\end{Certificate}
+\begin{proof}
+由定义~\ref{def:valid}，\(\Human_R\) 是合取前件。
+该前件为假时全部合取为假；成绩提高不改变这个逻辑事实。
+自动体在其他允许自动化的任务中可以合法提供服务，
+其资格由那些任务另行判断。
+\end{proof}
+
+在传统同质任务模型中，自动化可以改变资本与劳动承担的任务，
+产生替代效应；新的人类任务也可以产生重新吸纳效应
+\cite{AcemogluRestrepo}。本文只取这一结构性对照，
+不将所有职业归为同一种替代机制。
+真人需求可以写成 \(D=D(a,h,p,z)\)，其中 \(a\) 是机器能力，
+\(h\) 是真人过程、关系和成长等属性。
+文献\cite{EMarket}在围棋实例中已把这两个坐标分开。
+\(\partial_hD>0\) 是具体市场的需求条件，不能由存在一个游戏直接求得。
+
+\section{正基本份额与差异分配}
+\begin{definition}[真实完成集合与预留资金]
+\label{def:distribution}
+组织事前接纳集合为 \(\mathcal U_t\)，
+\(|\mathcal U_t|\le N_t^{\max}<\infty\)。
+真实完成集合定义为
+\[
+\mathcal E_t^*=\{i\in\mathcal U_t:\Valid_R(e_{it})=1\}.
+\]
+它依据真实事实定义，不依据是否付款或检测是否通过定义。
+最终确认集合为 \(\widehat{\mathcal E}_t\)。
+核心非空结算期满足 \(1\le N_t=|\mathcal E_t^*|\le N_t^{\max}\)。
+预留基本份额 \(\beta_t>0\)、差异池 \(D_t>0\) 和支付专用资金
+\[
+B_t^P\ge N_t^{\max}\beta_t+D_t.
+\]
+运营、核验、申诉和赔付资金在别的用途账户记录，不能重复承诺这笔支付专款。
+\end{definition}
+
+对真实可比较贡献 \(s_{it}\ge0\)，取严格递增函数 \(g_t\)，
+\(g_t(0)=0\)，规定
+\[
+\lambda_{it}=
+\begin{cases}
+\displaystyle\frac{g_t(s_{it})}{\sum_{j\in\mathcal E_t^*}g_t(s_{jt})},
+&\sum_jg_t(s_{jt})>0,\\[1.2ex]
+1/N_t,&\sum_jg_t(s_{jt})=0,
+\end{cases}
+\qquad b_{it}=\beta_t+D_t\lambda_{it}.
+\]
+无真实完成者时不启动本核心分配；未使用预留款按事前约定留存或返还。
+
+\begin{theorem}[真人基本份额、贡献次序与预算]
+\label{thm:distribution}
+在定义~\ref{def:distribution}下，
+\[
+b_{it}\ge\beta_t>0,\qquad
+\sum_i b_{it}=N_t\beta_t+D_t\le B_t^P.
+\]
+同一期同一比较域内：
+\[
+s_{it}=s_{jt}\Longrightarrow b_{it}=b_{jt},
+\qquad
+s_{it}>s_{jt}\Longrightarrow b_{it}>b_{jt}.
+\]
+若最终核验满足 \(\widehat{\mathcal E}_t=\mathcal E_t^*\)，
+贡献记录正确，且实际支付满足 \(y_{it}=b_{it}\)，
+则结论逐一落实于全部真实完成者。
+\end{theorem}
+\begin{Certificate}[真实分母与逐人回执]
+保存申请、接纳、真实完成、检测、复核、确权与付款集合；
+每个真实完成者均列在分母中，未支付者不能从分母删除。
+保存规则、金额、资金用途、期限及最终性回执。
+\end{Certificate}
+\begin{proof}
+两种分支均有 \(\lambda_{it}\ge0\) 且 \(\sum_i\lambda_{it}=1\)，
+得到正下界及总额恒等式。
+当 \(s_{it}>s_{jt}\) 时，总得分必为正，且
+\[
+b_{it}-b_{jt}
+=D_t\frac{g_t(s_{it})-g_t(s_{jt})}{\sum_\ell g_t(s_{\ell t})}>0.
+\]
+等贡献或全零分支给等份。
+最终集合与真实集合相等，将计算对应到正确主体；
+实际到账等式把应付结论接续为履约结论。
+\end{proof}
+
+\begin{corollary}[基本份额不要求胜过人工智能]
+\label{cor:ai-independent}
+在攻击域核验、合同和资金条件保持的比较中，
+改变无资格自动体的竞技表现，不会改变真实完成者的基本下界：
+\[
+\forall i\in\mathcal E_t^*,\qquad y_{it}\ge\beta_t.
+\]
+条件只排除由无资格自动体直接进入人类池的渠道；
+平台需求、融资或接纳容量的其他变化另行计入状态。
+\end{corollary}
+\begin{Certificate}[固定前件与变动坐标]
+声明比较中保持的资金、合同、资格域和最终核验；
+只有自动体的任务表现坐标变化。
+\end{Certificate}
+\begin{proof}
+引理~\ref{lem:ability}使无资格自动体不进入真实集合，
+正确核验也不使它进入最终集合。基本下界只由 \(\beta_t\) 与有效完成确定，
+直接应用定理~\ref{thm:distribution}。
+\end{proof}
+
+\section{偿付覆盖、安全与及时完成}
+\begin{definition}[受保护的逐人义务账本]
+\label{def:ledger}
+状态包含预留可履约资产 \(B_n\ge0\)，逐人未付真实义务
+\(L_{i,n}\ge0\)，累计真实到账 \(Y_{i,n}\ge0\)。
+令 \(L_n=\sum_iL_{i,n}\)，初态满足 \(B_0\ge L_0\)。
+向权利人 \(i\) 最终支付 \(0\le u\le L_{i,n}\) 时，
+\[
+B'=B-u,\quad L_i'=L_i-u,\quad Y_i'=Y_i+u.
+\]
+新增义务总额 \(v\ge0\) 时，\(w\ge0\) 只表示尚未计入 \(B\) 的新入金，
+并要求已有未占用资金与新入金足以覆盖新增义务：
+\[
+B-L+w\ge v,\qquad B'=B+w,\quad L'=L+v.
+\]
+逐人的新增义务非负且加总为 \(v\)。预付资金已经计入 \(B\) 后，
+不得在形成义务时再次计作 \(w\)。
+无资格请求被拒绝时，真实义务不变；撤销虚假登记须有独立证据，
+并与真实义务明细分开。
+\end{definition}
+
+\begin{theorem}[偿付覆盖与既有权利的生成保持]
+\label{thm:ledger}
+所有有限合法执行满足
+\[
+B_n\ge\sum_iL_{i,n}\ge0.
+\]
+合法支付保持 \(B-L\)；新增义务可以使用已有未占用预付款，
+但保持 \(B-L\ge0\)；当新入金满足 \(w\ge v\) 时差额还不降低；
+规则更新及拒绝无资格请求不取消已成立真实权利。
+\end{theorem}
+\begin{Certificate}[支付和增责的原子证书]
+逐笔保存正确收款人、金额、唯一事件标识、实际回执、义务减少与资金减少。
+预留资产计入范围须支持在承诺期限内执行；仅名义可追回资产不自动算作及时可用资金。
+\end{Certificate}
+\begin{proof}
+支付后 \((B-u)-(L-u)=B-L\ge0\)，且各个未付义务仍非负。
+新增义务后差额为 \(B-L+w-v\ge0\)，由定义中的覆盖条件成立；
+仅在 \(w\ge v\) 的特例下，它进一步不小于旧差额。
+拒绝与版本更新不改写真实义务。
+按定理~\ref{thm:generated}对事件数归纳，得到全部不变量。
+\end{proof}
+
+\begin{proposition}[有限队列的履约期限]
+\label{prop:liveness}
+从时刻 \(t_0\) 起处理一个固定有限批次，至多包含 \(M\) 个处理项；
+其中包括有效请求、无效请求和全部必要复核。
+调度在批次未完成时不空转，外部请求不能插队占用该批次的服务窗口。
+每项包含消息传递、重试、中断及结算在内的实际占用时间不超过 \(d\)，
+真实请求都在批次内，所需资金和执行设施可用。
+则最后一个真实请求在 \(t_0+Md\) 之前完成。
+\end{proposition}
+\begin{Certificate}[队列、服务上界与不可单方否决]
+保存完整批次、队列顺序、开始与完成时刻、每项实际时间上界、
+外部流量隔离、处理责任和备选执行路径。
+若使用多方签发，另证足够诚实角色可以取得相同完整证据并及时行动。
+\end{Certificate}
+\begin{proof}
+第一个处理项至多 \(d\)；若前 \(k\) 项至多 \(kd\)，
+下一项再用至多 \(d\)，故前 \(k+1\) 项至多 \((k+1)d\)。
+无空转、无批外插队及完整耗时口径保证没有遗漏时间。
+按处理项数归纳。资金覆盖保证不会因本模型中的预留不足中止支付；
+时间结论还使用了本命题独立的可用性与调度前件。
+\end{proof}
+
+\begin{lemma}[确定事实核验下的有限签发阈值]
+\label{lem:quorum}
+有 \(n\) 个核验角色，最多 \(f\) 个任意偏离。
+诚实角色对相同完整证据只签发正确结果，
+并在证据可判定后于规定时限内实际完成正确签发。
+阈值按不同角色、同一事件和同一版本计数，签名不可伪造或重放。
+证据取得及执行都不依赖偏离角色时，
+\[
+f<q\le n-f
+\]
+足以保证错误结果不能取得 \(q\) 份签发，
+正确结果能够由诚实角色取得足够签发。
+\end{lemma}
+\begin{Certificate}[角色、完整证据与签名真实性]
+保存角色集合、偏离上界、阈值、签发规则及到期执行设施。
+本引理不是对缺失事实或不一致事实的自动共识定理。
+\end{Certificate}
+\begin{proof}
+错误结果最多取得 \(f<q\) 个偏离角色签发。
+正确结果至少有 \(n-f\ge q\) 个诚实角色可签发。
+两个计数分别给安全和完成能力。
+\end{proof}
+
+\section{净回报、再参与与独立退出}
+\begin{definition}[成本、下一期入口与自主选择]
+令 \(\kappa_{it}^{\rm cash}\ge0\) 是必须支付且须由本期所得承担的现金成本，
+\(\kappa_{it}^{\rm util}\ge0\) 是时间、努力和其他效用机会成本的另行估值。
+下文再参与不等式中的 \(\kappa_{it}\) 取前者，
+或取已经证明不低于前者的保守资源扣减上界。
+\(k_{i,t+1}\ge0\) 是同一可支付资源口径的下一期最低接入需求。
+支付须先于必要接入支出到期。
+下一期入口容量、时间与允许参与方式单独登记。
+主体可以选择退出；退出不消灭旧合同的真实债权。
+\end{definition}
+
+\begin{theorem}[资源与容量共同支持的再参与]
+\label{thm:reentry}
+若定理~\ref{thm:distribution}的实际支付成立，并有
+\[
+\beta_t\ge\kappa_{it}+k_{i,t+1},
+\]
+且下一期存在可用的合格入口、实际时间与参与能力及所需时序，则本期完成者保有至少一条
+能够负担的下一期参与路径。
+\end{theorem}
+\begin{Certificate}[逐人接续]
+保存成本清单、到账时间、下一期入口价格或配给、
+接纳容量和实际可选择路径。若声明全部完成者可以同时再次参与，
+还须保存互不冲突的席位预留或联合容量配置。
+\end{Certificate}
+\begin{proof}
+\(y_{it}-\kappa_{it}\ge\beta_t-\kappa_{it}\ge k_{i,t+1}\)。
+时序使资源可在需要时使用，容量与合法入口提供该资源能够购买或取得的路径。
+因此存在可负担的合法接续。选择是否执行由主体决定。
+\end{proof}
+
+\begin{proposition}[独立底线的坐标最小补足]
+\label{prop:floor}
+固定生存与真实接入底线 \(F_i>0\)，退出后的可用收入
+\(Y_i^{\rm out}\ge0\)。满足
+\(Y_i^{\rm out}+R_i\ge F_i,\ R_i\ge0\)
+的逐坐标最小值唯一为
+\[
+R_i^*=[F_i-Y_i^{\rm out}]_+.
+\]
+在权限、支付设施、费用与期限条件均已满足时，
+专门账户支付该向量的预算可行性，等价于可用资金不少于 \(\sum_iR_i^*\)。
+\end{proposition}
+\begin{Certificate}[独立资格与到账]
+登记救济的独立资金、及时支付、替代入口和不依赖单一平台封禁的资格规则。
+该账户与参与池、赔付池分别保留。
+\end{Certificate}
+\begin{proof}
+两个约束合并为 \(R_i\ge\max\{0,F_i-Y_i^{\rm out}\}\)。
+该下界本身可行，故存在、唯一且坐标最小。
+求和给资金必要条件，直接支付该向量给充分性。
+\end{proof}
+
+\section{法币开放循环与资金来源}
+\begin{theorem}[参与者净流入恒等式]
+\label{thm:net-inflow}
+在同一核算期，参与者支付费用合计为 \(\sum_if_i\)，
+来自真实服务购买、赞助或其他已声明来源的外部流入为 \(R\)，
+实际分配为 \(\sum_iy_i\)，组织真实现金支出为 \(C\)，储备增加为 \(\Delta B\)。
+若无遗漏源项和用途，则
+\[
+\sum_i y_i+C+\Delta B=R+\sum_i f_i,
+\]
+因而
+\[
+\boxed{\sum_i(y_i-f_i)=R-C-\Delta B.}
+\]
+\end{theorem}
+\begin{Certificate}[账户边界与合并抵销]
+保存已到账外部资金、逐人费用与付款、成本和期初期末储备。
+集团内部转账在合并核算中抵销；应收款不冒充当期可用现金。
+\end{Certificate}
+\begin{proof}
+将同一范围内账户的期初余额、真实流入、真实流出与期末余额逐项相加，
+内部转账一正一负抵销，得到第一个等式。
+移项得到净流入式。
+\end{proof}
+
+\begin{corollary}[无外部净来源时的整体约束]
+若 \(R=0\)、\(C>0\)、\(\Delta B\ge0\)，则参与者整体净流入为负。
+若外部收入覆盖真实成本、储备和约定分配，则正参与收入与组织偿付可以共存。
+\end{corollary}
+\begin{Certificate}[来源覆盖]
+核验资金来自真实的现有付款义务与支付，及其必要续存条件。
+\end{Certificate}
+\begin{proof}
+直接代入定理~\ref{thm:net-inflow}。
+正向可行性由对所有用途足额预留并执行支付得到。
+\end{proof}
+
+自动化生产部门与参与部门之间的赞助、服务购买和消费回流，
+可以构成文献\cite{EMarket}中的桥接循环。
+本文保留其真实需求、企业净收益与持续融资条件；
+游戏中存在资源循环，不独自生成现实购买力。
+
+\chapter{循环复形、分配缺陷与相对同调修复}
+\label{ch:homology}
+
+\section{阶段循环与完整执行状态的区别}
+\begin{definition}[阶段循环复形]
+\label{def:phase}
+取四阶段 \(v_0,v_1,v_2,v_3\)，分别为具有参与条件、
+实际活动、结果及资源确认、储存使用与再准备。
+边 \(e_j:v_j\to v_{j+1}\) 的下标模四。
+令 \(P_2=0,\ P_1=\QQ^4,\ P_0=\QQ^4\)，边界为
+\[
+d_1^P=
+\begin{pmatrix}
+-1&0&0&1\\
+1&-1&0&0\\
+0&1&-1&0\\
+0&0&1&-1
+\end{pmatrix}.
+\]
+这是阶段重复的投影；完整状态另含期数、历史、余额、资格与义务。
+一次完成执行可以投影成环，而完整状态不必回到原值。
+\end{definition}
+
+\begin{theorem}[合法阶段循环的一维同调]
+\label{thm:cycle}
+令 \(z=e_0+e_1+e_2+e_3\)，则
+\[
+d_1^Pz=0,\qquad H_1(P)\cong\QQ[z].
+\]
+\end{theorem}
+\begin{Certificate}[边界矩阵与合法提升]
+矩阵证书保存四个顶点、四条边及方向。
+实际循环另保存从每个声明可行账本状态出发的合法路径，
+其阶段投影依次经过四条边。
+失败、退出和资源不足的支路不被投影成成功执行。
+\end{Certificate}
+\begin{proof}
+四列之和为零，故 \(z\) 为闭链。
+前三列线性无关，矩阵秩为三，因此核一维，由 \(z\) 张成。
+二次链群为零，无二次边界，故一级同调等于该核。
+合法提升属于执行证书，不由秩计算自动生成。
+\end{proof}
+
+图的链复形与同调是标准构造\cite{Hatcher}。
+这里选择的阶段与经济标签承担实例化责任。
+单纯阶段投影只用于循环见证；若要作整个经济任务的充分商，
+必须同时保留第~\ref{ch:objects}章规定的资格、资金、到账与期限观察。
+
+\section{资源相容的修复复形}
+\begin{definition}[守恒缺陷与允许操作]
+\label{def:repair}
+取同一核算范围内实际配置 \(x^{\rm act}\) 与参照配置 \(x^{\rm ref}\)，
+\(\omega=x^{\rm ref}-x^{\rm act}\in\QQ^n\)。
+资源相容矩阵为 \(B\)，已授权修复的净效果列为
+\(A=(a_1,\ldots,a_m)\)，并要求
+\[
+B\omega=0,\qquad Ba_j=0.
+\]
+链复形为 \(C_2=\QQ^m\xrightarrow{A}C_1=\QQ^n\xrightarrow{B}C_0\)。
+实际执行还须属于允许集 \(\mathcal U(x)\)，保留资金、权限、非负数量、
+时限、先后次序及最终性回执。
+\end{definition}
+
+\begin{lemma}[逐操作守恒与残差归纳]
+\label{lem:balance}
+\(BA=0\)。若 \(\omega_{n+1}=\omega_n-Au_n\) 且 \(B\omega_0=0\)，
+则任意有限 \(n\) 均有 \(B\omega_n=0\)。
+\end{lemma}
+\begin{Certificate}[列证书]
+逐列核验 \(Ba_j=0\)，记录每次真实净效果与余额。
+\end{Certificate}
+\begin{proof}
+矩阵乘法逐列给 \(BA=0\)。
+若 \(B\omega_n=0\)，则
+\(B\omega_{n+1}=B\omega_n-BAu_n=0\)；归纳完成。
+\end{proof}
+
+\begin{theorem}[有限线性修复的双证书]
+\label{thm:dual}
+对有限有理矩阵 \(A\) 与向量 \(\omega\)，以下两类证书恰有一类存在：
+\[
+Au=\omega;
+\qquad\text{或}\qquad
+\lambda A=0,\quad\lambda\omega\ne0.
+\]
+在定义~\ref{def:repair}的复形中，
+前者等价于 \([\omega]=0\in H_1(C)\)，后者证明该类非零。
+\end{theorem}
+\begin{Certificate}[精确消元与允许执行]
+保存有理高斯消元的行变换、解或矛盾行。
+解证书后另核验 \(u\in\mathcal U(x)\)。
+\end{Certificate}
+\begin{proof}
+对增广矩阵 \([A\mid\omega]\) 作有限有理消元。
+若无矛盾行则回代有解；若有矛盾行，其行组合给出
+\(\lambda A=0,\lambda\omega\ne0\)。
+两者同时存在会导致
+\(\lambda\omega=\lambda Au=0\)，矛盾。
+同调解释来自 \(H_1(C)=\ker B/\im A\)。
+\end{proof}
+
+这两个结果接续文献\cite{ERepair}的资源相容修复与双证书接口。
+一般有符号线性解不足以证明实际可执行；
+下面给出全部系数非负且顺序可执行的具体见证。
+
+\section{三账户侵占与一项新增修复方向}
+\begin{definition}[三账户闭合构造]
+\label{def:three-ledger}
+账户依次为合格人类 \(H\)、组织托管 \(O\)、无资格所得 \(X\)。
+在本构造的守恒窗口中取
+\[
+B=(1,1,1),\qquad
+p=(1,-1,0)^\top,\qquad r=(0,1,-1)^\top.
+\]
+\(p\) 是组织向人类的合法支付，\(r\) 是有权执行的冻结追回。
+原复形 \(C^-\) 的二次链群只有支付生成元 \(e_p\)；
+扩展复形 \(C^+\) 的二次链群由 \(e_p,e_r\) 生成：
+\[
+A_-=\begin{pmatrix}1\\-1\\0\end{pmatrix},
+\qquad
+A_+=\begin{pmatrix}1&0\\-1&1\\0&-1\end{pmatrix}.
+\]
+两者的一次链群均为 \(\QQ^3\)，零次链群均为 \(\QQ\)。
+\end{definition}
+
+\begin{theorem}[侵占缺陷的非零类与可执行归零]
+\label{thm:repair-example}
+设 \(d\in\QQ_{>0}\) 单位本应属于 \(H\) 的份额错误归于 \(X\)，
+\[
+\omega=(d,0,-d)^\top=d(p+r).
+\]
+则
+\[
+H_1(C^-)\cong\QQ,\quad [\omega]_{C^-}\ne0,\qquad
+H_1(C^+)=0,\quad[\omega]_{C^+}=0.
+\]
+若 \(h,o,x\in\QQ_{\ge0}\)、\(x\ge d\)，且权限与期限可执行，
+存在非负余额路径
+\[
+\begin{aligned}
+(h,o,x)&\xrightarrow{dr}(h,o+d,x-d)\\
+&\xrightarrow{dp}(h+d,o,x-d),
+\end{aligned}
+\]
+其净效果恰为 \(\omega\)。
+\end{theorem}
+\begin{Certificate}[否决、修复与回执]
+取 \(\lambda_X=(0,0,1)\)，核验
+\(\lambda_XA_-=0,\lambda_X\omega=-d\)；
+再核验 \(A_+(d,d)^\top=\omega\)、\(x\ge d\) 及两笔回执。
+\end{Certificate}
+\begin{proof}
+\(Bp=Br=0\)，所以两者都是复形。
+\(\rank B=1\)，故 \(\dim\ker B=2\)；
+\(\rank A_-=1\)，所以原一级同调一维。
+对偶证书和定理~\ref{thm:dual}给出非零类。
+\(p,r\) 线性无关且均在二维 \(\ker B\) 内，
+故 \(\im A_+=\ker B\)，扩展一级同调为零。
+直接相乘得到形式修复。
+实际先追回再补付，各中间余额非负，末态减初态为 \(\omega\)，完成执行证明。
+\end{proof}
+
+\begin{remark}[冻结、补偿与发行分别入账]
+追回使用的是原无资格所得，须有可执行权力及资产。
+仅向受害人补偿可能来自独立储备，不等于同时追回作弊者所得。
+游戏资源发行会改变所选小账本总量，应增加发行账户或源项。
+本构造只对已列明的守恒窗口使用 \(B=(1,1,1)\)。
+\end{remark}
+
+\section{相对复形与连接同构}
+\begin{theorem}[新增治理方向对应原侵占类]
+\label{thm:relative}
+令 \(\mathcal R=C^+/C^-\)，则
+\[
+\mathcal R_2=\QQ\bar e_r,\qquad
+\mathcal R_1=\mathcal R_0=0,\qquad
+H_2(\mathcal R)\cong\QQ.
+\]
+短正合列
+\[
+0\longrightarrow C^-\xrightarrow{i}C^+
+\xrightarrow{\pi}\mathcal R\longrightarrow0
+\]
+的连接映射满足
+\[
+\boxed{\delta:H_2(\mathcal R)\xrightarrow{\cong}H_1(C^-),\qquad
+\delta[\bar e_r]=[r].}
+\]
+特别地，\([\omega]=d[r]\)，且 \(i_*[\omega]=0\)。
+\end{theorem}
+\begin{Certificate}[提升后取边界]
+在 \(C^+\) 中把 \(\bar e_r\) 提升为 \(e_r\)，其边界为 \(r\)，
+属于 \(C^-_1\)。记录两侧二次边界矩阵及包含、商映射。
+\end{Certificate}
+\begin{proof}
+商在零次、一次为零，只剩新增二次生成元。
+所以每个二次元在商中闭合，又无三次边界。
+\(A_+\) 单射使 \(H_2(C^+)=0\)，前一定理给 \(H_1(C^+)=0\)。
+长正合列的有关部分为
+\[
+0\longrightarrow H_2(\mathcal R)
+\xrightarrow{\delta}H_1(C^-)\longrightarrow0,
+\]
+故连接映射同构。由提升定义，
+\(\delta[\bar e_r]=[A_+e_r]=[r]\)。
+在 \(H_1(C^-)\) 中 \([p]=0\)，所以
+\([\omega]=d[p+r]=d[r]\)。
+进入 \(C^+\) 后它是边界，得到最后一式。
+\end{proof}
+
+\section{逐人明细与不可随意删除的观察}
+\begin{proposition}[聚合账本不能证明逐人公平]
+\label{prop:aggregation}
+合并人类账户的映射
+\[
+F_1(h_1,\ldots,h_n,o,x)=
+\left(\sum_{j=1}^nh_j,o,x\right)
+\]
+保存人类总额，却不能单独保存每人的应得额。
+当 \(n\ge2\) 时，存在非零逐人缺陷被它映为零。
+\end{proposition}
+\begin{Certificate}[零总额的逐人缺陷]
+取 \(\nu=(d,-d,0,\ldots,0)\)，其中 \(d\ne0\)，
+并保存第一个人的读出 \(\ell_1(\nu)=d\)。
+\end{Certificate}
+\begin{proof}
+人类坐标求和为零，故 \(F_1\nu=0\)，但第一个人的变化非零。
+如果存在 \(\bar\ell_1\) 使 \(\ell_1=\bar\ell_1F_1\)，
+将 \(\nu\) 代入得到 \(d=0\)，矛盾。
+所以总额观察不能代替逐人证书。
+\end{proof}
+
+\begin{theorem}[目标观察下降的核条件]
+\label{thm:readout-kernel}
+对满射线性映射 \(q:C_1\to\bar C_1\)，
+线性观察 \(\ell\) 能写为 \(\ell=\bar\ell q\)，
+当且仅当 \(\ell|_{\ker q}=0\)。
+若被商去的缺陷方向 \(\nu\) 满足 \(\ell(\nu)\ne0\)，
+则商中缺陷消失不能签发原观察已经修复。
+\end{theorem}
+\begin{Certificate}[核与读出]
+保存核基、逐基读出及诱导函数。
+金额等线性观察执行核检查；资格、误拒、期限等一般谓词，
+另按第~\ref{ch:quotient}~章检查商映射每个纤维上的取值是否恒定。
+\end{Certificate}
+\begin{proof}
+因子化时核元映到零，读出也为零。
+反向按代表元定义 \(\bar\ell(qc)=\ell(c)\)，
+代表差在核中使取值无关。
+最后一项由必要性立即得到。
+\end{proof}
+
+\section{具体账本向共同模板的链映射}
+\begin{theorem}[角色聚合的链交换]
+\label{thm:chain-map}
+细账本以允许修复转账为二次生成元，以账户为一次生成元，
+\[
+d_2[e:u\to v]=e_v-e_u,\qquad d_1x=\sum_jx_j.
+\]
+角色映射 \(\rho(v)\in\{H,O,X\}\) 给
+\(F_1e_v=e_{\rho(v)},F_0=\id\)。
+令 \(s_H,s_X\) 为该笔转账在人类与无资格账户上的净变化，定义
+\[
+F_2[e]=s_He_p-s_Xe_r.
+\]
+则 \(dF=Fd\)。若逐次数满射，则
+\[
+D/\ker F\cong C^+
+\]
+为链复形同构。
+\end{theorem}
+\begin{Certificate}[逐笔投影与单位]
+逐笔保存原账户、角色、类型与允许操作。
+游戏计价单位 \(\mathfrak g\) 与法币计价单位 \(\mathfrak f\) 分别建账；
+规范化到同一数值模板不产生两种单位的兑换权。
+逐人权利按命题~\ref{prop:aggregation}保留明细。
+链交换允许有符号系数；若进一步声称实际模拟，
+另证允许操作的非负约束、执行次序、权限和期限均被保持。
+\end{Certificate}
+\begin{proof}
+总量守恒使组织坐标变化为 \(-s_H-s_X\)，因此
+\[
+d_2F_2[e]=(s_H,-s_H-s_X,s_X)^\top=F_1d_2[e].
+\]
+求和与角色合并交换，故 \(d_1F_1=F_0d_1\)。
+由线性扩展得到全部链交换。核在微分下稳定，
+逐次数第一同构定理与交换式共同给出商链同构。
+\end{proof}
+
+\section{耦合修复下合法循环的保持}
+\begin{lemma}[扩展修复复形的显式可缩性]
+\label{lem:contractible}
+对 \(C^+\) 定义升一次数映射
+\[
+t_0(a)=(0,a,0),\qquad
+t_1(h,o,x)=(h,-x),\qquad t_2=0.
+\]
+则
+\[
+d_Ct+td_C=\id_{C^+}.
+\]
+\end{lemma}
+\begin{Certificate}[三个次数的矩阵乘积]
+分别保存 \(Bt_0=1\)、\(A_+t_1+t_0B=I_3\)、
+\(t_1A_+=I_2\)。
+\end{Certificate}
+\begin{proof}
+第一式直接求和。
+一次元上
+\[
+A_+t_1(h,o,x)=(h,-h-x,x),\qquad
+t_0B(h,o,x)=(0,h+o+x,0),
+\]
+两者之和为 \((h,o,x)\)。
+对二次元 \((u,v)\)，
+\(t_1A_+(u,v)=t_1(u,-u+v,-v)=(u,v)\)。
+三个次数穷尽全部非零链群。
+\end{proof}
+
+\begin{theorem}[带耦合的任务回缩与合法循环保持]
+\label{thm:coupled}
+令 \(E_n=P_n\oplus C^+_n\)。
+允许次数为负一的耦合
+\(\kappa_n:C^+_n\to P_{n-1}\)，满足
+\[
+d_P\kappa+\kappa d_C=0.
+\]
+定义总微分
+\[
+D(p,c)=(d_Pp+\kappa c,d_Cc).
+\]
+则 \(D^2=0\)，且存在链映射
+\[
+j(p)=(p,0),\qquad r(p,c)=p-\kappa tc,
+\]
+满足
+\[
+rj=\id_P,\qquad
+\id_E-jr=DT+TD,\qquad T(p,c)=(0,tc).
+\]
+因此 \(H_*(E)\cong H_*(P)\)，特别是合法循环类 \([z]\) 保持非零。
+\end{theorem}
+\begin{Certificate}[耦合、回缩与实际路径]
+保存 \(d_P\kappa+\kappa d_C=0\)、\(t\)、\(j,r,T\) 的逐次数矩阵。
+实际执行另保存可接续的合法路径提升：对每个声明可达的提升状态，
+其下一条合法阶段边都能由同一状态出发，经有限核验步骤实现，
+并终止于可继续提升后继的状态。主体、账本、规则版本和期限沿路径连续；
+额外步骤满足资金与时间约束。或者提供满足同样后继条件的共同状态截面。
+逐边分别存在某条路径不足以代替这一接续条件。
+链同伦与实际路径分别验收。
+\end{Certificate}
+\begin{proof}
+平方的第一分量为
+\(d_P^2p+(d_P\kappa+\kappa d_C)c=0\)，第二分量为 \(d_C^2c=0\)。
+\(j\) 显然是链映射。
+由 \(d_P\kappa=-\kappa d_C\) 与 \(d_Ct+td_C=\id\)，
+\[
+rD(p,c)=d_Pp+\kappa c-\kappa td_Cc
+=d_Pp+\kappa d_Ctc=d_Pr(p,c).
+\]
+所以 \(r\) 是链映射，且 \(rj=\id\)。
+直接计算
+\[
+(DT+TD)(p,c)=(\kappa tc,c)=(\id-jr)(p,c).
+\]
+链同伦使诱导映射互逆，因此同调同构。
+在本节采用链次数约定，同伦 \(t,T\) 升一次数；
+与文献\cite{GRate}中余链约定的降一次数相对应。
+\end{proof}
+
+\begin{proposition}[非零耦合的明确例子]
+取 \(\kappa_2(u,v)=u z\)、\(\kappa_1=\kappa_0=0\)，
+则耦合非零且满足前一定理的相容式。
+当耦合为零时，定理退化为直和观察
+\[
+H_1(P\oplus C^-)\cong\QQ\oplus\QQ,\qquad
+H_1(P\oplus C^+)\cong\QQ\oplus0.
+\]
+\end{proposition}
+\begin{Certificate}[闭链与零分量]
+保存 \(d_Pz=0\)，逐次数检查其余耦合分量为零。
+\end{Certificate}
+\begin{proof}
+唯一可能的非零相容项为 \(d_P\kappa_2\)，
+由 \(d_Pz=0\) 消失。
+零耦合时同调与有限直和交换，代入已经计算的两个同调群即可。
+\end{proof}
+
+本文由此得到两层保持：矩阵层明确保留合法循环，
+执行层通过实际路径提升、资金与期限确认循环可以使用。
+完整前后制度不因原缺陷类被消除而同调等价；
+被保持的是已经明确选择的合法真人任务部分。
+
+\chapter{最小改造的下界、达到性与成本比较}
+\label{ch:minimal}
+
+\section{四种最小性及其比较基线}
+“最小代价”需要先指定计量对象。第~\ref{ch:quotient}~章已经证明：
+同时保持旧任务观察与真实参与分型时，联合商 \(q^+=(q,\tau)\)
+是最粗的充分细化。这个表示论结论与下面三个优化问题分别成立：
+修改多少真实控制位置，增加多少独立修复方向，以及消耗多少实际资源。
+文献\cite{EMarket}的最小兼容扩展以固定基线、候选族和权重为前提；
+文献\cite{GRate}的商表示复用则提供一次构建、多次使用的成本结构。
+
+\begin{definition}[固定制度坐标与真实控制位置]
+\label{def:baseline}
+依照《市场参与》中按制度坐标登记基线的方法，本文选取实现基线
+\[
+\Sigma_0=(E,R_0,M,V,\Phi,T,B,Q),
+\]
+分别表示接纳、活动规则、计量、真实性核验、确权、支付、资金和复核。
+在比较前固定有限实施位置集 \(\mathcal U\)；
+每个位置对应可独立变更且有明确作用范围的规则或执行点。
+候选制度 \(\Sigma\) 的变更支集为
+\[
+\Delta(\Sigma;\Sigma_0)
+=\{u\in\mathcal U:\sigma_u\ne\sigma_u^0\}.
+\]
+若多个节点调用同一算法，其代码复用可以计入成本节省；
+但准入、状态更新和最终支付三个实际执行点不因此合并为一个位置。
+\end{definition}
+
+\begin{definition}[兼容候选族]
+固定真人任务、保障目标、攻击域、期限与误差容限。
+\(\mathcal F\) 是满足这些目标，且保留事前指定合法任务及既有权利的候选族。
+它包括制度的真实依赖变更；新建资金、合同或结算安排不能隐去。
+对权重 \(w_u>0\)，记
+\[
+W(\Delta)=\sum_{u\in\Delta}w_u.
+\]
+只有在 \(\mathcal F\ne\varnothing\) 时讨论其最优元。
+\end{definition}
+
+\begin{proposition}[有限候选族的最小兼容扩展]
+\label{prop:finite-min}
+若 \(\mathcal F\) 非空有限，则词典序目标
+\[
+\bigl(|\Delta(\Sigma;\Sigma_0)|,\ W(\Delta),\ C_{\rm run}(\Sigma)\bigr)
+\]
+在 \(\mathcal F\) 上取得最小值，其中运行成本已按统一口径给定。
+这个存在性结论不单独证明某个指定方案达到最小值。
+\end{proposition}
+\begin{Certificate}[候选与排除]
+保存基线、完整候选清单、合法性证书、目标值和比较次序。
+宣布指定方案最优时，还须保存所有更小候选的排除证据，
+或提供覆盖全部候选的下界证书。
+\end{Certificate}
+\begin{proof}
+有限非空集合上的第一坐标取得最小值；
+在第一坐标最小的非空子集上取第二坐标最小，
+再取第三坐标最小即可。只有该取最小过程或等价下界证明，
+才能把存在性落实到指定方案。
+\end{proof}
+
+\section{有害执行前缀给出位置数下界}
+\begin{definition}[有害前缀及其可控制位置]
+令 \(\mathcal B\) 为待消除的有害执行前缀集合，包含准入冒占、
+过程破坏及错误确权。对每个 \(b\in\mathcal B\)，
+事前列明 \(M(b)\subseteq\mathcal U\)：只有修改这些位置之一，
+才能在该损害的截止点前阻断 \(b\)，
+或实现目标事先认可的、及时且足额的修复。
+该集合的完整性是一项独立证书；
+不在 \(\mathcal U\) 中的新方案须扩展候选域后重新比较。
+\end{definition}
+
+\begin{theorem}[覆盖下界与互不相交见证]
+\label{thm:hitting}
+任意可行改造的支集满足
+\[
+\forall b\in\mathcal B,\qquad
+\Delta\cap M(b)\ne\varnothing.
+\]
+若存在 \(b_1,\ldots,b_k\)，其 \(M(b_j)\) 两两不交，
+则所有可行方案满足 \(|\Delta|\ge k\)。
+若另有使用恰好 \(k\) 个位置的完整可行方案，则最小位置数等于 \(k\)。
+\end{theorem}
+\begin{Certificate}[失败路径与构造上界]
+下界保存每个有害前缀、损害截止点、完整可控制位置集及不交性。
+上界保存改造后的全部攻击域核验、合法路径保持和真实支付；
+仅阻断旧样本不足以排除改造后产生的新旁路。
+\end{Certificate}
+\begin{proof}
+若某个 \(b\) 的可控制位置一个也未改，按 \(M(b)\) 的定义，
+候选仍保留该有害执行，违背目标，所以必须命中每个集合。
+对两两不交的 \(k\) 个集合，命中它们至少需要 \(k\) 个不同位置。
+构造方案给出相反方向的上界，二者相等。
+\end{proof}
+
+\begin{corollary}[一处修改达到最小值的精确条件]
+\label{cor:one-gate}
+若原制度确有失灵前缀，而所有目标内有害前缀都经过同一个
+事前固定的实际控制位置 \(u_*\)，
+并且只修改该位置就能可靠阻断这些前缀、无新增旁路且保留合法权利，
+则
+\[
+\min_{\Sigma\in\mathcal F}|\Delta(\Sigma;\Sigma_0)|=1.
+\]
+\end{corollary}
+\begin{Certificate}[零失败与一成功]
+分别保存原有失灵执行，以及单位置改造后的完整成功证书。
+若目标只含收益资格，统一结算门可能满足条件；
+若目标还含席位与过程完整性，必须同时证明它在那些损害发生前有效。
+\end{Certificate}
+\begin{proof}
+原失灵使零修改不可能，故最小值至少为一。
+所给单位置方案可行，故最小值至多为一。
+\end{proof}
+
+\begin{proposition}[三处互相独立的控制点实例]
+\label{prop:three-gates}
+设某基线有三个有害前缀 \(b_A,b_P,b_S\)，且
+\[
+M(b_A)=\{u_A\},\qquad
+M(b_P)=\{u_P\},\qquad
+M(b_S)=\{u_S\},
+\]
+三个位置不同。若修改这三处后满足全部目标，则其最小改造位置数为三。
+即使三个位置调用同一身份与行为核验服务，位置数结论不变。
+\end{proposition}
+\begin{Certificate}[损害截止点]
+分别登记席位被占用、比赛状态被不可逆改变、收益最终外付的时点；
+检查其他两处均不能及时阻断或按目标修复该损害。
+\end{Certificate}
+\begin{proof}
+三单元素集合两两不交，定理~\ref{thm:hitting}给下界三；
+给定方案给上界三。共用算法不改变三个时点及控制作用域。
+\end{proof}
+
+\begin{theorem}[加权覆盖的对偶下界证书]
+\label{thm:weighted}
+取有限 \(\mathcal B_0\subseteq\mathcal B\)。
+若非负数 \(y_b\) 满足
+\[
+\forall u\in\mathcal U,\qquad
+\sum_{\{b\in\mathcal B_0:u\in M(b)\}}y_b\le w_u,
+\]
+则所有可行改造满足
+\[
+W(\Delta)\ge\sum_{b\in\mathcal B_0}y_b.
+\]
+若一个完整可行方案取得等号，则它在此权重口径下最优。
+\end{theorem}
+\begin{Certificate}[有限求和核验]
+保存 \(w_u,y_b,M(b)\)，逐位置检查不等式，
+再核对候选方案的真实作用范围与目标值。
+\end{Certificate}
+\begin{proof}
+由覆盖条件与 \(y_b\ge0\)，
+\[
+\begin{aligned}
+\sum_b y_b
+&\le\sum_b y_b\sum_{u\in\Delta}\Ind_{\{u\in M(b)\}}\\
+&=\sum_{u\in\Delta}\sum_{\{b:u\in M(b)\}}y_b\\
+&\le\sum_{u\in\Delta}w_u=W(\Delta).
+\end{aligned}
+\]
+等号方案同时达到下界与构造上界。
+本定理只使用弱对偶，不假定所有整数覆盖问题均有无间隙的线性松弛。
+\end{proof}
+
+\section{修复方向的秩下界}
+\begin{theorem}[新增方向最多消除同等维数的缺陷]
+\label{thm:rank-min}
+固定 \(B\)，旧操作矩阵为 \(A\)，满足 \(BA=0\)。
+设
+\[
+H=\ker B/\im A,\qquad \dim H=m.
+\]
+增加 \(k\) 个守恒操作 \(r_1,\ldots,r_k\in\ker B\)，
+令 \(A'=(A,r_1,\ldots,r_k)\)。则
+\[
+H_1(C')\cong
+H/\spanof\{[r_1],\ldots,[r_k]\},
+\]
+\[
+\dim H_1(C')\ge m-k.
+\]
+因此修复全部原缺陷类至少需要 \(m\) 个新增独立有效方向。
+对指定缺陷子空间 \(W\subseteq H\)，全体可修复的必要条件是
+\(W\subseteq\spanof\{[r_j]\}\)，从而 \(k\ge\dim W\)。
+\end{theorem}
+\begin{Certificate}[商空间中的新增列]
+保存旧、新矩阵的秩与新增列在 \(H\) 中的坐标。
+代数达到性之外，逐个目标账本提交非负、授权、及时的执行证书。
+\end{Certificate}
+\begin{proof}
+自然商映射 \(\ker B/\im A\to\ker B/\im A'\) 满射，
+其核恰为新增列所生成的商子空间。
+第一同构定理给出公式。该子空间维数至多为 \(k\)，得到维数下界。
+指定子空间的类全变为零，等价于它包含于该核。
+\end{proof}
+
+\begin{corollary}[三账户模板的一维最小修复]
+\label{cor:rank-one}
+对定理~\ref{thm:repair-example}，原缺陷空间一维，
+新增 \(r\) 的类非零，因此一条新增方向已消除全部原缺陷类；
+零条不能修复 \(\omega\ne0\)。故新增有效方向最小数为一。
+\end{corollary}
+\begin{Certificate}[明确达到]
+保存 \(\lambda_X\omega\ne0\) 与 \(\omega=d(p+r)\)，
+并提交先追回、后支付的可执行顺序。
+\end{Certificate}
+\begin{proof}
+秩下界给至少一条，明确操作 \(r\) 给至多一条。
+\end{proof}
+
+\begin{remark}[一个方向与一套系统的费用]
+新增有效方向一维，意味着一种此前不可达的净资源归属变化。
+这不把检测、取证、冻结、复核、支付及持续对抗的全部建设费用压为一单位。
+同样，单个指定非零类在允许增加其方向时只需一条，
+不意味着高维缺陷空间中的所有案件都能由同一条操作处理。
+\end{remark}
+
+\section{同口径实际成本的严格比较}
+\begin{definition}[比较对象、资源成本与资金需求]
+固定保障目标
+\[
+\mathcal T_*=
+(\text{人数、期限、真实收入下界、机会、误差、退出及既有权利}).
+\]
+比较方案须达到同一 \(\mathcal T_*\)，保留同一基线所需的实物产出与服务。
+分别登记：
+\begin{enumerate}[label=(\arabic*)]
+\item 真实增量资源成本 \(C\)：设备、核验、劳动时间、机会成本及风险处置；
+\item 履约资金需求 \(F\)：需在指定时点实际到位的支付和储备；
+\item 主体间转移 \(T\)：同一核算范围内的一方支付与另一方收入。
+\end{enumerate}
+社会资源比较不得把一笔内部转移既算作净损失又保留收款方收益；
+平台融资比较则必须如实计入需要筹集的资金。
+\end{definition}
+
+\begin{theorem}[有证书的严格成本优势]
+\label{thm:cost}
+对同一目标与成本口径，若游戏参与制度的完整增量成本满足
+\[
+C_G\le U_G,
+\]
+某个指定就业保护方案或整个已声明对照族满足
+\[
+C_J\ge L_J,
+\]
+且 \(U_G<L_J\)，则 \(C_G<C_J\)。
+若 \(L_J\) 是对照族所有方案的共同下界，则结论同时对该族成立。
+\end{theorem}
+\begin{Certificate}[上界清单与对照下界]
+游戏侧至少包括主体核验、操作来源证据、对抗维护、准入和状态门、
+复核、数据保护、资金组织、结算及机会成本。
+新收入合同尚不存在时计入其建设成本。
+对照下界须覆盖替代方案，不能只核算某个较贵选择再宣布整个领域最优。
+\end{Certificate}
+\begin{proof}
+直接由
+\[
+C_G\le U_G<L_J\le C_J
+\]
+得到严格不等式。对共同下界，逐个对照方案应用同一传递关系。
+\end{proof}
+
+\begin{proposition}[同质产出保留人工方式的技术机会成本]
+\label{prop:opportunity}
+在固定同质产出数量 \(q>0\)、同等质量与交付条件下，
+若人工单位真实成本 \(c_H>c_A\)，
+而对照规则要求这部分产出继续全由人工完成，
+则相对于可用 AI 生产具有技术机会成本
+\[
+\ell=q(c_H-c_A)>0.
+\]
+\end{proposition}
+\begin{Certificate}[可替代产出与共同基线]
+保存质量、数量、交付条件、真实成本与可部署能力。
+若改用收入转移、新真人任务或混合生产，
+应按新方案重算，不能继续把本式无条件作为其下界。
+\end{Certificate}
+\begin{proof}
+两种满足相同产出条件的资源耗用分别为 \(qc_H,qc_A\)，
+相减即得。只有要求保留该人工生产方式的方案承担这项差额。
+\end{proof}
+
+这一差异解释了本文的制度机制：真人参与合同把真实参与作为交付属性，
+AI 在其他生产环节继续提高能力；人类份额不必通过维持较贵的同质生产方式取得。
+真实参与本身仍有时间、精力和组织成本，并须有需求或其他明确资金来源。
+有些传统服务岗位也具有这一真人过程属性，所以本结论按合同对象适用，
+而不按“游戏”与“工作”的名称划线。
+
+\begin{theorem}[既有基础设施复用的摊销阈值]
+\label{thm:amortized}
+设在 \(K\ge1\) 个相同口径的有限周期中，
+\[
+C_G(K)=B_G+Kc_G,\qquad
+C_J(K)=B_J+K(c_J+\ell_J),
+\]
+其中一次性建设和每期完整成本均已包括必要维护与再核验。
+\(c_J\) 不含单列的 \(\ell_J\)，建设、运行及机会成本按互不重复的归属计算。
+若 \(a=c_J+\ell_J-c_G>0\)，则
+\[
+C_G(K)<C_J(K)
+\Longleftrightarrow K>\frac{B_G-B_J}{a}.
+\]
+当 \(a=0\) 时严格优势等价于 \(B_G<B_J\)；
+当 \(a<0\) 时不存在由无限增加复用次数必然获得优势的结论。
+\end{theorem}
+\begin{Certificate}[复用范围与失效更新]
+保存每期成本依据、共同输入规模和版本稳定范围。
+攻击面变化导致重新建设时，把该费用列入相应周期，
+或缩短本式适用窗口；历史建设费用仅在真正共同沉没时抵销。
+\end{Certificate}
+\begin{proof}
+相减得到
+\[
+C_J(K)-C_G(K)=B_J-B_G+Ka.
+\]
+依 \(a\) 的符号求解严格正不等式即可。
+这实例化文献\cite{GRate}的表示构建与执行复用区分，
+没有把表示压缩直接解释为实际核验零成本。
+\end{proof}
+
+\begin{proposition}[非空的严格优势参数实例]
+取构造成本单位
+\[
+B_G=6,\quad c_G=1,\quad B_J=2,\quad c_J=3,\quad\ell_J=0.
+\]
+则 \(K=1\) 时 \(C_G=7>C_J=5\)，
+\(K=2\) 时相等，所有整数 \(K\ge3\) 时 \(C_G<C_J\)。
+\end{proposition}
+\begin{Certificate}[构造数据的身份]
+这些数值只见证成本条件一致且非空，不是三角洲或任何就业项目的实测费用。
+它们与下一章的游戏资料以及后章的履约金额分别记账。
+\end{Certificate}
+\begin{proof}
+\(C_J-C_G=2K-4\)，按 \(K\) 取值判断符号。
+\end{proof}
+
+本章把原命题中的“最小”转为四类可检验结果：
+最粗充分表示、最少实际控制位置、最少独立修复方向，
+以及同目标完整成本的下界比较。前三类可以在给定结构内精确达到；
+第四类需要实际成本证书。
+
+\chapter{三角洲行动的公开循环与治理见证}
+\label{ch:delta}
+
+\section{资料范围及可复核事实}
+本章只使用运营方指南、运营方安全公告和公开协议。
+Garena 资料与国际服资料分别标识地区及版本，不把它们合并为一份完全相同的规则。
+访问核对日期为 2026 年 11 月 2 日。
+这些公开记录可以见证制度接口及运营方报告的操作类型，
+不直接提供独立审计的识别准确率、完整案件账本或真实成本下界。
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.23}
+\begin{longtable}{P{3.1cm}P{5.4cm}P{6.2cm}}
+\caption{公开资料及其在本证明中的作用}
+\label{tab:delta-evidence}\\
+\toprule
+资料与版本 & 可核验内容 & 对形式系统的支持\\
+\midrule
+\endfirsthead
+\toprule
+资料与版本 & 可核验内容 & 对形式系统的支持\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Garena 入门指南，2026-02-20\cite{DeltaGuide}
+& 入局搜集，成功撤离后保留物品；出售、仓储及购买下一局装备；介绍装备券。
+& 提供阶段循环和再次准备的操作。失败可能损失物资，因此不从玩法本身推出人人正收益。\\
+Garena 安全简报，2025-11-28\cite{DeltaSecurity}
+& 介绍或宣布客户端、作弊特征、行为与经济交易异常等治理安排；部分为后续升级计划。
+& 支持存在多层核验和经济完整性治理的公开接口，不能据此填写完美检测或最低成本证书。\\
+国际服处罚公告，2026-10-12\cite{DeltaPenalty}
+& 报告处罚自动注册、多开、跑图、撤离及出售；追缴收益和封禁；说明符合条件的外挂击杀补偿。
+& 对应自动化参与链、收益处置和受损修复。游戏内补偿与全部过程损失恢复分别核验。\\
+国际服 RMT 公告，2026-10-12\cite{DeltaRMT}
+& 报告追回由违规匹配与物资转移等行为取得的游戏收益。
+& 辅助见证归属纠正与追缴操作；公告本身不授予普通玩家现金兑现权。\\
+国际服英文全球协议，更新于2026-03-17\cite{DeltaEULA}
+& 第7节禁止未经许可的机器人、自动控制等；第9(b)节规定虚拟货币与商品不兑现现金。
+& 证明技术可完成与规则许可不同，并明确游戏账本与法币支付合同需分别建立。\\
+\end{longtable}
+\endgroup
+
+两篇 Steam 安全公告的正文在官方公告列表的同题同日条目复核。
+文献表给出第一方固定入口；入口分别对应公告编号
+\code{689770861148769740} 与 \code{689770861148769742}。
+公告列表的公开定位方式记录在附录~\ref{app:sources}。
+
+\section{活动循环向阶段复形的映射}
+将指南中的活动投影到第~\ref{ch:homology}~章的 \(P\)：
+\[
+\begin{array}{c|l}
+v_0&\text{具有入局资格和最低装备条件}\\
+v_1&\text{入局后的实际活动}\\
+v_2&\text{撤离结果与资源确认}\\
+v_3&\text{仓储、使用、出售或再次配装}
+\end{array}
+\]
+四条边表示相邻阶段转换，最后一条是完成准备后再次进入可参与阶段。
+指南提供了这类成功路径的公开玩法见证\cite{DeltaGuide}。
+死亡、库存耗尽、封禁或席位不足可使某个具体人的某次路径不能继续；
+这些状态留在实际任务的记录中，而不因投影到四阶段而消失。
+
+\begin{proposition}[公开玩法见证与闭链的关系]
+\label{prop:delta-cycle}
+若一个具体游戏记录能够按顺序实现上述四阶段转换，
+且每次转换的终态满足下一转换的起点条件，
+则其阶段投影给出 \(P\) 中的闭链 \(z\)。
+若它还满足资金、工具与容量条件，则构成一条实际可再参与路径的证书。
+\end{proposition}
+\begin{Certificate}[版本与具体执行]
+保存服务器版本、规则、主体、装备与余额、入局及撤离记录、
+资源处置记录、下一次实际入口和各时点。
+指南提供操作种类；具体账户是否成功提升，需要该账户的事件记录。
+\end{Certificate}
+\begin{proof}
+四条转换在投影中依次是 \(e_0,e_1,e_2,e_3\)，其边界相消，
+故总和为 \(z\in\ker d_1^P\)。
+实际端点相容与逐步前件允许按路径长度拼接，得到一次合法接续。
+净收益、资金与权限来自附属证书，不由边界相消自动推出。
+\end{proof}
+
+\section{自动化经济链与三个控制层}
+处罚公告涉及的自动化行为覆盖注册、进入活动、资源取得及出售等阶段
+\cite{DeltaPenalty}。因此本任务关注的治理对象不仅是瞄准精度或单场胜负，
+还包括“哪个主体有资格进入、谁实际执行、资源如何确权”。
+从这些公开操作类型，可以建立如下任务映射：
+
+\begin{center}
+\begin{tabular}{P{3.2cm}P{5.2cm}P{6.0cm}}
+\toprule
+本文控制层 & 需要保护的对象 & 具体实例须补的执行记录\\
+\midrule
+\(V_A\)：准入 & 规范主体额度、真人席位和顺序 & 账户关联、排队及拒绝发生时间\\
+\(V_P\)：过程 & 允许输入与服务器状态转换 & 实际控制证据、异常输入阻断或恢复\\
+\(V_S,Q\)：确权复核 & 合法收益归属及逐人申诉 & 冻结、复核、追缴、补偿和最终回执\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+安全简报表明上述多个层面具有公开治理安排或升级计划\cite{DeltaSecurity}。
+这为“可复用既有基础设施”提供工程起点。
+是否已经满足第~\ref{ch:security}~章的全部覆盖条件，
+须进一步对齐具体版本、可观察证据和攻击范围。
+
+\section{追缴、补偿与细账本链映射}
+国际服公告分别报告违规收益处置与符合条件的外挂击杀补偿
+\cite{DeltaPenalty,DeltaRMT}。在本文中，它们具有三种不同账本解释：
+\begin{enumerate}[label=(\arabic*)]
+\item 已冻结且可执行追回的违规所得，能够实现 \(X\to O\) 型操作；
+\item 已确权的受损主体获得补付，能够实现 \(O\to H_i\) 型操作；
+\item 若补偿由独立储备或新增虚拟资源承担，增加对应来源账户，
+并另记发行或资金流入，不能直接当作从 \(X\) 追回。
+\end{enumerate}
+
+\begin{proposition}[三角洲细账本的条件链见证]
+\label{prop:delta-chain}
+给定某规则版本的真实账户及已授权修复记录，
+按定理~\ref{thm:chain-map}建立细账本复形 \(D\)。
+若存在同一计价单位下的可追回余额 \(d\)，
+以及依次执行的 \(X\to O\) 与 \(O\to H\) 两笔等额操作，
+则其角色聚合满足
+\[
+F_1\omega=d(p+r),\qquad
+[F_1\omega]_{C^-}\ne0,\quad
+[F_1\omega]_{C^+}=0.
+\]
+若还保留逐人的真实债权与实际回执，则聚合证书可以接续逐人修复。
+\end{proposition}
+\begin{Certificate}[同案、同单位、同权利]
+两笔操作须属于可关联的案件与权益，金额、来源及去向一致；
+保存非负余额、权限、冻结状态、支付时限和收款主体。
+若只有操作类型的公开公告，登记为模板的辅助见证，
+不把它填写成已经获得具体案件明细的证书。
+\end{Certificate}
+\begin{proof}
+链映射把追回和补付分别送到 \(r,p\)，
+线性相加得到聚合缺陷。非零及归零由定理~\ref{thm:repair-example}成立。
+逐人结论还使用明细读出，排除命题~\ref{prop:aggregation}的聚合遗漏。
+\end{proof}
+
+这正是“实例作为同调复形链的辅助见证”的用法：
+游戏公开资料确认循环和治理操作可被具体指认，
+本文给出这些操作能够修复何种指定缺陷的严格模型；
+最终案件证书把两者连接起来。
+
+\section{接到现实收入时增加的合同层}
+国际服协议将游戏资源与可兑现现金分开\cite{DeltaEULA}。
+因此现实参与收入可通过另行合法建立的服务购买、赛事组织、
+研究活动或其他真人参与合同实现，具体条款与平台授权必须相容。
+新合同由资金提供者购买已经定义的真人参与服务，
+向真实完成者支付法币；它不依靠私自把游戏币兑换成法币。
+
+新层的最低接口是：
+\[
+\text{服务需求与资金}
+\longrightarrow \text{真实参与合同}
+\longrightarrow \text{核验与确权}
+\longrightarrow \text{实际法币支付}.
+\]
+游戏玩法给前端活动结构，收入合同给法币权利，
+防作弊给真实性和资格控制，复核与支付给实际履行。
+新建这些接口的费用已经在第~\ref{ch:minimal}~章列入完整成本，
+不能在从现有商业游戏出发的比较中默认它们免费存在。
+
+\chapter{一套完整的有限可执行实例}
+\label{ch:example}
+
+\section{构造身份、资金和效用口径}
+本章给出一套与前述条件同时相容的有限模型，
+用于证明制度前件并非互相矛盾。所有数值均为构造单位，
+不属于三角洲运营数据，也不构成现实收入预测。
+支付使用同一种可分割法币单位，账本采用有理数。
+
+每期有两个不同规范主体 \(H_1,H_2\)，每人合同额度为一，
+各有一个预留席位。资金提供者购买两人完成的真实参与服务，
+事前实际支付 \(15\)：
+\[
+15=\underbrace{9}_{\text{参与支付专款}}
++\underbrace{3}_{\text{运营上限}}
++\underbrace{3}_{\text{复核与修复储备}}.
+\]
+本期运营真实支出恰为 \(3\)，包括机构承担的准入、过程核验、签发、
+复核及结算处理成本。资金提供者对所购服务的价值估计为 \(20\)，
+实际付款能力来自事前已有现金，不能把估值 \(20\) 直接记作现金。
+两人普通参与的时间与努力成本各估为 \(1\)；
+本构造不收参与或入口费用，二人实际必要现金成本为零，
+故也满足“不超过 \(1\)”的保守资源上界。
+额外个人复核时间另记，机构处理已计入运营的 \(3\)，
+避免把效用成本与流动性需求混用。
+
+\section{有限攻击域与实际可分证据}
+声明攻击域只含本节列出的有限事件，
+最终核验使用不可由本域攻击者篡改的服务器控制记录、合同登记和支付记录。
+它的正确性由有限真值表逐行验证，不扩展为对全部未来 AI 的识别断言。
+合同授权登记记录规范主体、合同编号、额度、允许控制方式及唯一确权键。
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{P{2.9cm}P{4.8cm}P{4.4cm}P{2.8cm}}
+\caption{有限主体与证据核验表}
+\label{tab:finite-truth}\\
+\toprule
+对象 & 真实事实 & 可访问的完整记录 & 最终结论\\
+\midrule
+\endfirsthead
+\toprule
+对象 & 真实事实 & 可访问的完整记录 & 最终结论\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\(H_1\) & 独立主体、实际人工、完成合同 & 登记、控制来源及完成记录一致 & 接纳、确权一次\\
+\(H_2\) & 独立主体、实际人工、完成合同 & 首次信号误拒；独立完整记录可纠正 & 保留席位与资金，及时复核\\
+\(A_1\) & 借自然人账户自动操作 & 账户归属为人，实际控制记录为自动体 & 不进入真人席位\\
+\(A_2\) & 同一攻击主体复制身份或合同请求 & 规范主体关联和重复确权键可核对 & 不生成额外额度\\
+非法输入 & 未获授权的程序请求改变状态 & 输入授权标识与服务器状态门不相容 & 在生效前拒绝\\
+错误路由 & \(3\) 单位暂记到无资格账户 \(X\) & 冻结标识、错误归属与真实债权完整 & 在最终付款前追回并补付\\
+\end{longtable}
+\endgroup
+
+这里的攻击也属于执行模型的环境响应。
+模型允许它们到达系统，并逐项证明相应控制；
+没有因攻击“不合法”就把它们从执行量化中删去。
+
+\begin{lemma}[有限域中的三层资格保护]
+\label{lem:example-security}
+准入门按真实规范主体与控制来源分配两个人类预留席位；
+过程门在非法输入改变状态前拒绝；
+结算门在最终性前复核唯一确权键和归属。
+若误拒 \(H_2\) 时保留其席位、时间窗口与资金，
+则上述攻击域内 \(G_A,G_P,G_S\) 同时满足。
+\end{lemma}
+\begin{Certificate}[逐行阻断与复核时限]
+分别保存表~\ref{tab:finite-truth}各行的门判定、状态前后值和处理时刻。
+每期准入批次和结算批次分别至多六项，每项实际占用至多一单位时间。
+预付后，准入与必要复核在时点 \(0\) 至 \(6\) 内完成；
+活动在 \(6\) 至 \(8\) 运行，过程门在每次受保护状态更新前执行，
+耗时已包含于活动窗口。完成证据在 \(8\) 就绪，
+结算、追回、补付和补偿于 \(8\) 至 \(14\) 完成；
+付款期限为 \(14\)，下一期入口在 \(15\) 开始。
+不同批次的事项不能倒置，也不把全流程写成只有六单位时间。
+\end{Certificate}
+\begin{proof}
+\(A_1,A_2\) 在席位分配前被排除，两个真实人的预留席位不被消耗。
+\(H_2\) 的待复核状态不释放其席位，完整记录使最终接纳与真实事实一致。
+非法输入未进入状态转移，故不改变比赛结果或资源。
+错误路由保持可逆冻结，结算门不把它作为最终向权利人履行。
+逐项完成发生在相应截止点之前，
+由命题~\ref{prop:liveness}的完整批次条件得到所声明时限。
+\end{proof}
+
+如果采用三个独立角色签发，取 \(n=3,f=1,q=2\)，
+且完整证据由至少两个诚实角色直接取得，
+他们按协议及时签发，则引理~\ref{lem:quorum}适用。
+这只是在相同确定事实上的有限签发安排。
+
+\section{基本份额、差异份额与逐人权利}
+取
+\[
+N^{\max}=2,\qquad \beta=3,\qquad D=3,\qquad
+g(s)=s,\qquad (s_1,s_2)=(2,1).
+\]
+两人均完成合同，则
+\[
+(\lambda_1,\lambda_2)=\left(\frac23,\frac13\right),
+\qquad (b_1,b_2)=(5,4),
+\]
+\[
+b_1+b_2=9=N^{\max}\beta+D.
+\]
+资金 \(9\) 在接纳前已经计入 \(B^P\)。
+真实义务形成时采用 \(w=0,v=9\)，因
+\[
+B^P-L+0=9\ge9
+\]
+而合法占用预付款；没有再次虚构一笔入金。
+
+\begin{proposition}[预付与真实债权保持]
+本例参与支付账户在形成义务后满足
+\[
+B^P=9,\qquad (L_1,L_2)=(5,4).
+\]
+任何检测误拒、错误暂记或规则更新均不把真实 \(L_i\) 减为零。
+只有正确权利人实际收到相应款项，才按到账额减少 \(L_i\)。
+\end{proposition}
+\begin{Certificate}[真实债权明细]
+保存两份合同、真实完成事实、 \(5,4\) 的应付表，
+以及每次资金变动的收款身份和最终性状态。
+\end{Certificate}
+\begin{proof}
+真实完成与分配规则生成 \(5,4\)，其总额由预付款覆盖。
+定义~\ref{def:ledger}只允许真实履行减少真实义务；
+误拒和暂记属于检测或路由事实，不能改写完成事实。
+\end{proof}
+
+\section{一次侵占的显式链修复}
+考虑最终结算前的可撤销路由状态，按
+\((H_1,H_2,O_P,X)\) 排列：
+\[
+x^{\rm act}=(2,4,0,3),\qquad
+x^{\rm ref}=(5,4,0,0).
+\]
+其中 \(X\) 的 \(3\) 单位仍在有权及时执行的冻结托管中，
+没有成为攻击者可支配的最终所得。
+若 \(2,4\) 已分别真实到账，当前未付真实义务为 \((3,0)\)；
+可履约资产为被冻结但已证明能在本批次内释放的 \(3\)，故覆盖仍成立。
+若该资产不可及时释放，则必须使用独立备用款先履行，
+并将后来追回单独记账。
+
+细账本的两条操作为
+\[
+r=(0,0,1,-1)^\top,\qquad
+p_1=(1,0,-1,0)^\top.
+\]
+按顺序执行：
+\[
+\begin{aligned}
+(2,4,0,3)&\xrightarrow{3r}(2,4,3,0)\\
+&\xrightarrow{3p_1}(5,4,0,0).
+\end{aligned}
+\]
+净缺陷
+\[
+\omega=(3,0,0,-3)^\top=3(p_1+r)
+\]
+得到精确修复，且每一步账户非负。
+按 \(H_1,H_2\) 合并为 \(H\)，它成为三账户模板的
+\((3,0,-3)^\top\)。第~\ref{ch:homology}~章的对偶证书、
+相对连接类与新增方向下界全部适用；本段又保留了逐人的真实回执。
+
+\section{误拒补偿、预算与下一次参与}
+设 \(H_2\) 因一次错误初筛承担额外真实时间成本 \(1/4\)。
+规则约定从独立修复储备支付同额补偿 \(1/4\)，
+并已恢复其席位和完成窗口。普通合同支付、补偿与总收入分别为
+\[
+\begin{aligned}
+(y_1^{\rm part},y_2^{\rm part})&=(5,4),\\
+(y_1^{\rm comp},y_2^{\rm comp})&=(0,1/4),\\
+(y_1^{\rm tot},y_2^{\rm tot})&=(5,17/4).
+\end{aligned}
+\]
+分配定理的 \(y_i=b_i\) 对应 \(y_i^{\rm part}\)。
+补偿义务在修复储备的独立义务账本形成并支付，
+不把它混入原差异池 \(D\) 或贡献次序判断。
+全期资金核算为
+\[
+15=
+\underbrace{9}_{\text{合同支付}}
++\underbrace{\frac14}_{\text{复核补偿}}
++\underbrace{3}_{\text{运营}}
++\underbrace{\frac{11}{4}}_{\text{留存储备}}.
+\]
+账目无资金缺口。
+
+下一期为两名完成者各预留一个互不冲突的免费席位，实际最低现金入口为 \(k=0\)。
+实际参与现金成本为零，以下资源余量计算采用其保守上界 \(1\)；
+即便保守把 \(H_2\) 的额外 \(1/4\) 也作为资源扣减，仍有
+\[
+\beta=3\ge1+\frac14+0.
+\]
+这些保守扣减不代表另有未入账的实际收费。
+付款在下一期开始前完成，且两人保有参与时间和能力。
+所以二人可同时再次进入，符合定理~\ref{thm:reentry}。
+是否继续仍由本人决定。
+
+\begin{proposition}[外部支付、参与净收益及福利核算]
+\label{prop:example-welfare}
+若两人的普通努力成本均为 \(1\)，
+攻击者真实资源耗用为 \(1/2\)、最终收益为零，
+运营成本 \(3\) 为真实资源耗用，
+则各方净值可记为
+\[
+\begin{array}{c|c}
+\text{主体}&\text{本期净值}\\ \hline
+\text{资金提供者}&20-15=5\\
+H_1&5-1=4\\
+H_2&17/4-(1+1/4)=3\\
+\text{组织留存}&11/4\\
+\text{运营投入提供者}&3-3=0\\
+\text{攻击者}&-1/2
+\end{array}
+\]
+相加为 \(57/4\)，等于总服务价值减真实资源耗用：
+\[
+20-3-\left(1+1+\frac14\right)-\frac12=\frac{57}{4}.
+\]
+\end{proposition}
+\begin{Certificate}[边界与价值依据]
+资金提供者、参与者、组织、运营投入提供者及攻击者均在同一核算边界；
+内部转移相消。普通努力数值为效用成本估值，
+现金成本仅作为已声明上界使用，不再重复扣除同一资源。
+真实市场中 \(20\) 的需求估值及 \(15\) 的支付意愿须另外取得证据。
+\end{Certificate}
+\begin{proof}
+逐项按收入减自身真实成本计算；资金流满足
+\[
+15=\frac{37}{4}+\frac{11}{4}+3,
+\]
+分别为两人总到账、组织留存与运营投入付款。
+运营投入提供者收到 \(3\) 并耗用价值为 \(3\) 的真实资源，净值为零。
+内部转移抵销。
+剩下服务价值 \(20\) 减运营、努力、复核时间与攻击资源，得到等式。
+\end{proof}
+
+\section{两期执行与任意有限期的条件扩展}
+\begin{theorem}[有限资金与可接续循环的实例化]
+\label{thm:example-finite}
+若资金提供者事前已有 \(30\)，分别为两期各预付 \(15\)，
+每期具有本章所列需求、证据、容量和执行条件，
+则两个真实参与者可以连续完成两期，
+各期取得正基本份额、及时实际支付与再参与条件。
+对任意给定有限 \(T\)，若有 \(15T\) 的已落实资金或等价的逐期实际续款，
+同一结论可按期归纳到 \(T\)。
+\end{theorem}
+\begin{Certificate}[逐期资金及共同端点]
+每期保留独立用途账、真实完成、两人席位、控制记录与支付回执；
+上一期终态满足下一期入口前件。复核耗时计入排期。
+重复服务价值与支付意愿同样按期登记，不由第一期自动外推。
+\end{Certificate}
+\begin{proof}
+第一期由本章各项构造成立，终态具有所需资源与预留入口。
+第二期资金实际独立到位，故可从该终态依相同规则执行。
+一般地，假设前 \(t\) 期完成，已落实的下一期资金、
+可接续状态和主体选择给第 \(t+1\) 期的全部前件；
+调用本期证明即可延续。按有限期数归纳。
+\end{proof}
+
+该实例同时见证资格保护、真实分配、账本守恒、可执行同调修复和合法再参与。
+它未把资金守恒误当作资金产生：两期循环得到 \(30\) 的真实外部支付支持。
+
+\chapter{联合制度定理、核验闭包与结论}
+\label{ch:joint}
+
+\section{人类参与保护的联合制度定理}
+\begin{theorem}[人类资格保护、循环保持与最小局部修复]
+\label{thm:main}
+固定有限实施期数 \(T\)、规则版本、攻击范围、主体额度及保障目标。
+设下列证书同时成立：
+\begin{enumerate}[label=(H\arabic*)]
+\item 真实人完成规定过程是有需求或有明确资金支持的合同交付对象；
+每期真实义务、允许工具与贡献标准事前明确；
+\item 所有任务目标与真实分型在表示中可读回，
+所用来源证据足以完成声明域内的最终核验；
+\item 准入、过程及最终确权的全部目标路径受控制，
+真实人的误拒能够及时纠正，既有权利不被错误撤销；
+\item 资金按用途预留，基本份额与差异池满足预算覆盖，
+新增义务遵守 \(B-L+w\ge v\)，真实付款有权限、设施和期限证书；
+\item 必要现金成本、下一期入口、联合容量及可接续状态满足再参与条件；
+\item 指定分配缺陷具有授权、非负、及时的修复执行，
+合法参与循环具有本论文的阶段路径提升；使用耦合模型时，
+满足 \(d_P\kappa+\kappa d_C=0\) 及相应实际执行条件。
+\end{enumerate}
+则对执行到相应合同检查时点的全部有限允许执行：
+\begin{enumerate}[label=(\roman*)]
+\item 无资格自动体不能仅凭更高表现取得人类份额；
+全部真实合格完成者获得 \(y_{it}\ge\beta_t>0\) 的及时实际支付；
+\item 真实义务持续由可履约资产覆盖，
+已成立权利、受保护参与机会及已声明的过程目标保持；
+\item 每个愿意继续且具有时间与参与能力的完成者，
+保有可负担的下一期合法路径；共同预留容量时可以同时接续；
+\item 采用 \(d>0\) 的三账户侵占模板时，指定缺陷由非零同调类变为边界，
+合法参与循环的类 \([z]\) 保持；
+耦合扩展满足 \(H_*(E)\cong H_*(P)\)；
+\item 若另给第~\ref{ch:minimal}~章的匹配下界与构造上界，
+则在固定候选域达到相应最小改造位置数或修复方向数；
+若完整成本证书满足 \(U_G<L_J\)，则对相同保障目标成立严格成本优势。
+\end{enumerate}
+这些结论均不要求人类的竞技或同质生产表现超过 AI。
+\end{theorem}
+
+\begin{Certificate}[联合输入及共享索引]
+记联合证书为
+\[
+\begin{aligned}
+\Cert_{\rm all}=\langle&
+R,T,\Theta,\operatorname{owner},q_{it},
+\mathcal E_t^*,\widehat{\mathcal E}_t,\\
+&q,\tau,e,q^+,\mathcal T^\infty,
+V_A,V_P,V_S,Q,\\
+&\beta_t,D_t,B_t^P,L_{it},y_{it},
+\kappa_{it},k_{i,t+1},\\
+&A_-,A_+,B,\omega,\mathcal U(x),
+P,\kappa,t,j,r,\\
+&\mathcal F,\mathcal U,M(b),w,y_b,U_G,L_J
+\rangle .
+\end{aligned}
+\]
+不同分支采用同一主体、合同、规则、计价单位与时点索引。
+未要求成本结论时最后两个成本界可保持未签发；
+它们不影响已经单独成立的资格及支付结论。
+对现实平台，实际完成与付款必须由该平台或合同的记录填写。
+\end{Certificate}
+
+\begin{proof}
+首先，由定理~\ref{thm:minimal-refinement}，
+联合商 \(q^+\) 保留旧任务和真实类型；
+定理~\ref{thm:evidence}保证声明来源证据能够实现对应分型。
+若执行需保持后继观察，定理~\ref{thm:dynamic}给出稳定任务商。
+这一步确立后续判断所需的事实不会因表示压缩而丢失。
+
+其次，三层控制证书把无资格请求从相应准入、状态改变及确权路径排除；
+复核保留真实完成者，使最终集合与真实集合一致。
+引理~\ref{lem:ability}说明机器表现提高不改变真人过程条件。
+故正确分配使用的分母和贡献明细始终对应真实权利主体。
+
+第三，定理~\ref{thm:distribution}给出应付下界、差异次序和资金覆盖。
+新增真实义务按未占用资金和新入金形成，真实支付同步减少资产与义务；
+定理~\ref{thm:ledger}通过逐事件归纳保持偿付覆盖。
+有限调度证书使正确应付在承诺期限内变为实际到账，
+而不是永远停留在账面上的请求权。
+
+第四，每期实际支付减必要资源占用不低于下一期入口需求。
+主体、规则与账本连续的路径提升，加上联合容量及时间条件，
+使这一资源能够取得实际下一期路径。
+按期数归纳得到所有预先声明的有限周期；退出选择保留。
+
+第五，分配缺陷满足守恒，旧操作下的非零类由对偶读出检测；
+新增追回操作给出 \(\omega=d(p+r)\)，非负顺序实现该等式。
+相对连接同构把新增方向映回旧缺陷，
+而阶段循环的 \([z]\) 非零。若存在耦合，
+定理~\ref{thm:coupled}的显式 \(j,r,T\) 给出链同伦回缩；
+实际循环的可用性仍由已经核验的路径提升支撑。
+
+最后，覆盖证书或秩下界排除更小候选，
+所给真实实施达到对应上界，因此得到相应最小值。
+在完整成本上界低于对照下界时，由定理~\ref{thm:cost}得到严格优势。
+上述每一步的前件均不含“人类表现超过 AI”，结论得证。
+\end{proof}
+
+\begin{corollary}[有限误差版本]
+若精确核验改为第~\ref{ch:security}~章的有限条件误差界，
+并且除核验失败外其他证书确定成立，
+则联合定理的受核验影响结论，以至少
+\[
+\left[1-\sum_{j=1}^{M}\epsilon_j\right]_+
+\]
+的概率成立。若总损失满足所给支配式，
+其期望另由 \(\sum_jL_j\epsilon_j\) 控制。
+\end{corollary}
+\begin{Certificate}[有限攻击与完整调用计数]
+计数包含攻击者引发的所有必要决策、复核及最终性判断，
+并按条件历史界核验。把时间窗口加长时重新计算总调用上界。
+\end{Certificate}
+\begin{proof}
+在全部必需决策正确的事件上，联合定理的确定性证明逐项适用。
+取该事件的并集界补集概率及损失期望即可。
+\end{proof}
+
+\section{核验闭包与前件失效的定位}
+联合定理按证书有向无环图执行，而不是把所有前件混成一句“平台可信”。
+以下表格列出最短的核验链和失败定位。
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{P{2.6cm}P{5.5cm}P{6.6cm}}
+\caption{结论的证书依赖与失败定位}
+\label{tab:certificate-audit}\\
+\toprule
+目标结论 & 必需证书 & 不通过时定位到的缺口\\
+\midrule
+\endfirsthead
+\toprule
+目标结论 & 必需证书 & 不通过时定位到的缺口\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+真人份额归属 & 规范主体、真实操作来源、额度与去重、合同完成 & 账户实名不足以证明实际控制；多个事件也可能超过主体额度。\\
+参与机会保护 & 准入控制时点、席位与队列、误拒复核 & 付款阶段识别正确，仍可能晚于席位耗尽。\\
+过程完整 & 状态更新门或事前接受的修复标准 & 追回资源未必恢复已经消耗的时间和不可重开的比赛。\\
+正实际份额 & 真实分母、用途资金、逐人确权、最终回执 & 总额正确不能排除某人被错付；应付不能替代到账。\\
+再参与 & 现金成本、到账时间、实际时间能力、联合入口 & 单次有利润仍可能没有下一期席位，或付款晚于入场期限。\\
+同调修复 & 合法操作矩阵、对偶证书、权限与非负执行 & 有符号线性解可能无法执行；删除受损账户会丢失目标观察。\\
+最小修改 & 固定位置集、全部失灵路径、匹配上下界 & 任意合并模块会改变计量；只修旧样本不足以覆盖新旁路。\\
+严格成本优势 & 同目标范围、完整资源口径、上界与共同下界 & 已有游戏循环不自动提供现金合同，也不自动优于所有再分配方案。\\
+\end{longtable}
+\endgroup
+
+\begin{proposition}[版本更新中的旧权利保持]
+若规则从 \(R\) 更新为 \(R'\)，对更新前已经真实成立的债权
+保留旧合同索引和可执行支付路径，
+新资格判断只应用于新合同，且新增操作保持旧义务账本不变量，
+则更新不取消原已成立权利。
+\end{proposition}
+\begin{Certificate}[双版本边界]
+记录生效时刻、旧合同全集、旧未付余额、新合同入口和迁移映射。
+迁移必须能逐人读回原余额与截止日。
+\end{Certificate}
+\begin{proof}
+对更新原子，旧 \(L_i\) 不变；
+后续新增合同在独立索引下形成新义务；
+后续支付按旧索引正确履行才减少旧 \(L_i\)。
+逐原子保持与定理~\ref{thm:generated}给出结论。
+\end{proof}
+
+\section{理论结果的准确完成状态}
+本文的核心证明结果是：当真实参与已经属于服务对象，
+且与证据、资金、权利和执行连接时，AI 的技术优势不构成人类基本份额的资格优势。
+防作弊的作用可以被精确描述为“保持真实分型，控制有害路径，
+把不可修复的指定归属缺陷变为可执行边界”。
+
+由此得到一种有明确制度代价的保护方式。
+它允许其他生产环节继续使用 AI，而把人的真实参加、选择和成长等合同属性保留为分配依据。
+已有游戏提供活动、规则、记录和部分治理结构的复用条件；
+独立现金合同和持续资金则承担现实收入的兑现。
+《三角洲行动》为前者提供公开操作见证，
+第~\ref{ch:example}~章证明后者能够与这些结构在有限模型内相容。
+
+关于“最小”，本论文已经给出可达到的表示、位置和方向下界，
+并给出实际费用优势的充分条件与摊销阈值。
+要把费用结论用于某个真实项目，应填入同口径实测成本与对照下界。
+因此，严格成立的主张是一项可构造、可比较、可验收的条件性制度定理；
+它不把尚未测量的全球最低成本或无限期资金来源当作已经得到的事实。
+
+\appendix
+
+\chapter{符号、类型与证据边界}
+\label{app:notation}
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{P{3.1cm}P{5.1cm}P{6.4cm}}
+\toprule
+符号 & 类型与意义 & 需要保持的区分\\
+\midrule
+\endfirsthead
+\toprule
+符号 & 类型与意义 & 需要保持的区分\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\(\tau,\widehat\tau\) & 真实分型、检测输出 & 未知是证据状态，不是真实第三类人的定义。\\
+\(q,q^+\) & 原观察商、联合充分细化 & 真实类型存在与可取得其证据分别证明。\\
+\(e\) & 依上下文为事件或附加证据 & 类型由相应定义固定，证书内使用带索引字段。\\
+\(\mathcal E_t^*,\widehat{\mathcal E}_t\) & 真实完成集合、最终确认集合 & 真实分母不因错误拒绝或未付而缩小。\\
+\(b_{it},y_{it}\) & 应付合同额、实际到账 & 真实回执把债权连接到支付。\\
+\(\beta_t,D_t\) & 基本份额、差异池 & 正基本份额不等于不扣成本的净收入。\\
+\(s_{it},\kappa_{it}\) & 可比较贡献、现金成本或保守占用上界 & 时间效用成本另记为 \(\kappa_{it}^{\rm util}\)。\\
+\(B_n,L_n\) & 可履约预留资产、真实未付义务 & 可追回名义资产须有及时执行证书才计入 \(B_n\)。\\
+\(B\) & 修复复形中的资源守恒矩阵 & 与标量资金 \(B_n\) 类型不同。\\
+\(P,C^\pm\) & 阶段循环、前后修复链复形 & 合法循环类保留，指定缺陷类消除。\\
+\(d,\partial\) & 链微分，次数减一 & 链同伦 \(t,T\) 次数加一；余链约定相反。\\
+\(\omega,A u\) & 所需归属修复、形式净变化 & \(Au=\omega\) 与 \(u\in\mathcal U(x)\) 同时核验。\\
+\(F_i\) & 按上下文为链映射分量或生活底线 & 前者带链次数，后者在救济命题中为标量。\\
+\(\kappa\) & 耦合项，次数减一 & 不带主体期数时与现金成本 \(\kappa_{it}\) 区分。\\
+\(\mathcal U,\mathcal U(x)\) & 固定实施位置集、实际允许控制集 & 前者用于最小支集，后者用于执行可行性。\\
+\(C_G,C_J\) & 同口径真实增量成本 & 与支付总额、融资规模及福利转移分别计算。\\
+\end{longtable}
+\endgroup
+
+\chapter{文献接口与公开定位}
+\label{app:sources}
+
+\section{文献接口与原文标签}
+本表给出精确源标签。正文重新证明了本论文使用的有限实例；
+表中“接续”表示采用其方法或逻辑结构，并不把本文新定理全部归给旧稿。
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.18}
+\begin{longtable}{P{3.0cm}P{7.6cm}P{4.0cm}}
+\toprule
+文稿 & 原文标签 & 本文接续\\
+\midrule
+\endfirsthead
+\toprule
+文稿 & 原文标签 & 本文接续\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+《率与商》\cite{GRate}
+& \code{thm:dag}；\code{thm:generated}
+& 有限证书前缀与生成归纳\\
+同上
+& \code{thm:utility-type}；\code{thm:joint-typing-refinement}
+& 观察因子化与最粗真实分型细化\\
+同上
+& \code{thm:evidence-typing-cost}；\code{thm:saturated-quotient}
+& 附加证据与动态稳定商\\
+同上
+& \code{prop:retract}；\code{thm:amortized-quotient-cost}
+& 合法任务回缩与构建复用成本\\
+《市场参与》\cite{EMarket}
+& \code{thm:minimal-compatible-extension}
+& 固定基线与最小兼容候选\\
+同上
+& \code{prop:ai-go-human-participation}
+& AI 能力与真人需求坐标分离\\
+同上
+& \code{thm:base-differential-coverage}；\code{prop:duplicate-claim-gate}
+& 正基本份额、差异分配与复制申领\\
+同上
+& \code{thm:minimal-sufficient-relief}；\code{thm:certified-participation-fiat-cycle}
+& 最小底线与有证书的法币接续\\
+《权利边界》\cite{ERights}
+& \code{thm:ledger}；\code{thm:noninterference}；\code{thm:floor}；\code{thm:exit}
+& 账本、旧权利、底线与真实退出\\
+《有限工程修复》\cite{ERepair}
+& \code{lem:balance}；\code{thm:dual}
+& 守恒与对偶障碍证书\\
+同上
+& \code{thm:relative-example}；\code{thm:relative-general}
+& 相对修复及任务充分的商约束\\
+\end{longtable}
+\endgroup
+
+三账户矩阵、四阶段实例、本文的相对连接、细账本映射、
+非零耦合和有限资金实例为针对本任务的新构造。
+链复形、长正合列和链同伦采用标准代数拓扑工具\cite{Hatcher}。
+
+\section{公开公告的定位说明}
+两份 2026 年 10 月 12 日的 Steam 公告在官方列表
+\url{https://steamcommunity.com/app/2507950/announcements/?l=english}
+按题名和日期定位，正文于本论文访问日复核。
+第一方固定入口的对应关系是：
+\[
+\begin{array}{rcl}
+1846018067940464&\longmapsto&689770861148769740,\\
+1846018067940847&\longmapsto&689770861148769742.
+\end{array}
+\]
+左侧为官方新闻转发入口编号，右侧为官方社区公告编号。
+文献表使用第一方入口，避免把第三方构造的新闻路径误列为正文地址。
+本论文只从这些公告提取活动、处罚与补偿操作类型，
+未将运营方公告当作独立测量的检测性能报告。
+
+\chapter{有理数精确复算}
+\label{app:compute}
+下列 Python 3 程序只使用标准库 \code{fractions}。
+它验证参与循环秩、修复矩阵的链条件、显式可缩算子、
+非零耦合后的同调维数及有限实例的金额；
+不以计算替代正文的一般证明或真实记录核验。
+向量均作为列矩阵表示，代码中的小写 \code{d} 为阶段边界矩阵。
+
+\begingroup
+\small
+\begin{verbatim}
+from fractions import Fraction as Q
+
+def mat(rows):
+    return [[Q(x) for x in row] for row in rows]
+def mm(a, b):
+    return [[sum(x*y for x, y in zip(row, col))
+             for col in zip(*b)] for row in a]
+def add(a, b):
+    return [[x+y for x, y in zip(r, s)]
+            for r, s in zip(a, b)]
+def eye(n):
+    return mat([[int(i == j) for j in range(n)]
+                for i in range(n)])
+def zero(a):
+    return all(x == 0 for row in a for x in row)
+def rank(a):
+    a = [row[:] for row in a]
+    i = 0
+    for j in range(len(a[0])):
+        p = next((k for k in range(i, len(a))
+                  if a[k][j]), None)
+        if p is None:
+            continue
+        a[i], a[p] = a[p], a[i]
+        c = a[i][j]
+        a[i] = [x/c for x in a[i]]
+        for k in range(len(a)):
+            if k != i:
+                c = a[k][j]
+                a[k] = [x-c*y
+                        for x, y in zip(a[k], a[i])]
+        i += 1
+        if i == len(a):
+            break
+    return i
+
+d = mat([[-1,0,0,1], [1,-1,0,0],
+         [0,1,-1,0], [0,0,1,-1]])
+z = mat([[1], [1], [1], [1]])
+B = mat([[1,1,1]])
+old = mat([[1], [-1], [0]])
+A = mat([[1,0], [-1,1], [0,-1]])
+t0 = mat([[0], [1], [0]])
+t1 = mat([[1,0,0], [0,0,-1]])
+assert zero(mm(d, z)) and rank(d) == 3
+assert zero(mm(B, old)) and zero(mm(B, A))
+assert 3-rank(B)-rank(old) == 1
+assert 3-rank(B)-rank(A) == 0
+assert mm(B, t0) == eye(1)
+assert add(mm(A, t1), mm(t0, B)) == eye(3)
+assert mm(t1, A) == eye(2)
+omega = mat([[3], [0], [-3]])
+assert mm(A, mat([[3], [3]])) == omega
+lam = mat([[0,0,1]])
+assert zero(mm(lam, old))
+assert mm(lam, omega) == mat([[-3]])
+
+# E_2 has dimension 2; E_1 has dimension 7.
+# Nonzero coupling sends (u,v) to u*z.
+D2 = mat([[1,0]]*4 + [[1,0],[-1,1],[0,-1]])
+D1 = [row + [Q(0)]*3 for row in d]
+D1 += mat([[0,0,0,0,1,1,1]])
+assert zero(mm(D1, D2))
+assert 7-rank(D1)-rank(D2) == 1
+
+beta, pool = Q(3), Q(3)
+payout = [beta+pool*Q(2,3),
+          beta+pool*Q(1,3)]
+assert payout == [Q(5), Q(4)]
+states = [[2,4,0,3], [2,4,3,0], [5,4,0,0]]
+assert all(min(s) >= 0 and sum(s) == 9
+           for s in states)
+assert Q(15) == Q(9)+Q(1,4)+Q(3)+Q(11,4)
+assert Q(5)+Q(4)+Q(3)+Q(11,4)-Q(1,2) == Q(57,4)
+assert Q(20)-Q(3)-Q(9,4)-Q(1,2) == Q(57,4)
+assert beta >= Q(1)+Q(1,4)+Q(0)
+assert all((6+k < 2+3*k) == (k > 2)
+           for k in range(1,20))
+print("All exact algebra and ledger checks passed.")
+\end{verbatim}
+\endgroup
+
+\clearpage
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{参考文献}
+
+\bibitem{GRate}
+Gao Zheng（高政）.
+率与商：G 框架语义微积分与传统微积分之间的同伦映射形式系统.
+2026-09-12.
+本地源文稿（相对仓库根目录）：
+\code{docs/project_docs/notebook_tex_v5.2/20260912_gframework_rate_quotient_semantic_calculus_traditional_calculus_homotopy_mapping_formal_system.tex}.
+收录于：
+Gao, Z. (2026).
+\emph{Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis
+(GaoZheng G-Framework) and the Principal-Bundle-Based Generalized Noncommutative Lie Algebra
+(GaoZheng G-Algebra) 中文工作笔记}，Version v5.2，Zenodo.
+资料集 DOI：\url{https://doi.org/10.5281/zenodo.22739417}.
+
+\bibitem{EMarket}
+Gao Zheng（高政）.
+市场参与的形式系统：参与式分配、能者多得与最小救济的演化机制.
+2026-09-29.
+本地源文稿（相对仓库根目录）：
+\code{docs/tex/tex1/market_participation_formal_system.tex}.
+
+\bibitem{EGovernance}
+Gao Zheng（高政）.
+后 AI 转型中的分配传导失灵与可核验治理：参与式分配、贡献激励、
+真实退出与最小救济的条件性扩展.
+2026-10-13.
+本地源文稿（相对仓库根目录）：
+\code{docs/tex/tex2/market_participation_governance_supplement.tex}.
+
+\bibitem{ERights}
+Gao Zheng（高政）.
+偏好多样性、权利边界与可兑现分配：不依赖控制者个人善意的市场参与制度及其条件性证明.
+2026-10-14.
+本地源文稿（相对仓库根目录）：
+\code{docs/tex/tex3/preference_rights_institution_formal_system.tex}.
+
+\bibitem{ECompetition}
+Gao Zheng（高政）.
+规范竞技、多元评价与共同权利底线：后 AI 参与经济的条件性制度构造与证明.
+2026-10-17.
+本地源文稿（相对仓库根目录）：
+\code{docs/tex/tex4/normative_competition_plural_standards_formal_system.tex}.
+
+\bibitem{ERepair}
+生产条件重构与有限工程修复的形式系统：分配复形、共同安全核心与理想吸收的相对同调.
+匿名稿，未署作者与日期.
+本地源文稿（相对仓库根目录）：
+\code{docs/tex/tex5/production_conditions_finite_repair_formal_system.tex}.
+
+\bibitem{AcemogluRestrepo}
+Daron Acemoglu and Pascual Restrepo.
+Automation and New Tasks: How Technology Displaces and Reinstates Labor.
+\emph{Journal of Economic Perspectives}, 2019, 33(2): 3--30.
+DOI: \url{https://doi.org/10.1257/jep.33.2.3}.
+公开原文入口：
+\url{https://www.aeaweb.org/articles?id=10.1257/jep.33.2.3}.
+访问日期：2026-11-02.
+
+\bibitem{Douceur}
+John R. Douceur.
+The Sybil Attack.
+In Peter Druschel, M. Frans Kaashoek and Antony Rowstron, eds.,
+\emph{Peer-to-Peer Systems: IPTPS 2002}.
+Lecture Notes in Computer Science, vol. 2429.
+Springer, 2002: 251--260.
+DOI: \url{https://doi.org/10.1007/3-540-45748-8_24}.
+作者机构公开版本：
+\url{https://www.microsoft.com/en-us/research/wp-content/uploads/2002/01/IPTPS2002.pdf}.
+访问日期：2026-11-02.
+
+\bibitem{Hatcher}
+Allen Hatcher.
+\emph{Algebraic Topology}.
+Cambridge University Press, 2002.
+Chapter 2: Homology, pp. 97--184.
+作者公开章节：
+\url{https://pi.math.cornell.edu/~hatcher/AT/ATch2.pdf}.
+访问日期：2026-11-02.
+
+\bibitem{DeltaGuide}
+Garena Delta Force Team.
+Operations Mode 101.
+2026-02-20.
+\url{https://deltaforce.garena.com/en/news/system/RMDWVM}.
+访问日期：2026-11-02.
+
+\bibitem{DeltaSecurity}
+Garena Delta Force G.T.I. Security Team.
+New Security Updates! Security Brief Vol. 1.
+2025-11-28.
+\url{https://deltaforce.garena.com/en/news/announcement/T735EZ}.
+访问日期：2026-11-02.
+
+\bibitem{DeltaPenalty}
+Delta Force G.T.I. Security Team.
+G.T.I. Security | Notice of penalties for violations.
+Steam 官方公告，2026-10-12.
+\url{https://store.steampowered.com/news/externalpost/steam_community_announcements/1846018067940464}.
+对应公告编号：\code{689770861148769740}。
+正文按附录~\ref{app:sources}的官方列表定位复核。
+访问日期：2026-11-02.
+
+\bibitem{DeltaRMT}
+Delta Force G.T.I. Security Team.
+G.T.I. Security | Penalties for RMT.
+Steam 官方公告，2026-10-12.
+\url{https://store.steampowered.com/news/externalpost/steam_community_announcements/1846018067940847}.
+对应公告编号：\code{689770861148769742}。
+正文按附录~\ref{app:sources}的官方列表定位复核。
+访问日期：2026-11-02.
+
+\bibitem{DeltaEULA}
+Proxima Beta Pte. Limited.
+End User License Agreement: English--Global.
+更新于2026-03-17，相关条款7(c)、7(i)、9(b).
+\url{https://www.playdeltaforce.com/terms/English-Global.html}.
+访问日期：2026-11-02.
+
+\end{thebibliography}
+
+\end{CJK*}
+\end{document}
