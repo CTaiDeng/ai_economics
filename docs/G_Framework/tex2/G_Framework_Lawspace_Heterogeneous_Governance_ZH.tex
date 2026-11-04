@@ -1,0 +1,7058 @@
+% !TeX program = pdflatex
+% 自包含源文件：正文、目录、交叉引用及参考文献均内嵌。
+% 编译：latexmk -pdf -interaction=nonstopmode -halt-on-error G_Framework_Lawspace_Heterogeneous_Governance_ZH.tex
+\documentclass[12pt,a4paper,openany]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{CJKutf8}
+\usepackage[scaled=0.84]{beramono}
+\usepackage{indentfirst,titlesec}
+\setlength{\parindent}{0pt}
+\renewcommand{\contentsname}{目录}
+\renewcommand{\abstractname}{摘\quad 要}
+\renewcommand{\bibname}{参考文献与原稿定位}
+\renewcommand{\tablename}{表}
+\renewcommand{\figurename}{图}
+\usepackage[a4paper,left=20mm,right=20mm,top=25mm,bottom=25mm,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm,mathrsfs}
+\usepackage{booktabs,longtable,array,tabularx,multirow}
+\usepackage{enumitem,setspace,fancyhdr,xcolor}
+\usepackage{xurl}
+\usepackage[unicode=true,colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue,bookmarksnumbered=true,bookmarksdepth=2,linktoc=all]{hyperref}
+\Urlmuskip=0mu plus 1mu
+\def\UrlFont{\ttfamily\small}
+\DeclareRobustCommand{\gframeworkunderscore}{\raisebox{-0.35ex}{\rule{0.55em}{0.35pt}}}
+\makeatletter
+\g@addto@macro\UrlSpecials{\do\_{\gframeworkunderscore}}
+% 楷体沿用直立字形，西文斜体仍按原环境保留。
+\AddToHook{file/c70gkai.fd/after}{%
+  \DeclareFontShape{C70}{gkai}{m}{it}{<->CJK*gkaiu}{\CJKnormal}%
+  \DeclareFontShape{C70}{gkai}{bx}{it}{<->CJKb*gkaiu}{\CJKbold}%
+}
+% 顿号后允许断行，使表格中的问题编号和章节编号可在列宽内换行。
+\let\gframeworkCJKpunctsymbol\CJKpunctsymbol
+\renewcommand{\CJKpunctsymbol}[1]{%
+  \gframeworkCJKpunctsymbol{#1}%
+  \ifnum#1="01\relax
+    \ifnum"\CJK@plane="30\relax\allowbreak\fi
+  \fi}
+% 仅为中文子字体添加 CJK 映射，保留西文字体自身的 Unicode 映射。
+\ifdefined\pdfnobuiltintounicode
+  \let\gframeworkCJKaddcmap\CJK@addcmap
+  \def\CJK@addcmap#1{%
+    \ifx\f@encoding\CJK@enc
+      \gframeworkCJKaddcmap{#1}%
+      \pdfnobuiltintounicode\font@name
+    \fi}
+\fi
+\makeatother
+
+\hypersetup{pdftitle={高氏法空间中的异构演化治理},pdfauthor={高政（GaoZheng）},pdfsubject={语义微分原子、几何运输、同调修复与有限治理的多章形式系统},pdfkeywords={G框架,法空间,纤维丛,同调复形,同伦修复,任务正规型,证书迁移}}
+\setstretch{1.10}
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000
+\setlength{\parskip}{0.6em}
+\setlength{\emergencystretch}{8em}
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.20}
+\setlist{nosep,leftmargin=2em,topsep=0.35em}
+\allowdisplaybreaks[2]
+\titleformat{\section}{\Large\bfseries}{\thesection}{0.8em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.8em}{}
+\titlespacing*{\section}{0pt}{2.0ex plus .5ex}{1.0ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{1.4ex plus .3ex}{.8ex plus .2ex}
+\theoremstyle{plain}
+\newtheorem{theorem}{定理}[chapter]
+\newtheorem{lemma}[theorem]{引理}
+\newtheorem{proposition}[theorem]{命题}
+\newtheorem{corollary}[theorem]{推论}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{定义}
+\newtheorem{assumption}[theorem]{前提}
+\newtheorem*{certificate}{证书}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{备注}
+\renewcommand{\proofname}{证明}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small 高氏法空间：异构演化治理}
+\fancyhead[R]{\small 高政}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0pt}
+\title{\bfseries 高氏法空间中的异构演化治理\\[0.65em]\large 语义微分原子、几何运输、同调修复与有限治理}
+\author{高政（GaoZheng）}
+\date{2026年11月4日}
+
+\usepackage{tocloft}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\chaptername}{章}
+\titleformat{\chapter}[display]{\normalfont\huge\bfseries}
+  {第\thechapter 章}{12pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{24pt}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+\pdfstringdefDisableCommands{%
+  \def\mathcal#1{#1}\def\mathsf#1{#1}\def\mathbb#1{#1}%
+  \def\infty{infinity}\def\Gamma{Gamma}\def\Phi{Phi}%
+}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gkai}
+\pagenumbering{roman}
+\maketitle
+\thispagestyle{empty}
+\chapter*{摘要}
+\addcontentsline{toc}{chapter}{摘要}
+本书研究在对象类型、表示、允许动作与规律发生变化时，如何以明确的数学接口保持任务身份、
+识别接续障碍、构造合法修复，并把已验证结果保存为后续可调用的能力。
+共同承载采用高氏法空间与 GZ-GMS 富结构；每项状态、函数、链、余链、运算及证书具有指定类型、定义域与版本。
+语义微分从单个合法动作的前件、后继及观察差开始，经过有限作用图的边界与对偶余链，
+形成可以逐项复算的逻辑推演与执行记录。
+
+几何部分从马鞍曲面的度量和负曲率计算出发，证明横向 Jacobi 场的增长、有限观测差的误差下界，
+以及联络、平行运输和异构丛映射之间的相容条件。
+光滑奇异链、积分映射、平坦子丛及曲率特征形式给出几何数据进入余链复形的明确接口。
+代数部分构造 Hom 复形中的接续缺陷，给出同伦填补、逐阶相容和有限矩阵不可解的证书；
+通过核像商、兼容扩张及可执行前缀，分别证明新增方向的最小维数与实际修复的合法性。
+
+在一个完整参数族中，双曲几何输入、非零同调类、实际单位动作和完整高阶运算共享同一登记状态。
+几何参数固定二元运算，实际进度决定三元填补；线性残差与余导子总平方通过显式线性映射对应，
+并在同一有限路径上同时归零。该构造同时给出旧动作族不可达、新动作族可达、最少新增方向和单位动作数下界。
+最后，任务正规型与有限状态细化给出精确回读、未来观察等价和策略复用；
+法对象迁移通过目标包含、状态与链的交换、逐原子真值运输、版本冻结和前提并集，
+证明任意有限治理更新及其实际执行保持相应任务结论。
+
+\noindent\textbf{关键词：}高氏法空间；GZ-GMS；语义微分；负曲率；纤维丛；
+Hom 复形；同调障碍；同伦代数；兼容扩张；任务正规型；证书迁移
+\clearpage
+\tableofcontents
+\clearpage
+\chapter*{阅读与验证约定}
+\addcontentsline{toc}{chapter}{阅读与验证约定}
+本书采用“定义或明确前提、数学结果、证书、证明、备注”的组织方式。
+证书记录使结论成立的输入、源靶、符号、计算、执行与版本信息；
+证明给出从这些数据到结论的符号推导。
+有限执行、分区细化、逐阶填补和治理迁移分别使用其实际归纳变量，
+并保存基例、归纳假设、归纳步及所有尚未解除的前提。
+
+以下章节依赖表由正文标签生成，编号随文档结构自动更新。
+\begin{center}\small
+\begin{tabularx}{\textwidth}{P{.13\textwidth}P{.32\textwidth}Y}
+\toprule
+章节 & 核心对象 & 输出接口\\
+\midrule
+\ref{exp:ch:logic} & 有类型语言与原子证书 & 替换、有限复合与归纳可靠性\\
+\ref{exp:ch:law} & 法对象与任务态射 & 状态、目标、观察及费用的运输\\
+\ref{exp:ch:higher} & 严格代数与高阶运算 & 非零缺陷、完整相容与参数方程\\
+\ref{exp:ch:task} & 执行路径与任务链 & 边界、语义微分及动态商\\
+\ref{exp:ch:geometry} & 负曲率与变分 & 有限观测差及误差证书\\
+\ref{exp:ch:transport} & 纤维丛与联络 & 异构运输、积分及余链映射\\
+\ref{exp:ch:hom} & Hom 复形与接续面 & 缺陷类、填补及高阶接续\\
+\ref{exp:ch:extension} & 受约束修复复形 & 最少方向、可行性与实际执行\\
+\ref{exp:ch:tower} & 参数与元数滤过 & 逐阶障碍与同伦代数闭合\\
+\ref{exp:ch:joint} & 完整联合参数族 & 同一任务上的严格可达扩张\\
+\ref{exp:ch:normalform} & 正规型与有限任务商 & 解码、稳定分区与能力复用\\
+\ref{exp:ch:governance} & 法对象与证书迁移 & 目标接受、版本及前提保持\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+符号的源靶在首次定义处固定。链复形采用下降次数的边界 $\partial$，
+余链复形采用上升次数的微分 $d$；分次 Hom 微分及悬移的符号另作完整定义。
+几何承载、任务执行链与修复变更复形具有各自的对象类型，
+它们之间的使用关系由实际链映射、余链映射或明确列出的桥接方程给出。
+总成本保留输入、搜索、执行、验证、编码、迁移和回读等实际使用的分项。
+
+有限有理矩阵与有限转移表使用精确算术；
+几何观测使用可微性、定义域、误差界及相应测量协议。
+本书的条件结论在证书所登记的任务域与允许动作域内解释。
+基础来源为所附公开文稿与综述，以及所列公开数学文献
+\cite{GFrameworkPublic,GFrameworkSynthesis,ExtHatcher,ExtWeibel,ExtLadaMarkl,ExtLeeRiemann,ExtKobayashiNomizu,ExtBottTu}。
+\clearpage
+\pagenumbering{arabic}
+\chapter{有类型形式语言、语义微分原子与证书推演}
+\label{exp:ch:logic}
+
+\label{hgov:chapter}
+
+本书研究对象、表示、规律及允许操作共同变化时的任务保持问题。基础对象采用
+\cite{GFrameworkPublic,GFrameworkSynthesis,S01,S38} 中的高氏法空间、GZ-GMS 富结构、
+任务充分商和语义微积分；链复形、链同伦及高阶相容采用
+\cite{ExtHatcher,ExtWeibel,ExtStacks,ExtLadaMarkl} 的有类型结构。
+全部结论在明确的对象域、动作域、观察族与费用规约内成立。本文构造的共同接口为
+\begin{equation}
+\label{hgov:eq:spine}
+\begin{gathered}
+\text{法对象与任务呈示}\longrightarrow
+\text{有类型运输与语义微分}\longrightarrow
+\text{闭缺陷及其同调类},\\
+\text{允许填补或结构扩张}\longrightarrow
+\text{合法有限执行}\longrightarrow
+\text{任务正规型与后续复用}.
+\end{gathered}
+\end{equation}
+几何变分、运算相容、任务身份、执行可达性和正规型回读各由自己的映射及证明连接。
+对固定操作族与其认证扩张，本书给出可达集包含、严格包含见证、最少新增方向数，
+以及同一参数族中几何输入、非零障碍、单位修复和有限终止的联合构造。
+
+
+\label{hgov:sec:atoms}
+
+\section{对象语言与有限证书}
+
+\begin{definition}[对象语言、解释与有限证书]
+\label{hgov:def:language}
+固定特征零域 $\mathbb K$、带类型符号表 $\Sigma$ 和声明模型 $\mathfrak M$。
+有限线性计算取 $\mathbb K=\mathbb Q$；几何与分析结论取 $\mathbb R$ 并保留可微性、
+定义域与比较条件。对象类型包括集合、分次空间、线性映射、部分动作、实数观察、
+链、余链、同伦和证书。判断写为
+\[
+\Gamma\vdash e:\tau,\qquad \Gamma\vdash P(e),\qquad
+\mathfrak M\models\Gamma\Rightarrow P(e).
+\]
+证书
+\[
+\mathcal C=(\Sigma,\Gamma,P,w,\mathsf{Parents},\mathsf{Scope},\mathsf{Version})
+\]
+保存实际输入、推导见证 $w$、父依赖、有效域和版本。根节点由已验证输入或明示前提给出；
+所有内部规则均附其在 $\mathfrak M$ 中的可靠性证明。
+\end{definition}
+
+\section{语义微分原子与注册规则}
+
+\begin{definition}[相对于注册原语的语义微分原子]
+\label{hgov:def:atom}
+在有限有向作用图上，一条边 $e:x\to y$ 登记动作 $a$、前置条件 $P_a(x)$、
+实际后继 $y=F_a(x)$ 和成本 $c(e)$。对标量观察 $f$，一次语义微分的原子分解为
+\[
+\begin{aligned}
+\alpha_0&:\operatorname{Type}(x)\land\operatorname{Type}(a),\\
+\alpha_1&:P_a(x),\qquad
+\alpha_2:y=F_a(x),\\
+\alpha_3&:u=f(x),\qquad
+\alpha_4:v=f(y),\\
+\alpha_5&:\delta=v-u,\qquad
+\alpha_6:\langle df,[e]\rangle=\delta .
+\end{aligned}
+\]
+每个原子保存输入值、输出值、类型和父序号。这里的原子粒度由注册原语规定；
+矩阵乘法进一步分解为单个系数乘积与有限和，边界和配对进一步分解为生成元读取。
+向量观察逐坐标采用同一构造。
+\end{definition}
+
+\begin{definition}[有限推演核的基本规则]
+\label{hgov:def:kernel}
+规则核包含有类型替换、有限算术、矩阵系数配对、已给边界的线性延拓、
+命题合取及消去、可靠蕴含的实例化，以及附基例和归纳步的数学归纳法。
+以下输入输出关系给出其可执行部分：
+\begin{center}\small
+\begin{tabularx}{\textwidth}{P{.12\textwidth}YY}
+\toprule
+规则 & 输入原子 & 输出原子\\
+\midrule
+R0 & 对象与签名 & 定义域、值域及次数匹配\\
+R1 & $a_{ij},b_{jk}$ 与索引范围 & $\sum_j a_{ij}b_{jk}$ 的逐项记录\\
+R2 & $\partial e=t(e)-s(e)$、观察值 & $\langle df,e\rangle=f(t(e))-f(s(e))$\\
+R3 & 生成元上的两个线性式 & 全空间等式及线性延拓证明\\
+R4 & 核、像的基和消元记录 & 实际填补或分离泛函\\
+R5 & 商纤维、观察与动作表 & 因子化及后继交换\\
+R6 & 前置条件、动作、后继 & 一步执行及资源更新\\
+R7 & 父证书、规则实例、开放前提 & 子结论与前提并集\\
+R8 & 基例、归纳谓词、归纳步 & 全部有限前缀的条件结论\\
+R9 & 编码、解码、任务观察 & 回读等式与终端接受\\
+\bottomrule
+\end{tabularx}
+\end{center}
+各规则只在已登记输入上应用；未解除前提保留在输出判断中。
+\end{definition}
+
+\section{有限证书图的归纳可靠性}
+
+\begin{theorem}[有限原子推演的条件可靠性]
+\label{hgov:thm:atomsound}
+设证书图有限、无环，所有输入均有类型，每条实际使用的规则在声明模型中保持真值。
+则通过验证的每个节点都在其开放前提的合取下成立。该性质由输入及规则构造推出。
+\end{theorem}
+\begin{certificate}[推演前缀的数学归纳法证书]
+登记拓扑序 $v_1,\ldots,v_N$、节点谓词 $P_i$、父集合 $J_i\subseteq\{1,\ldots,i-1\}$、
+开放前提 $\Gamma_i\supseteq\bigcup_{j\in J_i}\Gamma_j$ 及规则的可靠性式；
+实施假设解除时另保存可靠解除规则及其作用范围。无解除节点的规则写为
+\[
+\mathfrak M\models
+\left(\Gamma_i\land\bigwedge_{j\in J_i}P_j\right)\Rightarrow P_i.
+\]
+验证器逐节点记录规则实例、输入类型和前提传递。
+\end{certificate}
+\begin{proof}
+令 $I(n)$ 为前 $n$ 个节点的条件结论均成立。基例的输入节点由其核验或所保留前提成立。
+若 $I(n)$ 成立，第 $n+1$ 个节点的全部父节点在此前；将它们的已证判断代入可靠规则，
+得到该节点在父前提与本地前提合取下成立。因此
+\[
+I(0)\ \land\
+\bigl(\forall n<N,\ I(n)\Rightarrow I(n+1)\bigr)
+\Rightarrow I(N).
+\]
+具体谓词链为
+\[
+\begin{gathered}
+\operatorname{TypedInputs}\land\operatorname{CheckedParents}
+\land\operatorname{SoundRule}\\
+\Rightarrow\operatorname{ValidSubstitution}
+\Rightarrow(\Gamma_i\Rightarrow P_i)
+\Rightarrow I(i).
+\end{gathered}
+\]
+有限归纳完成证明。数值读数的误差前提随相同依赖图传递。
+\end{proof}
+
+\section{原子判断的解释、替换与有限复合}
+
+\begin{definition}[签名实例与判断有效性]
+\label{exp:logic:signature}
+一个注册函数符号 $f$ 带有签名
+$f:\tau_1\times\cdots\times\tau_r\rightharpoonup\tau$、定义域谓词
+$\mathsf D_f$ 及指定解释 $f^{\mathfrak M}$。
+项 $f(t_1,\ldots,t_r)$ 的求值同时提交
+$t_i:\tau_i$ 与 $\mathsf D_f(t_1,\ldots,t_r)$。
+一个开放判断 $\Gamma\vdash P$ 的模型有效性定义为
+\[
+ \mathfrak M\models\Gamma\vdash P
+ \quad\Longleftrightarrow\quad
+ \forall\nu\in\mathsf{Val}(\Gamma),\quad
+ \left(\bigwedge_{A\in\Gamma}\lbrack\!\lbrack A\rbrack\!\rbrack_\nu=1\right)
+ \Rightarrow\lbrack\!\lbrack P\rbrack\!\rbrack_\nu=1.
+\]
+这里 $\nu$ 为满足类型约束的赋值；涉及部分函数的定义域前件保留在 $\Gamma$ 中。
+等式原子按两侧求值相等解释，线性关系按给定域的运算解释，
+动作原子按实际登记的前置条件与后继解释。
+\end{definition}
+
+\begin{lemma}[有类型替换与求值交换]
+\label{exp:logic:substitution}
+设 $\sigma$ 将变量替换为相同类型的项，且每个使用到的部分函数定义域条件均已满足。
+诱导赋值定义为
+$(\nu\circ\sigma)(x)=\lbrack\!\lbrack\sigma(x)\rbrack\!\rbrack_\nu$。
+则对任意有限项 $t$ 与有限公式 $P$，
+\[
+ \lbrack\!\lbrack t\sigma\rbrack\!\rbrack_\nu
+ =\lbrack\!\lbrack t\rbrack\!\rbrack_{\nu\circ\sigma},\qquad
+ \lbrack\!\lbrack P\sigma\rbrack\!\rbrack_\nu
+ =\lbrack\!\lbrack P\rbrack\!\rbrack_{\nu\circ\sigma}.
+\]
+量词下的替换采用避免变量捕获的约定。
+\end{lemma}
+\begin{certificate}[语法构造树归纳]
+保存项与公式的有限构造树、每个变量的源类型与替换项类型、
+局部定义域见证及绑定变量的改名记录。
+\end{certificate}
+\begin{proof}
+变量情形由 $\nu\circ\sigma$ 的定义成立，常量情形由固定解释成立。
+若 $t=f(t_1,\ldots,t_r)$，归纳假设给出每个参数的求值一致，故
+\[
+ \begin{aligned}
+ \lbrack\!\lbrack t\sigma\rbrack\!\rbrack_\nu
+ &=f^{\mathfrak M}(\lbrack\!\lbrack t_1\sigma\rbrack\!\rbrack_\nu,
+                    \ldots,\lbrack\!\lbrack t_r\sigma\rbrack\!\rbrack_\nu)\\
+ &=f^{\mathfrak M}(\lbrack\!\lbrack t_1\rbrack\!\rbrack_{\nu\circ\sigma},
+                    \ldots,\lbrack\!\lbrack t_r\rbrack\!\rbrack_{\nu\circ\sigma})
+ =\lbrack\!\lbrack t\rbrack\!\rbrack_{\nu\circ\sigma}.
+ \end{aligned}
+\]
+定义域见证保证两侧同时有定义。等式和关系原子由项的结论成立；
+合取、否定及蕴含由相同真值运算保持。
+对 $\forall x:\tau\,Q$，先使 $x$ 与替换中的自由变量分离，
+再对同一类型域内每个 $a$ 使用 $Q$ 的归纳结论，得到量词结论；存在量词同理。
+于是
+\[
+ \begin{gathered}
+ \operatorname{TypedSubstitution}\land\operatorname{DomainWitness}\\
+ \Rightarrow\operatorname{TermEvaluationCommutes}
+ \Rightarrow\operatorname{FormulaEvaluationCommutes}.
+ \end{gathered}
+\]
+\end{proof}
+
+\begin{theorem}[证书复合的前提并集与依赖保持]
+\label{exp:logic:certificate-composition}
+设有限证书 $\mathcal C_1$ 证明 $\Gamma_1\vdash P$，
+证书 $\mathcal C_2$ 证明 $\Gamma_2\cup\{P\}\vdash Q$。
+若两证书的共享对象、类型、定义域和版本一致，
+则存在有限复合证书证明
+\[
+ \Gamma_1\cup\Gamma_2\vdash Q.
+\]
+任意有限个满足这些接续条件的证书均可按同一规则复合。
+\end{theorem}
+\begin{certificate}[结论节点替换与拓扑序]
+将 $\mathcal C_2$ 中使用假设 $P$ 的叶结点绑定到
+$\mathcal C_1$ 的结论结点；给全部结点重新编号，
+先列 $\mathcal C_1$，再列 $\mathcal C_2$ 的其余拓扑序。
+开放前提记录为并集，重复前提可共享同一记录。
+\end{certificate}
+\begin{proof}
+设 $\Gamma_1\cup\Gamma_2$ 全部成立。
+$\mathcal C_1$ 的可靠性给出 $P$；$\mathcal C_2$ 的全部输入因此成立，遂得 $Q$。
+上述结点替换只添加从先列部分到后列部分的依赖边，保持无环性。
+每次复合继续满足定理~\ref{hgov:thm:atomsound} 的条件。
+令 $\Gamma^{(n)}$ 为前 $n$ 份证书的开放前提并集，则
+\[
+ \begin{gathered}
+ \Gamma^{(n+1)}=\Gamma^{(n)}\cup\Gamma_{n+1},\\
+ \operatorname{ValidComposite}(n)\land\operatorname{MatchedInterface}(n+1)
+ \Rightarrow\operatorname{ValidComposite}(n+1).
+ \end{gathered}
+\]
+零份证书对应空依赖图；按复合次数归纳得到任意有限复合的结论。
+\end{proof}
+
+\section{语义微分的逐值展开与可复算算例}
+
+\begin{proposition}[有限路径上的原子差分累加]
+\label{exp:logic:telescoping}
+对合法路径 $x_0\xrightarrow{a_1}x_1\cdots\xrightarrow{a_n}x_n$，
+设观察 $f$ 在全部访问状态上有定义。登记
+$u_i=f(x_i)$、$\delta_i=u_i-u_{i-1}$，则
+\[
+ \sum_{i=1}^{n}\delta_i=f(x_n)-f(x_0).
+\]
+向量观察按坐标满足同一等式。
+\end{proposition}
+\begin{certificate}[逐边数值与部分和]
+对每一步保存类型、前置条件、后继、两个观察值、差值及累计值
+$s_0=0$、$s_k=s_{k-1}+\delta_k$。
+\end{certificate}
+\begin{proof}
+基例 $s_0=u_0-u_0=0$。若 $s_k=u_k-u_0$，则
+\[
+ s_{k+1}=s_k+(u_{k+1}-u_k)
+ =(u_k-u_0)+(u_{k+1}-u_k)=u_{k+1}-u_0.
+\]
+数学归纳给出全部有限前缀。
+对向量的每个坐标应用相同证明，得到向量式。
+其原子谓词链为
+\[
+ y=F_a(x)\land u=f(x)\land v=f(y)
+ \Rightarrow\delta=v-u
+ \Rightarrow s_{k+1}=s_k+\delta
+ \Rightarrow s_{k+1}=f(x_{k+1})-f(x_0).
+\]
+\end{proof}
+
+取 $X=\mathbb Q^2$、动作 $F_a(x,y)=(x+1,y)$、$F_b(x,y)=(x,y+1)$，
+观察 $f(x,y)=x+2y$。从 $(0,0)$ 按动作词 $aba$ 执行，完整的算术记录为
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+$k$ & 实际状态 $x_k$ & $u_k=f(x_k)$ & $\delta_k$ & $s_k$\\
+\midrule
+0 & $(0,0)$ & 0 & --- & 0\\
+1 & $(1,0)$ & 1 & 1 & 1\\
+2 & $(1,1)$ & 3 & 2 & 3\\
+3 & $(2,1)$ & 4 & 1 & 4\\
+\bottomrule
+\end{tabular}
+\end{center}
+每一项可以只用有理数加法、乘法及定义域读取复算。
+末端差 $4-0=4$ 与累计差 $1+2+1=4$ 相等。
+动作词 $aba$、访问状态和各步费用继续随证书保存，
+使差分求和与实际执行分别具有明确读回对象。
+
+\begin{remark}[结构条件的证明地位]
+本书的边界闭合、相容运输、修复可达和治理保持均以条件定理给出。
+构造性输入通过矩阵、运算表、映射及其定义域登记；
+每个需要保持的性质由相应证书证明。
+基础逻辑的解释与明确使用的域运算构成推演环境，
+模型中的结构成立性由这一环境内的符号计算及有限归纳建立。
+证明链中的具名谓词统一作为前文已定义条件或已证等式的缩写；
+证书同时记录其展开式、实际参数和所用推导规则。
+\end{remark}
+
+
+\chapter{高氏法空间、广义数学结构与任务承载}
+\label{exp:ch:law}
+
+\label{hgov:sec:law}
+
+\section{对象、规律与共同承载}
+
+\begin{definition}[带任务的法对象]
+\label{hgov:def:law}
+以 $\mathsf{Law}$ 为带类型的规律呈示集合。每个 $L\in\mathsf{Law}$ 登记
+\[
+\mathfrak S_L=(X_L,A_L,F_L,O_L,I_L,G_L,\mathsf{Cost}_L),
+\]
+其中 $F_L$ 为带前置条件的部分后继，$O_L$ 为任务观察，$I_L$ 为任务身份，
+$G_L$ 为目标谓词。共同承载取
+\[
+\mathcal E=\coprod_{L\in\mathsf{Law}}\{L\}\times X_L,
+\qquad \pi(L,x)=L.
+\]
+结构映射同时登记状态映射、动作对应、观察运输与身份保持。
+GZ-GMS 的数据组织为
+\[
+\mathcal G=(\mathsf{Obj},\mathsf{Law},\mathsf{Flow},
+\mathsf{Layer},\mathsf{GZTLC};\mathsf{LawCurv}).
+\]
+每项数据具有实际类型和相容关系；固定典型纤维的光滑扇区配置普通丛，
+跨类型扇区的迁移配置有类型结构映射。以上承载接续公开法空间与富结构定义
+\cite{GFrameworkPublic,S01,S38}。
+\end{definition}
+
+\section{固定规律切片与经典任务的恢复}
+
+\begin{proposition}[固定规律的嵌入与观察投影]
+\label{hgov:prop:slice}
+固定 $L_0$，映射 $i_{L_0}:X_{L_0}\to\mathcal E$，
+$i_{L_0}(x)=(L_0,x)$ 为单射；其像上投影 $p_{L_0}(L_0,x)=x$ 满足
+$p_{L_0}i_{L_0}=\mathrm{id}$。若扩展动作在该像上定义为
+$\widehat F_a(L_0,x)=(L_0,F_{L_0,a}x)$，则
+\[
+\widehat F_ai_{L_0}=i_{L_0}F_{L_0,a}.
+\]
+规定观察、身份和目标按该投影拉回时，所有有限动作词的任务结论保持。
+\end{proposition}
+\begin{certificate}[逐字段嵌入证书]
+保存 $L_0$、状态域、部分动作定义域、投影及每项观察的拉回式；
+保存动作前置条件在嵌入前后的真值一致。
+\end{certificate}
+\begin{proof}
+有序对相等给出 $i_{L_0}$ 单射，代入即得投影与一步交换式。
+对词长 $n$ 归纳：零长度为恒等；一步交换与归纳假设复合得到
+\[
+\widehat F_{a_{n+1}}\widehat F_{a_n}\cdots\widehat F_{a_1}i_{L_0}
+=i_{L_0}F_{a_{n+1}}F_{a_n}\cdots F_{a_1}.
+\]
+每个前缀的定义域由前置条件一致保持，观察由拉回式保持。因此
+\[
+\operatorname{Embedding}\land\operatorname{DomainMatch}
+\land\operatorname{StepCommute}
+\Rightarrow\operatorname{WordCommute}
+\Rightarrow\operatorname{TaskPreserved}.\qedhere
+\]
+\end{proof}
+
+\section{法对象态射、有限执行模拟与复合}
+
+\begin{definition}[保持任务的法对象态射]
+\label{exp:law:morphism}
+对法对象 $\mathfrak S_L,\mathfrak S_{L'}$，规定共同身份域 $\mathcal I$，
+允许观察值域不同。一个任务态射记为
+$\Phi=(f,\tau,d):\mathfrak S_L\to\mathfrak S_{L'}$，其中
+$f:X_L\to X_{L'}$ 为状态映射，$\tau:A_L\to A_{L'}$ 为标签映射，
+$d:Y_{L'}\to Y_L$ 为观察解码器，并满足
+\[
+ \begin{aligned}
+ \operatorname{Pre}_{L,a}(x)
+ &\Longleftrightarrow\operatorname{Pre}_{L',\tau(a)}(f x),\\
+ fF_{L,a}(x)&=F_{L',\tau(a)}(fx)
+ &&\text{在合法域上},\\
+ I_{L'}f&=I_L,& O_L&=dO_{L'}f,\\
+ f(G_L)&\subseteq G_{L'},&
+ c_{L,a}(x)&=c_{L',\tau(a)}(fx).
+ \end{aligned}
+\]
+费用采用共同计量域。动作族可含新标签；上述要求逐项针对源侧登记的标签。
+\end{definition}
+
+\begin{theorem}[法对象态射的路径模拟与累计费用保持]
+\label{exp:law:simulation}
+若 $\Phi$ 满足定义~\ref{exp:law:morphism}，则每个源侧合法动作词
+$w=a_n\cdots a_1$ 在像状态上具有对应词 $\tau(w)$，且
+\[
+ fF_{L,w}(x)=F_{L',\tau(w)}(fx),\qquad
+ \sum_{k=1}^n c_{L,a_k}(x_{k-1})
+ =\sum_{k=1}^n c_{L',\tau(a_k)}(f x_{k-1}).
+\]
+身份、规定观察和成功目标沿该对应运行保持。
+\end{theorem}
+\begin{certificate}[状态、词和费用的同步前缀]
+保存每个三元组 $(x_k,fx_k,\tau(a_k))$，
+动作前件等价、后继交换、费用相等，以及末端目标包含的实例。
+\end{certificate}
+\begin{proof}
+零词时状态交换为 $f\mathrm{id}=\mathrm{id}f$，累计费用均为零。
+若前 $k$ 步对应成立，前置条件等价保证第 $k+1$ 步同时有定义，且
+\[
+ F_{L',\tau(a_{k+1})}(fx_k)=fF_{L,a_{k+1}}(x_k)=fx_{k+1}.
+\]
+在两个已相等的累计费用上分别加上相等的第 $k+1$ 步费用，得到新的相等。
+因此对词长归纳成立。再代入 $I_{L'}f=I_L$、$O_L=dO_{L'}f$ 和
+$f(G_L)\subseteq G_{L'}$，即得任务结论。
+\begin{gather*}
+ \operatorname{DomainMatch}\land\operatorname{StepCommute}\land\operatorname{StepCostEqual}\\
+ \Rightarrow\operatorname{PrefixSimulation}
+ \Rightarrow\operatorname{SuccessfulWordPreserved}.\qedhere
+\end{gather*}
+\end{proof}
+
+\begin{proposition}[任务态射的有限复合]
+\label{exp:law:composition}
+设 $\Phi=(f,\tau,d):\mathfrak S_0\to\mathfrak S_1$、
+$\Psi=(g,\upsilon,e):\mathfrak S_1\to\mathfrak S_2$ 为任务态射。
+则
+\[
+ \Psi\circ\Phi=(gf,\upsilon\tau,de)
+\]
+仍为任务态射。恒等映射给出恒等态射，复合满足结合律。
+\end{proposition}
+\begin{certificate}[逐字段复合]
+登记两个态射的源靶、共同字段、六组保持式及复合映射。
+观察解码器的次序与状态运输的次序分别保存。
+\end{certificate}
+\begin{proof}
+前置条件按两个等价式接续。
+后继及观察分别满足
+\[
+ \begin{aligned}
+ gfF_{0,a}&=gF_{1,\tau(a)}f
+ =F_{2,\upsilon\tau(a)}gf,\\
+ O_0&=dO_1f=deO_2gf.
+ \end{aligned}
+\]
+身份由 $I_2gf=I_1f=I_0$ 保持；目标由
+$gf(G_0)\subseteq g(G_1)\subseteq G_2$ 保持；费用逐值代入两次相等式。
+恒等映射逐项满足定义，函数及标签映射的结合律给出所有字段的结合律。
+任意有限复合由复合次数归纳成立。
+\end{proof}
+
+\section{分型承载的编码与几何扇区}
+
+\begin{proposition}[带标签并的可逆读取]
+\label{exp:law:typed-union}
+设每个 $L$ 的对象具有单射编码 $e_L:X_L\to Z_L$。
+则
+\[
+ E:\coprod_L\{L\}\times X_L\longrightarrow
+   \coprod_L\{L\}\times Z_L,
+ \qquad E(L,x)=(L,e_L(x))
+\]
+为单射，在其像上有唯一逆读取
+$D(L,e_L(x))=(L,x)$。
+\end{proposition}
+\begin{certificate}[类型标签与局部逆]
+保存 $L$ 的标签、$e_L$ 的定义域及单射证明、像上的局部逆读取，
+并验证每个实际输入的标签和局部编码一致。
+\end{certificate}
+\begin{proof}
+若 $E(L,x)=E(L',x')$，有序对第一分量给出 $L=L'$，
+第二分量给出 $e_L(x)=e_L(x')$。由单射性得 $x=x'$，所以 $E$ 单射。
+像上的每项都有唯一原像，定义 $D$ 即得
+$DE=\mathrm{id}$、$ED=\mathrm{id}_{\operatorname{im}E}$。
+\[
+ \operatorname{SameTypedCode}
+ \Rightarrow L=L'\land e_L(x)=e_L(x')
+ \Rightarrow(L,x)=(L',x').\qedhere
+\]
+\end{proof}
+
+\begin{proposition}[局部平凡向量丛的维数扇区]
+\label{exp:law:rank-sector}
+设 $p:E\to B$ 为局部平凡的有限维向量丛。
+则纤维维数函数 $b\mapsto\dim E_b$ 局部恒定，因而在每个连通分支上恒定。
+对于含不同维数纤维的法对象族，按维数分别登记其局部平凡扇区，
+跨扇区运输由另给的有类型映射指定。
+\end{proposition}
+\begin{certificate}[局部平凡化与秩]
+保存覆盖 $\{U_i\}$、线性纤维同构
+$p^{-1}(U_i)\cong U_i\times\mathbb K^{r_i}$，
+以及重叠处过渡映射的可逆性。
+\end{certificate}
+\begin{proof}
+若 $b\in U_i$，局部平凡化限制到纤维给出
+$E_b\cong\mathbb K^{r_i}$，故维数在 $U_i$ 上恒为 $r_i$。
+对任意整数 $r$，秩为 $r$ 的点集是这些局部域的并，故为开集；
+其补集由其他秩域组成，也为开集。
+若一个连通分支具有两个不同秩，则可由相应秩域分成两个非空开闭部分，
+与连通性矛盾。因此秩在每个连通分支上恒定。
+\end{proof}
+
+\begin{remark}[法空间数据与其实现]
+带标签并提供对象、规律与实现的共同类型承载。
+集合编码、光滑局部平凡化、任务态射和实际动作各保存自身的结构条件。
+一项跨类型更新可以同时包含状态运输、链映射及几何实现；
+其任务结论由已验证的字段保持式和有限复合得到。
+\end{remark}
+
+
+\chapter{严格代数扇区与完整高阶相容结构}
+\label{exp:ch:higher}
+
+\section{严格 Lie 扇区的零扩张构造}
+\begin{theorem}[严格 Lie 扇区的零扩张构造]
+\label{hgov:thm:strictlie}
+设 $V$ 只在次数零非零，二元运算 $b:\Lambda^2V\to V$ 反对称。
+取 $\ell_1=0$、$\ell_2=b$、$\ell_n=0$ 对 $n\ge3$。
+则该数据为 $L_\infty$ 结构当且仅当 $b$ 满足 Jacobi 恒等式。
+严格 Lie 同态取高元映射为零后保持这一嵌入。
+\end{theorem}
+\begin{certificate}[逐元数零扩张]
+采用 $\deg\ell_n=2-n$ 的约定，登记 $b$ 的结构常数、反对称性、
+Jacobi 三元式及所有高元分量为零的记录；映射登记 $fb=b'(f,f)$。
+\end{certificate}
+\begin{proof}
+元数一、二的关系含 $\ell_1$，故成立；元数三只剩
+\[
+b(x,b(y,z))+b(y,b(z,x))+b(z,b(x,y))=0.
+\]
+当 $n\ge4$，每个复合项的元数满足 $i+j=n+1$；
+若含一元运算则为零，其余情形至少有一个元数不小于三，仍为零。
+反向读取三元式得到 Jacobi。映射关系唯一的非零部分为括号保持式。因此
+\[
+\operatorname{Skew}(b)\land\operatorname{Jacobi}(b)
+\Rightarrow\bigwedge_{n\ge1}\mathcal R_n=0,
+\qquad
+\bigwedge_{n\ge1}\mathcal R_n=0\Rightarrow\operatorname{Jacobi}(b).
+\]
+高元关系的符号与一般定义采用 \cite{ExtLadaMarkl}；上述受限构造见
+\cite{S38} 的严格结构嵌入。
+\end{proof}
+
+\begin{remark}[结构层级与表示接口]
+固定规律切片、零扩张嵌入、任务商与链同伦分别配置自己的映射及保持式。
+全部集合、函数、运算表和证明记录共同决定所用富结构；各扇区的相容性由具体结构方程判定。
+\end{remark}
+
+\section{非零 Jacobiator 的完整两项同伦结构}
+\label{hgov:linfty:section}
+
+严格扇区的零扩张与携带高阶见证的呈示可以在同一恒等式系统中比较。
+公开文献 \cite{S38} 的两项模型提供一个有限、非零且可逐元数核验的实例：
+二元括号具有非零 Jacobiator，三元运算保存其填补见证，全部高阶关系仍然闭合。
+以下固定符号约定并完整给出证明；一般高阶运算的背景见 \cite{ExtLadaMarkl}。
+
+\begin{definition}[上同调分次与高阶相容式]
+\label{hgov:linfty:convention}
+在特征零域 $\mathbb K$ 上，令 $V$ 为分次空间，
+$\ell_n:\Lambda^n V\to V$ 为次数 $2-n$ 的分次反对称运算。
+对齐次输入 $x_1,\ldots,x_n$，令 $\chi(\sigma;x)$ 为置换符号与
+交换齐次输入产生的 Koszul 符号之积。定义
+\[
+\begin{aligned}
+\mathcal R_n(x_1,\ldots,x_n)
+={}&\sum_{i+j=n+1}\ \sum_{\sigma\in\operatorname{Sh}(i,n-i)}
+(-1)^{i(j-1)}\chi(\sigma;x)\\
+&\qquad\cdot
+\ell_j\bigl(\ell_i(x_{\sigma(1)},\ldots,x_{\sigma(i)}),
+x_{\sigma(i+1)},\ldots,x_{\sigma(n)}\bigr).
+\end{aligned}
+\]
+其中 $\operatorname{Sh}(i,n-i)$ 为保持前 $i$ 个位置及后 $n-i$ 个位置
+内部次序的洗牌置换集合。完整 $L_\infty$ 闭合谓词为
+\[
+\operatorname{HigherClosed}(V,\ell_\bullet)
+\quad\Longleftrightarrow\quad
+\forall n\ge1,\quad\mathcal R_n=0.
+\]
+对零次反对称括号 $b$，规定
+\[
+J_b(x,y,z)=b(x,b(y,z))+b(y,b(z,x))+b(z,b(x,y)).
+\]
+在此约定下，三个 $\ell_1$-闭的零次输入满足的三元式为
+$-J_{\ell_2}+\ell_1\ell_3=0$。
+\end{definition}
+
+\begin{theorem}[具有非零二元缺陷的完整高阶呈示]
+\label{hgov:linfty:model}
+取 $E=\mathbb K^3$，基为 $e_1,e_2,e_3$，定义反对称双线性运算
+\[
+b(e_1,e_2)=e_2,\qquad b(e_2,e_3)=e_3,\qquad b(e_1,e_3)=0.
+\]
+令 $\widetilde E$ 为 $E$ 的一个线性副本，$x\mapsto\widetilde x$ 为指定同构。
+取 $V^0=E$、$V^{-1}=\widetilde E$，其余次数为零，定义
+\[
+\begin{aligned}
+&\ell_1(\widetilde x)=x,\qquad \ell_1(x)=0,\\
+&\ell_2(x,y)=b(x,y),\qquad
+\ell_2(x,\widetilde y)=\widetilde{b(x,y)},\qquad
+\ell_2(\widetilde x,\widetilde y)=0,\\
+&\ell_3(x,y,z)=\widetilde{J_b(x,y,z)},\qquad
+\ell_n=0\quad(n\ge4).
+\end{aligned}
+\]
+其余二元取值由分次反对称性决定；含负次输入的 $\ell_3$ 为零。
+则这些运算具有规定次数并满足 $\mathcal R_n=0$ 对全部 $n\ge1$，同时
+\[
+J_b(e_1,e_2,e_3)=-e_3\ne0.
+\]
+因此该固定呈示同时具有非零低阶缺陷和完整高阶相容见证。
+\end{theorem}
+
+\begin{certificate}[结构常数、次数及元数核验]
+\label{hgov:linfty:model-certificate}
+保存 $E$ 与 $\widetilde E$ 的对应基、$\ell_1:V^{-1}\to V^0$ 的矩阵 $I_3$、
+$b_{12}^{2}=b_{23}^{3}=1$ 及其反对称结构常数。
+保存 $\ell_3(e_1,e_2,e_3)=-\widetilde e_3$，其余零次输入按交替性求值。
+核验分为元数 $1,2,3,4,5$ 与 $n\ge6$ 六组；每组再按负次输入数分型。
+有限部分逐基展开，任意更高元数由运算截断规则统一证明。
+\end{certificate}
+
+\begin{proof}
+双线性运算 $b$ 反对称，故 $J_b$ 为交替三线性映射。
+全部 $\ell_n$ 的定义均满足次数 $2-n$。
+例如 $\ell_2(\widetilde x,y)=\widetilde{b(x,y)}$，
+而两个负次输入的二元输出应处于 $V^{-2}=0$。
+下面逐元数核验。
+
+\begin{enumerate}
+\item 元数一。
+$\ell_1$ 将 $V^{-1}$ 送入 $V^0$，并在 $V^0$ 上为零，因而
+$\mathcal R_1=\ell_1^2=0$。
+
+\item 元数二。
+相容式是分次导子律
+\[
+\ell_1\ell_2(a,b)
+=\ell_2(\ell_1a,b)+(-1)^{|a|}\ell_2(a,\ell_1b).
+\]
+两个零次输入使两侧为零；输入 $(x,\widetilde y)$ 使两侧均为 $b(x,y)$。
+对 $(\widetilde x,\widetilde y)$，左侧为零，右侧为
+\[
+\ell_2(x,\widetilde y)-\ell_2(\widetilde x,y)
+=\widetilde{b(x,y)}-\widetilde{b(x,y)}=0.
+\]
+分次反对称性覆盖另一种输入次序，故 $\mathcal R_2=0$。
+
+\item 元数三。
+三个零次输入给出
+\[
+\mathcal R_3(x,y,z)=-J_b(x,y,z)+\ell_1\widetilde{J_b(x,y,z)}=0.
+\]
+对一个负次输入 $(\widetilde x,y,z)$，二元复合项为
+$-\widetilde{J_b(x,y,z)}$；输入微分项中唯一可能非零的一项为
+$\ell_3(\ell_1\widetilde x,y,z)=\widetilde{J_b(x,y,z)}$，两项相消。
+含至少两个负次输入时，每个复合项的输出次数至多为 $-2$，故均为零。
+此外，直接代入三个基向量得到
+\[
+J_b(e_1,e_2,e_3)
+=b(e_1,e_3)+b(e_2,0)+b(e_3,e_2)=-e_3.
+\]
+
+\item 元数四。
+全部可能非零项只有 $\ell_3\ell_2$ 和 $\ell_2\ell_3$。
+对零次输入，其洗牌和写为
+\[
+\begin{aligned}
+\mathcal R_4(x_1,x_2,x_3,x_4)
+={}&\sum_{\sigma\in\operatorname{Sh}(2,2)}
+\operatorname{sgn}(\sigma)
+\ell_3\bigl(\ell_2(x_{\sigma(1)},x_{\sigma(2)}),
+x_{\sigma(3)},x_{\sigma(4)}\bigr)\\
+&-\sum_{\sigma\in\operatorname{Sh}(3,1)}
+\operatorname{sgn}(\sigma)
+\ell_2\bigl(\ell_3(x_{\sigma(1)},x_{\sigma(2)},x_{\sigma(3)}),
+x_{\sigma(4)}\bigr).
+\end{aligned}
+\]
+该表达是 $E^4\to\widetilde E$ 的交替四线性映射。
+由于 $\dim E=3$，任意四个输入线性相关，故表达为零。
+含负次输入时，各复合项的总次数至多为 $-2$，亦为零。
+
+\item 元数五。
+唯一可能非零的运算组合是 $\ell_3\ell_3$。
+内层非零时，其输出属于 $V^{-1}$，外层 $\ell_3$ 因含负次输入而为零；
+内层为零时复合亦为零。因此 $\mathcal R_5=0$。
+
+\item 元数 $n\ge6$。
+每项复合满足 $i+j=n+1\ge7$，故 $i,j$ 至少一个不小于四。
+对应运算恒为零，从而 $\mathcal R_n$ 的每一项均为零。
+\end{enumerate}
+上述情形覆盖全部元数和全部输入次数。证明的谓词链为
+\[
+\begin{gathered}
+\operatorname{GradedTypes}\land
+\bigwedge_{n=1}^{5}(\mathcal R_n=0)
+\land
+\bigl(\forall n\ge6,\ \mathcal R_n=0\bigr)\\
+\Rightarrow\operatorname{HigherClosed}(V,\ell_\bullet),\\
+J_b(e_1,e_2,e_3)=-e_3\ne0
+\Rightarrow\operatorname{NonzeroBinaryDefect}(V,\ell_2).
+\end{gathered}
+\]
+两项结论在同一组结构常数上同时成立。
+\end{proof}
+
+\section{可缩见证扇区与任务核心的共同读取}
+
+\begin{proposition}[可缩见证扇区与任务核心的联合保持]
+\label{hgov:linfty:task}
+取集中于零次的任务空间 $T$，其微分和高元运算均为零。
+在 $W=T\oplus V$ 上保留定理 \ref{hgov:linfty:model} 的全部运算，
+涉及 $T$ 输入的二元及高元运算取零。令
+\[
+p:W\to T,\qquad i:T\to W,\qquad D=\ell_1^W,
+\]
+为直和投影、包含及总微分，并定义次数 $-1$ 的映射
+\[
+h(x)=\widetilde x\ (x\in E),\qquad
+h(\widetilde x)=0,\qquad h(T)=0.
+\]
+则 $W$ 是完整 $L_\infty$ 结构，$p,i$ 为严格高阶结构映射，且
+\[
+pi=\mathrm{id}_T,\qquad
+Dh+hD=\mathrm{id}_W-ip.
+\]
+因此底层复形满足 $H^\bullet(W)\cong T$，其中 $T$ 位于零次。
+对任意经 $p$ 因子化的任务观察 $O=\overline O p$，有 $Oip=O$。
+若扩展动作另满足
+\[
+p\widehat F_a=F_a^Tp,
+\]
+且动作可用性在 $p$ 的纤维上恒定，则全部有限合法动作词保持该任务读回。
+\end{proposition}
+
+\begin{certificate}[逐分量收缩与动作交换]
+\label{hgov:linfty:task-certificate}
+分别在 $T$、$E$、$\widetilde E$ 上登记 $D,h,p,i$ 及收缩等式；
+每个规定观察、身份或目标保存其经 $p$ 的因子化。
+有限执行另保存每个动作的定义域、一步交换式与实际后继。
+需要保持成本时，把逐步成本的因子化纳入相同观察证书。
+\end{certificate}
+
+\begin{proof}
+纯 $V$ 输入的高阶关系由定理 \ref{hgov:linfty:model} 成立；
+含 $T$ 输入的高元复合为零，微分亦在 $T$ 上为零，故全部关系保持。
+$p$ 将 $V$ 上的非零运算送到零，$i$ 的像内全部高元运算为零，
+二映射因此严格保持每个运算。
+
+在 $T$ 上，$Dh+hD$ 与 $\mathrm{id}_W-ip$ 均为零；
+在 $E$ 上有 $Dh=\mathrm{id}_E$；在 $\widetilde E$ 上有
+$hD=\mathrm{id}_{\widetilde E}$。逐分量相加得到收缩式。
+该式与 $pi=\mathrm{id}_T$ 给出底层复形的同伦回缩，故其上同调由 $T$ 读回。
+由观察因子化直接得到
+\[
+Oip=\overline O pip=\overline O p=O.
+\]
+对动作词长度归纳，一步交换式给出
+$p\widehat F_w=F_w^Tp$；纤维上的可用性一致保证每个前缀同时有定义。
+于是
+\[
+\begin{gathered}
+\operatorname{Retraction}(p,i,h)\land O=\overline O p
+\Rightarrow\operatorname{CoreReadback},\\
+\operatorname{DomainMatch}\land\operatorname{StepCommute}
+\Rightarrow\operatorname{WordCommute}
+\Rightarrow O(\widehat F_w z)=\overline O(F_w^Tpz).
+\end{gathered}
+\]
+这给出公开任务核心直和构造 \cite{S38} 的逐分量与逐词证书。
+\end{proof}
+
+\begin{remark}[运算呈示与底层同伦类型的分别读取]
+\label{hgov:linfty:scope}
+该实例在固定运算呈示中保存 $J_b\ne0$ 及其非零三元见证，
+从而展示严格二元扇区之外的完整高阶呈示。
+其底层复形 $V$ 可缩；加入任务核心后，$T\oplus V$ 的底层同伦类型仍由 $T$ 给出。
+呈示字段的增加、低阶缺陷的填补以及任务同伦类型的保持，分别由结构常数、
+全部高阶相容式和显式收缩证书表达。
+\end{remark}
+
+\section{结构常数的坐标展开与参数化相容条件}
+
+\begin{proposition}[二元运算与三元缺陷的坐标式]
+\label{exp:higher:coordinates}
+对定理~\ref{hgov:linfty:model} 的 $E=\mathbb K^3$，
+将 $x,y,z$ 写为指定基下的列向量，则
+\[
+ b(x,y)=
+ \begin{pmatrix}
+ 0\\x_1y_2-x_2y_1\\x_2y_3-x_3y_2
+ \end{pmatrix},
+ \qquad
+ J_b(x,y,z)=-\det[x\ y\ z]\,e_3.
+\]
+对 $a=x+\widetilde u$、$a'=y+\widetilde v$、$a''=z+\widetilde w$，
+全部非零运算由
+\[
+ \begin{aligned}
+ \ell_1(a)&=u,\\
+ \ell_2(a,a')&=b(x,y)+\widetilde{b(x,v)+b(u,y)},\\
+ \ell_3(a,a',a'')&=-\det[x\ y\ z]\,\widetilde e_3
+ \end{aligned}
+\]
+确定。这里公式按各齐次分量线性展开。
+\end{proposition}
+\begin{certificate}[基元乘积与行列式展开]
+保存六个基元 $e_i,\widetilde e_i$、非零二元结构常数、
+反对称读取、输入的齐次分解及行列式的六项计算。
+\end{certificate}
+\begin{proof}
+由双线性与结构常数，$e_2$ 的系数只来自
+$b(e_1,e_2)=e_2$ 与 $b(e_2,e_1)=-e_2$，
+$e_3$ 的系数只来自 $b(e_2,e_3)=e_3$ 与 $b(e_3,e_2)=-e_3$，
+得到二元坐标式。
+$J_b$ 是交替三线性映射，故在三维空间由 $J_b(e_1,e_2,e_3)$ 唯一确定。
+前文逐基计算为 $-e_3$，因此
+\[
+ \begin{aligned}
+ J_b(x,y,z)
+ ={}-&\bigl(x_1y_2z_3+x_2y_3z_1+x_3y_1z_2\\
+ &\qquad-x_1y_3z_2-x_2y_1z_3-x_3y_2z_1\bigr)e_3.
+ \end{aligned}
+\]
+对三个输入的零次与负一次分量分别代入运算定义，
+负一次两两二元运算以及含负一次输入的三元运算均为零，遂得后三式。
+\[
+ \operatorname{StructureConstants}\land\operatorname{GradedExpansion}
+ \Rightarrow\operatorname{CoordinateEvaluation}
+ \Rightarrow\operatorname{FiniteBasisCertificate}.
+\]
+\end{proof}
+
+\begin{definition}[二元系数与三元填补系数]
+\label{exp:higher:parameter-family}
+在同一分次空间 $V$ 上，对 $\alpha,\beta\in\mathbb K$ 定义
+\[
+ \ell_1^{\alpha,\beta}=\ell_1,
+ \qquad \ell_2^{\alpha,\beta}=\alpha\ell_2,
+ \qquad \ell_3^{\alpha,\beta}=\beta\ell_3,
+ \qquad \ell_n^{\alpha,\beta}=0\quad(n\ge4).
+\]
+记相应元数关系为 $\mathcal R_n^{\alpha,\beta}$，
+并定义三元算子
+$\Omega=\mathcal R_3^{1,0}$。
+它保存二元复合产生的全部三元缺陷，包括含负一次输入的齐次分量。
+\end{definition}
+
+\begin{theorem}[完整高阶相容的参数方程]
+\label{exp:higher:scaled-closure}
+定义~\ref{exp:higher:parameter-family} 满足
+\[
+ \mathcal R_n^{\alpha,\beta}=0\quad(n\ne3),
+ \qquad
+ \mathcal R_3^{\alpha,\beta}=(\alpha^2-\beta)\Omega,
+ \qquad
+ \Omega(e_1,e_2,e_3)=e_3\ne0.
+\]
+因此
+\[
+ \operatorname{HigherClosed}(V,\ell_\bullet^{\alpha,\beta})
+ \quad\Longleftrightarrow\quad \beta=\alpha^2.
+\]
+这一条件保持指定的二元运算系数 $\alpha$，并确定所需的三元填补系数。
+\end{theorem}
+\begin{certificate}[各元数的系数收集]
+保存元数一至五的非零运算组合、标量系数、
+原结构的逐元数零关系以及三元算子在 $(e_1,e_2,e_3)$ 上的非零见证。
+\end{certificate}
+\begin{proof}
+元数一为 $\ell_1^2=0$；元数二的每项都含一个 $\ell_2$，
+故 $\mathcal R_2^{\alpha,\beta}=\alpha\mathcal R_2^{1,1}=0$。
+元数三的运算组合只有 $(2,2)$、$(1,3)$ 与 $(3,1)$。
+前一类的和为 $\Omega$，后两类的和记为 $A$。
+由定理~\ref{hgov:linfty:model} 的完整三元关系，$A+\Omega=0$，从而
+\[
+ \mathcal R_3^{\alpha,\beta}
+ =\alpha^2\Omega+\beta A=(\alpha^2-\beta)\Omega.
+\]
+这个等式在全部齐次输入上成立。
+元数四仅含 $(2,3)$ 和 $(3,2)$，故其和为
+$\alpha\beta\mathcal R_4^{1,1}=0$。
+元数五仅含 $(3,3)$，故为 $\beta^2\mathcal R_5^{1,1}=0$。
+元数不小于六的每项均含已置零的高元运算。
+对三个零次基元，$\Omega=-J_b$，所以
+$\Omega(e_1,e_2,e_3)=e_3$。
+于是 $\alpha^2-\beta=0$ 蕴含全部关系闭合；
+反向由三元关系在该基元组上为零得到
+$(\alpha^2-\beta)e_3=0$，因 $e_3\ne0$ 而得 $\beta=\alpha^2$。
+\end{proof}
+
+\begin{corollary}[固定二元呈示下的精确残差读取]
+\label{exp:higher:residual-readout}
+令 $e_3^*:E\to\mathbb K$ 为第三坐标泛函。
+在固定 $\alpha$ 下，定义
+\[
+ r_{\rm alg}(\beta)
+ =e_3^*\bigl(\mathcal R_3^{\alpha,\beta}(e_1,e_2,e_3)\bigr).
+\]
+则 $r_{\rm alg}(\beta)=\alpha^2-\beta$，
+并有 $r_{\rm alg}(\beta)=0$ 当且仅当整套高阶关系闭合。
+\end{corollary}
+\begin{certificate}[基元读取与标量填补]
+保存固定系数 $\alpha$、实际系数 $\beta$、基元输入、第三坐标读取与
+标量等式 $\beta=\alpha^2$ 的计算。
+\end{certificate}
+\begin{proof}
+由定理~\ref{exp:higher:scaled-closure}，
+$\mathcal R_3^{\alpha,\beta}(e_1,e_2,e_3)=(\alpha^2-\beta)e_3$。
+施以 $e_3^*$ 即得标量残差；其为零与完整相容条件等价。
+这个等价使用了前述全部元数的核验，而单个读取负责提取已证明完备的残差坐标。
+\end{proof}
+
+
+\chapter{任务作用图、链复形与动态任务商}
+\label{exp:ch:task}
+
+\label{hgov:sec:taskcomplex}
+
+\section{任务图、认证关系面与边界矩阵}
+
+\begin{definition}[有限任务作用图与接续面]
+\label{hgov:def:taskcomplex}
+固定有限顶点集合 $V$、有向动作边集合 $E$ 和已认证接续关系集合 $R$。
+每条边 $e$ 具有源 $s(e)$ 与靶 $t(e)$，每项关系 $\rho$ 给出具有相同起终点的两条合法路径
+$\gamma_\rho^+,\gamma_\rho^-$，并保存其所要求的任务相容证明。
+定义
+\[
+C_0=\mathbb K[V],\qquad C_1=\mathbb K[E],\qquad C_2=\mathbb K[R],
+\]
+\[
+\partial_1[e]=[t(e)]-[s(e)],\qquad
+\partial_2[\rho]=[\gamma_\rho^+]-[\gamma_\rho^-].
+\]
+路径链为其中有向边的有限和，其他次数取零。关系面记录已经给出的路径比较数据。
+\end{definition}
+
+\begin{theorem}[任务关系的链闭合与有限生成]
+\label{hgov:thm:complex}
+定义 \ref{hgov:def:taskcomplex} 给出链复形
+\[
+C_2\xrightarrow{\partial_2}C_1\xrightarrow{\partial_1}C_0,
+\qquad \partial_1\partial_2=0.
+\]
+向图中依次加入具有共同起终点的已认证关系面时，每个有限阶段仍是链复形。
+\end{theorem}
+\begin{certificate}[边界条目与面数归纳]
+逐边保存源靶，逐面保存两条路径的有序边列、共同起终点及相容证书。
+记录各阶段边界矩阵 $D_1,D_2$ 及每个乘积条目
+$ (D_1D_2)_{v,\rho}=\sum_e(D_1)_{v,e}(D_2)_{e,\rho}$。
+\end{certificate}
+\begin{proof}
+空路径的路径链为零，其起终点相同。对长度 $n\ge1$ 的路径
+$\gamma=(e_1,\ldots,e_n)$，相邻端点相等，故
+\[
+\partial_1[\gamma]
+=\sum_{j=1}^n([t(e_j)]-[s(e_j)])
+=[t(e_n)]-[s(e_1)].
+\]
+同起终点的两条路径边界相等，因此每个生成面满足
+$\partial_1\partial_2[\rho]=0$，线性延拓给出整个矩阵乘积为零。
+零面基例的 $\partial_2$ 为零；增加一面时只新增一个已核验零乘积列。
+于是面数归纳保持链性。逐原子谓词链为
+\[
+\begin{gathered}
+\operatorname{ValidPath}(\gamma^\pm)\land
+\operatorname{SameEndpoints}(\gamma^+,\gamma^-)
+\Rightarrow
+\partial_1[\gamma^+]=\partial_1[\gamma^-]\\
+\Rightarrow\partial_1\partial_2[\rho]=0
+\Rightarrow D_1D_2=0.
+\end{gathered}
+\]
+\end{proof}
+
+\section{语义余链、微分与路径积分}
+
+\begin{definition}[语义余链、微分与路径积分]
+\label{hgov:def:semanticdiff}
+令 $C^k=\operatorname{Hom}_{\mathbb K}(C_k,\mathbb K)$，
+$d^k=(\partial_{k+1})^*$。对观察 $f\in C^0$，
+\[
+\langle df,[e]\rangle=f(t(e))-f(s(e)).
+\]
+对 $\omega\in C^1$ 与有限路径链 $c$，定义
+$\int_c\omega=\langle\omega,c\rangle$。
+该积分包含路径方向、边系数及实际观察规约。
+\end{definition}
+
+\begin{lemma}[语义微分的平方零与路径求和]
+\label{hgov:lem:semanticdiff}
+有 $d^{k+1}d^k=0$。对 $c=[\gamma]$，
+\[
+\int_\gamma df=f(t(\gamma))-f(s(\gamma)).
+\]
+若 $d\omega=0$ 且 $c_1-c_0=\partial_2s$，则
+$\int_{c_1}\omega=\int_{c_0}\omega$。
+\end{lemma}
+\begin{certificate}[对偶与配对原子]
+保存边界矩阵、观察坐标、各边差值、有限求和及
+$\langle d\omega,s\rangle=\langle\omega,\partial s\rangle$。
+\end{certificate}
+\begin{proof}
+对任意 $c$，
+\[
+\langle d^2f,c\rangle=\langle f,\partial^2c\rangle=0.
+\]
+有限维线性泛函逐基为零给出 $d^2=0$。路径求和由前一定理的伸缩和得到。
+最后，
+\[
+\int_{c_1}\omega-\int_{c_0}\omega
+=\langle\omega,\partial s\rangle
+=\langle d\omega,s\rangle=0.
+\]
+因此
+\[
+\operatorname{BoundarySquareZero}\Rightarrow\operatorname{DifferentialSquareZero},
+\quad
+\operatorname{Closed}(\omega)\land(c_1-c_0=\partial s)
+\Rightarrow\operatorname{EqualIntegrals}.
+\]
+\end{proof}
+
+\section{动态任务商的逐字段保持}
+
+\begin{definition}[动态任务商与其链实现]
+\label{hgov:def:quotient}
+以下取任务状态集 $X=V$。满射 $q:X\to Q$ 为指定任务的动态充分商，是指每项观察有
+$O=\bar Oq$，每项动作的可用性在商纤维上恒定，且全部合法后继满足
+$qF_a=\bar F_aq$。目标与身份也分别因子化。
+若任务要求保持费用，则同时登记 $c(x,a)=\bar c(qx,a)$。
+其链实现另给映射 $q_k:C_k(X)\to C_k(Q)$ 并核验
+$q_{k-1}\partial_X=\partial_Qq_k$，其中
+$q_0[x]=[q(x)]$；对应动作边及认证面按已登记的同一任务实现逐项映到商侧关系。
+\end{definition}
+
+\begin{theorem}[语义微分、任务商与有限执行的共同保持]
+\label{hgov:thm:quotient}
+定义 \ref{hgov:def:quotient} 的条件成立时，
+\[
+d_Xq_k^*=q_{k+1}^*d_Q.
+\]
+全部有限合法动作词满足 $qF_w=\bar F_wq$，并保持规定观察、目标和身份的读回。
+\end{theorem}
+\begin{certificate}[状态与链的分别交换]
+保存商纤维表、观察值、可用动作表、后继表、各级链映射矩阵、
+逐生成元边界交换及实际词的每个前缀。
+\end{certificate}
+\begin{proof}
+对 $f\in C^k(Q)$、$c\in C_{k+1}(X)$，
+\[
+\begin{aligned}
+\langle d_Xq_k^*f,c\rangle
+&=\langle f,q_k\partial_Xc\rangle\\
+&=\langle f,\partial_Qq_{k+1}c\rangle
+=\langle q_{k+1}^*d_Qf,c\rangle.
+\end{aligned}
+\]
+词长零为恒等；一步交换与归纳假设给出
+$qF_aF_w=\bar F_aqF_w=\bar F_a\bar F_wq$。
+动作可用性的纤维恒定保证对应前缀均有定义，再应用观察因子化得到结论。
+谓词因果链为
+\[
+\begin{gathered}
+\operatorname{ChainCommute}(q_\bullet)
+\Rightarrow\operatorname{DifferentialCommute}(q^*),\\
+\operatorname{DomainMatch}\land\operatorname{StepCommute}
+\Rightarrow\operatorname{WordCommute}
+\overset{O=\bar Oq}{\Rightarrow}\operatorname{TaskReadback}.
+\end{gathered}
+\]
+这给出公开任务商与率--商接口的逐原子实现 \cite{S38,GFrameworkSynthesis}。
+\end{proof}
+
+\section{有序执行记录与链读出的联合保存}
+
+\begin{definition}[路径词与链化映射]
+\label{exp:task:word}
+令 $\mathsf{Path}(V,E)$ 为有限有向图的路径集合，空路径记为 $1_x$。
+对 $\gamma=e_n\cdots e_1$，源靶相接条件为
+$t(e_i)=s(e_{i+1})$。定义
+\[
+ \kappa(\gamma)=\sum_{i=1}^{n}[e_i],\qquad
+ \kappa(1_x)=0.
+\]
+执行记录保存初态、按次序排列的边、每个动作前件及费用；
+链读出由这些记录计算。
+\end{definition}
+
+\begin{proposition}[路径复合、端点边界与有序读回]
+\label{exp:task:word-chain}
+对可接续路径 $\gamma,\eta$，有
+\[
+ \kappa(\eta\gamma)=\kappa(\gamma)+\kappa(\eta),\qquad
+ \partial_1\kappa(\gamma)=[t(\gamma)]-[s(\gamma)].
+\]
+联合编码
+$\mathcal N_{\rm path}(\gamma)=(s(\gamma),(e_1,\ldots,e_n),\kappa(\gamma))$
+在路径集合上为单射。仅保存 $\kappa(\gamma)$ 时，
+其可恢复观察恰为在链化纤维上恒定的路径观察。
+\end{proposition}
+\begin{certificate}[有序边表与端点消去]
+保存相邻边的源靶等式、边序列、链系数、末端与初态，
+并逐边登记边界项的相消。
+\end{certificate}
+\begin{proof}
+接续词的边表是两个边表的连接，求和即得第一式。
+边界式展开为
+\[
+ \partial_1\kappa(\gamma)
+ =\sum_{i=1}^{n}([t(e_i)]-[s(e_i)]),
+\]
+相邻项由 $t(e_i)=s(e_{i+1})$ 消去，留下末端减初态；空词两侧均为零。
+联合编码中的有序边表与初态直接恢复路径，故单射。
+若路径观察 $O$ 有读回 $D\kappa=O$，同一链的两路径经 $D$ 得相同观察；
+反向，当 $O$ 在纤维上恒定时，定义 $D(\kappa\gamma)=O(\gamma)$ 即良定义。
+例如单顶点上的两条具名自环 $a,b$ 满足
+$\kappa(ab)=\kappa(ba)=[a]+[b]$，而 $ab,ba$ 是不同的有序词。
+联合编码分别保留这两个词，链读出保留其共同边计数。
+\end{proof}
+
+\section{四状态接续面的完整矩阵算例}
+
+\begin{definition}[二维平移任务的方形执行图]
+\label{exp:task:square}
+取顶点 $v_{00},v_{10},v_{01},v_{11}$，分别表示对应的二元坐标。
+动作 $a$ 增加第一坐标，动作 $b$ 增加第二坐标；
+只登记留在这四个顶点内的合法动作，费用均为一。
+按次序登记边
+\[
+ e_1:v_{00}\to v_{10},\quad e_2:v_{10}\to v_{11},\quad
+ e_3:v_{00}\to v_{01},\quad e_4:v_{01}\to v_{11}.
+\]
+两条路径 $e_2e_1$ 与 $e_4e_3$ 具有相同末端和相同总费用。
+将这一指定的终端任务相容关系登记为一个面 $\rho$，
+$\partial_2\rho=e_1+e_2-e_3-e_4$。
+\end{definition}
+
+\begin{theorem}[方形任务的链闭合、同调与语义积分]
+\label{exp:task:square-homology}
+上述复形的边界矩阵为
+\[
+ D_1=\begin{pmatrix}
+ -1&0&-1&0\\1&-1&0&0\\0&0&1&-1\\0&1&0&1
+ \end{pmatrix},\qquad
+ D_2=\begin{pmatrix}1\\1\\-1\\-1\end{pmatrix}.
+\]
+它满足 $D_1D_2=0$，并有
+\[
+ H_2=0,\qquad H_1=0,\qquad H_0\cong\mathbb K.
+\]
+对观察 $f(x,y)=x+2y$，顶点值为 $(0,1,2,3)^{\mathsf T}$，
+边差分为 $(1,2,2,1)^{\mathsf T}$。
+两路径上的差分积分均为三。
+\end{theorem}
+\begin{certificate}[矩阵、秩、目标与费用]
+保存四个顶点、四个动作定义域、两条实际路径及其目标 $v_{11}$。
+保存 $D_1,D_2$、一个三阶非零子式、核生成元、顶点观察值及逐边差值。
+终端相容另保存两条路径的费用均为二。
+\end{certificate}
+\begin{proof}
+逐列读取终点减起点得到 $D_1$；面方向给出 $D_2$。
+逐行相乘得到
+\[
+ D_1D_2=\begin{pmatrix}-1+1\\1-1\\-1+1\\1-1\end{pmatrix}=0.
+\]
+$D_1$ 的每列分量和为零，故秩至多三。
+其前三行及前三列的子式为一，故秩恰为三。
+于是 $\dim\ker D_1=1$，非零向量 $D_2$ 张成这个核。
+$D_2$ 的秩为一且定义域一维，故 $H_2=0$、$H_1=0$；
+$\dim H_0=4-3=1$。顶点系数求和下降为 $H_0\to\mathbb K$ 的同构。
+余链计算为
+\[
+ D_1^{\mathsf T}\begin{pmatrix}0\\1\\2\\3\end{pmatrix}
+ =\begin{pmatrix}1\\2\\2\\1\end{pmatrix},\qquad
+ D_2^{\mathsf T}D_1^{\mathsf T}f=1+2-2-1=0.
+\]
+故两路径积分分别为 $1+2=3$ 与 $2+1=3$，与共同末端值减初值相等。
+\end{proof}
+
+\section{复合链映射的同调与余链读取}
+
+\begin{theorem}[链映射的诱导映射及有限复合]
+\label{exp:task:homology-functor}
+若 $f:C_\bullet\to D_\bullet$ 为链映射，则
+\[
+ H_k(f):H_k(C)\to H_k(D),\qquad [c]\mapsto[f_kc]
+\]
+良定义。对链映射 $g:D_\bullet\to E_\bullet$，
+\[
+ H_k(gf)=H_k(g)H_k(f),\qquad H_k(\mathrm{id})=\mathrm{id}.
+\]
+对应余链拉回满足 $(gf)^*=f^*g^*$，且与余链微分交换。
+\end{theorem}
+\begin{certificate}[闭链、边界与复合矩阵]
+保存各次边界交换 $\partial_Df_k=f_{k-1}\partial_C$、
+闭链代表、代表元差的边界原像，以及复合映射矩阵。
+\end{certificate}
+\begin{proof}
+若 $\partial_Cc=0$，则 $\partial_Df_kc=f_{k-1}\partial_Cc=0$，
+所以闭链映为闭链。若 $c'=c+\partial_Cb$，则
+\[
+ f_kc'=f_kc+f_k\partial_Cb
+ =f_kc+\partial_Df_{k+1}b,
+\]
+因此两像代表相同同调类。复合与恒等的结论由代表元逐式代入成立。
+对余链 $\omega$，有
+$((gf)^*\omega)(c)=\omega(gfc)=(f^*g^*\omega)(c)$；
+与微分交换由同一边界交换式对偶得到。
+有限多个映射的结论按映射数归纳。
+\[
+ \operatorname{ChainCommute}(f)
+ \Rightarrow\operatorname{CyclesPreserved}\land\operatorname{BoundariesPreserved}
+ \Rightarrow\operatorname{WellDefined}(H_kf).
+\]
+\end{proof}
+
+
+\chapter{负曲率几何、变分增长与任务可观测性}
+\label{exp:ch:geometry}
+
+\label{hgov:geo:section}
+
+公开 G 框架以 GZ-GMS 登记对象、法规则、可容许演化、性质分层及联络，以三层联络组织几何、参数与法规则方向的共同运输\cite{GFrameworkPublic,GFrameworkSynthesis}。本章在具有光滑实现的结构扇区上构造几何变分及任务观察，下一章建立丛间运输和余链接续。每个构造保存其承载类型、有效域和交换关系；由此产生的几何证书可作为后续障碍判定与修复的输入。几何计算依次经过度量、联络、变分场、观察导数与有限误差预算，最终输出指定精度下的可区分性。
+
+\section{分型几何承载与曲率约定}
+\label{hgov:geo:typed}
+
+\begin{definition}[法空间的分型几何实现]
+\label{hgov:geo:def:sector}
+令 $I$ 为已登记结构扇区的指标集。扇区 $\alpha\in I$ 的几何实现包含
+\[
+\mathfrak G_\alpha=
+\bigl(M_\alpha,g_\alpha,
+P_\alpha\xrightarrow{\pi_\alpha}M_\alpha,
+G_\alpha,\rho_\alpha,E_\alpha,\nabla^\alpha\bigr).
+\]
+其中 $M_\alpha$ 是光滑流形，$g_\alpha$ 是黎曼度量，$P_\alpha$ 是结构群为 $G_\alpha$ 的光滑主丛，
+$\rho_\alpha:G_\alpha\to\operatorname{GL}(V_\alpha)$ 是有限维实或复表示，
+$E_\alpha=P_\alpha\times_{\rho_\alpha}V_\alpha$ 是伴随向量丛，$\nabla^\alpha$ 是由已登记主联络诱导的向量丛联络。
+每个向量丛的秩在各连通分量上固定；不同扇区分别保存其基空间、结构群、纤维类型和允许映射。
+度量 $g_\alpha$ 的 Levi--Civita 联络记为 $\nabla^{g_\alpha}$，任务系数丛的联络记为 $\nabla^\alpha$。
+这些数据的主丛与联络含义采用通常的光滑几何定义\cite{ExtKobayashiNomizu}。
+\end{definition}
+
+\begin{definition}[负截面曲率与横向变分]
+\label{hgov:geo:def:jacobi}
+在固定扇区中简记黎曼实现为 $(M,g)$，采用曲率约定
+\[
+R^g(X,Y)Z=
+\nabla^g_X\nabla^g_YZ-
+\nabla^g_Y\nabla^g_XZ-
+\nabla^g_{[X,Y]}Z,
+\qquad
+\operatorname{Sec}_g(u,v)=
+\frac{g(R^g(u,v)v,u)}{
+g(u,u)g(v,v)-g(u,v)^2}.
+\]
+截面曲率在 $u,v$ 线性无关时定义。令 $\gamma:[0,T]\to M$ 为单位速测地线，$T>0$；
+令 $J$ 为沿 $\gamma$ 的 Jacobi 场，满足
+\begin{equation}
+\label{hgov:geo:eq:jacobi}
+D_t^2J+R^g(J,\dot\gamma)\dot\gamma=0,
+\qquad J(0)=0,\qquad D_tJ(0)=v,
+\qquad 0\ne v\perp\dot\gamma(0),
+\end{equation}
+其中 $D_t=\nabla^g_{\dot\gamma}$。
+给定 $\kappa>0$，沿该曲线的负曲率条件为：对每个 $t\in[0,T]$ 和每个非零
+$w\perp\dot\gamma(t)$，均有
+\[
+\operatorname{Sec}_g(w,\dot\gamma(t))\le-\kappa.
+\]
+Jacobi 场给出测地线族相对于初始条件的无穷小变分；所用连接、曲率符号和初值与上述公式共同登记\cite{ExtLeeRiemann}。
+\end{definition}
+
+\begin{remark}[局部坐标与张量类型]
+在坐标 $x^1,\ldots,x^n$ 中写 $g=g_{ij}\,dx^i\otimes dx^j$，并记逆矩阵为 $(g^{ij})$。
+Levi--Civita 联络由度量相容性和无挠性唯一确定；其系数为
+\[
+\Gamma^k_{ij}=\frac12\sum_\ell g^{k\ell}
+\bigl(\partial_i g_{j\ell}+\partial_jg_{i\ell}-\partial_\ell g_{ij}\bigr).
+\]
+沿曲线的向量场 $J=J^k\partial_k$ 满足
+\[
+(D_tJ)^k=\frac{dJ^k}{dt}
++\sum_{i,j}\Gamma^k_{ij}(\gamma(t))\dot\gamma^iJ^j,
+\qquad
+\ddot\gamma^k+\sum_{i,j}\Gamma^k_{ij}\dot\gamma^i\dot\gamma^j=0.
+\]
+因此坐标证书可以从 $g_{ij}$ 的一、二阶偏导逐项生成。
+若另有任务函数 $L:M\to\mathbb R$，其协变 Hessian 为
+\[
+(\operatorname{Hess}_gL)_{ij}
+=\partial_i\partial_jL-\sum_k\Gamma^k_{ij}\partial_kL
+\in\Gamma(\operatorname{Sym}^2T^*M).
+\]
+黎曼曲率 $R^g$ 属于 $\Omega^2(M,\operatorname{End}(TM))$，任务系数联络的曲率
+$F_\nabla$ 属于 $\Omega^2(M,\operatorname{End}(E))$。
+登记 $E=TM$ 与 $\nabla=\nabla^g$ 时，二者满足
+$F_\nabla(X,Y)Z=R^g(X,Y)Z$。
+这些类型识别与度量选择一同保存，供不同几何读出之间的比较使用。
+\end{remark}
+
+\section{马鞍曲面与变分范数的逐项计算}
+\label{hgov:geo:observation}
+
+\begin{proposition}[马鞍曲面的显式负曲率实现]
+\label{hgov:geo:prop:saddle}
+取嵌入 $\iota:\mathbb R^2\to\mathbb R^3$，
+$\iota(x,y)=(x,y,xy)$，并在曲面上采用欧氏内积诱导的度量。
+其高斯曲率为
+\[
+K(x,y)=-\frac{1}{(1+x^2+y^2)^2}.
+\]
+在 $x^2+y^2\le R_0^2$ 的区域上，有
+$K\le-(1+R_0^2)^{-2}<0$。
+\end{proposition}
+\begin{certificate}[第一、第二基本形式与行列式]
+令 $D=1+x^2+y^2$，保存
+\[
+g=\begin{pmatrix}1+y^2&xy\\xy&1+x^2\end{pmatrix},
+\quad
+n=\frac{(-y,-x,1)}{\sqrt D},
+\quad
+\mathrm{II}=\begin{pmatrix}0&D^{-1/2}\\D^{-1/2}&0\end{pmatrix}.
+\]
+逐项保存嵌入的一、二阶偏导、单位法向及两矩阵的行列式。
+\end{certificate}
+\begin{proof}
+偏导为 $\iota_x=(1,0,y)$、$\iota_y=(0,1,x)$，
+所以第一基本形式为所列 $g$ 且 $\det g=D$。
+二阶导数满足 $\iota_{xx}=\iota_{yy}=0$、$\iota_{xy}=(0,0,1)$，
+与 $n$ 配对得到 $\mathrm{II}$，其行列式为 $-D^{-1}$。
+形算子的矩阵为 $g^{-1}\mathrm{II}$，高斯方程给出
+\[
+K=\det(g^{-1}\mathrm{II})
+=\frac{-D^{-1}}{D}=-D^{-2}.
+\]
+区域条件给出 $1\le D\le1+R_0^2$，从而得到所列负曲率界。
+因此
+\[
+\operatorname{InducedMetric}(\iota)
+\Rightarrow(\det g=D,\ \det\mathrm{II}=-D^{-1})
+\Rightarrow K=-D^{-2}
+\Rightarrow\operatorname{NegCurv}_{(1+R_0^2)^{-2}} .
+\]
+\end{proof}
+
+\begin{remark}[区域曲率界的有效时间]
+在马鞍曲面实例中，若测地线的参数坐标对全部 $t\in[0,T]$ 满足
+$x(t)^2+y(t)^2\le R_0^2$，则沿该区间可取
+$\kappa=(1+R_0^2)^{-2}$。
+该时间区间连同曲线留在区域内的证明一并进入负曲率证书。
+坐标函数 $xy$ 的二阶导数用于计算第二基本形式，最终截面曲率由诱导度量和该基本形式共同确定。
+\end{remark}
+
+\begin{lemma}[横向性保持与范数微分不等式]
+\label{hgov:geo:lem:norm}
+在定义~\ref{hgov:geo:def:jacobi} 的条件下，$J(t)\perp\dot\gamma(t)$。
+在 $J(t)\ne0$ 的区间内，令 $f(t)=\lVert J(t)\rVert_g$，则
+\begin{equation}
+\label{hgov:geo:eq:norm-inequality}
+f(t)f''(t)+(f'(t))^2
+=\lVert D_tJ(t)\rVert_g^2
+-g(R^g(J(t),\dot\gamma(t))\dot\gamma(t),J(t)),
+\qquad f''(t)\ge\kappa f(t).
+\end{equation}
+\end{lemma}
+
+\begin{certificate}[横向性与逐项微分证书]
+保存 $g$、$\nabla^g$、$\gamma$、$J$、$v$、定义区间以及曲率上界。
+证书逐项包含测地线方程、式~\eqref{hgov:geo:eq:jacobi}、初始正交性、
+曲率张量的度量对称关系和 Cauchy--Schwarz 不等式的适用内积。
+曲率界可由解析证明或覆盖整个声明区间的验证界提供。
+\end{certificate}
+
+\begin{proof}
+令 $a(t)=g(J(t),\dot\gamma(t))$。由 $D_t\dot\gamma=0$ 及曲率张量在最后两个指标上的反对称性，
+\[
+a''(t)=-g(R^g(J,\dot\gamma)\dot\gamma,\dot\gamma)=0.
+\]
+初值为 $a(0)=0$、$a'(0)=g(v,\dot\gamma(0))=0$，故 $a(t)=0$。
+在 $f>0$ 的区间内先置 $q=g(J,J)=f^2$。由 $\nabla^g g=0$，逐项求导得到
+\[
+\begin{aligned}
+q'&=g(D_tJ,J)+g(J,D_tJ)=2g(D_tJ,J),\\
+q''&=2g(D_t^2J,J)+2g(D_tJ,D_tJ),\\
+f'&=\frac{q'}{2\sqrt q}=\frac{g(D_tJ,J)}{f},\\
+f''&=\frac{q''}{2f}-\frac{(q')^2}{4f^3}
+=\frac{\lVert D_tJ\rVert_g^2+g(D_t^2J,J)}{f}
+-\frac{g(D_tJ,J)^2}{f^3}.
+\end{aligned}
+\]
+乘以 $f$ 并代入 Jacobi 方程，得到式~\eqref{hgov:geo:eq:norm-inequality} 的等式。
+为记录各项的来源，进一步令
+\[
+n=J/f,\qquad W=D_tJ-f'n.
+\]
+由于 $g(n,n)=1$ 以及 $f'=g(D_tJ,n)$，有
+$g(W,n)=0$ 与 $\lVert D_tJ\rVert_g^2=(f')^2+\lVert W\rVert_g^2$。
+$J\perp\dot\gamma$ 及 $\lVert\dot\gamma\rVert=1$ 给出
+\[
+g(R^g(J,\dot\gamma)\dot\gamma,J)
+=\operatorname{Sec}_g(J,\dot\gamma)f^2.
+\]
+因此得到精确分解
+\begin{equation}
+\label{exp:geo:eq:norm-remainder}
+f''-\kappa f
+=\frac{\lVert W\rVert_g^2}{f}
++\bigl(-\operatorname{Sec}_g(J,\dot\gamma)-\kappa\bigr)f.
+\end{equation}
+第一项由正交分解非负，第二项由已登记截面曲率界非负，故
+\[
+\bigl(W\perp n\bigr)\land
+\bigl(\operatorname{Sec}_g\le-\kappa\bigr)\land(f>0)
+\Longrightarrow f''-\kappa f\ge0.
+\]
+这同时给出比较方程余项的逐项可核验表达式。
+\end{proof}
+
+\section{标量比较、零点延续与常曲率实例}
+\label{exp:geo:section:comparison}
+
+\begin{theorem}[负曲率下的横向变分增长]
+\label{hgov:geo:thm:growth}
+在定义~\ref{hgov:geo:def:jacobi} 的条件下，对全部 $t\in[0,T]$ 有
+\begin{equation}
+\label{hgov:geo:eq:growth}
+\lVert J(t)\rVert_g
+\ge\frac{\lVert v\rVert_g}{\sqrt\kappa}
+\sinh(\sqrt\kappa\,t).
+\end{equation}
+特别地，$J(t)\ne0$ 对每个 $t\in(0,T]$ 成立。
+若测地线、初值问题和曲率条件在所有有限区间上成立，则同一估计延续至全部 $t\ge0$。
+\end{theorem}
+
+\begin{certificate}[标量比较与零点延续证书]
+令 $b=\sqrt\kappa$。保存初始右导数
+$f(0)=0$、$f'(0^+)=\lVert v\rVert_g$，以及正值区间上的余项
+$h=f''-b^2f\ge0$。
+比较证书为
+\begin{equation}
+\label{hgov:geo:eq:comparison}
+f(t)=\frac{\lVert v\rVert_g}{b}\sinh(bt)
++\int_0^t\frac{\sinh(b(t-s))}{b}h(s)\,\mathrm ds.
+\end{equation}
+另保存初始正值邻域和首个正零点的排除论证。
+\end{certificate}
+
+\begin{proof}
+沿 $\gamma$ 取平行正交标架，将 $J$ 写为欧氏向量函数 $u(t)$。
+Jacobi 方程成为 $u''(t)+C(t)u(t)=0$，其中 $C$ 光滑，
+$u(0)=0$、$u'(0)=v$。于是 $u''(0)=-C(0)u(0)=0$，Taylor 展开给出
+$u(t)=tv+O(t^3)$。
+更明确地，置
+\[
+a(t)=\int_0^1u'(st)\,ds,
+\qquad u(t)=t a(t),\qquad a(0)=v,\qquad a'(0)=0.
+\]
+$a$ 在零点附近光滑且非零。因此在右邻域中
+$f(t)=t\lVert a(t)\rVert$ 光滑到端点，满足
+\[
+f(0)=0,\quad f'(0^+)=\lVert v\rVert,
+\quad f(t)=t\lVert v\rVert+O(t^3),\quad f''(t)=O(t).
+\]
+这给出初始正值邻域，并使 $h=f''-b^2f$ 连续延拓到 $0$，值为零。
+在任何由该邻域延续的正值区间上，引理~\ref{hgov:geo:lem:norm} 给出 $h\ge0$。
+令
+\[
+G(t)=\int_0^t\frac{\sinh(b(t-s))}{b}h(s)\,ds.
+\]
+微分积分上限与积分核，分别得到
+\[
+G'(t)=\int_0^t\cosh(b(t-s))h(s)\,ds,
+\qquad
+G''(t)=h(t)+b^2G(t).
+\]
+因而 $G(0)=G'(0)=0$，而
+$\lVert v\rVert\sinh(bt)/b+G(t)$ 满足与 $f$ 相同的标量方程和初值。
+标量线性初值问题的唯一性给出式~\eqref{hgov:geo:eq:comparison}。
+积分核及 $h$ 均非负，所以得到式~\eqref{hgov:geo:eq:growth}。
+
+若 $f$ 在 $(0,T]$ 存在零点，由初始正值性和连续性可取首个正零点 $t_*$。
+前述下界在 $0<t<t_*$ 成立；令 $t\uparrow t_*$ 得
+\[
+0=f(t_*)\ge\frac{\lVert v\rVert_g}{b}\sinh(bt_*)>0,
+\]
+产生矛盾。故没有正零点，比较估计在整个 $[0,T]$ 上成立。
+所有有限区间均满足同一条件时，对任意给定时刻选取包含它的有限区间，即得最后一项结论。
+\end{proof}
+
+\begin{proposition}[常径向曲率下的精确 Jacobi 解]
+\label{exp:geo:prop:constant-jacobi}
+沿单位速测地线 $\gamma$，假定存在实常数 $\rho$，使全部横向向量满足
+$R^g(w,\dot\gamma)\dot\gamma=\rho w$。
+保留式~\eqref{hgov:geo:eq:jacobi} 的初值，令 $P_t$ 为从 $\gamma(0)$ 到 $\gamma(t)$ 的 Levi--Civita 平行运输，则
+\[
+J(t)=S_\rho(t)P_tv,
+\qquad
+S_\rho(t)=
+\begin{cases}
+\sin(\sqrt\rho\,t)/\sqrt\rho,&\rho>0,\\
+t,&\rho=0,\\
+\sinh(\sqrt{-\rho}\,t)/\sqrt{-\rho},&\rho<0.
+\end{cases}
+\]
+因而 $\lVert J(t)\rVert=|S_\rho(t)|\lVert v\rVert$。
+取 $\rho=-\kappa$ 时，式~\eqref{hgov:geo:eq:growth} 处处取等号。
+\end{proposition}
+\begin{certificate}[平行标架与标量初值解]
+保存 $P_t$ 的度量保持式、径向曲率作用 $\rho\operatorname{id}$、
+$S_\rho''+\rho S_\rho=0$、$S_\rho(0)=0$、$S_\rho'(0)=1$。
+声明的时间区间取为测地线及该曲率作用共同有效的区间。
+\end{certificate}
+\begin{proof}
+由 $D_t(P_tv)=0$，有
+\[
+D_t(S_\rho P_tv)=S_\rho'P_tv,
+\qquad
+D_t^2(S_\rho P_tv)=S_\rho''P_tv.
+\]
+平行运输保持内积，因此 $P_tv\perp\dot\gamma(t)$。
+代入曲率假设与标量方程，得到
+\[
+D_t^2(S_\rho P_tv)+R^g(S_\rho P_tv,\dot\gamma)\dot\gamma
+=(S_\rho''+\rho S_\rho)P_tv=0.
+\]
+初值同为 $(0,v)$，故 Jacobi 方程的唯一性给出所列 $J$。
+由 $\lVert P_tv\rVert=\lVert v\rVert$ 得到范数公式。
+三种 $S_\rho$ 逐项微分即可核验其方程与初值；当 $\rho=-\kappa$ 时，
+$S_\rho(t)>0$ 对 $t>0$ 成立，并与式~\eqref{hgov:geo:eq:growth} 的右端一致。
+因此证书链为
+\[
+\text{常径向曲率}\land\text{平行标架}
+\Longrightarrow\text{标量常系数方程}
+\Longrightarrow\text{精确变分及其范数}.
+\]
+\end{proof}
+
+\begin{proposition}[双曲平面中有限夹角的精确分离]
+\label{exp:geo:prop:hyperbolic-separation}
+令 $a>0$，在 $\mathbb R^3$ 上取 Lorentz 双线性型
+$\langle X,Y\rangle_L=-X_0Y_0+X_1Y_1+X_2Y_2$，并令
+\[
+\mathbb H_a^2=\{X:\langle X,X\rangle_L=-a^{-2},\ X_0>0\}
+\]
+带限制的黎曼度量。该度量的截面曲率为 $-a^2$。
+从 $o=(a^{-1},0,0)$ 出发、夹角为 $\theta\in[0,\pi]$ 的两条单位速射线可写为
+\[
+\gamma_\theta(t)=\frac1a
+\bigl(\cosh(at),\sinh(at)\cos\theta,\sinh(at)\sin\theta\bigr).
+\]
+记 $d_\theta(t)=d(\gamma_0(t),\gamma_\theta(t))$，则
+\begin{equation}
+\label{exp:geo:eq:finite-angle}
+d_\theta(t)=\frac2a\operatorname{arsinh}
+\left(\sinh(at)\sin\frac\theta2\right).
+\end{equation}
+在固定 $t\ge0$ 下，
+$\lim_{\theta\downarrow0}d_\theta(t)/\theta=\sinh(at)/a$。
+在固定 $\theta\in(0,\pi]$ 下，
+\[
+d_\theta(t)=2t+\frac2a\log\sin(\theta/2)+O(e^{-2at})
+\qquad(t\to\infty).
+\]
+\end{proposition}
+\begin{certificate}[嵌入、径向度量与双曲距离]
+保存 Lorentz 型、双曲面的上叶条件、切空间上的正定限制、射线的速度与加速度。
+距离证书保存
+\[
+\cosh\bigl(a\,d(X,Y)\bigr)=-a^2\langle X,Y\rangle_L,
+\qquad
+1+2\sinh^2z=\cosh(2z).
+\]
+两个极限分别登记固定时间和固定非零夹角的量词及其有效域。
+这一模型及其黎曼计算采用通常双曲空间约定\cite{ExtLeeRiemann}。
+\end{certificate}
+\begin{proof}
+在 $o$ 的切空间，Lorentz 型限制为最后两个坐标上的欧氏内积。
+对任一点 $X$，先作最后两个坐标的欧氏旋转，使其成为 $(X_0,r,0)$，其中 $r\ge0$。
+令 $c=aX_0$、$s=ar$，则 $c^2-s^2=1$，矩阵
+\[
+L=\begin{pmatrix}c&-s&0\\-s&c&0\\0&0&1\end{pmatrix}
+\]
+保持 Lorentz 型及上叶，且 $L(X_0,r,0)^{\mathsf T}=(a^{-1},0,0)^{\mathsf T}$。
+因此存在将任一点移至 $o$ 的等距线性变换，限制度量处处正定。
+记环境平直导数为 $D$。对切向量场 $X,Y$，微分 $\langle Y,p\rangle_L=0$，得到
+$\langle D_XY,p\rangle_L=-g(X,Y)$，故
+\[
+D_XY=\nabla^g_XY+a^2g(X,Y)p.
+\]
+环境曲率为零，取 $D_XD_YZ-D_YD_XZ-D_{[X,Y]}Z$ 的切向分量，可得
+\[
+R^g(X,Y)Z=-a^2\bigl(g(Y,Z)X-g(X,Z)Y\bigr),
+\]
+从而截面曲率为 $-a^2$。
+所列射线满足 $\lVert\dot\gamma_\theta\rVert_g=1$ 与
+$\ddot\gamma_\theta=a^2\gamma_\theta$；加速度为法向，故它是单位速测地线。
+
+在以 $o$ 为中心的径向坐标中，直接微分上述参数式得到
+\[
+g=dr^2+\frac{\sinh^2(ar)}{a^2}\,d\theta^2.
+\]
+从 $o$ 到径向坐标为 $r$ 的点，任意路径长度至少为径向坐标的总变化 $r$，径向曲线达到此值。
+故 $d(o,Y)=r$，且 $\cosh(ar)=aY_0=-a^2\langle o,Y\rangle_L$。
+再用保持 Lorentz 型的等距变换移动首点，得到证书中的一般距离公式。
+现在直接计算
+\[
+\begin{aligned}
+-a^2\langle\gamma_0(t),\gamma_\theta(t)\rangle_L
+&=\cosh^2(at)-\sinh^2(at)\cos\theta\\
+&=1+2\sinh^2(at)\sin^2(\theta/2).
+\end{aligned}
+\]
+因距离非负，应用 $\cosh(2\operatorname{arsinh}z)=1+2z^2$ 得到式~\eqref{exp:geo:eq:finite-angle}。
+
+在固定 $t$ 下，$\operatorname{arsinh}z=z+O(z^3)$ 与
+$\sin(\theta/2)=\theta/2+O(\theta^3)$ 给出第一个极限。
+相应角向变分场为
+$J(t)=\partial_\theta\gamma_\theta(t)|_{\theta=0}
+=a^{-1}(0,0,\sinh(at))$，其范数恰为该极限。
+固定非零 $\theta$ 时，利用
+$\operatorname{arsinh}z=\log(2z)+O(z^{-2})$ 及
+$\sinh(at)=\tfrac12e^{at}(1-e^{-2at})$，得到最后一个展开。
+这些计算分别保存无穷小变分、有限夹角距离及其极限，便于在同一时间尺度上选择观察参数。
+\end{proof}
+
+\section{有限观测差、Taylor 余项与测量精度}
+\label{exp:geo:section:finite-observation}
+
+\begin{definition}[带余项和测量精度的任务观察]
+\label{hgov:geo:def:observation}
+设 $\Upsilon:[-\varepsilon_0,\varepsilon_0]\times[0,T]\to M$ 是光滑变分，满足
+$\Upsilon(0,t)=\gamma(t)$、$\partial_\varepsilon\Upsilon(0,t)=J(t)$。
+任务观察为 $C^2$ 映射 $\mathcal O:U\to\mathbb R^m$，其中 $U\subseteq M$ 为开集，
+且 $\Upsilon([-\varepsilon_0,\varepsilon_0]\times[0,T])\subseteq U$。
+记
+\[
+B_t=D\mathcal O_{\gamma(t)},\qquad
+y_\varepsilon(t)=\mathcal O(\Upsilon(\varepsilon,t)).
+\]
+给定包含 $J(t)$ 的已登记子空间 $V_t\subseteq T_{\gamma(t)}M$，假定存在常数 $c>0$ 使
+\[
+\lVert B_tw\rVert\ge c\lVert w\rVert_g
+\quad(w\in V_t),\qquad
+\sup_{|\sigma|\le\varepsilon_0}
+\left\lVert\partial_\varepsilon^2
+(\mathcal O\circ\Upsilon)(\sigma,t)\right\rVert\le L_{\mathcal O}(t).
+\]
+实际读数 $\widehat y_0(t)$、$\widehat y_\varepsilon(t)$ 的误差界分别为
+$e_0(t)$、$e_\varepsilon(t)$；观测协议的区分阈值为 $\eta(t)\ge0$。
+\end{definition}
+
+\begin{proposition}[几何变分到有限观测区分的充分条件]
+\label{hgov:geo:prop:distinguish}
+在定理~\ref{hgov:geo:thm:growth} 与定义~\ref{hgov:geo:def:observation} 的共同有效域中，若
+\begin{equation}
+\label{hgov:geo:eq:distinguish}
+\frac{c|\varepsilon|\lVert v\rVert_g}{\sqrt\kappa}
+\sinh(\sqrt\kappa\,t)
+-\frac{L_{\mathcal O}(t)}2\varepsilon^2
+-e_0(t)-e_\varepsilon(t)>\eta(t),
+\end{equation}
+则 $\lVert\widehat y_\varepsilon(t)-\widehat y_0(t)\rVert>\eta(t)$。
+\end{proposition}
+
+\begin{certificate}[观察映射、非退化下界与误差预算]
+保存 $\Upsilon$、$\mathcal O$、$V_t$、$B_t$、$c$、$L_{\mathcal O}(t)$、
+$\varepsilon_0$、所选 $\varepsilon,t$、两个测量误差界及区分阈值。
+在正交标架下，可用
+$\bigl(B_t|_{V_t}\bigr)^*\bigl(B_t|_{V_t}\bigr)\succeq c^2\operatorname{id}_{V_t}$ 核验下界；
+二阶导数界在整个参数线段上核验。式~\eqref{hgov:geo:eq:distinguish} 的数值或符号检查作为最终区分见证。
+\end{certificate}
+
+\begin{proof}
+固定 $t$，令 $Y_t(\sigma)=\mathcal O(\Upsilon(\sigma,t))$。
+链式法则给出 $Y_t'(0)=B_tJ(t)$。
+为同时处理正、负 $\varepsilon$，将积分余项写在固定区间 $[0,1]$ 上：
+\[
+\begin{aligned}
+y_\varepsilon-y_0
+&=\varepsilon B_tJ(t)+r_\varepsilon(t),\\
+r_\varepsilon(t)
+&=\varepsilon^2\int_0^1(1-s)Y_t''(s\varepsilon)\,ds,\\
+\lVert r_\varepsilon(t)\rVert
+&\le\varepsilon^2L_{\mathcal O}(t)\int_0^1(1-s)\,ds
+=\frac{L_{\mathcal O}(t)}2\varepsilon^2.
+\end{aligned}
+\]
+若变分落在坐标图中，记其坐标为 $x^i(\sigma,t)$，则各观察分量满足
+\[
+Y_{t,\ell}''(\sigma)
+=\sum_{i,j}(\partial_i\partial_j\mathcal O_\ell)
+\,\partial_\sigma x^i\partial_\sigma x^j
++\sum_i(\partial_i\mathcal O_\ell)\,\partial_\sigma^2x^i.
+\]
+右端全部在 $\Upsilon(\sigma,t)$ 处求值。
+因此 $L_{\mathcal O}(t)$ 的核验包含观察映射的二阶变化和变分曲线的二阶变化；
+多个坐标图覆盖时可逐段计算并取共同上界。
+依次应用反三角不等式、观察下界、定理~\ref{hgov:geo:thm:growth} 及测量误差界，得到
+\[
+\begin{aligned}
+\lVert\widehat y_\varepsilon-\widehat y_0\rVert
+&\ge\lVert y_\varepsilon-y_0\rVert-e_0-e_\varepsilon\\
+&\ge c|\varepsilon|\lVert J(t)\rVert_g
+-\frac{L_{\mathcal O}(t)}2\varepsilon^2-e_0-e_\varepsilon\\
+&\ge\frac{c|\varepsilon|\lVert v\rVert_g}{\sqrt\kappa}
+\sinh(\sqrt\kappa\,t)
+-\frac{L_{\mathcal O}(t)}2\varepsilon^2-e_0-e_\varepsilon.
+\end{aligned}
+\]
+最后由式~\eqref{hgov:geo:eq:distinguish} 得到结论。其谓词接续为
+\[
+\begin{gathered}
+\text{曲率界与变分初值}
+\Longrightarrow\text{变分范数下界},\\
+\text{变分下界}\land\text{观察下界}\land\text{余项及精度界}
+\Longrightarrow\text{任务观测可区分}.
+\end{gathered}
+\]
+\end{proof}
+
+\begin{proposition}[观察导数扰动下的区分证书稳定性]
+\label{exp:geo:prop:observation-robustness}
+固定 $t$，设 $B_t|_{V_t}$ 具有定义~\ref{hgov:geo:def:observation} 中的下界 $c>0$。
+另一个 $C^2$ 观察 $\widetilde{\mathcal O}$ 的导数为 $\widetilde B_t$，并且
+\[
+\bigl\|(\widetilde B_t-B_t)|_{V_t}\bigr\|\le\delta<c.
+\]
+则 $\lVert\widetilde B_tw\rVert\ge(c-\delta)\lVert w\rVert_g$ 对 $w\in V_t$ 成立。
+若替代观察具有二阶余项界 $\widetilde L(t)$ 及误差界
+$\widetilde e_0(t),\widetilde e_\varepsilon(t)$，则式~\eqref{hgov:geo:eq:distinguish}
+中分别以 $c-\delta,\widetilde L,\widetilde e_0,\widetilde e_\varepsilon$ 代入所得的严格不等式，
+给出替代读数的同一可区分结论。
+\end{proposition}
+\begin{certificate}[限制算子范数与余项版本]
+保存共同子空间 $V_t$、其内积、两项观察的有效域及
+$(\widetilde B_t-B_t)|_{V_t}$ 的算子范数界。
+替代观察的 Taylor 余项与测量精度单独保存，
+并检查 $c-\delta>0$ 与最终阈值不等式。
+\end{certificate}
+\begin{proof}
+对任意 $w\in V_t$，反三角不等式给出
+\[
+\lVert\widetilde B_tw\rVert
+\ge\lVert B_tw\rVert-\lVert(\widetilde B_t-B_t)w\rVert
+\ge(c-\delta)\lVert w\rVert_g.
+\]
+其谓词链为
+\[
+\text{原观察下界 }c\land\text{导数差界 }\delta<c
+\Longrightarrow\text{替代观察下界 }c-\delta.
+\]
+将该下界与替代观察自身的积分余项界代入
+命题~\ref{hgov:geo:prop:distinguish} 的证明，便得所述有限读数结论。
+整个推导仅在指定 $V_t$ 上使用算子差；因此未观察方向上的变化不会被混入这个下界。
+\end{proof}
+
+\begin{remark}[一维可观测方向的矩阵核验]
+取欧氏切空间 $\mathbb R^2$，$V=\operatorname{span}(e_1)$，
+$B=(1\ \ 0)$ 与 $\widetilde B=(1+u\ \ v)$。
+在 $V$ 上有 $c=1$、$\delta=|u|$；若 $|u|<1$，则
+\[
+\lVert\widetilde B(te_1)\rVert=|1+u|\,|t|
+\ge(1-|u|)|t|.
+\]
+$v$ 不进入这个限制算子范数。
+若任务另要求恢复 $e_2$ 方向，则需为扩大的方向空间重新核验下界。
+对仿射观察与直线参数变分 $z(\varepsilon)=z_0+\varepsilon w$，
+$Y''(\varepsilon)=0$，故此实例的 Taylor 余项界可以取零。
+\end{remark}
+
+\section{扰动幅度选择与可区分阈值}
+\label{exp:geo:section:amplitude}
+
+\begin{proposition}[有限扰动幅度的最优证书预算]
+\label{exp:geo:prop:amplitude-budget}
+固定共同有效域内的时刻 $t>0$，记
+\[
+a=\frac{c\lVert v\rVert_g}{\sqrt\kappa}\sinh(\sqrt\kappa t)>0,
+\qquad L=L_{\mathcal O}(t)\ge0.
+\]
+设对全部 $0<|\varepsilon|\le\varepsilon_0$，存在统一误差预算 $E\ge0$，使
+$e_0(t)+e_\varepsilon(t)+\eta(t)\le E$。
+置 $Q(r)=ar-Lr^2/2$。
+存在幅度 $r\in(0,\varepsilon_0]$ 使 $Q(r)>E$ 的充要条件为
+\[
+Q(r_*)>E,\qquad
+r_*=
+\begin{cases}
+\varepsilon_0,&L=0,\\
+\min\{\varepsilon_0,a/L\},&L>0.
+\end{cases}
+\]
+满足该条件的幅度给出命题~\ref{hgov:geo:prop:distinguish} 的区分证书。
+当 $L>0$ 时，可行幅度集合还可写为
+\[
+(0,\varepsilon_0]\cap
+\left(\frac{a-\sqrt{a^2-2LE}}L,
+      \frac{a+\sqrt{a^2-2LE}}L\right),
+\]
+其中该表达式要求 $a^2-2LE>0$；判别式非正时集合为空。
+\end{proposition}
+\begin{certificate}[统一预算、凹二次式与区间约束]
+保存 $a,L,E,\varepsilon_0$ 的来源，误差预算对整个幅度区间的统一性，
+$Q'(r)=a-Lr$、$Q''(r)=-L$，以及所选 $r$ 所在的共同有效域。
+这项最优化针对已证明下界 $Q$；实际读数仍采用同一观察版本与精度协议。
+\end{certificate}
+\begin{proof}
+若 $L=0$，则 $Q(r)=ar$ 严格递增，故其在 $[0,\varepsilon_0]$ 上的最大值为
+$Q(\varepsilon_0)$。
+若 $L>0$，导数 $a-Lr$ 在 $a/L$ 左侧为正、右侧为负，
+所以区间最大值在 $r_* =\min\{\varepsilon_0,a/L\}$ 达到。
+$a>0$ 与 $\varepsilon_0>0$ 保证 $r_*>0$。
+由此
+\[
+\exists r\in(0,\varepsilon_0]:Q(r)>E
+\Longleftrightarrow\max_{[0,\varepsilon_0]}Q>E
+\Longleftrightarrow Q(r_*)>E.
+\]
+若 $Q(r)>E\ge e_0+e_\varepsilon+\eta$，则
+$Q(r)-e_0-e_\varepsilon>\eta$，正是所需的严格阈值条件。
+当 $L>0$ 时，完成平方得到
+\[
+Q(r)-E=\frac{a^2-2LE}{2L}
+-\frac L2\left(r-\frac aL\right)^2.
+\]
+此式为正当且仅当判别式为正且 $r$ 严格落在两根之间；
+再与允许幅度区间求交，得到所列集合。
+\end{proof}
+
+\begin{remark}[具有非零余项的数值证书实例]
+取 $\kappa=1$、$c\lVert v\rVert_g=1$，并在已核验有效的时刻
+$t=\operatorname{arsinh}3$ 观察，则 $a=3$。
+设 $L=2$、$\varepsilon_0=1$、$\eta=1/2$，且两项测量误差之和在该幅度区间上一致不超过 $1/2$，
+因此可取 $E=1$。
+此时 $r_*=1$、$Q(r_*)=3-1=2>1$，所选幅度满足
+\[
+\lVert\widehat y_\varepsilon-\widehat y_0\rVert
+\ge2-\frac12=\frac32>\eta.
+\]
+全部通过该充分条件的幅度为
+$((3-\sqrt5)/2,1]$。
+该实例同时使用负曲率变分下界、二阶余项和非零测量误差，给出可直接复核的参数选择。
+\end{remark}
+
+\begin{remark}[观察证书的任务域]
+上述证书保存几何扰动在指定观察与精度下的可区分性。
+候选的任务合法性、障碍可填充性和执行后的目标成立，分别由相应任务谓词、复形及执行证书登记。
+从观察结果进入这些接口时，保持共同的对象标识、参数范围与观察版本。
+\end{remark}
+
+
+\chapter{纤维丛联络、异构运输与几何余链接口}
+\label{exp:ch:transport}
+
+本章把几何扇区的联络数据接续为可复合的异构运输，并构造可进入同调计算的余链数据。
+所需交换条件分别在局部坐标、路径、子丛与积分层面给出。
+每项余链构造均登记具体空间、次数和微分；联络变化产生的曲率形式则通过迹与 Stokes 公式进入标量余链。
+
+\section{联络矩阵、协变外导数与曲率计算}
+\label{hgov:geo:transport}
+
+\begin{definition}[协变外导数及曲率作用]
+\label{hgov:geo:def:exterior}
+令 $E\to M$ 为实或复向量丛，$\nabla$ 为光滑联络。
+记 $\Omega^k(M,E)$ 为 $E$ 值 $k$ 次微分形式空间。
+协变外导数
+$d_\nabla:\Omega^k(M,E)\to\Omega^{k+1}(M,E)$
+在局部标架下写为
+\[
+d_\nabla\xi=d\xi+A\wedge\xi,
+\qquad F_\nabla=dA+A\wedge A.
+\]
+其中 $A$ 为矩阵值一形式，楔积包含系数端的矩阵复合。
+具体地，在秩为 $r$ 的局部标架 $e=(e_1,\ldots,e_r)$ 下，将截面写成 $s=e u$，$u$ 为列向量，则
+\[
+\nabla(eu)=e(du+Au),\qquad
+A=\sum_iA_i\,dx^i,
+\qquad
+F_\nabla=\frac12\sum_{i,j}(F_\nabla)_{ij}\,dx^i\wedge dx^j.
+\]
+对 $E$ 值 $k$ 形式，矩阵一形式的作用为
+\[
+(A\wedge\xi)(X_0,\ldots,X_k)
+=\sum_{i=0}^k(-1)^iA(X_i)
+\xi(X_0,\ldots,\widehat X_i,\ldots,X_k).
+\]
+坐标标架的向量场满足 $[\partial_i,\partial_j]=0$；
+一般向量场上的曲率作用登记为
+$F_\nabla(X,Y)=[\nabla_X,\nabla_Y]-\nabla_{[X,Y]}$。
+若新标架为 $e'=e g$，则系数向量为 $u'=g^{-1}u$。
+由 $\nabla(e g u')=e(dg\,u'+g\,du'+Ag\,u')$ 可读出
+$A'=g^{-1}Ag+g^{-1}dg$。
+对 $\operatorname{End}(E)$ 值 $k$ 次形式 $\Theta$，诱导协变外导数为
+\[
+d_{\nabla^{\operatorname{End}}}\Theta
+=d\Theta+A\wedge\Theta-(-1)^k\Theta\wedge A.
+\]
+\end{definition}
+
+\begin{theorem}[曲率的局部交换式与协变平方]
+\label{hgov:geo:thm:curvature}
+在局部坐标中写 $\nabla_i=\partial_i+A_i$。对光滑截面 $s$ 及任意 $E$ 值微分形式 $\xi$，有
+\begin{align}
+\label{hgov:geo:eq:commutator}
+[\nabla_i,\nabla_j]s
+&=(\partial_iA_j-\partial_jA_i+[A_i,A_j])s
+=(F_\nabla)_{ij}s,\\
+\label{hgov:geo:eq:covariant-square}
+d_\nabla^2\xi&=F_\nabla\wedge\xi,\\
+\label{hgov:geo:eq:bianchi}
+d_{\nabla^{\operatorname{End}}}F_\nabla&=0.
+\end{align}
+这些等式在全部局部标架之间相容\cite{ExtKobayashiNomizu,ExtBottTu}。
+\end{theorem}
+
+\begin{certificate}[局部乘法律、次数与标架相容]
+保存坐标图、局部标架、联络矩阵 $A_i$、形式次数以及
+$d(\alpha\wedge\beta)=d\alpha\wedge\beta+(-1)^{\deg\alpha}\alpha\wedge d\beta$。
+更换标架时保存
+$A'=g^{-1}Ag+g^{-1}dg$、$F'=g^{-1}Fg$ 及系数向量的变换规则。
+证书由下述逐项展开和相容恒等式组成。
+\end{certificate}
+
+\begin{proof}
+展开 $\nabla_i\nabla_js$，得到
+\[
+\partial_i\partial_js+(\partial_iA_j)s
++A_j\partial_is+A_i\partial_js+A_iA_js.
+\]
+交换 $i,j$ 后相减，二阶混合导数和截面的一阶导数项相消，余项即为式~\eqref{hgov:geo:eq:commutator}。
+再按一形式 $A$ 的次数计算
+\[
+\begin{aligned}
+d_\nabla^2\xi
+&=d(d\xi+A\wedge\xi)+A\wedge(d\xi+A\wedge\xi)\\
+&=dA\wedge\xi-A\wedge d\xi
++A\wedge d\xi+A\wedge A\wedge\xi\\
+&=(dA+A\wedge A)\wedge\xi.
+\end{aligned}
+\]
+对曲率有
+\[
+dF=dA\wedge A-A\wedge dA,
+\qquad
+A\wedge F-F\wedge A=A\wedge dA-dA\wedge A,
+\]
+相加即得式~\eqref{hgov:geo:eq:bianchi}。
+为核验标架相容，记 $a=g^{-1}dg$、$\widetilde A=g^{-1}Ag$。
+由 $d(g^{-1})=-g^{-1}(dg)g^{-1}$ 及一形式的乘法律，得到
+\[
+\begin{aligned}
+da&=-a\wedge a,\\
+d\widetilde A&=-a\wedge\widetilde A+g^{-1}(dA)g-\widetilde A\wedge a,\\
+d(\widetilde A+a)+(\widetilde A+a)\wedge(\widetilde A+a)
+&=g^{-1}(dA+A\wedge A)g.
+\end{aligned}
+\]
+第一式消去 $da+a\wedge a$，第二式的两个交叉项与平方展开中的交叉项相消。
+故 $F'=g^{-1}Fg$，作用于 $u'=g^{-1}u$ 后给出 $F'u'=g^{-1}Fu$。
+这使协变平方和 Bianchi 等式在各局部标架之间一致。
+因此各局部计算给出全局成立的丛值等式，其接续为
+\[
+\text{联络矩阵及次数}
+\Longrightarrow d_\nabla^2=F_\nabla\wedge(-)
+\Longrightarrow\text{标架相容的曲率作用}.
+\]
+\end{proof}
+
+\section{异构拉回、平行运输与路径记录}
+\label{exp:geo:section:pullback}
+
+\begin{definition}[保持联络的异构运输]
+\label{hgov:geo:def:heterogeneous}
+两个扇区 $\alpha,\beta$ 之间的运输由光滑基映射
+$f_{\alpha\beta}:M_\alpha\to M_\beta$ 和光滑线性丛映射
+\[
+T_{\alpha\beta}:E_\alpha\longrightarrow f_{\alpha\beta}^*E_\beta
+\]
+给出。对每个 $s\in\Gamma(E_\alpha)$，要求
+\begin{equation}
+\label{hgov:geo:eq:connection-intertwining}
+(f_{\alpha\beta}^*\nabla^\beta)(T_{\alpha\beta}s)
+=(\operatorname{id}_{T^*M_\alpha}\otimes T_{\alpha\beta})(\nabla^\alpha s).
+\end{equation}
+各扇区纤维可具有不同维数；运输记录其核、像及任务观察的保持条件。
+若任务要求运输可逆，则在该记录中加入丛逆及双侧复合恒等式。
+\end{definition}
+
+\begin{proposition}[拉回联络与异构运输的坐标证书]
+\label{exp:geo:prop:pullback-coordinates}
+在源坐标 $x^1,\ldots,x^n$ 与目标坐标 $y^1,\ldots,y^m$ 中，
+令 $f=(f^1,\ldots,f^m)$，目标联络写为
+$\nabla^\beta=d+\sum_aA_a^\beta(y)\,dy^a$。
+在拉回标架中，$f^*\nabla^\beta=d+\widetilde A$ 的系数及曲率满足
+\begin{align}
+\label{exp:geo:eq:pullback-connection}
+\widetilde A_i(x)&=\sum_aA_a^\beta(f(x))\partial_i f^a(x),\\
+\label{exp:geo:eq:pullback-curvature}
+\widetilde F_{ij}(x)&=\sum_{a,b}F^\beta_{ab}(f(x))
+\partial_i f^a(x)\partial_j f^b(x).
+\end{align}
+若源联络为 $d+A^\alpha$，运输 $T$ 的局部矩阵为 $H(x)$，则保持联络的充要条件为
+\begin{equation}
+\label{exp:geo:eq:matrix-intertwining}
+\partial_iH+\widetilde A_iH-HA_i^\alpha=0
+\qquad(i=1,\ldots,n).
+\end{equation}
+其中 $H$ 可以是不同源、目标秩所对应的长方矩阵。
+\end{proposition}
+\begin{certificate}[链式法则、混合偏导与矩阵交换]
+保存 $f$、源和目标标架、$A_i^\alpha,A_a^\beta$、$H$，以及各矩阵的行列维数。
+对每个 $i,j$ 保存 $\partial_i\partial_jf^a=\partial_j\partial_if^a$，
+并分别核验式~\eqref{exp:geo:eq:pullback-curvature} 的导数项与交换子项。
+保持联络以式~\eqref{exp:geo:eq:matrix-intertwining} 在共同坐标域内的恒等成立为证书。
+\end{certificate}
+\begin{proof}
+拉回一形式满足 $f^*(dy^a)=df^a=\sum_i\partial_if^a\,dx^i$，
+因此目标联络一形式的拉回直接给出式~\eqref{exp:geo:eq:pullback-connection}。
+逐项微分得到
+\[
+\partial_i\widetilde A_j
+=\sum_{a,b}(\partial_bA_a^\beta)(f(x))
+\partial_if^b\partial_jf^a
++\sum_aA_a^\beta(f(x))\partial_i\partial_jf^a.
+\]
+交换 $i,j$ 相减后，第二项由混合偏导交换而消失。
+重命名求和指标，第一项成为
+\[
+\sum_{a,b}(\partial_aA_b^\beta-\partial_bA_a^\beta)(f(x))
+\partial_if^a\partial_jf^b.
+\]
+矩阵交换子另给出
+\[
+[\widetilde A_i,\widetilde A_j]
+=\sum_{a,b}[A_a^\beta,A_b^\beta](f(x))
+\partial_if^a\partial_jf^b.
+\]
+两式相加即为式~\eqref{exp:geo:eq:pullback-curvature}，全局表达是
+$F_{f^*\nabla^\beta}=f^*F_{\nabla^\beta}$。
+
+对任意源截面系数 $u$，有
+\[
+\begin{aligned}
+(d+\widetilde A)(Hu)&=(dH)u+H\,du+\widetilde A H u,\\
+H(d+A^\alpha)u&=H\,du+H A^\alpha u.
+\end{aligned}
+\]
+两式对全部 $u$ 相等，当且仅当 $(dH+\widetilde A H-H A^\alpha)u=0$ 对全部 $u$ 成立，
+这又当且仅当式~\eqref{exp:geo:eq:matrix-intertwining} 成立。
+整个计算仅用矩阵乘法的类型相容，因而适用于不同秩的异构运输。
+\end{proof}
+
+\begin{theorem}[异构运输的曲率、路径与有限复合相容]
+\label{hgov:geo:thm:transport}
+对定义~\ref{hgov:geo:def:heterogeneous} 中的运输，令 $\gamma:[0,1]\to M_\alpha$ 为分段光滑路径。
+记相应平行运输为 $\operatorname{PT}$，则
+\begin{align}
+\label{hgov:geo:eq:curvature-intertwining}
+F_{f_{\alpha\beta}^*\nabla^\beta}\,T_{\alpha\beta}
+&=(\operatorname{id}_{\Lambda^2T^*M_\alpha}\otimes T_{\alpha\beta})F_{\nabla^\alpha},\\
+\label{hgov:geo:eq:parallel-intertwining}
+\operatorname{PT}^{\beta}_{f_{\alpha\beta}\circ\gamma}
+\circ(T_{\alpha\beta})_{\gamma(0)}
+&=(T_{\alpha\beta})_{\gamma(1)}
+\circ\operatorname{PT}^{\alpha}_{\gamma}.
+\end{align}
+保持联络的运输可作有限复合；复合运输仍满足上述两式。
+若每步另满足相同任务值域中的观察交换
+$\mathcal O_\beta(f_{\alpha\beta}(x),(T_{\alpha\beta})_xv)=\mathcal O_\alpha(x,v)$，
+则任意有限复合均保持该任务观察。
+\end{theorem}
+
+\begin{certificate}[丛映射、协变交换与路径证书]
+保存基映射、丛映射、拉回丛的类型识别以及式~\eqref{hgov:geo:eq:connection-intertwining}。
+路径证书保存起终点、联络在各光滑段上的系数和线性初值问题。
+复合证书保存每个中间扇区与自然识别
+$f_{\alpha\beta}^*f_{\beta\gamma}^*E_\gamma
+\cong(f_{\beta\gamma}\circ f_{\alpha\beta})^*E_\gamma$。
+观察保持证书同时保存观察的输入类型与共同值域。
+\end{certificate}
+
+\begin{proof}
+将 $T_{\alpha\beta}$ 按系数作用扩张到丛值形式。
+联络交换式与外微分的乘法律给出
+\[
+d_{f_{\alpha\beta}^*\nabla^\beta}(T_{\alpha\beta}\xi)
+=T_{\alpha\beta}(d_{\nabla^\alpha}\xi).
+\]
+对截面再作用一次，并使用式~\eqref{hgov:geo:eq:covariant-square}，即得曲率交换式。
+给定初值 $v$，令 $u(t)$ 为沿 $\gamma$ 的平行截面。
+在一个坐标段中，平行方程和基解矩阵分别为
+\[
+u'(t)+A^\alpha_{\gamma(t)}(\dot\gamma(t))u(t)=0,
+\qquad
+U'(t)=-A^\alpha_{\gamma(t)}(\dot\gamma(t))U(t),\quad U(0)=I.
+\]
+令 $\widetilde u(t)=H(\gamma(t))u(t)$。
+用式~\eqref{exp:geo:eq:matrix-intertwining} 沿 $\gamma$ 缩并，得到
+\[
+\begin{aligned}
+\widetilde u'+\widetilde A(\dot\gamma)\widetilde u
+&=\bigl(dH(\dot\gamma)+\widetilde A(\dot\gamma)H
+       -HA^\alpha(\dot\gamma)\bigr)u
+ +H\bigl(u'+A^\alpha(\dot\gamma)u\bigr)\\
+&=0.
+\end{aligned}
+\]
+由拉回联络公式，$\widetilde A(\dot\gamma)=A^\beta(df\dot\gamma)$，
+所以该方程就是沿 $f\circ\gamma$ 的目标平行方程，初值为 $H(\gamma(0))v$。
+线性常微分方程解的唯一性给出式~\eqref{hgov:geo:eq:parallel-intertwining}。
+在路径跨越标架时，系数按 $g^{-1}$ 变换而纤维向量保持相同；
+各光滑段端点处顺次复合，便得到整条分段光滑路径的交换式。
+
+两步运输的复合为
+\[
+T_{\alpha\gamma}
+=(f_{\alpha\beta}^*T_{\beta\gamma})\circ T_{\alpha\beta},
+\qquad
+f_{\alpha\gamma}=f_{\beta\gamma}\circ f_{\alpha\beta}.
+\]
+先使用第一步的协变交换式，再使用第二步的拉回交换式，得到复合的协变交换。
+以恒等运输为基例，对步数归纳，所有有限复合均保持联络，并继承曲率与路径交换。
+对观察交换作同样的逐次代入，得到
+\[
+\mathcal O_{\alpha_n}\bigl(f_{\alpha_0\alpha_n}(x),
+(T_{\alpha_0\alpha_n})_xv\bigr)
+=\mathcal O_{\alpha_0}(x,v),
+\]
+其中各复合的基映射按上式理解，故任务观察保持。
+\end{proof}
+
+\begin{proposition}[圆周平坦联络的整体运输与系数上同调]
+\label{exp:geo:prop:circle-holonomy}
+在单位圆周 $S^1\subset\mathbb R^2$ 上令
+$\eta=x\,dy-y\,dx$，并取平凡复线丛 $E=S^1\times\mathbb C$。
+给定 $\lambda\in\mathbb R$，联络
+\[
+\nabla_\lambda=d+i\lambda\eta
+\]
+满足 $F_{\nabla_\lambda}=0$。
+沿角度提升为 $\theta(t)$ 的路径，其平行运输为
+\[
+z(1)=\exp\bigl(-i\lambda(\theta(1)-\theta(0))\bigr)z(0).
+\]
+绕数为 $n$ 的闭路径具有整体运输 $e^{-2\pi i\lambda n}$。
+此外，平坦余链复形的上同调为
+\[
+H^k\bigl(\Omega^\bullet(S^1,E),d_{\nabla_\lambda}\bigr)
+\cong
+\begin{cases}
+\mathbb C,&\lambda\in\mathbb Z\text{ 且 }k=0,1,\\
+0,&\lambda\notin\mathbb Z\text{ 或 }k\ge2.
+\end{cases}
+\]
+此处 $k$ 取非负整数。
+\end{proposition}
+\begin{certificate}[角度提升、周期条件与一阶方程]
+保存全局形式 $\eta$、局部恒等式 $\eta=d\theta$、路径角度提升及其端点差。
+周期函数表示采用 $\theta\sim\theta+2\pi$。
+上同调计算保存微分算子
+$D_\lambda u=u'+i\lambda u$ 与积分量
+$\int_0^{2\pi}e^{i\lambda s}f(s)\,ds$，并核验零次核和一次商空间。
+\end{certificate}
+\begin{proof}
+$S^1$ 为一维流形，故 $d\eta=0$，且一形式 $\eta\wedge\eta=0$。
+于是 $F_{\nabla_\lambda}=i\lambda d\eta+(i\lambda\eta)\wedge(i\lambda\eta)=0$。
+沿路径的平行方程为 $z'+i\lambda\theta'z=0$，乘以积分因子
+$e^{i\lambda\theta(t)}$ 后导数为零，得到所列平行运输。
+闭路径的角度端点差为 $2\pi n$，所以其整体运输仅由 $n$ 和 $\lambda$ 决定。
+当 $\lambda\notin\mathbb Z$ 时，绕数一的整体运输非恒等。
+
+为计算上同调，将零形式写为光滑周期函数 $u(\theta)$，一形式写为
+$f(\theta)d\theta$。其微分为
+\[
+d_{\nabla_\lambda}u=(u'+i\lambda u)d\theta,
+\qquad\Omega^k(S^1,E)=0\quad(k\ge2).
+\]
+$D_\lambda u=0$ 的通解为 $u=c e^{-i\lambda\theta}$。
+其周期条件为 $(e^{-2\pi i\lambda}-1)c=0$，
+故零次核在整数 $\lambda$ 时为一维，在非整数时为零。
+
+对任意光滑周期 $f$，方程 $D_\lambda u=f$ 的通解为
+\[
+u(\theta)=e^{-i\lambda\theta}
+\left(c+\int_0^\theta e^{i\lambda s}f(s)\,ds\right).
+\]
+周期条件等价于
+\[
+(e^{2\pi i\lambda}-1)c
+=\int_0^{2\pi}e^{i\lambda s}f(s)\,ds.
+\]
+若 $\lambda\notin\mathbb Z$，左端系数非零，故每个 $f$ 都有唯一周期解，微分满射，一次上同调为零。
+若 $\lambda\in\mathbb Z$，可解条件为右端积分等于零。
+该积分是非零线性泛函，因为它作用于周期函数 $f=e^{-i\lambda\theta}$ 时等于 $2\pi$。
+故微分的像为这一泛函的核，其商为一维。
+一次代表可取 $e^{-i\lambda\theta}d\theta$。
+这些核、像和商的计算给出全部上同调，并保留整体路径数据对平坦系数复形的影响。
+\end{proof}
+
+\section{平坦子丛与系数余链复形}
+\label{hgov:geo:complexes}
+
+\begin{proposition}[平坦系数丛的余链构造]
+\label{hgov:geo:prop:flat-complex}
+令 $K\subseteq E$ 为光滑子丛，满足
+$\nabla\Gamma(K)\subseteq\Omega^1(M,K)$ 和 $F_\nabla|_K=0$。
+则限制联络 $\nabla^K$ 给出余链复形
+\[
+\bigl(\Omega^\bullet(M,K),d_{\nabla^K}\bigr),
+\qquad d_{\nabla^K}^2=0.
+\]
+在整个 $E$ 上，$d_\nabla^2=0$ 的充要条件为 $F_\nabla=0$。
+若异构运输保持所选子丛及其联络，则它在拉回后的这些余链复形之间诱导余链映射。
+\end{proposition}
+
+\begin{certificate}[子丛稳定、曲率消去与微分交换]
+保存 $K$ 的局部子标架、联络稳定式、曲率对 $K$ 的零作用和全部形式次数。
+运输部分保存 $T(K)\subseteq f^*K'$ 及协变交换式。
+零平方与余链映射由式~\eqref{hgov:geo:eq:covariant-square} 逐次核验。
+\end{certificate}
+
+\begin{proof}
+联络稳定性保证 $d_{\nabla^K}$ 在所列空间上有定义。
+对任意 $K$ 值形式 $\xi$，定理~\ref{hgov:geo:thm:curvature} 给出
+$d_{\nabla^K}^2\xi=F_\nabla\wedge\xi=0$，故得到余链复形。
+在整个丛上，$F_\nabla=0$ 同样推出平方为零。
+反之，若平方在所有截面上为零，则对每个局部光滑截面 $s$ 有 $F_\nabla s=0$；
+在每点任选具有给定纤维值的局部截面，得到 $F_\nabla$ 对全部纤维向量作用为零，因此 $F_\nabla=0$。
+保持联络的运输满足
+$d_{f^*\nabla^{K'}}T=T d_{\nabla^K}$，这正是余链映射所需的交换式。
+\end{proof}
+
+\begin{remark}[非零整体曲率中的平坦系数实例]
+在 $M=\mathbb R^2$ 的平凡秩二实向量丛中取
+\[
+A=\begin{pmatrix}0&0\\0&x\,dy\end{pmatrix},
+\qquad
+F_\nabla=\begin{pmatrix}0&0\\0&dx\wedge dy\end{pmatrix}.
+\]
+令 $K$ 为第一坐标向量 $e_1$ 生成的子丛。
+对任意函数 $u$，$\nabla(u e_1)=du\,e_1$，故 $K$ 联络稳定且曲率在 $K$ 上为零。
+相应的 $K$ 值形式为 $(\alpha,0)$，其微分与平方为
+\[
+d_\nabla(\alpha,0)=(d\alpha,0),\qquad
+ d_\nabla^2(\alpha,0)=0.
+\]
+包含映射 $T:u\mapsto(u,0)$ 满足 $d_\nabla T=T d$，因此提供一个可直接进入余链计算的系数选择。
+对整个丛，$d_\nabla^2e_2=(dx\wedge dy)e_2$。
+零次闭性还可逐项检验：若 $s=(u,v)$ 且 $\nabla s=0$，则
+$du=0$、$dv+xv\,dy=0$；再应用协变微分得
+$v\,dx\wedge dy=0$，故 $v=0$，而 $u$ 在连通的 $\mathbb R^2$ 上为常数。
+这些等式同时核验子丛稳定性、曲率零作用和具体闭元。
+\end{remark}
+
+\section{有向链、Stokes 公式与有限余链接口}
+\label{exp:geo:section:stokes}
+
+\begin{definition}[光滑奇异链与积分余链]
+\label{hgov:geo:def:singular}
+对光滑流形 $M$ 和系数域 $\mathbb F\in\{\mathbb R,\mathbb C\}$，
+对 $k\ge0$，令 $C_k^{\mathrm{sm}}(M;\mathbb F)$ 为光滑奇异 $k$ 单形生成的自由向量空间；
+光滑奇异单形采用可向标准单形邻域光滑延拓的映射。
+对 $k<0$ 置 $C_k^{\mathrm{sm}}=0$，并置零链的边界为零。
+对 $k\ge1$ 的单形 $\sigma:\Delta^k\to M$，定义边界；同时在全部非负次数定义对偶余链：
+\[
+\partial\sigma=\sum_{i=0}^k(-1)^i\sigma\circ\delta_i,
+\qquad
+C_{\mathrm{sm}}^k(M;\mathbb F)
+=\operatorname{Hom}_{\mathbb F}(C_k^{\mathrm{sm}}(M;\mathbb F),\mathbb F),
+\qquad
+(\delta c)(\sigma)=c(\partial\sigma),
+\]
+其中 $\delta_i$ 是第 $i$ 个有向面嵌入。
+标量形式的积分映射为
+\[
+I_k:\Omega^k(M;\mathbb F)\longrightarrow C_{\mathrm{sm}}^k(M;\mathbb F),
+\qquad I_k(\theta)(\sigma)=\int_{\Delta^k}\sigma^*\theta.
+\]
+\end{definition}
+
+\begin{theorem}[标量微分形式到奇异余链的交换]
+\label{hgov:geo:thm:integration}
+定义~\ref{hgov:geo:def:singular} 给出链复形及其对偶余链复形，且
+\[
+\partial^2=0,\qquad\delta^2=0,\qquad
+\delta I_k=I_{k+1}d.
+\]
+因此每个闭形式 $\theta$ 产生闭余链 $I_k\theta$；每个全微分 $d\zeta$ 产生余边界 $\delta I_{k-1}\zeta$\cite{ExtBottTu,ExtHatcher}。
+\end{theorem}
+
+\begin{certificate}[有向面抵消与 Stokes 证书]
+保存单形的顶点次序、面嵌入、形式的光滑性及积分定向。
+每个余维二的面保留两次出现的符号；积分交换保存各面限制及 Stokes 等式。
+有限链上的证书由单形证书按线性叠加组成。
+\end{certificate}
+
+\begin{proof}
+对 $k\ge2$，每个删去两个顶点 $i<j$ 的面在 $\partial^2\sigma$ 中恰好出现两次，系数分别为
+$(-1)^{i+j-1}$ 和 $(-1)^{i+j}$，两项相消。
+低次数的平方由零链下的零边界定义成立，故 $\partial^2=0$。
+于是对每个余链 $c$ 和链 $a$，有
+$(\delta^2c)(a)=c(\partial^2a)=0$。
+对光滑 $(k+1)$ 单形 $\sigma$，Stokes 公式给出
+\[
+\begin{aligned}
+(\delta I_k\theta)(\sigma)
+&=\sum_{i=0}^{k+1}(-1)^i
+\int_{\Delta^k}(\sigma\circ\delta_i)^*\theta\\
+&=\int_{\partial\Delta^{k+1}}\sigma^*\theta
+=\int_{\Delta^{k+1}}d(\sigma^*\theta)
+=\int_{\Delta^{k+1}}\sigma^*(d\theta)
+=(I_{k+1}d\theta)(\sigma).
+\end{aligned}
+\]
+这证明交换式；闭性及余边界结论由代入 $d\theta=0$ 或 $\theta=d\zeta$ 得到。
+\end{proof}
+
+\begin{proposition}[积分的自然性与有限链实现]
+\label{exp:geo:prop:integration-naturality}
+对光滑映射 $f:M\to N$，定义
+$f_\#\sigma=f\circ\sigma$，并将它线性延拓至光滑奇异链。
+则
+\[
+\partial f_\#=f_\#\partial,
+\qquad
+I_M(f^*\theta)=f_\#^*(I_N\theta),
+\]
+其中 $f_\#^*c=c\circ f_\#$。
+进一步，设 $(K_\bullet,b)$ 是一个由有限维向量空间构成的链复形，且
+$j_k:K_k\to C_k^{\mathrm{sm}}(M;\mathbb F)$ 满足
+$\partial j_k=j_{k-1}b_k$。
+在 $K^k=\operatorname{Hom}_{\mathbb F}(K_k,\mathbb F)$ 上置
+$\delta_K=b^*$，并定义
+\[
+I_{K,k}(\theta)(c)=\int_{j_k(c)}\theta.
+\]
+则
+\[
+\delta_K I_{K,k}=I_{K,k+1}d.
+\]
+特别地，闭形式产生有限闭余链，而全微分在每个有限周期 $c\in\ker b$ 上积分为零。
+\end{proposition}
+\begin{certificate}[单形复合、边界矩阵与实现交换]
+保存 $f$、单形的顶点次序、链的基以及边界矩阵 $b_k$。
+有限实现证书在每个基向量 $c$ 上核验
+$\partial j_k(c)=j_{k-1}(b_kc)$，并核验 $b_{k-1}b_k=0$。
+对偶余链采用相同基，故从 $K^{k-1}$ 到 $K^k$ 的微分矩阵为 $b_k^{\mathsf T}$。
+积分定向与定理~\ref{hgov:geo:thm:integration} 的 Stokes 证书保持一致。
+\end{certificate}
+\begin{proof}
+对任一单形 $\sigma$，由映射复合的结合性，
+\[
+\partial(f\circ\sigma)
+=\sum_i(-1)^if\circ\sigma\circ\delta_i
+=f_\#(\partial\sigma).
+\]
+对 $N$ 上的 $k$ 形式 $\theta$，有
+\[
+\begin{aligned}
+I_M(f^*\theta)(\sigma)
+&=\int_{\Delta^k}\sigma^*(f^*\theta)
+=\int_{\Delta^k}(f\circ\sigma)^*\theta\\
+&=(I_N\theta)(f_\#\sigma)
+=(f_\#^*I_N\theta)(\sigma).
+\end{aligned}
+\]
+两式在线性延拓后对任意链成立。
+
+对 $c\in K_{k+1}$，有限实现的交换关系和 Stokes 公式给出
+\[
+\begin{aligned}
+(\delta_K I_{K,k}\theta)(c)
+&=I_{K,k}\theta(b_{k+1}c)
+=\int_{j_k(b_{k+1}c)}\theta\\
+&=\int_{\partial j_{k+1}(c)}\theta
+=\int_{j_{k+1}(c)}d\theta
+=(I_{K,k+1}d\theta)(c).
+\end{aligned}
+\]
+若 $d\theta=0$，此式直接给出闭性。
+若 $\theta=d\zeta$ 且 $b c=0$，则
+$I_K(\theta)(c)=(\delta_KI_K\zeta)(c)=I_K\zeta(bc)=0$。
+其可核验接续为
+\[
+\text{有向几何实现}\land(\partial j=jb)
+\Longrightarrow\text{积分与微分交换}
+\Longrightarrow\text{有限闭余链与周期配对}.
+\]
+\end{proof}
+
+\begin{remark}[单三角形的完整矩阵计算]
+取顶点 $v_0=(0,0)$、$v_1=(1,0)$、$v_2=(0,1)$，
+按边 $[01],[02],[12]$ 与面 $[012]$ 的次序取基。
+边界矩阵为
+\[
+b_1=\begin{pmatrix}-1&-1&0\\1&0&-1\\0&1&1\end{pmatrix},
+\qquad b_2=\begin{pmatrix}1\\-1\\1\end{pmatrix},
+\qquad b_1b_2=0.
+\]
+令 $j$ 为标准单形到该三角形及其边、顶点的仿射实现。
+对 $\alpha=x\,dy$，三条边上的积分分别为 $0,0,1/2$：
+最后一条边取 $x=1-s,y=s$，故其积分为 $\int_0^1(1-s)ds=1/2$。
+因此
+\[
+I_{K,1}\alpha=\begin{pmatrix}0\\0\\1/2\end{pmatrix},
+\qquad
+b_2^{\mathsf T}I_{K,1}\alpha=\frac12
+=\int_{[012]}dx\wedge dy=I_{K,2}(d\alpha).
+\]
+边界抵消、微分矩阵与面积积分在这个有限实例中逐项对应。
+\end{remark}
+
+\section{曲率标量闭形式与联络变形}
+\label{exp:geo:section:curvature-classes}
+
+\begin{proposition}[曲率特征形式的闭余链接续]
+\label{hgov:geo:prop:curvature-cocycle}
+对任意实或复向量丛联络 $\nabla$ 和整数 $m\ge1$，令
+\[
+\chi_m(\nabla)=\operatorname{tr}
+\bigl(F_\nabla^{\wedge m}\bigr)\in\Omega^{2m}(M;\mathbb F),
+\qquad
+\omega_m=I_{2m}(\chi_m(\nabla)).
+\]
+则 $\chi_m(\nabla)$ 在全局有定义，并满足
+\[
+d\chi_m(\nabla)=0,\qquad\delta\omega_m=0.
+\]
+由此得到从具有已登记联络的几何数据到标量闭余链的明确构造。
+\end{proposition}
+
+\begin{certificate}[曲率多项式、迹与闭性]
+保存丛的系数域、联络、曲率、整数 $m$、标架变换、Bianchi 恒等式、迹的分次循环性质及积分映射。
+度数 $2m$ 与后续余链微分的度数共同登记。
+\end{certificate}
+
+\begin{proof}
+标架变换下 $F'=g^{-1}Fg$，故
+$(F')^{\wedge m}=g^{-1}F^{\wedge m}g$；取迹后不变，因而 $\chi_m$ 为全局标量形式。
+诱导协变外导数为分次导子，Bianchi 恒等式给出
+\[
+d_{\nabla^{\operatorname{End}}}(F^{\wedge m})
+=\sum_{j=0}^{m-1}
+F^{\wedge j}\wedge
+(d_{\nabla^{\operatorname{End}}}F)
+\wedge F^{\wedge(m-1-j)}=0.
+\]
+对 $\operatorname{End}(E)$ 值 $q$ 次形式 $\Theta$，分次循环性质使
+\[
+\operatorname{tr}\bigl(A\wedge\Theta-(-1)^q\Theta\wedge A\bigr)=0,
+\qquad
+\operatorname{tr}(d_{\nabla^{\operatorname{End}}}\Theta)
+=d\operatorname{tr}(\Theta).
+\]
+将 $\Theta=F^{\wedge m}$ 代入，得到 $d\chi_m=0$。
+最后由定理~\ref{hgov:geo:thm:integration}，
+$\delta\omega_m=\delta I_{2m}\chi_m=I_{2m+1}d\chi_m=0$。
+\end{proof}
+
+\begin{proposition}[联络变形的显式余边界证书]
+\label{exp:geo:prop:transgression}
+在同一个实或复向量丛 $E\to M$ 上给定两项联络 $\nabla^0,\nabla^1$，
+令 $a=\nabla^1-\nabla^0\in\Omega^1(M,\operatorname{End}(E))$，
+$\nabla^t=\nabla^0+t a$，$0\le t\le1$，并记其曲率为 $F_t$。
+对整数 $m\ge1$，定义全局标量 $(2m-1)$ 形式
+\[
+\mathsf T_{2m-1}(\nabla^0,\nabla^1)
+=m\int_0^1\operatorname{tr}\bigl(a\wedge F_t^{\wedge(m-1)}\bigr)\,dt,
+\]
+其中 $F_t^{\wedge0}=\operatorname{id}_E$。
+则
+\begin{align}
+\label{exp:geo:eq:transgression-form}
+\chi_m(\nabla^1)-\chi_m(\nabla^0)&=d\mathsf T_{2m-1},\\
+\label{exp:geo:eq:transgression-cochain}
+I_{2m}\chi_m(\nabla^1)-I_{2m}\chi_m(\nabla^0)
+&=\delta I_{2m-1}\mathsf T_{2m-1}.
+\end{align}
+故两项联络给出的标量曲率余链代表相同的上同调类；
+它们在每个 $2m$ 次光滑奇异周期上的配对相等。
+\end{proposition}
+\begin{certificate}[同丛识别、参数导数与 Bianchi 接续]
+保存两项联络的共同丛 $E$、差一形式 $a$、参数区间、次数 $2m-1$ 和 $2m$，以及
+\[
+F_t=F_0+t\,d_{(\nabla^0)^{\operatorname{End}}}a+t^2a\wedge a,
+\qquad
+\partial_tF_t=d_{(\nabla^t)^{\operatorname{End}}}a.
+\]
+保存分次迹循环公式、Bianchi 恒等式与积分余链交换式。
+全部运算在该共同丛上进行；不同丛之间使用此证书时，需要先登记相应丛同构及联络拉回。
+该证明给出曲率多项式变形公式的具体形式\cite{ExtBottTu,ExtKobayashiNomizu}。
+\end{certificate}
+\begin{proof}
+在共同标架中 $A_t=A_0+t a$。
+直接展开 $dA_t+A_t\wedge A_t$ 得到证书的首式。
+再对 $t$ 微分，得到
+\[
+\partial_tF_t
+=da+A_t\wedge a+a\wedge A_t
+=d_{(\nabla^t)^{\operatorname{End}}}a,
+\]
+其中两个乘积项同号来自 $\deg a=1$。
+差联络 $a$ 在标架变换下按共轭变换，$F_t$ 亦然，
+所以 $\operatorname{tr}(a\wedge F_t^{m-1})$ 是全局标量形式。
+
+记 $\mathcal D_t=d_{(\nabla^t)^{\operatorname{End}}}$ 为 End 丛上的协变外导数。
+由于 $\deg F_t=2$ 为偶数，产品求导与迹循环给出
+\[
+\begin{aligned}
+\partial_t\operatorname{tr}(F_t^{\wedge m})
+&=\sum_{j=0}^{m-1}
+\operatorname{tr}\bigl(F_t^{\wedge j}\wedge(\partial_tF_t)
+\wedge F_t^{\wedge(m-1-j)}\bigr)\\
+&=m\operatorname{tr}\bigl((\mathcal D_ta)\wedge F_t^{\wedge(m-1)}\bigr).
+\end{aligned}
+\]
+Bianchi 恒等式给出 $\mathcal D_tF_t=0$，故 $\mathcal D_t(F_t^{m-1})=0$。
+利用分次乘法律及 $\deg a=1$，有
+\[
+\begin{aligned}
+d\operatorname{tr}(a\wedge F_t^{m-1})
+&=\operatorname{tr}\bigl(\mathcal D_t(a\wedge F_t^{m-1})\bigr)\\
+&=\operatorname{tr}\bigl((\mathcal D_ta)\wedge F_t^{m-1}
+-a\wedge\mathcal D_t(F_t^{m-1})\bigr)\\
+&=\operatorname{tr}\bigl((\mathcal D_ta)\wedge F_t^{m-1}\bigr).
+\end{aligned}
+\]
+于是参数导数等于 $m$ 倍上述全微分。
+在紧参数区间 $[0,1]$ 上逐坐标积分，外微分与参数积分交换，得到
+\[
+\int_0^1\partial_t\chi_m(\nabla^t)\,dt
+=d\left(m\int_0^1\operatorname{tr}(a\wedge F_t^{m-1})dt\right),
+\]
+这即式~\eqref{exp:geo:eq:transgression-form}。
+再应用定理~\ref{hgov:geo:thm:integration} 得到式~\eqref{exp:geo:eq:transgression-cochain}。
+若 $c$ 为周期，则两余链之差在 $c$ 上的值为
+$(\delta I\mathsf T)(c)=(I\mathsf T)(\partial c)=0$。
+因此
+\[
+\text{同丛联络变形}\Longrightarrow\text{曲率形式差为全微分}
+\Longrightarrow\text{积分余链差为余边界}
+\Longrightarrow\text{周期配对保持}.
+\]
+\end{proof}
+
+\begin{remark}[一阶曲率多项式的局部可计算实例]
+在 $\mathbb R^2$ 的实平凡线丛上取 $A_0=0$、$A_1=x\,dy$，则
+$a=x\,dy$、$F_t=t\,dx\wedge dy$。
+$m=1$ 时有
+$\mathsf T_1=x\,dy$ 与 $\chi_1(\nabla^1)-\chi_1(\nabla^0)=dx\wedge dy$。
+在前述单三角形实现中，这一差形式的积分为 $1/2$，恰等于
+$\mathsf T_1$ 在其有向边界上的积分。
+对边界为零的周期，同一交换式给出积分差为零。
+\end{remark}
+
+\begin{remark}[几何与障碍复形的接续约定]
+平坦系数丛、标量微分形式和光滑奇异链分别给出本章的具体复形。
+一般协变外导数的平方由式~\eqref{hgov:geo:eq:covariant-square} 完整记录。
+若应用另选障碍复形 $(C_{\mathrm{obs}}^\bullet,d_{\mathrm{obs}})$，则进一步登记
+\[
+\Psi:C_{\mathrm{sm}}^\bullet(M;\mathbb F)
+\longrightarrow C_{\mathrm{obs}}^\bullet,
+\qquad d_{\mathrm{obs}}\Psi=\Psi\delta.
+\]
+于是本章的闭余链沿 $\Psi$ 进入该复形，并满足
+$d_{\mathrm{obs}}\Psi(\omega_m)=0$。
+所选曲率读出与映射 $\Psi$ 针对任务的充分性由观察因子化证书核验；
+具体修复的存在性由对应障碍类及允许填充元判定。
+\end{remark}
+
+\section{几何观察到策略变化的微分因子化}
+\label{hgov:geo:response}
+
+\begin{theorem}[核包含给出的局部响应算子]
+\label{hgov:geo:thm:factor}
+设 $\mathcal Z,\mathcal W,\mathcal U$ 是有限维光滑流形，
+$\mathcal K:\mathcal Z\to\mathcal W$ 是已登记几何观察，
+$\Theta:\mathcal Z\to\mathcal U$ 是策略观察。
+固定 $z\in\mathcal Z$，令
+\[
+A=D\mathcal K_z:T_z\mathcal Z\to T_{\mathcal K(z)}\mathcal W,
+\qquad
+B=D\Theta_z:T_z\mathcal Z\to T_{\Theta(z)}\mathcal U.
+\]
+存在唯一线性算子
+$\mathcal R_z:\operatorname{im}A\to T_{\Theta(z)}\mathcal U$
+使 $B=\mathcal R_zA$，当且仅当
+\begin{equation}
+\label{hgov:geo:eq:kernel}
+\ker A\subseteq\ker B.
+\end{equation}
+为这些切空间指定内积后，存在右逆
+$S:\operatorname{im}A\to T_z\mathcal Z$，满足
+\[
+AS=\operatorname{id}_{\operatorname{im}A},\qquad
+\mathcal R_z=BS,\qquad
+\lVert\mathcal R_z\rVert\le\lVert B\rVert\lVert S\rVert.
+\]
+\end{theorem}
+
+\begin{certificate}[核、像、右逆与响应上界]
+保存固定点 $z$、两项观察的定义域、导数矩阵、$\ker A$ 的基及 $B$ 在该基上的零值。
+在 $T_z\mathcal Z$ 中选取 $\ker A$ 的补空间 $V$，保存
+$A|_V:V\to\operatorname{im}A$ 的可逆性及逆矩阵 $S$。
+算子范数使用同一组已登记内积核算。
+\end{certificate}
+
+\begin{proof}
+若 $B=\mathcal R_zA$，则
+$Av=0\Rightarrow Bv=\mathcal R_z0=0$，得到核包含。
+反之，对 $w\in\operatorname{im}A$ 选择 $v$ 使 $Av=w$，定义
+$\mathcal R_z(w)=Bv$。
+若 $Av=Av'$，则 $v-v'\in\ker A\subseteq\ker B$，从而 $Bv=Bv'$；
+故该定义与所选代表无关，并由线性性给出线性算子。
+$A$ 到其像是满射，因此等式 $\mathcal R_zA=B$ 唯一确定 $\mathcal R_z$。
+
+有限维空间存在补空间 $V$，且 $A|_V$ 单射并满射到 $\operatorname{im}A$。
+取其逆为 $S$，便有 $AS=\operatorname{id}$。
+对每个 $w\in\operatorname{im}A$，
+$\mathcal R_z(w)=B(Sw)$，于是 $\mathcal R_z=BS$，并由算子范数的乘法不等式得到上界。
+当 $\operatorname{im}A=\{0\}$ 时，核包含给出 $B=0$，零算子满足同一结论。
+\end{proof}
+
+\begin{proposition}[仿射观察的精确因子化与最少补充读出]
+\label{exp:geo:prop:affine-factorization}
+设
+\[
+\mathcal K(z)=Az+a_0\in\mathbb R^p,
+\qquad
+\Theta(z)=Bz+b_0\in\mathbb R^q,
+\qquad z\in\mathbb R^n.
+\]
+存在唯一仿射映射
+$R:a_0+\operatorname{im}A\to\mathbb R^q$ 使 $\Theta=R\circ\mathcal K$，
+当且仅当 $\ker A\subseteq\ker B$。
+若允许添加 $r$ 个线性读出 $Cz$，则
+$(\mathcal K(z),Cz)$ 足以精确确定 $\Theta(z)$ 的充要条件为
+\[
+\ker A\cap\ker C\subseteq\ker B.
+\]
+使该条件成立的最小读出数为
+\[
+r_{\min}=\operatorname{rank}(B|_{\ker A})
+=\dim\frac{\ker A}{\ker A\cap\ker B}.
+\]
+\end{proposition}
+\begin{certificate}[仿射纤维、核基与补充矩阵]
+保存矩阵 $A,B$、偏移量 $a_0,b_0$、核与像的基。
+若满足核包含，保存定理~\ref{hgov:geo:thm:factor} 的线性因子
+$R_0:\operatorname{im}A\to\mathbb R^q$，并置
+$R(a_0+w)=b_0+R_0w$。
+补充读出的证书保存 $B|_{\ker A}$ 的秩、其像空间到 $\mathbb R^{r_{\min}}$ 的同构，
+以及将对应线性映射从 $\ker A$ 延拓至 $\mathbb R^n$ 所用的补空间。
+\end{certificate}
+\begin{proof}
+若 $\Theta=R\mathcal K$，对任意 $v\in\ker A$ 和 $z\in\mathbb R^n$，
+有 $\mathcal K(z+v)=\mathcal K(z)$，从而
+$Bv=\Theta(z+v)-\Theta(z)=0$。
+这给出核包含。
+反之，由定理~\ref{hgov:geo:thm:factor} 存在唯一 $R_0$ 满足 $B=R_0A$。
+令 $R(a_0+w)=b_0+R_0w$，则
+\[
+R(\mathcal K(z))=R(a_0+Az)=b_0+R_0Az=b_0+Bz=\Theta(z).
+\]
+$\mathcal K$ 满射到仿射像 $a_0+\operatorname{im}A$，因此 $R$ 在该像上唯一。
+将 $A$ 替换为堆叠矩阵 $\binom AC$，其核恰为 $\ker A\cap\ker C$，即得补充条件。
+
+记 $N=\ker A$、$r_0=\operatorname{rank}(B|_N)$。
+若某个 $C:\mathbb R^n\to\mathbb R^r$ 满足补充条件，则
+$\ker(C|_N)\subseteq\ker(B|_N)$，所以由线性因子化存在 $L$ 使
+$B|_N=L(C|_N)$。
+因此
+\[
+r_0=\operatorname{rank}(B|_N)
+\le\operatorname{rank}(C|_N)\le r,
+\]
+给出最小读出数的下界。
+另一方面，选取同构
+$Q:\operatorname{im}(B|_N)\to\mathbb R^{r_0}$，
+在 $N$ 上定义 $C_N=Q(B|_N)$。
+取任一补空间 $\mathbb R^n=N\oplus V$，并置 $C(n+v)=C_Nn$。
+于是 $\ker(C|_N)=\ker(B|_N)$，所需核包含成立，故 $r=r_0$ 可以达到。
+秩--零化度公式最后给出
+$r_0=\dim\bigl(N/\ker(B|_N)\bigr)$，即所列商空间维数。
+\end{proof}
+
+\begin{remark}[补充一个读出的精确实例]
+令 $z=(u,v,w)$，原几何观察为 $\mathcal K(z)=(u,v)$，策略观察为
+$\Theta(z)=(u+w,v-w)$。
+原观察的核为 $\operatorname{span}(e_3)$，而 $Be_3=(1,-1)$，
+故所需补充读出数为一。
+选择 $Cz=w$ 后，精确响应矩阵为
+\[
+R=\begin{pmatrix}1&0&1\\0&1&-1\end{pmatrix},
+\qquad R(u,v,w)^{\mathsf T}=(u+w,v-w)^{\mathsf T}.
+\]
+若三个读数的欧氏误差向量为 $e$，则响应误差为 $Re$。
+由于
+$RR^{\mathsf T}=\begin{pmatrix}2&-1\\-1&2\end{pmatrix}$ 的特征值为 $1,3$，
+有 $\lVert Re\rVert\le\sqrt3\lVert e\rVert$。
+这个实例同时给出补充观察的最小维数、完整响应矩阵和误差放大界。
+\end{remark}
+
+\begin{remark}[响应与可执行修复的接续]
+定理~\ref{hgov:geo:thm:factor} 在固定点的一阶变分上给出良定义响应。
+对允许几何变分 $\dot k\in\operatorname{im}A$，策略方向为
+$u=\mathcal R_z\dot k$。
+后续执行接口保存 $u$ 的可行域、实际步长、任务观察保持式及目标或残差的验收结果；
+在这些数据共同成立时，几何观察、异构运输、障碍表示与可执行修复由同一组交换证书接续。
+\end{remark}
+
+% 本章的体系来源仅为 G_Framework.txt 及 G_Framework_Unified_Synthesis_ZH.tex。
+% 外部基础文献沿用主文件中的 ExtKobayashiNomizu、ExtBottTu、ExtHatcher。
+
+
+\chapter{异构接续的 Hom 复形与相容填补}
+\label{exp:ch:hom}
+
+\label{hgov:homology}
+
+异构系统的局部描述先经类型化映射进入共同可比较的承载，再由接续缺陷生成修复义务。
+法空间中的结构扩展据此取得三个相接的数学对象：
+原操作的像、缺陷所处的核，以及新增操作对二者之商的作用。
+本节将文献~\cite{S01,S37,S38} 的障碍、同伦填补及有限证书接口展开为可逐式核验的构造。
+余链复形、链同伦与核像商采用文献~\cite{ExtWeibel,ExtStacks} 的分次语言。
+
+\section{有类型的 Hom 复形与跨承载接续缺陷}
+\label{hgov:typed-hom}
+
+\begin{definition}[承载、分次映射与 Hom 微分]
+\label{hgov:def-hom}
+取域 $\mathbb k$，令第 $i$ 个局部承载为余链复形
+\[
+ C_i=(C_i^\bullet,d_i),\qquad
+ d_i^m:C_i^m\longrightarrow C_i^{m+1},\qquad
+ d_i^{m+1}d_i^m=0.
+\]
+次数 $r$ 的映射空间与其微分定义为
+\[
+ \operatorname{Hom}^r(C_i,C_j)
+ =\prod_m\operatorname{Hom}_{\mathbb k}(C_i^m,C_j^{m+r}),
+ \qquad
+ \delta_{ij}f=d_jf-(-1)^rfd_i.
+\]
+因此 $\delta_{ij}f$ 的次数为 $r+1$。
+对 $f:C_i\to C_j$、$g:C_j\to C_k$，复合 $gf$ 只在公共承载 $C_j$ 及其次数一致时定义。
+一个接续映射 $S_{ij}$ 是次数零且满足
+\[
+ d_jS_{ij}=S_{ij}d_i
+\]
+的映射。每张映射同时登记局部对象、版本、基底与有效域。
+\end{definition}
+
+\begin{lemma}[Hom 微分的平方零与带符号复合律]
+\label{hgov:lem-hom}
+若 $|f|=r$、$|g|=s$，则
+\[
+ \delta_{ij}^{\,2}f=0,\qquad
+ \delta_{ik}(gf)=(\delta_{jk}g)f+(-1)^s g(\delta_{ij}f).
+\]
+\end{lemma}
+\begin{certificate}[分次、源靶与逐项消去]
+保存 $d_i^2=d_j^2=d_k^2=0$、$r,s$ 以及各复合项的源靶。
+逐项核验两个中间项的系数之和
+$(-1)^r+(-1)^{r+1}=0$，并核验复合律中
+$-(-1)^s gd_jf$ 与 $(-1)^s gd_jf$ 抵消。
+\end{certificate}
+\begin{proof}
+由定义，
+\[
+ \begin{aligned}
+ \delta^2f
+ &=d_j^2f-(-1)^rd_jfd_i
+   -(-1)^{r+1}d_jfd_i+(-1)^{2r+1}fd_i^2\\
+ &=0.
+ \end{aligned}
+\]
+又有
+\[
+ \begin{aligned}
+ (\delta g)f+(-1)^sg(\delta f)
+ &=d_kgf-(-1)^sgd_jf
+   +(-1)^sgd_jf-(-1)^{r+s}gfd_i\\
+ &=\delta(gf).
+ \end{aligned}
+\]
+故谓词推演链为
+\[
+ \bigl(d_i^2=d_j^2=d_k^2=0\bigr)\wedge
+ \operatorname{Typed}(g,f)
+ \ \Longrightarrow\
+ \delta^2=0\ \wedge\ \operatorname{Leibniz}_{r,s}.
+\]
+\end{proof}
+
+\begin{definition}[三重接续缺陷]
+\label{hgov:def-defect}
+给定接续映射 $S_{12},S_{23},S_{13}$，定义
+\[
+ J_{123}=S_{23}S_{12}-S_{13}
+ \in\operatorname{Hom}^0(C_1,C_3).
+\]
+其两项分别读取经 $C_2$ 的复合转换与直接转换。
+次数 $-1$ 的填补见证为
+\[
+ h_{123}\in\operatorname{Hom}^{-1}(C_1,C_3),\qquad
+ d_3h_{123}+h_{123}d_1=J_{123}.
+\]
+该见证把两条转换组织为共链同伦。
+\end{definition}
+
+\begin{theorem}[接续闭性、可填补性与同调读回]
+\label{hgov:thm-filler}
+三张接续映射满足定义~\ref{hgov:def-hom} 时，
+\[
+ \delta_{13}J_{123}=0,
+ \qquad
+ \exists h_{123}\ \delta_{13}h_{123}=J_{123}
+ \ \Longleftrightarrow\
+ [J_{123}]=0\in H^0\operatorname{Hom}(C_1,C_3).
+\]
+具有填补见证时，对每个次数 $m$，
+\[
+ H^m(S_{23})H^m(S_{12})=H^m(S_{13}).
+\]
+\end{theorem}
+\begin{certificate}[闭性与原始元]
+保存三组交换式 $d_jS_{ij}=S_{ij}d_i$；
+成功分支保存 $h_{123}$ 的全部分次分量和
+$d_3h_{123}+h_{123}d_1-J_{123}=0$。
+给定闭元 $z\in C_1^m$ 时，同时保存原像 $h_{123}z\in C_3^{m-1}$。
+\end{certificate}
+\begin{proof}
+引理~\ref{hgov:lem-hom} 给出
+\[
+ \delta J_{123}
+ =(\delta S_{23})S_{12}+S_{23}(\delta S_{12})
+   -\delta S_{13}=0.
+\]
+次数 $-1$ 使
+$\delta h=d_3h+h d_1$。于是
+\[
+ \begin{aligned}
+ \exists h\ (\delta h=J_{123})
+ &\Longleftrightarrow
+ J_{123}\in\operatorname{im}
+ \bigl(\delta:\operatorname{Hom}^{-1}\to\operatorname{Hom}^{0}\bigr)\\
+ &\Longleftrightarrow [J_{123}]=0.
+ \end{aligned}
+\]
+当 $d_1z=0$ 时，
+\[
+ S_{23}S_{12}z-S_{13}z
+ =d_3(hz)+h(d_1z)=d_3(hz),
+\]
+所以两输出相差余边界。全部推导组成
+\[
+ \begin{gathered}
+ \operatorname{Chain}(S_{12},S_{23},S_{13})
+ \Longrightarrow\operatorname{Closed}(J_{123}),\\
+ \operatorname{Closed}(J_{123})
+ \Longrightarrow
+ \bigl(\operatorname{Fill}(J_{123})\Longleftrightarrow[J_{123}]=0\bigr),\\
+ \operatorname{Chain}(S_{12},S_{23},S_{13})
+ \wedge\operatorname{Fill}(J_{123})
+ \Longrightarrow\operatorname{EqualOnCohomology}.
+ \end{gathered}
+\]
+\end{proof}
+
+\begin{lemma}[接续同伦的有限复合]
+\label{hgov:lem-compose-homotopy}
+设 $f_0,f_1:C\to D$ 与 $g_0,g_1:D\to E$ 是共链映射，且
+\[
+ f_1-f_0=d_DH+Hd_C,\qquad
+ g_1-g_0=d_EK+Kd_D,
+ \qquad |H|=|K|=-1.
+\]
+则 $L=g_1H+Kf_0$ 满足
+\[
+ g_1f_1-g_0f_0=d_EL+Ld_C.
+\]
+任意有限张此类证书可按接续次序组合。
+\end{lemma}
+\begin{certificate}[复合见证与长度归纳]
+保存源靶一致性、$L=g_1H+Kf_0$ 及两组原同伦式。
+零段使用恒等映射和零同伦；每增加一段使用所列 $L$。
+\end{certificate}
+\begin{proof}
+以同一中间项 $g_1f_0$ 分解，
+\[
+ \begin{aligned}
+ g_1f_1-g_0f_0
+ &=g_1(f_1-f_0)+(g_1-g_0)f_0\\
+ &=g_1(d_DH+Hd_C)+(d_EK+Kd_D)f_0\\
+ &=d_E(g_1H+Kf_0)+(g_1H+Kf_0)d_C.
+ \end{aligned}
+\]
+第三式分别使用 $g_1d_D=d_Eg_1$ 与 $d_Df_0=f_0d_C$。
+若 $P(n)$ 表示前 $n$ 段已有合成同伦，则
+$P(0)$ 成立，所列构造给出 $P(n)\Rightarrow P(n+1)$；
+数学归纳法给出 $\forall n\in\mathbb N,\ P(n)$。
+\end{proof}
+
+\section{二维填补及其语义实现}
+\label{hgov:two-cell}
+
+\begin{definition}[有标记的三角接续呈示]
+\label{hgov:def-triangle}
+取顶点 $v_1,v_2,v_3$ 与有向边 $e_{12},e_{23},e_{13}$，令
+\[
+ \partial_1e_{ij}=v_j-v_i,\qquad
+ z=e_{12}+e_{23}-e_{13}.
+\]
+边的语义标记分别为 $S_{12},S_{23},S_{13}$。
+二维胞腔 $f$ 的几何边界规定为 $\partial_2f=z$；
+其语义实现规定为次数 $-1$ 的 $h_f$，并满足
+\[
+ \delta h_f=S_{23}S_{12}-S_{13}.
+\]
+几何字段记录定向边界，语义字段记录态射复合与同伦见证，二者由同一个胞腔标识绑定。
+\end{definition}
+
+\begin{proposition}[三角孔洞的填补与接续实现]
+\label{hgov:prop-triangle}
+仅保留三条边时，所得复形 $K^-$ 满足
+\[
+ H_1(K^-;\mathbb k)=\mathbb k[z],\qquad
+ H_0(K^-;\mathbb k)\cong\mathbb k.
+\]
+附加 $f$ 且 $\partial_2f=z$ 后，复形 $K^+$ 满足
+\[
+ H_1(K^+;\mathbb k)=0,\qquad
+ H_0(K^+;\mathbb k)\cong\mathbb k.
+\]
+若胞腔具有定义~\ref{hgov:def-triangle} 的语义实现，则经中间承载与直接接续在上同调上相同。
+\end{proposition}
+\begin{certificate}[边界矩阵与实现方程]
+按 $(v_1,v_2,v_3)$ 与 $(e_{12},e_{23},e_{13})$ 排序，保存
+\[
+ [\partial_1]=
+ \begin{pmatrix}-1&0&-1\\1&-1&0\\0&1&1\end{pmatrix},
+ \qquad
+ [\partial_2]=\begin{pmatrix}1\\1\\-1\end{pmatrix}.
+\]
+核验 $\partial_1\partial_2=0$、$\operatorname{rank}\partial_1=2$、
+$\operatorname{rank}\partial_2=1$，并单独保存
+$\delta h_f=S_{23}S_{12}-S_{13}$。
+\end{certificate}
+\begin{proof}
+前两列线性无关，且第三列等于前两列之和，故
+$\operatorname{rank}\partial_1=2$，核由 $z$ 张成。
+在 $K^-$ 中 $C_2=0$，故一级边界像为零；
+在 $K^+$ 中该像等于 $\mathbb k[z]=\ker\partial_1$。
+两者的 $\partial_1$ 相同，其余核为一维。
+因此
+\[
+ \begin{gathered}
+ \partial_1z=0
+ \Longrightarrow z\in\ker\partial_1,\\
+ \operatorname{im}\partial_2^-=\{0\}
+ \Longrightarrow[z]_{K^-}\ne0,\\
+ \partial_2^+f=z
+ \Longrightarrow[z]_{K^+}=0,\\
+ \delta h_f=J_{123}
+ \Longrightarrow H(S_{23})H(S_{12})=H(S_{13}).
+ \end{gathered}
+\]
+最后一式由定理~\ref{hgov:thm-filler} 给出。
+\end{proof}
+
+\section{填补解空间、二级同伦及其商}
+\label{exp:hom:fill-space}
+
+同一接续缺陷的填补通常具有多个实现。
+为逐项记录这种选择，置
+\[
+ \begin{aligned}
+ Z^r_{ij}
+ &=\ker\bigl(\delta_{ij}:
+       \operatorname{Hom}^r(C_i,C_j)\to
+       \operatorname{Hom}^{r+1}(C_i,C_j)\bigr),\\
+ B^r_{ij}
+ &=\operatorname{im}\bigl(\delta_{ij}:
+       \operatorname{Hom}^{r-1}(C_i,C_j)\to
+       \operatorname{Hom}^{r}(C_i,C_j)\bigr),\\
+ H^r_{ij}&=Z^r_{ij}/B^r_{ij}.
+ \end{aligned}
+\]
+引理~\ref{hgov:lem-hom} 给出 $B^r_{ij}\subseteq Z^r_{ij}$。
+以下结果把解的存在、解的差及解之间的同伦分别登记。
+
+\begin{theorem}[填补的自由传递作用及上同调参数]
+\label{exp:hom:filler-torsor}
+固定 $J\in Z^0_{13}$，并已取得一个见证
+$h_0\in\operatorname{Hom}^{-1}(C_1,C_3)$、$\delta h_0=J$。
+令
+\[
+ \mathcal F(J)
+ =\{h\in\operatorname{Hom}^{-1}(C_1,C_3):\delta h=J\}.
+\]
+则
+\[
+ \mathcal F(J)=h_0+Z^{-1}_{13}.
+\]
+加法作用 $(z,h)\mapsto h+z$ 是 $Z^{-1}_{13}$ 在
+$\mathcal F(J)$ 上的自由传递作用。定义
+\[
+ h\sim h'
+ \quad\Longleftrightarrow\quad
+ \exists b\in\operatorname{Hom}^{-2}(C_1,C_3),\
+ h'-h=\delta b.
+\]
+所得商集 $\mathcal F(J)/{\sim}$ 上具有 $H^{-1}_{13}$ 的自由传递作用。
+选定 $h_0$ 后，有双射
+\[
+ \mathcal F(J)/{\sim}\longrightarrow H^{-1}_{13},
+ \qquad [h]_{\sim}\longmapsto[h-h_0].
+\]
+\end{theorem}
+\begin{certificate}[一个原始元及两层核像]
+保存 $\delta h_0=J$、$Z^{-1}_{13}$ 的基和
+$B^{-1}_{13}$ 的基。
+对任意候选 $h$ 保存 $z=h-h_0$ 及 $\delta z=0$；
+对等价候选 $(h,h')$ 保存次数 $-2$ 的 $b$，
+逐次核验 $h'-h=d_3b-bd_1$。
+当这些空间有限维且基底在 $\mathbb Q$ 上时，基与商坐标可由有限消元取得。
+\end{certificate}
+\begin{proof}
+若 $\delta h=J$，线性性给出
+$\delta(h-h_0)=J-J=0$；若 $z\in Z^{-1}_{13}$，
+则 $\delta(h_0+z)=J$。这证明解集公式。
+作用的自由性由 $h+z=h\Rightarrow z=0$ 得到；
+对任意 $h,h'$，唯一把 $h$ 送到 $h'$ 的闭元素为 $h'-h$，
+故作用传递。
+因为 $B^{-1}_{13}$ 是子空间，关系 $\sim$ 具有自反性、对称性和传递性。
+两组候选给出同一商坐标恰等价于
+\[
+ [h-h_0]=[h'-h_0]
+ \Longleftrightarrow h'-h\in B^{-1}_{13}
+ \Longleftrightarrow h\sim h'.
+\]
+每个闭元素 $z$ 都由候选 $h_0+z$ 实现，所以该坐标映射满射。
+作用与坐标映射因而具有所述性质。
+分次为 $-2$ 时 $(-1)^{-2}=1$，
+故二级见证的微分为 $\delta b=d_3b-bd_1$。
+推演链为
+\[
+ \begin{gathered}
+ \delta h_0=J\ \land\ \delta h=J
+ \Rightarrow\delta(h-h_0)=0,\\
+ \delta b=h'-h
+ \Rightarrow[h'-h_0]=[h-h_0],\\
+ \operatorname{Chosen}(h_0)\ \land\
+ \operatorname{KernelImage}(Z^{-1}_{13},B^{-1}_{13})
+ \Rightarrow
+ \mathcal F(J)/{\sim}\cong H^{-1}_{13}.
+ \end{gathered}
+\]
+\end{proof}
+
+\section{四个接口的二次接续缺陷}
+\label{exp:hom:four-interfaces}
+
+给定 $C_1,C_2,C_3,C_4$ 及全部六张次数零接续映射
+$S_{ij}:C_i\to C_j$，$1\le i<j\le4$。
+对每个三元组 $i<j<k$，规定一个已实现的填补
+\[
+ h_{ijk}:C_i^\bullet\to C_k^{\bullet-1},
+ \qquad
+ \delta h_{ijk}=S_{jk}S_{ij}-S_{ik}.
+\]
+这里 $h_{123}$ 的靶为 $C_3$，$h_{234}$ 的源为 $C_2$；
+复合 $S_{34}h_{123}$ 与 $h_{234}S_{12}$ 均具有源 $C_1$、靶 $C_4$。
+这样，两条三重转换的同伦比较可以在同一个 Hom 复形中进行。
+
+\begin{theorem}[四接口的二次障碍及次数 $-2$ 填补]
+\label{exp:hom:secondary-obstruction}
+在上述条件下，定义
+\[
+ \begin{aligned}
+ H_{\mathrm L}&=S_{34}h_{123}+h_{134},\\
+ H_{\mathrm R}&=h_{234}S_{12}+h_{124},\\
+ \Theta_{1234}
+ &=H_{\mathrm L}-H_{\mathrm R}
+ \in\operatorname{Hom}^{-1}(C_1,C_4).
+ \end{aligned}
+\]
+则
+\[
+ \begin{aligned}
+ \delta H_{\mathrm L}
+ &=S_{34}S_{23}S_{12}-S_{14}
+ =\delta H_{\mathrm R},\\
+ \delta\Theta_{1234}&=0.
+ \end{aligned}
+\]
+二级相容见证 $k_{1234}$ 存在的充要条件为
+\[
+ \begin{gathered}
+ \exists k_{1234}\in\operatorname{Hom}^{-2}(C_1,C_4),\
+ d_4k_{1234}-k_{1234}d_1=\Theta_{1234}\\
+ \Longleftrightarrow\
+ [\Theta_{1234}]=0\in H^{-1}_{14}.
+ \end{gathered}
+\]
+给定此见证和闭元 $z\in C_1^m$，
+两条同伦在 $z$ 上的差为边界
+$\Theta_{1234}z=d_4(k_{1234}z)$。
+\end{theorem}
+\begin{certificate}[四个面与一个二级原始元]
+保存六组 $\delta S_{ij}=0$、四组
+$\delta h_{ijk}=S_{jk}S_{ij}-S_{ik}$，
+以及两条同伦的有类型展开。
+二级接受分支保存 $|k_{1234}|=-2$ 和
+$d_4k_{1234}-k_{1234}d_1-\Theta_{1234}=0$。
+固定输入 $z$ 时，记录 $d_1z=0$ 与边界原像 $k_{1234}z\in C_4^{m-2}$。
+\end{certificate}
+\begin{proof}
+带符号复合律给出
+\[
+ \begin{aligned}
+ \delta(S_{34}h_{123})
+ &=S_{34}\delta h_{123},\\
+ \delta(h_{234}S_{12})
+ &=(\delta h_{234})S_{12}
+   -h_{234}\delta S_{12}
+ =(\delta h_{234})S_{12}.
+ \end{aligned}
+\]
+依次代入四个三角填补式，
+\[
+ \begin{aligned}
+ \delta H_{\mathrm L}
+ &=S_{34}(S_{23}S_{12}-S_{13})
+   +(S_{34}S_{13}-S_{14})\\
+ &=S_{34}S_{23}S_{12}-S_{14},\\
+ \delta H_{\mathrm R}
+ &=(S_{34}S_{23}-S_{24})S_{12}
+   +(S_{24}S_{12}-S_{14})\\
+ &=S_{34}S_{23}S_{12}-S_{14}.
+ \end{aligned}
+\]
+相减即得闭性。由上同调的核像商定义，
+闭次数 $-1$ 元素 $\Theta_{1234}$ 为边界恰等价于存在次数 $-2$ 原始元。
+在闭输入上计算
+\[
+ \Theta_{1234}z
+ =(d_4k_{1234}-k_{1234}d_1)z
+ =d_4(k_{1234}z).
+\]
+这也核验了输出次数依次为 $m-2,m-1$。
+其谓词链为
+\[
+ \begin{gathered}
+ \operatorname{SixChainMaps}\land\operatorname{FourFillers}
+ \Rightarrow\delta H_{\mathrm L}=\delta H_{\mathrm R}
+ \Rightarrow\Theta_{1234}\in Z^{-1}_{14},\\
+ \Theta_{1234}\in Z^{-1}_{14}
+ \Rightarrow
+ \bigl(\exists k:\delta k=\Theta_{1234}
+       \Longleftrightarrow[\Theta_{1234}]=0\bigr),\\
+ \delta k=\Theta_{1234}\land d_1z=0
+ \Rightarrow\Theta_{1234}z=d_4(kz).
+ \end{gathered}
+\]
+\end{proof}
+
+\begin{remark}[一个可逐基核验的二级障碍]
+\label{exp:hom:secondary-example}
+取四个承载均为
+$C^0=\mathbb Q e$、$C^{-1}=\mathbb Q f$，
+其余次数为零且 $d=0$。六张 $S_{ij}$ 均为恒等映射。
+令 $h_{123}(e)=f$，所有其余分量及其余三个 $h_{ijk}$ 为零。
+每个三角缺陷为零，四个面填补式均成立，而
+$\Theta_{1234}(e)=f\ne0$。
+由于 $\delta=0$，该元素给出非零的 $H^{-1}_{14}$ 类。
+
+扩展承载为
+\[
+ C'^{-2}=\mathbb Q g,\qquad
+ C'^{-1}=\mathbb Q f,\qquad C'^0=\mathbb Q e,
+ \qquad d'g=f,\quad d'f=d'e=0.
+\]
+保持六张恒等映射及上述 $h_{ijk}$ 的分量，
+增加 $k_{1234}(e)=g$，其余分量为零。逐基计算得到
+\[
+ \begin{array}{c|ccc}
+ x&e&f&g\\ \hline
+ (d'k_{1234}-k_{1234}d')(x)&f&0&0\\
+ \Theta_{1234}(x)&f&0&0
+ \end{array}
+\]
+从而取得二级填补。
+包含 $C\hookrightarrow C'$ 是共链映射，并在次数零上诱导恒等
+$H^0(C)=\mathbb Q[e]\to H^0(C')=\mathbb Q[e]$；
+此处任务读取规定为该次数零类。
+扩展同时使原来的次数 $-1$ 类 $[f]$ 成为边界 $d'g$。
+任务保留的次数与本次消解的次数由两组独立见证登记。
+\end{remark}
+
+\begin{proposition}[面填补的二级改动及障碍类保持]
+\label{exp:hom:secondary-invariance}
+固定六张 $S_{ij}$，并对四个面给出次数 $-2$ 的 $b_{ijk}$。
+置
+\[
+ h'_{ijk}=h_{ijk}+\delta b_{ijk},\qquad
+ \Xi=S_{34}b_{123}+b_{134}-b_{234}S_{12}-b_{124}.
+\]
+则新面填补仍满足原三角式，且
+\[
+ \Theta'_{1234}-\Theta_{1234}=\delta\Xi,
+ \qquad [\Theta'_{1234}]=[\Theta_{1234}]\in H^{-1}_{14}.
+\]
+若已有 $\delta k_{1234}=\Theta_{1234}$，
+则 $k'_{1234}=k_{1234}+\Xi$ 是新二级填补。
+\end{proposition}
+\begin{certificate}[面改动与体改动的运输]
+保存四张 $b_{ijk}$ 的源靶和次数、
+四组 $h'_{ijk}-h_{ijk}=\delta b_{ijk}$，
+以及 $\Xi\in\operatorname{Hom}^{-2}(C_1,C_4)$。
+核验 $\Theta'-\Theta-\delta\Xi=0$；
+成功分支额外核验 $\delta(k+\Xi)=\Theta'$。
+\end{certificate}
+\begin{proof}
+由 $\delta^2=0$，$\delta h'_{ijk}=\delta h_{ijk}$。
+由于 $S_{ij}$ 闭合且次数零，$b_{ijk}$ 次数 $-2$，
+\[
+ \begin{aligned}
+ \delta(S_{34}b_{123})&=S_{34}\delta b_{123},\\
+ \delta(b_{234}S_{12})&=(\delta b_{234})S_{12}
+                       +b_{234}\delta S_{12}
+                      =(\delta b_{234})S_{12}.
+ \end{aligned}
+\]
+把四个 $h'_{ijk}-h_{ijk}$ 代入 $\Theta'-\Theta$ 即得 $\delta\Xi$。
+余边界的类为零，故障碍类保持；线性性给出新填补式。
+逐式推演为
+\[
+ \begin{gathered}
+ h'-h=\delta b\land\delta^2=0
+ \Rightarrow\operatorname{SameFaceDefects},\\
+ \operatorname{Chain}(S)\land|b|=-2
+ \Rightarrow\Theta'-\Theta=\delta\Xi
+ \Rightarrow[\Theta']=[\Theta],\\
+ \delta k=\Theta\land\Theta'=\Theta+\delta\Xi
+ \Rightarrow\delta(k+\Xi)=\Theta'.
+ \end{gathered}
+\]
+\end{proof}
+
+\section{允许改动子空间中的二次消障碍}
+\label{exp:hom:allowed-face-variations}
+
+面填补已经保存时，其后续改动可受到版本、资源或已承诺接口的限制。
+以下以明确的线性子空间登记允许改动，得到带限制的存在量词。
+设
+\[
+ \begin{aligned}
+ W_{123}&\subseteq Z^{-1}_{13},&
+ W_{134}&\subseteq Z^{-1}_{14},\\
+ W_{234}&\subseteq Z^{-1}_{24},&
+ W_{124}&\subseteq Z^{-1}_{14},\\
+ W_{\mathrm{face}}
+ &=W_{123}\oplus W_{134}\oplus W_{234}\oplus W_{124}.
+ \end{aligned}
+\]
+规定允许面填补恰为 $h_{ijk}+\eta_{ijk}$，$\eta_{ijk}\in W_{ijk}$。
+固定的面对应 $W_{ijk}=0$。定义线性映射
+\[
+ \begin{aligned}
+ F:W_{\mathrm{face}}&\longrightarrow Z^{-1}_{14},\\
+ F(\eta)&=S_{34}\eta_{123}+\eta_{134}
+          -\eta_{234}S_{12}-\eta_{124},\\
+ \Psi:W_{\mathrm{face}}&\longrightarrow H^{-1}_{14},
+ \qquad \Psi(\eta)=[F(\eta)].
+ \end{aligned}
+\]
+$F$ 的靶由闭性和 Hom 复合律保证。
+
+\begin{theorem}[受限面改动的精确可修复条件]
+\label{exp:hom:restricted-secondary}
+在上述固定数据下，下列条件等价：
+\[
+ \begin{gathered}
+ \exists\eta\in W_{\mathrm{face}},\
+ \exists k\in\operatorname{Hom}^{-2}(C_1,C_4),\
+ \delta k=\Theta_{1234}+F(\eta),\\
+ -[\Theta_{1234}]\in\operatorname{im}\Psi.
+ \end{gathered}
+\]
+若各空间有有限有理基，此条件可由一次有限线性方程求解：
+\[
+ \begin{pmatrix}\delta_{-2}&-F\end{pmatrix}
+ \begin{pmatrix}k\\ \eta\end{pmatrix}
+ =\Theta_{1234}.
+\]
+失败分支可提交有理行向量 $\lambda^{\mathsf T}$ 满足
+\[
+ \lambda^{\mathsf T}\delta_{-2}=0,\qquad
+ \lambda^{\mathsf T}F=0,\qquad
+ \lambda^{\mathsf T}\Theta_{1234}\ne0.
+\]
+其中所有矩阵的行坐标均取自同一个
+$\operatorname{Hom}^{-1}(C_1,C_4)$ 基底。
+\end{theorem}
+\begin{certificate}[允许域、组合原像或联合否决]
+保存每个 $W_{ijk}$ 的基及其闭性、
+$F$ 的矩阵、$\Theta_{1234}$ 和 $\delta_{-2}$。
+接受分支提交允许坐标 $\eta$ 及 $k$；
+否决分支提交 $\lambda$ 的两组零乘积与一个非零读数。
+全部面变换均以 $h'_{ijk}=h_{ijk}+\eta_{ijk}$ 回放。
+\end{certificate}
+\begin{proof}
+对允许 $\eta$，$\delta\eta_{ijk}=0$ 保持四个面缺陷，
+且新的二次缺陷恰为 $\Theta_{1234}+F(\eta)$。
+定理~\ref{exp:hom:secondary-obstruction} 因而给出
+\[
+ \begin{aligned}
+ \exists k:\delta k=\Theta_{1234}+F(\eta)
+ &\Longleftrightarrow
+ [\Theta_{1234}]+\Psi(\eta)=0.
+ \end{aligned}
+\]
+再对允许的 $\eta$ 取存在量词即得像判据。
+有限基下，$\delta k-F\eta=\Theta_{1234}$ 是同一等式的坐标呈示。
+对其增广矩阵执行有理行消元，主元数有限；
+回代给出 $(k,\eta)$，矛盾行给出所列 $\lambda$。
+若两分支同时成立，则
+\[
+ 0=\lambda^{\mathsf T}\delta k-\lambda^{\mathsf T}F\eta
+   =\lambda^{\mathsf T}\Theta_{1234}\ne0,
+\]
+产生矛盾。这里所有量词均限制在登记的允许空间内。
+其谓词链为
+\[
+ \begin{gathered}
+ \eta\in W_{\mathrm{face}}
+ \Rightarrow\operatorname{SameFaceDefects}
+ \land\Theta'=\Theta+F\eta,\\
+ \operatorname{SameFaceDefects}
+ \Rightarrow
+ \bigl(\exists\eta\in W_{\mathrm{face}},k:\delta k=\Theta+F\eta
+ \Longleftrightarrow-[\Theta]\in\operatorname{im}\Psi\bigr),\\
+ \operatorname{FiniteRationalMatrices}
+ \Rightarrow
+ \operatorname{JointWitness}(k,\eta)
+ \ \vee\ \operatorname{JointObstruction}(\lambda).
+ \end{gathered}
+\]
+\end{proof}
+
+
+\chapter{有限修复复形、允许方向与最小兼容扩张}
+\label{exp:ch:extension}
+
+\section{有限矩阵的正交残差、对偶否决与构造解}
+\label{hgov:linear-certificate}
+
+\begin{definition}[有限线性修复呈示]
+\label{hgov:def-linear}
+取有限维空间及映射
+\[
+ U\xrightarrow{L}V\xrightarrow{D}W,\qquad DL=0,
+ \qquad \omega\in V,\quad D\omega=0.
+\]
+修复方程为 $Lu=\omega$。
+对 Hom 填补，可取
+$U=\operatorname{Hom}^{-1}$、$V=\operatorname{Hom}^{0}$、
+$W=\operatorname{Hom}^{1}$，$L,D$ 分别为相应的 Hom 微分。
+在实数实现中，$G$ 为 $V$ 上的正定 Gram 矩阵，
+$\|v\|_G^2=v^{\mathsf T}Gv$。
+\end{definition}
+
+\begin{theorem}[正交残差与同调可解性的等价证书]
+\label{hgov:thm-projection}
+在定义~\ref{hgov:def-linear} 的实数实现中，令 $P_G$ 为到
+$\operatorname{im}L$ 的 $G$ 正交投影，$r=(I-P_G)\omega$。则
+\[
+ \min_{u\in U}\|Lu-\omega\|_G=\|r\|_G,
+ \qquad
+ \|r\|_G=0
+ \Longleftrightarrow
+ [\omega]=0\in\ker D/\operatorname{im}L.
+\]
+当 $r\ne0$ 时，$\lambda=Gr$ 给出
+\[
+ \lambda^{\mathsf T}L=0,\qquad
+ \lambda^{\mathsf T}\omega=\|r\|_G^2>0.
+\]
+当方程可解且 $U$ 配正定内积时，全部解为 $u_0+\ker L$，
+其中 $u_0\in(\ker L)^\perp$ 是唯一最小范数解。
+\end{theorem}
+\begin{certificate}[像核分解与对偶读出]
+保存 $L,D,G,\omega$、$DL=0$、$D\omega=0$、像空间基、
+$\omega=P_G\omega+r$、$L^{\mathsf T}Gr=0$ 以及某个满足
+$Lu_\parallel=P_G\omega$ 的 $u_\parallel$。
+可解分支保存 $Lu_0=\omega$ 及 $u_0\perp\ker L$；
+其余分支保存 $\lambda=Gr$ 及严格正值 $\lambda^{\mathsf T}\omega$。
+\end{certificate}
+\begin{proof}
+有限维子空间具有正交分解。对任意 $u$，
+\[
+ \begin{aligned}
+ Lu-\omega&=(Lu-P_G\omega)-r,\\
+ \|Lu-\omega\|_G^2
+ &=\|Lu-P_G\omega\|_G^2+\|r\|_G^2.
+ \end{aligned}
+\]
+取 $u=u_\parallel$ 即达到下界。
+闭性 $D\omega=0$ 给出
+\[
+ \|r\|_G=0
+ \Longleftrightarrow \omega\in\operatorname{im}L
+ \Longleftrightarrow[\omega]=0.
+\]
+又因 $r\perp_G\operatorname{im}L$，
+\[
+ \lambda^{\mathsf T}L=r^{\mathsf T}GL=0,\qquad
+ \lambda^{\mathsf T}\omega
+ =r^{\mathsf T}G(P_G\omega+r)=r^{\mathsf T}Gr.
+\]
+若 $Lu=\omega$，则两个解之差属于 $\ker L$。
+将一个解沿 $(\ker L)^\perp\oplus\ker L$ 分解，
+得到唯一 $u_0$，并有
+$\|u_0+k\|^2=\|u_0\|^2+\|k\|^2$。
+谓词因果链为
+\[
+ \operatorname{Typed}(L,D)\wedge DL=0\wedge D\omega=0
+ \Longrightarrow
+ \begin{cases}
+ r=0\ \Longrightarrow\ Lu_0=\omega,\\
+ r\ne0\ \Longrightarrow\
+ \lambda^{\mathsf T}L=0,\ \lambda^{\mathsf T}\omega>0.
+ \end{cases}
+\]
+第二分支由对任意候选解施加 $\lambda^{\mathsf T}$ 得到不可解证书。
+\end{proof}
+
+\begin{proposition}[有理呈示的有限消元证书]
+\label{hgov:prop-elimination}
+当 $L,\omega$ 的坐标属于 $\mathbb Q$ 时，可在有限步内构造
+$Lu=\omega$ 的有理解，或构造有理行向量 $\lambda^{\mathsf T}$ 使
+\[
+ \lambda^{\mathsf T}L=0,\qquad
+ \lambda^{\mathsf T}\omega\ne0.
+\]
+\end{proposition}
+\begin{certificate}[行操作与否决行]
+对增广矩阵 $[L\mid\omega]$ 进行换行、非零有理缩放和行相加；
+同步记录可逆矩阵 $E$。成功分支记录自由变量选择及回代解。
+矛盾行 $[0\mid c]$、$c\ne0$ 所对应的 $E$ 的一行即为 $\lambda^{\mathsf T}$。
+\end{certificate}
+\begin{proof}
+每建立一个主元，已处理主元列数增加一；行列有限，故消元有限终止。
+可逆性给出
+\[
+ Lu=\omega\Longleftrightarrow ELu=E\omega.
+\]
+有矛盾行时，
+$\lambda^{\mathsf T}Lu=0\ne\lambda^{\mathsf T}\omega$。
+其余情形取自由变量为零并回代，各主元行与零行均成立。
+因此
+\[
+ \operatorname{RationalFinite}(L,\omega)
+ \Longrightarrow
+ \operatorname{FiniteElimination}
+ \Longrightarrow
+ \operatorname{Witness}(u)\ \vee\ \operatorname{Witness}(\lambda).
+\]
+\end{proof}
+
+\section{兼容扩展及最少新增独立方向}
+\label{hgov:compatible-extension}
+
+\begin{definition}[守恒与身份约束下的结构扩展]
+\label{hgov:def-extension}
+取有限维链复形
+\[
+ C_2\xrightarrow{A}C_1\xrightarrow{B}C_0,\qquad BA=0,
+\]
+以及规定保持的线性身份读取 $T:C_1\to Q$，满足 $TA=0$。
+记 $U=\operatorname{im}A$，目标修复子空间满足
+\[
+ Z\subseteq\ker B\cap\ker T.
+\]
+兼容扩展给出新操作空间 $E$ 与 $R:E\to C_1$，满足
+\[
+ BR=0,\qquad TR=0,\qquad
+ A^+:C_2\oplus E\longrightarrow C_1,\quad A^+(u,v)=Au+Rv.
+\]
+从原复形到扩展复形的映射 $\iota$ 在次数二为 $u\mapsto(u,0)$，
+在次数一与零为恒等。新操作的现实实现由实际动作、前置条件与资源字段另行绑定。
+\end{definition}
+
+\begin{theorem}[扩展后的同调商与严格修复能力增长]
+\label{hgov:thm-extension}
+定义~\ref{hgov:def-extension} 的数据满足
+\[
+ BA^+=0,\qquad TA^+=0.
+\]
+令 $\pi:\ker B\to H_1(C)=\ker B/U$ 为商映射，则
+\[
+ H_1(C^+)\cong
+ H_1(C)\big/\pi(\operatorname{im}R),
+ \qquad
+ \ker\iota_*=\pi(\operatorname{im}R).
+\]
+对任意 $\omega\in\ker B$，
+\[
+ [\omega]_{C^+}=0
+ \Longleftrightarrow
+ \exists u\in C_2,\ v\in E:\ \omega=Au+Rv.
+\]
+若另有 $[\omega]_C\ne0$，则该 $\omega$ 是新增修复能力的严格见证。
+\end{theorem}
+\begin{certificate}[包含、像与新原像]
+保存 $A,B,T,R$、两组零乘积及包含 $\iota$；
+保存 $U$、$U+\operatorname{im}R$ 的基。
+严格增长分支同时提交原系统的对偶否决向量和新解 $(u,v)$。
+\end{certificate}
+\begin{proof}
+矩阵分块给出
+$BA^+=[BA\ BR]=0$、$TA^+=[TA\ TR]=0$。
+映射 $\iota$ 与边界交换，诱导的 $\iota_*$ 为
+\[
+ \ker B/U\longrightarrow\ker B/(U+\operatorname{im}R),
+ \quad [x]_U\longmapsto[x]_{U+\operatorname{im}R}.
+\]
+该映射满射，其核为
+$(U+\operatorname{im}R)/U=\pi(\operatorname{im}R)$。
+由商的定义，
+\[
+ [\omega]_{C^+}=0
+ \Longleftrightarrow
+ \omega\in U+\operatorname{im}R
+ \Longleftrightarrow
+ \exists(u,v)\ A^+(u,v)=\omega.
+\]
+于是
+\[
+ \operatorname{Compatible}(R)
+ \wedge[\omega]_C\ne0
+ \wedge A^+(u,v)=\omega
+ \Longrightarrow
+ \operatorname{Repair}_{C^+}(\omega)
+ \wedge\neg\operatorname{Repair}_{C}(\omega).
+\]
+每一结论分别由零乘积、旧否决见证和新原像核验。
+\end{proof}
+
+\begin{theorem}[目标子空间所需的最少新增独立方向]
+\label{hgov:thm-minimal-extension}
+在定义~\ref{hgov:def-extension} 下，置
+\[
+ r_Z=\dim\pi(Z)
+ =\dim\frac{U+Z}{U}.
+\]
+若扩展能够修复全部 $Z$，则
+\[
+ r_Z\le\operatorname{rank}(\pi R)\le\dim E.
+\]
+允许从 $Z$ 任取基代表作为新增操作时，存在
+$E=\mathbb k^{r_Z}$ 及兼容 $R$ 达到等号。
+这一最小值计量新增独立方向数。
+\end{theorem}
+\begin{certificate}[下界、商基与达到见证]
+下界证书保存 $Z\subseteq U+\operatorname{im}R$。
+达到证书保存 $z_1,\ldots,z_{r_Z}\in Z$，
+使 $\pi(z_1),\ldots,\pi(z_{r_Z})$ 构成 $\pi(Z)$ 的基，
+并定义 $Re_j=z_j$。
+每个候选 $z_j$ 保存其所属的允许操作域。
+\end{certificate}
+\begin{proof}
+全部可修复等价于 $Z\subseteq U+\operatorname{im}R$，
+施加 $\pi$ 得
+$\pi(Z)\subseteq\operatorname{im}(\pi R)$，故取得维数下界。
+反向取所列商基。任意 $z\in Z$ 有唯一系数
+$a_1,\ldots,a_{r_Z}$ 使
+\[
+ \pi(z)=\sum_{j=1}^{r_Z}a_j\pi(z_j).
+\]
+于是 $z-\sum_j a_jz_j\in U$，存在 $u$ 满足
+$z=Au+Ra$。又由 $z_j\in Z$，
+$Bz_j=Tz_j=0$，故 $R$ 兼容。
+当 $r_Z=0$ 时取 $E=0$，同一推导给出 $Z\subseteq U$。
+谓词因果链为
+\[
+ \begin{gathered}
+ \forall z\in Z\ \operatorname{Repair}_{C^+}(z)
+ \Longrightarrow
+ \pi(Z)\subseteq\operatorname{im}(\pi R)
+ \Longrightarrow \dim E\ge r_Z,\\
+ \operatorname{Basis}\{\pi(z_j)\}_{j=1}^{r_Z}
+ \wedge z_j\in Z
+ \Longrightarrow BR=TR=0
+ \Longrightarrow
+ \forall z\in Z\ \exists(u,a)\ z=Au+Ra.
+ \end{gathered}
+\]
+下界与达到构造共同证明最小性。
+\end{proof}
+
+\begin{corollary}[规定菜单内的成本最小扩展]
+\label{hgov:cor-finite-cost}
+给定有限候选扩展菜单 $\mathcal M$，每个成员登记兼容检验、
+全部 $Z$ 的修复检验和确定实数成本 $c(M)$。
+若合格成员集合 $\mathcal M_Z$ 非空，则存在
+$M_*\in\mathcal M_Z$ 满足
+\[
+ c(M_*)=\min_{M\in\mathcal M_Z}c(M).
+\]
+若成本比较可判定，逐项比较给出有限选择算法。
+\end{corollary}
+\begin{certificate}[菜单覆盖与逐项比较]
+保存菜单全部成员、合格谓词、同一成本规约、实际成本值及比较顺序；
+候选列举范围作为证书有效域。
+\end{certificate}
+\begin{proof}
+有限非空实数集有最小元。算法从第一个合格成员开始，
+每处理一个新成员便保留二者中成本较低者。
+令 $P(n)$ 为当前成员的成本不大于前 $n$ 个合格成员的成本，
+则 $P(1)$ 成立且比较操作给出 $P(n)\Rightarrow P(n+1)$。
+遍历终止时取得所述 $M_*$。
+\end{proof}
+
+
+\section{相对修复复形及新增关系的精确计数}
+\label{exp:hom:relative-extension}
+
+本节将定义~\ref{hgov:def-extension} 的三项复形补记为
+$C_n=0$（$n\notin\{0,1,2\}$）。
+因此 $H_2(C)=\ker A$，$H_0(C)=C_0/\operatorname{im}B$。
+商链复形 $C^+/C$ 仅在次数二具有 $E$，其边界为零：
+\[
+ (C^+/C)_2=E,\qquad
+ (C^+/C)_1=(C^+/C)_0=0.
+\]
+下面直接构造这一相对复形的连接映射，并逐点证明正合性；
+链复形短正合列的通常表述参见文献~\cite{ExtWeibel,ExtStacks}。
+
+\begin{theorem}[新增操作的相对正合列与秩计数]
+\label{exp:hom:relative-exact}
+对兼容扩展 $R:E\to\ker B\cap\ker T$，定义
+\[
+ \begin{aligned}
+ j:\ker A&\longrightarrow\ker A^+,&j(u)&=(u,0),\\
+ p:\ker A^+&\longrightarrow E,&p(u,e)&=e,\\
+ \beta:E&\longrightarrow H_1(C),&\beta(e)&=[Re].
+ \end{aligned}
+\]
+则有正合列
+\[
+ 0\longrightarrow H_2(C)
+ \xrightarrow{j}H_2(C^+)
+ \xrightarrow{p}E
+ \xrightarrow{\beta}H_1(C)
+ \xrightarrow{\iota_*}H_1(C^+)
+ \longrightarrow0.
+\]
+置 $r_R=\operatorname{rank}\beta$，则
+\[
+ \begin{aligned}
+ \dim H_1(C^+)&=\dim H_1(C)-r_R,\\
+ \dim H_2(C^+)&=\dim H_2(C)+\dim E-r_R,\\
+ H_0(C^+)&=H_0(C).
+ \end{aligned}
+\]
+若 $\dim E=r_R$，则 $j$ 为同构。
+身份读取还诱导良定义的 $\bar T:H_1(C)\to Q$、
+$\bar T^+:H_1(C^+)\to Q$，并满足
+$\bar T^+\iota_*=\bar T$。
+\end{theorem}
+\begin{certificate}[连接映射与各核的原像]
+保存 $BA=BR=TA=TR=0$ 及三个链群的基。
+对 $e\in\ker\beta$ 保存 $u_e$ 使 $Re=Au_e$，
+于是 $(-u_e,e)\in\ker A^+$ 且 $p(-u_e,e)=e$。
+对 $\xi\in\ker\iota_*$ 保存代表元
+$x=Au+Re$，其类为 $\beta(e)$。
+同时保存 $\ker A$、$\ker A^+$ 和 $\operatorname{im}\beta$ 的基及秩。
+\end{certificate}
+\begin{proof}
+$BR=0$ 保证 $Re$ 闭合，故 $\beta$ 有定义。
+$j$ 单射且 $\ker p$ 恰为所有 $(u,0)$、$Au=0$，
+因此 $\operatorname{im}j=\ker p$。
+若 $(u,e)\in\ker A^+$，则 $Au+Re=0$，
+故 $\beta(e)=[Re]=0$。
+反向，$\beta(e)=0$ 给出 $Re=Au_e$，
+并由 $A^+(-u_e,e)=0$ 得到 $e\in\operatorname{im}p$。
+所以 $\operatorname{im}p=\ker\beta$。
+定理~\ref{hgov:thm-extension} 给出
+$\operatorname{im}\beta=\ker\iota_*$ 及 $\iota_*$ 满射。
+正合列中每个相邻复合因而为零，且每个核都有已列原像。
+
+由秩--零度公式，
+\[
+ \dim\ker\beta=\dim E-r_R,\qquad
+ \dim\ker A^+=\dim\ker A+\dim\ker\beta.
+\]
+再用 $\iota_*$ 满射及其核的维数 $r_R$，取得两个维数等式。
+次数一边界 $B$ 保持，故零次同调相等。
+当 $\dim E=r_R$ 时 $\ker\beta=0$，
+于是 $\ker A^+=\operatorname{im}j$，$j$ 同构。
+最后定义 $\bar T([x])=Tx$、$\bar T^+([x])=Tx$。
+改变代表元分别增加 $Au$ 或 $Au+Re$，
+其 $T$ 读数均为零，所以两张映射良定义且满足所列交换式。
+推演链为
+\[
+ \begin{gathered}
+ BR=0\Rightarrow\beta(e)=[Re]\ \text{良定义},\\
+ Re=Au_e
+ \Rightarrow A^+(-u_e,e)=0
+ \Rightarrow\ker\beta=\operatorname{im}p,\\
+ x=Au+Re
+ \Rightarrow[x]_C=\beta(e)
+ \Rightarrow\ker\iota_*=\operatorname{im}\beta,\\
+ \operatorname{Exact}\land\operatorname{FiniteDimension}
+ \Rightarrow\operatorname{RankIdentities},\\
+ TA=TR=0\Rightarrow
+ \operatorname{WellDefined}(\bar T,\bar T^+)
+ \land\bar T^+\iota_*=\bar T.
+ \end{gathered}
+\]
+\end{proof}
+
+\section{指定允许方向中的扩张存在性与最小性}
+\label{exp:hom:restricted-directions}
+
+取一个已登记的线性子空间
+$W_{\mathrm{adm}}\subseteq\ker B\cap\ker T$，
+并要求每个新增操作满足 $\operatorname{im}R\subseteq W_{\mathrm{adm}}$。
+该线性模型允许用任意域系数合成方向；
+动作幅度的非负约束在定义~\ref{hgov:def-executable} 中另行规定。
+目标仍为固定子空间 $Z\subseteq\ker B\cap\ker T$。
+
+\begin{theorem}[允许方向的像判据与受限最小扩张]
+\label{exp:hom:restricted-minimum}
+存在有限维 $E$ 和允许的 $R:E\to W_{\mathrm{adm}}$，
+使每个 $z\in Z$ 具有原像 $z=Au+Re$，当且仅当
+\[
+ \pi(Z)\subseteq\pi(W_{\mathrm{adm}})
+ \quad\Longleftrightarrow\quad
+ Z\subseteq U+W_{\mathrm{adm}}.
+\]
+该条件成立时，最小的 $\dim E$ 等于
+$r_Z=\dim\pi(Z)$，并可使 $\operatorname{rank}(\pi R)=r_Z$。
+条件失败时，存在 $z_*\in Z$ 和线性泛函
+$\lambda:C_1\to\mathbb k$ 使
+\[
+ \lambda(U)=0,\qquad
+ \lambda(W_{\mathrm{adm}})=0,\qquad
+ \lambda(z_*)\ne0.
+\]
+若全部给定矩阵及子空间基在 $\mathbb Q$ 上，
+上述原像、最小扩张及否决泛函均可由有限有理消元构造。
+\end{theorem}
+\begin{certificate}[允许基、目标商基及否决读数]
+保存 $W_{\mathrm{adm}}$ 与 $Z$ 的基、$U=\operatorname{im}A$，
+以及逐列 $Bw=Tw=0$。
+成功分支选择 $z_1,\ldots,z_{r_Z}$，
+使 $\pi(z_j)$ 为 $\pi(Z)$ 的基；
+为每个 $j$ 提交 $w_j\in W_{\mathrm{adm}}$、$u_j\in C_2$ 使
+$z_j=Au_j+w_j$，并定义 $Re_j=w_j$。
+失败分支保存 $z_*$、$\lambda$ 及全部允许基上的零读数。
+\end{certificate}
+\begin{proof}
+若 $z=Au+Re$ 且 $\operatorname{im}R\subseteq W_{\mathrm{adm}}$，
+则 $z\in U+W_{\mathrm{adm}}$；应用 $\pi$ 得到所列必要包含。
+两种包含相互等价，因为
+$\pi(z)=\pi(w)$ 恰等价于 $z-w\in U$。
+
+若包含成立，逐个选择上述 $w_j,u_j$。
+对任意 $z\in Z$，存在系数 $\alpha_j$ 满足
+$\pi(z)=\sum_j\alpha_j\pi(z_j)=\sum_j\alpha_j\pi(w_j)$，
+故存在 $u$ 使 $z=Au+R\alpha$。
+每个 $w_j$ 属于允许子空间，因而 $R$ 同时满足允许性与兼容性。
+其商像由独立的 $\pi(w_j)$ 张成，
+所以 $\operatorname{rank}(\pi R)=\dim E=r_Z$。
+定理~\ref{hgov:thm-minimal-extension} 给出所有候选的相同下界。
+当 $r_Z=0$，取 $E=0$，且 $Z\subseteq U$。
+
+若包含失败，取 $z_*\in Z\setminus(U+W_{\mathrm{adm}})$。
+先取 $U+W_{\mathrm{adm}}$ 的基，再添 $z_*$，
+并将这组线性无关向量扩展为 $C_1$ 的基。
+令 $\lambda$ 在前一子空间的基上为零，在 $z_*$ 上为一，
+在其余补基上为零，取得所需否决。
+有理基下，同一选基与求原像过程由有限消元实现。
+其谓词链为
+\[
+ \begin{gathered}
+ \operatorname{Allowed}(R)\land
+ Z\subseteq U+\operatorname{im}R
+ \Rightarrow Z\subseteq U+W_{\mathrm{adm}},\\
+ Z\subseteq U+W_{\mathrm{adm}}
+ \land\operatorname{QuotientBasis}(\pi(z_j))
+ \Rightarrow\exists R:\dim E=r_Z
+ \land\forall z\in Z\ \exists(u,e):z=Au+Re,\\
+ \lambda(U+W_{\mathrm{adm}})=0\land\lambda(z_*)\ne0
+ \Rightarrow
+ \forall R\ \bigl(\operatorname{Allowed}(R)
+       \Rightarrow z_*\notin U+\operatorname{im}R\bigr).
+ \end{gathered}
+\]
+\end{proof}
+
+\section{三维修复例证与正交距离}
+\label{hgov:three-dimensional}
+
+\begin{proposition}[一个新方向消解一个独立障碍]
+\label{hgov:prop-three-dimensional}
+在 $\mathbb Q$ 上取
+\[
+ B=\begin{pmatrix}1&1&1\end{pmatrix},\quad
+ A=p=\begin{pmatrix}1\\-1\\0\end{pmatrix},\quad
+ \omega=\begin{pmatrix}1\\0\\-1\end{pmatrix},\quad T=B.
+\]
+原复形有 $H_1(C^-)\cong\mathbb Q$ 且 $[\omega]\ne0$。
+增加一列 $R=\omega$ 后，
+\[
+ A^+=
+ \begin{pmatrix}
+ 1&1\\-1&0\\0&-1
+ \end{pmatrix},\qquad
+ H_1(C^+)=0.
+\]
+在标准欧氏内积下，原修复的最小残差为 $\sqrt{3/2}$，
+扩展后的最小残差为零；一个新增方向达到
+定理~\ref{hgov:thm-minimal-extension} 的下界。
+\end{proposition}
+\begin{certificate}[原障碍、新原像与秩]
+保存
+\[
+ \begin{gathered}
+ BA=0,\quad B\omega=0,\quad
+ \lambda=\begin{pmatrix}0\\0\\1\end{pmatrix},\quad
+ \lambda^{\mathsf T}A=0,\quad
+ \lambda^{\mathsf T}\omega=-1,\\
+ A^+\begin{pmatrix}0\\1\end{pmatrix}=\omega,\quad
+ \operatorname{rank}B=1,\quad
+ \operatorname{rank}A=1,\quad
+ \operatorname{rank}A^+=2.
+ \end{gathered}
+\]
+正交投影与残差为
+\[
+ P\omega=\frac12p,\qquad
+ r=\omega-\frac12p
+   =\begin{pmatrix}1/2\\1/2\\-1\end{pmatrix},\qquad
+ p^{\mathsf T}r=0,\quad r^{\mathsf T}r=\frac32.
+\]
+\end{certificate}
+\begin{proof}
+$\lambda^{\mathsf T}A=0$ 与
+$\lambda^{\mathsf T}\omega=-1$ 给出原方程的否决证书。
+秩--零度公式给出 $\dim\ker B=2$，故
+\[
+ \dim H_1(C^-)=2-1=1,\qquad
+ \dim H_1(C^+)=2-2=0.
+\]
+由于 $p^{\mathsf T}\omega=1$、$p^{\mathsf T}p=2$，
+投影系数为 $1/2$，定理~\ref{hgov:thm-projection} 给出残差值。
+取 $Z=\mathbb Q\omega$，其像 $\pi(Z)$ 一维，新增一列达到下界。
+逐式因果链为
+\[
+ \lambda^{\mathsf T}A=0\wedge
+ \lambda^{\mathsf T}\omega\ne0
+ \Longrightarrow[\omega]_{C^-}\ne0
+ \Longrightarrow r_Z=1
+ \Longrightarrow
+ \bigl(\dim E\ge1\bigr),
+\]
+\[
+ R=\omega\wedge BR=TR=0
+ \Longrightarrow A^+(0,1)=\omega
+ \Longrightarrow[\omega]_{C^+}=0.
+\]
+\end{proof}
+
+\section{正锥、前置条件与有限执行的联合证书}
+\label{hgov:executable}
+
+\begin{definition}[可执行修复词]
+\label{hgov:def-executable}
+在实数承载中令 $L=[a_1\ \cdots\ a_m]$，
+状态域为 $X\subseteq\mathbb R^d$，其中 $d$ 是 $L$ 的行数。
+第 $j$ 类动作具有非负幅度 $t$、
+前置谓词 $\operatorname{Pre}_j(x,t,b)$、费用
+$c_j(x,t)\ge0$ 与实际后继
+\[
+ F_j(x,t)=x+ta_j.
+\]
+前置谓词包括 $F_j(x,t)\in X$ 及 $c_j(x,t)\le b$。
+从 $(x_0,b_0)$ 出发的修复词
+$w=((j_1,t_1),\ldots,(j_N,t_N))$ 满足
+\[
+ \begin{aligned}
+ &t_n\ge0,\quad
+ \operatorname{Pre}_{j_n}(x_{n-1},t_n,b_{n-1}),\\
+ &x_n=F_{j_n}(x_{n-1},t_n),\qquad
+ b_n=b_{n-1}-c_{j_n}(x_{n-1},t_n).
+ \end{aligned}
+\]
+目标变更为 $\omega=x_N-x_0$。
+代数可达集为 $\operatorname{im}L$，
+非负净作用集为
+$\mathcal K_L=\{Lu:u\in\mathbb R_{\ge0}^m\}$，
+实际可达集由上述合法有限词的净作用构成。
+\end{definition}
+
+\begin{lemma}[可执行、正锥与线性可解性的包含]
+\label{hgov:lem-cone}
+对每个初始状态与预算，
+\[
+ \mathcal R_{\mathrm{exec}}(x_0,b_0)
+ \subseteq\mathcal K_L\subseteq\operatorname{im}L.
+\]
+若某列向量 $\lambda$ 满足
+$\lambda^{\mathsf T}L\ge0$（逐分量）且
+$\lambda^{\mathsf T}\omega<0$，则 $\omega\notin\mathcal K_L$。
+\end{lemma}
+\begin{certificate}[幅度聚合与正锥否决]
+对合法词保存
+$u_j=\sum_{\{n:j_n=j\}}t_n$。
+对正锥否决保存 $\lambda^{\mathsf T}a_j\ge0$ 的全部列检查，
+以及 $\lambda^{\mathsf T}\omega<0$。
+\end{certificate}
+\begin{proof}
+按定义 $u_j\ge0$，且逐步相加得到
+\[
+ x_N-x_0=\sum_{n=1}^Nt_na_{j_n}
+ =\sum_{j=1}^mu_ja_j=Lu.
+\]
+因此得到两层包含。
+若 $\omega=Lu$ 且 $u\ge0$，则
+$\lambda^{\mathsf T}\omega
+ =\sum_ju_j\lambda^{\mathsf T}a_j\ge0$，
+与给定严格负值矛盾。
+故
+\[
+ \operatorname{Executed}(w)
+ \Longrightarrow\exists u\ge0\ (Lu=\omega)
+ \Longrightarrow\exists u\in\mathbb R^m\ (Lu=\omega),
+\]
+而所列 $\lambda$ 否决第一个存在命题。
+\end{proof}
+
+\begin{theorem}[合法修复词的有限前缀保持]
+\label{hgov:thm-execution}
+若定义~\ref{hgov:def-executable} 的词逐步通过前置检查，
+$x_0\in X$、$b_0\ge0$，并有 $BL=0$、$TL=0$，则对
+$0\le n\le N$，
+\[
+ x_n\in X,\quad b_n\ge0,\quad
+ Bx_n=Bx_0,\quad Tx_n=Tx_0.
+\]
+若另有任务表示 $q:X\to Q$，实际使用的每一步满足
+\[
+ qF_{j_n}(x_{n-1},t_n)
+ =\bar F_{j_n}(qx_{n-1},t_n),
+\]
+定义 $\bar x_0=q(x_0)$，并令
+$\bar x_n=\bar F_{j_n}(\bar x_{n-1},t_n)$，
+则对应抽象执行满足 $\bar x_n=qx_n$。
+当目标集合满足 $G=q^{-1}(\bar G)$ 时，
+$\bar x_N\in\bar G$ 等价于 $x_N\in G$。
+\end{theorem}
+\begin{certificate}[前缀归纳与任务方块]
+逐步保存实际状态、幅度、前置条件、费用和预算余额；
+保存各列的 $Ba_j=Ta_j=0$；
+采用任务表示时，还保存实际调用点的交换等式和目标原像式。
+归纳谓词为全部已列结论在前 $n$ 步成立。
+\end{certificate}
+\begin{proof}
+零步由输入成立。设结论在 $n-1$ 成立。
+前置条件给出 $x_n\in X$ 和
+$b_n=b_{n-1}-c_{j_n}\ge0$。
+又有
+\[
+ Bx_n=Bx_{n-1}+t_nBa_{j_n}=Bx_0,\qquad
+ Tx_n=Tx_{n-1}+t_nTa_{j_n}=Tx_0.
+\]
+若 $\bar x_{n-1}=qx_{n-1}$，则
+\[
+ \bar x_n=\bar F_{j_n}(\bar x_{n-1},t_n)
+ =\bar F_{j_n}(qx_{n-1},t_n)
+ =qF_{j_n}(x_{n-1},t_n)=qx_n.
+\]
+故 $P(0)\wedge\forall n\le N\,[P(n-1)\Rightarrow P(n)]$
+推出全部有限前缀结论，目标原像式再给出终态读回。
+\end{proof}
+
+\begin{remark}[前置条件的可核验作用]
+\label{hgov:rem-preconditions}
+取整数状态域 $X=\mathbb N^2$，两个不可分动作增量为
+$a_1=(-1,2)^{\mathsf T}$、$a_2=(1,-1)^{\mathsf T}$，
+各动作分别要求被消耗的坐标至少为一。
+从 $x_0=(0,0)^{\mathsf T}$ 出发，
+$\omega=(0,1)^{\mathsf T}=a_1+a_2$ 属于非负整数净作用集；
+两项初始前置条件均为假，合法有限词只有空词。
+这组数据把净作用方程与逐前缀合法性登记为两个可独立核验的字段。
+对命题~\ref{hgov:prop-three-dimensional} 的新增方向，
+取 $X=\mathbb R_{\ge0}^3$、$x_0=(0,0,1)^{\mathsf T}$，
+幅度一的动作 $x\mapsto x+\omega$ 要求 $x_3\ge1$；
+费用一与预算一给出合法一步终态 $(1,0,0)^{\mathsf T}$。
+\end{remark}
+
+\section{有限生成正锥的完全对偶证书}
+\label{exp:hom:cone-alternative}
+
+本节固定实矩阵 $L=[a_1\ \cdots\ a_m]\in\mathbb R^{d\times m}$。
+列数 $m$ 是证书的一部分，允许幅度为实数非负值。
+有限列使正锥闭合，并据此将
+引理~\ref{hgov:lem-cone} 的否决条件提升为充要的二择一结果。
+
+\begin{theorem}[非负净作用的原像或分离证书]
+\label{exp:hom:finite-farkas}
+对任意 $\omega\in\mathbb R^d$，以下两种情形恰有一种成立：
+\[
+ \begin{array}{ll}
+ \mathrm{(P)}&
+ \exists u\in\mathbb R_{\ge0}^m,\quad Lu=\omega,\\[2pt]
+ \mathrm{(D)}&
+ \exists\lambda\in\mathbb R^d,\quad
+ L^{\mathsf T}\lambda\ge0,\quad
+ \lambda^{\mathsf T}\omega<0.
+ \end{array}
+\]
+若 $\mathrm{(P)}$ 成立，可取 $u$ 的非零支集所对应的列线性无关；
+因此所需的非零幅度数不超过 $\operatorname{rank}L$。
+若 $\mathrm{(D)}$ 成立，可令
+$p$ 为 $\omega$ 到 $\mathcal K_L$ 的最近点，
+并取 $\lambda=p-\omega$，此时
+\[
+ \lambda^{\mathsf T}\omega=-\|\omega-p\|^2<0.
+\]
+\end{theorem}
+\begin{certificate}[非负幅度或逐列分离]
+原像分支保存 $u_j\ge0$ 与 $Lu=\omega$，
+并可保存支集列的非零阶子式作为独立性见证。
+对偶分支保存 $\lambda^{\mathsf T}a_j\ge0$ 的全部 $m$ 项检查
+和 $\lambda^{\mathsf T}\omega<0$。
+最近点构造还保存
+$p\in\mathcal K_L$、$(\omega-p)^{\mathsf T}p=0$，
+以及 $(\omega-p)^{\mathsf T}a_j\le0$。
+\end{certificate}
+\begin{proof}
+先证明有限生成正锥 $\mathcal K_L$ 闭合。
+给定 $x=Lu$、$u\ge0$，若正支集上的列线性相关，
+取支集内非零关系 $Lv=0$，必要时把 $v$ 换成 $-v$，
+使至少一个 $v_j>0$。
+置
+\[
+ \tau=\min_{\{j:v_j>0\}}\frac{u_j}{v_j}>0,
+ \qquad u'=u-\tau v.
+\]
+对 $v_j>0$ 的坐标，最小值定义给出 $u'_j\ge0$；
+对 $v_j\le0$ 的坐标，有 $u'_j\ge u_j\ge0$。
+至少一个原正坐标变为零，且支集外的 $v_j=0$。
+于是 $Lu'=Lu$，正支集严格缩小。
+以支集大小归纳，有限步得到独立列表示。
+
+对每个独立列集 $I$，映射
+$L_I:\mathbb R^{I}\to\operatorname{im}L_I$ 具有连续线性逆。
+若 $L_Iu^{(n)}$ 收敛且 $u^{(n)}\ge0$，
+其极限属于闭子空间 $\operatorname{im}L_I$，
+逆映射给出系数极限仍逐分量非负。
+所以 $L_I\mathbb R_{\ge0}^{I}$ 闭合。
+独立列集只有有限多个，连同空集表示零，
+$\mathcal K_L$ 是这些闭集的有限并，因而闭合。
+它还由线性与非负性立即满足凸性。
+
+若 $\omega\notin\mathcal K_L$，在闭凸集上取最近点 $p$。
+其存在性可把极小化限制在
+$\{z\in\mathcal K_L:\|z-\omega\|\le\|\omega\|\}$：
+该集合包含零、闭合且有界，所以在有限维空间中紧致。
+令 $r=\omega-p$。
+对任意 $z\in\mathcal K_L$，线段 $p+t(z-p)$、$0\le t\le1$ 留在正锥中，
+最小性的右导数给出
+\[
+ r^{\mathsf T}(z-p)\le0.
+\]
+分别取 $z=0$ 与 $z=2p$，得到 $r^{\mathsf T}p=0$；
+再取 $z=a_j$，得到 $r^{\mathsf T}a_j\le0$。
+故 $\lambda=-r$ 满足
+\[
+ L^{\mathsf T}\lambda\ge0,\qquad
+ \lambda^{\mathsf T}\omega
+ =-r^{\mathsf T}(p+r)=-\|r\|^2<0.
+\]
+这构造了 $\mathrm{(D)}$。
+若 $\omega\in\mathcal K_L$，其定义给出 $\mathrm{(P)}$。
+两分支的互斥性来自
+$u\ge0\Rightarrow\lambda^{\mathsf T}Lu\ge0$。
+完整推演链为
+\[
+ \begin{gathered}
+ \operatorname{FiniteColumns}(L)
+ \Rightarrow\operatorname{IndependentSupportReduction}
+ \Rightarrow\operatorname{ClosedConvex}(\mathcal K_L),\\
+ \omega\notin\mathcal K_L
+ \Rightarrow\operatorname{NearestPoint}(p)
+ \Rightarrow\mathrm{(D)},\\
+ \omega\in\mathcal K_L\Rightarrow\mathrm{(P)},\qquad
+ \mathrm{(P)}\land\mathrm{(D)}\Rightarrow 0\le\lambda^{\mathsf T}\omega<0.
+ \end{gathered}
+\]
+最后一项是同一读数的非负性与严格负性的矛盾。
+\end{proof}
+
+\section{预算松弛变量及可执行的线性费用接口}
+\label{exp:hom:budget-cone}
+
+令 $c=(c_1,\ldots,c_m)^{\mathsf T}\ge0$ 为固定的单位幅度费用，
+$b\ge0$ 为给定预算。
+本节费用规约为 $c_j(x,t)=c_jt$，故一个词的总费用由聚合幅度决定。
+把未消耗预算登记为松弛变量 $s\ge0$，可同时核验净作用与费用。
+
+\begin{theorem}[预算约束的完全证书与全域执行实现]
+\label{exp:hom:budget-alternative}
+以下两种情形恰有一种成立：
+\[
+ \begin{array}{ll}
+ \mathrm{(P_b)}&
+ \exists u\ge0,\quad Lu=\omega,\quad c^{\mathsf T}u\le b,\\[2pt]
+ \mathrm{(D_b)}&
+ \exists\lambda\in\mathbb R^d,\ \mu\ge0,\quad
+ L^{\mathsf T}\lambda+\mu c\ge0,\quad
+ \lambda^{\mathsf T}\omega+\mu b<0.
+ \end{array}
+\]
+若状态域为 $X=\mathbb R^d$，
+每个动作定义为 $F_j(x,t)=x+ta_j$，
+且其前置条件恰为 $t\ge0$ 与 $c_jt\le$ 当前预算，
+则 $\mathrm{(P_b)}$ 还等价于从任意给定 $x_0$
+以预算 $b$ 合法执行一个有限词并取得净作用 $\omega$。
+原像 $u$ 可以按列编号顺序、每列使用一次幅度 $u_j$ 实现。
+\end{theorem}
+\begin{certificate}[增广矩阵及逐前缀余额]
+保存
+\[
+ \widetilde L=
+ \begin{pmatrix}L&0\\c^{\mathsf T}&1\end{pmatrix},
+ \qquad
+ \widetilde\omega=\begin{pmatrix}\omega\\b\end{pmatrix}.
+\]
+原像分支保存 $u\ge0$、$s=b-c^{\mathsf T}u\ge0$
+及 $\widetilde L(u,s)^{\mathsf T}=\widetilde\omega$。
+对偶分支保存 $(\lambda,\mu)$ 的全部增广列检查。
+全域实现分支还保存
+\[
+ x_j=x_0+\sum_{i=1}^{j}u_i a_i,\qquad
+ b_j=b-\sum_{i=1}^{j}c_i u_i,\qquad 0\le j\le m.
+\]
+\end{certificate}
+\begin{proof}
+逐块相乘给出
+\[
+ \widetilde L\begin{pmatrix}u\\s\end{pmatrix}
+ =\widetilde\omega
+ \Longleftrightarrow
+ Lu=\omega\ \land\ c^{\mathsf T}u+s=b.
+\]
+因此非负增广原像恰等价于 $\mathrm{(P_b)}$。
+将定理~\ref{exp:hom:finite-farkas} 应用于 $\widetilde L$，
+对偶最后一列的非负读数为 $\mu\ge0$，
+其余列读数为 $\lambda^{\mathsf T}a_j+\mu c_j\ge0$；
+目标读数为 $\lambda^{\mathsf T}\omega+\mu b<0$。
+于是恰得 $\mathrm{(D_b)}$，并具有二择一性。
+
+在所列全域实现条件下，若 $u$ 是预算原像，
+每个前缀满足
+\[
+ 0\le\sum_{i=1}^{j}c_i u_i
+ \le\sum_{i=1}^{m}c_i u_i\le b.
+\]
+故 $b_j\ge0$ 且 $c_ju_j\le b_{j-1}$，
+第 $j$ 步通过前置条件。
+数学归纳法给出所有 $m$ 个前缀合法，终点净作用为 $Lu=\omega$。
+反向，任一合法词聚合为 $u_j=\sum_{\{n:j_n=j\}}t_n$；
+费用的线性规约给出总费用 $c^{\mathsf T}u\le b$，
+故取得 $\mathrm{(P_b)}$。
+空词对应 $u=0$。
+谓词因果链为
+\[
+ \begin{gathered}
+ Lu=\omega\land c^{\mathsf T}u\le b\land u\ge0
+ \Longleftrightarrow
+ \exists s\ge0:\widetilde L(u,s)^{\mathsf T}
+                   =\widetilde\omega,\\
+ \operatorname{FiniteColumns}(\widetilde L)
+ \Rightarrow\mathrm{(P_b)}\ \text{与}\ \mathrm{(D_b)}
+          \ \text{恰有一个成立},\\
+ \mathrm{(P_b)}\land\operatorname{GlobalLinearActions}
+ \Rightarrow\bigwedge_{j=0}^{m}(b_j\ge0)
+ \Rightarrow\operatorname{Executed}(w)\land(x_m-x_0=\omega).
+ \end{gathered}
+\]
+\end{proof}
+
+\begin{remark}[三维例证的方向与预算读数]
+\label{exp:hom:budget-example}
+在命题~\ref{hgov:prop-three-dimensional} 中，
+令 $L=[p\ \omega]$、$c=(0,1)^{\mathsf T}$。
+对目标 $-\omega$，取 $\lambda=(0,0,-1)^{\mathsf T}$，
+则
+\[
+ \lambda^{\mathsf T}L=(0,1),\qquad
+ \lambda^{\mathsf T}(-\omega)=-1.
+\]
+所以扩展后的有符号线性像包含 $-\omega$，
+而允许非负幅度时该目标具有对偶否决。
+
+对目标 $\omega$ 和预算 $b<1$，取
+$\lambda=(0,0,1)^{\mathsf T}$、$\mu=1$，则
+\[
+ L^{\mathsf T}\lambda+\mu c=\begin{pmatrix}0\\0\end{pmatrix},
+ \qquad
+ \lambda^{\mathsf T}\omega+\mu b=b-1<0.
+\]
+预算 $b=1$ 时，$u=(0,1)^{\mathsf T}$ 是接受证书。
+因此在线性费用规约和全域动作前提下，$\omega$ 的最小费用恰为一。
+若使用定义~\ref{hgov:def-executable} 的状态域与其他前置条件，
+该原像和最低费用读数可作为逐前缀执行检查的输入。
+\end{remark}
+
+
+\chapter{形式参数、元数滤过与逐阶同伦障碍}
+\label{exp:ch:tower}
+
+\section{总微分与高阶运算的逐阶障碍}
+\label{hgov:higher-obstruction}
+
+总同调及同伦修复塔要求新增方向与全部已有接续式共同相容。
+下面固定分次和符号，分别处理形式参数阶与运算元数。
+其法空间接口来自文献~\cite{S01,S38}，
+高阶 Lie 运算的余导子表述参见文献~\cite{ExtLadaMarkl}。
+
+\begin{definition}[算子余链复形与形式参数]
+\label{hgov:def-end}
+设 $\mathbb k$ 的特征为零，$C^\bullet$ 为分次空间，
+$D_0$ 为次数一算子且 $D_0^2=0$。
+在 $\operatorname{End}^\bullet(C)$ 上令
+\[
+ \delta A=[D_0,A]
+ =D_0A-(-1)^{|A|}AD_0.
+\]
+参数 $t$ 为次数零的中央形式变量，$K_r$ 均为次数一。
+第 $n$ 阶截断为
+\[
+ D^{(n)}(t)=D_0+\sum_{r=1}^nt^rK_r.
+\]
+\end{definition}
+
+\begin{theorem}[总微分逐阶闭合的充要条件]
+\label{hgov:thm-total-tower}
+设 $n\ge1$，且
+$\bigl(D^{(n-1)}(t)\bigr)^2=0\pmod{t^n}$。
+定义次数二的第 $n$ 阶障碍
+\[
+ O_n=\sum_{\substack{i+j=n\\i,j\ge1}}K_iK_j,
+ \qquad O_1=0.
+\]
+则
+\[
+ \delta O_n=0,
+ \qquad
+ \bigl(D^{(n)}(t)\bigr)^2=0\pmod{t^{n+1}}
+ \Longleftrightarrow
+ \delta K_n=-O_n.
+\]
+因此第 $n$ 阶扩张存在，当且仅当
+$[O_n]=0\in H^2(\operatorname{End}C,\delta)$。
+逐阶给出 $K_1,\ldots,K_N$ 即取得至 $N$ 阶的闭合证书。
+\end{theorem}
+\begin{certificate}[系数、分次与阶数归纳]
+保存 $D_0^2=0$，每阶已知算子 $K_i$、系数 $O_n$，
+以及
+\[
+ D_0O_n-O_nD_0=0,\qquad
+ D_0K_n+K_nD_0=-O_n.
+\]
+旧阶系数与新增阶系数逐项保留；终点记录具体截断阶 $N$。
+\end{certificate}
+\begin{proof}
+定义~\ref{hgov:def-end} 是
+引理~\ref{hgov:lem-hom} 在源靶相同情况下的实例，故 $\delta^2=0$。
+置 $A(t)=D^{(n-1)}(t)$。结合律直接给出
+$A(t)A(t)^2-A(t)^2A(t)=0$。
+按假设，$A(t)^2$ 的低于 $n$ 阶系数均为零，
+其第 $n$ 阶系数为 $O_n$，所以所列恒等式的第 $n$ 阶为
+\[
+ D_0O_n-O_nD_0=\delta O_n=0.
+\]
+新增 $t^nK_n$ 后，第 $n$ 阶平方系数为
+\[
+ D_0K_n+K_nD_0+O_n=\delta K_n+O_n.
+\]
+所有涉及 $K_n$ 与正参数阶旧项的乘积均具有大于 $n$ 的参数阶，
+旧的低阶系数保持。因而本阶闭合恰等价于所列填补方程。
+闭余链 $O_n$ 有原像 $-K_n$ 恰等价于其类为零。
+取 $P(n)$ 为平方在模 $t^{n+1}$ 下为零，则
+\[
+ \begin{gathered}
+ P(0):D_0^2=0,\\
+ P(n-1)\Longrightarrow\delta O_n=0,\\
+ P(n-1)\wedge(\delta K_n=-O_n)
+ \Longrightarrow P(n),\\
+ P(0)\wedge
+ \bigwedge_{n=1}^{N}(\delta K_n=-O_n)
+ \Longrightarrow P(N).
+ \end{gathered}
+\]
+这给出逐阶数学归纳法证书。
+\end{proof}
+
+
+\section{分次悬移与运算元数的相容闭合}
+\label{exp:hom:arity-grading}
+
+形式参数阶由中央变量的乘法计量，
+输入元数由余导子的插入计量。
+两者分别满足 $t^it^j=t^{i+j}$ 与
+$a$ 元运算插入 $b$ 元运算后具有 $a+b-1$ 个输入。
+本节固定反对称呈示到对称余代数呈示的次数和符号，
+使两套逐阶方程各自具有明确类型。
+
+\begin{lemma}[反对称呈示与对称余导子的悬移接口]
+\label{hgov:lem-suspension}
+设原分次空间为 $W$，$\ell_n:\Lambda^nW\to W$ 的次数为 $2-n$，
+符号约定取定义 \ref{hgov:linfty:convention}。
+置 $V=W[1]$，其中 $W[1]^j=W^{j+1}$，
+并令 $s:W\to V$ 为次数 $-1$ 的指定线性同构。
+对齐次输入定义
+\[
+ q_n(sx_1\odot\cdots\odot sx_n)
+ =(-1)^{\alpha_n(x)}s\ell_n(x_1,\ldots,x_n),
+ \qquad
+ \alpha_n(x)=\sum_{k=1}^{n}(n-k)|x_k|.
+\]
+则 $q_n:S^nV\to V$ 良定义且次数为一。
+将 $q_n$ 以洗牌求和扩展为余导子 $\widehat q_n$，令
+$Q=\sum_{n\ge1}\widehat q_n$，则
+\[
+ \operatorname{pr}_V Q^2(sx_1\odot\cdots\odot sx_n)
+ =(-1)^{\alpha_n(x)}s\mathcal R_n(x_1,\ldots,x_n).
+\]
+因而 $Q^2=0$ 当且仅当全部 $\mathcal R_n=0$。
+\end{lemma}
+\begin{certificate}[悬移次数与逐洗牌符号]
+保存 $s,s^{-1}$、输入次数、指数 $\alpha_n$、相邻交换符号及余导子的洗牌展开。
+每个固定输入元数只有有限项参与计算。
+\end{certificate}
+\begin{proof}
+输出次数减输入次数为
+$-1+(2-n)+n=1$。
+交换相邻的 $x,y$ 后，指数的变化与反对称交换共同给出
+\[
+ (-1)^{|x|+|y|}\bigl(-(-1)^{|x||y|}\bigr)
+ =(-1)^{(|x|-1)(|y|-1)},
+\]
+这恰是 $sx,sy$ 在 $S^nV$ 中的交换符号，故定义良好。
+对未置换的内层前 $i$ 个输入和外层 $j=n+1-i$，两次悬移的指数为
+\[
+ \begin{aligned}
+ &\sum_{k=1}^{i}(i-k)|x_k|
+ +(j-1)\left(\sum_{k=1}^{i}|x_k|+2-i\right)
+ +\sum_{k=i+1}^{n}(n-k)|x_k|\\
+ &\hspace{2em}\equiv\alpha_n(x)+i(j-1)\pmod2.
+ \end{aligned}
+\]
+一般洗牌由相邻交换构成；上一交换式将悬移空间的 Koszul 符号
+逐次变为 $W$ 上的 $\chi(\sigma;x)$ 与相应指数差。
+故每项具有公共因子 $(-1)^{\alpha_n(x)}s$，其余项正是
+$(-1)^{i(j-1)}\chi(\sigma;x)$ 乘以相应 $\ell_j\ell_i$。
+求和得到所列等式。
+次数一余导子的平方仍为余导子，并由其到余生成元 $V$ 的投影唯一确定，
+所以逐元数投影为零等价于 $Q^2=0$。其谓词链为
+\[
+ \begin{gathered}
+ \operatorname{ShiftDegree}\land\operatorname{SwapSign}\land
+ \operatorname{ShuffleExpansion}\\
+ \Rightarrow\operatorname{CorestrictionIdentity}
+ \Rightarrow(Q^2=0\Longleftrightarrow\forall n\ge1,\mathcal R_n=0).
+ \end{gathered}
+\]
+\end{proof}
+
+\begin{corollary}[运算元数滤过中的同伦代数填补]
+\label{hgov:cor-arity}
+令 $V$ 为分次空间，$S^c(V)=\bigoplus_{m\ge1}S^m(V)$ 为约化分次对称余代数，
+交换输入时使用 Koszul 符号。
+次数一映射 $q_m:S^mV\to V$ 唯一扩展为余导子 $\widehat q_m$。
+设 $q_1^2=0$，且
+$Q_{<n}=\sum_{m=1}^{n-1}\widehat q_m$ 的平方在元数小于 $n$ 时为零，
+$n\ge2$。
+记 $q_1^{(n)}$ 为 $S^nV$ 上由 $q_1$ 诱导的微分，令
+\[
+ \begin{aligned}
+ \delta_nf&=q_1f-(-1)^{|f|}f q_1^{(n)},\\
+ \omega_n&=
+ \operatorname{pr}_{V}\,Q_{<n}^{\,2}\big|_{S^nV}.
+ \end{aligned}
+\]
+则 $\delta_n^2=0$、$\delta_n\omega_n=0$，
+而第 $n$ 元运算存在的充要条件为
+\[
+ \bigl(\exists q_n\in\operatorname{Hom}^1(S^nV,V):
+ \delta_nq_n=-\omega_n\bigr)
+ \Longleftrightarrow
+ [\omega_n]=0
+ \in H^2\bigl(\operatorname{Hom}(S^nV,V),\delta_n\bigr).
+\]
+\end{corollary}
+\begin{certificate}[元数与次数的分别登记]
+保存每个 $q_m$ 的次数一、输入元数 $m$、
+余导子扩展的 Koszul 符号及已闭合的低元数关系。
+本阶保存次数二的 $\omega_n$ 与次数一的 $q_n$，并逐基核验
+$q_1q_n+q_nq_1^{(n)}=-\omega_n$。
+\end{certificate}
+\begin{proof}
+在张量幂上，$q_1^{(n)}$ 为作用于各输入位置的带符号之和；
+每个同位置平方由 $q_1^2=0$ 消去，不同位置的两个次序因
+次数一的 Koszul 符号相反而抵消。该作用下降到分次对称幂，故
+$(q_1^{(n)})^2=0$。于是 $(S^nV,q_1^{(n)})$ 与 $(V,q_1)$
+均为余链复形，$\delta_n^2=0$ 由引理~\ref{hgov:lem-hom} 成立。
+两个元数分别为 $a,b$ 的余导子复合，其核心分量的输入元数为 $a+b-1$。
+因此增加 $\widehat q_n$ 后，元数 $n$ 的平方核心恰为
+\[
+ \omega_n+q_1q_n+q_nq_1^{(n)}
+ =\omega_n+\delta_nq_n.
+\]
+含 $q_n$ 与 $q_j$、$j\ge2$ 的复合具有元数至少 $n+1$，
+旧的低元数关系保持。
+恒等式 $[Q_{<n},Q_{<n}^{\,2}]=0$ 的元数 $n$ 核心中，
+全部涉及低于 $n$ 元平方核心的项为零，剩下
+$\delta_n\omega_n=0$。
+于是
+\[
+ \begin{gathered}
+ \operatorname{Closed}_{<n}(Q_{<n})
+ \Longrightarrow\delta_n\omega_n=0,\\
+ \delta_n\omega_n=0
+ \Longrightarrow
+ \left[
+ \bigl(\exists q_n:\delta_nq_n=-\omega_n\bigr)
+ \Longleftrightarrow[\omega_n]=0
+ \right],\\
+ \operatorname{Closed}_{<n}(Q_{<n})
+ \wedge(\delta_nq_n=-\omega_n)
+ \Longrightarrow
+ \operatorname{Closed}_{\le n}(Q_{<n}+\widehat q_n).
+ \end{gathered}
+\]
+中间的等价由核像商定义成立，最后一步使用已构造的填补。
+\end{proof}
+
+
+\section{有限修复塔的解纤维与选择参数}
+\label{exp:hom:tower-fibres}
+
+记
+\[
+ \mathcal A^r=\operatorname{End}^r(C),\qquad
+ Z^r_\delta=\ker(\delta:\mathcal A^r\to\mathcal A^{r+1}),\qquad
+ B^r_\delta=\delta(\mathcal A^{r-1}).
+\]
+对固定整数 $N\ge0$，定义有限修复塔
+\[
+ \mathcal T_N=
+ \left\{(K_1,\ldots,K_N)\in(\mathcal A^1)^N:
+ \delta K_r+\sum_{\substack{i+j=r\\i,j\ge1}}K_iK_j=0
+ \text{ 对 }1\le r\le N\right\}.
+\]
+令 $\mathcal T_0=\{()\}$，并用
+$\tau_n:\mathcal T_n\to\mathcal T_{n-1}$ 删除最后一个系数。
+这些定义只涉及 $N$ 个参数阶和其中的有限乘积。
+
+\begin{theorem}[截断映射的空纤维、仿射纤维及一阶同伦商]
+\label{exp:hom:tower-fibre}
+固定 $\mathbf K_{<n}=(K_1,\ldots,K_{n-1})\in\mathcal T_{n-1}$，
+并按定理~\ref{hgov:thm-total-tower} 计算 $O_n$。
+若 $[O_n]\ne0$，则
+$\tau_n^{-1}(\mathbf K_{<n})=\varnothing$。
+若已取得 $K_n^0$ 使 $\delta K_n^0=-O_n$，则
+\[
+ \tau_n^{-1}(\mathbf K_{<n})
+ \cong K_n^0+Z^1_\delta.
+\]
+其中同一纤维上的关系
+\[
+ K_n\sim K'_n
+ \quad\Longleftrightarrow\quad
+ K'_n-K_n=\delta S
+ \text{ 对某个 }S\in\mathcal A^0
+\]
+给出以 $H^1(\mathcal A,\delta)$ 自由传递作用的商解集。
+选定 $K_n^0$ 后，商坐标为 $[K_n-K_n^0]$。
+
+若 $C$ 只有有限多个非零分次且每个分次有限维，
+固定基后 $\mathcal T_N$ 由有限组次数至多二的多项式等式给出。
+对于一条已给定的有理低阶分支，
+其下一纤维的存在性、一个原像和全部线性自由参数
+均可由有限有理消元核验。
+\end{theorem}
+\begin{certificate}[分支、障碍、原像与核基]
+记录低阶具体系数、所有已闭合关系、
+$O_n$ 的矩阵和 $\delta:\mathcal A^1\to\mathcal A^2$ 的矩阵。
+非空纤维保存 $K_n^0$、$Z^1_\delta$ 的基；
+商解集额外保存 $B^1_\delta$ 的基及其在 $Z^1_\delta$ 中的坐标。
+空纤维可保存行向量 $\lambda^{\mathsf T}$，
+使 $\lambda^{\mathsf T}\delta=0$ 且 $\lambda^{\mathsf T}O_n\ne0$。
+\end{certificate}
+\begin{proof}
+固定低阶分支后，$O_n$ 是已知的次数二元素，
+且由定理~\ref{hgov:thm-total-tower} 闭合。
+因此本阶系数恰须满足线性方程 $\delta K_n=-O_n$。
+如果存在 $K_n^0$，两个解之差满足
+$\delta(K_n-K_n^0)=0$，
+反之任意 $Z\in Z^1_\delta$ 都给出解 $K_n^0+Z$。
+这证明纤维公式及非零障碍时的空性。
+$\delta^2=0$ 保证 $\delta S$ 属于 $Z^1_\delta$；
+对闭元素取其模 $B^1_\delta$ 的类，
+与定理~\ref{exp:hom:filler-torsor} 的逐差证明相同，
+取得所列自由传递作用。
+
+有限分次基下，$\delta K_r$ 的每个坐标为一次式，
+$K_iK_j$ 的每个坐标为二次式；
+系数数目及阶数数目均有限，所以得到有限多项式呈示。
+当低阶分支已给定时，所有二次项已经成为确定右端，
+本阶由定理~\ref{hgov:prop-elimination} 有限消元。
+后续阶的右端由已选的各个系数重新计算。
+谓词链为
+\[
+ \begin{gathered}
+ \mathbf K_{<n}\in\mathcal T_{n-1}
+ \Rightarrow \delta O_n=0,\\
+ \delta O_n=0
+ \Rightarrow
+ \bigl(\tau_n^{-1}(\mathbf K_{<n})\ne\varnothing
+       \Longleftrightarrow[O_n]=0\bigr),\\
+ \delta K_n^0=-O_n
+ \Rightarrow
+ \tau_n^{-1}(\mathbf K_{<n})\cong K_n^0+Z^1_\delta,\\
+ \operatorname{GivenRationalBranch}(\mathbf K_{<n})
+ \Rightarrow\operatorname{FiniteLinearFibreCheck}.
+ \end{gathered}
+\]
+\end{proof}
+
+\section{形式换基与障碍的协变运输}
+\label{exp:hom:obstruction-transport}
+
+以下先处理同一承载上的形式换基，再处理两个算子代数之间的结构映射。
+全部换基与结构映射都保存分次。
+这样，低阶系数、障碍类和原始元可以沿同一见证运输。
+
+\begin{theorem}[形式换基的有限逆、首阶公式及障碍类]
+\label{exp:hom:formal-conjugation}
+在 $\mathbb k[t]/(t^{N+1})$ 上取
+\[
+ G(t)=I+\sum_{j=1}^{N}t^jS_j,\qquad |S_j|=0.
+\]
+则 $G$ 可逆，且
+\[
+ D'=GDG^{-1},\qquad (D')^2=GD^2G^{-1}
+\]
+给出 $\mathcal T_N$ 上的双射。
+若 $G=I+t^rS+O(t^{r+1})$，$1\le r\le N$，则
+\[
+ K'_i=K_i\ (i<r),\qquad K'_r=K_r-\delta S.
+\]
+
+进一步，取 $1\le n\le N$ 及固定低阶闭合分支
+$A=D_0+\sum_{i=1}^{n-1}t^iK_i$。
+唯一写成
+\[
+ GAG^{-1}=A'+t^nB_n\pmod{t^{n+1}},
+ \qquad
+ A'=D_0+\sum_{i=1}^{n-1}t^iK'_i.
+\]
+则 $|B_n|=1$，$A'$ 低阶闭合，且其第 $n$ 阶障碍满足
+\[
+ O'_n=O_n-\delta B_n,\qquad [O'_n]=[O_n]\in H^2(\mathcal A,\delta).
+\]
+如果 $\delta K_n=-O_n$，则
+$K'_n=K_n+B_n$ 满足 $\delta K'_n=-O'_n$。
+\end{theorem}
+\begin{certificate}[截断逆与本阶换基系数]
+保存 $G$ 的全部次数零系数，
+令 $H=G-I$，并记录
+\[
+ G^{-1}=\sum_{a=0}^{N}(-H)^a\pmod{t^{N+1}}.
+\]
+保存 $GG^{-1}=G^{-1}G=I$、有类型的共轭展开，
+以及截断的 $A'$ 与第 $n$ 阶余项 $B_n$。
+核验 $O'_n-O_n+\delta B_n=0$；
+接受分支保存 $K'_n=K_n+B_n$ 的填补式。
+\end{certificate}
+\begin{proof}
+$H$ 的每一项参数阶至少为一，所以
+$H^{N+1}=0\pmod{t^{N+1}}$。
+有限几何和两侧相乘给出所列逆式。
+结合律及 $G^{-1}G=I$ 给出
+\[
+ (GDG^{-1})(GDG^{-1})=GD^2G^{-1}.
+\]
+$G$ 的常数项为恒等，因而 $D'$ 的常数项仍为 $D_0$；
+逆换基为 $D=G^{-1}D'G$，于是给出修复塔的双射。
+首个改动阶只涉及常数项 $D_0$ 和 $t^rS$，所以
+\[
+ K'_r=K_r+SD_0-D_0S=K_r-\delta S,
+\]
+低于 $r$ 的系数保持。
+
+对第二部分，旧平方具有形式
+$A^2=t^nO_n+O(t^{n+1})$。
+因为 $G$ 的常数项是 $I$，
+\[
+ GA^2G^{-1}=t^nO_n+O(t^{n+1}).
+\]
+另一侧由 $GAG^{-1}=A'+t^nB_n$ 给出
+\[
+ (GAG^{-1})^2
+ =(A')^2+t^n(D_0B_n+B_nD_0)
+ \pmod{t^{n+1}}.
+\]
+这里 $2n\ge n+1$，且 $B_n$ 与所有正阶旧系数的乘积
+也属于被截去的阶数。
+因此 $A'$ 的低于 $n$ 阶平方系数为零，
+而第 $n$ 阶满足 $O'_n+\delta B_n=O_n$。
+这既证明障碍类保持，也给出
+$\delta(K_n+B_n)=-O_n+\delta B_n=-O'_n$。
+谓词链为
+\[
+ \begin{gathered}
+ G-I\in t\mathcal A^0[t]
+ \Rightarrow\operatorname{FiniteInverse}(G)
+ \Rightarrow(D')^2=GD^2G^{-1},\\
+ A^2=0\pmod{t^n}
+ \Rightarrow(A')^2=0\pmod{t^n}
+ \land O'_n=O_n-\delta B_n,\\
+ O'_n=O_n-\delta B_n
+ \Rightarrow[O'_n]=[O_n],\\
+ \delta K_n=-O_n
+ \Rightarrow\delta(K_n+B_n)=-O'_n.
+ \end{gathered}
+\]
+\end{proof}
+
+\begin{theorem}[微分分次表示下的障碍与填补运输]
+\label{exp:hom:dg-transport}
+设 $(\mathcal A,\delta)$、$(\mathcal A',\delta')$
+是由平方零次数一算子 $D_0,D'_0$ 得到的算子微分分次代数。
+给定次数零线性映射 $F:\mathcal A\to\mathcal A'$，满足
+\[
+ F(XY)=F(X)F(Y),\qquad
+ F(\delta X)=\delta'F(X).
+\]
+对一条低阶闭合分支定义 $K'_i=F(K_i)$。
+则目标分支也低阶闭合，且
+\[
+ O'_n=F(O_n),\qquad
+ [O'_n]=H^2(F)[O_n].
+\]
+每个源填补 $K_n$ 运输为目标填补 $F(K_n)$。
+若 $H^2(F)$ 单射，则本阶源填补存在当且仅当目标填补存在。
+若 $F$ 是微分分次代数同构，则它还给出两边全部本阶填补集合的双射。
+
+特别地，共链同构 $g:(C,D_0)\to(C',D'_0)$ 产生
+$F(X)=gXg^{-1}$，满足全部条件。
+\end{theorem}
+\begin{certificate}[乘法、微分与类映射]
+保存 $F$ 在所用分次基上的矩阵、乘法保持式和微分交换式。
+逐阶保存
+\[
+ \delta'F(K_r)+F(O_r)=F(\delta K_r+O_r)=0.
+\]
+使用反向存在性时，额外保存
+$H^2(F)$ 的核为零的基或秩见证。
+使用全部解的双射时，保存 $F^{-1}$ 及其两侧逆式。
+共链同构情形保存 $g^{-1}$ 和 $D'_0g=gD_0$。
+\end{certificate}
+\begin{proof}
+乘法保持及线性性给出
+\[
+ \sum_{\substack{i+j=n\\i,j\ge1}}F(K_i)F(K_j)
+ =F\left(\sum_{\substack{i+j=n\\i,j\ge1}}K_iK_j\right)
+ =F(O_n).
+\]
+低阶关系应用 $F$ 后仍为零，故目标低阶分支闭合。
+微分交换式使闭元素和边界分别映到闭元素和边界，
+所以 $H^2(F)$ 良定义，并有所列类公式。
+若 $\delta K_n=-O_n$，应用 $F$ 得到
+$\delta'F(K_n)=-O'_n$。
+反向若目标填补存在，则 $H^2(F)[O_n]=[O'_n]=0$；
+单射性给出 $[O_n]=0$，
+再用定理~\ref{hgov:thm-total-tower} 构造源填补。
+若 $F$ 为同构，同一推导应用于 $F^{-1}$，
+得到全部解集合的双射。
+
+最后，对 $F(X)=gXg^{-1}$，
+结合律给出乘法保持；对齐次 $X$ 有
+\[
+ \begin{aligned}
+ \delta'F(X)
+ &=D'_0gXg^{-1}-(-1)^{|X|}gXg^{-1}D'_0\\
+ &=g\bigl(D_0X-(-1)^{|X|}XD_0\bigr)g^{-1}
+ =F(\delta X).
+ \end{aligned}
+\]
+因此共链同构是上述运输的实例。
+各条件的作用由以下链核验：
+\[
+ \begin{gathered}
+ \operatorname{Multiplicative}(F)\land
+ \operatorname{Differential}(F)
+ \Rightarrow O'_n=F(O_n)
+ \land[O'_n]=H^2(F)[O_n],\\
+ \delta K_n=-O_n
+ \Rightarrow\delta'F(K_n)=-O'_n,\\
+ [O'_n]=0\land\operatorname{Injective}(H^2(F))
+ \Rightarrow[O_n]=0
+ \Rightarrow\exists K_n:\delta K_n=-O_n.
+ \end{gathered}
+\]
+\end{proof}
+
+\section{一阶参数变化及障碍距离的斜率}
+\label{exp:hom:obstruction-slope}
+
+本节取有限维实分次空间 $C$，
+只有有限多个分次非零，$D_0$ 固定。
+参数 $s$ 位于开区间 $I\subseteq\mathbb R$。
+规定 $K_i(s)\in\mathcal A^1$、$1\le i<n$ 是逐坐标可微的映射，
+并在每个 $s\in I$ 满足全部低于 $n$ 阶关系。
+因而可对这些有限矩阵等式逐项求导。
+一阶变化用交换代数 $\mathbb R[\varepsilon]/(\varepsilon^2)$ 记录，
+其中 $\varepsilon$ 的次数为零，并与形式变量 $t$ 区分。
+
+\begin{theorem}[一阶障碍原始元与可观测残差斜率]
+\label{exp:hom:first-variation}
+固定 $n\ge2$、$s_0\in I$，记
+\[
+ K_i^0=K_i(s_0),\qquad
+ V_i=\frac{dK_i}{ds}(s_0),\qquad
+ O_n^0=O_n(s_0).
+\]
+已取得本阶基准填补 $\delta K_n^0=-O_n^0$。
+定义
+\[
+ \dot O_n
+ =\sum_{\substack{i+j=n\\i,j\ge1}}
+       (V_iK_j^0+K_i^0V_j)\in\mathcal A^2.
+\]
+则 $\delta\dot O_n=0$。
+以下条件等价：
+\[
+ \begin{gathered}
+ \exists V_n\in\mathcal A^1:
+ D_0+\sum_{i=1}^{n}t^i(K_i^0+\varepsilon V_i)
+ \text{ 的平方模 }(t^{n+1},\varepsilon^2)\text{ 为零},\\
+ \exists V_n\in\mathcal A^1:\delta V_n=-\dot O_n,\\
+ [\dot O_n]=0\in H^2(\mathcal A,\delta).
+ \end{gathered}
+\]
+在 $\mathcal A^2$ 上固定正定内积，
+令 $P$ 为到 $\operatorname{im}(\delta:\mathcal A^1\to\mathcal A^2)$
+的正交投影，并定义
+\[
+ e_n(s)=\min_{X\in\mathcal A^1}\|\delta X+O_n(s)\|,
+ \qquad
+ a_n=\|(I-P)\dot O_n\|.
+\]
+则
+\[
+ e_n(s)=|s-s_0|a_n+o(|s-s_0|),\qquad
+ a_n=0\Longleftrightarrow[\dot O_n]=0.
+\]
+若 $a_n>0$，存在 $\epsilon_0>0$，
+使 $0<|s-s_0|<\epsilon_0$ 时 $e_n(s)>0$。
+\end{theorem}
+\begin{certificate}[导数矩阵、双数系数与正交分量]
+保存每张 $K_i^0,V_i$、低阶关系及其导数，
+以及 $\delta K_n^0=-O_n^0$。
+逐项保存 $\dot O_n$ 的有限乘积求和及闭性。
+一阶接受分支保存 $V_n$ 的原像等式；
+否决分支保存 $(I-P)\dot O_n\ne0$ 或相应的对偶行。
+距离字段保存 $P^2=P$、正交性和
+$(I-P)O_n^0=0$，并记录所用内积及参数 $s$ 的规约。
+\end{certificate}
+\begin{proof}
+有限求和与矩阵乘法的逐坐标乘积法则给出
+$\frac{d}{ds}O_n(s_0)=\dot O_n$。
+因为 $\delta$ 固定且 $\delta O_n(s)=0$ 对全部 $s$ 成立，
+求导得到 $\delta\dot O_n=0$。
+对每个低阶系数关系求导，也得到其双数展开的一阶系数为零。
+本阶的双数系数恰为
+\[
+ \begin{aligned}
+ \delta(K_n^0+\varepsilon V_n)
+  +O_n^0+\varepsilon\dot O_n
+ &=(\delta K_n^0+O_n^0)
+   +\varepsilon(\delta V_n+\dot O_n)\\
+ &=\varepsilon(\delta V_n+\dot O_n).
+ \end{aligned}
+\]
+所以双数闭合等价于 $\delta V_n=-\dot O_n$，
+闭性再给出其与上同调类为零的等价。
+
+定理~\ref{hgov:thm-projection} 应用于固定矩阵 $\delta$，
+得到 $e_n(s)=\|(I-P)O_n(s)\|$。
+基准填补保证 $(I-P)O_n^0=0$。
+于是可微性给出
+\[
+ (I-P)O_n(s)
+ =(s-s_0)(I-P)\dot O_n+o(|s-s_0|).
+\]
+使用范数的反三角不等式，便得到所列距离展开。
+$P$ 的像恰为边界空间，故
+$a_n=0\Longleftrightarrow\dot O_n\in\operatorname{im}\delta$；
+结合 $\delta\dot O_n=0$ 即得类判据。
+当 $a_n>0$，选取邻域使余项范数小于
+$\frac12 a_n|s-s_0|$，得到
+$e_n(s)\ge\frac12a_n|s-s_0|>0$。
+全部结论由以下谓词链组成：
+\[
+ \begin{gathered}
+ \operatorname{Differentiable}(K_i)\land
+ \operatorname{Closed}_{<n}(K_i(s))
+ \Rightarrow\delta\dot O_n=0,\\
+ \delta K_n^0=-O_n^0
+ \Rightarrow
+ \bigl(\operatorname{FirstOrderFill}
+       \Longleftrightarrow\exists V_n:\delta V_n=-\dot O_n\bigr),\\
+ \delta\dot O_n=0
+ \Rightarrow
+ \bigl(\operatorname{FirstOrderFill}
+       \Longleftrightarrow[\dot O_n]=0
+       \Longleftrightarrow a_n=0\bigr),\\
+ a_n>0\land\operatorname{RemainderBound}
+ \Rightarrow
+ 0<|s-s_0|<\epsilon_0\Rightarrow e_n(s)>0.
+ \end{gathered}
+\]
+\end{proof}
+
+\begin{remark}[可计算的有限参数分支]
+\label{exp:hom:parameter-matrix}
+取 $C^0=\mathbb R v_0$、$C^1=\mathbb R v_1$、
+$C^2=\mathbb R v_2$，$D_0=0$，并按 $(v_0,v_1,v_2)$ 排序。
+令
+\[
+ K_1(s)=
+ \begin{pmatrix}0&0&0\\1&0&0\\0&s&0\end{pmatrix},
+ \qquad
+ O_2(s)=K_1(s)^2=
+ \begin{pmatrix}0&0&0\\0&0&0\\s&0&0\end{pmatrix}.
+\]
+每个 $K_1(s)$ 均为次数一，全部一阶关系 $\delta K_1(s)=0$ 成立。
+这里 $\delta=0$，所以二阶原像存在当且仅当 $s=0$；
+在 $s=0$ 可取 $K_2^0=0$，
+其余选择是全部 $Z^1_\delta=\mathcal A^1$。
+矩阵单位 $E_{20}:v_0\mapsto v_2$ 取单位长度时，
+\[
+ \dot O_2(0)=E_{20},\qquad
+ e_2(s)=|s|,\qquad a_2=1.
+\]
+因此这组有限矩阵同时给出非空纤维、空纤维、
+一阶否决与精确的障碍距离斜率。
+\end{remark}
+
+\begin{remark}[结构修复的组合接口]
+\label{hgov:rem-interface}
+本节的有限呈示将治理链登记为
+\[
+ \begin{gathered}
+ \text{有类型接续}
+ \longrightarrow J\in\ker\delta
+ \longrightarrow[J]\ \text{及对偶证书}\\
+ \longrightarrow
+ \text{兼容的新方向与高阶填补}
+ \longrightarrow
+ \text{合法有限执行}
+ \longrightarrow
+ \text{任务读回与保持证书}.
+ \end{gathered}
+\]
+同调类刻画既有边界像尚未覆盖的方向；
+兼容扩展量由任务障碍子空间在原边界商中的维数计量；
+高阶方程核验新增操作与已有结构的相容性；
+执行前缀核验把代数解连接到实际路径。
+这些字段共同给出异构演化的可描述、可修复与可验证结构。
+\end{remark}
+
+
+\chapter{负曲率输入与有限修复的完整联合构造}
+\label{exp:ch:joint}
+
+\label{hgov:sec:joint}
+
+本节将标准双曲几何与有限修复复形配置在同一任务族中。全部几何系数、
+任务观察、旧新动作、障碍读数和终端由下列定义给出；所需证明在本节完成。
+
+\section{几何输入与非零同调障碍}
+
+\begin{definition}[双曲参数与修复复形]
+\label{hgov:def:joint}
+固定 $a>0$，令 $H_a$ 为常截面曲率 $-a^2$ 的双曲平面，取单位速测地线
+$\gamma$ 及单位横向平行场 $E$。定义
+\[
+J(t)=\frac{\sinh(at)}aE(t),\qquad
+\lambda(t)=\langle J(t),E(t)\rangle=\frac{\sinh(at)}a .
+\]
+取修复变更空间 $V=\mathbb R^3$，并固定
+\[
+\mathbf p=\begin{pmatrix}1\\-1\\0\end{pmatrix},\qquad
+\mathbf r=\begin{pmatrix}1\\0\\-1\end{pmatrix},\qquad
+B=\begin{pmatrix}1&1&1\end{pmatrix}.
+\]
+旧新链复形分别为
+\[
+C^-:\mathbb R\xrightarrow{A^-=\mathbf p}\mathbb R^3
+\xrightarrow{B}\mathbb R,\qquad
+C^+:\mathbb R^2\xrightarrow{A^+=[\,\mathbf p\ \mathbf r\,]}\mathbb R^3
+\xrightarrow{B}\mathbb R.
+\]
+对应链映射 $i:C^-\to C^+$ 在次数二为 $v\mapsto(v,0)$，次数一与零均为恒等。
+几何读取与待修复变更的桥接定义为
+$\omega(t)=\lambda(t)\mathbf r$。
+\end{definition}
+
+\begin{lemma}[同一几何输入产生可核验的非零障碍]
+\label{hgov:lem:jointobstruction}
+对所有 $t>0$，$J$ 满足给定双曲模型的 Jacobi 方程，且
+\[
+B\omega(t)=0,\qquad
+[\omega(t)]\ne0\in H_1(C^-),\qquad
+i_*[\omega(t)]=0\in H_1(C^+).
+\]
+\end{lemma}
+\begin{certificate}[几何到线性障碍的逐原子桥接]
+保存 $a,\gamma,E,t$、$\lambda(t)$、$A^\pm,B$ 及
+$w=(0,0,1)^{\mathsf T}$。逐项核验
+\[
+D_t^2J=a^2J,\quad R(J,\dot\gamma)\dot\gamma=-a^2J,\quad
+w^{\mathsf T}A^-=0,\quad
+w^{\mathsf T}\omega(t)=-\lambda(t).
+\]
+新增填补记录为 $A^+(0,\lambda(t))^{\mathsf T}=\omega(t)$。
+\end{certificate}
+\begin{proof}
+平行场满足 $D_tE=0$，两次求导即得 Jacobi 方程与初值。
+$B\mathbf p=B\mathbf r=0$ 证明两侧链性；$A^+i_2=A^-$ 证明 $i$ 为链映射。
+因 $t>0$、$a>0$，有 $\lambda(t)>0$。若 $\omega(t)=A^-v$，则
+$w^{\mathsf T}\omega(t)=w^{\mathsf T}A^-v=0$，与 $-\lambda(t)<0$ 矛盾。
+新增列直接给出边界见证。因此
+\[
+\begin{gathered}
+t>0\Rightarrow\lambda(t)>0
+\Rightarrow w^{\mathsf T}\omega(t)\ne0
+\Rightarrow[\omega(t)]_{C^-}\ne0,\\
+B A^+=0\land A^+(0,\lambda(t))^{\mathsf T}=\omega(t)
+\Rightarrow i_*[\omega(t)]_{C^+}=0 .
+\end{gathered}
+\]
+这里 $\omega(t)$ 的语义由显式桥接定义及其任务输入确定。
+\end{proof}
+
+\section{实际动作、任务商与光滑同伦}
+
+\begin{definition}[参数化任务状态与单位填补]
+\label{hgov:def:jointtask}
+对整数 $m\ge1$，取
+\[
+t_m=a^{-1}\operatorname{arsinh}(am),\qquad p_m=\gamma(t_m),
+\qquad \lambda(t_m)=m .
+\]
+固定整数 $h\ge0$。在乘积承载
+$M_m=H_a\times\mathbb R_s\times\mathbb R_u\times\mathbb R_f^h$
+上，任务状态域固定 $p=p_m$、$u\in\{0,\ldots,m\}$，
+并记录 $m$、系数 $s$ 和冗余 $f$；记这一状态域为 $X_m$。
+关联实际变更
+\[
+x(s,u)=s\mathbf p+u\mathbf r,\qquad
+\omega_m=m\mathbf r,\qquad
+\zeta_m(s,u)=\omega_m-x(s,u).
+\]
+任务观察包括 $(m,p,s,u,\zeta_m)$，身份包括 $(m,p,Bx)$，目标为
+$G_m\iff \zeta_m=0$。对每个实数标签 $c$，定义全域旧动作
+\[
+ F_c(p,s,u,f)=(p,s+c,u,f),\qquad
+ F_{\mathrm{nf}}(p,s,u,f)=(p,s,u,0).
+\]
+二者的前置谓词在 $X_m$ 上恒真，执行费用均为零。
+新增单位填补为部分动作
+\[
+ \begin{aligned}
+ \operatorname{Pre}_+(p,s,u,f)&\iff u<m,\\
+ F_+(p,s,u,f)&=(p,s,u+1,f),\qquad c_+=1.
+ \end{aligned}
+\]
+初态为 $(p_m,0,0,f_0)$，其中 $f_0$ 为固定输入。
+每个动作标签、前置条件和费用都有上述明确的逐坐标定义。
+\end{definition}
+
+\begin{proposition}[联合任务的动态商与光滑同伦]
+\label{hgov:prop:jointquotient}
+映射
+\[
+q(p,s,u,f)=(p,s,u),\qquad i_q(p,s,u)=(p,s,u,0)
+\]
+保留上述全部任务观察、身份、目标、动作可用性、后继与执行费用。
+这里 $q$ 的状态域为 $X_m$，商域为 $Q_m=q(X_m)$；
+同一坐标式同时定义环境承载上的光滑投影
+$M_m\to H_a\times\mathbb R_s\times\mathbb R_u$。
+在 $M_m$ 上，
+\[
+H_\theta(p,s,u,f)=(p,s,u,(1-\theta)f),\quad 0\le\theta\le1,
+\]
+满足 $qi_q=\mathrm{id}$、$qH_\theta=q$，并给出恒等到 $i_qq$ 的同伦。
+其光滑奇异链实现存在棱柱算子 $P$，满足
+\[
+(i_qq)_\#-\mathrm{id}=\partial P+P\partial.
+\]
+\end{proposition}
+\begin{certificate}[商与棱柱接口]
+逐项保存 $O=\bar Oq$、$I=\bar Iq$、
+$\mathbf1_{G_m}=\mathbf1_{\bar G_m}q$，以及
+\[
+ \begin{aligned}
+ \bar F_c(p,s,u)&=(p,s+c,u),&
+ \bar F_{\mathrm{nf}}&=\mathrm{id}_{Q_m},\\
+ \bar F_+(p,s,u)&=(p,s,u+1),&
+ \overline{\operatorname{Pre}}_+(p,s,u)&\iff u<m.
+ \end{aligned}
+\]
+旧动作的商侧前置谓词恒真，费用为零；新增动作费用为一。
+保存各标签的 $qF_a=\bar F_aq$、
+$\operatorname{Pre}_a=\overline{\operatorname{Pre}}_a q$、
+$c_a=\bar c_aq$，并保存同伦端点及棱柱的有向分解。
+\end{certificate}
+\begin{proof}
+所有任务字段由 $(m,p,s,u)$ 读取，故观察、身份与目标因子化。
+三类动作分别满足
+\[
+ \begin{aligned}
+ qF_c(p,s,u,f)&=(p,s+c,u)=\bar F_cq(p,s,u,f),\\
+ qF_{\mathrm{nf}}(p,s,u,f)&=(p,s,u)=\bar F_{\mathrm{nf}}q(p,s,u,f),\\
+ qF_+(p,s,u,f)&=(p,s,u+1)=\bar F_+q(p,s,u,f).
+ \end{aligned}
+\]
+旧动作前置谓词恒真，新增前件 $u<m$ 由商坐标读取；
+常数费用零与一也分别因子化。
+$H_\theta$ 固定所有任务坐标并满足所列端点。
+对每个光滑单形，将其与区间的乘积分解为有向棱柱单形，内部面两两抵消，
+仅保留上下端及侧面，得到棱柱恒等式 \cite{ExtHatcher,S38}。因此
+\[
+\begin{gathered}
+\operatorname{CoordinateFactorization}
+\land\operatorname{DomainMatch}\\
+\land\operatorname{CostFactorization}
+\land\operatorname{ActionCommute}
+\Rightarrow\operatorname{DynamicQuotient},\\
+\operatorname{PrismBoundary}\Rightarrow\operatorname{ChainHomotopy}.
+\end{gathered}
+\]
+\end{proof}
+
+\section{三类复形的逐边实现与交换}
+
+\begin{definition}[联合任务的有限执行子图与三类复形]
+\label{hgov:def:jointgraph}
+固定 $m,f_0$，登记实际执行顶点
+$v_k=(p_m,0,k,f_0)$，$0\le k\le m$，
+以及单位动作边 $e_k:v_k\to v_{k+1}$，$0\le k<m$。
+执行子图的链复形为
+\[
+ K_{m,0}=\mathbb R\{v_0,\ldots,v_m\},\quad
+ K_{m,1}=\mathbb R\{e_0,\ldots,e_{m-1}\},\quad
+ K_{m,2}=0,\qquad
+ \partial_me_k=v_{k+1}-v_k.
+\]
+其商图使用 $\bar v_k=(p_m,0,k)$、$\bar e_k:\bar v_k\to\bar v_{k+1}$，
+并定义
+\[
+ q_{m,0}v_k=\bar v_k,\qquad
+ q_{m,1}e_k=\bar e_k,\qquad q_{m,2}=0.
+\]
+三类复形分别登记为
+\[
+ C_\bullet^{\mathrm{sm}}(M_m;\mathbb R),\qquad
+ K_{m,\bullet},\qquad C^\pm.
+\]
+它们依次保存环境承载的光滑单形、实际执行的有限有向记录、
+以及变更约束和修复生成元。
+任务状态映射 $v_k\mapsto(p_m,0,k,f_0)$ 与各观察值逐项登记。
+\end{definition}
+
+\begin{proposition}[光滑路径、任务图与修复变更的显式交换]
+\label{hgov:prop:jointgraph}
+对定义~\ref{hgov:def:jointgraph}，有
+$q_{m,0}\partial_m=\bar\partial_mq_{m,1}$。
+定义光滑实现 $\mathcal R_m:K_{m,\bullet}\to
+C_\bullet^{\mathrm{sm}}(M_m;\mathbb R)$：
+\[
+ \mathcal R_m(v_k)=[(p_m,0,k,f_0)],\qquad
+ \mathcal R_m(e_k)=\sigma_k,\quad
+ \sigma_k(\tau)=(p_m,0,k+\tau,f_0),\quad 0\le\tau\le1.
+\]
+则 $\partial_{\mathrm{sm}}\mathcal R_m=\mathcal R_m\partial_m$。
+商侧取相同路径的 $q$ 投影，得到
+$q_\#\mathcal R_m=\bar{\mathcal R}_mq_m$。
+进一步定义
+\[
+ \rho_m(v_k)=k\mathbf r,\qquad
+ \chi_m(e_k)=(0,1)^{\mathsf T},\qquad
+ \xi_m(v_k)=(m-k)\mathbf r.
+\]
+这些映射满足有类型的桥接式
+\[
+ \rho_m\partial_m=A^+\chi_m,\qquad
+ B\rho_m=0,\qquad
+ \xi_m\partial_m=-A^+\chi_m.
+\]
+将 $x(s,u)=s\mathbf p+u\mathbf r$ 按坐标视为环境承载上的三个光滑观察，
+则
+\[
+ \int_{\sigma_k}dx=\mathbf r=A^+\chi_m(e_k),\qquad
+ \int_{\sigma_k}d\zeta_m=-\mathbf r,
+\]
+且 $\omega(t_m)=\rho_m(v_m)=\xi_m(v_0)$。
+\end{proposition}
+\begin{certificate}[逐边实现、边界与积分]
+保存全部顶点与边表、$q_{m,0}$ 的顶点绑定、
+路径 $\sigma_k$ 及其两个端点，
+并逐边保存
+\[
+ \partial_{\mathrm{sm}}\sigma_k
+ =[(p_m,0,k+1,f_0)]-[(p_m,0,k,f_0)].
+\]
+变更桥接保存 $A^+(0,1)^{\mathsf T}=\mathbf r$、
+$B\mathbf r=0$、$dx=\mathbf p\,ds+\mathbf r\,du$，
+以及 $\sigma_k^*ds=0$、$\sigma_k^*du=d\tau$。
+几何输入保存 $\lambda(t_m)=m$。
+\end{certificate}
+\begin{proof}
+对每个边生成元，
+\[
+ q_{m,0}\partial_me_k
+ =\bar v_{k+1}-\bar v_k
+ =\bar\partial_mq_{m,1}e_k.
+\]
+光滑一单形的边界是终点减起点，故逐边给出
+$\partial_{\mathrm{sm}}\mathcal R_me_k
+=\mathcal R_m\partial_me_k$；
+零次的两侧边界均为零，其他次数为空，线性延拓得到链映射。
+投影 $q$ 作用于 $\sigma_k$ 的每个参数值，直接得到商侧路径，
+所以 $q_\#\mathcal R_m=\bar{\mathcal R}_mq_m$。
+再有
+\[
+ \begin{aligned}
+ \rho_m\partial_me_k
+ &=(k+1)\mathbf r-k\mathbf r
+ =\mathbf r=A^+\chi_m(e_k),\\
+ \xi_m\partial_me_k
+ &=(m-k-1)\mathbf r-(m-k)\mathbf r
+ =-\mathbf r,\\
+ \int_{\sigma_k}dx
+ &=\int_0^1\bigl(\mathbf p\,0+\mathbf r\,d\tau\bigr)
+ =\mathbf r.
+ \end{aligned}
+\]
+由于 $\zeta_m=\omega_m-x$ 且 $\omega_m$ 在本次执行中固定，
+第二个积分式随即成立。$B\mathbf r=0$ 给出 $B\rho_m=0$；
+几何读取的 $\lambda(t_m)=m$ 给出最后一个端点桥接。
+全部谓词链为
+\[
+ \begin{gathered}
+ \operatorname{EdgeTable}
+ \Longrightarrow q_{m,0}\partial_m=\bar\partial_mq_{m,1},\\
+ \operatorname{SmoothEndpoints}(\sigma_k)
+ \Longrightarrow
+ \partial_{\mathrm{sm}}\mathcal R_m=\mathcal R_m\partial_m,\\
+ \sigma_k^*dx=\mathbf r\,d\tau
+ \Longrightarrow
+ \int_{\sigma_k}dx=\rho_m\partial_me_k=A^+\chi_m(e_k).
+ \end{gathered}
+\]
+光滑边内参数位于环境承载 $M_m$；
+执行接受在整数顶点及登记的单位动作上逐步核验。
+\end{proof}
+
+\section{有限命中、最少方向与完整成本}
+
+\begin{theorem}[联合任务的严格可达扩张、有限命中与动作下界]
+\label{hgov:thm:joint}
+对每个 $m\ge1$，旧动作族从初态无法达到 $G_m$；
+新动作词由 $m$ 次单位填补构成并精确达到 $G_m$。
+该词在全程保持任务身份、动态商和几何输入，且每个命中词至少使用 $m$ 次单位填补。
+沿构造路径，势函数
+\[
+\Phi(s,u)=\tfrac12\|\zeta_m(s,u)\|^2
+\]
+满足
+\[
+\Phi(0,k)=(m-k)^2,\qquad
+\Phi(0,k)-\Phi(0,k+1)=2(m-k)-1>0
+\]
+对 $0\le k<m$ 成立。
+\end{theorem}
+\begin{certificate}[全部参数的有限归纳轨迹]
+保存参数 $m$、解析几何输入 $t_m,p_m$、实际动作序列及第 $k$ 行
+\[
+(s_k,u_k,x_k,\zeta_k,\Phi_k,r_k)
+=(0,k,k\mathbf r,(m-k)\mathbf r,(m-k)^2,m-k).
+\]
+每行保存动作前件、三坐标加法、$Bx_k=0$、任务商像及费用一，
+并绑定有限执行子图中的 $v_k,e_k$ 与命题~\ref{hgov:prop:jointgraph} 的路径实现。
+最后一行保存 $\zeta_m=0$ 和总执行费用 $m$。
+\end{certificate}
+\begin{proof}
+旧动作保持 $u=0$。任何旧后继的第三变更坐标为零，而目标
+$m\mathbf r$ 的第三坐标为 $-m$，所以旧族不可达。
+新族以 $s_0=u_0=0$ 为基例。若 $k<m$，则 $u_k=k<m$，单位动作合法并产生
+$u_{k+1}=k+1$，其余字段保持。数学归纳得全部列出的轨迹，且第 $m$ 步目标成立。
+身份保持由 $B\mathbf p=B\mathbf r=0$ 与几何坐标不变给出。
+由于 $\mathbf p,\mathbf r$ 线性独立，目标等价于 $s=0,u=m$。
+旧动作不改 $u$，每个单位填补只增加一，故任何命中至少需要 $m$ 个单位填补。
+最后 $\|\mathbf r\|^2=2$，直接展开势函数即得下降量。原子谓词因果链为
+\[
+\begin{gathered}
+m\ge1\land u_0=0\land
+\operatorname{OldPreserves}(u)
+\Rightarrow u_{\rm old}=0<m
+\Rightarrow\neg G_m,\\
+u_k=k<m
+\Rightarrow\operatorname{Enabled}(a_k)
+\Rightarrow u_{k+1}=k+1
+\Rightarrow r_{k+1}=r_k-1,\\
+r_0=m\land r_m=0
+\Rightarrow x_m=m\mathbf r
+\Rightarrow\zeta_m=0
+\Rightarrow G_m .
+\end{gathered}
+\]
+几何桥接、链映射、同伦商与实际修复在同一参数和任务规约下成立。
+\end{proof}
+
+\begin{corollary}[一个新增独立方向的最小性与完整成本]
+\label{hgov:cor:jointcost}
+本任务族中 $\dim H_1(C^-)=1$、$H_1(C^+)=0$。
+使 $\operatorname{span}\{\mathbf r\}$ 全部变为边界，最少新增一个独立方向，
+且定义 \ref{hgov:def:joint} 达到该下界。
+完整交付成本按
+\[
+\begin{aligned}
+C_{\rm total}={}&C_{\rm geometry}+C_{\rm input}+C_{\rm search}
++C_{\rm execution}\\
+&+C_{\rm verification}+C_{\rm encoding}+C_{\rm readback}
+\end{aligned}
+\]
+登记。实际执行费用的下界为 $m$，上述构造达到该下界。
+\end{corollary}
+\begin{certificate}[秩与分项成本]
+记录 $\operatorname{rank}B=1$、$\operatorname{rank}A^-=1$、
+$\operatorname{rank}A^+=2$；记录每个成本原语的计量单位与实际调用次数。
+解析式的符号保存和指定精度的数值求值采用各自的成本记录。
+\end{certificate}
+\begin{proof}
+$\dim\ker B=2$，所以两侧同调维数分别为 $2-1$ 和 $2-2$。
+目标类在旧同调中非零，故至少需要一个新增商方向；列 $\mathbf r$ 给出等号构造。
+任何命中须有 $m$ 次单位动作，每次费用一，其他费用非负，因而执行费用至少 $m$；
+构造词只有这 $m$ 次动作，故达到下界。全流程费用由所要求阶段按同一计量规约累加。
+\begin{gather*}
+\operatorname{RankWitness}
+\Rightarrow\operatorname{OneMissingDirection}
+\Rightarrow\operatorname{MinimalExtension},\\
+\operatorname{UnitProgressBound}\Rightarrow C_{\rm execution}\ge m .\qedhere
+\end{gather*}
+\end{proof}
+
+\begin{remark}[联合构造所保持的结构]
+该族全程保持双曲平面的度量和负曲率、任务身份及几何参数；
+进度坐标改变实际残差，认证扩张改变可用修复方向。
+任务商消去冗余纤维，同调扩张使指定目标类成为边界。
+上述保持关系分别由坐标式、链映射、棱柱同伦和执行归纳核验。
+\end{remark}
+
+\section{派生结构字段与同一任务的保守扩展}
+
+\begin{lemma}[结构字段图上的执行提升]
+\label{exp:joint:derived-fields}
+设任务系统状态域为 $X$，给定完全定义的结构赋值 $H:X\to Z$。
+令
+\[
+ \widehat X=\{(x,H(x)):x\in X\},\qquad
+ j_H(x)=(x,H(x)),\qquad p_H(x,H(x))=x.
+\]
+将每个动作提升为
+$\widehat F_a(x,H(x))=(F_a x,H(F_a x))$，
+前件、观察、身份、目标及费用均经 $p_H$ 读取。
+则 $j_H,p_H$ 互逆，且所有有限合法执行及其验收结果、费用完全对应。
+\end{lemma}
+\begin{certificate}[派生值重算与逐字段方块]
+保存 $H$ 的源靶、实际求值与版本，
+每步保存 $H(F_ax)$ 的重算记录、前件一致和
+$p_H\widehat F_a=F_ap_H$、$\widehat F_aj_H=j_HF_a$。
+\end{certificate}
+\begin{proof}
+按定义 $p_Hj_H=\mathrm{id}_X$、$j_Hp_H=\mathrm{id}_{\widehat X}$。
+动作交换式由坐标代入成立；全部前件与任务字段按投影读取，因而逐值相等。
+对动作词长度归纳，零词为两侧恒等；
+将一步交换接到已证前缀后，得到对应后继和相同费用部分和。
+因此结构字段图保存原任务的全部登记执行。
+\end{proof}
+
+\section{同调修复与高阶相容的共同残差}
+
+\begin{definition}[联合实例中的派生高阶运算]
+\label{exp:joint:algebra-lift}
+本节取 $\mathbb K=\mathbb R$。令 $W$ 为定理~\ref{hgov:linfty:model} 的原分次空间，
+并采用定义~\ref{exp:higher:parameter-family} 的全部符号。
+对联合任务的状态 $z=(p_m,s,u,f)$，登记派生结构
+\[
+ H_m(z)=\ell_\bullet^{m,mu},\qquad
+ \ell_1(z)=\ell_1,\quad
+ \ell_2(z)=m\ell_2,\quad
+ \ell_3(z)=mu\ell_3.
+\]
+其余高元运算为零。二元系数由几何读取
+$\lambda(t_m)=m$ 固定，三元系数由实际进度 $u$ 读取。
+令 $\eta_3:C_1=\mathbb R^3\to\mathbb R$ 为第三物理变更坐标，定义
+\[
+ \mathcal B_m:C_1\longrightarrow
+ \operatorname{Hom}^{0}(\Lambda^3W,W),\qquad
+ \mathcal B_m(v)=-m\eta_3(v)\Omega.
+\]
+这里 $\Omega$ 为第~\ref{exp:ch:higher}~章已给出的非零三元复合算子，
+其源靶与物理变更向量所在的 $C_1$ 分别登记。
+\end{definition}
+
+\begin{theorem}[同一合法路径上的线性修复与高阶闭合]
+\label{exp:joint:simultaneous-repair}
+在定义~\ref{exp:joint:algebra-lift} 下，全部状态满足
+\[
+ \mathcal R_3(z)=m(m-u)\Omega
+ =\mathcal B_m\zeta_m(s,u),\qquad
+ \mathcal R_n(z)=0\quad(n\ne3).
+\]
+任务目标具有充要判据
+\[
+ \zeta_m(s,u)=0
+ \quad\Longleftrightarrow\quad
+ s=0\ \land\ \operatorname{HigherClosed}(W,H_m(z)).
+\]
+沿定理~\ref{hgov:thm:joint} 的 $m$ 步执行，
+几何输入、二元运算及任务身份保持，
+线性残差与完整高阶相容残差同时在第 $m$ 步归零。
+\end{theorem}
+\begin{certificate}[两个残差之间的线性桥接]
+逐步登记
+\[
+ u_k=k,\quad s_k=0,\quad
+ \zeta_k=(m-k)\mathbf r,\quad
+ \beta_k=mk,\quad
+ \mathcal R_{3,k}=m(m-k)\Omega.
+\]
+保存 $\eta_3(\mathbf p)=0$、$\eta_3(\mathbf r)=-1$、
+$\Omega(e_1,e_2,e_3)=e_3$，以及每次单位动作使 $\beta$ 增加 $m$ 的乘法记录。
+全部运算字段按引理~\ref{exp:joint:derived-fields} 提升。
+\end{certificate}
+\begin{proof}
+参数相容定理~\ref{exp:higher:scaled-closure} 给出
+\[
+ \mathcal R_3(z)=(m^2-mu)\Omega=m(m-u)\Omega,
+\]
+其余元数关系为零。
+另一方面，
+\[
+ \eta_3\zeta_m(s,u)
+ =\eta_3\bigl((m-u)\mathbf r-s\mathbf p\bigr)=-(m-u),
+\]
+故得到所列桥接等式。
+向量 $\mathbf p,\mathbf r$ 线性独立，因而
+$\zeta_m=0$ 当且仅当 $s=0,u=m$。
+由 $m\ge1$ 和 $\Omega\ne0$，高阶闭合当且仅当 $u=m$。
+两个充要条件合并，得到目标判据。
+
+在构造路径上，基例 $u_0=0,s_0=0$ 给出
+$\zeta_0=m\mathbf r$、$\mathcal R_{3,0}=m^2\Omega$。
+若 $k<m$，单位动作使 $u_{k+1}=k+1$，而 $m,p_m,s,f$ 保持，故
+\[
+ \zeta_{k+1}=\zeta_k-\mathbf r,\qquad
+ \mathcal R_{3,k+1}=\mathcal R_{3,k}-m\Omega.
+\]
+归纳得到全部前缀，在 $k=m$ 时两残差均为零。
+$\ell_2^{m,mu}=m\ell_2$ 的系数全程固定，身份由 $B\mathbf p=B\mathbf r=0$ 保持。
+于是
+\[
+ \begin{gathered}
+ \lambda(t_m)=m\land\operatorname{UnitExecution}(k)
+ \Rightarrow \zeta_k=(m-k)\mathbf r,\\
+ \mathcal R_{3,k}=\mathcal B_m\zeta_k
+ \Rightarrow
+ \bigl(k=m\Longleftrightarrow\zeta_k=0
+ \Longleftrightarrow\operatorname{HigherClosed}(H_m(z_k))\bigr).
+ \end{gathered}
+\]
+\end{proof}
+
+\begin{corollary}[悬移余导子总平方的精确读取]
+\label{exp:joint:coderivation-square}
+采用引理~\ref{hgov:lem-suspension} 的悬移 $s:W\to W[1]$，
+将 $H_m(z)$ 转为次数一余导子 $Q_{m,u}$。
+定义次数二的对称三元映射
+\[
+ \Omega_s(sx\odot sy\odot sz)
+ =(-1)^{2|x|+|y|}s\Omega(x,y,z),
+\]
+并令 $\widehat\Omega_s$ 为其余导子扩张。则
+\[
+ Q_{m,u}^{2}=m(m-u)\widehat\Omega_s,
+ \qquad Q_{m,u}^{2}=0\Longleftrightarrow u=m.
+\]
+\end{corollary}
+\begin{certificate}[逐元数投影与唯一余导子扩张]
+保存悬移符号、三元投影、其他元数投影为零的证书，
+以及 $\Omega_s$ 在悬移基元组上的非零读取。
+\end{certificate}
+\begin{proof}
+悬移接口将 $Q_{m,u}^2$ 到余生成元的第 $n$ 元投影
+转为对应 $\mathcal R_n$ 的带符号悬移。
+定理~\ref{exp:joint:simultaneous-repair} 使所有非三元投影为零，
+三元投影等于 $m(m-u)\Omega_s$。
+次数一余导子的平方为余导子，且在约化对称余代数上由其余生成元投影唯一确定，
+故总平方等式成立。$\Omega_s\ne0$ 与 $m\ne0$ 给出最后的充要条件。
+\end{proof}
+
+\section{参数为二的完整数值证书}
+
+\begin{proposition}[两步实例的全部验收记录]
+\label{exp:joint:m-two}
+取 $m=2$，几何输入为
+$t_2=a^{-1}\operatorname{arsinh}(2a)$，则 $\lambda(t_2)=2$。
+从 $s=u=0$ 连续执行两次单位动作，得到下表；
+其中 $g_k$ 定义为 $\mathcal R_{3,k}=g_k\Omega$。
+\begin{center}
+\begin{tabular}{ccccccc}
+\toprule
+$k$ & $u_k$ & $x_k$ & $\zeta_k$ & $\Phi_k$ & $\beta_k$ & $g_k$\\
+\midrule
+0 & 0 & $(0,0,0)$ & $(2,0,-2)$ & 4 & 0 & 4\\
+1 & 1 & $(1,0,-1)$ & $(1,0,-1)$ & 1 & 2 & 2\\
+2 & 2 & $(2,0,-2)$ & $(0,0,0)$ & 0 & 4 & 0\\
+\bottomrule
+\end{tabular}
+\end{center}
+各行满足 $Bx_k=0$，费用累计为 $k$。
+第二步同时达到原任务目标和完整高阶相容，实际单位动作数达到下界二。
+\end{proposition}
+\begin{certificate}[逐坐标加法、势差与标量乘法]
+保存输入 $m=2$、向量 $\mathbf r=(1,0,-1)^{\mathsf T}$、
+前件 $0<2$ 和 $1<2$、两次加法、
+势差 $4-1=3$ 与 $1-0=1$、系数 $\beta_k=2k$ 及
+$g_k=4-2k$。
+\end{certificate}
+\begin{proof}
+逐行使用 $x_k=k\mathbf r$、$\zeta_k=(2-k)\mathbf r$、
+$\|\mathbf r\|^2=2$，得到表内向量与势值。
+参数公式给出 $\beta_k=2k$、$g_k=2(2-k)$。
+旧动作保持 $u=0$，不能达到 $u=2$；每个新增动作只增加一，
+所以命中至少需要两次，表中执行达到这一界。
+\end{proof}
+
+\begin{remark}[同一任务上的多层读取]
+几何读取 $\lambda(t_m)$、修复复形的边界原像、
+高阶运算的余导子平方、执行排名和正规型编码
+分别由显式映射关联到同一登记状态。
+目标验收读取完整谓词 $s=0\land u=m$，
+各项中间证书按其源靶、定义域与版本参与联合验证。
+\end{remark}
+
+
+\chapter{任务正规型、有限充分商与能力复用}
+\label{exp:ch:normalform}
+
+\label{hgov:sec:normalform}
+
+本章固定任务、允许动作、观察与成本原语，逐步构造能够保存全部规定未来行为的表示。
+首先区分观察可回读与动态等价类的完整辨识，再给出有限表算法、可提取的区分词和全部计算实例。
+最后说明如何把商上的已证策略封装成能力，并把一次性构造、实际调用和重新认证分别计入成本。
+这一展开承接公开源文稿的演化饱和与正规型构造\cite{S19,S38,GFrameworkSynthesis}。
+
+\section{观察解码与正规型的唯一性}
+\label{exp:gov:normalform-section}
+
+\begin{definition}[任务正规型与可执行能力包]
+\label{hgov:def:normalform}
+固定任务域 $X$、规定观察 $O:X\to Y$ 和允许动作。
+任务编码 $N:X\to Z$ 连同解码器 $D:N(X)\to Y$ 满足 $DN=O$ 时，
+称其为该观察的可回读表示；若 $N$ 还精确标识声明的动态任务等价类，
+则称为该任务域的正规型。能力包登记为
+\[
+\mathcal K=(N,D,\gamma,\mathsf{Dom},\mathsf{Fail},\mathcal C,
+\mathsf{Cost},\mathsf{Version}),
+\]
+其中 $\gamma$ 为已核验动作路径，$\mathsf{Dom}$ 为适用域，$\mathsf{Fail}$ 为已证失效域，
+其余分量保存证明、成本和版本。正规型与路径编码接续
+\cite{S19,S38,GFrameworkSynthesis}。
+\end{definition}
+
+\begin{theorem}[正规型解码的纤维判据]
+\label{hgov:thm:nf}
+存在唯一 $D:N(X)\to Y$ 满足 $DN=O$，当且仅当
+\[
+\forall x,y\in X,\quad N(x)=N(y)\Rightarrow O(x)=O(y).
+\]
+若要求回读全部原对象，则该条件为 $N$ 单射。
+\end{theorem}
+\begin{certificate}[编码纤维与具体解码]
+保存编码、观察、每个相关纤维的一致性证明，及定义
+$D(N(x))=O(x)$ 的程序或有限表。要求逐位恢复时同时保存实际编码版本。
+\end{certificate}
+\begin{proof}
+若 $DN=O$，则同编码的两输入经 $D$ 得相同观察。
+反向由纤维一致性知 $D(N(x))=O(x)$ 与代表元无关；
+每个 $N(X)$ 中的值都有代表，故 $D$ 存在且唯一。
+取 $O=\mathrm{id}_X$ 时，条件等价于同编码必同对象。因此
+\[
+\operatorname{FiberConstant}(O,N)
+\Rightarrow\operatorname{WellDefined}(D)
+\Rightarrow DN=O,
+\quad
+DN=O\Rightarrow\operatorname{FiberConstant}(O,N).
+\]
+\end{proof}
+
+\begin{theorem}[同一任务等价关系的正规型唯一到唯一双射]
+\label{exp:gov:normalform-unique}
+设 $E$ 为 $X$ 上的等价关系，两个编码 $N_i:X\to Z_i$ 满足
+\[
+ N_i(x)=N_i(y)\quad\Longleftrightarrow\quad xEy
+ \qquad(i=1,2).
+\]
+令 $Q_i=N_i(X)$。存在唯一双射 $\varphi:Q_1\to Q_2$ 使
+$\varphi N_1=N_2$。若 $O=D_iN_i$，则
+\[
+ D_2\varphi=D_1.
+\]
+若某个部分动作 $F$ 的定义域为 $E$ 类的并，且
+$xEy$ 与 $x,y\in\operatorname{Dom}(F)$ 蕴含 $F(x)EF(y)$，
+则两种正规型上的诱导部分动作满足
+\[
+ \varphi\bar F_1=\bar F_2\varphi
+\]
+并具有经 $\varphi$ 对应的定义域。另若 $\nu:X\to X$ 满足
+$\nu(x)Ex$ 且在每个 $E$ 类上为常值，则
+\[
+ \nu^2=\nu,\qquad
+ \nu(x)=\nu(y)\Longleftrightarrow xEy.
+\]
+因此代表元选择给出幂等规范化，而不同合法选择之间保持同一任务商。
+\end{theorem}
+\begin{certificate}[两个编码的双向表与后继共轭]
+登记 $E$、$N_1,N_2$ 的精确纤维判据，以及
+$\varphi(N_1x)=N_2x$、$\psi(N_2x)=N_1x$。
+保存观察解码式、部分动作定义域的饱和性及后继相容式。
+采用代表元时，逐类登记所选对象确属本类，并保存代表元选择表的版本。
+\end{certificate}
+\begin{proof}
+若 $N_1x=N_1y$，则 $xEy$，从而 $N_2x=N_2y$；故 $\varphi$ 良定义。
+同理 $\psi$ 良定义，并且
+\[
+ \psi\varphi(N_1x)=N_1x,\qquad
+ \varphi\psi(N_2x)=N_2x.
+\]
+两个编码在其像上满射，故这两式证明互逆；任何满足
+$\varphi N_1=N_2$ 的映射在每个像值上的取值已经确定，因而唯一。
+对 $z=N_1x$，
+\[
+ D_2\varphi(z)=D_2N_2x=O(x)=D_1z.
+\]
+定义域饱和性使 $\bar F_i(N_ix)=N_iF(x)$ 成为良定义的部分函数。
+于是对其合法输入，
+\[
+ \varphi\bar F_1(N_1x)=N_2F(x)
+ =\bar F_2(N_2x)=\bar F_2\varphi(N_1x).
+\]
+最后，$\nu(x)Ex$ 与类上常值给出 $\nu(\nu(x))=\nu(x)$。
+若 $\nu(x)=\nu(y)$，利用 $xE\nu(x)=\nu(y)Ey$ 得 $xEy$；反向是类上常值。
+因此
+\[
+\begin{gathered}
+ \operatorname{SameEquivalenceFibers}(N_1,N_2)
+ \Rightarrow\operatorname{UniqueBijection}(\varphi),\\
+ \operatorname{Readback}\land\operatorname{DomainSaturated}
+ \land\operatorname{SuccessorCompatible}
+ \Rightarrow\operatorname{DecoderAndActionConjugacy},\\
+ \operatorname{ClassRepresentative}(\nu)\land\operatorname{ClassConstant}(\nu)
+ \Rightarrow\nu^2=\nu\land\operatorname{CompleteClassCode}(\nu).
+\end{gathered}
+\]
+\end{proof}
+
+\section{未来观察等价与有限分区细化}
+\label{exp:gov:refinement-section}
+
+\begin{definition}[有限任务测试的后继饱和]
+\label{hgov:def:saturation}
+固定具有明确枚举的有限状态集 $X$、有限标签集 $L$，
+以及由显式有限表给出的部分后继
+$F_\ell:\operatorname{Dom}(F_\ell)\to X$。
+每个规定观察具有可求值的有限表，表项的等值可判定；
+每个动作费用具有可精确求和、等值可判定的有限表。
+非负有理费用给出这一输入条件的直接实现。
+加入无定义标记 $\bot$，令 $X_\bot=X\sqcup\{\bot\}$，并定义
+\[
+ \widehat F_\ell(x)=
+ \begin{cases}
+ F_\ell(x),&x\in\operatorname{Dom}(F_\ell),\\
+ \bot,&x\notin\operatorname{Dom}(F_\ell).
+ \end{cases}
+ \qquad \widehat F_\ell(\bot)=\bot.
+\]
+每个原观察 $f:X\to Y_f$ 扩展为
+$\widehat f:X_\bot\to Y_f\sqcup\{*_f\}$，
+其中 $\widehat f(\bot)=*_f$，其余值按原表读取。
+目标与可用性取布尔扩展：
+$\mathbf1_G(\bot)=0$、
+$e_\ell=\mathbf1_{\operatorname{Dom}(F_\ell)}$、
+$e_\ell(\bot)=0$。
+动作费用的带类型全表为
+\[
+ \widehat c_\ell(x)=
+ \begin{cases}
+ c_\ell(x),&x\in\operatorname{Dom}(F_\ell),\\
+ *_\ell^{\mathrm{cost}},&x\notin\operatorname{Dom}(F_\ell)
+ \ \text{或}\ x=\bot.
+ \end{cases}
+\]
+初始有限测试族 $\mathcal P_0$ 包含全部规定观察、
+任务身份、目标、每个 $e_\ell$、每个 $\widehat c_\ell$，
+以及 $\mathbf1_{\{\bot\}}$。所有成员均已定义于 $X_\bot$。
+递归定义
+\[
+\mathcal P_{n+1}
+=\mathcal P_n\cup\{f\circ\widehat F_\ell:
+f\in\mathcal P_n,\ell\in L\},
+\quad
+x\sim_ny\iff\forall f\in\mathcal P_n,\ f(x)=f(y).
+\]
+令 $b_n(x)$ 为当前块编号，实际细化按有限签名
+\[
+ s_{n+1}(x)=
+ \left(b_n(x),\bigl(b_n(\widehat F_\ell x)\bigr)_{\ell\in L}\right)
+\]
+分组。初始编号由 $\mathcal P_0$ 的全部表值决定，块编号采用给定枚举下的固定规则。
+\end{definition}
+
+\begin{theorem}[有限稳定商的构造、充分性与最粗性]
+\label{hgov:thm:saturation}
+若初始分区有 $b_0$ 个块，上述构造至多经过 $|X_\bot|-b_0$ 次严格细化后稳定。
+稳定商 $q_*:X_\bot\to Q_*$ 保持全部有限词后的初始观察，
+并且是保持这些观察及标签后继的最粗商。
+其动作定义域、每步费用与任意有限合法词的累计费用均可从商上读回。
+在给定枚举下，取每个稳定块的最小编号为编码，
+得到该动态任务等价关系的可计算正规型。
+\end{theorem}
+\begin{certificate}[分区细化与词长归纳]
+保存完整后继表、扩展观察表、带标记费用表及表项的判等程序。
+每次分裂保存同块异值对及其观察、标签或作用词；
+终态保存每块观察恒定、各标签后继同块、合法动作及费用常值。
+保存初始块数、每次增加的块数及状态总数。
+累计费用证书逐前缀保存实际费用和部分和；正规型保存稳定块的最小编号与代表元读取表。
+\end{certificate}
+\begin{proof}
+有限转移表可求值，观察表可判等，因此初始分组及每次有限签名比较都在有限步内完成。
+由定义，
+\[
+ x\sim_{n+1}y
+ \Longleftrightarrow
+ x\sim_ny\ \land\
+ \bigwedge_{\ell\in L}
+ \bigl(\widehat F_\ell x\sim_n\widehat F_\ell y\bigr),
+\]
+故签名算法精确实现所定义的测试细化。
+严格细化至少增加一个非空块，块数至多 $|X_\bot|$，故严格细化次数有界。
+若相邻两轮分区相同，则同块输入的每个标签后继仍同块，否则某个
+$f\circ\widehat F_\ell$ 会产生分裂。由词长归纳，全部有限词的后继保持同块。
+初始观察在块上恒定，故所有有限后继观察下降到稳定商。
+其中 $e_\ell$ 的恒定性给出定义域匹配，
+$\widehat c_\ell$ 的恒定性给出合法域上的费用函数
+$\bar c_\ell$，满足 $c_\ell=\bar c_\ell q_*$。
+若 $w=(\ell_1,\ldots,\ell_N)$ 在 $x_0$ 合法，
+令 $x_k=F_{\ell_k}(x_{k-1})$，则词长归纳给出
+$\bar x_k=q_*x_k$，继而
+\[
+ \begin{aligned}
+ C_0&=\bar C_0=0,\\
+ C_{k+1}
+ &=C_k+c_{\ell_{k+1}}(x_k)
+ =\bar C_k+\bar c_{\ell_{k+1}}(\bar x_k)
+ =\bar C_{k+1}.
+ \end{aligned}
+\]
+这同时证明全部费用前缀与终态总费用保持。
+反向，任一保持初始观察和标签后继的等价关系，按词长归纳保持每个
+$f\circ\widehat F_w$，从而细于稳定关系。因此
+\[
+\begin{gathered}
+\operatorname{FiniteTables}\land\operatorname{DecidableEntries}
+\Rightarrow\operatorname{EffectiveRefinement},\\
+\operatorname{EffectiveRefinement}\land\operatorname{BoundedSplits}
+\Rightarrow\operatorname{StablePartition},\\
+\operatorname{StablePartition}\Rightarrow\operatorname{SuccessorCongruence}
+\Rightarrow\operatorname{AllWordObservations},\\
+\operatorname{AnySufficientCongruence}
+\Rightarrow\operatorname{Refines}(q_*)
+\Rightarrow\operatorname{Coarsest}(q_*).
+\end{gathered}
+\]
+无定义标记确保动作定义域随相同规则保留。
+稳定块中的全部规定测试取同值，故从最小编号对应的代表元读取即得解码。
+两个状态的最小编号相同当且仅当它们属于同一稳定块，
+从而得到所述正规型。
+\end{proof}
+
+\begin{theorem}[有限深度辨识、区分词及稳定商的泛性质]
+\label{exp:gov:future-equivalence}
+沿用定义~\ref{hgov:def:saturation}。对词
+$w=(\ell_1,\ldots,\ell_k)\in L^*$ 规定
+\[
+ \widehat F_w=\widehat F_{\ell_k}\cdots\widehat F_{\ell_1},
+ \qquad \widehat F_{\varepsilon}=\mathrm{id}_{X_\bot}.
+\]
+定义全部未来观察等价
+\[
+ x\equiv_\infty y
+ \quad\Longleftrightarrow\quad
+ \forall w\in L^*\ \forall f\in\mathcal P_0,
+ \quad f(\widehat F_wx)=f(\widehat F_wy).
+\]
+则对每个 $n\ge0$ 有精确辨识式
+\[
+ x\sim_ny
+ \quad\Longleftrightarrow\quad
+ \forall |w|\le n\ \forall f\in\mathcal P_0,
+ \quad f(\widehat F_wx)=f(\widehat F_wy).
+\]
+取 $r=\min\{n\ge0:\sim_{n+1}=\sim_n\}$，则 $\sim_r=\equiv_\infty$。
+任意两个不等价状态存在可从分裂记录提取的区分对 $(f,w)$，且
+$|w|\le r\le |X_\bot|-b_0$。
+
+若满射 $p:X_\bot\to R$ 满足
+$f=\widetilde f p$ 对全部 $f\in\mathcal P_0$，并有
+$p\widehat F_\ell=\widetilde F_\ell p$，则存在唯一满射
+$u:R\to Q_*$ 使
+\[
+ q_*=up,\qquad
+ u\widetilde F_\ell=\bar F_\ell u.
+\]
+特别地，任何精确保存全部未来观察的动态表示都因子化到 $Q_*$。
+\end{theorem}
+\begin{certificate}[分裂树与唯一因子化表]
+初始分裂记录一个 $f\in\mathcal P_0$ 的异值，所对应词为 $\varepsilon$。
+后继导致的分裂记录标签 $\ell$ 及一对后继的既有区分记录；
+回溯时把 $\ell$ 放在该区分词的首位。
+登记首次稳定轮次、每轮块数，以及其他候选表示的观察和后继交换表。
+因子映射用 $u(p(x))=q_*(x)$ 的有限表核验。
+\end{certificate}
+\begin{proof}
+对深度 $n$ 归纳。$n=0$ 时只有空词，结论正是初始观察分区。
+假设深度 $n$ 成立；两个状态在下一轮同块，当且仅当它们当前同块且
+每个 $\ell$ 后继在第 $n$ 轮同块。
+归纳假设将后者化为对所有 $|w|\le n$ 的
+\[
+ f(\widehat F_w\widehat F_\ell x)
+ =f(\widehat F_w\widehat F_\ell y).
+\]
+这些恰是首标签为 $\ell$、总长度不超过 $n+1$ 的测试；
+再加空词便覆盖所需全部词，完成归纳。
+
+稳定块后继仍同块，对词长的零步恒等与一步接续归纳表明
+$\sim_r$ 蕴含全部未来观察相等；反向由长度不超过 $r$ 的测试得到。
+若 $x\not\sim_ry$，上述有限深度等价式提供长度不超过 $r$ 的区分词。
+分裂记录的回溯每下降一轮至多增加一个首标签，故同时给出该词的可执行构造。
+严格分裂次数的界由定理~\ref{hgov:thm:saturation} 提供；在首次不变之前
+每轮都严格分裂，因此 $r\le |X_\bot|-b_0$。
+
+最后，若 $p(x)=p(y)$，对词长归纳有
+$p\widehat F_wx=p\widehat F_wy$：空词是前件，归纳步使用后继交换。
+观察因子化于是给出 $x\equiv_\infty y$，从而
+$u(p(x))=q_*(x)$ 与代表元无关。
+$p$ 满射给唯一性，$q_*$ 满射给 $u$ 满射；代入任意 $p(x)$ 得
+\[
+ u\widetilde F_\ell(p(x))
+ =u(p\widehat F_\ell x)
+ =q_*\widehat F_\ell x
+ =\bar F_\ell q_*x
+ =\bar F_\ell u(p(x)).
+\]
+综上
+\[
+\begin{gathered}
+ \operatorname{Depth}(n)\land\operatorname{OneStepRefinement}
+ \Rightarrow\operatorname{Depth}(n+1),\\
+ \operatorname{StableAt}(r)
+ \Rightarrow (\sim_r=\equiv_\infty)
+ \Rightarrow\operatorname{FiniteSeparatingWitness},\\
+ \operatorname{CandidateCongruence}(p)
+ \Rightarrow\ker p\subseteq\ker q_*
+ \Rightarrow\operatorname{UniqueFactor}(u).
+\end{gathered}
+\]
+此处 $\ker p$ 表示同像等价关系，而非线性映射的核。
+\end{proof}
+
+\section{五状态模型的全部细化与读回计算}
+\label{exp:gov:finite-example-section}
+
+\begin{proposition}[两轮细化与保留非平凡纤维的五状态实例]
+\label{exp:gov:five-state}
+取 $X=\{a,b,c,d,e\}$、唯一动作标签 $\lambda$，并给定下表。
+动作在全部五个真实状态上有定义，合法步费用均为 $1$；任务身份为常量，
+目标集为 $G=\{e\}$，规定观察为 $U=\mathbf1_G$。
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+状态 $x$ & $F_\lambda(x)$ & $U(x)$ & $e_\lambda(x)$ & $c_\lambda(x)$\\
+\midrule
+$a$ & $c$ & $0$ & $1$ & $1$\\
+$b$ & $d$ & $0$ & $1$ & $1$\\
+$c$ & $e$ & $0$ & $1$ & $1$\\
+$d$ & $d$ & $0$ & $1$ & $1$\\
+$e$ & $e$ & $1$ & $1$ & $1$\\
+\bottomrule
+\end{tabular}
+\end{center}
+按定义添加独立的 $\bot$ 后，分区全过程为
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+轮次 & 全部分块\\
+\midrule
+$0$ & $\{a,b,c,d\},\ \{e\},\ \{\bot\}$\\
+$1$ & $\{a,b,d\},\ \{c\},\ \{e\},\ \{\bot\}$\\
+$2$ & $\{a\},\ \{b,d\},\ \{c\},\ \{e\},\ \{\bot\}$\\
+$3$ & 与第 $2$ 轮相同\\
+\bottomrule
+\end{tabular}
+\end{center}
+稳定商有四个真实任务状态，非平凡类为 $\{b,d\}$。
+以 $a<b<c<d<e<\bot$ 为枚举，正规型代表元满足
+\[
+ N(a)=a,\quad N(b)=N(d)=b,\quad N(c)=c,\quad N(e)=e,
+ \quad N(\bot)=\bot.
+\]
+在真实状态上，到达目标的最短词长依次为
+\[
+ 2,\quad\infty,\quad1,\quad\infty,\quad0.
+\]
+其中 $\infty$ 表示不存在有限命中词。
+\end{proposition}
+\begin{certificate}[全表、区分词和吸收类]
+保存上述两张有限表、$\widehat F_\lambda(\bot)=\bot$、
+无定义与费用的独立标记，以及稳定商转移
+\[
+ [a]\mapsto[c],\qquad [b,d]\mapsto[b,d],\qquad
+ [c]\mapsto[e],\qquad[e]\mapsto[e],\qquad[\bot]\mapsto[\bot].
+\]
+区分 $c$ 与 $a$ 使用 $\lambda$；区分 $a$ 与 $b$ 使用
+$\lambda\lambda$。同类 $b,d$ 的不区分证书为当前观察相同且后继均为 $d$。
+正规型解码为 $D(a)=D(b)=D(c)=0$、$D(e)=1$，并按约定读取 $\bot$ 标记。
+\end{certificate}
+\begin{proof}
+第零轮把四个非目标状态合并，目标与无定义标记各自独立。
+第一轮只有 $c$ 的后继进入目标块，故从该四元块中分出 $c$。
+第二轮 $a$ 的后继进入 $\{c\}$，而 $b,d$ 的后继均进入包含 $d$ 的块，
+故再分出 $a$。第三轮，各已有块的所有成员具有相同后继块，分区稳定。
+对 $b,d$，空词观察均为零；正长度词第一步后都在 $d$，后续一直固定，
+由词长归纳全部观察、合法性与费用测试相同。
+
+对 $a,b$，空词及一步观察都为零，两步时分别处于 $e,d$，
+故两步区分词不仅有效，而且长度最小。
+命中路径 $a\to c\to e$ 与 $c\to e$ 给出上界；零步和一步的实际表值给出相应下界。
+$b,d$ 的全部正长度后继均为 $d$，所以不可有限命中；$e$ 初始就在目标。
+任意合法 $k$ 步词的费用为 $k$，由 $C_0=0$ 和 $C_{k+1}=C_k+1$ 归纳得到，
+在稳定商上同样成立。
+\[
+\begin{gathered}
+ \operatorname{FullTransitionTable}
+ \Rightarrow\mathcal B_0\Rightarrow\mathcal B_1\Rightarrow\mathcal B_2=\mathcal B_3,\\
+ \operatorname{SameAbsorbingSuccessor}(b,d)
+ \Rightarrow b\equiv_\infty d,\\
+ U(F_\lambda^2a)=1\ne0=U(F_\lambda^2b)
+ \Rightarrow a\not\equiv_\infty b,\\
+ \operatorname{StableClasses}\land\operatorname{ChosenRepresentatives}
+ \Rightarrow DN=\widehat U\land N^2=N.
+\end{gathered}
+\]
+这里 $\mathcal B_k$ 表示第 $k$ 轮分区。
+\end{proof}
+
+\section{新增观察与动态任务的必要细化}
+\label{exp:gov:new-observation-section}
+
+\begin{proposition}[新增观察的必要细化与严格信息增量]
+\label{hgov:prop:refine}
+若已有商 $q:X\to Q$，新增目标观察 $h$ 在某个 $q$ 纤维上取不同值，
+则不存在仅依赖 $q(x)$ 的精确读回器恢复全部 $h(x)$。
+若 $h$ 可从实际输入或可验证新证据获得，则
+\[
+q'(x)=(q(x),h(x)),\qquad r(q(x),h(x))=q(x)
+\]
+满足 $rq'=q$ 并保留新观察。在有限动态任务域上，再作后继饱和可得到动态充分细化。
+\end{proposition}
+\begin{certificate}[同像异值与证据来源]
+保存 $x_1,x_2$、$q(x_1)=q(x_2)$、$h(x_1)\ne h(x_2)$，
+以及新增观察的输入来源、求值规则、版本与实际结果。
+\end{certificate}
+\begin{proof}
+若有 $h=Dq$，同像输入将给出 $h(x_1)=h(x_2)$，与证书矛盾。
+联合观察直接给出 $rq'=q$ 和第二坐标读回；动态结论由
+定理 \ref{hgov:thm:saturation} 得到。因而
+\[
+\begin{gathered}
+\operatorname{SameOldCode}\land\operatorname{DifferentTarget}
+\Rightarrow\operatorname{NoOldDecoder},\\
+\operatorname{Available}(h)\Rightarrow\operatorname{Refinement}(q')
+\Rightarrow\operatorname{NewReadback}.
+\end{gathered}
+\]
+所有旧商算法可经 $r$ 在新表示上运行，新观察具有独立读回，故在此任务族中可解性严格增加。
+\end{proof}
+
+\section{商策略回落、能力复用与完整成本}
+\label{exp:gov:reuse-section}
+
+\begin{theorem}[有限能力库的认证增长]
+\label{hgov:thm:library}
+设初始能力库中的每个包均通过类型、适用域、任务回读及路径检查，
+且这些检查依已证明可靠的验证规则执行。
+每次仅将通过相同检查的新包加入，并保留既有包及其版本。
+则任意有限增长阶段的库仍由认证包组成；包的复用只在相应适用条件成立时调用。
+\end{theorem}
+\begin{certificate}[包数归纳与调用前件]
+登记初始库、每个新增包的父依赖、验证结果、适用域及每次调用的前件见证。
+\end{certificate}
+\begin{proof}
+对增长次数归纳。初始结论由前件成立；归纳步中旧包未变，新包已通过相同检查，
+故并集仍满足逐包认证。调用时将实际输入替换进包的条件结论，
+由定理 \ref{hgov:thm:atomsound} 的可靠实例化得到对应结果。
+\[
+\operatorname{Certified}(\mathcal L_n)\land\operatorname{Checked}(K_{n+1})
+\Rightarrow\operatorname{Certified}(\mathcal L_n\cup\{K_{n+1}\}),
+\quad
+\operatorname{Input}\in\mathsf{Dom}(K)\Rightarrow\operatorname{ValidReuse}.
+\]
+\end{proof}
+
+\begin{theorem}[正规型上的排名策略回落与重复调用]
+\label{exp:gov:policy-reuse}
+取定理~\ref{hgov:thm:saturation} 的精确稳定商，限制于真实状态及其像。
+设 $R\subseteq Q_*\setminus\{q_*(\bot)\}$ 为登记的适用域，
+$\bar G$ 为其目标观察等于 $1$ 的商状态集。
+给定策略 $\pi:R\setminus\bar G\to L$ 和排名 $\rho:R\to\mathbb N$，要求
+\[
+\begin{aligned}
+ &\rho(z)=0\Longleftrightarrow z\in R\cap\bar G,\\
+ &\bar e_{\pi(z)}(z)=1,
+ \qquad \bar F_{\pi(z)}(z)\in R,\\
+ &\rho(\bar F_{\pi(z)}(z))<\rho(z)
+ \qquad(z\in R\setminus\bar G).
+\end{aligned}
+\]
+则对任意 $x$ 满足 $q_*x\in R$，按
+$a_k=\pi(q_*x_k)$ 选择具体动作，至多经过 $\rho(q_*x)$ 步到达 $G$。
+每一步、每个费用前缀和终态规定观察与商层运行相同。
+策略与排名可作为一个能力包的公共证书；每次调用仍须核验版本、输入适用域及包的开放前提。
+
+若一次性构造认证成本为 $B\ge0$，第 $t$ 次完整调用的实际成本为 $c_t\ge0$，
+并以互不重叠的原语记账，则 $K$ 次调用的总工作量为
+$W_K=B+\sum_{t=1}^Kc_t$。
+与完成同一输出义务、实际成本为 $a_t$ 的基准比较，严格节省的充要条件是
+$\sum_{t=1}^K(a_t-c_t)>B$。
+\end{theorem}
+\begin{certificate}[策略表、下降表与逐次调用账本]
+保存 $q_*$ 的全部交换表、$R,\bar G,\pi,\rho$ 及每个非目标商状态的下降见证。
+第 $t$ 次调用保存输入所属 $q_*^{-1}(R)$ 的证明、当前版本、实际动作和费用前缀。
+$c_t$ 包含输入读取、编码或维护、策略查表、真实动作、结果读回与当次验证；
+迁移导致的重新认证独立计入一次性账或相应调用账，且只计一次。
+成本比较保存基准与本方案的相同任务、验收及输出义务。
+\end{certificate}
+\begin{proof}
+令 $z_0=q_*x_0$。零步时实际状态与商状态满足绑定关系，费用均为零。
+若 $z_k\notin\bar G$ 且 $q_*x_k=z_k$，商可用性为 $1$ 与定义域因子化
+推出 $a_k=\pi(z_k)$ 在 $x_k$ 合法；后继交换给
+\[
+ q_*x_{k+1}=q_*F_{a_k}x_k
+ =\bar F_{a_k}q_*x_k=z_{k+1}\in R.
+\]
+费用式给 $c_{a_k}(x_k)=\bar c_{a_k}(z_k)$，
+连同已相等的部分和推出下一费用前缀相等。
+由此对执行长度完成归纳。每个非目标步骤使非负整数排名至少下降一，
+故在超过 $\rho(z_0)$ 个非目标步骤之前必有排名零；
+目标测试已被精确保留，因而此时具体状态属于 $G$。
+当 $\rho(z_0)=0$ 时即零步成功，覆盖初始基例。
+
+对调用次数另作归纳：$W_0=B$，互不重复的原语账给
+$W_{K+1}=W_K+c_{K+1}$，故得到总工作量公式。
+两方案的工作量作差为
+$\sum_{t=1}^Ka_t-W_K=\sum_{t=1}^K(a_t-c_t)-B$，
+其正性恰是所述充要条件。因而
+\begin{gather*}
+ \operatorname{ExactQuotient}\land\operatorname{LegalPolicy}
+ \land\operatorname{RankingDecrease}\land(q_*x\in R)\\
+ \Rightarrow\operatorname{LegalLiftedPrefixes}
+ \Rightarrow\operatorname{FiniteGoalHitAndCostEquality},\\
+ \operatorname{VersionAndPremisesCheckedEachCall}
+ \Rightarrow\operatorname{CertifiedReuse},\\
+ \operatorname{DisjointCostLedger}
+ \Rightarrow W_K=B+\sum_{t=1}^Kc_t
+ \Rightarrow\left(W_K<\sum_{t=1}^Ka_t
+ \Longleftrightarrow\sum_{t=1}^K(a_t-c_t)>B\right).\qedhere
+\end{gather*}
+\end{proof}
+
+\begin{remark}[有限表的计算义务]
+分区细化的终止界计量严格分裂轮数；读取全部输入表、比较表项和生成证书各有成本。
+若表项是未给判等程序的任意对象，或真实动作表尚未取得，有限状态数本身不能替代这些计算前件。
+能力复用的收益由上式所列实际成本决定，正规型存在本身不推出任意实现上的加速。
+\end{remark}
+
+
+\chapter{法对象迁移、反身治理与联合保持}
+\label{exp:ch:governance}
+
+\label{hgov:sec:governance}
+
+法对象更新同时涉及状态、动作、观察、复形和证明规则。
+本章把这些更新分别登记为有类型映射，再证明它们在有限复合、证书运输和实际运行中能够共同保持哪些结论。
+旧版本的数学断言按原对象继续解释；新版本的断言以新的迁移见证建立。
+这一做法与公开文稿的任务充分商、表示交换及原子证书闭包相接续
+\cite{S38,GFrameworkSynthesis}。
+
+\section{有类型迁移、观察解码与复合回读}
+\label{exp:gov:migration-section}
+
+\begin{definition}[法对象更新与任务迁移证书]
+\label{hgov:def:migration}
+第 $n$ 阶段的法对象 $\mathfrak S_n$ 具有任务复形 $C^{(n)}$、状态域 $X_n$、
+任务身份 $I_n$、目标集 $G_n$、动作、观察、验证核及能力库。
+更新由下列数据组成：
+状态迁移 $T_n:X_n\to X_{n+1}$、链映射 $j_n:C^{(n)}\to C^{(n+1)}$、
+动作对应 $\tau_n$、观察解码 $D_n$、版本映射和规则可靠性证明。
+固定身份域 $\mathcal I$，要求
+\[
+I_{n+1}T_n=I_n,\qquad
+\partial_{n+1}j_n=j_n\partial_n,\qquad
+T_n(G_n)\subseteq G_{n+1}.
+\]
+规定旧动作、观察及费用满足
+\[
+\begin{aligned}
+ \operatorname{Pre}_{n,a}(x)
+ &\Longleftrightarrow
+ \operatorname{Pre}_{n+1,\tau_n(a)}(T_nx),\\
+ T_nF_{n,a}x&=F_{n+1,\tau_n(a)}T_nx
+ &&\text{在对应合法域上},\\
+ O_n&=D_nO_{n+1}T_n,\\
+ c_{n,a}(x)&=c_{n+1,\tau_n(a)}(T_nx)
+ &&\text{在对应合法域上}.
+\end{aligned}
+\]
+目标正向保持单独登记为
+$\mathbf1_{G_n}(x)=1\Rightarrow\mathbf1_{G_{n+1}}(T_nx)=1$。
+当 $C^{(n)}$ 是任务作用图的链实现时，在登记顶点上另要求
+$j_{n,0}[x]=[T_nx]$；修复变更复形则使用其已声明的变更桥接。
+若要求新接受输出回读，给出覆盖实际交付输出的集合
+$\mathcal A_{n+1}^{\mathrm{read}}\subseteq G_{n+1}$ 与
+\[
+ r_n:\mathcal A_{n+1}^{\mathrm{read}}\longrightarrow G_n,\qquad
+ O_nr_n=D_nO_{n+1},\qquad I_nr_n=I_{n+1}.
+\]
+每次回读实际核验其输入属于该定义域；多阶段回读逐次核验接续域。
+规则更新以此前已认证验证核或已给出的外部数学证明核验，
+证明中的开放前提随证书传递。
+若下一阶段将当前规律选择和验证协议编码为对象，同一迁移义务继续适用。
+\end{definition}
+
+\begin{theorem}[迁移证书的复合与接受回读的精确接续域]
+\label{exp:gov:migration-composition}
+设阶段 $0\to1$ 与 $1\to2$ 分别满足定义~\ref{hgov:def:migration}。
+明确写出观察类型 $O_i:X_i\to Y_i$ 和解码类型
+$D_0:Y_1\to Y_0$、$D_1:Y_2\to Y_1$。
+定义
+\[
+\begin{aligned}
+ T_{02}&=T_1T_0,& j_{02}&=j_1j_0,\\
+ \tau_{02}&=\tau_1\tau_0,& D_{02}&=D_0D_1.
+\end{aligned}
+\]
+则上述数据满足复合迁移的身份、链性、旧动作合法性、后继、观察、目标及旧动作费用义务。
+在原任务作用图的顶点绑定适用时，还满足
+$j_{02,0}[x]=[T_{02}x]$。
+
+若单步接受回读为
+$r_0:\mathcal A_1^{\mathrm{read}}\to G_0$ 与
+$r_1:\mathcal A_2^{\mathrm{read}}\to G_1$，则复合回读的登记域为
+\[
+ \mathcal A_{02}^{\mathrm{read}}
+ =\{z\in\mathcal A_2^{\mathrm{read}}:
+             r_1z\in\mathcal A_1^{\mathrm{read}}\}.
+\]
+在此域上，$r_{02}=r_0r_1$ 满足
+\[
+ r_{02}:\mathcal A_{02}^{\mathrm{read}}\to G_0,
+ \qquad O_0r_{02}=D_{02}O_2,
+ \qquad I_0r_{02}=I_2.
+\]
+恒等迁移与上述复合具有单位律和结合律；部分回读的结合律同时要求所写接续域相等。
+\end{theorem}
+\begin{certificate}[逐字段复合与回读域成员证明]
+保存两份单步迁移证书、所有映射的源靶，以及复合顺序。
+对实际新输出 $z$，分别保存
+$z\in\mathcal A_2^{\mathrm{read}}$ 和
+$r_1z\in\mathcal A_1^{\mathrm{read}}$ 的证据，再调用 $r_0$。
+观察解码在登记的观察值域上全定义；若实现采用部分解码器，
+还需逐次保存被实际调用的观察值属于其定义域的证明。
+\end{certificate}
+\begin{proof}
+身份、链性及观察分别按以下代入计算：
+\[
+\begin{aligned}
+ I_2T_{02}&=I_2T_1T_0=I_1T_0=I_0,\\
+ \partial_2j_{02}
+ &=\partial_2j_1j_0=j_1\partial_1j_0=j_1j_0\partial_0,\\
+ O_0&=D_0O_1T_0=D_0D_1O_2T_1T_0.
+\end{aligned}
+\]
+对每个旧标签 $a$，两次前置条件等价给
+\[
+ \operatorname{Pre}_{0,a}(x)
+ \Longleftrightarrow
+ \operatorname{Pre}_{1,\tau_0(a)}(T_0x)
+ \Longleftrightarrow
+ \operatorname{Pre}_{2,\tau_{02}(a)}(T_{02}x).
+\]
+在此合法域上，两次后继交换给
+\[
+ T_{02}F_{0,a}x
+ =T_1F_{1,\tau_0(a)}T_0x
+ =F_{2,\tau_{02}(a)}T_{02}x.
+\]
+费用等式以相同方式串接。
+目标包含从 $x\in G_0$ 逐次推出 $T_0x\in G_1$ 与 $T_{02}x\in G_2$。
+顶点绑定由 $j_{1,0}j_{0,0}[x]=j_{1,0}[T_0x]=[T_1T_0x]$ 得到。
+
+对 $z\in\mathcal A_{02}^{\mathrm{read}}$，两个回读函数的调用都合法，且
+\[
+ O_0r_0r_1z=D_0O_1r_1z=D_0D_1O_2z,
+ \qquad I_0r_0r_1z=I_1r_1z=I_2z.
+\]
+回读值属于 $G_0$ 来自 $r_0$ 的值域声明。
+映射的恒等律与结合律给出总映射结论。
+对三个连续回读，不论采用何种括号，定义域都恰为满足
+\[
+ z\in\mathcal A_3^{\mathrm{read}},\quad
+ r_2z\in\mathcal A_2^{\mathrm{read}},\quad
+ r_1r_2z\in\mathcal A_1^{\mathrm{read}}
+\]
+的集合，故部分回读也具有相同的值和域。
+零次迁移取各自恒等映射；由上述两步复合归纳，可构造任意有限迁移链。
+\[
+\begin{gathered}
+ \operatorname{Migration}(0,1)\land\operatorname{Migration}(1,2)
+ \Rightarrow\operatorname{Migration}(0,2),\\
+ z\in\mathcal A_{02}^{\mathrm{read}}
+ \Rightarrow\operatorname{BothReadbacksDefined}
+ \Rightarrow\operatorname{AcceptedOldReadback},\\
+ \operatorname{TypedComposition}\land\operatorname{MatchedPartialDomains}
+ \Rightarrow\operatorname{AssociativeFiniteMigration}.
+\end{gathered}
+\]
+\end{proof}
+
+\section{版本冻结与原子运输的逻辑作用域}
+\label{exp:gov:version-atoms-section}
+
+\begin{definition}[版本冻结、逐原子运输与前提账本]
+\label{hgov:def:certificate-transport}
+解释库 $\mathfrak M_{\le n}$ 保存截至第 $n$ 阶段的已登记对象。
+每项对象、函数、量词定义域、输入及证书均带不可改写的版本标识。
+新增阶段扩充解释库，既有版本字段继续按原值解释。
+命题 $P^{[j]}$ 的全部源对象与量词域绑定于所登记版本 $j$。
+
+对一份待迁移的有限证书，将局部开放前提展开为叶结点。
+记其结点谓词为 $P_v$、父集合为 $\operatorname{Par}(v)$。
+部分翻译 $\Theta_n$ 的定义域覆盖此次实际改写的全部原子、复合公式和规则实例；
+其每个输出具有明确源靶、次数和版本。保留结点直接读取原版本 $P_v$，
+改写结点输出登记的新命题 $P'_v=\Theta_nP_v$。
+每个改写原子 $A$ 保存具体运输见证及条件化真值保持式
+\[
+ \mathfrak M_{\le n+1}\models
+ \left(A\land\bigwedge\Delta_{n,A}\right)\Rightarrow\Theta_nA.
+\]
+其中 $\Delta_{n,A}$ 是该运输实际使用的有限开放前提集。
+每个非叶结点另保存已验证的新规则实例
+\[
+ \mathfrak M_{\le n+1}\models
+ \left(
+ \bigwedge_{u\in\operatorname{Par}(v)}P'_u
+ \land\bigwedge\Delta_{n,v}
+ \right)\Rightarrow P'_v.
+\]
+保留分支可以使用原有规则实例，所消费对象和前提继续携带原版本。
+令 $\Gamma_n$ 为该阶段证书的全部未解除前提，
+令 $\Delta_n$ 为本次对象迁移、原子运输及新规则所引入前提的并集，
+则输出前提账本定义为
+\[
+ \Gamma_{n+1}=\Gamma_n\cup\Delta_n.
+\]
+已经证明的前提另附消去见证；原子真值、规则可靠性与前提消去分别保存证明。
+\end{definition}
+
+\begin{proposition}[版本保持与生成原子的具体运输]
+\label{hgov:prop:atomic-transport}
+版本冻结保持全部原版本公式的解释。
+定义~\ref{hgov:def:migration} 给出以下改写原子的真值保持：
+\[
+ \begin{aligned}
+ y=F_{n,a}x
+ &\Longrightarrow T_ny=F_{n+1,\tau_n(a)}T_nx,\\
+ x\in G_n&\Longrightarrow T_nx\in G_{n+1},\\
+ O_nx=o&\Longrightarrow D_nO_{n+1}T_nx=o,\\
+ \partial_nu=z
+ &\Longrightarrow \partial_{n+1}(j_nu)=j_nz,\\
+ I_nx=i&\Longrightarrow I_{n+1}T_nx=i .
+ \end{aligned}
+\]
+动作原子同时运输其合法性与费用。
+额外原子通过定义~\ref{hgov:def:certificate-transport} 中登记的对应真值保持式运输。
+\end{proposition}
+\begin{certificate}[冻结域与原子交换见证]
+保存旧对象及定义域的版本标识、源原子的实际值、
+状态与链映射、目标包含、观察解码和动作交换式。
+每个输出原子保存代入后的等式及所用开放前提。
+旧复形的障碍证书继续绑定旧复形；
+新复形的填补结论保存新的原像与边界计算。
+\end{certificate}
+\begin{proof}
+对原版本公式的构造作归纳。
+原子中的对象、函数与关系解释均保持原值；
+命题联结由相同真值函数计算；
+有类型量词遍历相同的冻结定义域。
+因此每个原版本公式的真值保持。
+对动作原子，代入 $y=F_{n,a}x$ 得
+\[
+ T_ny=T_nF_{n,a}x=F_{n+1,\tau_n(a)}T_nx.
+\]
+前置条件等价与费用式分别给出合法性、费用原子的运输。
+目标原子由 $T_n(G_n)\subseteq G_{n+1}$ 得到。
+观察原子及边界原子分别由
+\[
+ D_nO_{n+1}T_nx=O_nx=o,\qquad
+ \partial_{n+1}j_nu=j_n\partial_nu=j_nz
+\]
+得到，身份同理。
+谓词因果链逐项为
+\[
+ \begin{gathered}
+ \operatorname{FrozenObjects}\land\operatorname{FrozenDomains}
+ \Longrightarrow\operatorname{HistoricalTruthPreserved},\\
+ \operatorname{SourceAtom}\land\operatorname{CheckedTransport}
+ \Longrightarrow\operatorname{TargetAtom},\\
+ \operatorname{GoalInclusion}\land(x\in G_n)
+ \Longrightarrow T_nx\in G_{n+1}.
+ \end{gathered}
+\]
+每条运输只消费其列出的结构式及前提。
+\end{proof}
+
+\begin{proposition}[单向原子运输的正公式闭包与全公式保持条件]
+\label{exp:gov:formula-transport}
+对此次实际使用的每个对象类型 $s$，给定域映射
+$T_s:X_s\to X'_s$。设翻译 $\Theta$ 保持公式的逻辑构造，
+并且每个登记原子的运输式在全部规定赋值上统一成立：
+\[
+ \bigwedge\Gamma\Rightarrow
+ \bigl(A(\xi)\Rightarrow(\Theta A)(T\xi)\bigr).
+\]
+此处 $\xi$ 是有类型赋值，$T\xi$ 逐变量应用其所属类型的 $T_s$；
+$\Gamma$ 包含上述统一运输证明的全部未解除前提。
+则对由登记原子经有限次 $\land,\lor,\exists$ 构造的公式 $P$，有
+\[
+ \bigwedge\Gamma\Rightarrow
+ \bigl(P(\xi)\Rightarrow(\Theta P)(T\xi)\bigr).
+\]
+若进一步每个 $T_s$ 满射，且全部原子运输都是双向真值等价，
+则对允许 $\neg,\forall$ 的任意登记一阶公式也有双向等价。
+仅有单向原子运输时，否定与遍历整个新增域的全称量词不属于上述一般保持结论。
+\end{proposition}
+\begin{certificate}[公式构造树、量词域和统一赋值检查]
+保存公式的有限构造树、每个变量的类型和版本、原子运输所覆盖的赋值域，
+以及各原子统一证明所需前提。
+存在量词保存源见证及其 $T_s$ 像；全公式双向运输另保存各域映射的满射见证
+和原子的双向等价式。有限域实现以完整赋值表替代未覆盖的样本检查。
+\end{certificate}
+\begin{proof}
+固定一个使 $\Gamma$ 成立的解释，对公式构造树归纳。
+原子基例就是前件；合取由两个子式同时运输得到，析取由实际成立的分支运输得到。
+若 $\exists x\in X_s\,P(x,\xi)$ 成立，取其见证 $x$；
+归纳假设给出 $(\Theta P)(T_sx,T\xi)$，
+因此 $T_sx\in X'_s$ 是目标存在量词的见证。
+这完成正公式的结构归纳。
+
+在双向原子等价和满射条件下，再对全部公式构造归纳。
+否定通过子式真值等价直接保持。
+对目标域中任意 $x'\in X'_s$，满射性给出 $x$ 满足 $T_sx=x'$；
+因此源全称结论的任一实例都能运输到这一 $x'$。
+反向全称结论对每个像 $T_sx$ 成立，使用子式双向等价回到源域。
+存在量词的反向同样使用目标见证的原像。
+
+两个有限模型精确说明附加条件的用途。
+首先取零元原子 $A$ 在源解释中为假，在目标解释中为真；
+$A\Rightarrow\Theta A$ 成立，但 $\neg A$ 不能运输为 $\neg\Theta A$。
+其次取 $X=\{0\}$、$X'=\{0,1\}$、$T(0)=0$，
+源谓词 $P(0)$ 为真，目标谓词 $P'(0)$ 为真而 $P'(1)$ 为假。
+原子在全部源赋值上保持，$\forall x\in X\,P(x)$ 为真，
+$\forall x'\in X'\,P'(x')$ 为假。
+故
+\[
+\begin{gathered}
+ \operatorname{UniformForwardAtoms}\land\operatorname{PositiveFormula}
+ \Rightarrow\operatorname{ForwardFormulaTransport},\\
+ \operatorname{UniformEquivalentAtoms}\land\operatorname{SurjectiveDomains}
+ \Rightarrow\operatorname{FirstOrderTruthEquivalence}.
+\end{gathered}
+\]
+版本冻结下的旧全称公式仍量化于旧域，因此由
+命题~\ref{hgov:prop:atomic-transport} 保持原解释；
+本命题处理的是主动改写为目标版本后的公式。
+\end{proof}
+
+\section{证书依赖图、开放前提与安全消去}
+\label{exp:gov:proof-ledger-section}
+
+\begin{lemma}[逐原子证书运输的有限前缀可靠性]
+\label{hgov:lem:transport-prefix}
+若源有限证书在 $\Gamma_n$ 下成立，并具有
+定义~\ref{hgov:def:certificate-transport} 的版本和运输见证，
+则迁移后每个结点均在 $\Gamma_{n+1}$ 下成立。
+保留证书继续表达原版本命题，改写证书表达其已登记的目标版本命题。
+\end{lemma}
+\begin{certificate}[拓扑前缀与新增前提]
+保存源证书拓扑序、每个结点的保留或改写标识、父索引、
+原子运输公式、新规则实例及局部前提集。
+记 $\Delta_{n,v}^{\mathrm{all}}$ 为结点 $v$ 及其运输证明的新增前提并集。
+对前 $k$ 个结点记录累计集合
+\[
+ \Lambda_k=\Gamma_n\cup
+ \bigcup_{v\le k}\Delta_{n,v}^{\mathrm{all}},
+ \qquad \Lambda_k\subseteq\Gamma_{n+1}.
+\]
+\end{certificate}
+\begin{proof}
+设 $\Gamma_{n+1}$ 成立。源证书的全部前提 $\Gamma_n$ 成立，
+版本冻结使其结论可继续读取。
+按新证书的拓扑序归纳：
+保留叶由原版本证明成立；
+改写叶由源原子和已包含的 $\Delta_{n,A}$ 经运输式成立。
+若前 $k$ 个结点已成立，第 $k+1$ 个非叶结点的父结论均在此前，
+其 $\Delta_{n,v}$ 也包含于 $\Gamma_{n+1}$，
+因此对应的新规则推出 $P'_{k+1}$。
+在只使用前缀前提时，相同论证给出
+$\bigwedge\Lambda_k\Rightarrow\bigwedge_{v\le k}P'_v$。
+于是
+\[
+ \begin{gathered}
+ \operatorname{SourceValid}(\Gamma_n)
+ \land\operatorname{LeafTransport}
+ \land\operatorname{SoundTargetRules}\\
+ \Longrightarrow
+ \left[
+ \bigwedge\Gamma_{n+1}
+ \Rightarrow\bigwedge_{v}P'_v
+ \right].
+ \end{gathered}
+\]
+这完成有限前缀归纳，所有新增前提保持在输出账本中。
+\end{proof}
+
+\begin{theorem}[结点局部前提支持与有证据的前提消去]
+\label{exp:gov:premise-support}
+取一份有限无环证书图，全部谓词、类型与对象版本均已固定。
+每个叶结点 $v$ 保存已核验的条件结论
+$\bigwedge B_v\Rightarrow P_v$；开放前提叶 $P_v=\gamma$ 可取
+$B_v=\{\gamma\}$。
+每个非叶结点保存规则实例
+\[
+ \left(\bigwedge_{u\in\operatorname{Par}(v)}P_u
+       \land\bigwedge\Delta_v\right)\Rightarrow P_v,
+\]
+并递归登记
+\[
+ B_v=\Delta_v\cup\bigcup_{u\in\operatorname{Par}(v)}B_u.
+\]
+则每个结点都满足 $\bigwedge B_v\Rightarrow P_v$。
+对输出集合 $V_{\mathrm{out}}$，令
+$\Gamma_{\mathrm{out}}=\bigcup_{v\in V_{\mathrm{out}}}B_v$，则
+\[
+ \bigwedge\Gamma_{\mathrm{out}}
+ \Rightarrow\bigwedge_{v\in V_{\mathrm{out}}}P_v.
+\]
+因此可仅保留所需输出的祖先闭包及其全部前提。
+
+若 $E\subseteq\Gamma_{\mathrm{out}}$ 中的每个 $\gamma$ 都另有有限可靠证书，
+仅以 $H=\Gamma_{\mathrm{out}}\setminus E$ 为未解除前提，证明
+$\bigwedge H\Rightarrow\gamma$，则输出前提可由
+$\Gamma_{\mathrm{out}}$ 缩减为 $H$。
+原子运输引入的前提适用相同规则。
+\end{theorem}
+\begin{certificate}[支持集合递推与独立消去证明]
+保存拓扑序、各规则的局部前提、逐结点集合并运算和输出祖先索引。
+每一项拟消去前提保存一份独立证书，其开放叶均属于 $H$，
+并核验所用规则可靠、对象版本匹配且依赖图无环。
+对来自旧版本的叶保留原版本解释，对改写叶保留对应的原子运输及新增前提。
+\end{certificate}
+\begin{proof}
+按拓扑序归纳。叶结点的条件结论由输入证书成立。
+若所有父结点的结论均在其支持前提下成立，
+$B_v$ 的定义保证每个父支持及规则局部前提都包含于 $B_v$。
+因此在 $B_v$ 下全部父结论成立，再由所登记规则得到 $P_v$。
+这给出归纳步，并覆盖无父结点的初始基例。
+输出前提的并集同时覆盖全部输出支持，从而推出输出合取。
+祖先闭包包含每个保留结点的全部父结点，故删除其余结点不改变上述推导。
+
+假设 $H$ 成立。每份独立消去证书给出一个 $\gamma\in E$，
+故 $H\cup E=\Gamma_{\mathrm{out}}$ 的全部成员成立；
+代入已证明的输出条件结论即得所有输出。
+这个过程使用实际证明解除前提，未改变任何原命题的版本与含义。
+\[
+\begin{gathered}
+ \operatorname{AcyclicRules}\land\operatorname{LeafSequents}
+ \Rightarrow\bigwedge_v\left(\bigwedge B_v\Rightarrow P_v\right),\\
+ \operatorname{OutputAncestorClosure}
+ \Rightarrow\left(\bigwedge\Gamma_{\mathrm{out}}
+ \Rightarrow\bigwedge_{v\in V_{\mathrm{out}}}P_v\right),\\
+ \bigwedge_{\gamma\in E}\operatorname{Certified}(H\Rightarrow\gamma)
+ \Rightarrow\left(\bigwedge H\Rightarrow
+             \bigwedge_{v\in V_{\mathrm{out}}}P_v\right).
+\end{gathered}
+\]
+\end{proof}
+
+\section{复形版本、非零类及新增填补的相容性}
+\label{exp:gov:homology-version-section}
+
+\begin{theorem}[版本冻结下的障碍保持、类消失与回缩判据]
+\label{exp:gov:homology-version}
+设 $C_\bullet,C'_\bullet$ 为域 $\mathbb K$ 上的链复形，
+$j:C_\bullet\to C'_\bullet$ 为链映射。
+给定旧闭链 $\omega\in C_k$ 和线性泛函 $\lambda:C_k\to\mathbb K$，满足
+\[
+ \partial\omega=0,\qquad
+ \lambda\partial_{k+1}=0,\qquad\lambda(\omega)\ne0.
+\]
+则旧版本断言 $[\omega]_{H_k(C)}\ne0$ 有明确证书。
+该断言与新版本存在 $h\in C'_{k+1}$ 满足
+$\partial'h=j\omega$ 可以同时成立。
+
+若另有链映射 $r:C'\to C$ 和次数 $+1$ 的算子
+$H:C_k\to C_{k+1}$，在各次数满足
+\[
+ rj-\mathrm{id}_C=\partial H+H\partial,
+\]
+则 $j_*:H_k(C)\to H_k(C')$ 单射，旧非零类的像仍非零。
+因此非零类运输需要这类已证单射条件，或直接提供目标复形中的非零证书。
+\end{theorem}
+\begin{certificate}[旧分离泛函、新填补与回缩同伦]
+旧证书保存复形版本、系数域、基、边界矩阵、$\omega$ 和 $\lambda$，
+逐项检查 $\partial\omega=0$、$\lambda\partial=0$、$\lambda\omega\ne0$。
+新填补单独保存新版本、$j,h$ 与 $\partial'h=j\omega$。
+若采用保非零运输，另逐基核验 $r$ 的链性及
+$rj-\mathrm{id}=\partial H+H\partial$。
+链复形、诱导同调与链同伦的类型约定见\cite{ExtHatcher,ExtWeibel,S38}。
+\end{certificate}
+\begin{proof}
+若旧链是边界 $\omega=\partial u$，则
+$\lambda(\omega)=\lambda\partial u=0$，与前件矛盾；故旧类非零。
+链性只给 $\partial'j\omega=j\partial\omega=0$，因此诱导同调像有定义。
+若另有新填补 $h$，则其像类按定义为零，而旧边界矩阵保持原值，
+旧分离证书仍然成立。
+
+以下有限模型直接核验这种共存。取
+\[
+ C_1=\mathbb K e,\qquad C_0=\mathbb K v,
+ \qquad\partial_1=0,
+ \qquad C_k=0\ (k\notin\{0,1\}).
+\]
+令 $C'_0=C_0,C'_1=C_1,C'_2=\mathbb K f$，其余次数为零，
+规定 $\partial'_2f=e$、$\partial'_1=0$。
+$j$ 在次数零、一为恒等，在其他次数为从零空间出发的映射。
+边界平方为零，因为唯一可能的非零复合为
+$\partial'_1\partial'_2=0$；$j$ 的链性逐次数直接成立。
+于是
+\[
+ H_1(C)=\mathbb K e,\qquad
+ H_1(C')=\mathbb K e/\mathbb K e=0.
+\]
+取 $\lambda(e)=1$ 得旧非零证书，取 $h=f$ 得新填补证书。
+
+现在假设回缩同伦条件成立。
+若某个闭链 $z\in C_k$ 的像为边界 $jz=\partial'h$，则
+\[
+ rjz=\partial(rh),\qquad
+ rjz-z=\partial(Hz)+H\partial z=\partial(Hz),
+\]
+故 $z=\partial(rh-Hz)$，原类已为零。
+这证明 $\ker j_*=0$；应用到 $\omega$ 即排除新填补。
+\[
+\begin{gathered}
+ \operatorname{OldCycleAndSeparator}
+ \Rightarrow [\omega]_{H_k(C)}\ne0,\\
+ \operatorname{ChainMap}(j)\land(\partial'h=j\omega)
+ \Rightarrow [j\omega]_{H_k(C')}=0,\\
+ \operatorname{HomotopyRetraction}(r,j,H)
+ \Rightarrow\operatorname{Injective}(j_*)
+ \Rightarrow\operatorname{NonzeroClassPreserved}.
+\end{gathered}
+\]
+前两行的上标复形不同，故描述不同版本中的相容结论。
+\end{proof}
+
+\begin{remark}[版本键与目标约束的分别核验]
+一个障碍结论至少绑定系数域、复形、边界算子、类代表及所允许的填补空间。
+允许操作族或关系面改变时，应为新复形生成新版本和新的核像证明。
+旧不可填补与新可填补可以共同组成能力扩张证书；若某个同调类同时承担必须保护的任务信息，
+还需在任务迁移中登记相应观察保持或回缩条件。
+\end{remark}
+
+\section{有限迁移与执行交错的归纳不变量}
+\label{exp:gov:finite-governance-section}
+
+\begin{theorem}[有限法对象迁移的任务与证书保持]
+\label{hgov:thm:migration}
+若初始法对象的规则可靠，且每一步满足
+定义~\ref{hgov:def:migration} 与
+定义~\ref{hgov:def:certificate-transport}，
+则每个有限复合
+$T_{0:n}=T_{n-1}\cdots T_0$、
+$j_{0:n}=j_{n-1}\cdots j_0$
+保持身份、链性、规定旧运行及其费用。
+每个旧成功运行迁移后仍进入新目标，具体满足
+\[
+ I_nT_{0:n}=I_0,\qquad
+ \partial_nj_{0:n}=j_{0:n}\partial_0,\qquad
+ T_{0:n}(G_0)\subseteq G_n.
+\]
+迁移后的证书在完整前提账本
+\[
+ \Gamma_n=\Gamma_0\cup\bigcup_{0\le k<n}\Delta_k
+\]
+下有效；原版本证书与已证明的目标版本证书分别保存。
+\end{theorem}
+\begin{certificate}[更新次数归纳]
+保存每个阶段的对象类型、矩阵、状态映射、动作前置条件、
+任务身份式、目标包含、观察回读式、费用式、规则证明及版本父边。
+保存复合不变量
+\[
+I_nT_{0:n}=I_0,\qquad
+\partial_nj_{0:n}=j_{0:n}\partial_0,\qquad
+T_{0:n}(G_0)\subseteq G_n.
+\]
+观察解码保存 $D_{0:n}=D_0D_1\cdots D_{n-1}$ 及
+$O_0=D_{0:n}O_nT_{0:n}$。
+每份证书保存逐原子运输与 $\Gamma_{n+1}=\Gamma_n\cup\Delta_n$；
+接受回读保存每次实际调用的定义域证明。
+\end{certificate}
+\begin{proof}
+零次复合为恒等，基例成立。假设第 $n$ 阶段成立，则
+\[
+I_{n+1}T_nT_{0:n}=I_nT_{0:n}=I_0,
+\]
+\[
+\partial_{n+1}j_nj_{0:n}
+=j_n\partial_nj_{0:n}=j_nj_{0:n}\partial_0.
+\]
+若 $x\in G_0$，归纳假设给出 $T_{0:n}x\in G_n$，
+目标包含进一步给出
+$T_nT_{0:n}x\in G_{n+1}$。
+动作的一步交换与前置条件等价按词长归纳保持全部规定旧运行，
+每步费用相同使其全部费用部分和相同。
+观察对应满足
+\[
+ O_0
+ =D_{0:n}O_nT_{0:n}
+ =D_{0:n}D_nO_{n+1}T_nT_{0:n}.
+\]
+因此旧执行的终态经 $T_{0:n+1}$ 仍被新目标接受，
+其规定观察经上述解码读回。
+需要回读新接受输出时，逐次域检查及 $r_n$ 的目标值域给出相应合法回读。
+
+对证书，归纳假设给出其在 $\Gamma_n$ 下有效。
+引理~\ref{hgov:lem:transport-prefix} 将实际登记的原子、叶及规则运输到新阶段，
+得到在 $\Gamma_{n+1}=\Gamma_n\cup\Delta_n$ 下的结论。
+版本冻结同时保存旧命题的来源与原对象解释。
+所以归纳不变量为
+\[
+\begin{gathered}
+\operatorname{ValidStage}(n)\land\operatorname{MigrationCertificate}(n)
+\land\operatorname{AtomTransport}(n)\\
+\Rightarrow
+\operatorname{IdentityPreserved}(n+1)
+\land\operatorname{GoalPreserved}(n+1)\\
+\land\operatorname{ChainPreserved}(n+1)
+\land\operatorname{OldRunAndCostPreserved}(n+1)\\
+\land
+\left[\bigwedge\Gamma_{n+1}
+\Rightarrow\operatorname{TargetCertificateValid}(n+1)\right].
+\end{gathered}
+\]
+数学归纳法给出全部有限阶段。
+\end{proof}
+
+\begin{theorem}[旧能力运行与法对象更新交错时的联合不变量]
+\label{exp:gov:interleaved-governance}
+设有限阶段迁移均满足定义~\ref{hgov:def:migration} 与
+定义~\ref{hgov:def:certificate-transport}。
+初始参考状态 $x_0\in X_0$，实际状态 $y_0=x_0$，当前阶段 $n=0$。
+允许有限事件序列中的事件为下列两类：
+\begin{enumerate}[label=(\roman*)]
+\item 在阶段 $n$ 执行一个原动作 $a$ 的当前编译标签
+$\tau_{0:n}(a)$；参考状态按 $F_{0,a}$ 更新，实际状态按相应当前动作更新。
+执行前检查原动作合法性。
+\item 迁移到阶段 $n+1$，实际状态按 $T_n$ 更新，参考状态保持；
+同时运输证书并扩充前提账本。
+\end{enumerate}
+这里零次复合全部取恒等映射。
+对任意有限事件前缀，若当前参考状态为 $x$、实际状态为 $y$，则
+\[
+\begin{gathered}
+ y=T_{0:n}x,\qquad I_ny=I_0x,\qquad
+ O_0x=D_{0:n}O_ny,\\
+ \partial_nj_{0:n}=j_{0:n}\partial_0.
+\end{gathered}
+\]
+参考与实际的任务动作费用部分和相等；
+若参考状态属于 $G_0$，则实际状态属于 $G_n$。
+所有已登记证书在累计未解除前提下有效。
+实际更新与验证所需工作量另以不重复原语计入附加成本。
+\end{theorem}
+\begin{certificate}[事件表、编译标签和双状态前缀]
+为每个事件保存类别、当前阶段、参考状态、实际状态、动作编译链、
+前置条件、费用或迁移矩阵。
+维护 $(x,y,n,T_{0:n},j_{0:n},D_{0:n},\Gamma)$ 的前缀表。
+对迁移和重新验证保存附加成本 $\kappa_i\ge0$；
+它不重复计入已保持的任务动作费用。
+原能力包的适用域、目标与开放前提在实际调用时逐项核验。
+\end{certificate}
+\begin{proof}
+对事件数归纳。空事件前缀中 $n=0$，全部复合为恒等，
+$y_0=x_0$，费用部分和为零，证书条件由初始登记给出。
+
+设当前前缀满足结论。
+若下一事件为动作，复合迁移的合法性等价保证当前编译动作在 $y$ 合法，
+且后继交换给
+\[
+\begin{aligned}
+ y^+&=F_{n,\tau_{0:n}(a)}y
+ =F_{n,\tau_{0:n}(a)}T_{0:n}x\\
+ &=T_{0:n}F_{0,a}x=T_{0:n}x^+.
+\end{aligned}
+\]
+费用的单步相等加到已相等的部分和上，保持下一前缀费用相等。
+身份与观察对应由新绑定状态和既有复合迁移式得到；
+证书则按合法动作实例化已登记规则。
+
+若下一事件为迁移，$x^+=x$ 而
+\[
+ y^+=T_ny=T_nT_{0:n}x=T_{0:n+1}x^+.
+\]
+定理~\ref{exp:gov:migration-composition} 给出更新后的身份、观察与链性等式。
+此事件不增加参考或实际的任务动作费用，但其实现成本记入 $\kappa_i$。
+证书由引理~\ref{hgov:lem:transport-prefix} 运输，
+前提由 $\Gamma^+=\Gamma\cup\Delta_n$ 保存。
+这完成两类事件的归纳步。
+最后，$x\in G_0$ 与复合目标包含给出 $y\in G_n$。
+若整个事件序列的原动作费用为 $C_{\mathrm{task}}$，
+依不重复原语记账的总成本为
+$C_{\mathrm{task}}+\sum_i\kappa_i$。
+\[
+\begin{gathered}
+ \operatorname{PrefixInvariant}(k)\land
+ \bigl(\operatorname{CompiledAction}\lor\operatorname{CertifiedMigration}\bigr)\\
+ \Rightarrow\operatorname{PrefixInvariant}(k+1),\\
+ \operatorname{PrefixInvariant}(0)
+ \Rightarrow\forall k\le K\ \operatorname{PrefixInvariant}(k),\\
+ \operatorname{FinalReferenceGoal}\land\operatorname{PrefixInvariant}(K)
+ \Rightarrow\operatorname{ActualGoalAndDecodedObservation}.
+\end{gathered}
+\]
+\end{proof}
+
+\section{联合验收与严格能力扩张}
+\label{exp:gov:joint-section}
+
+\begin{theorem}[异构演化治理的联合保持与严格扩张]
+\label{hgov:thm:main}
+在同一任务域中，给定以下已验证数据：
+有类型法对象与原子推演核；本次有限运行所登记的任务作用子图及关系面；
+保持任务的状态商与各自有类型的链映射；
+几何观察及其任务桥接；闭缺陷及允许修复；可执行动作、前置条件与费用；
+实际终止证书；正规型解码与带逐原子运输的版本迁移。
+以 $\Gamma_*$ 登记全部接口及迁移证书的未解除前提并集。
+则在 $\Gamma_*$ 下，所有按这些接口复合的有限运行同时满足：
+\begin{enumerate}[label=(\roman*)]
+\item 语义微分与规定链映射交换，认证边界上的闭余链积分保持；
+\item 同调障碍由明确核像或运算复形判定，实际修复具有可复算填补与执行见证；
+\item 任务身份、规定观察、旧目标接受及旧执行费用在合法迁移中保持；
+\item 新旧可执行控制集包含时可达集非减；存在经验证的差集命中见证时严格扩大；
+\item 通过验收的结果可由任务正规型回读，有限能力库与后续合法复用保持认证。
+\end{enumerate}
+定理 \ref{hgov:thm:joint} 的任务族同时满足上述条件，并具有严格可达扩张。
+\end{theorem}
+\begin{certificate}[联合结论的原子验收表]
+每个入口继续展开为本书的注册原语：
+\begin{center}\small
+\begin{tabularx}{\textwidth}{P{.10\textwidth}YY}
+\toprule
+入口 & 数学义务 & 实际见证\\
+\midrule
+U01 & 类型、对象域和任务身份 & 输入、版本、定义域\\
+U02 & 各类型复形的 $\partial^2=0$、$d=\partial^*$ & 有限执行子图、边界条目及逐基乘积\\
+U03 & 状态与链交换、定义域与费用因子化 & 顶点绑定、动作表及有限前缀\\
+U04 & 几何变分、光滑实现及观察响应 & 度量、初值、参数化路径与边界积分\\
+U05 & 闭缺陷与障碍类 & 核像基、投影或分离泛函\\
+U06 & 允许填补或兼容扩张 & 实际算子、矩阵、权限及前件\\
+U07 & 执行、排名和成本 & 每步状态、动作、下降量\\
+U08 & $DN=O$ 与适用域 & 编码、解码、成功与失效记录\\
+U09 & 目标包含、版本及逐原子运输 & 真值保持见证、读回域及前提并集\\
+\bottomrule
+\end{tabularx}
+\end{center}
+全部入口的任务键、源数据和有效域相容；
+各入口保留自身复形类型与状态、变更或几何桥接。
+联合接受为各项接受谓词的合取，并继续保存 $\Gamma_*$。
+\end{certificate}
+\begin{proof}
+U01 与规则可靠性给出原子判断的有效性。
+U02--U03 在各自类型上由定理 \ref{hgov:thm:complex}、
+引理 \ref{hgov:lem:semanticdiff} 和定理 \ref{hgov:thm:quotient}
+给出微分、任务执行及费用的保持。
+U04 的几何结论经已验证响应进入任务数据，
+光滑实现以实际参数化路径及边界交换连接执行子图。
+U05--U06 使用本书的 Hom 填补、核像判据及兼容扩张构造，U07 以具体允许动作与终止排名兑现修复。
+控制集包含使每条旧合法路径仍属于新族，因此可达集包含；差集中的实际命中路径给出严格包含。
+U08 由定理 \ref{hgov:thm:nf} 和定理 \ref{hgov:thm:library}
+给出回读及能力库保持；U09 由定理 \ref{hgov:thm:migration}
+给出目标正向保持、旧费用保持及条件化证书迁移。
+这些结果共享同一任务接口，前提按并集传递，故可按有限证书图复合：
+\[
+\begin{gathered}
+\bigwedge_{i=1}^{9}\operatorname{Verified}(U_i)
+\land\operatorname{CompatibleInterfaces}\\
+\Rightarrow
+\left[
+\bigwedge\Gamma_*\Rightarrow
+\operatorname{TaskPreserved}
+\land\operatorname{RepairExecuted}
+\land\operatorname{ReadbackValid}
+\right].
+\end{gathered}
+\]
+联合实例给出具体矩阵、桥接、$m$ 步路径与正规型
+$N_m(p,s,u,f)=(m,p,s,u)$，解码按 $x=s\mathbf p+u\mathbf r$ 及残差式计算。
+任务观察已经包括 $(m,p,s,u)$，故两个状态具有相同正规型，
+恰等价于它们只在 $f$ 上不同；命题~\ref{hgov:prop:jointquotient}
+证明这一关系对全部登记动作及费用相容。
+命题~\ref{hgov:prop:jointgraph} 给出有限执行图、光滑实现、
+商链映射及变更桥接，分别完成 U02--U04。
+该实例使用显式坐标正规型；有限测试饱和定理应用于具有显式有限表的任务子域。
+
+旧新法对象的状态域同为 $X_m$。迁移取 $T=\mathrm{id}_{X_m}$，
+旧动作标签对应为包含，观察解码与接受回读均为恒等，
+修复复形的链映射取定义~\ref{hgov:def:joint} 的 $i$。
+两阶段身份与目标相同，故 $T(G_m)=G_m$；
+旧动作的前件、后继和零费用逐项相同。
+生成原子的运输由命题~\ref{hgov:prop:atomic-transport} 逐式验证，
+旧不可达证书保留旧动作族和旧复形版本，
+新填补证书保存 $A^+(0,m)^{\mathsf T}=m\mathbf r$ 及实际 $m$ 步路径。
+这些接口在已登记输入条件下均有明确证明，U09 的额外开放前提集可取空集。
+其旧族保持 $u=0$，新族到达 $u=m$，因此严格包含也有明确见证。
+\end{proof}
+
+\begin{corollary}[固定操作模型到可变法对象的严格能力扩展]
+\label{hgov:cor:value}
+固定一个任务、输入、验收谓词与允许扩展规约。
+若旧模型的实际控制集包含于新模型，且存在目标在旧模型中具有不可达证书、
+在新模型中具有合法有限命中证书，则新模型的任务可达能力严格大于旧模型。
+这一增益可以同时保持指定任务身份及必要约束。
+\end{corollary}
+\begin{certificate}[共同任务与差集见证]
+保存相同任务键、旧不可达不变量或分离泛函、新命中路径、约束保持矩阵，
+以及编码与回读的验收记录。
+\end{certificate}
+\begin{proof}
+旧路径仍可执行给出可达集包含；旧不可达和新命中给出差集非空：
+\[
+\mathcal R_{\rm old}\subseteq\mathcal R_{\rm new},
+\qquad
+y_*\notin\mathcal R_{\rm old}\land y_*\in\mathcal R_{\rm new}
+\Rightarrow
+\mathcal R_{\rm old}\subsetneq\mathcal R_{\rm new}.
+\]
+任务身份和约束由相同路径上的已证保持式传递。
+定理 \ref{hgov:thm:joint} 为该条件命题提供全部整数参数上的构造见证。
+\end{proof}
+
+\begin{remark}[结论的数学对象与应用接口]
+本书的比较对象是明确的承载、表示和实际允许操作族。
+几何运输、链与余链、同伦填补、任务商及正规型通过有类型映射共同组成治理程序。
+实际应用以数据、可执行算子、测量与资源实例化其前件；
+新增能力由相同任务下的可达差集和验收证书度量。
+理论结构、运算实现和现实回读因此保持各自可核验的接口。
+\end{remark}
+
+\clearpage
+\begin{thebibliography}{99}
+\small
+\bibitem{GFrameworkPublic}高政（GaoZheng）. G Framework 公开源文稿汇编.
+\newblock 所附 \path{G_Framework.txt}，三十八篇源文稿；
+本书使用法空间、GZ-GMS、同伦同一性、正规型及《率与商》的明确构造。
+\newblock 纯数学卷公开记录：\url{https://doi.org/10.5281/zenodo.17651584}。
+\bibitem{GFrameworkSynthesis}高政（GaoZheng）. G框架的统一数学结构、计算范式与哲学收束：
+从泛逻辑、法空间与同伦修复到任务充分商及率--商统一. 2026-11-01 基础版本.
+\newblock 所附 \path{G_Framework_Unified_Synthesis_ZH.tex}；
+定位为法空间、三层联络、宏观--微观总同调、任务充分商、率与商及完整成本各章。
+\bibitem{S01}高政（GaoZheng）. Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis (GaoZheng G-Framework) and the Principal-Bundle-Based Generalized Noncommutative Lie Algebra (GaoZheng G-Algebra): An Integrated Construction. 2025.
+\newblock Zenodo，引用版本 v1.0；本地源文件标注 Version 1.1, 2025。
+\newblock DOI：\url{https://doi.org/10.5281/zenodo.17651584}。
+\newblock 本地源文稿：\path{docs/project_docs/Pub_GFramework_PureMath.tex}，第1--15562行。
+\bibitem{S38}高政（GaoZheng）. 率与商：G 框架语义微积分与传统微积分之间的 同伦映射形式系统. 2026-09-12.
+\newblock 收录于《中文工作笔记》v5.2；文集 DOI：\url{https://doi.org/10.5281/zenodo.22739417}。
+\newblock 本地源文稿：\path{docs/project_docs/notebook_tex_v5.2/20260912_gframework_rate_quotient_semantic_calculus_traditional_calculus_homotopy_mapping_formal_system.tex}，第1--3934行。
+\bibitem{ExtHatcher}Allen Hatcher. \emph{Algebraic Topology}. Cambridge University Press, 2002.
+\newblock 作者公开全文：\url{https://pi.math.cornell.edu/~hatcher/AT/AT.pdf}。
+\newblock 使用内容：奇异链、棱柱算子、链同伦与诱导同调。
+\bibitem{ExtWeibel}Charles A. Weibel. \emph{An Introduction to Homological Algebra}.
+Cambridge Studies in Advanced Mathematics 38. Cambridge University Press, 1994.
+\newblock DOI：\url{https://doi.org/10.1017/CBO9781139644136}。
+\newblock 使用内容：复形、Hom 微分、核像商、同伦及分次相容。
+\bibitem{ExtStacks}The Stacks Project Authors. \emph{The Stacks Project}, Section 12.13:
+Complexes, Tag 010V.
+\newblock \url{https://stacks.math.columbia.edu/tag/010V}。
+\newblock 使用内容：链复形、余链复形、同伦与同伦等价的类型化定义。
+\bibitem{ExtLadaMarkl}Tom Lada and Martin Markl. Strongly homotopy Lie algebras.
+\emph{Communications in Algebra}, 23(6):2147--2161, 1995.
+\newblock DOI：\url{https://doi.org/10.1080/00927879508825335}。
+\newblock 公开预印本：\url{https://arxiv.org/abs/hep-th/9406095}。
+\bibitem{ExtKobayashiNomizu}Shoshichi Kobayashi and Katsumi Nomizu.
+\emph{Foundations of Differential Geometry, Volume 1}.
+Wiley Classics Library edition, 1996.
+\newblock ISBN：978-0-471-15733-5。
+\newblock 出版社：\url{https://www.wiley.com/en-us/foundations-of-differential-geometry-volume-1-p-9780471157335}。
+\newblock 使用内容：主丛、向量丛、联络、曲率与平行运输。
+\bibitem{ExtLeeRiemann}John M. Lee. \emph{Introduction to Riemannian Manifolds}.
+Second edition, Graduate Texts in Mathematics 176. Springer, 2018.
+\newblock DOI：\url{https://doi.org/10.1007/978-3-319-91755-9}。
+\newblock 使用内容：Levi--Civita 联络、曲率、Jacobi 场与比较。
+\bibitem{ExtBottTu}Raoul Bott and Loring W. Tu. \emph{Differential Forms in Algebraic Topology}.
+Graduate Texts in Mathematics 82. Springer, 1982.
+\newblock DOI：\url{https://doi.org/10.1007/978-1-4757-3951-0}。
+\newblock 使用内容：微分形式、积分余链、de Rham 接口与曲率特征形式。
+\bibitem{S37}高政（GaoZheng）. G 框架中的数学、物理、计算与认知基础障碍谱系： 统一法空间、总同调语义场与证书化化解 （工作笔记：形式系统版）. 2026-07-08.
+\newblock 收录于《中文工作笔记》v5.2；文集 DOI：\url{https://doi.org/10.5281/zenodo.22739417}。
+\newblock 本地源文稿：\path{docs/project_docs/notebook_tex_v5.2/20260708_gframework_foundational_obstruction_spectrum_formal_system.tex}，第1--10126行。
+\bibitem{S19}高政（GaoZheng）. 主丛联络的纤维丛空间、路径积分支撑类与同伦扭曲正规形的集合等价 （工作笔记：形式系统版）. 2026-03-09.
+\newblock 收录于《中文工作笔记》v5.2；文集 DOI：\url{https://doi.org/10.5281/zenodo.22739417}。
+\newblock 本地源文稿：\path{docs/project_docs/notebook_tex_v5.2/20260309_gframework_principal_connection_fiber_space_path_integral_homotopy_twist_equivalence_formal_system.tex}，第1--5791行。
+\end{thebibliography}
+\clearpage
+\end{CJK*}
+\end{document}
