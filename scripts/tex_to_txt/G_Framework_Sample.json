@@ -1,0 +1,8 @@
+{
+  "output_path": "../../res/G_Framework_Sample.txt",
+  "order": "json",
+  "files": [
+    "../../docs/G_Framework/tex1/G_Framework_Unified_Synthesis_ZH.tex",
+    "../../docs/G_Framework/tex2/G_Framework_Lawspace_Heterogeneous_Governance_ZH.tex"
+  ]
+}
