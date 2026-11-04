@@ -1,7 +1,7 @@
 % !TeX program = pdflatex
 % 自包含源文件：正文、目录、交叉引用及参考文献均内嵌。
 % 编译：latexmk -pdf -interaction=nonstopmode -halt-on-error G_Framework_Lawspace_Heterogeneous_Governance_ZH.tex
-\documentclass[12pt,a4paper,openany]{report}
+\documentclass[12pt,a4paper,openany,notitlepage]{report}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{CJKutf8}
@@ -103,10 +103,15 @@
 \begin{document}
 \begin{CJK*}{UTF8}{gkai}
 \pagenumbering{roman}
+\begingroup
+\setstretch{1.14}
+\setlength{\parskip}{0.20em}
+\setlength{\parindent}{2em}
 \maketitle
 \thispagestyle{empty}
-\chapter*{摘要}
+\phantomsection
 \addcontentsline{toc}{chapter}{摘要}
+\begin{abstract}
 本书研究在对象类型、表示、允许动作与规律发生变化时，如何以明确的数学接口保持任务身份、
 识别接续障碍、构造合法修复，并把已验证结果保存为后续可调用的能力。
 共同承载采用高氏法空间与 GZ-GMS 富结构；每项状态、函数、链、余链、运算及证书具有指定类型、定义域与版本。
@@ -125,9 +130,12 @@
 最后，任务正规型与有限状态细化给出精确回读、未来观察等价和策略复用；
 法对象迁移通过目标包含、状态与链的交换、逐原子真值运输、版本冻结和前提并集，
 证明任意有限治理更新及其实际执行保持相应任务结论。
+\end{abstract}
 
 \noindent\textbf{关键词：}高氏法空间；GZ-GMS；语义微分；负曲率；纤维丛；
 Hom 复形；同调障碍；同伦代数；兼容扩张；任务正规型；证书迁移
+\par
+\endgroup
 \clearpage
 \tableofcontents
 \clearpage
