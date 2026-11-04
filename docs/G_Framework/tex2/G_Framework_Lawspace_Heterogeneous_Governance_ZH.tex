@@ -7000,7 +7000,106 @@ y_*\notin\mathcal R_{\rm old}\land y_*\in\mathcal R_{\rm new}
 \end{remark}
 
 \clearpage
+\appendix
+\titleformat{\chapter}[display]{\normalfont\huge\bfseries}
+  {附录\ \thechapter}{12pt}{\Huge}
+\addtocontents{toc}{\protect\renewcommand{\protect\cftchappresnum}{附录\space}}
+\addtocontents{toc}{\protect\setlength{\protect\cftchapnumwidth}{4.5em}}
+
+\chapter{统一术语与符号索引}
+\label{app:hgov:notation}
+
+下表按正文的论证顺序汇集共同承载、几何、修复、任务商与治理中的主要术语和记号。
+同一字母在不同局部模型中复用时，其源靶、次数、定义域及版本以对应定义为准；
+索引中的简述保留正文所要求的条件，具体推导见所列位置。
+
+\begingroup
+\small
+\setstretch{1.0}
+\begin{longtable}{P{0.24\textwidth}P{0.54\textwidth}P{0.14\textwidth}}
+\toprule
+术语或记号 & 职责与适用边界 & 正文定位\\
+\midrule
+\endfirsthead
+\toprule
+术语或记号 & 职责与适用边界（续） & 正文定位\\
+\midrule
+\endhead
+\midrule\multicolumn{3}{r}{续下页}\\\endfoot
+\bottomrule\endlastfoot
+$\Gamma,\mathcal C$ & 前提环境与有限证书；保存输入、结论、见证、父依赖、有效域及版本，规则的条件可靠性由有限证书图归纳保持。 & 定义~\ref{hgov:def:language}、定理~\ref{hgov:thm:atomsound}\\
+$\alpha_0,\ldots,\alpha_6$ & 语义微分的注册原子；依次登记类型、动作前件、后继、两端观察、差值及余链配对。 & 定义~\ref{hgov:def:atom}\\
+$L,\mathfrak S_L,\mathcal E$ & 带任务法对象及共同承载；状态、动作、部分后继、观察、身份、目标和费用随法对象一同登记。 & 定义~\ref{hgov:def:law}\\
+GZ-GMS / $\mathcal G$ & 共同组织对象、规律、可容许流、性质层、三层联络与法曲率；普通光滑丛在指定结构扇区中配置。 & 第~\ref{exp:ch:law}、\ref{exp:ch:geometry}章\\
+$\ell_n,\mathcal R_n,J_b$ & 次数为 $2-n$ 的高阶运算、逐元数相容残差及二元括号的 Jacobiator；完整闭合要求全部 $\mathcal R_n=0$。 & 定义~\ref{hgov:linfty:convention}、定理~\ref{hgov:linfty:model}\\
+$C_\bullet,\partial$ & 任务顶点、动作边与已认证关系面生成的链复形；关系面的共同起终点给出 $\partial_1\partial_2=0$。 & 定义~\ref{hgov:def:taskcomplex}、定理~\ref{hgov:thm:complex}\\
+$C^\bullet,d,\int_c\omega$ & 对偶余链、语义微分与有限路径配对；闭余链在已认证边界所连接的路径之间保持积分。 & 定义~\ref{hgov:def:semanticdiff}、引理~\ref{hgov:lem:semanticdiff}\\
+$q,q_\bullet,q^*$ & 状态商、另行登记的链实现及余链拉回；观察因子化、动作可用性、后继交换和费用要求分别核验。 & 定义~\ref{hgov:def:quotient}、定理~\ref{hgov:thm:quotient}\\
+$g_\alpha,\nabla^{g_\alpha},J$ & 扇区度量、Levi--Civita 联络与 Jacobi 变分场；曲率符号、初值及比较条件共同确定增长结论。 & 定义~\ref{hgov:geo:def:sector}、\ref{hgov:geo:def:jacobi}\\
+有限观测差与误差预算 & 从观察响应、变分幅度及统一余项界取得可区分条件，并保存共同有效域和实际读数精度。 & 定义~\ref{hgov:geo:def:observation}、命题~\ref{exp:geo:prop:observation-robustness}\\
+$d_\nabla,F_\nabla$ & 协变外导数与曲率；登记 $d_\nabla^2\xi=F_\nabla\wedge\xi$ 及 Bianchi 恒等式，平坦子丛的复形条件另行核验。 & 定义~\ref{hgov:geo:def:exterior}、定理~\ref{hgov:geo:thm:curvature}\\
+异构丛映射与平行运输 & 共同登记基底和丛映射；联络、曲率与沿路径运输的交换式在相容类型及有效域上成立。 & 定义~\ref{hgov:geo:def:heterogeneous}、定理~\ref{hgov:geo:thm:transport}\\
+$I_k,\delta$ & 标量形式到光滑奇异余链的积分映射；此处 $\delta$ 为奇异余链微分，满足 $\delta I_k=I_{k+1}d$。 & 定义~\ref{hgov:geo:def:singular}、定理~\ref{hgov:geo:thm:integration}\\
+曲率特征余链与转移形式 & 由不变曲率多项式取得闭形式及积分余链，并用联络变形的转移公式比较相应上同调类。 & 命题~\ref{hgov:geo:prop:curvature-cocycle}、\ref{exp:geo:prop:transgression}\\
+$\operatorname{Hom}^r,\delta_{ij}$ & 带源靶的分次映射空间及 Hom 微分；$\delta_{ij}f=d_jf-(-1)^rfd_i$，复合保存对应的分次符号。 & 定义~\ref{hgov:def-hom}、引理~\ref{hgov:lem-hom}\\
+接续缺陷与同伦填补 & 接续映射进入共同承载后形成闭缺陷；填补方程及其障碍类在所声明的 Hom 复形中判定。 & 定义~\ref{hgov:def-defect}、定理~\ref{hgov:thm-filler}\\
+$U\xrightarrow{L}V\xrightarrow{D}W$ & 有限线性修复呈示；$DL=0$、$D\omega=0$，实际填补求解 $Lu=\omega$，同调商为 $\ker D/\operatorname{im}L$。 & 定义~\ref{hgov:def-linear}\\
+$P_G,r,\lambda$ & 正交投影、残差与分离泛函；正定 Gram 矩阵下，残差为零与障碍类消失等价，并给出不可解分支的对偶证书。 & 定理~\ref{hgov:thm-projection}\\
+允许方向与最小兼容扩张 & 新操作必须保存旧接口；在给定兼容约束下计算新增独立方向的下界，并登记达到下界的实际扩张。 & 定义~\ref{hgov:def-extension}、定理~\ref{hgov:thm-minimal-extension}\\
+可执行修复与终止排名 & 把线性填补落实为具有前置条件、资源和费用的动作；有限终止结论绑定合法执行及排名条件。 & 定义~\ref{hgov:def-executable}、定理~\ref{hgov:thm-execution}\\
+$D^{(n)}(t),K_n,O_n$ & 形式参数截断、逐阶修复算子与闭障碍；第 $n$ 阶扩张要求 $\delta K_n=-O_n$，并保存此前各阶闭合条件。 & 定义~\ref{hgov:def-end}、定理~\ref{hgov:thm-total-tower}\\
+$Q,Q^2$ & 悬移后高阶运算的余导子及其总平方；逐元数投影把 $Q^2=0$ 与全部高阶相容残差消失接续起来。 & 第~\ref{exp:ch:higher}、\ref{exp:ch:tower}章\\
+$C^-,C^+,\mathbf p,\mathbf r$ & 联合实例中的旧新修复复形及指定方向；同一双曲几何读数进入非零旧障碍与新增填补方向。 & 定义~\ref{hgov:def:joint}、引理~\ref{hgov:lem:jointobstruction}\\
+$m,\zeta_m,\Phi$ & 联合任务的整数参数、残差及势函数；合法单位填补经 $m$ 步命中，并达到该任务的动作数下界。 & 定理~\ref{hgov:thm:joint}\\
+$C_{\rm total}$ & 完整交付成本；分别登记几何、输入、搜索、执行、验证、编码和回读，执行费用下界与其他分项各自计量。 & 推论~\ref{hgov:cor:jointcost}\\
+$N,D,\mathcal K$ & 任务编码、解码器与能力包；$DN=O$ 给出规定观察的回读，正规型还要求精确标识声明的动态等价类。 & 定义~\ref{hgov:def:normalform}、定理~\ref{hgov:thm:nf}\\
+$\widehat F_\ell,\bot$ & 部分后继的带标记全化及无定义状态；观察、可用性和费用分别保留有类型的标记与可判等表。 & 定义~\ref{hgov:def:saturation}\\
+$\mathcal P_n,\sim_n,q_*$ & 有限测试族、逐次分区与稳定商；在显式有限表条件下，稳定商保持全部有限词后的初始观察及合法费用。 & 定义~\ref{hgov:def:saturation}、定理~\ref{hgov:thm:saturation}\\
+$T_n,j_n,\tau_n$ & 法对象更新中的状态迁移、链映射和动作对应；身份、链性、动作前件、旧目标与运行费用分别保存。 & 定义~\ref{hgov:def:migration}\\
+$D_n,r_n$ & 迁移观察的解码及新接受输出的回读；回读只在已登记且逐次核验的接续定义域上调用。 & 定义~\ref{hgov:def:migration}、定理~\ref{exp:gov:migration-composition}\\
+$\Gamma_n,\Delta_n,\Gamma_*$ & 阶段前提账本、新增未解除前提及联合前提集；有限迁移通过前提并集保持条件结论及版本来源。 & 定理~\ref{hgov:thm:migration}、\ref{hgov:thm:main}\\
+$\mathcal R_{\rm old},\mathcal R_{\rm new}$ & 同一任务与约束下的可达集；操作包含给出可达集包含，严格扩张另需旧不可达与新命中的共同见证。 & 推论~\ref{hgov:cor:value}\\
+U01--U09 & 联合验收入口；覆盖类型、复形、交换、几何、障碍、修复、执行、回读及版本运输，各入口的源数据与有效域相容。 & 定理~\ref{hgov:thm:main}及其证书\\
+\end{longtable}
+\endgroup
+
+\chapter{文献使用与正文接口索引}
+\label{app:hgov:coverage}
+
+下表依现有十三项参考文献的编号顺序，列出基础背景、直接使用的结构及其主要正文接口。
+各项假设、具体构造与证明以相应章节为准；完整书目信息、公开来源和本地源文稿定位见参考文献。
+
+\small
+\begin{longtable}{P{0.07\textwidth}P{0.21\textwidth}P{0.22\textwidth}P{0.41\textwidth}}
+\toprule
+文献 & 主题 & 本书位置 & 使用范围与正文接口\\
+\midrule
+\endfirsthead
+\toprule
+文献 & 主题 & 本书位置 & 使用范围与正文接口（续）\\
+\midrule
+\endhead
+\midrule\multicolumn{4}{r}{续下页}\\\endfoot
+\bottomrule\endlastfoot
+\cite{S10} & 同伦同一性、性质集与证书化分层 & 阅读与验证约定 & 作为身份、性质层与证书化对象的基础背景登记；本书的对象类型和原子规则在第~\ref{exp:ch:logic}、\ref{exp:ch:law}章具体给出。\\
+\cite{GFrameworkSynthesis} & G 框架统一结构与任务接口 & 第~\ref{exp:ch:logic}、\ref{exp:ch:law}、\ref{exp:ch:task}、\ref{exp:ch:geometry}、\ref{exp:ch:normalform}、\ref{exp:ch:governance}章 & 法空间、三层联络、任务充分商、正规型与完整成本的综合背景；分别接入本书的语义微分、观察保持和版本迁移。\\
+\cite{S01} & 纯粹数学、法空间与 GZ-GMS & 第~\ref{exp:ch:law}、\ref{exp:ch:geometry}、\ref{exp:ch:hom}、\ref{exp:ch:tower}章 & 对象与规律的共同承载、三层联络及同伦扩张背景；具体采用定义~\ref{hgov:def:law} 的带任务字段和后续分型几何实现。\\
+\cite{S38} & 率与商、严格扇区及任务保持 & 第~\ref{exp:ch:higher}、\ref{exp:ch:task}、\ref{exp:ch:hom}、\ref{exp:ch:tower}、\ref{exp:ch:joint}--\ref{exp:ch:governance}章 & 严格结构与完整高阶呈示、动态任务商、微分交换、棱柱见证、正规型回读、成本及证书迁移。\\
+\cite{ExtHatcher} & 代数拓扑、奇异链与链同伦 & 第~\ref{exp:ch:task}、\ref{exp:ch:transport}、\ref{exp:ch:joint}、\ref{exp:ch:governance}章 & 链边界、光滑奇异链、棱柱恒等式和诱导同调；在联合实例及版本迁移中保存明确的链映射与同伦。\\
+\cite{ExtWeibel} & 同调代数与 Hom 复形 & 第~\ref{exp:ch:hom}、\ref{exp:ch:extension}、\ref{exp:ch:governance}章 & 分次 Hom 微分、核像商、相对复形与正合列；接入接续缺陷、有限修复及同调版本运输。\\
+\cite{ExtStacks} & 链复形、余链复形与同伦 & 第~\ref{exp:ch:hom}、\ref{exp:ch:extension}章 & 复形、链映射与同伦的类型约定；支持 Hom 接续、修复变更复形和相对复形的结构核验。\\
+\cite{ExtLadaMarkl} & 强同伦 Lie 代数 & 第~\ref{exp:ch:higher}、\ref{exp:ch:tower}章 & 高阶运算的次数、洗牌及 Koszul 符号；与悬移余导子的总平方建立逐元数对应。\\
+\cite{ExtKobayashiNomizu} & 主丛、联络与曲率 & 第~\ref{exp:ch:geometry}、\ref{exp:ch:transport}章 & 分型光滑承载、协变外导数、联络拉回、曲率交换与平行运输；用于异构丛之间的几何相容。\\
+\cite{ExtLeeRiemann} & 黎曼几何与 Jacobi 比较 & 第~\ref{exp:ch:geometry}章；第~\ref{exp:ch:joint}章的几何输入 & 曲率约定、测地变分及双曲空间模型；正文据此推导增长、有限夹角分离及任务观察的误差条件。\\
+\cite{ExtBottTu} & 微分形式与代数拓扑接口 & 第~\ref{exp:ch:transport}章 & Stokes 交换、积分余链、平坦子丛、曲率特征形式及联络变形的转移公式。\\
+\cite{S37} & 基础障碍谱系与证书化修复 & 第~\ref{exp:ch:hom}章及后续修复接口 & 障碍类、同伦填补和有限证书的背景；本书分别在第~\ref{exp:ch:extension}、\ref{exp:ch:tower}章展开允许扩张与逐阶闭合。\\
+\cite{S19} & 联络传输、路径编码与正规形 & 第~\ref{exp:ch:normalform}章 & 任务编码、正规型和路径表示的接续背景；本书给出解码纤维判据、有限后继饱和与可执行能力复用。\\
+\end{longtable}
+\normalsize
+
+\clearpage
 \begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{\bibname}
 \small
 \bibitem{S10}高政（GaoZheng）. 同伦同一性、性质集与单子集合论：离散统连续统分层的证书化奠基（工作笔记：形式系统版）. 2026-01-12.
 \newblock 收录于《中文工作笔记》v5.2；文集 DOI：\url{https://doi.org/10.5281/zenodo.22739417}。
