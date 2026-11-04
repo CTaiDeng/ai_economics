@@ -10,3 +10,4 @@ out
 __pycache__/
 *.egg-info/
 artifacts
+tmp

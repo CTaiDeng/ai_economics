@@ -28,7 +28,7 @@
 | `scripts/` | 可复用的环境、规范化与 Git 工具 |
 | `scripts/tests/` | 可重复执行的回归测试 |
 | `scripts/pycache_customize/` | Python 解释器与字节码缓存治理 |
-| `out/` | 缓存、临时脚本及检查输出；按第 8 节区分清理范围 |
+| `out/` | 仓库唯一的缓存与临时产物根目录，保存临时脚本及检查输出；禁止新建或写入仓库根目录的 `tmp/`，并按第 8 节区分清理范围 |
 
 ## 2. 研究文稿与形式系统维护
 
@@ -73,6 +73,7 @@
 - Git `pre-commit` 优先选择 `pwsh.exe` 或 `pwsh`；其 `powershell.exe` 回退入口要求 `run_python_with_config.ps1` 保持 Windows PowerShell 5.1 兼容。修改该启动器时，验证两种解释器及 Python 退出码传递。
 - 路径拼接使用 `Join-Path` 或 `[IO.Path]`；文件操作优先使用 `-LiteralPath`，覆盖空格、中文与特殊字符路径。Windows 路径范围比较使用规范化绝对路径及 `OrdinalIgnoreCase`。
 - 搜索文件或文本优先使用 `rg`；将临时脚本放入 `out/hotfix_scripts/`，持久工具放入 `scripts/`，回归测试放入 `scripts/tests/`。
+- 禁止在仓库根目录新建或写入 `tmp/` 及其任何子目录。凡工具、技能或第三方流程默认要求写入 `tmp/...`，均须重定向到 `out/...`，原则上保留原相对子路径，例如将 `tmp/pdfs/` 改为 `out/pdfs/`；不得为沿用外部默认值而重新创建 `tmp/`。
 - 短任务等待完成并检查退出码。需要后台进程时使用当前工具支持的后台方式，记录自己启动的进程或会话标识，任务结束后回收；不要终止用户原有进程。
 - 后台辅助程序使用隐藏窗口；只有用户需要交互操作时才打开可见窗口。
 - 源文件保持 UTF-8 和 LF，遵循 `.gitattributes`。PDF 等二进制文件保留现有 Git LFS 属性，不对其执行文本编码转换。
@@ -107,6 +108,8 @@
 
 ## 8. 清理与成果保留
 
+- `out/` 是本仓库唯一的临时产物与缓存治理根目录。任务级临时目录应建立在 `out/` 下具有明确用途的子目录中，使用完成后按本节规则清理；不得使用仓库根目录的 `tmp/` 作为中转目录。
+- 若发现遗留的 `tmp/`，先使用 `-Force` 枚举全部内容并检查重解析点，再按其相对于 `tmp/` 的路径迁移到 `out/` 下对应位置。目标不存在时直接迁移；目标已有同名文件时先比较内容，内容相同可保留 `out/` 副本并删除遗留副本，内容不同则停止覆盖并报告冲突。全部内容迁移并核验后删除空的 `tmp/`，且不得重新创建。
 - 修改清理脚本后，先执行 `clean_out_and_pycache.ps1 -DryRun` 核查命中清单。实际清理应属于任务范围；调整保护规则本身不代表要立即删除文件。
 - 按当前脚本保留 `out/pycache/`、`out/write_back/`、`out/adversarial_scripts/` 和 `out/evidence_persistence/`，同时保持 `$outProtectedDirs` 与 `$scanExcludeDirs` 一致。
 - `out/hotfix_scripts/` 可由常规清理删除；需要长期保存的工具应移入 `scripts/`，需要交付的研究文稿放入对应的 `docs/` 目录或按第 9 节存入 `src/markdown/`。
