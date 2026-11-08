@@ -1,6 +1,6 @@
 ## 声明
 
-本目录下所有 HTML 文件均由 **豆包（Doubao）** 基于 `docs\project_docs`,`docs\tex` 源文件内容自动生成，包括但不限于：
+本目录下所有 HTML 文件均由 **AI** 基于 `docs\project_docs`,`docs\tex` 源文件内容自动生成，包括但不限于：
 
 - `g_framework_architecture.html` — G-Framework 分层架构图
 - `g_framework_dual_track.html` — 英文专著与中文率-商形式系统双轨架构图

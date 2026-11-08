@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="一幅贯穿七篇形式系统的制度哲学海报：从参与分配、权利边界与多元评价，到实际兑现、有限修复、共同可行和持续供给。">
+<meta name="author" content="GaoZheng">
+<meta name="color-scheme" content="light">
+<title>从参与分配到可验证服务｜七篇形式系统的制度哲学海报</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23252344%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2219%22%20fill%3D%22none%22%20stroke%3D%22%23ffe9a8%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%227%22%20fill%3D%22%23ffe9a8%22%2F%3E%3C%2Fsvg%3E">
+<style>
+:root {
+  --paper: #f4f1ea;
+  --paper-dark: #e8e0f0;
+  --ink: #243044;
+  --muted: #5d6878;
+  --hair: #dedbd4;
+  --red: #286da0;
+  --blue: #286da0;
+  --green: #2c7956;
+  --orange: #b46924;
+  --purple: #3a2a5e;
+  --gold: #ffe9a8;
+  --radius: 10px;
+  --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --serif: var(--sans);
+  --mono: Consolas, "Courier New", monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; padding: 22px 24px 30px; background: var(--paper); color: var(--ink); font: 14px/1.75 var(--sans); }
+a { color: #245e8b; text-underline-offset: 3px; }
+a:hover { color: #513d76; }
+a:focus-visible, button:focus-visible { outline: 3px solid #b8860b; outline-offset: 4px; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { font: inherit; }
+h1, h2, h3, p, figure, blockquote { margin: 0; }
+h1, h2, h3 { line-height: 1.4; }
+svg { display: block; max-width: 100%; height: auto; }
+.toolbar { max-width: 1400px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: space-between; gap: 20px; color: var(--muted); font-size: 12px; }
+.toolbar-brand { letter-spacing: .04em; }
+.toolbar-links { display: flex; align-items: center; gap: 22px; }
+.toolbar a { text-decoration: none; }
+.print-button { display: flex; align-items: center; gap: 7px; cursor: pointer; color: #245e8b; background: none; border: 0; padding: 4px 0; }
+.print-button:hover { color: #513d76; }
+.print-button svg { width: 16px; height: 16px; }
+.poster { max-width: 1400px; margin: 0 auto; background: transparent; color: var(--ink); }
+.poster::before, .poster::after { display: none; }
+.inside { padding: 0; }
+.masthead { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 0 2px 12px; color: var(--muted); font-size: 11px; }
+.masthead b { font-weight: 500; }
+.masthead span:last-child { font-family: var(--mono); font-size: 10.5px; }
+.folio { display: flex; align-items: center; gap: 8px; }
+.folio::before { content: ""; width: 7px; height: 7px; display: block; border-radius: 50%; background: #674466; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .8fr); gap: 30px; align-items: center; padding: 32px 40px 30px; border-radius: var(--radius); background: linear-gradient(110deg, #1a1a3e, #3a2a5e); box-shadow: 0 3px 12px rgb(26 26 62 / 12%); color: #e3e2f0; }
+.eyebrow { font-size: 12px; letter-spacing: 2px; color: #d1c6e2; margin-bottom: 18px; }
+.hero h1 { font-size: clamp(38px, 4.7vw, 64px); font-weight: 700; line-height: 1.23; letter-spacing: .03em; color: var(--gold); }
+.hero h1 span { display: block; white-space: nowrap; }
+.hero h1 span + span { margin-top: 8px; }
+.hero-subtitle { font-size: 19px; font-weight: 500; letter-spacing: 1px; margin-top: 19px; color: #eeebf6; }
+.hero-lead { max-width: 36em; margin-top: 20px; color: #d0c8df; font-size: 14px; line-height: 1.9; }
+.hero-lead strong { font-weight: 500; color: #fff2ca; }
+.hero-art { max-width: 370px; width: 100%; justify-self: center; }
+.orbit { width: 100%; overflow: visible; }
+.orbit text { font-family: var(--sans); fill: #e3e2f0; }
+.orbit .label { font-size: 17px; font-weight: 700; fill: var(--gold); }
+.orbit .center { font-size: 70px; font-weight: 700; fill: #fff2ca; }
+.orbit .center-note { font-size: 11px; letter-spacing: 3px; fill: #e3e2f0; }
+.orbit [stroke="#1b3035"] { stroke: #b7afcd; }
+.orbit [stroke="#849383"] { stroke: #85799d; }
+.orbit [stroke="#a13d2d"] { stroke: var(--gold); }
+.orbit [fill="#a13d2d"] { fill: #2b5680; }
+.orbit circle[fill="#e7e9df"], .orbit g[fill="#e7e9df"] { fill: #352755; }
+.orbit marker path[fill] { fill: var(--gold); }
+.art-caption { text-align: center; font-size: 11px; letter-spacing: .04em; color: #d1c6e2; margin-top: -8px; }
+.opening { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding: 16px; margin: 16px 0 23px; border: 1px solid var(--hair); border-radius: var(--radius); background: #fffdf9; }
+.opening > div { position: relative; padding: 11px 17px; border-radius: 6px; }
+.opening > div:nth-child(1) { background: #e8e0f0; color: #49365f; }
+.opening > div:nth-child(2) { background: #dce9f3; color: #245575; }
+.opening > div:nth-child(3) { background: #e1eee5; color: #275c41; }
+.opening > div:not(:last-child)::after { content: "→"; position: absolute; right: -17px; top: 21px; font-size: 19px; color: #85818a; }
+.opening small { display: block; font-size: 11px; margin-bottom: 4px; }
+.opening b { display: block; font-size: 16px; font-weight: 700; }
+.section { margin: 24px 0 0; }
+.section-heading { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 12px; align-items: start; margin-bottom: 14px; }
+.section-no { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 6px; background: #252344; color: var(--gold); font: 700 13px Georgia, serif; margin-top: 1px; }
+.section-heading h2 { font-size: 22px; font-weight: 700; color: #282846; }
+.section-heading p { font-size: 12px; line-height: 1.8; color: var(--muted); margin-top: 5px; max-width: 60em; }
+.section-mark { color: #696470; font-size: 11px; white-space: nowrap; padding-top: 8px; }
+.works { overflow: hidden; border: 1px solid var(--hair); border-radius: var(--radius); background: #fffdf9; }
+.work { --work-accent: #286da0; display: grid; grid-template-columns: 38px minmax(0, 1.65fr) minmax(0, 1fr); gap: 18px; align-items: start; padding: 21px 23px; border-left: 4px solid var(--work-accent); border-bottom: 1px solid var(--hair); }
+.work:nth-child(1) { --work-accent: #2c7956; }
+.work:nth-child(2) { --work-accent: #286da0; }
+.work:nth-child(3) { --work-accent: #674466; }
+.work:nth-child(4) { --work-accent: #b46924; }
+.work:nth-child(5) { --work-accent: #966b14; }
+.work:nth-child(6) { --work-accent: #2c7956; }
+.work-number { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 6px; background: #213d60; color: white; font: 700 14px Georgia, serif; margin-top: 2px; }
+.work-heading { min-width: 0; }
+.work-label { display: block; font-size: 11px; font-weight: 500; color: var(--work-accent); margin-bottom: 7px; }
+.work h3 { font-size: 17px; font-weight: 700; line-height: 1.65; overflow-wrap: anywhere; }
+.work h3 a { color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; }
+.work h3 a:hover { color: #245e8b; border-bottom-color: #a6bdce; }
+.work-note { align-self: center; padding-left: 19px; border-left: 1px solid var(--hair); color: var(--muted); font-size: 13px; line-height: 1.85; }
+.work-note b { color: #324860; font-weight: 700; }
+.work:last-child { --work-accent: #286da0; background: #eaf2f8; border-bottom: 0; padding-top: 24px; padding-bottom: 24px; }
+.work:last-child .work-number { background: #252344; color: var(--gold); }
+.inheritance { display: flex; align-items: baseline; gap: 13px; margin-top: 13px; padding: 13px 17px; border: 1px solid #c3d6e6; border-radius: 7px; background: #eaf2f8; color: #225d89; font-size: 12px; line-height: 1.85; }
+.inheritance b { white-space: nowrap; font-weight: 700; }
+.principles { margin-top: 25px; }
+.principle-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.principle { position: relative; min-width: 0; padding: 23px 24px; border-radius: var(--radius); color: #f5f7f3; background: linear-gradient(150deg, #2a6a4a, #1a4a30); overflow: hidden; min-height: 208px; }
+.principle:nth-child(2) { background: linear-gradient(150deg, #966b14, #6d4e0d); }
+.principle:nth-child(3) { background: linear-gradient(150deg, #674466, #482d4b); }
+.principle:nth-child(4) { background: linear-gradient(150deg, #23567d, #1a3a5c); }
+.principle:nth-child(5) { background: linear-gradient(150deg, #484275, #252344); }
+.principle:nth-child(6) { background: linear-gradient(150deg, #2f705c, #204d3e); }
+.principle-index { display: block; color: #f2e1b3; font: 11px/1.6 var(--mono); letter-spacing: .04em; margin-bottom: 13px; }
+.principle h3 { position: relative; z-index: 1; font-size: 20px; font-weight: 700; line-height: 1.5; color: white; margin-bottom: 10px; }
+.principle p { position: relative; z-index: 1; font-size: 13px; color: #e1eadf; line-height: 1.85; }
+.principle strong { color: #fff2ca; font-weight: 700; }
+.principle-glyph { position: absolute; right: 10px; top: 8px; font: 700 110px/1 var(--sans); color: rgb(255 255 255 / 6%); pointer-events: none; }
+.joint { position: relative; padding: 28px 30px; margin: 24px 0; border-radius: var(--radius); background: linear-gradient(110deg, #1a3a5c, #2a5a8c); color: #e0eaf6; }
+.joint::after { display: none; }
+.joint-top { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 34px; align-items: start; }
+.joint-label { color: #c1d5ea; font-size: 11px; letter-spacing: .08em; margin-bottom: 12px; }
+.joint h2 { font-size: 29px; font-weight: 700; line-height: 1.5; color: #fff; }
+.joint h2 em { font-style: normal; color: var(--gold); }
+.joint-desc { max-width: 38em; margin-top: 15px; color: #e0e7f1; font-size: 13px; line-height: 1.9; }
+.witness { border-left: 1px solid #7396b7; padding-left: 26px; }
+.witness p { margin: 0 0 12px; font-size: 13px; line-height: 1.8; }
+.witness b { display: block; color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.witness span { color: #d0dfef; }
+.resource-example { display: grid; grid-template-columns: 1fr auto 1fr; gap: 22px; align-items: center; padding-top: 21px; margin-top: 22px; border-top: 1px solid #7396b7; }
+.budget-label { font-size: 11px; color: #d0dfef; }
+.budget-value { color: #fff2ca; font: 36px/1.4 Georgia, serif; }
+.budget-value small { color: #d0dfef; font: 12px var(--sans); margin-left: 10px; }
+.budget-value.need { color: var(--gold); }
+.resource-example .sign { color: var(--gold); font: 42px Georgia, serif; }
+.example-note { color: #d0dfef; font-size: 11px; margin-top: 10px; line-height: 1.8; }
+.conditions { margin-top: 25px; }
+.condition-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.condition { min-width: 0; border: 1px solid var(--hair); border-radius: var(--radius); background: #fffdf9; padding: 20px; }
+.condition:nth-child(1) { border-color: #c3d6e6; background: #eaf2f8; }
+.condition:nth-child(2) { border-color: #c4dece; background: #eaf3ed; }
+.condition:nth-child(3) { border-color: #e6cfb5; background: #fbf1e5; }
+.condition-label { font-size: 11px; color: #225d89; padding-bottom: 9px; border-bottom: 1px solid #c3d6e6; }
+.condition:nth-child(2) .condition-label { color: #286445; border-color: #c4dece; }
+.condition:nth-child(3) .condition-label { color: #8f531c; border-color: #e6cfb5; }
+.condition h3 { font-size: 19px; font-weight: 700; line-height: 1.55; margin-top: 12px; color: #324860; }
+.condition p { font-size: 12px; line-height: 1.9; color: var(--muted); margin-top: 10px; }
+.condition-visual { height: 155px; display: flex; align-items: center; margin-top: 9px; }
+.condition-visual svg { width: 100%; max-height: 155px; }
+.condition-visual [fill="#e7e9df"] { fill: #fffdf9; }
+.condition-visual [fill="#d2dacb"] { fill: #dce9f3; }
+.condition-visual [stroke="#849383"] { stroke: #a9bdcc; }
+.condition-visual [stroke="#1b3035"] { stroke: #286da0; }
+.condition-visual [stroke="#a13d2d"] { stroke: #b46924; }
+.condition-visual [fill="#1b3035"] { fill: #286da0; }
+.condition-visual [fill="#a13d2d"] { fill: #b46924; }
+.diagram-label { font: 13px var(--sans); fill: var(--ink); }
+.diagram-small { font: 11px var(--sans); fill: var(--muted); }
+.diagram-red { fill: #8f531c; }
+.cost-stack { height: 124px; width: 100%; display: grid; grid-template-rows: repeat(3, 1fr); border: 1px solid #d7c9b5; border-radius: 6px; overflow: hidden; background: #fffdf9; }
+.cost-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 11px; font-size: 11px; border-bottom: 1px solid #e6cfb5; }
+.cost-line:last-child { border: 0; background: #1a3a5c; color: #fff2ca; }
+.cost-line span:last-child { font-size: 11px; }
+.closing { margin-top: 24px; padding: 27px 30px 0; border: 1px solid var(--hair); border-radius: var(--radius); background: #fffdf9; }
+.closing-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 25px; align-items: center; }
+.closing blockquote { font-size: 29px; font-weight: 700; line-height: 1.55; color: #282846; }
+.closing blockquote span { color: #286da0; }
+.seal { width: 118px; height: 102px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 1px solid #e4d0a8; border-radius: var(--radius); background: #fcf4e6; color: #795719; }
+.seal small { font-size: 10px; letter-spacing: .03em; white-space: nowrap; }
+.seal b { font-size: 22px; font-weight: 700; line-height: 1.55; }
+.closing-summary { max-width: 64em; color: var(--muted); font-size: 13px; line-height: 1.9; margin-top: 18px; }
+.scope { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 20px; padding: 15px; border: 1px solid #e4d0a8; border-radius: 7px; background: #fcf4e6; }
+.scope > div { padding: 2px 9px; }
+.scope b { display: block; color: #72521b; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.scope span { display: block; color: #675942; font-size: 11px; line-height: 1.8; }
+.footer { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 25px; align-items: end; margin-top: 20px; padding: 19px 2px 6px; border-top: 1px solid #d8d3ca; }
+.footer-title { color: var(--muted); font-size: 12px; line-height: 1.8; }
+.footer p { margin-top: 7px; font-size: 10px; color: #696470; }
+.footer-links { text-align: right; font-size: 12px; line-height: 2.2; }
+.footer-links a { text-decoration: none; border-bottom: 1px solid #c3d6e6; }
+.footer-links a:hover { color: #513d76; }
+.footer .license { color: #696470; font-size: 10px; border: 0; }
+@media (max-width: 1050px) {
+  .hero { padding: 28px 30px; gap: 23px; }
+  .hero h1 { font-size: clamp(37px, 4.9vw, 52px); }
+  .hero-subtitle { font-size: 17px; }
+  .work { grid-template-columns: 35px minmax(0, 1.55fr) minmax(0, 1fr); gap: 14px; padding: 20px; }
+  .work h3 { font-size: 16px; }
+  .work-note { font-size: 12px; padding-left: 15px; }
+  .principle { padding: 21px; min-height: 230px; }
+  .principle h3 { font-size: 18px; }
+  .condition { padding: 16px; }
+  .condition h3 { font-size: 18px; }
+}
+@media (max-width: 900px) {
+  body { padding: 18px 16px 24px; }
+  .hero { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); }
+  .hero h1 { font-size: 38px; }
+  .hero-lead { font-size: 13px; }
+  .principle-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .principle { min-height: 205px; }
+  .joint { padding: 23px; }
+  .joint h2 { font-size: 26px; }
+  .joint-top { gap: 23px; }
+  .condition-grid { grid-template-columns: 1fr; gap: 12px; }
+  .condition { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; padding: 19px 22px; }
+  .condition-label, .condition h3 { grid-column: 1 / -1; }
+  .condition p { align-self: center; font-size: 13px; }
+  .closing { padding: 24px 24px 0; }
+  .closing blockquote { font-size: 26px; }
+}
+@media (max-width: 680px) {
+  .hero { grid-template-columns: 1fr; gap: 8px; padding: 25px; }
+  .hero h1 { font-size: clamp(35px, 8vw, 49px); }
+  .hero-subtitle { font-size: 18px; }
+  .hero-lead { max-width: 45em; }
+  .hero-art { max-width: 300px; }
+  .eyebrow { font-size: 11px; margin-bottom: 15px; }
+  .opening { gap: 10px; padding: 12px; }
+  .opening > div { padding: 10px; }
+  .opening b { font-size: 13px; }
+  .opening > div::after { display: none; }
+  .section-heading { grid-template-columns: 30px minmax(0, 1fr); gap: 10px; }
+  .section-heading h2 { font-size: 20px; }
+  .section-mark { display: none; }
+  .work { grid-template-columns: 32px minmax(0, 1fr); gap: 6px 13px; padding: 18px 17px; }
+  .work-number { grid-row: 1 / 3; }
+  .work-note { grid-column: 2; border-left: 0; border-top: 1px solid #dedbd488; padding: 10px 0 0; margin-top: 3px; }
+  .work:last-child { padding-top: 20px; padding-bottom: 20px; }
+  .joint-top { grid-template-columns: 1fr; }
+  .witness { padding: 17px 0 0; border-left: 0; border-top: 1px solid #7396b7; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 17px; }
+  .witness p { margin: 0; font-size: 12px; }
+  .witness b { font-size: 14px; }
+  .scope { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 10px; }
+  .footer { grid-template-columns: 1fr; gap: 10px; }
+  .footer-links { text-align: left; display: flex; flex-wrap: wrap; gap: 4px 20px; }
+}
+@media (max-width: 480px) {
+  body { padding: 12px 10px 20px; }
+  .toolbar { gap: 10px; font-size: 11px; margin-bottom: 10px; }
+  .toolbar-links { gap: 14px; }
+  .masthead { font-size: 10px; gap: 10px; }
+  .masthead span:last-child { font-size: 9px; }
+  .hero { padding: 23px 19px; }
+  .hero h1 { font-size: 38px; letter-spacing: .015em; }
+  .hero-subtitle { font-size: 16px; letter-spacing: .03em; margin-top: 16px; }
+  .hero-lead { margin-top: 15px; font-size: 12px; }
+  .hero-art { max-width: 285px; }
+  .art-caption { font-size: 10px; }
+  .opening { grid-template-columns: 1fr; gap: 9px; margin-bottom: 20px; }
+  .opening > div { display: flex; gap: 14px; align-items: baseline; padding: 10px 13px; }
+  .opening small { margin: 0; width: 32px; flex: none; }
+  .opening b { font-size: 14px; }
+  .section-heading h2 { font-size: 19px; }
+  .section-heading p { font-size: 11px; }
+  .work { grid-template-columns: 28px minmax(0, 1fr); padding: 17px 13px; gap: 6px 11px; }
+  .work-number { width: 27px; height: 27px; font-size: 12px; }
+  .work h3 { font-size: 15px; line-height: 1.8; }
+  .work-label { font-size: 10px; }
+  .work-note { font-size: 12px; }
+  .inheritance { align-items: start; gap: 11px; padding: 12px 14px; font-size: 11px; }
+  .principle-grid { grid-template-columns: 1fr; gap: 10px; }
+  .principle { min-height: 0; padding: 22px; }
+  .principle h3 { font-size: 20px; }
+  .principle p { font-size: 13px; }
+  .joint { padding: 22px 19px; }
+  .joint h2 { font-size: 25px; }
+  .joint-desc { font-size: 12px; }
+  .witness { grid-template-columns: 1fr; }
+  .resource-example { gap: 12px; }
+  .budget-value { font-size: 28px; }
+  .budget-value small { display: block; margin: 2px 0 0; font-size: 10px; }
+  .budget-label { font-size: 10px; }
+  .resource-example .sign { font-size: 32px; }
+  .example-note { font-size: 10px; }
+  .condition { grid-template-columns: 1fr; padding: 19px; }
+  .condition h3 { font-size: 20px; }
+  .condition-visual { width: 100%; max-width: 280px; margin: 10px auto 0; height: 145px; }
+  .condition p { margin-top: 3px; font-size: 12px; }
+  .closing { padding: 22px 19px 0; }
+  .closing-top { grid-template-columns: 1fr; gap: 18px; }
+  .closing blockquote { font-size: 25px; }
+  .closing-summary { font-size: 12px; }
+  .seal { justify-self: end; width: 108px; height: 94px; }
+  .seal b { font-size: 20px; }
+  .seal small { font-size: 9px; }
+  .scope { padding: 12px 9px; }
+  .scope > div { padding: 2px 4px; }
+  .scope b { font-size: 13px; }
+  .scope span { font-size: 10px; }
+  .footer-title { font-size: 11px; }
+  .footer-links { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@page { size: A3 portrait; margin: 12mm; }
+@media print {
+  body { padding: 0; background: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .toolbar { display: none; }
+  .poster { max-width: none; }
+  .hero { box-shadow: none; }
+  .work, .principle, .condition, .joint, .closing-top, .scope, .footer { break-inside: avoid; }
+  .section-heading { break-after: avoid; }
+  .footer { padding-bottom: 10mm; }
+}
+</style>
+</head>
+<body>
+<nav class="toolbar" aria-label="海报阅读工具">
+  <span class="toolbar-brand">GaoZheng · 制度哲学</span>
+  <div class="toolbar-links">
+    <a href="../../../src/markdown/1794164709217_从参与分配到可验证服务：贯穿tex1—tex7的制度哲学论述.md">阅读原文 ↗</a>
+    <button class="print-button" id="print-poster" type="button"><svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M5 7V2h10v5M5 14H2V7h16v7h-3M5 11h10v7H5z"/><path d="M14 9h2"/></svg>打印</button>
+  </div>
+</nav>
+<main class="poster" id="poster">
+<div class="inside">
+  <header class="masthead">
+    <b class="folio">制度哲学 · 贯穿地图</b>
+    <span>七篇研究 / 十三节论述 / 2026.11</span>
+  </header>
+
+  <section class="hero" aria-labelledby="poster-title">
+    <div>
+      <p class="eyebrow">参与 · 权利 · 实践 · 共同生活</p>
+      <h1 id="poster-title"><span>从参与分配</span><span>到可验证服务</span></h1>
+      <p class="hero-subtitle">七篇形式系统的制度哲学</p>
+      <p class="hero-lead">技术扩展了社会的可能性。<strong>公开的规则、可执行的权利与有资源支持的组织关系</strong>，使这些可能性进入具体人的生活。</p>
+    </div>
+    <figure class="hero-art">
+      <svg class="orbit" viewBox="0 0 420 420" role="img" aria-labelledby="orbit-title orbit-desc">
+        <title id="orbit-title">以人为目的的六重制度关系</title>
+        <desc id="orbit-desc">人的主体地位居于中心，目的、权利、行动、兑现、修复和供给构成相互支持的制度关系。</desc>
+        <defs><marker id="orbit-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10" fill="#a13d2d"/></marker></defs>
+        <circle cx="210" cy="210" r="145" fill="none" stroke="#1b3035" stroke-width=".8"/>
+        <circle cx="210" cy="210" r="126" fill="none" stroke="#849383" stroke-width=".7" stroke-dasharray="2 7"/>
+        <circle cx="210" cy="210" r="87" fill="none" stroke="#849383" stroke-width=".8"/>
+        <path d="M210 65V123M336 137 285 166M336 283 285 254M210 355V297M84 283 135 254M84 137 135 166" fill="none" stroke="#849383" stroke-width=".8"/>
+        <path d="M86 285A145 145 0 0 0 329 293" fill="none" stroke="#a13d2d" stroke-width="2" marker-end="url(#orbit-arrow)"/>
+        <circle cx="210" cy="210" r="69" fill="#a13d2d"/>
+        <text class="center" x="210" y="220" text-anchor="middle">人</text>
+        <text class="center-note" x="212" y="249" text-anchor="middle">生活的主体</text>
+        <g fill="#e7e9df" stroke="#1b3035" stroke-width="1"><circle cx="210" cy="65" r="7"/><circle cx="336" cy="137" r="7"/><circle cx="336" cy="283" r="7"/><circle cx="210" cy="355" r="7"/><circle cx="84" cy="283" r="7"/><circle cx="84" cy="137" r="7"/></g>
+        <text class="label" x="210" y="38" text-anchor="middle">目的</text>
+        <text class="label" x="361" y="141">权利</text>
+        <text class="label" x="361" y="289">行动</text>
+        <text class="label" x="210" y="389" text-anchor="middle">兑现</text>
+        <text class="label" x="59" y="289" text-anchor="end">修复</text>
+        <text class="label" x="59" y="141" text-anchor="end">供给</text>
+        <path d="M198 210h24M210 198v24" stroke="#e7e9df" stroke-width=".5" opacity=".22"/>
+      </svg>
+      <figcaption class="art-caption">以人的目的，连接制度的各个环节</figcaption>
+    </figure>
+  </section>
+
+  <div class="opening" aria-label="贯穿全文的三个问题">
+    <div><small>目的</small><b>何种生活值得保护</b></div>
+    <div><small>根据</small><b>权利凭什么成立</b></div>
+    <div><small>实现</small><b>承诺怎样持续兑现</b></div>
+  </div>
+
+  <section class="section" aria-labelledby="works-heading">
+    <div class="section-heading">
+      <span class="section-no" aria-hidden="true">一</span>
+      <div><h2 id="works-heading">七篇研究，如何相互接续</h2><p>分配确定目标，治理连接兑现；权利与多元评价划定边界，修复与保持支持共同实现。</p></div>
+      <span class="section-mark">继承 · 贯通 · 扩展</span>
+    </div>
+    <div class="works">
+      <article class="work" id="work-1">
+        <span class="work-number" aria-hidden="true">01</span>
+        <div class="work-heading"><span class="work-label">分配的功能目标</span><h3><a href="../../tex/tex1/market_participation_formal_system.tex">《市场参与的形式系统：参与式分配、能者多得与最小救济的演化机制》</a></h3></div>
+        <p class="work-note"><b>参与、贡献、底线各有职责。</b>正基本份额承认有效参与，差异份额承认贡献，最小救济维持生存与真实接入。</p>
+      </article>
+      <article class="work" id="work-2">
+        <span class="work-number" aria-hidden="true">02</span>
+        <div class="work-heading"><span class="work-label">承诺的传导与治理</span><h3><a href="../../tex/tex2/market_participation_governance_supplement.tex">《后 AI 转型中的分配传导失灵与可核验治理：参与式分配、贡献激励、真实退出与最小救济的条件性扩展》</a></h3></div>
+        <p class="work-note"><b>让贡献穿过组织中介。</b>追踪核验、确权、实付与可保留收入，分别检查纠错激励、责任执行和真实退出。</p>
+      </article>
+      <article class="work" id="work-3">
+        <span class="work-number" aria-hidden="true">03</span>
+        <div class="work-heading"><span class="work-label">主体自由与有界权力</span><h3><a href="../../tex/tex3/preference_rights_institution_formal_system.tex">《偏好多样性、权利边界与可兑现分配：不依赖控制者个人善意的市场参与制度及其条件性证明》</a></h3></div>
+        <p class="work-note"><b>使权利具有结构保障。</b>偏好可以多样，既得债权、独立复核和实际备选需要由权限、资金与执行条件支持。</p>
+      </article>
+      <article class="work" id="work-4">
+        <span class="work-number" aria-hidden="true">04</span>
+        <div class="work-heading"><span class="work-label">共同保护与多元尺度</span><h3><a href="../../tex/tex4/normative_competition_plural_standards_formal_system.tex">《规范竞技、多元评价与共同权利底线：后 AI 参与经济的条件性制度构造与证明》</a></h3></div>
+        <p class="work-note"><b>在不同任务中承认差异。</b>评价标准依任务确定，基本生活、既得收益和真实接入的保护跨越单次胜负。</p>
+      </article>
+      <article class="work" id="work-5">
+        <span class="work-number" aria-hidden="true">05</span>
+        <div class="work-heading"><span class="work-label">有限实现与完整观察</span><h3><a href="../../tex/tex5/production_conditions_finite_repair_formal_system.tex">《生产条件重构与有限工程修复的形式系统：分配复形、共同安全核心与理想吸收的相对同调》</a></h3></div>
+        <p class="work-note"><b>为完成判断保留完整义务。</b>区分原作用域中的障碍、理想完成与有限兑现；观察范围和任务判据共同约束验收。</p>
+      </article>
+      <article class="work" id="work-6">
+        <span class="work-number" aria-hidden="true">06</span>
+        <div class="work-heading"><span class="work-label">真实资格与合法连续性</span><h3><a href="../../tex/tex6/human_participation_anticheat_minimal_repair_formal_system.tex">《防作弊约束下的可循环参与经济：人类资格保护、最小制度修复与三角洲行动的同调见证》</a></h3></div>
+        <p class="work-note"><b>修复错误，接续合法参与。</b>以真实分型和任务充分表示保持资格，以逐人账本、合法修复与可接续路径保护循环。</p>
+      </article>
+      <article class="work" id="work-7">
+        <span class="work-number" aria-hidden="true">07</span>
+        <div class="work-heading"><span class="work-label">部署、权利与持续供给的联合实现</span><h3><a href="../../tex/tex7/verifiable_automation_governance_formal_system.tex">《可验证自动化的用途治理与劳动收入及服务市场：任务充分表示、公共探索与可执行制度修复——条件性经济模型与形式证明》</a></h3></div>
+        <p class="work-note"><b>将更多条件放进同一实施安排。</b>连接用途许可、公共签发、劳动收入、按需探索、标准服务和完整成本，在共同资源中核验相容性。</p>
+      </article>
+    </div>
+    <p class="inheritance"><b>贯穿关系</b><span>前六篇已形成任务商、有限归纳、权利账本、同调修复与共同构造；后续综合在保留相应前提的基础上扩展任务范围。</span></p>
+  </section>
+
+  <section class="section principles" aria-labelledby="principles-heading">
+    <div class="section-heading"><span class="section-no" aria-hidden="true">二</span><div><h2 id="principles-heading">六条原则，贯穿制度构造</h2><p>把人的目的、权利的根据与行动的后果，放在可以相互检验的关系之中。</p></div></div>
+    <div class="principle-grid">
+      <article class="principle"><span class="principle-glyph" aria-hidden="true">人</span><span class="principle-index">01 / 目的</span><h3>以人的主体地位确定目的</h3><p>保护参与、贡献承认、生存接入与生活选择；技术、计量和治理工具，依其对这些目的及声明任务的支持接受评价。</p></article>
+      <article class="principle"><span class="principle-glyph" aria-hidden="true">域</span><span class="principle-index">02 / 分域</span><h3>平等与差异各有所据</h3><p>共同权利保护基本接入，贡献规则用于相应劳动，按需规则用于已声明的探索服务。<strong>不同权利保留不同的成立根据。</strong></p></article>
+      <article class="principle"><span class="principle-glyph" aria-hidden="true">权</span><span class="principle-index">03 / 自由</span><h3>选择需要真实可达的入口</h3><p>自愿进入、真实退出和提出复核，都需要资金、时间、备选与独立程序。主体自由通过这些实际条件获得支撑。</p></article>
+      <article class="principle"><span class="principle-glyph" aria-hidden="true">行</span><span class="principle-index">04 / 实践</span><h3>权利经由实际行动兑现</h3><p>从登记、授权到提交、交付和结算，逐步说明改变了什么、保留什么、由谁负责；在错误中保有复核与修复路径。</p></article>
+      <article class="principle"><span class="principle-glyph" aria-hidden="true">合</span><span class="principle-index">05 / 整体</span><h3>整体成立要求共同条件</h3><p>每一环节的可行安排，还须在<strong>同一主体、时间与资源口径</strong>下共同实现。对整体的承诺，需要一个共同见证。</p></article>
+      <article class="principle"><span class="principle-glyph" aria-hidden="true">续</span><span class="principle-index">06 / 再生产</span><h3>权利与供给共同延续</h3><p>保障劳动收入与探索机会，同时检查真实需求、完整成本、到期现金和维护能力，使制度具备继续运行的条件。</p></article>
+    </div>
+  </section>
+
+  <section class="joint" aria-labelledby="joint-heading">
+    <div class="joint-top">
+      <div><p class="joint-label">贯穿七篇的整合责任</p><h2 id="joint-heading">把共同承诺，<br>放进<em>同一份安排</em></h2><p class="joint-desc">各环节分别有方案之后，继续核验它们是否相容：同一笔钱、设备、人员和时段，能否支持全部已经作出的承诺。</p></div>
+      <div class="witness"><p><b>同一套主体与规则</b><span>身份、既有权利、期间与版本连续。</span></p><p><b>同一套资金与资源</b><span>支付、设备、人员和时间没有冲突或重复承诺。</span></p><p><b>同一条实际执行路径</b><span>准入、交付、修复和再参与能够接续。</span></p></div>
+    </div>
+    <div class="resource-example" aria-label="逻辑示例：可用预算100，两项各需80的承诺合计需要160，不能同时由这100单位预算履行">
+      <div><p class="budget-label">同一时段可用预算</p><p class="budget-value">100<small>单位资源</small></p></div>
+      <span class="sign" aria-hidden="true">&lt;</span>
+      <div><p class="budget-label">两项独立承诺共同需要</p><p class="budget-value need">80 + 80<small>共需160单位</small></p></div>
+    </div>
+    <p class="example-note">构造示例：假定没有其他融资来源。数值用于说明共同资源的逻辑作用。</p>
+  </section>
+
+  <section class="section conditions" aria-labelledby="conditions-heading">
+    <div class="section-heading"><span class="section-no" aria-hidden="true">三</span><div><h2 id="conditions-heading">三种责任，使原则落入现实</h2><p>看见完整义务，说明合法改变，维持实现能力。</p></div></div>
+    <div class="condition-grid">
+      <article class="condition">
+        <p class="condition-label">完整观察 / 有限性</p><h3>验收要覆盖完整义务</h3>
+        <div class="condition-visual"><svg viewBox="0 0 300 145" role="img" aria-label="前部已观察通过，尾部仍存在待履行义务，完整任务必须保留两部分"><rect x="9" y="39" width="187" height="48" fill="#d2dacb" stroke="#849383"/><rect x="196" y="39" width="94" height="48" fill="none" stroke="#a13d2d" stroke-width="1.5"/><path d="M21 66l8 8 15-22M71 66l8 8 15-22M121 66l8 8 15-22" fill="none" stroke="#53635d" stroke-width="1.6"/><text class="diagram-label" x="103" y="112" text-anchor="middle">局部读出通过</text><text class="diagram-label diagram-red" x="243" y="68" text-anchor="middle">待履行</text><path d="M9 27v-9h281v9" fill="none" stroke="#1b3035" stroke-width="1"/><text class="diagram-small" x="150" y="139" text-anchor="middle">完整任务保留尾部义务</text></svg></div>
+        <p>观察范围、作用范围和完成判据共同约束验收。结果相同的事件，也可能具有不同的资格、退款或支付义务。</p>
+      </article>
+      <article class="condition">
+        <p class="condition-label">合法改变 / 修复性</p><h3>修复错误，保持合法关系</h3>
+        <div class="condition-visual"><svg viewBox="0 0 300 145" role="img" aria-label="合法参与循环持续，旁侧追回与补付路径修复指定缺陷"><defs><marker id="repair-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 10 5 0 10" fill="#1b3035"/></marker><marker id="repair-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0 10 5 0 10" fill="#a13d2d"/></marker></defs><path d="M79 25h72v72H79z" fill="none" stroke="#1b3035" stroke-width="1.3"/><path d="M89 25h42M151 36v42M140 97H98M79 86V45" fill="none" stroke="#1b3035" stroke-width="1.3" marker-end="url(#repair-arrow)"/><g fill="#e7e9df" stroke="#1b3035"><circle cx="79" cy="25" r="5"/><circle cx="151" cy="25" r="5"/><circle cx="151" cy="97" r="5"/><circle cx="79" cy="97" r="5"/></g><path d="M156 97h91V31h-71" fill="none" stroke="#a13d2d" stroke-width="1.8" marker-end="url(#repair-red)"/><text class="diagram-small" x="115" y="65" text-anchor="middle">合法循环</text><text class="diagram-label diagram-red" x="237" y="17" text-anchor="middle">追回 · 补付</text><text class="diagram-small" x="150" y="139" text-anchor="middle">结构保持与实际路径分别验收</text></svg></div>
+        <p>新增修复方向须有权限、资金、次序与期限；逐人债权、合法活动和后续接入，继续承担各自的保持义务。</p>
+      </article>
+      <article class="condition">
+        <p class="condition-label">持续实现 / 再生产</p><h3>承诺要有供给能力支持</h3>
+        <div class="condition-visual"><div class="cost-stack" aria-label="持续供给需要完整成本、现金前缀和实际交付同时成立"><div class="cost-line"><span>完整成本</span><span>覆盖维护与资源</span></div><div class="cost-line"><span>到期现金</span><span>每个时点可付款</span></div><div class="cost-line"><span>实际交付</span><span>服务能够持续</span></div></div></div>
+        <p>复用节约需要计入适配与共同费用；公共购买、个人补助和服务商收入按唯一交易归属核算，避免重复计量。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="closing" aria-label="制度哲学的贯穿结论">
+    <div class="closing-top"><blockquote>让技术的可能性，<br><span>进入人的真实生活。</span></blockquote><div class="seal" aria-label="制度哲学，条件下共同实现"><small>制度哲学</small><b>共同实现</b><small>条件·责任·实践</small></div></div>
+    <p class="closing-summary">以公开规则连接能力与权利，以真实履约、合法修复与持续供给支撑共同生活。讨论范围保留在各文稿声明的任务、资源与期限之内。</p>
+    <div class="scope" aria-label="四种各有职责的论证层次"><div><b>规范目标</b><span>公开说明保护什么</span></div><div><b>形式推导</b><span>在完整前件下建立关系</span></div><div><b>实际执行</b><span>检查权限、资金与交付</span></div><div><b>经验验收</b><span>以真实证据检验适用性</span></div></div>
+  </section>
+
+  <footer class="footer">
+    <div><p class="footer-title">从参与分配到可验证服务<br>七篇形式系统的制度哲学论述 · 图解海报</p><p>GaoZheng　／　2026-11-09　／　第一版</p></div>
+    <div class="footer-links"><a href="../../../src/markdown/1794164709217_从参与分配到可验证服务：贯穿tex1—tex7的制度哲学论述.md">阅读完整论述 ↗</a><br><a class="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh-Hans">© 2026 GaoZheng · CC BY-NC-ND 4.0</a></div>
+  </footer>
+</div>
+</main>
+<script>
+document.getElementById('print-poster').addEventListener('click',function(){window.print();});
+</script>
+</body>
+</html>

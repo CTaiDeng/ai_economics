@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>可验证自动化治理 通俗综述 制度验收图纸</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23252344%22%2F%3E%3Cpath%20d%3D%22M32%2010%2049%2017v16c0%2011-17%2021-17%2021S15%2044%2015%2033V17Z%22%20fill%3D%22%233a2a5e%22%20stroke%3D%22%23ffe9a8%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22m23%2031%206%206%2013-14%22%20fill%3D%22none%22%20stroke%3D%22%23ffe9a8%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E">
+<style>
+:root {
+  --paper: #f4f1ea;
+  --paper-2: #eaf2f8;
+  --ink: #243044;
+  --ink-2: #5d6878;
+  --muted: #5d6878;
+  --hair: #dedbd4;
+  --stamp: #b46924;
+  --blue: #286da0;
+  --green: #2c7956;
+  --orange: #b46924;
+  --gold: #ffe9a8;
+  --radius: 10px;
+  --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --serif: var(--sans);
+  --mono: Consolas, "Courier New", monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.75 var(--sans); }
+a { color: #245e8b; text-underline-offset: 3px; }
+a:hover { color: #513d76; }
+a:focus-visible { outline: 3px solid #b8860b; outline-offset: 4px; }
+h1, h2, h3, h4, p, figure { margin: 0; }
+h1, h2, h3, h4 { line-height: 1.4; }
+svg { display: block; max-width: 100%; height: auto; }
+.sheet { max-width: 1400px; margin: 0 auto; padding: 26px 24px 30px; }
+.frame, .sheet::before, .sheet::after { display: none; }
+.rail { text-align: right; color: var(--muted); font-size: 11px; letter-spacing: .06em; margin-bottom: 9px; }
+.inner { padding: 0; }
+.topline { display: flex; justify-content: space-between; align-items: baseline; gap: 15px; color: var(--muted); font-size: 12px; margin-bottom: 12px; }
+.topline span:last-child { text-align: right; }
+.hero { padding: 27px 32px 25px; border-radius: var(--radius); background: linear-gradient(110deg, #1a1a3e, #3a2a5e); box-shadow: 0 3px 12px rgb(26 26 62 / 12%); color: #e3e2f0; text-align: center; }
+.hero h1 { color: var(--gold); font-size: clamp(27px, 3.4vw, 44px); font-weight: 700; letter-spacing: 1px; line-height: 1.4; }
+.hero h1 br { display: none; }
+.hero h2 { color: #e3e2f0; font-size: 17px; font-weight: 500; letter-spacing: 1px; margin-top: 10px; }
+.hero-lead { max-width: 78em; margin: 21px auto 0; color: #d0c8df; font-size: 14px; line-height: 1.95; text-align: left; }
+.hero-lead strong { color: #fff2ca; font-weight: 700; }
+.hero-side { display: grid; grid-template-columns: minmax(0, 1fr) 108px; gap: 20px; align-items: center; margin-top: 21px; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / 20%); }
+.brief { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; list-style: none; padding: 0; margin: 0; text-align: left; }
+.brief li { padding: 13px 14px; border: 1px solid #827997; border-radius: 6px; background: rgb(255 255 255 / 7%); font-size: 12px; line-height: 1.85; }
+.brief li i { display: inline-block; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: var(--gold); }
+.brief li b { color: #fff2ca; font-weight: 700; }
+.seal { width: 108px; min-height: 104px; padding: 12px 7px; border: 1px solid #dbc491; border-radius: 8px; background: rgb(255 233 168 / 9%); color: var(--gold); display: grid; align-content: center; gap: 6px; text-align: center; }
+.seal s { font-size: 10px; text-decoration: none; }
+.seal u { font-size: 22px; font-weight: 700; line-height: 1.4; text-decoration: none; white-space: nowrap; }
+.seal em { font-size: 10px; font-style: normal; color: #e5d9be; }
+.plate { margin-top: 23px; }
+.plate-head { display: flex; align-items: flex-start; gap: 11px; margin-bottom: 13px; }
+.plate-num { flex: 0 0 30px; display: grid; place-items: center; height: 30px; margin-top: 1px; border-radius: 6px; background: #252344; color: var(--gold); font: 700 13px Georgia, serif; }
+.plate-title { font-size: 21px; font-weight: 700; color: #282846; line-height: 1.5; }
+.plate-kicker { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.plate-body { border: 1px solid var(--hair); border-radius: var(--radius); background: #fffdf9; padding: 22px; }
+.neq-row { display: grid; grid-template-columns: minmax(0, 1fr) 54px minmax(0, 1fr); align-items: center; gap: 5px; padding: 17px 20px; margin-top: 12px; border: 1px solid #c3d6e6; border-radius: 7px; background: #eaf2f8; }
+.neq-row:first-child { margin-top: 0; }
+.neq-row:nth-child(2) { border-color: #c4dece; background: #eaf3ed; }
+.neq-row:nth-child(3) { border-color: #e6cfb5; background: #fbf1e5; }
+.neq-row:nth-child(4) { border-color: #d9cee3; background: #efebf4; }
+.neq-k { min-width: 0; font-size: 19px; font-weight: 700; line-height: 1.5; }
+.neq-k small { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; font-weight: 400; line-height: 1.75; }
+.neq-mark { color: #b46924; text-align: center; font: 34px/1 Georgia, serif; }
+.neq-note { grid-column: 1 / -1; color: var(--muted); margin-top: 10px; font-size: 13px; line-height: 1.9; }
+.neq-note b { color: #324860; font-weight: 700; }
+.lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.lane { padding: 20px; border: 1px solid #c4dece; border-radius: 7px; background: #eaf3ed; color: #286445; }
+.lane.hatch { border-color: #e6cfb5; background: #fbf1e5; color: #8f531c; }
+.lane-tag { display: inline-block; font-size: 11px; font-weight: 700; border: 1px solid currentColor; border-radius: 4px; padding: 1px 9px; margin-bottom: 10px; }
+.lane h3 { font-size: 19px; font-weight: 700; margin-bottom: 9px; }
+.lane p { font-size: 13px; line-height: 1.9; }
+.gates { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.gate { min-width: 0; border: 1px solid #c3d6e6; border-radius: 7px; background: #eaf2f8; padding: 17px 16px; }
+.gate:nth-child(4) { background: #eaf3ed; border-color: #c4dece; }
+.gate-id { font: 11px var(--mono); color: #596d81; }
+.gate h4 { font-size: 17px; font-weight: 700; margin: 7px 0 9px; }
+.gate p { color: var(--muted); font-size: 12px; line-height: 1.85; }
+.gate-mark { display: inline-block; font-size: 10px; color: #795719; background: #fcf4e6; border: 1px solid #e4d0a8; border-radius: 4px; padding: 2px 7px; margin-top: 12px; }
+.strip { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 15px; align-items: start; margin-top: 18px; padding: 15px 18px; border: 1px solid #e4d0a8; border-radius: 7px; background: #fcf4e6; }
+.strip-tag { white-space: nowrap; color: #795719; font-size: 12px; font-weight: 700; padding-top: 2px; }
+.strip p { font-size: 13px; line-height: 1.9; color: #675942; }
+.strip b { font-weight: 700; color: #72521b; }
+.layers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.layer { min-width: 0; padding: 21px 22px; border-radius: var(--radius); color: #f5f7f3; background: linear-gradient(150deg, #2a6a4a, #1a4a30); }
+.layer:nth-child(2) { background: linear-gradient(150deg, #966b14, #6d4e0d); }
+.layer:nth-child(3) { background: linear-gradient(150deg, #674466, #482d4b); }
+.layer-label { color: #f2e1b3; font-size: 12px; letter-spacing: 1px; margin-bottom: 9px; }
+.layer-body h4 { font-size: 21px; color: white; font-weight: 700; margin-bottom: 11px; }
+.layer-body p { color: #e1eadf; font-size: 13px; line-height: 1.9; }
+.alloc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.alloc-card { min-width: 0; padding: 20px 22px; border: 1px solid #c3d6e6; border-radius: 7px; background: #eaf2f8; }
+.alloc-card:last-child { background: #eaf3ed; border-color: #c4dece; }
+.alloc-card h4 { color: #245575; font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.alloc-card:last-child h4 { color: #286445; }
+.alloc-card p { color: var(--muted); font-size: 13px; line-height: 1.9; }
+.formula { font-family: Georgia, "Times New Roman", "Microsoft YaHei", serif; background: #fffdf9; color: #225d89; border-radius: 5px; padding: 11px 13px; margin: 14px 0; font-size: 18px; line-height: 1.8; overflow-wrap: anywhere; }
+.formula span { font-size: .75em; color: var(--muted); }
+.chance { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; margin: 16px 0; }
+.chance b { font: 700 23px Georgia, serif; color: #286445; }
+.chance span { color: var(--muted); font-size: 11px; }
+.fixfig { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 25px; align-items: center; }
+.fixfig svg { width: 100%; height: auto; }
+.fixfig svg text { font-family: var(--sans); }
+.fixfig [stroke="#16242E"] { stroke: #286da0; }
+.fixfig [stroke="#43555F"] { stroke: #8192a4; }
+.fixfig [stroke="#A5372A"] { stroke: #b46924; }
+.fixfig [fill="#E4E6DE"] { fill: #fffdf9; }
+.fixfig [fill="#16242E"] { fill: #243044; }
+.fixfig [fill="#43555F"] { fill: #5d6878; }
+.fixfig [fill="#A5372A"] { fill: #8f531c; }
+.fix-legend { color: var(--muted); font-size: 13px; line-height: 1.9; }
+.fix-legend div { display: grid; grid-template-columns: 25px minmax(0, 1fr); gap: 12px; margin-bottom: 14px; }
+.fix-legend div:last-child { margin-bottom: 0; }
+.fix-legend b { color: #324860; font-weight: 700; }
+.fix-legend i { display: block; width: 25px; height: 10px; margin-top: 7px; }
+.sw-gap { background: repeating-linear-gradient(45deg, #8192a466 0 3px, transparent 3px 7px); border-top: 1px dashed #8192a4; border-bottom: 1px dashed #8192a4; }
+.sw-fix { background: #b46924; }
+.fix-legend .sw-fix[style] { background: repeating-linear-gradient(90deg, #b46924 0 3px, transparent 3px 7px) !important; }
+.costbar { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border: 1px solid #c3d6e6; border-radius: 6px; overflow: hidden; margin-top: 17px; }
+.cs { min-width: 0; display: grid; place-items: center; padding: 14px 8px; border-right: 1px solid #c3d6e6; background: #eaf2f8; color: #245575; text-align: center; font-size: 12px; line-height: 1.6; }
+.cs:nth-child(even) { background: #eaf3ed; color: #286445; }
+.cs:last-child { border-right: 0; }
+.cost-note { color: var(--muted); font-size: 12px; line-height: 1.9; margin-top: 10px; }
+.priceaxis { position: relative; height: 119px; margin-top: 13px; }
+.axis-line { position: absolute; left: 0; right: 0; top: 45px; border-top: 1px solid #8192a4; }
+.axis-band { position: absolute; top: 31px; height: 28px; left: 27%; width: 46%; border: 1px solid #c4dece; border-radius: 5px; background: #eaf3ed; display: grid; place-items: center; }
+.axis-band span { color: #286445; font-size: 12px; font-weight: 700; padding: 0 8px; white-space: nowrap; }
+.axis-tick { position: absolute; top: 24px; height: 43px; border-left: 1px dashed #8192a4; }
+.axis-tick.t1 { left: 27%; }
+.axis-tick.t2 { left: 73%; }
+.axis-cap { position: absolute; top: 77px; width: 46%; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.axis-cap.c1 { left: 27%; transform: translateX(-50%); text-align: center; }
+.axis-cap.c2 { left: 73%; right: auto; transform: translateX(-50%); text-align: center; }
+.cert-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin-top: 19px; }
+.cert { min-width: 0; padding: 17px 16px; border: 1px solid #c3d6e6; border-radius: 7px; background: #eaf2f8; }
+.cert:nth-child(4), .cert:nth-child(5) { border-color: #e6cfb5; background: #fbf1e5; }
+.cert:nth-child(6), .cert:nth-child(7) { border-color: #c4dece; background: #eaf3ed; }
+.cert-id { color: #596d81; font: 11px var(--mono); }
+.cert b { display: block; margin: 7px 0 8px; color: #324860; font-size: 16px; font-weight: 700; line-height: 1.5; }
+.cert p { color: var(--muted); font-size: 12px; line-height: 1.85; }
+.conclusion { margin-top: 21px; padding: 23px; border-radius: var(--radius); background: linear-gradient(110deg, #1a3a5c, #2a5a8c); color: #e0eaf6; }
+.conclusion h3 { color: var(--gold); font-size: 23px; font-weight: 700; line-height: 1.6; margin-bottom: 17px; }
+.results { display: grid; grid-template-columns: 1fr; }
+.results p { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 13px; padding: 12px 0; border-top: 1px solid rgb(255 255 255 / 22%); color: #e0e7f1; font-size: 13px; line-height: 1.9; }
+.results s { color: var(--gold); font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.note { margin-top: 19px; padding: 18px 20px; border: 1px solid #e4d0a8; border-radius: 7px; background: #fcf4e6; color: #675942; font-size: 12px; line-height: 1.95; }
+.note b { color: #72521b; font-weight: 700; }
+.titleblock { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 21px; border: 1px solid var(--hair); border-radius: 7px; overflow: hidden; background: #fffdf9; }
+.tb-cell { padding: 13px 15px; border-right: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+.tb-cell:nth-child(3n) { border-right: 0; }
+.tb-cell:nth-child(n+4) { border-bottom: 0; }
+.tb-l { display: block; color: var(--muted); font-size: 10px; margin-bottom: 5px; }
+.tb-v { display: block; color: var(--ink); font-size: 13px; line-height: 1.7; }
+.mono { font-family: var(--mono); font-size: 11px; }
+@media (max-width: 1050px) {
+  .hero { padding: 25px 27px; }
+  .hero-side { grid-template-columns: minmax(0, 1fr) 100px; gap: 16px; }
+  .brief { gap: 10px; }
+  .brief li { padding: 11px; }
+  .seal { width: 100px; }
+  .seal u { font-size: 20px; }
+  .gate { padding: 15px 13px; }
+  .layer { padding: 20px; }
+  .layer-body h4 { font-size: 19px; }
+}
+@media (max-width: 900px) {
+  .sheet { padding: 18px 16px 24px; }
+  .hero-side { grid-template-columns: minmax(0, 1fr) 105px; }
+  .brief { grid-template-columns: 1fr; }
+  .brief li { padding: 11px 13px; }
+  .layers { grid-template-columns: 1fr; gap: 10px; }
+  .gates { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .alloc { grid-template-columns: 1fr; }
+  .fixfig { grid-template-columns: 1fr; gap: 17px; }
+  .fixfig svg { max-width: 320px; margin: 0 auto; }
+  .cert-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .sheet { padding: 12px 10px 20px; }
+  .rail { font-size: 10px; margin-bottom: 7px; }
+  .topline { font-size: 11px; }
+  .hero { padding: 23px 17px 20px; }
+  .hero h1 { font-size: 28px; letter-spacing: .02em; }
+  .hero h2 { font-size: 14px; letter-spacing: .02em; }
+  .hero-lead { font-size: 13px; margin-top: 18px; }
+  .hero-side { grid-template-columns: 1fr; gap: 15px; }
+  .brief li { font-size: 12px; }
+  .seal { justify-self: end; width: 98px; min-height: 90px; }
+  .plate { margin-top: 20px; }
+  .plate-title { font-size: 18px; }
+  .plate-kicker { font-size: 11px; }
+  .plate-body { padding: 16px; }
+  .neq-row { grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); padding: 15px 12px; gap: 3px; }
+  .neq-k { font-size: 16px; }
+  .neq-k small { font-size: 11px; }
+  .neq-mark { font-size: 27px; }
+  .neq-note { font-size: 12px; line-height: 1.9; }
+  .lanes { grid-template-columns: 1fr; gap: 10px; }
+  .lane { padding: 17px; }
+  .lane h3 { font-size: 18px; }
+  .gates { gap: 10px; }
+  .gate { padding: 14px 11px; }
+  .gate h4 { font-size: 16px; }
+  .gate p { font-size: 11px; }
+  .gate-mark { font-size: 9px; padding: 2px 5px; }
+  .strip { grid-template-columns: 1fr; gap: 6px; padding: 14px; }
+  .strip p { font-size: 12px; }
+  .layer { padding: 19px; }
+  .layer-body h4 { font-size: 19px; }
+  .layer-body p { font-size: 12px; }
+  .alloc-card { padding: 17px; }
+  .alloc-card p { font-size: 12px; }
+  .formula { font-size: 16px; padding: 10px; }
+  .fix-legend { font-size: 12px; }
+  .costbar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cs { padding: 11px 6px; font-size: 11px; }
+  .cs:nth-child(-n+3) { border-bottom: 1px solid #c3d6e6; }
+  .cs:nth-child(3) { border-right: 0; }
+  .axis-cap { font-size: 11px; }
+  .cert-grid { gap: 10px; }
+  .cert { padding: 14px 12px; }
+  .cert b { font-size: 14px; }
+  .cert p { font-size: 11px; }
+  .conclusion { padding: 19px 17px; }
+  .conclusion h3 { font-size: 20px; }
+  .results p { font-size: 12px; gap: 10px; }
+  .note { padding: 16px; }
+  .titleblock { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tb-cell { padding: 12px; }
+  .tb-cell:nth-child(3n) { border-right: 1px solid var(--hair); }
+  .tb-cell:nth-child(2n) { border-right: 0; }
+  .tb-cell:nth-child(4) { border-bottom: 1px solid var(--hair); }
+  .tb-v { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@page { size: A3 portrait; margin: 12mm; }
+@media print {
+  body { background: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .sheet { max-width: none; padding: 0; }
+  .hero { box-shadow: none; }
+  .neq-row, .lane, .gate, .strip, .layer, .alloc-card, .fixfig, .cert, .conclusion, .note, .titleblock { break-inside: avoid; }
+  .plate-head { break-after: avoid; }
+  .plate { margin-top: 6mm; }
+}
+</style>
+</head>
+<body>
+<main class="sheet">
+  <div class="frame"></div>
+  <div class="rail">逐项核验 证书齐备 联合可行</div>
+
+  <div class="inner">
+    <div class="topline">
+      <span>制度验收图纸</span>
+      <span>通俗综述　全篇展开</span>
+    </div>
+
+    <header class="hero">
+      <h1>可验证<br>自动化治理</h1>
+      <h2>一套可验算的 AI 与劳动制度框架</h2>
+      <p class="hero-lead">这份研究用形式化规则与可核对的证书，回答一个被反复争论的问题：给高能力自动化套上用途管制、守住劳动者的收入、向公众提供公平的技术服务、维持服务市场可持续运行，这<strong>四件事能否同时成立</strong>。结论是可以，前提是每一项都单独验收、最后合账验算。</p>
+
+      <div class="hero-side">
+        <ul class="brief">
+          <li><i></i><span><b>每个结论配一份证书。</b>规则可定义、结论可证明、证据可核对，空口保证不算通过。</span></li>
+          <li><i></i><span><b>形式结论与经验条件分开标注。</b>数学上相容，并不等于现实里已经达标。</span></li>
+          <li><i></i><span><b>所有模块共用同一套人、钱、时间。</b>各自可行只是上半场，合账后才算数。</span></li>
+        </ul>
+        <div class="seal" aria-label="联合验收章">
+          <s>联合验收</s>
+          <u>条件齐备</u>
+          <em>逻辑相容</em>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== 一 ===== -->
+    <section class="plate">
+      <div class="plate-head">
+        <span class="plate-num">一</span>
+        <div>
+          <h2 class="plate-title">先分清四件事，不混为一谈</h2>
+          <span class="plate-kicker">研究起点：把常被搅在一起的概念切开，各自验收，互不替代</span>
+        </div>
+      </div>
+
+      <div class="plate-body">
+        <div class="neq-row">
+          <div class="neq-k">技术能做到<small>程序正确、效果达标</small></div>
+          <div class="neq-mark">≠</div>
+          <div class="neq-k">允许使用<small>能否部署、用来干什么</small></div>
+          <div class="neq-note">程序跑得对，只说明技术过关。能不能部署、用在什么用途上，是一道<b>独立的用途许可</b>，要另行审批。</div>
+        </div>
+
+        <div class="neq-row">
+          <div class="neq-k">谁开发的<small>来源依赖</small></div>
+          <div class="neq-mark">≠</div>
+          <div class="neq-k">运行离不开谁<small>运行依赖</small></div>
+          <div class="neq-note">程序与安全证明交付之后可以独立部署运行，不必持续连着开发方的服务器、交持续授权费。高保障系统<b>逻辑上可以不依赖商业公司的持续经营</b>，也不用靠无限扩张市场养活。</div>
+        </div>
+
+        <div class="neq-row">
+          <div class="neq-k">系统不出错<small>安全底线</small></div>
+          <div class="neq-mark">≠</div>
+          <div class="neq-k">活能干完<small>按时交付</small></div>
+          <div class="neq-note">不闯祸只是底线。要保证任务按时交付、申请按时处理，还要单独证明<b>调度合理、资源充足、不会无限拖延</b>。</div>
+        </div>
+
+        <div class="neq-row">
+          <div class="neq-k">单个模块可行<small>各算各的账</small></div>
+          <div class="neq-mark">≠</div>
+          <div class="neq-k">放在一起可行<small>合账验算</small></div>
+          <div class="neq-note">劳动保护、公共服务、资金结算各自都成立，抢的可能是同一笔钱、同一批人。最后要合在一起验算，<b>确认资源没有被重复承诺</b>，才算真可行。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 二 ===== -->
+    <section class="plate">
+      <div class="plate-head">
+        <span class="plate-num">二</span>
+        <div>
+          <h2 class="plate-title">按用途划线，分阶段验收</h2>
+          <span class="plate-kicker">技术成熟本身不构成放行理由，用途等级决定准入规则</span>
+        </div>
+      </div>
+
+      <div class="plate-body">
+        <div class="lanes">
+          <div class="lane">
+            <span class="lane-tag">放行</span>
+            <h3>高保障用途</h3>
+            <p>基础设施运维、公共服务、基础科研这类对社会有利、风险可控的方向。验证通过即可部署，技术服务的是真实需求。</p>
+          </div>
+          <div class="lane hatch">
+            <span class="lane-tag">严管</span>
+            <h3>受限普通用途</h3>
+            <p>单纯替代普通岗位降本的商业用途，严格准入。改名、换包装都绕不过去，制度只看实际作用，不看服务名称。</p>
+          </div>
+        </div>
+
+        <div class="gates">
+          <div class="gate">
+            <span class="gate-id">关 01</span>
+            <h4>构造成熟</h4>
+            <p>功能与安全性能明确，关键性质由独立第三方验证通过。</p>
+            <span class="gate-mark">第三方验证</span>
+          </div>
+          <div class="gate">
+            <span class="gate-id">关 02</span>
+            <h4>运行成熟</h4>
+            <p>实际环境里故障率、响应速度、成本达标，异常时有已认证的安全回退。</p>
+            <span class="gate-mark">含回退方案</span>
+          </div>
+          <div class="gate">
+            <span class="gate-id">关 03</span>
+            <h4>更新成熟</h4>
+            <p>版本升级不作废旧的合法任务，也不消灭已经生效的合同权利。</p>
+            <span class="gate-mark">权利保留</span>
+          </div>
+          <div class="gate">
+            <span class="gate-id">关 04</span>
+            <h4>财务独立</h4>
+            <p>研发、运行、核验、治理的全部开销有稳定合规的来源，不靠替代劳动赚快钱来补贴。</p>
+            <span class="gate-mark">逐期不断供</span>
+          </div>
+        </div>
+
+        <div class="strip">
+          <span class="strip-tag">跨境部署</span>
+          <p>一国的认证不能直接拿到另一国用。<b>只有双方约定好共同的任务范围、责任划分与权利标准</b>，互相认可执行结果才成立。责任结构可以参考核安全领域的经验：持证主体负首要责任、独立监管、全生命周期评估。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 三 ===== -->
+    <section class="plate">
+      <div class="plate-head">
+        <span class="plate-num">三</span>
+        <div>
+          <h2 class="plate-title">三层防护，不搞一刀切</h2>
+          <span class="plate-kicker">关于 AI 与就业：既不放任替代，也不全面禁止，逐层核验</span>
+        </div>
+      </div>
+
+      <div class="plate-body">
+        <div class="layers">
+          <div class="layer">
+            <div class="layer-label">第一层</div>
+            <div class="layer-body">
+              <h4>管住违规替代</h4>
+              <p>先算清无监管基线里有多少任务本来会被替代，再看制度覆盖多少任务、漏网的违规替代有多少，给出「被避免的直接替代量」下界。这一层是硬约束，用来挡住无序替代。</p>
+            </div>
+          </div>
+          <div class="layer">
+            <div class="layer-label">第二层</div>
+            <div class="layer-body">
+              <h4>保住真实需求</h4>
+              <p>禁止替代本身不产生岗位。要有真实订单、明确的人类参与份额，劳动需求才真实存在；资格条款写得再漂亮，也不会凭空生出订单。</p>
+            </div>
+          </div>
+          <div class="layer">
+            <div class="layer-label">第三层</div>
+            <div class="layer-body">
+              <h4>算清净效应</h4>
+              <p>把替代损失、新增任务、需求回流、价格变化全部加总，才是净就业与净收入。新增的正面效应足够大时，总劳动量可以不降反升。工资涨了也不等于过得好，还要看物价，实际购买力取决于收入与价格两边。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 四 ===== -->
+    <section class="plate">
+      <div class="plate-head">
+        <span class="plate-num">四</span>
+        <div>
+          <h2 class="plate-title">资格与贡献脱钩，按需分配</h2>
+          <span class="plate-kicker">公共探索服务：面向公众的 AI 公共资源，如科研辅助、公共工具、普惠技术服务</span>
+        </div>
+      </div>
+
+      <div class="plate-body">
+        <div class="strip" style="margin-top:0">
+          <span class="strip-tag">核心规则</span>
+          <p>服务资格与劳动贡献、个人财富<b>脱钩</b>。只要满足身份与安全要求，就有申请资格；收入低、劳动评分少都不构成排除理由。光让接口不读财富还不够，身份核验、付费门槛、排队、审批这一整套都要核，隐患往往藏在流程里。</p>
+        </div>
+
+        <div class="alloc">
+          <div class="alloc-card">
+            <h4>可拆分的服务</h4>
+            <p>计算时长、调用次数这类，按所有人的真实需求等比例分配，需求多的多拿、需求少的少拿。</p>
+            <div class="formula">α = min(1,&nbsp;K/N,&nbsp;B/(pN))</div>
+            <p>统一缩放系数由容量、预算与需求总量决定，同需求同配额，<br>人人拿到正份额。</p>
+          </div>
+          <div class="alloc-card">
+            <h4>不可拆分的服务</h4>
+            <p>培训名额、专项权限这类，同资格同需求的参与者，中签概率<b>相等</b>。</p>
+            <div class="chance"><b>Pᵢ&nbsp;=&nbsp;Pⱼ</b><span>同资格　同需求　中签概率相等</span></div>
+            <p>拿到机会与实际到手分开算，抽签只是入口，交付另行结算。</p>
+          </div>
+        </div>
+
+        <div class="strip">
+          <span class="strip-tag">申诉机制</span>
+          <p>申请被拒可以申请复核，<b>复核费用不由申请人垫付</b>，保证普通人承担得起规则救济的成本。复核只纠正错误，不收回当事人已经拿到的合法权利。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 五 ===== -->
+    <section class="plate">
+      <div class="plate-head">
+        <span class="plate-num">五</span>
+        <div>
+          <h2 class="plate-title">账本能补，循环不断</h2>
+          <span class="plate-kicker">冒领、错发、侵占收益之后，制度能不能自己修好</span>
+        </div>
+      </div>
+
+      <div class="plate-body">
+        <div class="fixfig">
+          <svg viewBox="0 0 320 230" role="img" aria-label="参与循环中缺失的一段由新增追回操作补上">
+            <!-- 三段现存边 -->
+            <path d="M160,38 A72,72 0 0 1 232,110" fill="none" stroke="#16242E" stroke-width="2.5"/>
+            <path d="M232,110 A72,72 0 0 1 160,182" fill="none" stroke="#16242E" stroke-width="2.5"/>
+            <path d="M88,110 A72,72 0 0 1 160,38" fill="none" stroke="#16242E" stroke-width="2.5"/>
+            <!-- 缺失的第四段：缺陷 -->
+            <path d="M160,182 A72,72 0 0 1 88,110" fill="none" stroke="#43555F" stroke-width="1.5" stroke-dasharray="5 5" opacity=".8"/>
+            <!-- 新增的修复操作 -->
+            <path d="M160,182 A72,72 0 0 0 88,110" fill="none" stroke="#A5372A" stroke-width="3"/>
+            <path d="M92,118 l-3,8 l8-1" fill="none" stroke="#A5372A" stroke-width="2"/>
+            <!-- 节点 -->
+            <rect x="153" y="31" width="14" height="14" fill="#E4E6DE" stroke="#16242E" stroke-width="2"/>
+            <rect x="225" y="103" width="14" height="14" fill="#E4E6DE" stroke="#16242E" stroke-width="2"/>
+            <rect x="153" y="175" width="14" height="14" fill="#E4E6DE" stroke="#16242E" stroke-width="2"/>
+            <rect x="81" y="103" width="14" height="14" fill="#E4E6DE" stroke="#16242E" stroke-width="2"/>
+            <!-- 节点标签 -->
+            <text x="160" y="21" text-anchor="middle" font-size="12.5" fill="#16242E" font-family="Noto Sans SC,sans-serif">参与</text>
+            <text x="248" y="114" text-anchor="start" font-size="12.5" fill="#16242E" font-family="Noto Sans SC,sans-serif">履约</text>
+            <text x="160" y="206" text-anchor="middle" font-size="12.5" fill="#16242E" font-family="Noto Sans SC,sans-serif">结算</text>
+            <text x="72" y="114" text-anchor="end" font-size="12.5" fill="#16242E" font-family="Noto Sans SC,sans-serif">再参与</text>
+            <!-- 修复操作标注 -->
+            <text x="112" y="176" text-anchor="end" font-size="11.5" fill="#A5372A" font-family="Noto Sans SC,sans-serif">追回 + 定向补发</text>
+            <text x="112" y="192" text-anchor="end" font-size="10.5" fill="#43555F" font-family="Noto Sans SC,sans-serif">新增一个独立方向</text>
+          </svg>
+          <div class="fix-legend">
+            <div><i class="sw-gap"></i><span><b>缺口就是缺陷本身。</b>只靠常规支付规则，有一部分侵占在结构上补不回来，缺席的那一段会留下永久的不公平。</span></div>
+            <div><i class="sw-fix"></i><span><b>补上一条独立方向。</b>合法追回加上定向补发，明确的侵占就能被纠正；修复方向不能由旧操作拼出来，必须单独新增。</span></div>
+            <div><i class="sw-fix" style="background:repeating-linear-gradient(90deg,#A5372A 0 3px,transparent 3px 7px)"></i><span><b>先追回，再补发。</b>每一步余额都不为负，中间不会出现空账。纠错完成之后钱照发、人照参与，合法参与的结构没有被破坏。</span></div>
+          </div>
+        </div>
+
+        <div class="strip">
+          <span class="strip-tag">结构不变</span>
+          <p>修好错账之后，参与、履约、结算、再参与的循环照旧运转。<b>账本内部多了修复能力，合法循环的结构却保持不变</b>，不会因为纠一次错就把整套制度搞乱。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 六 ===== -->
+    <section class="plate">
+      <div class="plate-head">
+        <span class="plate-num">六</span>
+        <div>
+          <h2 class="plate-title">算全账，治内卷</h2>
+          <span class="plate-kicker">服务市场怎么运行、钱从哪来、企业靠什么赚钱</span>
+        </div>
+      </div>
+
+      <div class="plate-body">
+        <h4 style="font-family:var(--serif);font-weight:600;font-size:clamp(18px,2.4vw,21px)">完整成本</h4>
+        <div class="costbar">
+          <div class="cs">研发</div>
+          <div class="cs">验证</div>
+          <div class="cs">维护</div>
+          <div class="cs">运行</div>
+          <div class="cs">治理</div>
+          <div class="cs">资本正常回报</div>
+        </div>
+        <p class="cost-note">只算电费和服务器，会把成本严重低估。图示为构成项，具体比例取决于服务类型与规模。</p>
+
+        <div class="priceaxis">
+          <div class="axis-line"></div>
+          <div class="axis-band"><span>可行价格区间</span></div>
+          <div class="axis-tick t1"></div>
+          <div class="axis-tick t2"></div>
+          <div class="axis-cap c1">下限：覆盖完整成本</div>
+          <div class="axis-cap c2">上限：真实需求愿付</div>
+        </div>
+        <p class="cost-note" style="margin-top:0">区间是正区间，服务商能覆盖成本并拿到合理利润，买方也不至于承担过高费用。</p>
+
+        <h4 style="font-family:var(--serif);font-weight:600;font-size:clamp(18px,2.4vw,21px);margin-top:34px">无效投入</h4>
+        <p style="font-size:15px;line-height:1.9;color:var(--ink-2);max-width:38em;margin-top:10px">砸钱抢份额、不提升服务质量的那部分支出，消耗真实资源，制造的却是零和结果。治理能识别并删掉它，企业自然转向真服务。前提是删除不改变真实服务、准入与收入归属。</p>
+
+        <div class="strip">
+          <span class="strip-tag">别忘了成本</span>
+          <p>治理本身也要花钱。<b>只有无效投入造成的损失大于治理成本，治理才真正改善福利。</b>把治理当免费午餐，账就会算错。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 七 ===== -->
+    <section class="plate">
+      <div class="plate-head">
+        <span class="plate-num">七</span>
+        <div>
+          <h2 class="plate-title">总定理：联合可行</h2>
+          <span class="plate-kicker">四件事能不能同时做到，取决于八份证书能不能同时交齐</span>
+        </div>
+      </div>
+
+      <div class="plate-body">
+        <p style="font-size:16px;line-height:1.95;max-width:38em">各模块单独成立只是上半场。要合账验算：共用同一套主体、资源、时间与账本，逐项确认资源没有被重复承诺。八份证书齐备，才叫联合可行。</p>
+
+        <div class="cert-grid">
+          <div class="cert"><span class="cert-id">C-01</span><b>成熟条件</b><p>构造、运行、更新、财务四关同时达标</p></div>
+          <div class="cert"><span class="cert-id">C-02</span><b>用途准入覆盖</b><p>所有业务入口都过准入检查，无旁路</p></div>
+          <div class="cert"><span class="cert-id">C-03</span><b>共同任务商</b><p>制度之间可互译，观察量一条不丢</p></div>
+          <div class="cert"><span class="cert-id">C-04</span><b>参与分配账本</b><p>逐人债权可查，保底份额为正</p></div>
+          <div class="cert"><span class="cert-id">C-05</span><b>修复复形</b><p>侵占可追回，补发后余额不为负</p></div>
+          <div class="cert"><span class="cert-id">C-06</span><b>能力扩张</b><p>旧系统不可达的目标，新系统可达</p></div>
+          <div class="cert"><span class="cert-id">C-07</span><b>净劳动效应</b><p>替代、新增、回流全部加总后为正</p></div>
+          <div class="cert"><span class="cert-id">C-08</span><b>资源无重复承诺</b><p>同一笔钱、同一批人，只承诺一次</p></div>
+        </div>
+
+        <div class="conclusion">
+          <h3>八份证书齐备时，<br>可以同时得到下面这些结论</h3>
+          <div class="results">
+            <p><s>其一</s><span>违规替代有上界，净劳动小时不下降，合格参与者拿到保底正的实际到账</span></p>
+            <p><s>其二</s><span>高保障任务的能力严格扩张，旧系统做不到的目标在新系统里可达</span></p>
+            <p><s>其三</s><span>不同制度之间执行轨迹可以互相翻译，权利、准入、结算的判定一条不丢</span></p>
+            <p><s>其四</s><span>侵占缺陷可修复，合法参与循环的结构保持稳定</span></p>
+            <p><s>其五</s><span>有限期限内维持高保障任务，不必依赖普通市场化替代扩张的收入</span></p>
+          </div>
+        </div>
+
+        <div class="note">
+          <b>图纸注记。</b>这是逻辑层面的相容性证明：先证明这条路在数学上走得通，再说明需要满足哪些条件、核心结构长什么样、哪里最容易出问题。现实落地还需要配套法律、真实数据、执行机构与持续的经验校验，仿真与推导都不能替代实测。它的价值在于把「好的治理是不是空想」这个争论，换成了「每一项条件有没有达标」的可核验问题。
+        </div>
+
+        <div class="titleblock">
+          <div class="tb-cell"><span class="tb-l">图名</span><span class="tb-v">可验证自动化治理　通俗综述</span></div>
+          <div class="tb-cell"><span class="tb-l">图号</span><span class="tb-v mono">GOV-AUTO-01</span></div>
+          <div class="tb-cell"><span class="tb-l">版次</span><span class="tb-v">甲　1.0</span></div>
+          <div class="tb-cell"><span class="tb-l">依据</span><span class="tb-v">原文十八章形式化论证</span></div>
+          <div class="tb-cell"><span class="tb-l">校核</span><span class="tb-v">独立验证与形式证书</span></div>
+          <div class="tb-cell"><span class="tb-l">批准</span><span class="tb-v">联合可行性总定理</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>
+<!-- （注：内容由AI生成） -->
