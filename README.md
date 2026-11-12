@@ -124,16 +124,18 @@ Gao, Z. (2026). Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Ite
 
 ### 统一数学结构、计算范式与异构演化治理
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24044862.svg)](https://doi.org/10.5281/zenodo.24044862)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24175031.svg)](https://doi.org/10.5281/zenodo.24175031)
 
-- 统一综述：[TeX 源文稿](docs/G_Framework/tex1/G_Framework_Unified_Synthesis_ZH.tex) · [编译版 PDF](docs/G_Framework/tex1/G_Framework_Unified_Synthesis_ZH.pdf)
-- 异构演化治理：[TeX 源文稿](docs/G_Framework/tex2/G_Framework_Lawspace_Heterogeneous_Governance_ZH.tex) · [编译版 PDF](docs/G_Framework/tex2/G_Framework_Lawspace_Heterogeneous_Governance_ZH.pdf)
-- 来源：[Zenodo 记录 24044862](https://zenodo.org/records/24044862)
-- 引用版本：v1.0。
+- 统一综述（中文原稿）：[TeX 源文稿](docs/G_Framework/tex1/G_Framework_Unified_Synthesis_ZH.tex) · [编译版 PDF](docs/G_Framework/tex1/G_Framework_Unified_Synthesis_ZH.pdf)
+- 统一综述（英文机器译稿）：[TeX 源文稿](docs/G_Framework/tex3/G_Framework_Unified_Synthesis_EN.tex) · [编译版 PDF](docs/G_Framework/tex3/G_Framework_Unified_Synthesis_EN.pdf)
+- 异构演化治理（中文原稿）：[TeX 源文稿](docs/G_Framework/tex2/G_Framework_Lawspace_Heterogeneous_Governance_ZH.tex) · [编译版 PDF](docs/G_Framework/tex2/G_Framework_Lawspace_Heterogeneous_Governance_ZH.pdf)
+- 异构演化治理（英文机器译稿）：[TeX 源文稿](docs/G_Framework/tex4/G_Framework_Lawspace_Heterogeneous_Governance_EN.tex) · [编译版 PDF](docs/G_Framework/tex4/G_Framework_Lawspace_Heterogeneous_Governance_EN.pdf)
+- 来源：[Zenodo 记录 24175031](https://zenodo.org/records/24175031)
+- 引用版本：v1.1。
 
 #### Citation
 
-Gao, Z. (2026). Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis (GaoZheng G-Framework) and the Principal-Bundle-Based Generalized Noncommutative Lie Algebra (GaoZheng G-Algebra) 统一数学结构、计算范式与异构演化治理:任务保持、同伦修复及率—商统一 (Version v1.0). Zenodo. [https://doi.org/10.5281/zenodo.24044862](https://doi.org/10.5281/zenodo.24044862)
+Gao, Z. (2026). Meta-Mathematical Theory based on Pan-Logic Analysis and Pan-Iterative Analysis (GaoZheng G-Framework) and the Principal-Bundle-Based Generalized Noncommutative Lie Algebra (GaoZheng G-Algebra) 统一数学结构、计算范式与异构演化治理:任务保持、同伦修复及率—商统一 (Version v1.1). Zenodo. [https://doi.org/10.5281/zenodo.24175031](https://doi.org/10.5281/zenodo.24175031)
 
 ---
 
